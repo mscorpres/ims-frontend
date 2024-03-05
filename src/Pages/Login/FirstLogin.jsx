@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { useEffect } from "react";
-import { setUser } from "../../Features/loginSlice.js/loginSlice";
+import { setUser } from "../../Features/loginSlice/loginSlice.js";
 import { useState } from "react";
 
 function FirstLogin() {

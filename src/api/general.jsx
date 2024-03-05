@@ -1,0 +1,145 @@
+import { imsAxios } from "../axiosInterceptor";
+import { convertSelectOptions } from "../utils/general";
+
+export const getVendorOptions = async (search) => {
+  console.log("here", search);
+  try {
+    const response = await imsAxios.post("/backend/vendorList", {
+      search,
+    });
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+
+export const getCostCentresOptions = async (search) => {
+  const response = await imsAxios.post("/backend/costCenter", {
+    search,
+  });
+  return response;
+};
+
+export const getUsersOptions = async (search) => {
+  const response = await imsAxios.post("/backend/fetchAllUser", {
+    search,
+  });
+
+  return response;
+};
+
+export const getBillingAddressDetails = async (addressCode) => {
+  const response = await imsAxios.post("/backend/billingAddress", {
+    billing_code: addressCode,
+  });
+
+  return response;
+};
+export const getBillingAddressOptions = async () => {
+  const response = await imsAxios.post("/backend/billingAddressList", {
+    search: "",
+  });
+
+  return response;
+};
+
+export const getShippingAddressOptions = async () => {
+  const response = await imsAxios.post("/backend/shipingAddressList", {
+    search: "",
+  });
+
+  return response;
+};
+
+export const getClientShippingOptions = async (clientCod) => {
+  const response = await imsAxios.post("/backend/shipingAddressList", {
+    search: "",
+  });
+
+  return response;
+};
+
+export const getProjectOptions = async (search) => {
+  const response = await imsAxios.post("/backend/poProjectName", {
+    search,
+  });
+
+  let arr = [];
+  if (response.success) arr = convertSelectOptions(response.data);
+  if (response.data.length) {
+    arr = convertSelectOptions(response.data);
+  }
+  response.data = arr;
+  return response;
+};
+
+export const getProjectDetails = async (projectId) => {
+  const response = await imsAxios.post("/backend/projectDescription", {
+    project_name: projectId,
+  });
+  return response;
+};
+
+export const getComponentOptions = async (search) => {
+  const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
+    search,
+  });
+  return response;
+};
+export const updateAlternatePartCode = async (arr, fetchPartCode) => {
+  const response = await imsAxios.post("/component/update_alt_part_no", {
+    componentKey: fetchPartCode,
+    alt_part_key: arr,
+  });
+  return response;
+};
+export const fetchLocations = async (search) => {
+  const response = await imsAxios.post("/backend/fetchLocation", {
+    searchTerm: search,
+  });
+  return response;
+};
+export const getProductsOptions = async (search, sku) => {
+  let url;
+  if (sku) {
+    url = "/backend/fetchProduct";
+  } else {
+    url = "/backend/getProductByNameAndNo";
+  }
+
+  const response = await imsAxios.post(url, {
+    search,
+    searchTerm: search,
+  });
+
+  let arr = [];
+  if (response.success) arr = convertSelectOptions(response.data);
+  response.data = arr;
+  return response;
+
+  // if (sku) {
+  //   const response = await imsAxios.post("/backend/fetchProduct", {
+  //     searchTerm: search,
+  //   });
+  //   if (respon) return response;
+  // } else {
+  //   const response = await imsAxios.post("/backend/getProductByNameAndNo", {
+  //     search,
+  //   });
+  //   return response;
+  // }
+};
+///Query  6
+export const getClosingStockForQuery6 = async (search) => {
+  const response = await imsAxios.post(
+    "/closing_stock/save_closing_stock_cif",
+    {
+      date: search,
+    }
+  );
+
+  let arr = [];
+  // if (response.success) arr = convertSelectOptions(response.data);
+  // response.data = arr;
+  return response;
+};

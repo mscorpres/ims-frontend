@@ -232,6 +232,12 @@ import PendingPhysicalStock from "../Pages/Store/PhysicalStock/Pending";
 import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected";
 import EditSalesOrder from "../Pages/Sales/SalesOrder/edit";
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser";
+import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList";
+import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan";
+
+import R32 from "../Pages/Reports/R/R32";
+import Index from "../Pages/Query/ClosingStock/Index";
+
 const Routes = [
   {
     path: "/login",
@@ -433,6 +439,10 @@ const Routes = [
   {
     path: "/q5",
     main: () => <QueryQ5 />,
+  },
+  {
+    path: "/q6",
+    main: () => <Index />,
   },
   // MES QCA
   {
@@ -656,6 +666,12 @@ const Routes = [
     path: "/r31",
 
     main: () => <R31 />,
+  },
+
+  {
+    path: "/r32",
+
+    main: () => <R32 />,
   },
   {
     path: "/reqWithBom",
@@ -1231,6 +1247,14 @@ const Routes = [
   {
     path: "/sales/order/register",
     main: () => <SalesORderRegister />,
+  },
+  {
+    path: "/sales/order/shipments",
+    main: () => <ShipmentsList />,
+  },
+  {
+    path: "/sales/order/challan",
+    main: () => <Challan />,
   },
   //gst reco
   {

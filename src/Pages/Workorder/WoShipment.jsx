@@ -1,22 +1,25 @@
 import { useState, useEffect } from "react";
-import { Col, Input, Row, Space, Button, Spin } from "antd";
+import { Col, Input, Row, Space, Button, Spin, Drawer } from "antd";
 import MySelect from "../../Components/MySelect";
 import MyDatePicker from "../../Components/MyDatePicker";
 import MyDataTable from "../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 // import SelectChallanTypeModal from "./components/WoCreateChallan/SelectChallanTypeModal";
 // import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
-// 
+//
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { DataGrid } from "@mui/x-data-grid";
 import {
+  createWorkOrderReturnChallan,
   createWorkOrderShipmentChallan,
   getClientOptions,
   getWorkOrderAnalysis,
+  getWorkOrderRC,
   getWorkOrderShipment,
+  getdetailsOfReturnChallan,
 } from "./components/api";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import Loading from "../../Components/Loading";
@@ -24,6 +27,7 @@ import { toast } from "react-toastify";
 import { Form, Modal } from "antd/es";
 import { imsAxios } from "../../axiosInterceptor";
 import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
+import CostCenter from "../Master/CostCenter";
 const WoShipment = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [showTypeSelect, setShowTypeSelect] = useState(false);
@@ -36,6 +40,9 @@ const WoShipment = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [cancelRemark, setCancelRemark] = useState("");
   const [editShipment, setEditShipment] = useState("");
+  const [viewRtnChallan, setViewRtnChallan] = useState([]);
+  const [rtData, setRtData] = useState([]);
+  const [challantype, setchallantype] = useState(challanoptions[0].value);
   const [ModalForm] = Form.useForm();
   const showSubmitConfirmationModal = (f) => {
     // submit confirm modal
@@ -62,7 +69,6 @@ const WoShipment = () => {
     });
   };
   const showCreateShipmentModal = (f) => {
-    // submit confirm modal
     Modal.confirm({
       title: "Are you sure you want to create this Challan?",
       icon: <ExclamationCircleOutlined />,
@@ -127,75 +133,108 @@ const WoShipment = () => {
     getRows();
     clearForm();
   };
+  useEffect(() => {
+    if (viewRtnChallan.shipmentId) {
+      getRtnDetails(viewRtnChallan.shipmentId);
+    }
+  }, [viewRtnChallan]);
+
+  const getRtnDetails = async (shipWoid) => {
+    // console.log("shipWoid", shipWoid);
+    let arr = await getdetailsOfReturnChallan(shipWoid);
+    let a = arr.map((r) => {
+      return { ...r };
+    });
+    setRtData(a);
+  };
+  const drawerColumns = [
+    {
+      headerName: "#",
+      field: "id",
+      width: 30,
+    },
+    {
+      headerName: "Part Code",
+      field: "part_code",
+      width: 100,
+    },
+    {
+      headerName: "Part Name",
+      field: "part_name",
+      width: 300,
+    },
+    {
+      headerName: "Price",
+      field: "price",
+      width: 90,
+    },
+    {
+      headerName: "Qty",
+      field: "qty",
+      width: 90,
+    },
+    {
+      headerName: "HSN",
+      field: "hsn",
+      width: 150,
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
+      width: 200,
+    },
+  ];
   const actionColumn = {
     headerName: "",
     field: "actions",
     width: 10,
     type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          setDetailData(row);
-          setShowCreateChallanModal(true);
-          setEditShipment("Shipment");
-        }}
-        label="Edit Shipment"
-      />,
-      // <GridActionsCellItem
-      //   showInMenu
-      //   // disabled={loading}
-      //   onClick={() => {
-      //     setDetailData(row);
-      //     printwoChallan(row);
-      //   }}
-      //   label="Print"
-      // />,
-      // <GridActionsCellItem
-      //   showInMenu
-      //   // disabled={loading}
-      //   onClick={() => {
-      //     setDetailData(row);
-      //     downloadwochallan(row);
-      //   }}
-      //   label="Download"
-      // />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          setDetailData(row);
-          showSubmitConfirmationModal(row);
-        }}
-        label="Cancel Shipment"
-      />,
-    ],
+    getActions: ({ row }) =>
+      challantype === "RM Challan"
+        ? [
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setViewRtnChallan(row);
+              }}
+              label="View Return"
+            />,
+          ]
+        : [
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                setShowCreateChallanModal(true);
+                setEditShipment("Shipment");
+              }}
+              label="Edit Shipment"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              onClick={() => {
+                setDetailData(row);
+                showSubmitConfirmationModal(row);
+              }}
+              label="Cancel Shipment"
+            />,
+          ],
   };
-  // const actionColumn = {
-  //   headerName: "",
-  //   field: "actions",
-  //   width: 10,
-  //   type: "actions",
-  //   getActions: ({ row }) => [
-  //     <GridActionsCellItem
-  //       showInMenu
-  //       // disabled={loading}
-  //       onClick={() => {
-  //         setDetailData(row);
-  //         setShowTypeSelect(true);
-  //       }}
-  //       label="Create Challan"
-  //     />,
-  //   ],
-  // };
 
   const getRows = async () => {
     // setRows(newarray);
     try {
       setLoading("fetch");
       // setLoading("fetch");
-      const arr = await getWorkOrderShipment(wise, searchInput);
+      let arr;
+      if (challantype === "RM Challan") {
+        arr = await getWorkOrderRC(wise, searchInput);
+      } else {
+        arr = await getWorkOrderShipment(wise, searchInput);
+      }
+
       // console.log("arr ->", arr);
       let newarr = arr.filter(
         (row) =>
@@ -216,38 +255,39 @@ const WoShipment = () => {
 
   const createShipmentChallan = async (cancelRemark) => {
     const values = await ModalForm.validateFields();
-    // console.log("rowwo", cancelRemark);
-    // console.log("values", values);
-    // console.log("cancel", cancelRemark);
     let mins = selectedRows.map((row) => rows.filter((r) => r.id == row)[0]);
-    // console.log("mins ", mins);
-    let shipment = mins.map((r) => r.shipmentId);
-    let woTransaction = mins.map((r) => r.woTransaction_Id);
+    if (challantype === "RM Challan") {
+      let payload = {
+        client_id: mins[0].clientCode,
+        client_address_id: mins[0].clientAddId,
+        billing_id: mins[0].billingId,
+        dispatch_id: mins[0].dispatchId,
+        shipment_id: mins.map((r) => r.shipmentId),
+        wo_transaction_id: mins.map((r) => r.woTransaction_Id),
+        remark: values.remark,
+      };
+      const arr = await createWorkOrderReturnChallan(payload);
+      getRows();
+      clearForm();
+    } else {
+      let shipment = mins.map((r) => r.shipmentId);
+      let woTransaction = mins.map((r) => r.woTransaction_Id);
 
-    let payload = {
-      client_id: mins[0].clientCode,
-      client_address_id: mins[0].client_add_id,
-      billing_id: mins[0].billing_id,
-      dispatch_id: mins[0].dispatchId,
-      shipment_id: shipment,
-      wo_transaction_id: woTransaction,
-      remark: values.remark,
-      challan_id: values.challanID,
-    };
-    console.log("payload ", payload);
+      let payload = {
+        client_id: mins[0].clientCode,
+        client_address_id: mins[0].client_add_id,
+        billing_id: mins[0].billing_id,
+        dispatch_id: mins[0].dispatchId,
+        shipment_id: shipment,
+        wo_transaction_id: woTransaction,
+        remark: values.remark,
+        challan_id: values.challanID,
+      };
 
-    // let payload = {
-    //   client_id: "CUS0020",
-    //   client_address_id: "CLI431749782",
-    //   billing_id: "CLI431749782",
-    //   dispatch_id: "CLI986567876",
-    //   shipment_id: ["SHIP/23-24/0002"],
-    //   wo_transaction_id: ["WO/23-24/0005"],
-    // };
-    // return;
-    const arr = await createWorkOrderShipmentChallan(payload);
-    getRows();
-    clearForm();
+      const arr = await createWorkOrderShipmentChallan(payload);
+      getRows();
+      clearForm();
+    }
   };
 
   const handleClientOptions = async (search) => {
@@ -270,6 +310,18 @@ const WoShipment = () => {
   return (
     <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
       {loading === "fetch" && <Loading />}
+      <Drawer
+        title={`${viewRtnChallan?.shipmentId}`}
+        // right
+        placement="right"
+        // centered
+        // confirmLoading={submitLoading}
+        open={viewRtnChallan?.shipmentId}
+        onClose={() => setViewRtnChallan(false)}
+        width={1050}
+      >
+        <MyDataTable columns={drawerColumns} data={rtData} />
+      </Drawer>
       <Col span={24}>
         <Row>
           <Col>
@@ -282,6 +334,15 @@ const WoShipment = () => {
             >
               <div>
                 <Space>
+                  <div style={{ width: 200 }}>
+                    <MySelect
+                      options={challanoptions}
+                      value={challantype}
+                      onChange={(e) => {
+                        setchallantype(e);
+                      }}
+                    />
+                  </div>
                   <div style={{ width: 200 }}>
                     <MySelect
                       onChange={setWise}
@@ -335,9 +396,12 @@ const WoShipment = () => {
       </Col>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
         <MyDataTable
-          // loading={loading === "fetch"}
           data={rows}
-          columns={[actionColumn, ...columns]}
+          columns={
+            challantype === "RM Challan"
+              ? [actionColumn, ...rtnColumns]
+              : [actionColumn, ...columns]
+          }
           isRowSelectable={(params) =>
             params.row.del_challan_status === "NOT CREATED"
           }
@@ -402,7 +466,7 @@ const columns = [
   {
     headerName: "Client",
     field: "client",
-    minWidth: 150,
+    minWidth: 300,
     flex: 1,
   },
   {
@@ -417,7 +481,7 @@ const columns = [
   {
     headerName: "Product",
     field: "wo_sku_name",
-    minWidth: 250,
+    minWidth: 350,
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.wo_sku_name} copy={true} />
@@ -426,7 +490,7 @@ const columns = [
   {
     headerName: "SKU",
     field: "skuCode",
-    width: 250,
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.skuCode} copy={true} />,
   },
   {
@@ -435,5 +499,51 @@ const columns = [
     width: 150,
   },
 ];
+const rtnColumns = [
+  {
+    headerName: "#",
+    field: "id",
+    width: 30,
+  },
+  {
+    headerName: "Date",
+    field: "shipmentDt",
+    width: 150,
+  },
+  {
+    headerName: "Client",
+    field: "client",
+    minWidth: 300,
+    flex: 1,
+  },
+  {
+    headerName: "Transaction Id",
+    field: "woTransaction_Id",
+    minWidth: 150,
+    flex: 1,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.woTransaction_Id} copy={true} />
+    ),
+  },
+  {
+    headerName: "Product",
+    field: "wo_sku_name",
+    minWidth: 350,
+    flex: 1,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.wo_sku_name} copy={true} />
+    ),
+  },
+  {
+    headerName: "SKU",
+    field: "skuCode",
+    width: 150,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.skuCode} copy={true} />,
+  },
+];
 
 export default WoShipment;
+const challanoptions = [
+  { text: "Delivery Challan", value: "Delivery Challan" },
+  { text: "Return Challan", value: "RM Challan" },
+];

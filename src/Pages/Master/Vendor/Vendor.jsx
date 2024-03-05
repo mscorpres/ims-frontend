@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import AddBranch from "./model/AddBranch.jsx";
-import EditBranch from "./model/EditBranch.jsx";
-import ViewModal from "./model/ViewModal.jsx";
-import MyDataTable from "../../../Components/MyDataTable.jsx";
+import AddBranch from "./model/AddBranch";
+import EditBranch from "./model/EditBranch";
+import ViewModal from "./model/ViewModal";
+import MyDataTable from "../../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { v4 } from "uuid";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions.jsx";
 import { Row } from "antd";
-import { downloadCSV } from "../../../Components/exportToCSV.jsx";
-import { imsAxios } from "../../../axiosInterceptor.js";
+import { downloadCSV } from "../../../Components/exportToCSV";
+import { imsAxios } from "../../../axiosInterceptor";
 
 const Vendor = () => {
   const [allVendor, setAllVender] = useState([]);

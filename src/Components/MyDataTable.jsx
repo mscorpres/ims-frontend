@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import LinearProgress from "@mui/material/LinearProgress";
+
 import {
   DataGrid,
   GridToolbarContainer,

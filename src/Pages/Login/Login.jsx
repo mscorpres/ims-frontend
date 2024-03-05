@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setSettings, setUser } from "../../Features/loginSlice.js/loginSlice";
+// import {
+//   loginAuth,
+//   setSettings,
+//   setUser,
+// } from "../../Features/loginSlice/loginSlice.js";
 import {
   Button,
   Card,
@@ -16,6 +20,7 @@ import {
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi";
+import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
 
 const Login = () => {
   document.title = "IMS Login";

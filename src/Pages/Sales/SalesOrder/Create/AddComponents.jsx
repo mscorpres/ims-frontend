@@ -41,6 +41,7 @@ export default function AddComponents({
   iscomponents,
   selectLoading,
   confirmSubmit,
+  submitLoading,
   setConfirmSubmit,
 }) {
   const [currencies, setCurrencies] = useState([]);
@@ -540,7 +541,7 @@ export default function AddComponents({
       field: "add",
       sortable: false,
       renderCell: ({ row }) =>
-        row.index >= 2 && (
+        rowCount.length > 1 && (
           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
         ),
       // sortable: false,
@@ -686,21 +687,10 @@ export default function AddComponents({
       <Modal
         title="Confirm Submit!"
         open={confirmSubmit}
+        okText="Create"
+        confirmLoading={submitLoading}
+        onOk={() => submitHandler(rowCount)}
         onCancel={() => setConfirmSubmit(false)}
-        footer={[
-          <Button key="back" onClick={() => setConfirmSubmit(false)}>
-            No
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={() => {
-              submitHandler(rowCount);
-            }}
-          >
-            Yes
-          </Button>,
-        ]}
       >
         <p>
           Are you sure to Submit details of all components of this Sales Order?
@@ -888,7 +878,7 @@ export default function AddComponents({
         resetFunction={() => setConfirmReset(true)}
         nextLabel="Submit"
         hideHeaderMenu
-        loading={selectLoading}
+        loading={submitLoading}
         backFunction={() => setActiveTab("1")}
         submitFunction={() => setConfirmSubmit(true)}
       />

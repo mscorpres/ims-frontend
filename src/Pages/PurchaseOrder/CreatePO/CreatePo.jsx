@@ -367,7 +367,6 @@ export default function CreatePo() {
   const getVendors = async (search) => {
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
-
     if (response.success) {
       arr = convertSelectOptions(response.data);
     }

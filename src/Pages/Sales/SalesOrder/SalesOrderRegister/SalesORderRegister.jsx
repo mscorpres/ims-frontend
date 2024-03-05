@@ -28,6 +28,7 @@ function SalesORderRegister() {
   const [wise, setWise] = useState("DATE");
   const [searchTerm, setSearchTerm] = useState("");
   const [cancelRowSelected, setCancelRowSelected] = useState([]);
+  const [openShipmentList, setOpenShipmentList] = useState("false");
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const navigate = useNavigate();
@@ -237,6 +238,9 @@ function SalesORderRegister() {
     { text: "Date Wise", value: "DATE" },
     { text: "SO(s) Wise", value: "SONO" },
   ];
+  const getShipmentList = () => {
+    navigate("/sales/order/shipments");
+  };
   useEffect(() => {
     setSearchTerm("");
   }, [wise]);
@@ -289,16 +293,10 @@ function SalesORderRegister() {
           </Form>
         </>
       </Modal>
-      <div style={{ height: "90%" }}>
-        <Row
-          justify="space-between"
-          style={{ padding: "10px 10px", paddingBottom: 5 }}
-        >
+      <div style={{ height: "90%", padding: 5 }}>
+        <Row justify="space-between" style={{ marginBottom: 5 }}>
           <Col span={24}>
-            <Row
-              justify="space-between"
-              style={{ padding: "0px 10px", paddingBottom: 5 }}
-            >
+            <Row justify="space-between" style={{}}>
               <Col>
                 <Space>
                   <div style={{ width: 250 }}>
@@ -320,7 +318,8 @@ function SalesORderRegister() {
                       />
                     )}
                   </Col>
-                  <Space>
+                  {/* <Space> */}
+                  <div>
                     <Button
                       disabled={!setSearchTerm}
                       type="primary"
@@ -329,7 +328,7 @@ function SalesORderRegister() {
                     >
                       Search
                     </Button>
-                  </Space>
+                  </div>
                 </Space>
               </Col>
             </Row>
@@ -347,7 +346,7 @@ function SalesORderRegister() {
           onClose={() => setComponentList(false)}
           open={componentList}
           width="100vw"
-          bodyStyle={{ overflow: "hidden", padding: 0 }}
+          bodyStyle={{ overflow: "hidden" }}
           className="message-modal"
           // closable={false}
           destroyOnClose={true}
@@ -380,7 +379,7 @@ function SalesORderRegister() {
           hide={() => setShowShipmentDrawer(null)}
         />
         {/* <Row style={{ padding: 5, paddingTop: 0 }}></Row> */}
-        <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
+        <div style={{ height: "100%" }}>
           <MyDataTable
             loading={loading("fetch") || loading("print")}
             columns={[actionColumn, ...columns]}

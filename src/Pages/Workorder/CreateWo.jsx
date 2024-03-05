@@ -22,6 +22,9 @@ import AddClientModal from "./components/createworkorder/AddClientModal";
 import CreateCostModal from "../PurchaseOrder/CreatePO/CreateCostModal";
 import AddProjectModal from "../PurchaseOrder/CreatePO/AddProjectModal";
 import Loading from "../../Components/Loading";
+import useApi from "../../hooks/useApi";
+import { convertSelectOptions } from "../../utils/general";
+import { getCostCentresOptions, getProjectOptions } from "../../api/general";
 
 // vendor type options
 
@@ -88,6 +91,8 @@ export default function CreateWO({}) {
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [clientcode, setClientCode] = useState("");
   const [showAddClientModal, setShowAddClientModal] = useState(false);
+
+  const [projectDesc, setProjectDesc] = useState("");
   const [taxSummary, setTaxSummary] = useState({
     value: "0",
     sgst: "0",
@@ -100,6 +105,7 @@ export default function CreateWO({}) {
   const [clientData, setClientData] = useState([]);
   const [addOptions, setAddOptions] = useState([]);
 
+  const { executeFun, loading: loading1 } = useApi();
   //   get client options -->
   const getClientOptions = async (inputValue) => {
     try {
@@ -315,7 +321,8 @@ export default function CreateWO({}) {
   const submitHandler = async () => {
     //validating form values
     const values = await createWoForm.validateFields();
-    // console.log("values right here", values);
+    console.log("values right here", values);
+    // return;
     let finalObj = {
       client_name: values.clientname.value,
       qty: values.qty,
@@ -338,6 +345,12 @@ export default function CreateWO({}) {
       dispatch_address: values.shipaddress,
       hsncode: values.hsn,
       insert_dt: values.insertDate,
+      cost_center: values.wocostcenter,
+      project: values.project_name,
+      //       cost_center: values.insertDate,
+      //       project: values.project,
+      //       cost_center: “”,
+      // project: “”,
     };
     // console.log("final obj------", finalObj);
     // return;
@@ -356,6 +369,38 @@ export default function CreateWO({}) {
         toast.error(data.message.msg);
       }
     }
+  };
+
+  const handleFetchProjectOptions = async (search) => {
+    const response = await executeFun(
+      () => getProjectOptions(search),
+      "select"
+    );
+    setAsyncOptions(response.data);
+  };
+  const handleProjectChange = async (value) => {
+    // setPageLoading(true);
+    const response = await imsAxios.post("/backend/projectDescription", {
+      project_name: value,
+    });
+    // setPageLoading(false);
+    const { data } = response;
+    if (data) {
+      if (data.code === 200) {
+        setProjectDesc(data.data.description);
+      } else {
+        toast.error(data.message.msg);
+      }
+    }
+  };
+  const handleFetchCostCenterOptions = async (search) => {
+    const response = await executeFun(
+      () => getCostCentresOptions(search),
+      "select"
+    );
+    let arr = [];
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
   };
   // reset handlerd
   const resetHandler = () => {
@@ -571,7 +616,90 @@ export default function CreateWO({}) {
           </Col>
           <Col span={20}>
             <Row gutter={6}>
-              {/* terms and conditions */}
+              <Col span={5}>
+                <Form.Item
+                  name="wocostcenter"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select a cost center!",
+                    },
+                  ]}
+                  label={
+                    <div
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        width: 350,
+                      }}
+                    >
+                      Cost Center
+                      <span
+                        onClick={() => setShowAddCostModal(true)}
+                        style={{
+                          color: "#1890FF",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Add Cost Center
+                      </span>
+                    </div>
+                  }
+                >
+                  <MyAsyncSelect
+                    selectLoading={loading1("select")}
+                    onBlur={() => setAsyncOptions([])}
+                    loadOptions={handleFetchCostCenterOptions}
+                    optionsState={asyncOptions}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={5}>
+                <Form.Item
+                  name="project_name"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select a cost center!",
+                    },
+                  ]}
+                  label={
+                    <div
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        width: 350,
+                      }}
+                    >
+                      Project ID
+                      <span
+                        onClick={() => setShowAddProjectConfirm(true)}
+                        style={{
+                          color: "#1890FF",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Add Project
+                      </span>
+                    </div>
+                  }
+                >
+                  <MyAsyncSelect
+                    selectLoading={loading1("select")}
+                    onBlur={() => setAsyncOptions([])}
+                    loadOptions={handleFetchProjectOptions}
+                    optionsState={asyncOptions}
+                    onChange={handleProjectChange}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={5}>
+                <Form.Item label="Project Description">
+                  <Input size="default" disabled value={projectDesc} />
+                </Form.Item>
+              </Col>
               <Col span={6}>
                 <Form.Item
                   name="termscondition"

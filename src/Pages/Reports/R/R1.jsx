@@ -5,11 +5,7 @@ import "../../Store/MaterialTransfer/Modal/viewModal.css";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import { Row, Col, Button, Spin } from "antd";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
-import {
-  PlusCircleFilled,
-  ArrowRightOutlined,
-  FilterOutlined,
-} from "@ant-design/icons";
+import { FilterOutlined } from "@ant-design/icons";
 
 import MyDataTable from "../../../Components/MyDataTable";
 

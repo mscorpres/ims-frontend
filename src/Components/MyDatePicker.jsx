@@ -5,13 +5,14 @@ import dayjs from "dayjs";
 import { DatePicker } from "antd";
 const { RangePicker } = DatePicker;
 
-const format = "DD-MM-YYYY";
+// const format = "DD-MM-YYYY";
 
 export default function MyDatePicker({
   setDateRange,
   size,
   spacedFormat,
   startingDate,
+  format = "DD-MM-YYYY",
 }) {
   const [searchDateRange, setSearchDateRange] = useState([
     startingDate ? dayjs() : dayjs().subtract(89, "d"),

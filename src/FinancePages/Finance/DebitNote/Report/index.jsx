@@ -19,6 +19,7 @@ import printFunction, {
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../../hooks/useApi";
 import { convertSelectOptions } from "../../../../utils/general";
+import { getVendorOptions } from "../../../../api/general";
 
 function DebitNoteReport() {
   const [wise, setWise] = useState("effectivewise");
@@ -58,7 +59,7 @@ function DebitNoteReport() {
       }
     }
   };
-  const getVendorOptions = async (search) => {
+  const getVendorOption = async (search) => {
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
     if (response.success) {
@@ -306,7 +307,7 @@ function DebitNoteReport() {
     setSearchTerm("");
   }, [wise]);
   useEffect(() => {
-    getVendorOptions(searchTerm);
+    getVendorOption(searchTerm);
   }, [searchTerm]);
   return (
     <div style={{ height: "90%", padding: 5, paddingTop: 0 }}>
@@ -325,7 +326,7 @@ function DebitNoteReport() {
             {wise === "vendorwise" && (
               <MyAsyncSelect
                 value={searchTerm}
-                loadOptions={getVendorOptions}
+                loadOptions={getVendorOption}
                 onChange={setSearchTerm}
                 optionsState={asyncOptions}
                 loading={loading1("select")}

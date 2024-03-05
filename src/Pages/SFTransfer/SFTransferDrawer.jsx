@@ -40,7 +40,7 @@ function SFTransferDrawer({
     // },
   ]);
 
-  const { executeFun, loading1 } = useApi();
+  const { executeFun, loading: loading1 } = useApi();
   const inputHandler = async (name, id, value) => {
     console.log(name, id, value);
     if (name == "trans_id") {

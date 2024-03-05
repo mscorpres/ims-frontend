@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Store } from "./Features/Store";
 import "./index.css";
-// import { unregister as unregisterServiceWorker } from "./serviceWorkerRegistration";
+import { unregister as unregisterServiceWorker } from "./serviceWorkerRegistration";
 import { ConfigProvider } from "antd";
 
 const theme = {
@@ -64,7 +64,7 @@ const theme = {
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-// unregisterServiceWorker();
+unregisterServiceWorker();
 root.render(
   <ConfigProvider theme={theme}>
     <Provider store={Store}>

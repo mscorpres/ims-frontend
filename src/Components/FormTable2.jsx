@@ -17,6 +17,7 @@ const FormTable2 = ({
   addableRow,
   newRow,
   reverse,
+  rules,
 }) => {
   const formValues = Form.useWatch();
   const addRow = (newRow) => {
@@ -113,6 +114,7 @@ const FormTable2 = ({
                 formValues={formValues}
                 nonListWatchKeys={nonListWatchKeys}
                 componentRequiredRef={componentRequiredRef}
+                rules={rules}
               />
             ))
           }
@@ -144,6 +146,7 @@ const SingleRow = memo(
     calculation,
     nonListWatchKeys,
     componentRequiredRef,
+    rules,
   }) => {
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
@@ -273,17 +276,17 @@ const tableColumnStyle = {
   borderRadius: 5,
 };
 
-const rules = {
-  hsn: [
-    {
-      required: true,
-      message: "Please enter a hsn code!",
-    },
-  ],
-  location: [
-    {
-      required: true,
-      message: "Please select a Location!",
-    },
-  ],
-};
+// const rules = {
+//   hsn: [
+//     {
+//       required: true,
+//       message: "Please enter a hsn code!",
+//     },
+//   ],
+//   location: [
+//     {
+//       required: true,
+//       message: "Please select a Location!",
+//     },
+//   ],
+// };

@@ -349,12 +349,14 @@ const SalesOrderForm = () => {
         setActiveTab("1");
         form.resetFields();
       }
+      setConfirmSubmit(false);
     } else {
       const response = await executeFun(() => createOrder(payload), "submit");
       if (response.success) {
         setActiveTab("1");
         form.resetFields();
         setSelectLoading(false);
+
         setConfirmSubmit(false);
       }
       setConfirmSubmit(false);
@@ -931,6 +933,7 @@ const SalesOrderForm = () => {
                     resetFunction={resetFunction}
                     submitHandler={validateSales}
                     //  setSelectLoading(false);
+                    submitLoading={loading("submit")}
                     selectLoading={selectLoading}
                     // submitLoading={submitLoading}
                     totalValues={totalValues}

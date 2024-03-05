@@ -17,7 +17,7 @@ import { SendOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import socket from "../../Components/socket";
 import { toast } from "react-toastify";
-import { removeNotification } from "../../Features/loginSlice.js/loginSlice";
+import { removeNotification } from "../../Features/loginSlice/loginSlice.js";
 import { imsAxios } from "../../axiosInterceptor";
 
 export default function Messenger() {

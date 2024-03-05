@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-x;
 import "../../Modal/modal.css";
 import { Button, Row, Col, Input, Drawer, Skeleton, Form, Space } from "antd";
 import { toast } from "react-toastify";
@@ -29,7 +28,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
       gst: "",
     },
   });
-  //
+// 
   const inputHandler = (name, value) => {
     if (name === "vname" || name === "pan" || name === "cin") {
       setAddBilling((addBilling) => {

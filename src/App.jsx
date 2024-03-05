@@ -6,8 +6,8 @@ import {
   useLocation,
   Link,
 } from "react-router-dom";
-import Sidebar from "./Components/Sidebar.jsx";
-import Rout from "./Routes/Routes.jsx";
+import Sidebar from "./Components/Sidebar";
+import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,14 +20,12 @@ import {
   setCompanyBranch,
   setCurrentLink,
   setSession,
-  setSettings,
-} from "./Features/loginSlice.js/loginSlice.js";
-import UserMenu from "./Components/UserMenu.jsx";
-import Logo from "./Components/Logo.jsx";
+} from "./Features/loginSlice/loginSlice.js";
+import UserMenu from "./Components/UserMenu";
+import Logo from "./Components/Logo";
 import socket from "./Components/socket.js";
-import Notifications from "./Components/Notifications.jsx";
-import MessageModal from "./Components/MessageModal/MessageModal.jsx";
-import { v4 } from "uuid";
+import Notifications from "./Components/Notifications";
+import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
 import Layout, { Content, Header } from "antd/lib/layout/layout";
 import { Badge, Row, Select, Space, Switch, Typography } from "antd";
@@ -50,9 +48,7 @@ import {
   DeploymentUnitOutlined,
   DeliveredProcedureOutlined,
   CheckCircleOutlined,
-  FileDoneOutlined,
   ControlOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import { BsFillHddStackFill } from "react-icons/bs";
 import { ImCart } from "react-icons/im";
@@ -67,14 +63,13 @@ import { BiMoney, BiTransfer } from "react-icons/bi";
 import { FaWarehouse } from "react-icons/fa";
 import { TbReportAnalytics } from "react-icons/tb";
 import { SiPaytm } from "react-icons/si";
-import { imsAxios } from "./axiosInterceptor.js";
-import MyAsyncSelect from "./Components/MyAsyncSelect.jsx";
-import internalLinks from "./Pages/internalLinks.js";
-import TicketsModal from "./Components/TicketsModal/TicketsModal.jsx";
+import InternalNav from "./Components/InternalNav";
+import { imsAxios } from "./axiosInterceptor";
+import MyAsyncSelect from "./Components/MyAsyncSelect";
+import internalLinks from "./Pages/internalLinks";
+import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
-import SettingDrawer from "./Components/SettingDrawer.jsx";
-import InternalNav from "./Components/InternalNav.jsx";
 
 const App = () => {
   const { user, notifications, testPages } = useSelector(
@@ -105,7 +100,6 @@ const App = () => {
   const [searchHis, setSearchHis] = useState("");
   const [hisList, setHisList] = useState([]);
   const [showHisList, setShowHisList] = useState([]);
-  const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
   const notificationsRef = useRef();
   function getItem(label, key, icon, children) {
     return {
@@ -261,33 +255,37 @@ const App = () => {
         getItem(
           <Link to="/tally/vouchers/reference/tdsReport">TDS Report</Link>,
           "reports/tdsReport"
-          // <AiOutlineMinus />
+          // <AiOutlineMinus
+        ),
+        getItem(
+          <Link to="/tally/vouchers/reference/misReport">MIS Report</Link>,
+          "reports/tdsReport"
+          // <AiOutlineMinus />)
         ),
         getItem(
           <Link to="/tally/vouchers/reference/gst/gstReport1">GSTR1</Link>,
           "/gst/gstReport1"
         ),
       ]),
-      getItem(
-        <Link to="/tally/debit-note/create">Debit Note</Link>,
-        "/tally/debit-note/create"
-        // <AiOutlineMinus />
-      ),
-      getItem("GST RECO", "D8", <IoJournalSharp />, [
-        getItem(<Link to="/addbookdetails">Add Book Details</Link>, "D81"),
-        getItem(<Link to="/addgstdetails">Add Gst Details</Link>, "D82"),
-        getItem(<Link to="/viewreconciled">Reconciled Details</Link>, "D83"),
-        getItem(<Link to="/viewsummary">Summary</Link>, "D84"),
-        getItem(<Link to="/viewbookdata">View Book Data</Link>, "D85"),
-        getItem(<Link to="/viewgstdata">View Gst Data</Link>, "D86"),
+      getItem("Others", "D9", <IoJournalSharp />, [
+        getItem(
+          <Link to="/vendorreco">Vendor Reconciliation</Link>
+          // <AiOutlineMinus />
+        ),
+        getItem(
+          <Link to="/tally/debit-note/create">Debit Note</Link>,
+          "/tally/debit-note/create"
+          // <AiOutlineMinus />
+        ),
+        getItem("GST RECO", "D8", <IoJournalSharp />, [
+          getItem(<Link to="/addbookdetails">Add Book Details</Link>, "D81"),
+          getItem(<Link to="/addgstdetails">Add Gst Details</Link>, "D82"),
+          getItem(<Link to="/viewreconciled">Reconciled Details</Link>, "D83"),
+          getItem(<Link to="/viewsummary">Summary</Link>, "D84"),
+          getItem(<Link to="/viewbookdata">View Book Data</Link>, "D85"),
+          getItem(<Link to="/viewgstdata">View Gst Data</Link>, "D86"),
+        ]),
       ]),
-      getItem(
-        <Link to="/vendorreco">Vendor Reconciliation</Link>
-        // <AiOutlineMinus />
-      ),
-      // getItem(
-      //   <Link to="/gst/gstReport1">GST</Link>
-      // ),
     ]),
     getItem("Dashboard", "A", <MdDashboard />, [
       getItem(
@@ -470,11 +468,11 @@ const App = () => {
             "B361"
             // <MdDashboard />
           ),
-          // getItem(
-          //   <Link to="/sf-to-rm">SF To RM</Link>,
-          //   "B362"
-          //   // <MdDashboard />
-          // ),
+          getItem(
+            <Link to="/sf-to-rm">SF To RM</Link>,
+            "B362"
+            // <MdDashboard />
+          ),
           getItem(
             <Link to="/re-to-rej">RM To REJ</Link>,
             "B363"
@@ -517,7 +515,6 @@ const App = () => {
           getItem(<Link to="/woShipment">WO Shipment</Link>, "B74"),
           getItem(<Link to="/woviewchallan">WO View Challan</Link>, "B75"),
           getItem(<Link to="/wocompleted">WO Completed</Link>, "B76"),
-
           getItem(<Link to="/woreport">WO Report</Link>, "B77"),
         ]),
         getItem(
@@ -564,6 +561,8 @@ const App = () => {
             "B411"
             // <AiOutlineMinus />
           ),
+
+          getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "B414"),
           getItem(
             <Link to="/transaction-Out">MIN Issue Register</Link>,
             "B412"
@@ -575,7 +574,7 @@ const App = () => {
             // <AiOutlineMinus />
           ),
           getItem(
-            <Link to="/r1">Reports R1 - R30 </Link>,
+            <Link to="/r1">Reports R1 - R32 </Link>,
 
             "B413"
             // <AiOutlineMinus />
@@ -589,7 +588,7 @@ const App = () => {
       ]),
       getItem("Query", "B5", <MdQueryStats />, [
         getItem(
-          <Link to="/item-all-logs">Q1 - Q5</Link>,
+          <Link to="/item-all-logs">Q1 - Q6</Link>,
           "C51"
           // <AiOutlineMinus />
         ),
@@ -670,7 +669,7 @@ const App = () => {
       ]),
       getItem("Query", "C3", <MdQueryStats />, [
         getItem(
-          <Link to="/item-all-logs">Q1 - Q5</Link>,
+          <Link to="/item-all-logs">Q1 - Q6</Link>,
           "C31"
           // <AiOutlineMinus />
         ),
@@ -692,8 +691,10 @@ const App = () => {
             <Link to="/transaction-Out">MIN Issue Register</Link>,
             "C412"
           ),
+          getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
+
           getItem(
-            <Link to="/r1">Reports R1 - R30</Link>,
+            <Link to="/r1">Reports R1 - R32</Link>,
 
             "C413"
             // <AiOutlineMinus />
@@ -721,17 +722,9 @@ const App = () => {
               "X22"
             ),
           ]),
-          getItem(
-            "Registeration and Certificates",
-            "X3",
-            <DeliveredProcedureOutlined />,
-            [
-              getItem(<Link to="/legal/creater&c">Create R&C</Link>, "X31"),
-              getItem(<Link to="/legal/viewr&c">View R&C</Link>, "X32"),
-            ]
-          ),
         ])
       : null,
+
     //MES
     getItem("MES", "Z", <DeploymentUnitOutlined />, [
       getItem("QA Process", "Z1", <DeliveredProcedureOutlined />, [
@@ -777,19 +770,20 @@ const App = () => {
       ),
     ]),
     getItem(<Link to="/sop">SOP's</Link>, "/sop", <FormOutlined />),
-    getItem("Sales", v4(), <UnorderedListOutlined />, [
-      getItem(<Link to="/sales/order/create">Sales Order</Link>, v4()),
-      getItem(<Link to="/invoice/create">Invoicing</Link>, v4()),
-    ]),
-    ////
     getItem(
-      <Link to="/controlPanel/allPages">Control Panel</Link>,
-      "/controlPanel/allPages",
-      <ControlOutlined />
+      <Link to="/invoice/create">Sales & Distribution</Link>,
+      "/invoice/create",
+      <UnorderedListOutlined />
     ),
+    // user?.type == "developer"
+    //   ? getItem(
+    //       <Link to="/controlPanel/registeredUsers">Control Panel</Link>,
+    //       "/controlPanel/registeredUsers",
+    //       <ControlOutlined />
+    //     )
+    //   : "",
   ];
   const items1 = [
-    getItem(<Link to="/tasks/admin">Tasks</Link>, "C", <FileDoneOutlined />),
     getItem(
       <Link to="#" onClick={() => setShowTickets(true)}>
         Tickets
@@ -808,6 +802,12 @@ const App = () => {
     arr = arr.filter((not) => not.ID != id);
     dispatch(setNotifications(arr));
   };
+  useEffect(() => {
+    if (pathname === "/controlPanel/registeredUsers" && user?.type == "user") {
+      navigate("/");
+    }
+  }, [user?.type]);
+
   const handleFavPages = async (status) => {
     let favs = user.favPages;
 
@@ -839,9 +839,15 @@ const App = () => {
     }
     dispatch(setFavourites(favs));
   };
+  const navToControl = () => {
+    if (user?.type == "user") {
+      navigate("/");
+    } else {
+      navigate("/controlPanel/registeredUsers");
+    }
+  };
   const handleChangePageStatus = (value) => {
     let status = value ? "TEST" : "LIVE";
-    // console.log(value);
     socket.emit("setPageStatus", {
       page: pathname,
       status: status,
@@ -857,10 +863,7 @@ const App = () => {
   const handleSelectSession = (value) => {
     dispatch(setSession(value));
   };
-  // const flatArry = (array) => {
 
-  // }
-  // console.log(internalLinks);
   const getModuleSearchOptions = (search) => {
     let arr = [];
     let modOpt = [];
@@ -869,8 +872,7 @@ const App = () => {
       arr.push(...a);
     });
     arr.map((row) => {
-      let newSearch = search.toLowerCase();
-      if (row.routeName?.toLowerCase().includes(newSearch)) {
+      if (row.routeName?.toLowerCase().includes(search)) {
         let obj = {
           text: row.routeName,
           value: row.routePath,
@@ -921,7 +923,6 @@ const App = () => {
       // getting all notifications
       socket.on("all-notifications", (data) => {
         let arr = data.data;
-        // console.log("allnotifications", arr);
         arr = arr.map((row) => {
           console.log(
             "this one in norification",
@@ -943,8 +944,6 @@ const App = () => {
       });
       // getting new notification
       socket.on("socket_receive_notification", (data) => {
-        console.log("new notifications file recieved");
-        console.log(data);
         if (data.type == "message") {
           let arr = notificationsRef.current.filter(
             (not) => not.conversationId != data.conversationId
@@ -989,7 +988,6 @@ const App = () => {
       });
 
       socket.on("getPageStatus", (data) => {
-        console.log(data);
         setTestToggleLoading(false);
         let pages;
         if (testPages) {
@@ -1006,7 +1004,6 @@ const App = () => {
           };
           if (property.includes("/")) {
             if (data[property] == "TEST") {
-              console.log("open");
               let obj = {
                 url: property,
                 status: data[property],
@@ -1018,24 +1015,17 @@ const App = () => {
             }
           }
         }
-        console.log("recieved status", arr);
         dispatch(setTestPages(arr));
         let pageIsTest;
-        console.log(
-          "found test pages",
-          arr.filter((page) => page.url == pathname)[0]
-        );
         if (arr.filter((page) => page.url == pathname)[0]) {
           pageIsTest = true;
         } else {
           pageIsTest = false;
         }
 
-        console.log("test page status is", pageIsTest);
         setTestPage(pageIsTest);
       });
       socket.on("file-generate-error", (data) => {
-        console.log("some error occured while generating file", data);
         toast.error(data.message);
         let arr = notificationsRef.current;
         if (arr.filter((row) => row.notificationId == data.notificationId)[0]) {
@@ -1058,7 +1048,6 @@ const App = () => {
       });
       socket.on("getting-loading-percentage", (data) => {
         let arr = notificationsRef.current;
-        console.log("percentage => ", data);
         if (arr.filter((row) => row.notificationId == data.notificationId)[0]) {
           arr = arr.map((row) => {
             if (row.notificationId == data.notificationId) {
@@ -1105,13 +1094,12 @@ const App = () => {
       }
     }
     if (user && user.token) {
+      imsAxios.defaults.headers["x-csrf-token"] = user.token;
       socket.emit("fetch_notifications", {
         source: "react",
       });
       // getting new notification
       socket.on("socket_receive_notification", (data) => {
-        console.log("new notifications file recieved");
-        console.log(data);
         if (data.type == "message") {
           let arr = notificationsRef.current.filter(
             (not) => not.conversationId != data.conversationId
@@ -1160,7 +1148,6 @@ const App = () => {
       });
       // event for starting detail
       socket.on("download_start_detail", (data) => {
-        console.log("start details arrived");
         if (data.title && data.details) {
           let arr = notificationsRef.current;
           arr = [data, ...arr];
@@ -1169,7 +1156,6 @@ const App = () => {
       });
 
       socket.on("getPageStatus", (data) => {
-        console.log(data);
         setTestToggleLoading(false);
         let pages;
         if (testPages) {
@@ -1186,7 +1172,6 @@ const App = () => {
           };
           if (property.includes("/")) {
             if (data[property] == "TEST") {
-              console.log("open");
               let obj = {
                 url: property,
                 status: data[property],
@@ -1198,24 +1183,17 @@ const App = () => {
             }
           }
         }
-        console.log("recieved status", arr);
         dispatch(setTestPages(arr));
         let pageIsTest;
-        console.log(
-          "found test pages",
-          arr.filter((page) => page.url == pathname)[0]
-        );
         if (arr.filter((page) => page.url == pathname)[0]) {
           pageIsTest = true;
         } else {
           pageIsTest = false;
         }
 
-        console.log("test page status is", pageIsTest);
         setTestPage(pageIsTest);
       });
       socket.on("file-generate-error", (data) => {
-        console.log("some error occured while generating file", data);
         toast.error(data.message);
         let arr = notificationsRef.current;
         if (arr.filter((row) => row.notificationId == data.notificationId)[0]) {
@@ -1255,10 +1233,8 @@ const App = () => {
   useEffect(() => {
     notificationsRef.current = notifications;
   }, [notifications]);
-
   useEffect(() => {
     if (newNotification?.type) {
-      console.log("new notification arrived");
       if (Notification.permission == "default") {
         Notification.requestPermission(function (permission) {
           if (permission === "default") {
@@ -1298,7 +1274,6 @@ const App = () => {
   }, [showNotifications]);
   useEffect(() => {
     if (testPages) {
-      console.log(pathname);
       let match = testPages?.filter((page) => page.url == pathname)[0];
       if (match) {
         setTestPage(true);
@@ -1329,13 +1304,7 @@ const App = () => {
       navigate(searchModule);
     }
   }, [searchModule]);
-  // useEffect(() => {
-  //   first;
 
-  //   return () => {
-  //     second;
-  //   };
-  // }, [third]);
   const showRecentSearch = () => {
     console.log("obj in fnc");
     let obj = JSON.parse(localStorage.getItem("searchHistory"));
@@ -1471,24 +1440,26 @@ const App = () => {
                   }}
                 >
                   {user?.type && user?.type.toLowerCase() == "developer" && (
-                    <Switch
-                      loading={testToggleLoading}
-                      checked={testPage}
-                      onChange={(value) => handleChangePageStatus(value)}
-                      checkedChildren="Test"
-                      unCheckedChildren="Live"
-                    />
+                    <>
+                      <Switch
+                        loading={testToggleLoading}
+                        checked={testPage}
+                        onChange={(value) => handleChangePageStatus(value)}
+                        checkedChildren="Test"
+                        unCheckedChildren="Live"
+                      />
+
+                      <ControlOutlined
+                        style={{
+                          fontSize: 18,
+                          color: "white",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => navToControl()}
+                      />
+                    </>
                   )}
-                  {/* {
-                    <SettingOutlined
-                      onClick={() => setShowSettingsDrawer(!showSettingsDrawer)}
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  } */}
+
                   {favLoading ? (
                     <LoadingOutlined
                       style={{
@@ -1572,11 +1543,7 @@ const App = () => {
                       />
                     </Badge>
                   </div>
-                  <UserMenu
-                    user={user}
-                    logoutHandler={logoutHandler}
-                    setShowSettings={setShowSettingsDrawer}
-                  />
+                  <UserMenu user={user} logoutHandler={logoutHandler} />
                 </Space>
               </Row>
             </Header>
@@ -1630,10 +1597,6 @@ const App = () => {
                 <MessageModal
                   showMessageDrawer={showMessageDrawer}
                   setShowMessageDrawer={setShowMessageDrawer}
-                />
-                <SettingDrawer
-                  open={showSettingsDrawer}
-                  hide={() => setShowSettingsDrawer(false)}
                 />
                 <Routes>
                   {filteredRoutes.map((route, index) => (

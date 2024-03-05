@@ -7,6 +7,7 @@ const ShipmentInfo = ({
   loading,
   billingOptions,
   shippingOptions,
+  updateShipmentRow,
 }) => {
   return (
     <div>
@@ -50,7 +51,7 @@ const ShipmentInfo = ({
           <MyButton
             onClick={validateHandler}
             variant="submit"
-            text="Create Shipment"
+            text={updateShipmentRow ? "Update Shipment" : "Create Shipment"}
           />
         </Row>
       </Card>

@@ -25,6 +25,7 @@ const ViewModal = ({ showView, setShowView }) => {
       setLoading(false);
     }
   };
+  //////////////////////////////
 
   useEffect(() => {
     if (showView) {
@@ -73,6 +74,12 @@ const columns = [
     width: 150,
     field: "partCode",
     renderCell: ({ row }) => <ToolTipEllipses text={row.partCode} />,
+  },
+  {
+    headerName: "Cat Part Code",
+    width: 150,
+    field: "newPartCode",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.newPartCode} />,
   },
 
   {

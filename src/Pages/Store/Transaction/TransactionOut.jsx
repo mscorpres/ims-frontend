@@ -7,7 +7,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { v4 } from "uuid";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import MyDatePicker from "../../../Components/MyDatePicker";
-import { setNotifications } from "../../../Features/loginSlice.js/loginSlice";
+import { setNotifications } from "../../../Features/loginSlice/loginSlice.js";
 import socket from "../../../Components/socket";
 import {
   downloadCSV,

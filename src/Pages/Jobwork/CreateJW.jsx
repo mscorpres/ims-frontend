@@ -179,7 +179,9 @@ export default function CreateJW({}) {
       "select"
     );
     let arr = [];
-    if (response.success) setAsyncOptions(arr);
+    console.log("this is the response cc", response);
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
   };
 
   // get project options
@@ -783,7 +785,7 @@ export default function CreateJW({}) {
                   ]}
                 >
                   <MyAsyncSelect
-                    selectLoading={loading("select")}
+                    selectLoading={loading1("select")}
                     onBlur={() => setAsyncOptions([])}
                     loadOptions={handleFetchCostCenterOptions}
                     optionsState={asyncOptions}

@@ -8,6 +8,11 @@ import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import MySelect from "../../../../Components/MySelect";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
+import MyButton from "../../../../Components/MyButton";
+import {
+  downloadServiceMaster,
+} from "../../../../api/master/component";
+import useApi from "../../../../hooks/useApi";
 
 function Services() {
   const [loading, setLoading] = useState(false);
@@ -22,6 +27,7 @@ function Services() {
     notes: "",
   });
 
+  const { executeFun, loading: loading1 } = useApi();
   const getServices = async () => {
     setLoading(true);
     const { data } = await imsAxios.get("/component/service");
@@ -109,6 +115,12 @@ function Services() {
       ],
     },
   ];
+  const handleDownloadMaster = async () => {
+    const response = await executeFun(downloadServiceMaster, "download");
+    if (response.success) {
+      window.open(response.data.filePath, "_blank", "noreferrer");
+    }
+  };
   useEffect(() => {
     getUnits();
     getServices();
@@ -198,6 +210,12 @@ function Services() {
                 <Col span={24}>
                   <Row justify="end">
                     <Space>
+                      <MyButton
+                        // loading={loading1("download")}
+                        text="Download Master"
+                        variant="downloadSample"
+                        onClick={handleDownloadMaster}
+                      />
                       <Button size="default" onClick={resetFun}>
                         Reset
                       </Button>

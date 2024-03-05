@@ -21,8 +21,9 @@ const WoCreateChallan = () => {
   const [rows, setRows] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [detaildata, setDetailData] = useState("");
+
+  const [rtnchallan, setRtnChallan] = useState(false);
   const [challanForm] = Form.useForm();
-  //never forget to send some files on dev!!!!
   const actionColumn = {
     headerName: "",
     field: "actions",
@@ -43,7 +44,7 @@ const WoCreateChallan = () => {
 
   const getRows = async () => {
     try {
-      // setLoading("fetch");
+      setLoading("fetch");
       const arr = await getWorkOrderAnalysis(wise, searchInput);
       setRows(arr);
     } catch (error) {
@@ -66,8 +67,9 @@ const WoCreateChallan = () => {
   const close = () => {
     setShowCreateChallanModal(false);
     challanForm.resetFields();
+    setRtnChallan(false);
   };
-// 
+  //
   useEffect(() => {
     if (wise !== wiseOptions[1].value) {
       setSearchInput("");
@@ -146,6 +148,8 @@ const WoCreateChallan = () => {
         data={detaildata}
         close={close}
         challanForm={challanForm}
+        setRtnChallan={setRtnChallan}
+        rtnchallan={rtnchallan}
       />
     </div>
   );

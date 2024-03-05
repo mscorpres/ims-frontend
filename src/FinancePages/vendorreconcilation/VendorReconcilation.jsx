@@ -411,6 +411,7 @@ const Filters = ({
                 setDateRange={(value) => {
                   form.setFieldValue("date", value);
                 }}
+                // format="YYYY-MM-DD"
               />
             </Form.Item>
           </Form>

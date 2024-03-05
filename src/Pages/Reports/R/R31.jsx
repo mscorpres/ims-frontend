@@ -93,7 +93,7 @@ function R31() {
     // { headerName: "id", field: "id", flex: 1 },
     { headerName: "Cat Part Code", field: "cat_part_no", width: 130 },
     { headerName: "Part Code", field: "part_no", width: 130 },
-    { headerName: "Cat Part Name", field: "part_name", width: 350 },
+    { headerName: "Part Name", field: "part_name", width: 350 },
     { headerName: "Create By", field: "create_by", width: 130 },
     { headerName: "Create Date", field: "create_dt", width: 130 },
     { headerName: "Doc Date", field: "doc_date", width: 130 },

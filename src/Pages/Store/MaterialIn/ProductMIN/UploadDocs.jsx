@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BsFillCloudArrowUpFill } from "react-icons/bs";
-import { MdClose } from "react-icons/md";
-import { GrDocumentPdf } from "react-icons/gr";
-import { AiOutlineFileWord } from "react-icons/ai";
-import { v4 } from "uuid";
-// import Loading from "./Loading";
-import axios from "axios";
-import { toast } from "react-toastify";
-import printJS from "print-js";
-import { AiFillPrinter } from "react-icons/ai";
+
 import { Button, Col, Drawer, Row } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import { InboxOutlined } from "@ant-design/icons";

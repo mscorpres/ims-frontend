@@ -16,7 +16,7 @@ import {
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import socket from "../../Components/socket";
 import { toast } from "react-toastify";
-import { removeNotification } from "../../Features/loginSlice.js/loginSlice";
+import { removeNotification } from "../../Features/loginSlice/loginSlice.js";
 import { SendOutlined, PaperClipOutlined } from "@ant-design/icons";
 import Message from "../../Pages/Messenger/Message";
 import "./messageModal.css";

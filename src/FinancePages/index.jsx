@@ -1,4 +1,4 @@
-//accountsx
+//accounts
 export { default as CreateMaster } from "./Accounts/CreateMaster";
 export { default as Ledger } from "./Accounts/Ledger/Ledger";
 export { default as ChartOfAccounts } from "./Accounts/ChartOfAccounts";
@@ -19,11 +19,11 @@ export { default as JVReport } from "./Finance/jounralPosting/JVReport";
 export { default as BankPayments } from "./Finance/vouchers/BankPayment";
 export { default as BankReceipts } from "./Finance/vouchers/BankReceipts";
 export { default as VoucherReport } from "./Finance/vouchers/VoucherReport";
-export { default as Contra1 } from "./Finance/contra/Contra1";
-export { default as Contra2 } from "./Finance/contra/Contra2";
-export { default as Contra3 } from "./Finance/contra/Contra3";
-export { default as Contra4 } from "./Finance/contra/Contra4";
-export { default as ContraReport } from "./Finance/contra/ContraReport";
+export { default as Contra1 } from "./Finance//contra/Contra1";
+export { default as Contra2 } from "./Finance//contra/Contra2";
+export { default as Contra3 } from "./Finance//contra/Contra3";
+export { default as Contra4 } from "./Finance//contra/Contra4";
+export { default as ContraReport } from "./Finance//contra/ContraReport";
 export { default as CashPayment } from "./Finance/cashVoucher/CashPayment";
 export { default as CashPaymentResister } from "./Finance/cashVoucher/CashPaymentResister";
 export { default as CashReceipt } from "./Finance/cashVoucher/CashReceipt";

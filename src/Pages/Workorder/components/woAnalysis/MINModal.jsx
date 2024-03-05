@@ -32,6 +32,7 @@ import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 
 const MINModal = ({ showView, setShowView, getRows }) => {
+  // ////////////////
   const [locationOptions, setLocationOptions] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
@@ -334,7 +335,6 @@ const MINModal = ({ showView, setShowView, getRows }) => {
         }}
         submitFunction={validateHandler}
         nextLabel="Submit"
-        // disabled={{ reset: loading }}
       />
     </Drawer>
   );
@@ -365,6 +365,13 @@ const componentsItems = (gstType) => [
     width: 150,
     flexStart: true,
     field: (row) => <ToolTipEllipses text={row.partCode} />,
+  },
+  {
+    headerName: "Secondary Part Code",
+    name: "partCode",
+    width: 150,
+    flexStart: true,
+    field: (row) => <ToolTipEllipses text={row.newPartCode} />,
   },
   {
     headerName: "Qty",
