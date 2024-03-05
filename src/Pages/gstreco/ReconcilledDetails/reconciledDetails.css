@@ -1,0 +1,57 @@
+.reconciled-container{
+    border: 2px solid #D3D3D3
+    ;
+    display: grid;
+    grid-gap: 10px;
+    margin-top: 2rem;
+ 
+    /* padding: 10px; */
+ 
+
+
+}
+
+.leftside-reconciled{
+    grid-area: 1;
+    width: 15rem;
+    text-align: center;
+    height: 42rem;
+   border: 1px solid #D3D3D3;
+    
+}
+.book-reconciled{
+    width: 93%;
+    height: 45%;
+    grid-area: 1/2;
+
+    
+}
+.gst-reconciled{
+     margin-top: 21rem;
+    width: 93%;
+    height: 50%;
+    grid-area: 1/2;
+    
+   
+}
+.buttons{
+
+    margin-top: 4rem;
+    display: flex;
+}
+.leftbutton{
+    margin-left: 0.2rem;
+
+}
+
+.rightbutton{
+    margin-left: 5rem;
+}
+
+.sec-button{
+    margin-left: 4rem;
+    display: flex;
+    margin-top: 28rem;
+    gap: 0.5rem;
+}
+

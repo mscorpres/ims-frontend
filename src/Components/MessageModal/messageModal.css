@@ -1,0 +1,9 @@
+.message-modal .ant-modal-body {
+  padding: 0 !important;
+}
+.message-modal .search-user .ant-input {
+  font-size: 0.7rem !important;
+}
+.message-modal .send-message .ant-input {
+  font-size: 0.8rem !important;
+}

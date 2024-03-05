@@ -1,0 +1,468 @@
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Switch,
+  Tree,
+} from "antd";
+import MySelect from "../../Components/MySelect";
+import MyAsyncSelect from "../../Components/MyAsyncSelect";
+import { toast } from "react-toastify";
+import { v4 } from "uuid";
+import Loading from "../../Components/Loading";
+import { imsAxios } from "../../axiosInterceptor";
+import useApi from "../../hooks/useApi";
+import { getCostCentresOptions } from "../../api/general";
+
+function Location() {
+  const [treeData, setTreeData] = useState([]);
+  const [treeLoading, setTreeLoading] = useState([]);
+  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [selectLoading, setSelectLoading] = useState();
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [addLocationForm] = Form.useForm();
+  const [disableLocationForm] = Form.useForm();
+  const [maploc] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const location = Form.useWatch("location", disableLocationForm);
+  const { executeFun, loading: loading1 } = useApi();
+
+  const LocationTypeOptions = [
+    { text: "Storage", value: "1" },
+    { text: "Non-Storage", value: "2" },
+  ];
+  const jobworkLocationOptions = [
+    { text: "Yes", value: "Y" },
+    { text: "No", value: "N" },
+  ];
+
+  const resetForm = () => {
+    addLocationForm.resetFields();
+  };
+  const getDataTree = async () => {
+    setTreeLoading(true);
+    const { data } = await imsAxios.post("/location/fetchLocationTree");
+    setTreeLoading(false);
+    flatArray(data.data);
+    setTreeData(data.data);
+  };
+  // for the tree
+  const flatArray = (array) => {
+    let arr = [];
+    array?.map((row) => {
+      if (row.nodes || row.children) {
+        // delete row.nodes;]
+        row.children = row.children;
+        row.title = row.name;
+        row.key = v4();
+        arr = [...arr, { ...row }];
+        flatArray(row.children);
+      } else {
+        row.title = row.name;
+        row.key = v4();
+        arr = [...arr, { ...row }];
+      }
+    });
+    setTreeData(arr);
+  };
+
+  const getParentLocationOptions = async (search) => {
+    setSelectLoading(true);
+    const { data } = await imsAxios.post("/location/fetchLocation", {
+      searchTerm: search,
+    });
+    setSelectLoading(false);
+    if (data[0]) {
+      let arr = data.map((row) => ({
+        value: row.id,
+        text: row.text,
+      }));
+      setAsyncOptions(arr);
+    } else {
+      setAsyncOptions([]);
+    }
+  };
+
+  const submitHandler = async (values) => {
+    let obj = {
+      location_name: values?.locationName,
+      location_under: values?.locationUnder,
+      location_type: values?.locationType,
+      location_address: values?.address,
+      mapping_user: values?.username,
+      vendor_loc: values?.jobworkLocation,
+    };
+    setSubmitLoading(true);
+    const { data } = await imsAxios.post("/location/insertLocation", obj);
+    setSubmitLoading(false);
+    if (data.code === 200) {
+      toast.success(data.message);
+      resetForm();
+      getDataTree();
+    } else {
+      toast.error(data.message.msg);
+    }
+  };
+
+  const searchLocation = async (search) => {
+    setSelectLoading(true);
+    const response = await imsAxios.post("/location/fetchLocation", {
+      searchTerm: search,
+    });
+    setSelectLoading(false);
+    const { data } = response;
+    if (data) {
+      let arr = data.map((row) => ({ text: row.text, value: row.id }));
+      setAsyncOptions(arr);
+    } else {
+      setAsyncOptions([]);
+    }
+  };
+
+  const getLocationStatus = async (locationId) => {
+    const payload = {
+      location_key: locationId,
+    };
+    setLoading("fetchStatus");
+    const response = await imsAxios.post(
+      "/location/fetchLocationStatus",
+      payload
+    );
+    setLoading(false);
+    const { data } = response;
+    if (data) {
+      if (data.code === 200) {
+        const status = data.data[0].status;
+        disableLocationForm.setFieldValue("status", status === "ACTIVE");
+      }
+      {
+        toast.error(data.message.msg);
+      }
+    }
+  };
+
+  const disableValidateHandler = async () => {
+    const values = await disableLocationForm.validateFields();
+    const payload = {
+      location_key: values.location.value,
+      status: values.status ? "ACTIVE" : "BLOCK",
+    };
+
+    Modal.confirm({
+      title: "Changing Location Status",
+      content: "Are you sure you want to change the status of this location?",
+      okText: "Continue",
+      onOk: () => disableSubmitHandler(payload),
+      cancelText: "Back",
+    });
+  };
+
+  const disableSubmitHandler = async (values) => {
+    const response = await imsAxios.post(
+      "/location/changeLocationStatus",
+      values
+    );
+    const { data } = response;
+    if (data) {
+      if (data.code === 200) {
+        getDataTree();
+        toast.success(data.message);
+      } else {
+        toast.error(data.message.msg);
+      }
+    }
+  };
+  const mapLocSubmitHandler = async (values) => {
+    const response = await imsAxios.post("/location/updatLocationCC", values);
+    const { data } = response;
+    if (data) {
+      if (data.code === 200) {
+        getDataTree();
+        toast.success(data.message);
+        maploc.resetFields();
+      } else {
+        toast.error(data.message.msg);
+      }
+    }
+  };
+  const maplocValidateHandler = async () => {
+    const values = await maploc.validateFields();
+    const payload = {
+      location: values.location.value,
+      costcenter: values.costCenter.value,
+    };
+
+    Modal.confirm({
+      title: "Map Locations",
+      content: "Are you sure you want to the location with Cost Center?",
+      okText: "Continue",
+      onOk: () => mapLocSubmitHandler(payload),
+      cancelText: "Back",
+    });
+  };
+  const getCostCenteres = async (search) => {
+    const response = await executeFun(
+      () => getCostCentresOptions(search),
+      "select"
+    );
+    let arr = [];
+    if (response.success) setAsyncOptions(arr);
+  };
+  useEffect(() => {
+    addLocationForm.setFieldsValue({
+      locationName: "",
+      locationUnder: "",
+      locationType: "1",
+      username: "",
+      jobworkLocation: "N",
+      address: "",
+    });
+    getDataTree();
+  }, []);
+  useEffect(() => {
+    if (location) {
+      getLocationStatus(location.value);
+    }
+  }, [location]);
+  return (
+    <div style={{ height: "90%", overflow: "auto" }}>
+      <Row gutter={10} style={{ margin: "10px", height: "80%" }}>
+        <Col span={8}>
+          <Row gutter={[0, 6]}>
+            <Col span={24}>
+              <Card size="small" title="Add Location">
+                <Form
+                  onFinish={submitHandler}
+                  form={addLocationForm}
+                  layout="vertical"
+                  size="small"
+                >
+                  <Row>
+                    <Col span={24}>
+                      <Form.Item
+                        name="locationName"
+                        label="Location Name"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please Enter a location Name",
+                          },
+                        ]}
+                      >
+                        <Input size="default" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Row gutter={4}>
+                        <Col span={12}>
+                          <Form.Item
+                            name="locationUnder"
+                            label="Parent Location"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please Select a Parent Location",
+                              },
+                            ]}
+                          >
+                            <MyAsyncSelect
+                              loadOptions={getParentLocationOptions}
+                              onBlur={() => setAsyncOptions([])}
+                              optionsState={asyncOptions}
+                              selectLoading={selectLoading}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            name="locationType"
+                            label="Location Type"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please Select a Location Type",
+                              },
+                            ]}
+                          >
+                            <MySelect options={LocationTypeOptions} />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col span={24}>
+                      <Row gutter={4}>
+                        <Col span={12}>
+                          <Form.Item name="username" label="User Name">
+                            <Input size="default" />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            name="jobworkLocation"
+                            label="Job Work Location?"
+                            rules={[
+                              {
+                                required: true,
+                                message:
+                                  "Please Select if this is a Jobwork Location",
+                              },
+                            ]}
+                          >
+                            <MySelect options={jobworkLocationOptions} />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item name="address" label="Address">
+                        <Input.TextArea rows={4} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Row gutter={10} justify="end">
+                        <Col>
+                          <Form.Item>
+                            <Button
+                              htmlType="button"
+                              size="default"
+                              onClick={() => resetForm()}
+                            >
+                              Reset
+                            </Button>
+                          </Form.Item>
+                        </Col>
+                        <Col>
+                          <Form.Item>
+                            <Button
+                              loading={submitLoading}
+                              htmlType="submit"
+                              size="default"
+                              type="primary"
+                            >
+                              Submit
+                            </Button>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                </Form>
+              </Card>
+            </Col>
+            <Col span={24}>
+              <Card size="small" title="Enable/Disable Location">
+                {loading === "fetchStatus" && <Loading />}
+                <Form
+                  form={disableLocationForm}
+                  initialValues={{
+                    location: "",
+                  }}
+                  layout="vertical"
+                >
+                  <Row gutter={6}>
+                    <Col span={20}>
+                      <Form.Item name="location" label="Location">
+                        <MyAsyncSelect
+                          labelInValue={true}
+                          optionsState={asyncOptions}
+                          onBlur={() => setAsyncOptions([])}
+                          loadOptions={searchLocation}
+                          selectLoading={selectLoading}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col>
+                      <Form.Item
+                        label="Status"
+                        name="status"
+                        valuePropName="checked"
+                      >
+                        <Switch />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row justify="end">
+                    <Space>
+                      <Button onClick={() => disableLocationForm.resetFields()}>
+                        Cancel
+                      </Button>
+                      <Button type="primary" onClick={disableValidateHandler}>
+                        Submit
+                      </Button>
+                    </Space>
+                  </Row>
+                </Form>
+              </Card>
+            </Col>
+            <Col span={24}>
+              <Card size="small" title="Map Cost Center">
+                {loading === "fetchStatus" && <Loading />}
+                <Form
+                  form={maploc}
+                  initialValues={{
+                    location: "",
+                  }}
+                  layout="vertical"
+                >
+                  <Row gutter={6}>
+                    <Col span={12}>
+                      <Form.Item name="location" label="Location">
+                        <MyAsyncSelect
+                          labelInValue={true}
+                          optionsState={asyncOptions}
+                          onBlur={() => setAsyncOptions([])}
+                          loadOptions={searchLocation}
+                          selectLoading={selectLoading}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="costCenter" label="Cost Center">
+                        <MyAsyncSelect
+                          labelInValue={true}
+                          optionsState={asyncOptions}
+                          onBlur={() => setAsyncOptions([])}
+                          loadOptions={getCostCenteres}
+                          selectLoading={loading1("select")}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row justify="end">
+                    <Space>
+                      <Button onClick={() => maploc.resetFields()}>
+                        Cancel
+                      </Button>
+                      <Button type="primary" onClick={maplocValidateHandler}>
+                        Submit
+                      </Button>
+                    </Space>
+                  </Row>
+                </Form>
+              </Card>
+            </Col>
+          </Row>
+        </Col>
+        <Col span={16} style={{ height: "100%" }}>
+          <Card
+            style={{ maxHeight: 600, overflowY: "scroll" }}
+            bodyStyle={{ height: "100%", overflowY: "scroll" }}
+            title="Locations"
+            size="small"
+          >
+            {treeLoading && <Loading />}
+            <Tree showLine={true} treeData={treeData} />
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
+}
+
+export default Location;

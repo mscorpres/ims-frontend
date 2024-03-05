@@ -1,0 +1,73 @@
+.modalHeight {
+  height: 85vh;
+}
+.th1 {
+  width: 1%;
+  text-align: center;
+  vertical-align: middle;
+}
+.th2 {
+  width: 20%;
+  text-align: center;
+  vertical-align: middle;
+}
+.th3 {
+  width: 10%;
+  text-align: center;
+  vertical-align: middle;
+}
+.th4 {
+  width: 20%;
+  text-align: center;
+  vertical-align: middle;
+}
+.td1 {
+  text-align: center;
+  font-size: 10px;
+}
+.td2 {
+  text-align: center;
+}
+.td3 {
+  text-align: right;
+}
+
+/* input[type="text"] {
+  width: 20vw;
+  padding: 8px 8px;
+  margin: 5px 0;
+  box-sizing: border-box;
+  font-family: montserrat;
+  font-size: 13px;
+} */
+
+.parent {
+  /* border: 1px solid black; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80vw;
+  /* margin: 1rem; */
+  /* padding: 2rem 2rem; */
+  /* text-align: center; */
+}
+.child {
+  display: inline-block;
+  /* border: 1px solid black; */
+  /* padding: 1rem 1rem; */
+  vertical-align: middle;
+}
+
+.cursorr {
+  cursor: pointer;
+}
+
+.allScroll {
+  /* Optional - You can set a  min-height : whatever px; for reserving some space*/
+  height: 80vh; /* Fix a height here */
+  overflow: auto; /* Optionally you can also use overflow: scroll; */
+}
+
+.bAjFgU {
+  font-size: 14px !important;
+}

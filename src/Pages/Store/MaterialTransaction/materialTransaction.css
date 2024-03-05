@@ -1,0 +1,81 @@
+.l_c_h {
+  width: 500px;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  background: #fff;
+  border-radius: 3px;
+  z-index: 5000;
+  display: block;
+  border-right: 1px solid #e8e8e8;
+  border-left: 1px solid #e8e8e8;
+  box-shadow: 1px -3px 13px 0px #ccc;
+}
+
+.l_c_h .c_h {
+  cursor: pointer;
+  border-radius: 0px;
+  background: #4d636f;
+  line-height: 34px;
+}
+
+.l_c_h .left_c {
+  color: #ffffff;
+  width: 150px;
+  font-size: 13px;
+}
+
+.l_c_h .right_c {
+  text-align: center;
+  background: #ff8f32;
+}
+
+.l_c_h .right_c a {
+  color: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  cursor: pointer !important;
+  font-size: 16px;
+  line-height: normal !important;
+  margin-top: 0 !important;
+  padding: 1px 0px !important;
+  text-align: center !important;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.clear {
+  clear: both;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.left_icons {
+  width: 35px;
+  height: auto;
+  text-align: center;
+  color: #fff;
+  background: #ff8f32;
+  font-size: 15px;
+}
+
+.left_icons a {
+  color: #fff;
+  font-weight: normal;
+}
+
+.center_icons {
+  text-align: center;
+  padding: 2px 0px 0px 5px;
+}
+
+.msg_container {
+  padding: 10px;
+}

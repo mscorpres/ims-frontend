@@ -1,0 +1,396 @@
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  Row,
+  Col,
+  Input,
+  Form,
+  Descriptions,
+  Divider,
+  Modal,
+  InputNumber,
+} from "antd";
+import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import NavFooter from "../../../Components/NavFooter";
+import { imsAxios } from "../../../axiosInterceptor";
+import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
+
+const AddVendor = () => {
+  const [loading, setLoading] = useState(false);
+  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [addVendorForm] = Form.useForm();
+  const [selectLoading, setSelectLoading] = useState(false);
+  const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
+
+  const getFetchState = async (e) => {
+    if (e.length > 2) {
+      setSelectLoading(true);
+      const { data } = await imsAxios.post("/backend/stateList", {
+        search: e,
+      });
+      setSelectLoading(false);
+      let arr = [];
+      arr = data.map((d) => {
+        return { text: d.text, value: d.id };
+      });
+      setAsyncOptions(arr);
+      // return arr;
+    }
+  };
+
+  const submitHandler = async () => {
+    const formData = new FormData();
+    formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
+    formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
+    // formData.append("uploadfile", files[0]);
+    setLoading("submit");
+    const response = await imsAxios.post("/vendor/addVendor", formData);
+    setLoading(false);
+    const { data } = response;
+    if (data) {
+      if (data.code === 200) {
+        toast.success(data.message);
+        reset();
+      } else {
+        setShowSubmitConfirmModal(false);
+        toast.error(data.message.msg);
+      }
+    }
+  };
+
+  const validateHandler = async () => {
+    const values = await addVendorForm.validateFields();
+
+    let obj = {
+      vendor: {
+        vendorname: values.vendorName,
+        panno: values.panno.toUpperCase(),
+        cinno: !values.cinno
+          ? "--"
+          : values.cinno === ""
+          ? "--"
+          : values.cinno.toUpperCase(),
+        term_days: values.paymentTerms ?? 30,
+      },
+      branch: {
+        branch: values.branch,
+        address: values.address,
+        state: values.state,
+        city: values.city,
+        pincode: values.pincode,
+        fax: values.fax == "" && "--",
+        mobile: values.mobile,
+        email: values.email == "" && "--",
+        gstin: values.gstin.toUpperCase(),
+      },
+    };
+    setShowSubmitConfirmModal(obj);
+  };
+
+  const reset = async () => {
+    setShowSubmitConfirmModal(false);
+
+    addVendorForm.resetFields();
+    setFiles([]);
+  };
+
+  return (
+    <div style={{ height: "90%" }}>
+      <Form
+        initialValues={initialValues}
+        layout="vertical"
+        form={addVendorForm}
+        style={{ padding: 20 }}
+      >
+        <Modal
+          title="Submit Confirm"
+          open={showSubmitConfirmModal}
+          onOk={submitHandler}
+          confirmLoading={loading === "submit"}
+          onCancel={() => setShowSubmitConfirmModal(false)}
+        >
+          <p>Are you sure you want to create this vendor?</p>
+        </Modal>
+        <Modal
+          title="Reset Confirm"
+          open={showResetConfirmModal}
+          onOk={reset}
+          onCancel={() => setShowResetConfirmModal(false)}
+        >
+          <p>Are you sure you want to create this vendor?</p>
+        </Modal>
+        <Row gutter={16}>
+          <Col span={4}>
+            <Descriptions
+              size="small"
+              title={<p style={{ fontSize: "0.8rem" }}>Vendor Details</p>}
+            >
+              <Descriptions.Item
+                contentStyle={{
+                  fontSize: window.innerWidth < 1600 && "0.7rem",
+                }}
+              >
+                Provide Vendor Details
+                <br /> (New Or Supplementary)
+              </Descriptions.Item>
+            </Descriptions>
+          </Col>
+          <Col span={20}>
+            <Row gutter={16}>
+              <Col span={6}>
+                <Form.Item
+                  label="Vendor Name"
+                  name="vendorName"
+                  rules={rules.vendorName}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="Pan Number" name="panno" rules={rules.panno}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="CIN Number" name="cinno">
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  label="Payment Terms (in-days)"
+                  name="paymentTerms"
+                  rules={rules.paymentTerms}
+                >
+                  <InputNumber
+                    style={{ width: "100%" }}
+                    min={1}
+                    max={999}
+                    // value={paymentTerms.value}
+                    // onChange={(e) => inputHandler("cin", e.target.value)}//
+                    size="default"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={6}>
+                <Form.Item label="GST Number" name="gstin" rules={rules.gstin}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="Email" name="email">
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="Mobile" name="mobile" rules={rules.mobile}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="Fax Number" name="fax">
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Divider />
+
+        <Row gutter={16}>
+          <Col span={4}>
+            <Descriptions
+              size="small"
+              title={<p style={{ fontSize: "0.8rem" }}>Branch Details</p>}
+            >
+              <Descriptions.Item
+                contentStyle={{
+                  fontSize: window.innerWidth < 1600 && "0.7rem",
+                }}
+              >
+                Provide Branch Details
+              </Descriptions.Item>
+            </Descriptions>
+          </Col>
+          <Col span={20}>
+            <Row gutter={16}>
+              <Col span={6}>
+                <Form.Item
+                  label="Branch Name"
+                  name="branch"
+                  rules={rules.branch}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  label="Select State"
+                  name="state"
+                  rules={rules.state}
+                >
+                  <MyAsyncSelect
+                    selectLoading={selectLoading}
+                    onBlur={() => setAsyncOptions([])}
+                    optionsState={asyncOptions}
+                    loadOptions={getFetchState}
+                    // value={state.value}
+                    // value={addVendor.branch.state}
+                    // onChange={(e) => inputHandler("state", e)}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item label="City" name="city" rules={rules.city}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  label="Pin Code"
+                  name="pincode"
+                  rules={rules.pincode}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  label="Complete Address"
+                  name="address"
+                  rules={rules.address}
+                >
+                  <Input.TextArea rows={4} />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={4}>
+            <Descriptions
+              size="small"
+              title={<p style={{ fontSize: "0.8rem" }}>Upload Document</p>}
+            >
+              <Descriptions.Item
+                contentStyle={{
+                  fontSize: window.innerWidth < 1600 && "0.7rem",
+                }}
+              >
+                Upload vendor PDF document
+              </Descriptions.Item>
+            </Descriptions>
+          </Col>
+          <Col span={20}>
+            <Row gutter={16}>
+              <Col span={6}>
+                <Form.Item label="Vendor Document" name="file">
+                  <Row className="material-in-upload">
+                    <UploadDocs
+                      size="large"
+                      // disable={poData?.materials?.length == 0}
+                      setFiles={setFiles}
+                      files={files}
+                    />
+                  </Row>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Form>
+      <NavFooter
+        resetFunction={() => setShowResetConfirmModal(true)}
+        submitFunction={validateHandler}
+        nextLabel="Submit"
+        // disabled={{ reset: loading }}
+      />
+    </div>
+  );
+};
+const initialValues = {
+  paymentTerms: 30,
+  vendorName: "",
+  panno: "",
+  gstin: "",
+  branch: "",
+  state: "",
+  mobile: "",
+  city: "",
+  vendorName: "",
+  pincode: "",
+  address: "",
+};
+
+const rules = {
+  vendorName: [
+    {
+      required: true,
+      message: "Please select the Vendor Name",
+    },
+  ],
+  panno: [
+    {
+      required: true,
+      message: "Please provide the PAN number",
+    },
+  ],
+  gstin: [
+    {
+      required: true,
+      message: "Please provide the GST number",
+    },
+  ],
+  branch: [
+    {
+      required: true,
+      message: "Please provide the branchName.",
+    },
+  ],
+  state: [
+    {
+      required: true,
+      message: "Please provide the state.",
+    },
+  ],
+  mobile: [
+    {
+      required: true,
+      message: "Please provide the mobile.",
+    },
+  ],
+  city: [
+    {
+      required: true,
+      message: "Please provide the city.",
+    },
+  ],
+  pincode: [
+    {
+      required: true,
+      message: "Please provide the pin code.",
+    },
+  ],
+  address: [
+    {
+      required: true,
+      message: "Please provide the address.",
+    },
+  ],
+  paymentTerms: [
+    {
+      required: true,
+      message: "Please provide the payment Terms.",
+    },
+  ],
+};
+
+export default AddVendor;

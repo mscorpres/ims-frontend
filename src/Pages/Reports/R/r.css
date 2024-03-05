@@ -1,0 +1,39 @@
+.table tbody tr td {
+  vertical-align: middle !important;
+}
+
+#reportGen__DataSheet_r001 > thead > tr {
+  height: 40px !important;
+  background: #e5e7e7 !important;
+  border-right: 1px solid #e0e0e0 !important;
+  border-bottom: 1px solid #fff !important;
+  box-shadow: inset 1px 1px 1px 0 #fff !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  color: #555 !important;
+  padding: 0 !important;
+}
+
+#reportGen__DataSheet_r007 > thead > tr {
+  height: 40px !important;
+  background: #e5e7e7 !important;
+  border-right: 1px solid #e0e0e0 !important;
+  border-bottom: 1px solid #fff !important;
+  box-shadow: inset 1px 1px 1px 0 #fff !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  color: #555 !important;
+  padding: 0 !important;
+}
+
+#reportGen__DataSheet_r011 > thead > tr {
+  height: 40px !important;
+  background: #e5e7e7 !important;
+  border-right: 1px solid #e0e0e0 !important;
+  border-bottom: 1px solid #fff !important;
+  box-shadow: inset 1px 1px 1px 0 #fff !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  color: #555 !important;
+  padding: 0 !important;
+}

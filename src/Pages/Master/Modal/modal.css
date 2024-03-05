@@ -1,0 +1,90 @@
+.mainDiv {
+  height: 54%;
+  width: 40vw;
+  position: fixed;
+  top: 22%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.addVendor {
+  height: 92%;
+  width: 35vw;
+  position: fixed;
+  top: 7%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.viewModal {
+  height: 84%;
+  width: 40vw;
+  position: fixed;
+  top: 6%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.addBranch {
+  height: 85%;
+  width: 30vw;
+  position: fixed;
+  top: 8%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.mainDiv {
+  height: 54%;
+  width: 40vw;
+  position: fixed;
+  top: 22%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.mainDiv6 {
+  height: 84%;
+  width: 35vw;
+  position: fixed;
+  top: 10%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.mainDiv1 {
+  height: 80%;
+  width: 30vw;
+  position: fixed;
+  top: 15%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.mainDiv2 {
+  height: 85%;
+  width: 30vw;
+  position: fixed;
+  top: 10%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+
+.mainDiv3 {
+  height: 86%;
+  width: 40vw;
+  position: fixed;
+  top: 7%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+.addBilling {
+  height: 96%;
+  width: 40vw;
+  position: fixed;
+  top: 7%;
+  transition: all 350ms ease-in-out;
+  z-index: 9999;
+}
+
+.popover1 {
+  height: 25%;
+  width: 35vw;
+  position: fixed;
+  top: 20%;
+  transition: all 150ms ease-in-out;
+  z-index: 9999;
+}

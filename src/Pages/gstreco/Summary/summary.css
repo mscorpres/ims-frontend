@@ -1,0 +1,42 @@
+
+  .summary-container{
+    height: calc(100vh - 8rem);
+    width: calc(100vw - 8rem);
+  }
+  .summary-container{
+    text-align: center;
+  }
+  .ant-table-row{
+    height: 1px;
+
+  }
+  .summary-container th{
+    font-weight: 100;
+    font-size: 0.7rem;
+  }
+.summary-container td{
+  font-size: 0.9rem; 
+  
+}
+
+.ant-table
+  .ant-table-container
+  .ant-table-content
+  table
+  thead.ant-table-thead
+  .ant-table-cell {
+  background-color: #E6E6E6;
+  color: #1A1A1A;
+  font-size: 1rem;
+}
+.my-tag {
+  font-size: 12px;
+}
+.ant-table-tbody > tr > td {
+  height: 5px;
+  padding: 4px;
+}
+.ant-table-thead > tr > th {
+  height: 5px;
+  padding: 4px;
+}
