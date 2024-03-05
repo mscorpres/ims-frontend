@@ -1,10 +1,12 @@
-import { Button, Col, DatePicker, Row } from "antd";
+import { Button, Col, DatePicker, Row, Space } from "antd";
 import React, { useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { getClosingStockForQuery6 } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../gstreco/myDataTable";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
+import { downloadCSV } from "../../../Components/exportToCSV";
 
 function Index() {
   const [searchInput, setSearchInput] = useState("");
@@ -23,6 +25,7 @@ function Index() {
         return {
           id: id + 1,
           partName: r.part_name,
+          catPartCode: r.sec_part_code,
           partCode: r.part_code,
           totalClosing: r.total_closing,
           totalIn: r.total_in,
@@ -36,34 +39,51 @@ function Index() {
     }
   };
   return (
-    <div
-      style={{
-        margin: "10px 8px",
-      }}
-    >
-      <Row gutter={10}>
-        <Col span={6}>
-          <MyDatePicker
-            setDateRange={setSearchInput}
-
-            // placeholder="Select a Component"
-            // onBlur={() => setAsyncOptions([])}
-            // value={searchInput}
-            // optionsState={asyncOptions}
-            // selectLoading={loading1("select")}
-            // onChange={(value) => setSearchInput(value)}
-            // loadOptions={(value) => getAsyncOptions(value)}
-          />
-        </Col>
+    <div style={{ height: "90%" }}>
+      <Row justify="space-between" style={{ padding: 5, paddingTop: 0 }}>
         <Col>
-          <Button type="primary" onClick={getRows} loading={loading("select")}>
-            Search
-          </Button>
+          <Space>
+            <div>
+              {/* <Col span={6}> */}
+              <MyDatePicker
+                setDateRange={setSearchInput}
+
+                // placeholder="Select a Component"
+                // onBlur={() => setAsyncOptions([])}
+                // value={searchInput}
+                // optionsState={asyncOptions}
+                // selectLoading={loading1("select")}
+                // onChange={(value) => setSearchInput(value)}
+                // loadOptions={(value) => getAsyncOptions(value)}
+              />
+              {/* </Col>
+            <Col> */}
+            </div>
+            <Button
+              type="primary"
+              onClick={getRows}
+              loading={loading("select")}
+            >
+              Search
+            </Button>
+          </Space>
         </Col>
+        {/* </Col> */}
+        {/* <div> */}
+        <CommonIcons
+          action="downloadButton"
+          type="primary"
+          onClick={() => downloadCSV(rows, columns, "Q6 Report")}
+        />
+        {/* </div> */}
       </Row>
 
       <Row style={{ marginTop: 15, height: "75vh" }}>
-        <MyDataTable columns={columns} data={rows} />
+        <MyDataTable
+          columns={columns}
+          data={rows}
+          loading={loading("select")}
+        />
       </Row>
     </div>
   );
@@ -84,11 +104,23 @@ const columns = [
     width: 100,
   },
   {
+    headerName: "Cat Part Code",
+    field: "catPartCode",
+    renderCell: ({ row }) => row.catPartCode,
+    width: 100,
+  },
+  // {
+  //   headerName: "Cat Part Code",
+  //   field: "partCode",
+  //   renderCell: ({ row }) => row.partCode,
+  //   width: 100,
+  // },
+  {
     headerName: "Part Name",
     field: "partName",
     renderCell: ({ row }) => row.partName,
     width: 250,
-    flex: 1,
+    // flex: 1,
     // width: 250,
   },
   {
@@ -106,7 +138,7 @@ const columns = [
     // flex: 1,
   },
   {
-    headerName: "Other In",
+    headerName: "Total Other's In",
     field: "otherIn",
     renderCell: ({ row }) => row.otherIn,
     // flex: 1,
@@ -127,7 +159,7 @@ const columns = [
     width: 130,
   },
   {
-    headerName: "VBT",
+    headerName: "Total VBT's",
     field: "vbt",
     renderCell: ({ row }) => row.vbt,
     // flex: 1,

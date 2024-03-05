@@ -14,19 +14,22 @@ const imsAxios = axios.create({
 imsAxios.interceptors.response.use(
   (response) => {
     if (response.data?.success !== undefined) {
-      console.log("this is the response from axios interceptor", response.data);
+      console.log("this is the response from axios interceptor", response);
       return response.data;
     }
     return response;
   },
   (error) => {
-    console.log("this is the error response", error.response);
+    console.log("this is the error response", error);
     // if (error.response.status === 404) {
     //   toast.error("Some Internal error occured");
     // } else {
-    toast.error(error.response.data);
-    if (error.response.data.message) {
-      toast.error(error.response.data.message.msg);
+    toast.error(error.response?.data);
+    if (error.response.data?.message) {
+      toast.error(
+        error.response.data?.message?.msg ??
+          "Error while connecting to backend."
+      );
     }
     // }
     return error.response;
