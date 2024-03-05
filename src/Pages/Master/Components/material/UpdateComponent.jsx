@@ -31,6 +31,7 @@ import {
 import useApi from "../../../../hooks/useApi";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
+import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
@@ -112,6 +113,7 @@ export default function UpdateComponent() {
             catType: catType,
             alternate_part_codes: value.alternate_part_codes,
             alternate_part_keys: value.alternate_part_keys,
+            alternate_part_name: value.alternate_part_name,
             attrCategory: {
               text: value.attr_category.text,
               value: value.attr_category.value,
@@ -126,7 +128,7 @@ export default function UpdateComponent() {
             value: value.attr_code,
           });
           componentForm.setFieldsValue(finalObj);
-          // console.log("finalObj");
+          console.log("finalObj", finalObj);
 
           setFetchPartCode(finalObj);
           const objects = finalObj.alternate_part_codes.map((code, index) => ({
@@ -149,15 +151,33 @@ export default function UpdateComponent() {
   };
   // console.log("this is the alternate part codes values,", partOptions);
   useEffect(() => {
-    // console.log("alternate_part_codes in useefect", fetchPartCode);
+    console.log("alternate_part_codes in useefect", fetchPartCode);
     if (fetchPartCode) {
       // setGetAlternate_part_codes(fetchPartCode.alternate_part_codes);
       //  if (getAlternate_part_codes) {
       // console.log("getAlternate_part_codes", getAlternate_part_codes);
-      let alterpartcode = fetchPartCode.alternate_part_codes.map((r, index) => {
-        return { r, id: index + 1 };
-      });
-      // console.log("alterPArt", alterpartcode);
+      // let alterpartcode = fetchPartCode.map((r, index, name) => {
+      //   return {
+      //     code: r.alternate_part_codes,
+      //     id: index + 1,
+      //     name: alternate_part_name[r],
+      //   };
+      // });
+
+      // let alterpartcode = fetchPartCode.alternate_part_codes.map((r, index) => {
+      //   return { r, id: index + 1 };
+      // });
+      const alterpartcode = fetchPartCode.alternate_part_name.map(
+        (name, index) => {
+          return {
+            id: index + 1,
+            partName: name,
+            partCode: fetchPartCode.alternate_part_codes[index],
+          };
+          // return { name, code: alternate_part_codes[index], id: index + 1 };
+        }
+      );
+      console.log("alterpartcode", alterpartcode);
       setNewPartCodeDb(alterpartcode);
       //  }
     }
@@ -412,14 +432,15 @@ export default function UpdateComponent() {
   };
   const updatePartCode = async () => {
     const values = await altPartCodeForm.validateFields();
-    // console.log("values", values);
-    let arr = values.alternatePart.map((r) => r.key);
-    // console.log("arr", arr);
+    console.log("values", values);
+    let arr = values.alternatePart.map((r) => r.value);
+    console.log("arr", arr);
+    console.log("componentKey", componentKey);
     const response = await executeFun(
       () => updateAlternatePartCode(arr, componentKey),
       "select"
     );
-    // console.log("response", response);
+    console.log("response", response);
     if (response.success) {
       setAlternatePartModal(false);
     }
@@ -440,14 +461,22 @@ export default function UpdateComponent() {
     },
     {
       headerName: "Part Code",
-      field: "r",
-      width: 200,
+      field: "partCode",
+      width: 120,
+    },
+    {
+      headerName: "Part Name",
+      field: "partName",
+      width: 350,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.partName} copy={true} />
+      ),
     },
   ];
   return (
     <>
       <Drawer
-        // width={600}
+        width={600}
         title="Update Alternate Part Code"
         open={alternatePartModal}
         footer={[
