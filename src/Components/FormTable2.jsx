@@ -17,17 +17,18 @@ const FormTable2 = ({
   addableRow,
   newRow,
   reverse,
-  rules,
 }) => {
   const formValues = Form.useWatch();
   const addRow = (newRow) => {
-    let obj = newRow;
+    console.log("new row is getting add");
+    let obj = newRow ?? {};
     const names = columns.map((row) => row.name);
     if (!newRow) {
       names.map((name) => name !== "" && (obj[name] = ""));
     }
 
     const rows = form.getFieldValue(listName);
+    console.log("these are the rows", rows);
     let arr = [];
     if (reverse) {
       arr = [...rows, obj];
@@ -55,11 +56,15 @@ const FormTable2 = ({
             <td
               style={{
                 ...columnHeaderStyle(),
-                width: 30,
+                // width: 30,
               }}
             >
               {addableRow && (
-                <CommonIcons action="addRow" onClick={() => addRow(newRow)} />
+                <CommonIcons
+                  size="large"
+                  action="addRow"
+                  onClick={() => addRow(newRow)}
+                />
               )}
             </td>
           )}
@@ -114,7 +119,6 @@ const FormTable2 = ({
                 formValues={formValues}
                 nonListWatchKeys={nonListWatchKeys}
                 componentRequiredRef={componentRequiredRef}
-                rules={rules}
               />
             ))
           }
@@ -140,14 +144,14 @@ const SingleRow = memo(
     remove,
     index,
     columns,
-    watchKeys,
+    watchKeys = [],
     listName,
     form,
     calculation,
-    nonListWatchKeys,
-    componentRequiredRef,
-    rules,
+    nonListWatchKeys = [],
+    componentRequiredRef = [],
   }) => {
+    console.log("this is the field", field);
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
@@ -159,12 +163,14 @@ const SingleRow = memo(
     );
     const valueObj = form.getFieldValue([listName, field.name]);
     const isComponentRequired = () => {
+      console.log("goes here", componentRequiredValues);
       let isRequired = false;
       componentRequiredValues.map((val) => {
         if (val && val.length > 0) {
           isRequired = true;
         }
       });
+      console.log("this is rerquired", isRequired);
       return isRequired;
     };
     useEffect(() => {
@@ -177,9 +183,11 @@ const SingleRow = memo(
             [key]: form.getFieldValue([listName, field.name, key]),
           };
         });
+        console.log("renedering watch values", watchValues);
+        console.log("renedering watch non wathcn", nonListWatchValues);
         calculation(field.name, obj);
       }
-    }, [[...watchValues, ...nonListWatchValues]]);
+    }, [...[...watchValues, ...nonListWatchValues]]);
     return (
       <Form.Item noStyle>
         <tr align="middle" key={field.key} style={tableColumnStyle}>
@@ -187,7 +195,10 @@ const SingleRow = memo(
             <td
               style={{
                 whiteSpace: "nowrap",
-                width: 30,
+                width: 38,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               {fieldsLength > nonRemovableColumns && (
@@ -199,7 +210,14 @@ const SingleRow = memo(
             !row.conditional ? (
               <td key={columnIndex} style={columnCellStyle(row, index)}>
                 <Form.Item
-                  rules={isComponentRequired() && rules[row.name]}
+                  rules={
+                    isComponentRequired() && [
+                      {
+                        required: true,
+                        message: `${row.headerName} is required`,
+                      },
+                    ]
+                  }
                   name={[field.name, row.name]}
                   style={{
                     margin: 0,
@@ -216,7 +234,14 @@ const SingleRow = memo(
               row.condition() && (
                 <td style={columnCellStyle(row, index)}>
                   <Form.Item
-                    rules={isComponentRequired() && rules[row.name]}
+                    rules={
+                      isComponentRequired() && [
+                        {
+                          required: true,
+                          message: `${row.headerName} is required`,
+                        },
+                      ]
+                    }
                     name={[field.name, row.name]}
                     style={{
                       margin: 0,
@@ -244,6 +269,7 @@ const columnHeaderStyle = (col) => ({
   margin: "0px 1px",
   background: "#f5f5f5",
   borderRadius: 3,
+  padding: 8,
 });
 
 const columnCellStyle = (row, index) => ({
