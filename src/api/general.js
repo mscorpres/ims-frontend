@@ -130,3 +130,10 @@ export const getClosingStockForQuery6 = async (search) => {
   // response.data = arr;
   return response;
 };
+export const updateAlternatePartCode = async (arr, fetchPartCode) => {
+  const response = await imsAxios.post("/component/update_alt_part_no", {
+    componentKey: fetchPartCode,
+    alt_part_key: arr,
+  });
+  return response;
+};

@@ -3,6 +3,7 @@ import {
   Col,
   Descriptions,
   Divider,
+  Drawer,
   Form,
   Input,
   Modal,
@@ -22,6 +23,14 @@ import MyButton from "../../../../Components/MyButton";
 import Loading from "../../../../Components/Loading";
 import { Link } from "react-router-dom";
 import CategoryDrawer from "./CategoryDrawer";
+import {
+  getComponentOptions,
+  getProductsOptions,
+  updateAlternatePartCode,
+} from "../../../../api/general";
+import useApi from "../../../../hooks/useApi";
+import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
+import MyDataTable from "../../../gstreco/myDataTable";
 
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
@@ -30,11 +39,21 @@ export default function UpdateComponent() {
   const [attr_raw, setUniqueIdData] = useState("");
   const [categoryData, setCategoryData] = useState(null);
   const [showCategoryDetails, setShowCategoryDetails] = useState(false);
+  const [fetchPartCode, setFetchPartCode] = useState("");
+  const [newPartCodeDb, setNewPartCodeDb] = useState([]);
+  const [getAlternate_part_codes, setGetAlternate_part_codes] = useState([]);
   const { componentKey } = useParams();
   const [componentForm] = Form.useForm();
+  const [altPartCodeForm] = Form.useForm();
+  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [alternatePartModal, setAlternatePartModal] = useState(false);
   const [manfCode, setManfCode] = useState(null);
+  const [partOptions, setPartOptions] = useState([]);
+
   const attrCategory = Form.useWatch("attrCategory", componentForm);
   console.log("attr_raw", attr_raw);
+
+  const { executeFun, loading: loading1 } = useApi();
   const getDetails = async () => {
     try {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
@@ -57,6 +76,13 @@ export default function UpdateComponent() {
           const finalObj = {
             partCode: value.partcode,
             newPartCode: value.new_partcode,
+            // altPartCode: value.map((r) => {
+            //   return {
+            //     altPartCodeName: r.alternate_part_codes,
+            //     altPartKeyCode: r.alternate_part_keys,
+            //   };
+            // }),
+
             component: value.name,
             uom: {
               label: value.uomname,
@@ -84,6 +110,8 @@ export default function UpdateComponent() {
             purchaseCost: value.pocost,
             otherCost: value.othercost,
             catType: catType,
+            alternate_part_codes: value.alternate_part_codes,
+            alternate_part_keys: value.alternate_part_keys,
             attrCategory: {
               text: value.attr_category.text,
               value: value.attr_category.value,
@@ -98,6 +126,18 @@ export default function UpdateComponent() {
             value: value.attr_code,
           });
           componentForm.setFieldsValue(finalObj);
+          // console.log("finalObj");
+
+          setFetchPartCode(finalObj);
+          const objects = finalObj.alternate_part_codes.map((code, index) => ({
+            value: finalObj.alternate_part_keys[index],
+            text: code,
+            label: code,
+          }));
+          // let obj = { components: objects };
+          // setPartOptions(objects);
+          altPartCodeForm.setFieldValue("alternatePart", objects);
+          // console.log("partOptions", obj.components);
         } else {
           toast.error(data.message.msg);
         }
@@ -107,6 +147,23 @@ export default function UpdateComponent() {
       setLoading(false);
     }
   };
+  // console.log("this is the alternate part codes values,", partOptions);
+  useEffect(() => {
+    // console.log("alternate_part_codes in useefect", fetchPartCode);
+    if (fetchPartCode) {
+      // setGetAlternate_part_codes(fetchPartCode.alternate_part_codes);
+      //  if (getAlternate_part_codes) {
+      // console.log("getAlternate_part_codes", getAlternate_part_codes);
+      let alterpartcode = fetchPartCode.alternate_part_codes.map((r, index) => {
+        return { r, id: index + 1 };
+      });
+      // console.log("alterPArt", alterpartcode);
+      setNewPartCodeDb(alterpartcode);
+      //  }
+    }
+  }, [fetchPartCode]);
+  // console.log("alterPArt", newPartCodeDb);
+
   const getUomOptions = async () => {
     try {
       setLoading("fetch");
@@ -334,229 +391,353 @@ export default function UpdateComponent() {
   const resetHandler = () => {
     componentForm.resetFields();
   };
+  const getComponentOption = async (searchTerm) => {
+    const response = await executeFun(
+      () => getComponentOptions(searchTerm, true),
+      "select"
+    );
+    let { data } = response;
+    if (data) {
+      if (data[0]) {
+        let arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+          newPart: row.newPart,
+        }));
 
+        // console.log("arr", arr);
+        setAsyncOptions(arr);
+      }
+    }
+  };
+  const updatePartCode = async () => {
+    const values = await altPartCodeForm.validateFields();
+    // console.log("values", values);
+    let arr = values.alternatePart.map((r) => r.key);
+    // console.log("arr", arr);
+    const response = await executeFun(
+      () => updateAlternatePartCode(arr, componentKey),
+      "select"
+    );
+    // console.log("response", response);
+    if (response.success) {
+      setAlternatePartModal(false);
+    }
+    // const partCodes = altPartCodeForm.getFieldsValue("partCode");
+    // console.log("partCodes", partCodes);
+    // updateAlternatePartCode
+  };
   useEffect(() => {
     getDetails();
     getUomOptions();
     getGroupOptions();
   }, []);
-
+  const columns = [
+    {
+      headerName: "#",
+      field: "id",
+      width: 80,
+    },
+    {
+      headerName: "Part Code",
+      field: "r",
+      width: 200,
+    },
+  ];
   return (
-    <Form
-      layout="vertical"
-      form={componentForm}
-      style={{ height: "90%", width: "100%", padding: 20 }}
-    >
-      <Row justify="center">
-        <Col
-          span={16}
-          style={{
-            border: "1px solid #ccc",
-            padding: 20,
-            borderRadius: 10,
-            position: "relative",
-          }}
-        >
-          {loading === "fetch" && <Loading />}
-          <Row>
-            <Col span={24}>
-              <Row justify="space-between">
-                <Col>
-                  <Typography.Title level={5}>Basic Details</Typography.Title>
-                </Col>
-                <Col>
-                  <Space>
-                    <MyButton onClick={resetHandler} variant="reset" />
-                    <MyButton onClick={modalConfirmMaterial} variant="submit" />
-                  </Space>
-                </Col>
-              </Row>
+    <>
+      <Drawer
+        // width={600}
+        title="Update Alternate Part Code"
+        open={alternatePartModal}
+        footer={[
+          <Row justify="space-between">
+            <Col span={4}></Col>
+            <Col>
+              <Button
+                // loading={updateLoading}
+                type="primary"
+                onClick={() => updatePartCode()}
+              >
+                Update
+              </Button>
             </Col>
+          </Row>,
+        ]}
+        // confirmLoading={confirmLoading}
+        onClose={() => setAlternatePartModal(null)}
+      >
+        {/* {modalLoading && <Loading />} */}
+        <Form form={altPartCodeForm} layout="vertical">
+          <Row>
+            {/* components select */}
             <Col span={24}>
-              <Row gutter={6}>
-                <Col span={4}>
-                  <Form.Item name="partCode" label="Part Code">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="newPartCode" label="New Part Code">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="component" label="Component Name">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="uom" label="UOM">
-                    <MySelect options={uomOptions} />
-                  </Form.Item>
-                </Col>
-                {/* <Col span={4}> */}
-
-                <Col span={8}>
-                  <Form.Item name="catType" label="Type">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="mrp" label="MRP">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="group" label="Group">
-                    <MySelect options={groupOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item label="Category">
-                    <Row justify="space-between">
-                      {categoryData && <Col>{categoryData?.text ?? "--"}</Col>}
-                      {categoryData && (
-                        <Col>
-                          <Button
-                            onClick={() => setShowCategoryDetails(categoryData)}
-                          >
-                            Details
-                          </Button>
-                        </Col>
-                      )}
-                    </Row>
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="isEnabled" label="is Enabled?">
-                    <MySelect options={isEnabledOptions} />
-                  </Form.Item>
-                </Col>
-
-                <Col span={8}>
-                  <Form.Item name="jobWork" label="Job Work">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="qcStatus" label="QC Status">
-                    <MySelect options={qcStatusOptions} />
-                  </Form.Item>
-                </Col>
-
-                <Col span={16}>
-                  <Form.Item name="description" label="Description">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-
-                <Divider />
-                <Col span={24}>
-                  <Typography.Title level={5}>Tax Details</Typography.Title>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="taxType" label="Tax Type">
-                    <MySelect options={taxTypeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="taxRate" label="Tax Rate %">
-                    <MySelect options={taxRateOptions} />
-                  </Form.Item>
-                </Col>
-                <Divider />
-                <Col span={24}>
-                  <Descriptions
-                    size="small"
-                    title="Advance Details"
-                  ></Descriptions>
-                </Col>
-
-                <Col span={8}>
-                  <Form.Item name="brand" label="Brand">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="ean" label="EAN">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="weight" label="Weight (gms)">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="height" label="height (mm)">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="width" label="width (mm)">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="volumetricWeight" label="Volumetric Weight">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Divider />
-                <Col span={24}>
-                  <Typography.Title level={5}>
-                    Production Details
-                  </Typography.Title>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="minStock" label="Min Stock">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="maxStock" label="Max Stock">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="minOrder" label="Min Order">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="leadTime" label="Lead Time">
-                    <Input />
-                  </Form.Item>
-                </Col>
-
-                <Col span={8}>
-                  <Form.Item name="enableAlert" label="Enable Alert">
-                    <Input />
-                  </Form.Item>
-                </Col>
-
-                <Col span={8}>
-                  <Form.Item name="purchaseCost" label="Purchase Cost">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="otherCost" label="Other Cost">
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
+              <Form.Item label="Select Components" name="alternatePart">
+                <MyAsyncSelect
+                  optionsState={asyncOptions}
+                  onBlur={() => setAsyncOptions([])}
+                  mode="multiple"
+                  labelInValue
+                  selectLoading={loading1("select")}
+                  loadOptions={getComponentOption}
+                />
+              </Form.Item>
             </Col>
           </Row>
-        </Col>
-      </Row>
-      <CategoryDrawer
-        show={showCategoryDetails}
-        getDetails={getDetails}
-        hide={() => setShowCategoryDetails(null)}
-        setUniqueIdData={setUniqueIdData}
-      />
-    </Form>
+        </Form>
+        <MyDataTable columns={columns} data={newPartCodeDb} />
+      </Drawer>
+      <Form
+        layout="vertical"
+        form={componentForm}
+        style={{ height: "90%", width: "100%", padding: 20 }}
+      >
+        <Row justify="center">
+          <Col
+            span={16}
+            style={{
+              border: "1px solid #ccc",
+              padding: 20,
+              borderRadius: 10,
+              position: "relative",
+            }}
+          >
+            {loading === "fetch" && <Loading />}
+            <Row>
+              <Col span={24}>
+                <Row justify="space-between">
+                  <Col>
+                    <Typography.Title level={5}>Basic Details</Typography.Title>
+                  </Col>
+                  <Col>
+                    <Space>
+                      <MyButton onClick={resetHandler} variant="reset" />
+                      <MyButton
+                        onClick={modalConfirmMaterial}
+                        variant="submit"
+                      />
+                    </Space>
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Row gutter={6}>
+                  <Col span={4}>
+                    <Form.Item name="partCode" label="Part Code">
+                      <Input disabled />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item
+                      name="newPartCode"
+                      // label="New Part Code"
+                      label={
+                        <div
+                          style={{
+                            fontSize: window.innerWidth < 1600 && "0.7rem",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            width: 350,
+                          }}
+                        >
+                          New Part Code
+                          {/* Alternate Part Code */}
+                          <span
+                            onClick={() => setAlternatePartModal(true)}
+                            style={{
+                              color: "#1890FF",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Update Part Code
+                          </span>
+                        </div>
+                      }
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="component" label="Component Name">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item name="uom" label="UOM">
+                      <MySelect options={uomOptions} />
+                    </Form.Item>
+                  </Col>
+                  {/* <Col span={4}> */}
+
+                  <Col span={8}>
+                    <Form.Item name="catType" label="Type">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="mrp" label="MRP">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="group" label="Group">
+                      <MySelect options={groupOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="Category">
+                      <Row justify="space-between">
+                        {categoryData && (
+                          <Col>{categoryData?.text ?? "--"}</Col>
+                        )}
+                        {categoryData && (
+                          <Col>
+                            <Button
+                              onClick={() =>
+                                setShowCategoryDetails(categoryData)
+                              }
+                            >
+                              Details
+                            </Button>
+                          </Col>
+                        )}
+                      </Row>
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="isEnabled" label="is Enabled?">
+                      <MySelect options={isEnabledOptions} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={8}>
+                    <Form.Item name="jobWork" label="Job Work">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="qcStatus" label="QC Status">
+                      <MySelect options={qcStatusOptions} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={16}>
+                    <Form.Item name="description" label="Description">
+                      <Input.TextArea />
+                    </Form.Item>
+                  </Col>
+
+                  <Divider />
+                  <Col span={24}>
+                    <Typography.Title level={5}>Tax Details</Typography.Title>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="taxType" label="Tax Type">
+                      <MySelect options={taxTypeOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="taxRate" label="Tax Rate %">
+                      <MySelect options={taxRateOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Divider />
+                  <Col span={24}>
+                    <Descriptions
+                      size="small"
+                      title="Advance Details"
+                    ></Descriptions>
+                  </Col>
+
+                  <Col span={8}>
+                    <Form.Item name="brand" label="Brand">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="ean" label="EAN">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="weight" label="Weight (gms)">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="height" label="height (mm)">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="width" label="width (mm)">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item
+                      name="volumetricWeight"
+                      label="Volumetric Weight"
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Divider />
+                  <Col span={24}>
+                    <Typography.Title level={5}>
+                      Production Details
+                    </Typography.Title>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="minStock" label="Min Stock">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="maxStock" label="Max Stock">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="minOrder" label="Min Order">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="leadTime" label="Lead Time">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={8}>
+                    <Form.Item name="enableAlert" label="Enable Alert">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={8}>
+                    <Form.Item name="purchaseCost" label="Purchase Cost">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="otherCost" label="Other Cost">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <CategoryDrawer
+          show={showCategoryDetails}
+          getDetails={getDetails}
+          hide={() => setShowCategoryDetails(null)}
+          setUniqueIdData={setUniqueIdData}
+        />
+      </Form>
+    </>
   );
 }
 
