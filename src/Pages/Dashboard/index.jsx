@@ -17,23 +17,23 @@ const Dashboard = () => {
 
   const [transactionSummary, setTransactionSummary] = useState([
     {
-      title: "Total Rejection",
+      title: "Rejection",
       date: "",
       value: "",
     },
     {
-      title: "Total MFG",
+      title: "MFG",
       date: "",
       value: "",
     },
     {
-      title: "Total Consumption",
+      title: "Consumption",
       date: "",
       value: "",
       // link: "/transaction-In",
     },
     {
-      title: "Total Purchase Orders",
+      title: "Purchase Orders",
       value: "",
       link: "/manage-po",
     },
@@ -65,25 +65,25 @@ const Dashboard = () => {
   ]);
   const [masterSummary, setMasterSummary] = useState([
     {
-      title: "Total Components",
+      title: "Components",
       value: "",
       date: "",
       link: "/material",
     },
     {
-      title: "Total Products",
+      title: "Products",
       value: "",
       date: "",
       link: "/masters/products/fg",
     },
     {
-      title: "Total Projects",
+      title: "Projects",
       value: "",
       date: "",
       link: "/master/reports/projects",
     },
     {
-      title: "Total Vendors",
+      title: "Vendors",
       value: "",
       date: "",
       link: "/vendor",
@@ -91,22 +91,22 @@ const Dashboard = () => {
   ]);
   const [gatePassSummary, setGatePassSummary] = useState([
     {
-      title: "Total Gatepass",
+      title: "Gatepass",
       value: "",
       date: "",
     },
     {
-      title: "Total RGP",
+      title: "RGP",
       value: "",
       date: "",
     },
     {
-      title: "Total NRGP",
+      title: "NRGP",
       value: "",
       date: "",
     },
     {
-      title: "Total Challan",
+      title: "Challan",
       value: "",
     },
   ]);
@@ -163,23 +163,23 @@ const Dashboard = () => {
           if (transactionType === "transactions") {
             setTransactionSummary([
               {
-                title: "Rejection",
+                title: "Total Rejection",
                 value: data.data.totalRejection,
                 date: data.data.lastRejection,
               },
               {
-                title: " MFG",
+                title: "Total MFG",
                 value: data.data.totalMFG,
                 date: data.data.lastMFG,
               },
               {
-                title: "Consumption",
+                title: "Total Consumption",
                 value: data.data.totalConsumption,
                 date: data.data.lastConsumption,
                 // link: "/transaction-In",
               },
               {
-                title: "Purchase Orders",
+                title: "Total Purchase Orders",
                 value: data.data.totalPO,
                 date: data.data.lastPO,
                 link: "/manage-po",
@@ -189,11 +189,11 @@ const Dashboard = () => {
             setGatePassSummary([
               {
                 title: "Gatepass",
-
+                
                 value: data.data.totalGatePass,
               },
               {
-                title: " RGP",
+                title: "RGP",
                 date: data.data.lastRGP,
                 value: data.data.totalRGP,
               },
@@ -253,25 +253,25 @@ const Dashboard = () => {
         if (data.code === 200) {
           setMasterSummary([
             {
-              title: "Components",
+              title: "Total Components",
               value: data.data.totalComponents,
               date: data.data.lastComponent,
               link: "/material",
             },
             {
-              title: "Products",
+              title: "Total Products",
               value: data.data.totalProducts,
               date: data.data.lastProduct,
               link: "/masters/products/fg",
             },
             {
-              title: "Projects",
+              title: "Total Projects",
               date: data.data.lastProject,
               value: data.data.totalProjects,
               link: "/master/reports/projects",
             },
             {
-              title: "Vendors",
+              title: "Total Vendors",
               date: data.data.lastVendor,
               value: data.data.totalVendors,
               link: "/vendor",
