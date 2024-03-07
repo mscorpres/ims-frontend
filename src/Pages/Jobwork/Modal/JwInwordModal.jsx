@@ -11,6 +11,7 @@ import {
   Skeleton,
   Popconfirm,
   Form,
+  Typography,
 } from "antd";
 import { CloseCircleFilled } from "@ant-design/icons";
 import { v4 } from "uuid";
@@ -22,6 +23,8 @@ import useLoading from "../../../hooks/useLoading";
 import { getComponentOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
 import NavFooter from "../../../Components/NavFooter";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import { AiOutlineMinusSquare } from "react-icons/ai";
 export default function JwInwordModal({
   editModal,
   setEditModal,
@@ -166,7 +169,11 @@ export default function JwInwordModal({
       );
     }
   };
-
+  const removeRow = (id) => {
+    let arr = bomList;
+    arr = arr.filter((row) => row.id != id);
+    setBomList(arr);
+  };
   const columns = [
     {
       field: "componentname",
@@ -262,18 +269,48 @@ export default function JwInwordModal({
   ];
   const bomcolumns = [
     {
+      headerName: "",
+      width: 50,
+      type: "actions",
+      field: "add",
+      sortable: false,
+      renderCell: ({ row }) => [
+        <GridActionsCellItem
+          icon={
+            <AiOutlineMinusSquare
+            // style={{
+            //   fontSize: "1.7rem",
+            //    pointerEvents:
+            //     journalRows.length === 3 || row.total ? "none" : "all",
+            //   opacity: journalRows.length === 3 || row.total ? 0.5 : 1,
+            // }} cursor: "pointer",
+            />
+          }
+          onClick={() => {
+            removeRow(row.id);
+          }}
+          label="Delete"
+        />,
+      ],
+    },
+    {
+      field: "partNo",
+      headerName: "Part No.",
+      width: 50,
+      renderCell: ({ row }) => <Typography.Text>{row.partNo}</Typography.Text>,
+    },
+    {
       field: "partName",
       headerName: "Part Name",
       width: 320,
       renderCell: ({ row }) => <Input disabled value={row.partName} />,
     },
     {
-      field: "partNo",
-      headerName: "Part No.",
+      field: "bomQty",
+      headerName: "Bom Qty",
       width: 150,
-      renderCell: ({ row }) => <Input disabled value={row.partNo} />,
+      renderCell: ({ row }) => <Input disabled value={row.bomQty} />,
     },
-
     {
       field: "rqdQty",
       headerName: "Required Qty",
@@ -286,18 +323,12 @@ export default function JwInwordModal({
       width: 50,
       renderCell: ({ row }) => <Input disabled value={row.uom} />,
     },
-    {
-      field: "pendingStock",
-      headerName: "Pending Stock",
-      width: 180,
-      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
-    },
-    {
-      field: "bomQty",
-      headerName: "Bom Qty",
-      width: 150,
-      renderCell: ({ row }) => <Input disabled value={row.bomQty} />,
-    },
+    // {
+    //   field: "pendingStock",
+    //   headerName: "Pending Stock",
+    //   width: 180,
+    //   renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
+    // },
   ];
 
   const saveFunction = async () => {
@@ -361,9 +392,8 @@ export default function JwInwordModal({
     //  console.log(data);
   };
   const getBomList = async () => {
-    setShowBomList(true);
     setLoading(true);
-    const response = await imsAxios.post("/jwvendor/getBomItem", {
+    const response = await imsAxios.post("/jobwork/getBomItem", {
       jwID: header?.jobwork_id,
       sfgCreateQty: mainData[0].orderqty,
     });
@@ -382,9 +412,12 @@ export default function JwInwordModal({
           key: r.key,
         };
       });
-      console.log("arr,arr", arr);
+      // console.log("arr,arr", arr);
       setBomList(arr);
+      setLoading(false);
+      setShowBomList(true);
     }
+
     setLoading(false);
   };
 
@@ -537,19 +570,21 @@ export default function JwInwordModal({
                     //   // resetFunction={resetHandler}
                     //   nextLabel="Submit"
                     // />
-                    <Popconfirm
-                      placement="topLeft"
-                      title={text}
-                      onConfirm={saveFunction}
-                      loading={modalUploadLoad}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button type="primary">Save</Button>
-                    </Popconfirm>
+                    <>
+                      <Popconfirm
+                        placement="topLeft"
+                        title={text}
+                        onConfirm={saveFunction}
+                        loading={modalUploadLoad}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button type="primary">Save</Button>
+                      </Popconfirm>
+                    </>
                   ) : (
                     <NavFooter
-                      // loading={loading}
+                      loading={loading}
                       submitFunction={getBomList}
                       backFunction={closeModal}
                       // resetFunction={resetHandler}
