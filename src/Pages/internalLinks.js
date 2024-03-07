@@ -454,6 +454,12 @@ const links = [
       routePath: "/rejection",
     },
   ],
+  [
+    {
+      routeName: "Prod Return MIN",
+      routePath: "/warehouse/prod-return-MIN",
+    },
+  ],
   // jobwork links
   [
     { routeName: "CREATE JW PO", routePath: "/create-jw" },
