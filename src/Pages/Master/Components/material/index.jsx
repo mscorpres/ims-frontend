@@ -1263,11 +1263,3 @@ const headerRules = {
     },
   ],
 };
-
-[
-  {
-    partCode: "",
-    key: "",
-    partName: "",
-  },
-];
