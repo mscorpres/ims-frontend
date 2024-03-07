@@ -32,6 +32,7 @@ import useApi from "../../../../hooks/useApi";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+import AlternatePartCode from "./AlternatePartCode";
 
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
@@ -149,6 +150,8 @@ export default function UpdateComponent() {
       setLoading(false);
     }
   };
+
+  console.log("this is the category data", categoryData);
   // console.log("this is the alternate part codes values,", partOptions);
   useEffect(() => {
     console.log("alternate_part_codes in useefect", fetchPartCode);
@@ -411,25 +414,7 @@ export default function UpdateComponent() {
   const resetHandler = () => {
     componentForm.resetFields();
   };
-  const getComponentOption = async (searchTerm) => {
-    const response = await executeFun(
-      () => getComponentOptions(searchTerm, true),
-      "select"
-    );
-    let { data } = response;
-    if (data) {
-      if (data[0]) {
-        let arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-          newPart: row.newPart,
-        }));
 
-        // console.log("arr", arr);
-        setAsyncOptions(arr);
-      }
-    }
-  };
   const updatePartCode = async () => {
     const values = await altPartCodeForm.validateFields();
     console.log("values", values);
@@ -453,69 +438,13 @@ export default function UpdateComponent() {
     getUomOptions();
     getGroupOptions();
   }, []);
-  const columns = [
-    {
-      headerName: "#",
-      field: "id",
-      width: 80,
-    },
-    {
-      headerName: "Part Code",
-      field: "partCode",
-      width: 120,
-    },
-    {
-      headerName: "Part Name",
-      field: "partName",
-      width: 350,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.partName} copy={true} />
-      ),
-    },
-  ];
+
   return (
     <>
-      <Drawer
-        width={600}
-        title="Update Alternate Part Code"
+      <AlternatePartCode
         open={alternatePartModal}
-        footer={[
-          <Row justify="space-between">
-            <Col span={4}></Col>
-            <Col>
-              <Button
-                // loading={updateLoading}
-                type="primary"
-                onClick={() => updatePartCode()}
-              >
-                Update
-              </Button>
-            </Col>
-          </Row>,
-        ]}
-        // confirmLoading={confirmLoading}
-        onClose={() => setAlternatePartModal(null)}
-      >
-        {/* {modalLoading && <Loading />} */}
-        <Form form={altPartCodeForm} layout="vertical">
-          <Row>
-            {/* components select */}
-            <Col span={24}>
-              <Form.Item label="Select Components" name="alternatePart">
-                <MyAsyncSelect
-                  optionsState={asyncOptions}
-                  onBlur={() => setAsyncOptions([])}
-                  mode="multiple"
-                  labelInValue
-                  selectLoading={loading1("select")}
-                  loadOptions={getComponentOption}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-        <MyDataTable columns={columns} data={newPartCodeDb} />
-      </Drawer>
+        hide={() => setAlternatePartModal(false)}
+      />
       <Form
         layout="vertical"
         form={componentForm}
@@ -619,7 +548,8 @@ export default function UpdateComponent() {
                         {categoryData && (
                           <Col>{categoryData?.text ?? "--"}</Col>
                         )}
-                        {categoryData && (
+                        {(!categoryData?.value ||
+                          categoryData?.value === "--") && (
                           <Col>
                             <Button
                               onClick={() =>

@@ -143,3 +143,11 @@ export const getClosingStockForQuery6 = async (search) => {
   // response.data = arr;
   return response;
 };
+export const getComponentDetail = async (componentKey, vendorCode) => {
+  const response = await imsAxios.post("/component/getComponentDetailsByCode", {
+    component_code: componentKey,
+    vendorCode,
+  });
+
+  return response;
+};

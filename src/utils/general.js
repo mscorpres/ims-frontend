@@ -10,3 +10,7 @@ export const convertSelectOptions = (arr, label, value) => {
 export const removeHtml = (value) => {
   return value.replace(/<[^>]*>/g, " ");
 };
+
+export const getInt = (value, decimal) => {
+  return +Number(value ?? "0").toFixed(decimal ?? 3);
+};

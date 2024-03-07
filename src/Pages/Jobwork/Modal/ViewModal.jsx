@@ -93,16 +93,10 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
         title={`FG/SFG : ${viewModalOpen?.sku} | ${viewModalOpen?.jwId}`}
         placement="right"
         destroyOnClose={true}
-        closable={false}
         onClose={() => setViewModalOpen(false)}
         open={viewModalOpen}
         getContainer={false}
         bodyStyle={{ padding: 5 }}
-        extra={
-          <Space>
-            <CloseCircleFilled onClick={cancel} />
-          </Space>
-        }
       >
         <Row>
           <Card
