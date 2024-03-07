@@ -232,6 +232,7 @@ import PendingPhysicalStock from "../Pages/Store/PhysicalStock/Pending";
 import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected";
 import EditSalesOrder from "../Pages/Sales/SalesOrder/edit";
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser";
+import Index from "../Pages/Query/ClosingStock/Index";
 const Routes = [
   {
     path: "/login",
@@ -433,6 +434,10 @@ const Routes = [
   {
     path: "/q5",
     main: () => <QueryQ5 />,
+  },
+  {
+    path: "/q6",
+    main: () => <Index />,
   },
   // MES QCA
   {

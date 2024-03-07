@@ -116,3 +116,17 @@ export const getProductsOptions = async (search, sku) => {
   //   return response;
   // }
 };
+
+export const getClosingStockForQuery6 = async (search) => {
+  const response = await imsAxios.post(
+    "/closing_stock/save_closing_stock_cif",
+    {
+      date: search,
+    }
+  );
+
+  let arr = [];
+  // if (response.success) arr = convertSelectOptions(response.data);
+  // response.data = arr;
+  return response;
+};

@@ -163,23 +163,23 @@ const Dashboard = () => {
           if (transactionType === "transactions") {
             setTransactionSummary([
               {
-                title: "Total Rejection",
+                title: "Rejection",
                 value: data.data.totalRejection,
                 date: data.data.lastRejection,
               },
               {
-                title: "Total MFG",
+                title: "MFG",
                 value: data.data.totalMFG,
                 date: data.data.lastMFG,
               },
               {
-                title: "Total Consumption",
+                title: "Consumption",
                 value: data.data.totalConsumption,
                 date: data.data.lastConsumption,
                 // link: "/transaction-In",
               },
               {
-                title: "Total Purchase Orders",
+                title: "Purchase Orders",
                 value: data.data.totalPO,
                 date: data.data.lastPO,
                 link: "/manage-po",
@@ -253,25 +253,25 @@ const Dashboard = () => {
         if (data.code === 200) {
           setMasterSummary([
             {
-              title: "Total Components",
+              title: "Components",
               value: data.data.totalComponents,
               date: data.data.lastComponent,
               link: "/material",
             },
             {
-              title: "Total Products",
+              title: "Products",
               value: data.data.totalProducts,
               date: data.data.lastProduct,
               link: "/masters/products/fg",
             },
             {
-              title: "Total Projects",
+              title: "Projects",
               date: data.data.lastProject,
               value: data.data.totalProjects,
               link: "/master/reports/projects",
             },
             {
-              title: "Total Vendors",
+              title: "Vendors",
               date: data.data.lastVendor,
               value: data.data.totalVendors,
               link: "/vendor",

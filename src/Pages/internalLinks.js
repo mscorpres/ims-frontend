@@ -784,6 +784,11 @@ const links = [
       routePath: "/q5",
       placeholder: "Component wise stock",
     },
+    {
+      routeName: "Q6",
+      routePath: "/q6",
+      placeholder: "Closing stock",
+    },
   ],
   // CPM Analysis
   [
