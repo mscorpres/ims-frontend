@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Button, Card, Col, Form, Input, Modal, Row, Space } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Space,
+} from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import MyDataTable from "../../Components/MyDataTable";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
@@ -163,11 +173,11 @@ const POAnalysis = () => {
         label="Download"
         onClick={() => handlePrint(row.jwId, "download")}
       />,
-      <GridActionsCellItem
-        showInMenu
-        label="Vendor Login"
-        onClick={() => getRowinModal(row)}
-      />,
+      // <GridActionsCellItem
+      //   showInMenu
+      //   label="Vendor Login"
+      //   onClick={() => getRowinModal(row)}
+      // />,
     ],
   };
   const getRowinModal = (row) => {
@@ -199,8 +209,7 @@ const POAnalysis = () => {
                       action="downloadButton"
                       onClick={handleSocketDownload}
                     />
-                  )}
-
+                  )}{" "}
                   <Button type="primary" onClick={getRows}>
                     Fetch
                   </Button>

@@ -17,23 +17,23 @@ const Dashboard = () => {
 
   const [transactionSummary, setTransactionSummary] = useState([
     {
-      title: "Total Rejection",
+      title: "Rejection",
       date: "",
       value: "",
     },
     {
-      title: "Total MFG",
+      title: "MFG",
       date: "",
       value: "",
     },
     {
-      title: "Total Consumption",
+      title: "Consumption",
       date: "",
       value: "",
       // link: "/transaction-In",
     },
     {
-      title: "Total Purchase Orders",
+      title: "Purchase Orders",
       value: "",
       link: "/manage-po",
     },
@@ -65,25 +65,25 @@ const Dashboard = () => {
   ]);
   const [masterSummary, setMasterSummary] = useState([
     {
-      title: "Total Components",
+      title: "Components",
       value: "",
       date: "",
       link: "/material",
     },
     {
-      title: "Total Products",
+      title: "Products",
       value: "",
       date: "",
       link: "/masters/products/fg",
     },
     {
-      title: "Total Projects",
+      title: "Projects",
       value: "",
       date: "",
       link: "/master/reports/projects",
     },
     {
-      title: "Total Vendors",
+      title: "Vendors",
       value: "",
       date: "",
       link: "/vendor",
@@ -91,22 +91,22 @@ const Dashboard = () => {
   ]);
   const [gatePassSummary, setGatePassSummary] = useState([
     {
-      title: "Total Gatepass",
+      title: "Gatepass",
       value: "",
       date: "",
     },
     {
-      title: "Total RGP",
+      title: "RGP",
       value: "",
       date: "",
     },
     {
-      title: "Total NRGP",
+      title: "NRGP",
       value: "",
       date: "",
     },
     {
-      title: "Total Challan",
+      title: "Challan",
       value: "",
     },
   ]);
@@ -188,22 +188,22 @@ const Dashboard = () => {
           } else if (transactionType === "gatePass") {
             setGatePassSummary([
               {
-                title: "Total Gatepass",
+                title: "Gatepass",
 
                 value: data.data.totalGatePass,
               },
               {
-                title: "Total RGP",
+                title: "RGP",
                 date: data.data.lastRGP,
                 value: data.data.totalRGP,
               },
               {
-                title: "Total NRGP",
+                title: "NRGP",
                 date: data.data.lastNRGP,
                 value: data.data.totalNRGP,
               },
               {
-                title: "Total Challan",
+                title: "Challan",
                 date: data.data.lastDCchallan,
                 value: data.data.totalRGP_DCchallan,
               },
