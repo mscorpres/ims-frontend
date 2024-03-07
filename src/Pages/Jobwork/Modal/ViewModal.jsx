@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button, Card, Col, Drawer, Row, Skeleton, Space } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Drawer,
+  Dropdown,
+  Row,
+  Skeleton,
+  Space,
+} from "antd";
 import {
   EyeFilled,
   CloseCircleFilled,
@@ -85,7 +94,20 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
       getFecthData();
     }
   }, [viewModalOpen]);
-
+  const items = [
+    {
+      key: "Create",
+      label: <a href="/jw-rw-challan">Create</a>,
+    },
+    {
+      key: "SF Inward",
+      label: <a href="/jw-sf-inward">Inward</a>,
+    },
+    {
+      key: "RM Return",
+      label: <a href="/jw-rm-return">Return</a>,
+    },
+  ];
   return (
     <Space>
       <Drawer
@@ -109,7 +131,12 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
             size="small"
             title="Details"
             extra={
-              <CommonIcons action="downloadButton" onClick={handleDownload} />
+              <>
+                <Dropdown menu={{ items }} placement="bottom">
+                  <Button style={{ marginRight: 10 }}>Jump To</Button>
+                </Dropdown>
+                <CommonIcons action="downloadButton" onClick={handleDownload} />
+              </>
             }
           >
             {loading && <Loading />}
