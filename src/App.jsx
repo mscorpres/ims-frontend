@@ -851,7 +851,7 @@ const App = () => {
           {user && user.passwordChanged === "C" && (
             <Sidebar
               items={items(user)}
-              items1={items1(user)}
+              items1={items1(user, setShowTickets)}
               className="site-layout-background"
               key={1}
               setShowSideBar={setShowSideBar}
