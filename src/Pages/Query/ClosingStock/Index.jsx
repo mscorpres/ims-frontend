@@ -78,9 +78,10 @@ function Index() {
         {/* </div> */}
       </Row>
 
-      <Row style={{ marginTop: 15, height: "75vh" }}>
+      <Row style={{ marginTop: 15, height: "75vh", overflowX: "hidden" }}>
         <MyDataTable
           columns={columns}
+          pageSize={12}
           data={rows}
           loading={loading("select")}
         />
@@ -124,42 +125,42 @@ const columns = [
     // width: 250,
   },
   {
-    headerName: "Total Opening",
+    headerName: "Opening Stock",
     field: "totalOpening",
     renderCell: ({ row }) => row.totalOpening,
     width: 130,
     // flex: 1,
   },
   {
-    headerName: "Total In",
+    headerName: "In",
     field: "totalIn",
     renderCell: ({ row }) => row.totalIn,
     width: 130,
     // flex: 1,
   },
   {
-    headerName: "Total Other's In",
+    headerName: "Other's In",
     field: "otherIn",
     renderCell: ({ row }) => row.otherIn,
     // flex: 1,
     width: 130,
   },
   {
-    headerName: "Total Out",
+    headerName: "Out",
     field: "totalOut",
     renderCell: ({ row }) => row.totalOut,
     // flex: 1,
     width: 130,
   },
   {
-    headerName: "Total Closing",
+    headerName: "Closing Stock",
     field: "totalClosing",
     renderCell: ({ row }) => row.totalClosing,
     // flex: 1,
     width: 130,
   },
   {
-    headerName: "Total VBT's",
+    headerName: "Purchase Qty",
     field: "vbt",
     renderCell: ({ row }) => row.vbt,
     // flex: 1,
