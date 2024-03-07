@@ -692,11 +692,9 @@ export const items = (user) => [
   //   : "",
 ];
 
-export const items1 = (user) => [
+export const items1 = (user, setShowTickets) => [
   getItem(
-    <Link to="#" onClick={() => setShowTickets(true)}>
-      Tickets
-    </Link>,
+    <Link onClick={() => setShowTickets(true)}>Tickets</Link>,
     "B",
     <CustomerServiceOutlined />
   ),
