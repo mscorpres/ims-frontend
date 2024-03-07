@@ -125,6 +125,7 @@ const App = () => {
     }
     dispatch(setFavourites(favs));
   };
+  // to trigger
   const navToControl = () => {
     if (user?.type == "user") {
       navigate("/");
