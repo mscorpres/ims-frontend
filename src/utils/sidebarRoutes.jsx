@@ -338,7 +338,7 @@ export const items = (user) => [
       ///
       getItem(
         <Link to="/warehouse/prod-return-MIN">Prod. Return MIN</Link>,
-        "B32"
+        "B33"
         // <AiOutlineMinus />
       ),
       getItem("MIN Edit/Reverse", "warehouse/minedit", <MdDashboard />, [
