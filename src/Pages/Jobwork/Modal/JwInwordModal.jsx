@@ -21,6 +21,7 @@ import FormTable from "../../../Components/FormTable";
 import useLoading from "../../../hooks/useLoading";
 import { getComponentOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import NavFooter from "../../../Components/NavFooter";
 export default function JwInwordModal({
   editModal,
   setEditModal,
@@ -37,6 +38,9 @@ export default function JwInwordModal({
   const { all, row } = editModal;
   const [mainData, setMainData] = useState([]);
   const [eWayBill, setEWayBill] = useState("");
+  const [bomList, setBomList] = useState([]);
+  const [showBomList, setShowBomList] = useState(false);
+  const [loading, setLoading] = useState(false);
   // console.log(mainData);
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
@@ -201,7 +205,7 @@ export default function JwInwordModal({
       renderCell: ({ row }) => (
         <Input
           //  value={row.orderqty}
-          placeholder="Qty"
+          placeholder="Rate"
           onChange={(e) => inputHandler("rate", row.id, e.target.value)}
         />
       ),
@@ -256,11 +260,50 @@ export default function JwInwordModal({
       ),
     },
   ];
+  const bomcolumns = [
+    {
+      field: "partName",
+      headerName: "Part Name",
+      width: 320,
+      renderCell: ({ row }) => <Input disabled value={row.partName} />,
+    },
+    {
+      field: "partNo",
+      headerName: "Part No.",
+      width: 150,
+      renderCell: ({ row }) => <Input disabled value={row.partNo} />,
+    },
+
+    {
+      field: "rqdQty",
+      headerName: "Required Qty",
+      width: 120,
+      renderCell: ({ row }) => <Input value={row.rqdQty} />,
+    },
+    {
+      field: "uom",
+      headerName: "Uom",
+      width: 50,
+      renderCell: ({ row }) => <Input disabled value={row.uom} />,
+    },
+    {
+      field: "pendingStock",
+      headerName: "Pending Stock",
+      width: 180,
+      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
+    },
+    {
+      field: "bomQty",
+      headerName: "Bom Qty",
+      width: 150,
+      renderCell: ({ row }) => <Input disabled value={row.bomQty} />,
+    },
+  ];
 
   const saveFunction = async () => {
     setModalUploadLoad(true);
-    //  console.log(mainData[0]);
-    const { data } = await imsAxios.post("/jobwork/savejwsfinward", {
+    console.log("bomList", bomList);
+    let payload = {
       companybranch: "BRMSC012",
       jobwork_trans_id: mainData[0].jobwork_id,
       product: row.sku_code,
@@ -271,48 +314,97 @@ export default function JwInwordModal({
       location: mainData[0].location,
       remark: mainData[0].remark,
       ewaybill: eWayBill,
-    });
-    if (data.code == 200) {
-      if (all == "datewise") {
-        console.log("Called");
-        setModalUploadLoad(false);
-        setEditModal(false);
-        fetchDatewise();
-        toast.success(data.message);
-      } else if (all == "jw_transaction_wise") {
-        setEditModal(false);
-        setModalUploadLoad(false);
-        fetchJWwise();
-        toast.success(data.message);
-      } else if (all == "jw_sfg_wise") {
-        setEditModal(false);
-        setModalUploadLoad(false);
-        fetchSKUwise();
-        toast.success(data.message);
-      } else if (all == "vendorwise") {
-        setEditModal(false);
-        setModalUploadLoad(false);
-        // fetchJWwise();
-        fetchVendorwise();
-        toast.success(data.message);
-      }
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
-      setModalUploadLoad(false);
+      consCompcomponents: bomList.map((r) => r.key),
+      consQty: bomList.map((r) => r.rqdQty),
+    };
+    // console.log("payload", payload);
+    const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
+    console.log("response", response);
+    const { data } = response;
+
+    if (response.success) {
+      toast.success(response.message);
+      setEditModal(false);
+      setShowBomList(false);
+      setBomList([]);
+    } else {
+      toast.error(data.message);
     }
+    // if (data.code == 200) {
+    //   if (all == "datewise") {
+    //     console.log("Called");
+    //     setModalUploadLoad(false);
+    //     setEditModal(false);
+    //     fetchDatewise();
+    //     toast.success(data.message);
+    //   } else if (all == "jw_transaction_wise") {
+    //     setEditModal(false);
+    //     setModalUploadLoad(false);
+    //     fetchJWwise();
+    //     toast.success(data.message);
+    //   } else if (all == "jw_sfg_wise") {
+    //     setEditModal(false);
+    //     setModalUploadLoad(false);
+    //     fetchSKUwise();
+    //     toast.success(data.message);
+    //   } else if (all == "vendorwise") {
+    //     setEditModal(false);
+    //     setModalUploadLoad(false);
+    //     // fetchJWwise();
+    //     fetchVendorwise();
+    //     toast.success(data.message);
+    //   }
+    // } else if (data.code == 500) {
+    //   toast.error(data.message.msg);
+    //   setModalUploadLoad(false);
+    // }
     //  console.log(data);
+  };
+  const getBomList = async () => {
+    setShowBomList(true);
+    setLoading(true);
+    const response = await imsAxios.post("/jwvendor/getBomItem", {
+      jwID: header?.jobwork_id,
+      sfgCreateQty: mainData[0].orderqty,
+    });
+    console.log(response);
+    if (response.data.status === "success") {
+      const { data } = response;
+      let arr = data.data.map((r, id) => {
+        return {
+          id: id + 1,
+          bomQty: r.bom_qty,
+          partName: r.part_name,
+          partNo: r.part_no,
+          pendingStock: r.pendingStock,
+          rqdQty: r.rqd_qty,
+          uom: r.uom,
+          key: r.key,
+        };
+      });
+      console.log("arr,arr", arr);
+      setBomList(arr);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     if (editModal) {
+      // console.log("editModal", editModal);
       getFetchData();
       getLocation();
       setEWayBill("");
+      setShowBomList(false);
+      setBomList([]);
     }
   }, [editModal]);
 
   const text = "Are you sure to update this jw sf Inward?";
-
+  const closeModal = () => {
+    setEditModal(false);
+    setShowBomList(false);
+    setBomList([]);
+  };
   return (
     <Space>
       <Drawer
@@ -325,9 +417,10 @@ export default function JwInwordModal({
         }
         placement="right"
         closable={false}
-        onClose={() => setEditModal(false)}
+        onClose={closeModal}
         open={editModal}
         getContainer={false}
+        destroyOnClose={true}
         style={
           {
             //  position: "absolute",
@@ -420,24 +513,60 @@ export default function JwInwordModal({
                 </Col>
               </Row>
             </Card>
-            <div style={{ height: "60%", marginTop: "5px" }}>
+            <div style={{ height: "50%", marginTop: "5px" }}>
               <div style={{ height: "100%" }}>
-                <FormTable data={mainData} columns={columns} />
+                {showBomList && bomList ? (
+                  <FormTable
+                    data={bomList}
+                    columns={bomcolumns}
+                    loading={loading}
+                  />
+                ) : (
+                  <FormTable data={mainData} columns={columns} />
+                )}
               </div>
             </div>
             <Row style={{ marginTop: "50px" }}>
               <Col span={24}>
                 <div style={{ textAlign: "end" }}>
-                  <Popconfirm
+                  {showBomList ? (
+                    // <NavFooter
+                    //   // loading={loading}
+                    //   submitFunction={saveFunction}
+                    //   backFunction={() => setEditModal(false)}
+                    //   // resetFunction={resetHandler}
+                    //   nextLabel="Submit"
+                    // />
+                    <Popconfirm
+                      placement="topLeft"
+                      title={text}
+                      onConfirm={saveFunction}
+                      loading={modalUploadLoad}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button type="primary">Save</Button>
+                    </Popconfirm>
+                  ) : (
+                    <NavFooter
+                      // loading={loading}
+                      submitFunction={getBomList}
+                      backFunction={closeModal}
+                      // resetFunction={resetHandler}
+                      nextLabel="Next"
+                    />
+                  )}
+
+                  {/* <Popconfirm
                     placement="topLeft"
                     title={text}
-                    onConfirm={saveFunction}
+                    // onConfirm={saveFunction}
                     loading={modalUploadLoad}
                     okText="Yes"
                     cancelText="No"
                   >
                     <Button type="primary">Save</Button>
-                  </Popconfirm>
+                  </Popconfirm> */}
                   {/* <Button
                     onClick={() => setEditModal(false)}
                     style={{ background: "red", color: "white", marginLeft: "5px" }}
