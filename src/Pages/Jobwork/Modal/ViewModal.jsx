@@ -92,6 +92,7 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
         width="100vw"
         title={`FG/SFG : ${viewModalOpen?.sku} | ${viewModalOpen?.jwId}`}
         placement="right"
+        destroyOnClose={true}
         closable={false}
         onClose={() => setViewModalOpen(false)}
         open={viewModalOpen}
