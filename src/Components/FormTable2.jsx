@@ -28,6 +28,7 @@ const FormTable2 = ({
     }
 
     const rows = form.getFieldValue(listName);
+    console.log("these are the rows", rows);
     let arr = [];
     if (reverse) {
       arr = [...rows, obj];
@@ -151,6 +152,7 @@ const SingleRow = memo(
     nonListWatchKeys = [],
     componentRequiredRef = [],
   }) => {
+    console.log("this is the field", field);
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
@@ -162,12 +164,14 @@ const SingleRow = memo(
     );
     const valueObj = form.getFieldValue([listName, field.name]);
     const isComponentRequired = () => {
+      console.log("goes here", componentRequiredValues);
       let isRequired = false;
       componentRequiredValues.map((val) => {
         if (val && val.length > 0) {
           isRequired = true;
         }
       });
+      console.log("this is rerquired", isRequired);
       return isRequired;
     };
     useEffect(() => {
@@ -180,6 +184,8 @@ const SingleRow = memo(
             [key]: form.getFieldValue([listName, field.name, key]),
           };
         });
+        console.log("renedering watch values", watchValues);
+        console.log("renedering watch non wathcn", nonListWatchValues);
         calculation(field.name, obj);
       }
     }, [...[...watchValues, ...nonListWatchValues]]);

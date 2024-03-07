@@ -1419,8 +1419,8 @@ const App = () => {
                           placeholder="Select users"
                           onBlur={() => setModulesOptions([])}
                           noBorder={true}
-                          // hideArrow={true}
-                          // searchIcon={true}
+                          hideArrow={true}
+                          searchIcon={false}
                           color="white"
                           optionsState={modulesOptions}
                           loadOptions={getModuleSearchOptions}
