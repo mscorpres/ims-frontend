@@ -23,7 +23,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import OtpVerify from "./OtpVerify";
 import { imsAxios } from "../../axiosInterceptor";
-import { setUser } from "../../Features/loginSlice.js/loginSlice";
+import { setUser } from "../../Features/loginSlice/loginSlice";
 
 export default function Profile() {
   document.title = "Profile";

@@ -11,7 +11,7 @@ import { v4 } from "uuid";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import { useDispatch } from "react-redux/es/exports";
 import { useEffect } from "react";
-import { setCurrentLinks } from "../../../Features/loginSlice.js/loginSlice";
+import { setCurrentLinks } from "../../../Features/loginSlice/loginSlice";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";

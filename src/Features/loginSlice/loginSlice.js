@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../axiosInterceptor";
-import { update } from "lodash";
 let fav =
   typeof JSON.parse(localStorage.getItem("loggedInUser"))?.favPages == "string"
     ? JSON.parse(JSON.parse(localStorage.getItem("loggedInUser"))?.favPages)
