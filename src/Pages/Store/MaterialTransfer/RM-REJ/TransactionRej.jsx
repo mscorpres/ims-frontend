@@ -25,7 +25,7 @@ function TransactionRej() {
   const columns = [
     { field: "date", headerName: "Date", width: 150 },
     { field: "part", headerName: "Part Code", width: 90 },
-    { field: "cat_part", headerName: "Cat Part Code", width: 90 },
+    { field: "cat_part", headerName: "Cat Part Code", width: 120 },
     { field: "name", headerName: "Component", width: 390 },
     { field: "out_location", headerName: "Out Location", width: 150 },
     { field: "in_location", headerName: "In Location", width: 150 },
