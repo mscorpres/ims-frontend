@@ -48,7 +48,7 @@ export default function MaterialTransferReport({ type }) {
     { headerName: "Sr. No.", field: "index", width: 80 },
     { headerName: "Date", field: "date", flex: 1 },
     { headerName: "Part Code", field: "part", width: 80 },
-    { headerName: "Cat Part Code", field: "cat_partpart", width: 80 },
+    { headerName: "Cat Part Code", field: "cat_partpart", width: 120 },
     {
       headerName: "Component",
       field: "name",
