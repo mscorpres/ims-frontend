@@ -22,18 +22,24 @@ const ClientDetailsCard = ({
   validateHandler,
   stage,
   previewuploaData,
+  rtnchallan,
 }) => {
   return (
     <Col span={24}>
       <Card size="small" title="Client Details">
-        <Col span={24}>
-          <Radio.Group
-            onChange={toggleInputType}
-            value={uplaodType}
-            options={uploadTypeOptions}
-          />
-          {/* </Form.Item> */}
-        </Col>
+        {rtnchallan ? (
+          ""
+        ) : (
+          <Col span={24}>
+            <Radio.Group
+              onChange={toggleInputType}
+              value={uplaodType}
+              options={uploadTypeOptions}
+            />
+            {/* </Form.Item> */}
+          </Col>
+        )}
+
         <Form.Item
           name="clientname"
           label="Client Name"
@@ -124,11 +130,6 @@ const ClientDetailsCard = ({
                     // loading={loading === "submit"}
                     type="primary"
                   >
-                    {/* {stage === "preview"
-                      ? uplaodType === "file"
-                        ? "Preview"
-                        : "Submit"
-                      : "Submit"} */}
                     Preview
                   </Button>
                 </Space>

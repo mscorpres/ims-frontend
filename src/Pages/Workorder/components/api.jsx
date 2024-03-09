@@ -5,6 +5,7 @@ import printFunction, {
 } from "../../../Components/printFunction";
 import { v4 } from "uuid";
 
+////////
 const getValueInArray = (arr, name) => {
   const updatedArr = arr.map((row) =>
     row[name]?.value ?? row[name] === "" ? 0 : row[name] ?? "--"
@@ -149,6 +150,103 @@ const getWorkOrderShipment = async (wise, searchInput) => {
   }
 };
 
+///
+const getWorkOrderRC = async (wise, searchInput) => {
+  const { data } = await imsAxios.post(
+    "/wo_challan/getWorkOrderReturnShipment",
+    {
+      wise,
+      data: searchInput,
+    }
+  );
+  if (data) {
+    if (data.code === 200) {
+      const arr = data.data.map((row, index) => ({
+        id: index + 1,
+        billingId: row.billing_id,
+        dispatchId: row.dispatch_id,
+        clientAddId: row.client_address_id,
+        shipmentDt: row.shipment_dt,
+        woTransaction_Id: row.wo_transaction_id,
+        shipmentId: row.shipment_id,
+        partCode: row.part_code,
+        skuCode: row.sku_code,
+        wo_sku_name: row.wo_sku_name,
+        client: row.client,
+        clientCode: row.client_code,
+        clientaddress: row.clientaddress,
+        shipment_status: row.shipment_status,
+        del_challan_status: row.del_challan_status,
+        wo_order_qty: row.wo_order_qty,
+        wo_order_rate: row.wo_order_rate,
+        billingaddress: row.billingaddress,
+        woComponentName: row.wo_component_name,
+        // client_add_id: row.client_add_id,
+        // billing_id: row.billing_id,
+        // dispatchaddress: row.dispatchaddress,
+        // dispatchId: row.dispatch_id,
+      }));
+      return arr;
+    } else {
+      toast.error(data.message.msg);
+      return [];
+    }
+  }
+};
+const getdetailsOfReturnChallan = async (shipWoid) => {
+  const { data } = await imsAxios.post("/wo_challan/fetchWOShipmentDetails", {
+    wo_shipment_id: shipWoid,
+  });
+  if (data.code === 200) {
+    const arr = data.data.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
+    return arr;
+  } else {
+    toast.error(data.message.msg);
+    return [];
+  }
+};
+const fetchReturnChallanDetails = async (challanID) => {
+  const { data } = await imsAxios.post(
+    "/wo_challan/fetchReturnDeliveryChallanDetails",
+    {
+      challan_id: challanID,
+    }
+  );
+  if (data.code === 200) {
+    const arr = data.data.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
+    return arr;
+  } else {
+    toast.error(data.message.msg);
+    return [];
+  }
+};
+
+const getReturnRowsInViewChallan = async (wise, searchInput) => {
+  const { data } = await imsAxios.post(
+    "/wo_challan/fetchReturnDeliveryChallan",
+    {
+      wise,
+      data: searchInput,
+    }
+  );
+  if (data.code === 200) {
+    const arr = data.data.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
+    return arr;
+  } else {
+    toast.error(data.message.msg);
+    return [];
+  }
+};
+
 const createWorkOrderShipmentChallan = async (payload) => {
   const { data } = await imsAxios.post(
     "/wo_challan/createDeliveryChallan",
@@ -162,32 +260,28 @@ const createWorkOrderShipmentChallan = async (payload) => {
       toast.error(data.message.msg);
     }
   }
-  //     const arr = data.data.map((row, index) => ({
-  //       id: index + 1,
-  //       shipmentDt: row.shipment_dt,
-  //       woTransaction_Id: row.wo_transaction_id,
-  //       shipmentId: row.shipment_id,
-  //       sku: row.sku,
-  //       skuCode: row.sku_code,
-  //       client: row.client,
-  //       clientCode: row.client_code,
-  //       clientaddress: row.clientaddress,
-  //       client_add_id: row.client_add_id,
-  //       billingaddress: row.billingaddress,
-  //       billing_id: row.billing_id,
-  //       dispatchaddress: row.dispatchaddress,
-  //       dispatchId: row.dispatch_id,
-  //       wo_sku_name: row.wo_sku_name,
-  //       wo_order_qty: row.wo_order_qty,
-  //       wo_order_rate: row.wo_order_rate,
-  //       del_challan_status: row.del_challan_status,
-  //       shipment_status: row.shipment_status,
-  //     }));
-  //   } else {
-  //     toast.error(data.message.msg);
-  //     return [];
-  //   }
-  // }
+};
+
+const printreturnChallan = async (payload) => {
+  const { data } = await imsAxios.post(
+    "/wo_challan/printWorkorderReturnChallan",
+    payload
+  );
+  console.log("data", data);
+  return data;
+};
+const createWorkOrderReturnChallan = async (payload) => {
+  const { data } = await imsAxios.post(
+    "/wo_challan/createDeliveryReturnChallan",
+    payload
+  );
+  if (data) {
+    if (data.code === 200) {
+      toast.success(data.message);
+    } else {
+      toast.error(data.message.msg);
+    }
+  }
 };
 const getWorkOrderForMIN = async (id, woId, getComponents) => {
   const { data } = await imsAxios.post("/backend/workOrderdetails", {
@@ -247,7 +341,7 @@ const getLocationOptions = async () => {
 };
 
 const createMIN = async (values, showView) => {
-  const arr = values.components;
+  const arr = values.components.filter((r) => r.qty > 0);
   const finalObj = {
     woid: showView.woId,
     component: getValueInArray(arr, "componentKey"),
@@ -330,6 +424,7 @@ const getWorkOrderDetails = async (id, woId, sku) => {
       const arr = components.map((row, index) => ({
         id: index + 1,
         partCode: row.part_code,
+        newPartCode: row.new_part_code,
         unit: row.bom_uom,
         bomQty: row.bom_qty,
         reqQty: row.required_qty,
@@ -341,7 +436,7 @@ const getWorkOrderDetails = async (id, woId, sku) => {
         outValue: row.out_value,
         inValue: row.in_value,
         rmRtnValue: row.rm_rtn_value,
-        component: row.component_name,
+        component: row.component_name + "-" + row.new_part_code,
         componentKey: row.component_key,
         hsn: row.component_hsn,
       }));
@@ -402,4 +497,10 @@ export {
   getWorkOrderShipment,
   createWorkOrderShipmentChallan,
   postUpdatedWo,
+  getWorkOrderRC,
+  getdetailsOfReturnChallan,
+  getReturnRowsInViewChallan,
+  fetchReturnChallanDetails,
+  createWorkOrderReturnChallan,
+  printreturnChallan,
 };

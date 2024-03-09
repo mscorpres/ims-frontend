@@ -22,7 +22,6 @@ import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import Loading from "../../../../Components/Loading";
-import { isNull, set } from "lodash";
 import FormTable2 from "../../../../Components/FormTable2";
 import { v4 } from "uuid";
 import MySelect from "../../../../Components/MySelect";
@@ -37,6 +36,8 @@ const CreateChallanModal = ({
   close,
   data,
   editShipment,
+  rtnchallan,
+  setRtnChallan,
   // challanForm,
   //testing
 }) => {
@@ -63,6 +64,8 @@ const CreateChallanModal = ({
   const [branchid, setBranchId] = useState("");
   const [modal2Open, setModal2Open] = useState(false);
   const [minqty, setMinQty] = useState("");
+  const [componentList, setComponentList] = useState([]);
+  const [totalsum, setTotalSum] = useState("");
   const [dataProductdetails, setDataProductdetails] = useState({
     text: "",
     value: "",
@@ -200,6 +203,19 @@ const CreateChallanModal = ({
       },
     });
   };
+  const showReturnSubmitConfirmationModal = (f) => {
+    // submit confirm modal
+    Modal.confirm({
+      title: "Do you Want to Create this Return Challan?",
+      icon: <ExclamationCircleOutlined />,
+
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        await createRMChallan();
+      },
+    });
+  };
 
   const getchallandata = async (challanType, challanno) => {
     try {
@@ -277,7 +293,7 @@ const CreateChallanModal = ({
   // };
 
   const updateDeliveryChallan = async () => {
-    console.log(data.productId);
+    // console.log(data.productId);
     try {
       const values = await challanForm.validateFields();
       // console.log("values--------", values);
@@ -406,7 +422,7 @@ const CreateChallanModal = ({
     }
   };
   const getEditShipmentData = async (h) => {
-    console.log("response getEditShipmentData ->", h);
+    // console.log("response getEditShipmentData ->", h);
     const response = await imsAxios.post("/wo_challan/editWorkorderShipment", {
       shipment_no: h.shipmentId,
     });
@@ -469,39 +485,60 @@ const CreateChallanModal = ({
       // console.log("news", news);
     }
   };
-
+  const closeDrawer = () => {
+    challanForm.resetFields();
+    close();
+  };
   useEffect(() => {
     if (rows.length > 0) {
-      console.log("rows", rows);
-      sumOfMinAvailableQty = 0;
+      if (!rtnchallan) {
+        console.log("rows", rows);
+        sumOfMinAvailableQty = 0;
+        let getRowsQty = rows.filter((b) => b.out_qty > 0);
+        console.log("getRowsQty", getRowsQty);
+        for (const item of getRowsQty) {
+          sumOfMinAvailableQty += parseInt(item.out_qty);
+        }
 
-      for (const item of rows) {
-        sumOfMinAvailableQty += parseInt(item.out_qty);
+        console.log("Sum of min_available_qty:", sumOfMinAvailableQty);
+        setMinQty(sumOfMinAvailableQty);
+        let a = challanForm.getFieldValue("components");
+        a[0].qty = sumOfMinAvailableQty;
+
+        challanForm.setFieldValue("components", a);
+      } else {
+        setLoading("fetch");
+        let totalMinAvailableQty = 0;
+        let qtyelement;
+        let getRowsQty = rows.filter((b) => b.out_qty > 0);
+        for (const item of getRowsQty) {
+          qtyelement = componentList.find(
+            ({ partCode }) => partCode === item.part_code
+          );
+        }
+        let samePartCodeArr = [];
+        samePartCodeArr = getRowsQty.filter(
+          (r) => r.part_code === qtyelement.partCode
+        );
+        samePartCodeArr.map((s) => {
+          totalMinAvailableQty += parseInt(s.out_qty);
+        });
+        challanForm.setFieldValue(
+          ["components", qtyelement.id - 1, "qty"],
+          totalMinAvailableQty
+        );
+        setLoading(false);
       }
-
-      console.log("Sum of min_available_qty:", sumOfMinAvailableQty);
-      setMinQty(sumOfMinAvailableQty);
-      // challanForm.setFieldValue("components", [{ qty: sumOfMinAvailableQty }]);
-      // const sumOfQty = data.reduce((sum, item) => sum + item.out_qty, 0);
-      // console.log("row in use effect", sumOfQty);
-      //   if (Array.isArray(rows)) {
-      //     const sumOfQty = data.reduce(
-      //       (sum, item) => sum + parseInt(item.out_qty || 0, 10),
-      //       0
-      //     );
-      //     console.log("Sum of out_qty:", sumOfQty);
-      //   } else {
-      //     console.error("data is not an array");
-      //   }
     }
   }, [rows]);
 
   useEffect(() => {
-    console.log("dataaaaaaaaa", data);
+    // console.log("dataaaaaaaaa", data);
+    // console.log("edit shipmetn)-> ", editShipment);
+    // console.log("edit show)-> ", show);
     setDataProductdetails({ text: data.product, value: data.productId });
     setTransactions(data.transactionId);
     if (editShipment == "Shipment" && data) {
-      // console.log("data)-> ", data);
       getEditShipmentData(data);
     }
     getLocationList();
@@ -515,6 +552,9 @@ const CreateChallanModal = ({
       settest(show.label);
       setupdatechallan(show.label);
       getbomcomponents(data.productId, data.transactionId);
+      // console.log("here in return challan", data);
+      setRtnChallan(true);
+      getMinDetails(data);
     } else if (show.label === "Create shipment") {
       settest(show.label);
       setupdatechallan(show.label);
@@ -551,7 +591,7 @@ const CreateChallanModal = ({
     const response = await imsAxios.post("/createwo/fetch_wo_mins", {
       wo_id: d.transactionId,
     });
-    console.log("response mindetails", response);
+    // console.log("response mindetails", response);
     const { data } = response;
     let arr = data?.data?.map((r) => {
       return {
@@ -561,19 +601,66 @@ const CreateChallanModal = ({
         min_available_qty: r.min_available_qty,
         min_rate: r.min_rate,
         component_name: r.component_name,
+        part_code: r.part_code,
         component_key: r.component_key,
         id: v4(),
       };
     });
-    console.log("arr", arr);
     setMinRows(arr);
     // challanForm.setFieldValue("componentsMIN", arr);
   };
+  // useEffect(() => {
+  //   console.log("set", callInphandler);
+  //   if (updatedQty) {
+  //     console.log("here in qty ");
+  //     inputHandler();
+  //   }
+  // }, [updatedQty]);
+
   const inputHandler = (name, value, id) => {
-    console.log("name", name);
-    console.log("value", value);
-    console.log("id", id);
+    // console.log("this is the chalan form values", minRows);
     let arr = minRows;
+
+    if (name === "out_qty") {
+      // const abovArr = challanForm.getFieldValue("components");
+      // const found = arr.find((row) => row.id === id);
+      // let updateId;
+      // const samePartCodeArr = arr.filter(
+      //   (row) => row.part_code === found.part_code
+      // );
+      // console.log("same part code", samePartCodeArr);
+      // // let totalMinAvailableQty = samePartCodeArr.reduce(
+      // //   (total, component) => total + +Number(component.out_qty),
+      // //   0
+      // // );
+      // if (samePartCodeArr.length > 1) {
+      //   setUpdatedQty(true);
+      //   setCallInpHandler(true);
+      // }
+      // let totalMinAvailableQty = 0;
+      // for (const item of samePartCodeArr) {
+      //   if (item.out_qty) {
+      //     totalMinAvailableQty += parseInt(item.out_qty);
+      //   }
+      // }
+      // // value = totalMinAvailableQty;
+      // console.log("totalMinAvailableQty", totalMinAvailableQty);
+      // setTotalSum(totalMinAvailableQty);
+      // if (found) {
+      //   abovArr.map((row) => {
+      //     if (row.partCode === found.part_code) {
+      //       updateId = row.id;
+      //     }
+      //   });
+      //   console.log("Update id", value);
+      //   challanForm.setFieldValue(
+      //     ["components", updateId - 1, "qty"],
+      //     totalMinAvailableQty
+      //   );
+      //   setUpdatedQty(false);
+      //   // console.log("updated arr ", arr1);
+      // }
+    }
     arr = arr.map((row) => {
       let obj = row;
       if (row.id === id) {
@@ -607,10 +694,11 @@ const CreateChallanModal = ({
         component: row.component_name,
         partCode: row.part_code,
         hsn: row.component_hsn,
-        // qty: row.pending_qty,
+        qty: "",
       }));
       const fields = challanForm.getFieldsValue();
       fields.components = arr;
+      setComponentList(arr);
       challanForm.setFieldsValue(fields);
       setLoading(false);
     } catch (error) {
@@ -631,7 +719,7 @@ const CreateChallanModal = ({
     const { data } = response;
     if (data) {
       if (data.code === 200) {
-        console.log("data in data fetch product", dataProductdetails);
+        // console.log("data in data fetch product", dataProductdetails);
         // fetchbomlist(data.data.product_sku);
         // setUom(data.data?.unit);
         // challanForm.setFieldValue("qty", data.data?.description);
@@ -647,7 +735,7 @@ const CreateChallanModal = ({
           productname: dataProductdetails.text,
           qty: minqty,
         };
-        console.log("obj ->", obj);
+        // console.log("obj ->", obj);
         // challanForm.setFieldsValue()
         challanForm.setFieldValue("components", [obj]);
       } else {
@@ -659,7 +747,7 @@ const CreateChallanModal = ({
   };
 
   const getClientdetails = async (code, caddress, caid, badd, sadd, cid) => {
-    console.log(cid, caddress);
+    // console.log(cid, caddress);
 
     try {
       setLoading("fetch");
@@ -678,14 +766,17 @@ const CreateChallanModal = ({
         // });
         data.branchList.map((row) => {
           if (row.address === badd) {
-            challanForm.setFieldValue("billingid", row.text);
+            // console.log("coming here", badd);
+            challanForm.setFieldValue("billingid", row.id);
             challanForm.setFieldValue("billingaddress", badd);
-            console.log("here is fetchclient", row.id);
+            // challanForm.setFieldValue("dispatchfrompincode", data.pincode);
             setBillId(row.id);
-            console.log("billing", billid);
           } else if (row.address === sadd) {
+            // console.log("coming here", sadd);
             challanForm.setFieldValue("dispatchid", row.text);
             challanForm.setFieldValue("shippingaddress", sadd);
+            challanForm.setFieldValue("dispatchfromgst", row.gst);
+            challanForm.setFieldValue("dispatchfrompincode", row.pincode);
             setDispatchId(row.id);
           }
         });
@@ -695,7 +786,6 @@ const CreateChallanModal = ({
           if (item.id === caid) {
             challanForm.setFieldValue("clientbranch", item.text);
             setBranchId(item.id);
-            console.log("item.text", item.text);
           }
         });
       } else {
@@ -720,6 +810,8 @@ const CreateChallanModal = ({
           } else if (row.address === sadd) {
             challanForm.setFieldValue("dispatchid", row.text);
             challanForm.setFieldValue("shippingaddress", sadd);
+            challanForm.setFieldValue("dispatchfromgst", row.gst);
+            challanForm.setFieldValue("dispatchfrompincode", row.pincode);
             setDispatchId(row.id);
           }
         });
@@ -731,6 +823,8 @@ const CreateChallanModal = ({
           text: row.text,
           value: row.id,
           address: row.address,
+          gst: row.gst,
+          pincode: row.pincode,
         }));
         setaddoptions(arr);
       }
@@ -750,10 +844,7 @@ const CreateChallanModal = ({
   const createchallanThroughtExcel = async () => {
     let a = challanForm.getFieldsValue();
     let bbidforexcel = a.billingid;
-    // console.log("a=>", bbidforexcel);
     const values = await challanForm.validateFields();
-    // console.log("billid", billid);
-    // console.log("addid", addid);
     {
       addid ? (bid = values.billingid) : (bid = billid);
     }
@@ -766,10 +857,6 @@ const CreateChallanModal = ({
     formData.append("dispatchaddrid", values.dispatchid);
     formData.append("transaction_id", transaction);
 
-    // const values = await challanForm.validateFields();
-    // console.log("values====", values);
-    console.log("challanId", transaction);
-
     // let finalObj = {};
     // let formDatas = new FormData();
     // formDatas.append("file", values.files[0].originFileObj);
@@ -778,7 +865,6 @@ const CreateChallanModal = ({
       "/wo_challan/saveShipmentthroughExcel",
       formData
     );
-    // console.log("v", res);
     const { data } = res;
     if (data.code === 200) {
       toast.success(data.message);
@@ -796,9 +882,6 @@ const CreateChallanModal = ({
     } else {
       if (editShipment === "Shipment") {
         const values = await challanForm.validateFields();
-        // console.log("valueimgs", values);
-        // console.log("rows", rows);
-        // return;
         const newpayload = {
           shipment_id: values.components[0].shipment_id,
           wo_id: values.components[0].woId,
@@ -830,15 +913,14 @@ const CreateChallanModal = ({
             // remark: values.components[0].description,
           },
         };
-        // console.log("newpay/load", newpayload);
-        // return;
         updateWoShipment(newpayload);
       } else {
         try {
           const values = await challanForm.validateFields();
-          console.log("values----------", values);
-          console.log("rows----------", rows);
-          console.log("minRows----------", minRows);
+          let a = rows.filter((b) => b.out_qty > 0);
+
+          // console.log("minRows----------", a);
+          // setRows(a);
           console.log(billid);
           // return;
           // return;
@@ -882,23 +964,23 @@ const CreateChallanModal = ({
               // insert_dt
             },
             // component: ["1670578341262"],
-            component: rows.map((r) => r.component_key),
-            doc_id: rows.map((r) => r.min_id),
-            doc_date: rows.map((r) => r.min_date),
-            out_qty: rows.map((r) => r.out_qty),
-            out_rate: rows.map((r) => r.min_rate),
+            component: a.map((r) => r.component_key),
+            doc_id: a.map((r) => r.min_id),
+            doc_date: a.map((r) => r.min_date),
+            out_qty: a.map((r) => r.out_qty),
+            out_rate: a.map((r) => r.min_rate),
             // doc_id: ["1234"],
             // doc_date: ["12-09-2023"],
             // out_qty: ["100"],
             // out_rate: ["120"],
           };
-          console.log("cddata", cddata);
+          // console.log("cddata", cddata);
           // return;
           const response = await imsAxios.post(
             "/wo_challan/saveCreateShipment",
             cddata
           );
-          console.log("response", response);
+          // console.log("response", response);
           if (response.data.status === "success") {
             toast.success(response.data.message);
             challanForm.resetFields();
@@ -944,45 +1026,45 @@ const CreateChallanModal = ({
       {
         addid ? (did = values.dispatchid) : (did = dispatchid);
       }
-      let component = [];
-      let qty = [];
-      let rate = [];
-      let pickup = [];
-      let hsn = [];
-      let remark = [];
-      values.components.map((item) => component.push(item.componentKey));
-      values.components.map((item) => qty.push(item.qty));
-      values.components.map((item) => rate.push(item.rate));
-      values.components.map((item) => pickup.push(item.pickuplocation));
-      values.components.map((item) => hsn.push(item.hsn));
-      values.components.map((item) => remark.push(item.description));
+      let a = rows.filter((b) => b.out_qty > 0);
+
       const cddata = {
         product_id: data.productId,
         header: {
-          billingaddrid: bid,
+          billingaddrid: values.billingid,
           billingaddr: values.billingaddress,
           transaction_id: data.transactionId,
-          dispatchfromaddrid: did,
+          dispatchfromaddrid: values.dispatchid,
           dispatchfromaddr: values.shippingaddress,
-          dispatchfrompincode: "1234567",
-          dispatchfromgst: "--",
+          dispatchfrompincode: values.dispatchfrompincode,
+          dispatchfromgst: values.dispatchfromgst,
           vehicle: values.vn,
           clientbranch: values.clientbranch,
           clientaddress: values.address,
-          duration: values.pd,
-          nature: values.nature,
           other_ref: values.or,
+          ship_doc: values.pd,
+          eway_no: values.nature,
+          insert_dt: values.insertDate,
         },
         material: {
-          component: component,
-          qty: qty,
-          rate: rate,
-          picklocation: pickup,
-          hsncode: hsn,
-          remark: remark,
+          component: values.components.map((r) => r.componentKey),
+          // secondary_product: values.components[0].secondary_productId,
+          qty: values.components.map((r) => r.qty),
+          rate: values.components.map((r) => r.rate),
+          picklocation: values.components.map((r) => r.pickuplocation),
+          hsncode: values.components.map((r) => r.hsn),
+          remark: values.components.map((r) => r.description),
         },
+        component: a.map((r) => r.component_key),
+        doc_id: a.map((r) => r.min_id),
+        doc_date: a.map((r) => r.min_date),
+        out_qty: a.map((r) => r.out_qty),
+        out_rate: a.map((r) => r.min_rate),
       };
       setLoading("fetch");
+      console.log("cddata", cddata);
+      console.log("values", values);
+      // return;
       const response = await imsAxios.post(
         "wo_challan/saveCreateReturnChallan",
         cddata
@@ -991,6 +1073,7 @@ const CreateChallanModal = ({
         toast.success(response.data.message);
         challanForm.resetFields();
         setLoading(false);
+        setRtnChallan(false);
         close();
       } else {
         toast.error(response.data.message.msg);
@@ -1001,6 +1084,7 @@ const CreateChallanModal = ({
     } finally {
       setLoading(false);
     }
+    setRtnChallan(false);
   };
   const calculation = (fieldName, watchValues) => {
     const { qty, rate, gstRate } = watchValues;
@@ -1065,7 +1149,7 @@ const CreateChallanModal = ({
       <Drawer
         title={`${challantitle ? "Editing" : ""} ${test}`}
         placement="right"
-        onClose={close}
+        onClose={closeDrawer}
         bodyStyle={{
           padding: 5,
         }}
@@ -1089,6 +1173,7 @@ const CreateChallanModal = ({
                   uplaodType={uplaodType}
                   setUploadType={setUploadType}
                   stage={stage}
+                  rtnchallan={rtnchallan}
                   // submitHandler={submitHandler}
                   // validateHandler={validateHandler}
                   previewuploaData={previewuploaData}
@@ -1149,12 +1234,13 @@ const CreateChallanModal = ({
                   code={data.clientCode}
                   setaddid={setdaddid}
                   addoptions={addOptions}
+                  rtnchallan={rtnchallan}
                 />
               </Row>
             </Col>
             {uplaodType === "table" && (
               <>
-                <Col span={18} style={{ height: "80%", overflow: "auto" }}>
+                <Col span={18} style={{ height: "90%", overflow: "auto" }}>
                   {challantitle ? (
                     test === "Create shipment" ||
                     editShipment === "Shipment" ? (
@@ -1173,6 +1259,7 @@ const CreateChallanModal = ({
                         minRows={minRows}
                         removeRow={removeRow}
                         CommonIcons={CommonIcons}
+                        rows={rows}
                       />
                     ) : (
                       <Component
@@ -1183,6 +1270,7 @@ const CreateChallanModal = ({
                         setlocationlist={setlocationlist}
                         inputHandler={inputHandler}
                         minRows={minRows}
+                        removeRow={removeRow}
                       />
                     )
                   ) : show.label === "Create shipment" ||
@@ -1204,6 +1292,7 @@ const CreateChallanModal = ({
                       minRows={minRows}
                       removeRow={removeRow}
                       CommonIcons={CommonIcons}
+                      rows={rows}
                     />
                   ) : (
                     <Component
@@ -1214,6 +1303,7 @@ const CreateChallanModal = ({
                       setlocationlist={setlocationlist}
                       inputHandler={inputHandler}
                       minRows={minRows}
+                      removeRow={removeRow}
                     />
                   )}
                 </Col>
@@ -1247,7 +1337,7 @@ const CreateChallanModal = ({
             submitFunction={
               test === "Create shipment" || editShipment === "Shipment"
                 ? showSubmitConfirmationModal
-                : createRMChallan
+                : showReturnSubmitConfirmationModal
             }
             nextLabel={
               test === "Create shipment" || editShipment === "Shipment"
@@ -1292,7 +1382,7 @@ const defaultValues = {
 };
 
 export default CreateChallanModal;
-
+//for return challan
 const Component = ({
   fields,
   field,
@@ -1308,31 +1398,67 @@ const Component = ({
   setlocationlist,
   getLocationList,
   locationlist,
+  minRows,
+  removeRow,
+  inputHandler,
+  rows,
 }) => {
   return (
     <>
       <Col span={29} style={{ height: "100%", overflow: "hidden" }}>
-        <FormTable2
-          removableRows={true}
-          nonRemovableColumns={1}
-          columns={[
-            ...componentsItems(
-              location,
-              gsttype,
-              setlocationlist,
-              getLocationList,
-              locationlist
-            ),
-          ]}
-          listName="components"
-          watchKeys={["rate", "qty", "gstRate"]}
-          nonListWatchKeys={["gstType"]}
-          componentRequiredRef={["rate", "qty"]}
-          form={form}
-          calculation={calculation}
-          rules={listRules}
-        />
+        <Card
+          style={{
+            height: "35%",
+            overflowY: "scroll",
+            overflowX: "scroll",
+            maxHeight: "35%",
+            marginTop: "20px",
+          }}
+        >
+          <FormTable2
+            removableRows={true}
+            nonRemovableColumns={1}
+            columns={[
+              ...componentsItems(
+                location,
+                gsttype,
+                setlocationlist,
+                getLocationList,
+                locationlist
+              ),
+            ]}
+            listName="components"
+            watchKeys={["rate", "qty", "gstRate"]}
+            nonListWatchKeys={["gstType"]}
+            componentRequiredRef={["rate", "qty"]}
+            form={form}
+            calculation={calculation}
+            rules={listRules}
+          />
+        </Card>
         {/* </Card> */}
+        <Card
+          style={{
+            height: "63%",
+            overflowY: "scroll",
+            maxHeight: "63%",
+            marginTop: "30px",
+          }}
+        >
+          <FormTable
+            columns={[
+              ...compMinItems(
+                inputHandler,
+                removeRow,
+                CommonIcons,
+                rows,
+                minRows
+              ),
+            ]}
+            data={minRows}
+            inputHandle={inputHandler}
+          />
+        </Card>
       </Col>
     </>
   );
@@ -1428,29 +1554,6 @@ const Product = ({
                 marginTop: "20px",
               }}
             >
-              {/* <FormTable2
-                nonRemovableColumns={1}
-                columns={[
-                  ...productMinItems(
-                    location,
-                    gsttype,
-                    setlocationlist,
-                    getLocationList,
-                    locationlist,
-                    getComponentOptions,
-                    asyncOptions,
-                    setAsyncOptions,
-                    getComponentDetails
-                  ),
-                ]}
-                listName="componentsMIN"
-                watchKeys={["rate", "qty", "gstRate"]}
-                nonListWatchKeys={["gstType"]}
-                componentRequiredRef={["rate", "qty"]}
-                form={form}
-                calculation={calculation}
-                rules={listRules}
-              /> */}
               <FormTable
                 columns={[
                   ...productMinItems(
@@ -1467,30 +1570,6 @@ const Product = ({
             </Card>
           </>
         )}
-        {/* <FormTable2
-          nonRemovableColumns={1}
-          columns={[
-            ...productItems(
-              location,
-              gsttype,
-              setlocationlist,
-              getLocationList,
-              locationlist,
-              getComponentOptions,
-              asyncOptions,
-              setAsyncOptions,
-              getComponentDetails
-            ),
-          ]}
-          listName="components"
-          watchKeys={["rate", "qty", "gstRate"]}
-          nonListWatchKeys={["gstType"]}
-          componentRequiredRef={["rate", "qty"]}
-          form={form}
-          calculation={calculation}
-          rules={listRules}
-        /> */}
-        {/* </Card> */}
       </Col>
     </>
   );
@@ -1656,7 +1735,7 @@ const productMinItems = (
   {
     headerName: "Component Name",
     field: "component_name",
-    width: 100,
+    width: 300,
     sortable: false,
     // width: "10vw",
     renderCell: ({ row }) => (
@@ -1666,6 +1745,180 @@ const productMinItems = (
         value={row.component_name}
         onChange={(e) => inputHandler("component_name", e.target.value, row.ID)}
         disabled={row.component_name}
+      />
+    ),
+  },
+  {
+    headerName: "Part Code",
+    // width: "20.5vw",
+    field: "part_code",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("part_code", e.target.value, row.id);
+          }}
+          value={row?.part_code}
+          name="part_code"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Date",
+    // width: "20.5vw",
+    field: "min_date",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_date", e.target.value, row.id);
+          }}
+          value={row?.min_date}
+          name="min_date"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Id",
+    // width: "20.5vw",
+    field: "min_id",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_id", e.target.value, row.id);
+          }}
+          value={row?.min_id}
+          name="min_id"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Rate",
+    // width: "20.5vw",
+    field: "min_rate",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_rate", e.target.value, row.id);
+          }}
+          value={row?.min_rate}
+          name="min_rate"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Available Qty",
+    // width: "20.5vw",
+    field: "min_available_qty",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_available_qty", e.target.value, row.id);
+          }}
+          value={row?.min_available_qty}
+          name="min_available_qty"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "Out Qty",
+    // width: "20.5vw",
+    field: "out_qty",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          onChange={(e) => {
+            inputHandler("out_qty", e.target.value, row.id);
+          }}
+          value={row?.out_qty}
+          name="out_qty"
+          id={row.ID}
+        />
+      ),
+  },
+];
+const compMinItems = (inputHandler, removeRow, CommonIcons, rows, minRows) => [
+  // {
+  //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
+  //   width: 40,
+  //   type: "actions",
+  //   field: "add",
+  //   sortable: false,
+  //   renderCell: ({ row }) =>
+  //     rows.length > 1 &&
+  //     !row?.total && (
+  //       <CommonIcons
+  //         action="removeRow"
+  //         onClick={() => {
+  //           removeRow(row.id);
+  //         }}
+  //       />
+  //     ),
+  // },
+  {
+    // headerName: <CommonIcons action="addRow" onClick={addRows} />,
+    field: "actions",
+    width: 40,
+    renderCell: ({ row }) => (
+      // row.type === "new" && (
+      <CommonIcons action="removeRow" onClick={() => removeRow(row.id)} />
+    ),
+    // ),
+  },
+  {
+    headerName: "Component Name",
+    field: "component_name",
+    width: 300,
+    sortable: false,
+    // width: "10vw",
+    renderCell: ({ row }) => (
+      <Input
+        // size="small"
+        //   value={row.total ? paymentTotal?.toFixed(2) : row.payment}
+        value={row.component_name}
+        onChange={(e) => inputHandler("component_name", e.target.value, row.ID)}
+        disabled={row.component_name}
+      />
+    ),
+  },
+  {
+    headerName: "Part Code",
+    field: "part_code",
+    width: 80,
+    sortable: false,
+    // width: "10vw",
+    renderCell: ({ row }) => (
+      <Input
+        // size="small"
+        //   value={row.total ? paymentTotal?.toFixed(2) : row.payment}
+        value={row.part_code}
+        onChange={(e) => inputHandler("part_code", e.target.value, row.ID)}
+        disabled={row.part_code}
       />
     ),
   },
@@ -1999,7 +2252,7 @@ const componentsItems = (location, gstType) => [
     field: (row) => <Input />,
   },
   {
-    headerName: "pick up location",
+    headerName: "Pick Up Location",
     name: "pickuplocation",
     width: 150,
     field: (row) => <MySelect options={location} />,
@@ -2065,12 +2318,7 @@ const listRules = {
       message: "Please component rate!",
     },
   ],
-  pickuplocation: [
-    {
-      required: true,
-      message: "Please select pickuplocation!",
-    },
-  ],
+
   hsncode: [
     {
       required: true,

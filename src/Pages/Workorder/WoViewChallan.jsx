@@ -10,7 +10,15 @@ import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import { getClientOptions, getWorkOrderAnalysis } from "./components/api";
+import {
+  createWorkOrderShipmentChallan,
+  fetchReturnChallanDetails,
+  getClientOptions,
+  getReturnRowsInViewChallan,
+  getWorkOrderAnalysis,
+  getdetailsOfReturnChallan,
+  printreturnChallan,
+} from "./components/api";
 import { imsAxios } from "../../axiosInterceptor";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
@@ -56,44 +64,53 @@ const WoViewChallan = () => {
 
   const printwoChallan = async (row) => {
     setLoading("fetch");
-    // challantype === "Delivery Challan"
-    //   ? "wo_challan/printWorkorderDeliveryChallan"
-    //   : "wo_challan/printWorkorderReturnChallan",
-    const response = await imsAxios.post(
-      "/wo_challan/printWorkorderDeliveryChallan",
-      {
+    // console.log("challamTypw", challantype);
+    if (challantype === "RM Challan") {
+      let payload = {
         challan_id: row.challan_id,
         ref_id: "--",
-      }
-    );
-    printFunction(response.data.data.buffer.data);
-    console.log(response);
-    setLoading(false);
+      };
+      const arr = await printreturnChallan(payload);
+      // console.log("console.log(response);", arr.data.buffer.data);
+      printFunction(arr.data.buffer.data);
+      setLoading(false);
+    } else {
+      const response = await imsAxios.post(
+        "/wo_challan/printWorkorderDeliveryChallan",
+        {
+          challan_id: row.challan_id,
+          ref_id: "--",
+        }
+      );
+      console.log("console.log(response);", response.data.data.buffer.data);
+      printFunction(response.data.data.buffer.data);
+      setLoading(false);
+    }
   };
 
   const downloadwochallan = async (row) => {
-    console.log("row, row", row);
-    setLoading("fetch");
-    // const response = await imsAxios.post(
-    //   challantype === "Delivery Challan"
-    //     ? "wo_challan/printWorkorderDeliveryChallan"
-    //     : "wo_challan/printWorkorderReturnChallan",
-    //   {
-    //     invoice_id: row.transactionId,
-    //     ref_id: "--",
-    //     challan: row.challanId,
-    //   }
-    // );
-    const response = await imsAxios.post(
-      "/wo_challan/printWorkorderDeliveryChallan",
-      {
+    if (challantype === "RM Challan") {
+      let payload = {
         challan_id: row.challan_id,
         ref_id: "--",
-      }
-    );
-    downloadFunction(response.data.data.buffer.data);
-    console.log(response);
-    setLoading(false);
+      };
+      const arr = await printreturnChallan(payload);
+      // console.log("console.log(response);", arr);
+      downloadFunction(arr.data.buffer.data, row.challan_id);
+      setLoading(false);
+    } else {
+      setLoading("fetch");
+      const response = await imsAxios.post(
+        "/wo_challan/printWorkorderDeliveryChallan",
+        {
+          challan_id: row.challan_id,
+          ref_id: "--",
+        }
+      );
+      downloadFunction(response.data.data.buffer.data, row.challan_id);
+      console.log(response);
+      setLoading(false);
+    }
   };
 
   const cancelwochallan = async (cid, woid) => {
@@ -125,15 +142,6 @@ const WoViewChallan = () => {
     width: 10,
     type: "actions",
     getActions: ({ row }) => [
-      // <GridActionsCellItem
-      //   showInMenu
-      //   // disabled={loading}
-      //   onClick={() => {
-      //     setDetailData(row);
-      //     setShowCreateChallanModal(true);
-      //   }}
-      //   label="Edit Challan"
-      // />,
       <GridActionsCellItem
         showInMenu
         // disabled={loading}
@@ -243,8 +251,23 @@ const WoViewChallan = () => {
   //     setLoading(false);
   //   }
   // };
-
   const getRows = async () => {
+    // challantype
+    if (challantype === "Delivery Challan") {
+      getDeliveryRows();
+    } else {
+      getReturnRows();
+    }
+  };
+  const getReturnRows = async () => {
+    setRows([]);
+    setLoading("fetch");
+    let arr = await getReturnRowsInViewChallan(wise, searchInput);
+
+    setRows(arr);
+    setLoading(false);
+  };
+  const getDeliveryRows = async () => {
     setLoading("fetch");
     const response = await imsAxios.post("/wo_challan/fetchDeliveryChallan", {
       wise: wise,
@@ -279,7 +302,6 @@ const WoViewChallan = () => {
         //  date: row.received_challan_rm_dt,
       }));
       setLoading(false);
-      console.log("arr", arr);
       setRows(arr);
     } else {
       toast.error(data.message.msg);
@@ -299,22 +321,35 @@ const WoViewChallan = () => {
     }
   };
   const viewChallanRow = async (row) => {
-    console.log("row", viewChallan);
     let challanID = row.challan_id;
-    const response = await imsAxios.post(
-      "/wo_challan/getDeliveryChallanDetails",
-      { challan_id: challanID }
-    );
-    console.log("response", response);
-    const { data } = response;
-    if (data.code === 200) {
-      let arr = data.data.map((row, index) => ({
+    let response;
+    let arr;
+    if (challantype === "RM Challan") {
+      setLoading("fetch");
+      let arr = await fetchReturnChallanDetails(challanID);
+      arr = arr.map((row, index) => ({
         id: index + 1,
         ...row,
       }));
       setViewChallanData(arr);
-      console.log("arrrrr", arr);
+      setLoading(false);
+    } else {
+      setLoading("fetch");
+      response = await imsAxios.post("/wo_challan/getDeliveryChallanDetails", {
+        challan_id: challanID,
+      });
+      const { data } = response;
+      if (data.code === 200) {
+        let arr = data.data.map((row, index) => ({
+          id: index + 1,
+          ...row,
+        }));
+        setViewChallanData(arr);
+        // console.log("arrrrr", arr);
+        setLoading(false);
+      }
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -324,9 +359,9 @@ const WoViewChallan = () => {
   }, [wise]);
   useEffect(() => {
     if (viewChallan) {
-      console.log("viewChallan, view", viewChallan);
     }
   }, [viewChallan]);
+
   const colms = [
     {
       headerName: "#",
@@ -342,6 +377,69 @@ const WoViewChallan = () => {
       headerName: "Qty",
       field: "wo_order_qty",
       width: 150,
+    },
+    {
+      headerName: "SKU Code",
+      field: "sku_code",
+      width: 100,
+    },
+    {
+      headerName: "Transaction Id",
+      field: "wo_transaction_id",
+      width: 150,
+    },
+    {
+      headerName: "Shipment Id",
+      field: "wo_shipment_id",
+      width: 150,
+    },
+
+    {
+      headerName: "Qty",
+      field: "wo_order_qty",
+      width: 100,
+    },
+    {
+      headerName: "Rate",
+      field: "wo_order_rate",
+      width: 100,
+    },
+  ];
+  const returncolms = [
+    {
+      headerName: "#",
+      field: "id",
+      width: 5,
+    },
+    {
+      headerName: "Component",
+      field: "wo_part_name",
+      width: 300,
+    },
+    {
+      headerName: "Part Code",
+      field: "wo_part_no",
+      width: 100,
+    },
+    {
+      headerName: "Transaction Id",
+      field: "wo_transaction_id",
+      width: 150,
+    },
+    {
+      headerName: "Shipment Id",
+      field: "wo_shipment_id",
+      width: 150,
+    },
+    {
+      headerName: "Qty",
+      field: "wo_order_qty",
+      width: 100,
+    },
+    {
+      headerName: "Rate",
+      field: "wo_order_rate",
+      width: 100,
     },
   ];
 
@@ -421,25 +519,34 @@ const WoViewChallan = () => {
         />
       </div>
       <Drawer
-        title={`${viewChallanData[0]?.wo_transaction_id}`}
+        title={`${viewChallanData[0]?.client}`}
         // right
         placement="right"
         // centered
         // confirmLoading={submitLoading}
         open={viewChallan}
         onClose={() => setViewChallan(false)}
-        width={450}
+        width={950}
         // width={450}
         // title="Map Invoice"
         // placement="right"
         // onClose={setViewChallan}
         // open={viewChallan}
       >
-        <MyDataTable
-          loading={loading === "fetch"}
-          data={viewChallanData}
-          columns={colms}
-        />
+        {challantype === "Delivery Challan" ? (
+          <MyDataTable
+            loading={loading === "fetch"}
+            data={viewChallanData}
+            columns={colms}
+          />
+        ) : (
+          <MyDataTable
+            loading={loading === "fetch"}
+            data={viewChallanData}
+            columns={returncolms}
+          />
+        )}
+
         {/* <>
           <div style={{ height: "100%" }}>
             <MyDataTable data={allBranch} columns={coloums} />
@@ -505,6 +612,7 @@ const columns = [
     field: "client",
     minWidth: 180,
     flex: 1,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.client} />,
   },
   {
     headerName: "Client Code",
@@ -517,18 +625,22 @@ const columns = [
     field: "clientaddress",
     minWidth: 150,
     flex: 1,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.clientaddress} />,
   },
   {
     headerName: "Billing Address",
     field: "billingaddress",
     minWidth: 150,
     flex: 1,
+
+    renderCell: ({ row }) => <ToolTipEllipses text={row.billingaddress} />,
   },
   {
     headerName: "Shipping Address",
     field: "shippingaddress",
     minWidth: 150,
     flex: 1,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.shippingaddress} />,
   },
 
   // {

@@ -5,9 +5,13 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import MySelect from "../../../../Components/MySelect";
 
-const DispatchDetailsCard = ({ form, code, setaddid, addoptions }) => {
-  const [shippingaddressoptions, setShippingAddressOptions] = useState([]);
-  const [shippingaddressdata, setShippingAddData] = useState([]);
+const DispatchDetailsCard = ({
+  form,
+  code,
+  setaddid,
+  addoptions,
+  rtnchallan,
+}) => {
   const [loading, setLoading] = useState([]);
 
   const handleaddress = (e) => {
@@ -16,11 +20,13 @@ const DispatchDetailsCard = ({ form, code, setaddid, addoptions }) => {
     addoptions.map((item) => {
       if (item.value === e) {
         form.setFieldValue("shippingaddress", item.address);
+        form.setFieldValue("dispatchfrompincode", item.pincode);
+        form.setFieldValue("dispatchfromgst", item.gst);
       }
     });
   };
-  // 
-///////
+  //
+  ///////
   return (
     <Col span={24}>
       <Card
@@ -50,6 +56,24 @@ const DispatchDetailsCard = ({ form, code, setaddid, addoptions }) => {
         >
           <Input.TextArea rows={3} disabled />
         </Form.Item>
+        {rtnchallan && (
+          <>
+            <Form.Item
+              name="dispatchfrompincode"
+              label="Shipping Pin"
+              rules={[{ required: true }]}
+            >
+              <Input disabled />
+            </Form.Item>
+            <Form.Item
+              name="dispatchfromgst"
+              label="Shipping GST"
+              rules={[{ required: true }]}
+            >
+              <Input disabled />
+            </Form.Item>
+          </>
+        )}
       </Card>
     </Col>
   );
