@@ -321,7 +321,7 @@ export default function JwInwordModal({
       field: "uom",
       headerName: "Uom",
       width: 50,
-      renderCell: ({ row }) => <Input disabled value={row.uom} />,
+      renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
     // {
     //   field: "pendingStock",
@@ -330,6 +330,13 @@ export default function JwInwordModal({
     //   renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
     // },
   ];
+  const prev = async () => {
+    getFetchData();
+    getLocation();
+    setEWayBill("");
+    setShowBomList(false);
+    setBomList([]);
+  };
 
   const saveFunction = async () => {
     setModalUploadLoad(true);
@@ -571,6 +578,7 @@ export default function JwInwordModal({
                     //   nextLabel="Submit"
                     // />
                     <>
+                      <Button onClick={prev}>Back</Button>
                       <Popconfirm
                         placement="topLeft"
                         title={text}
@@ -579,7 +587,9 @@ export default function JwInwordModal({
                         okText="Yes"
                         cancelText="No"
                       >
-                        <Button type="primary">Save</Button>
+                        <Button style={{ marginLeft: 4 }} type="primary">
+                          Save
+                        </Button>
                       </Popconfirm>
                     </>
                   ) : (
