@@ -96,16 +96,16 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
   }, [viewModalOpen]);
   const items = [
     {
-      key: "Create",
-      label: <a href="/jw-rw-challan">Create</a>,
+      key: "Create Challan",
+      label: <a href="/jw-rw-challan">Create Challan</a>,
     },
     {
       key: "SF Inward",
-      label: <a href="/jw-sf-inward">Inward</a>,
+      label: <a href="/jw-sf-inward">SFG Inward</a>,
     },
     {
       key: "RM Return",
-      label: <a href="/jw-rm-return">Return</a>,
+      label: <a href="/jw-rm-return">SFG Return</a>,
     },
   ];
   return (
