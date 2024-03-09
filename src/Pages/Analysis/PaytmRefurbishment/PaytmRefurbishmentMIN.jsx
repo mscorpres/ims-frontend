@@ -103,15 +103,7 @@ function PaytmRefurbishmentMIN() {
       "select"
     );
     let { data } = response;
-    if (data) {
-      if (data[0]) {
-        let arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
-        setAsyncOptions(arr);
-      }
-    }
+    setAsyncOptions(data);
   };
   const submitHandler = async () => {
     if (submitConfirmModal) {

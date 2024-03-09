@@ -411,34 +411,15 @@ export default function AddComponents({
         "select"
       );
       let { data } = response;
-      console.log("response", data);
-      let arr = [];
-      if (response.success) {
-        arr = data.map((r) => {
-          return {
-            text: r.text,
-            value: r.id,
-          };
-        });
-        setAsyncOptions(arr);
-      } else {
-        setAsyncOptions([]);
-      }
+      setAsyncOptions(data);
     } else {
       const response = await executeFun(
         () => getComponentOptions(searchInput),
         "select"
       );
-      let { data } = response;
-      let arr = [];
+
       if (response.success) {
-        arr = data.map((r) => {
-          return {
-            text: r.text,
-            value: r.id,
-          };
-        });
-        setAsyncOptions(arr);
+        setAsyncOptions(response.data);
       } else {
         setAsyncOptions([]);
       }

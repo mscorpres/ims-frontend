@@ -43,13 +43,8 @@ const OpenR29Modal = ({
         "select"
       );
       let { data } = response;
-      setSelectLoading(false);
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      // return arr;
-      setAsyncOptions(arr);
+
+      setAsyncOptions(data);
     }
   };
 

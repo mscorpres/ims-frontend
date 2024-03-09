@@ -29,19 +29,13 @@ const CompletedFG = () => {
 
   const { executeFun, loading1 } = useApi();
   const getOption = async (searchInput) => {
-    if (searchInput?.length > 2) {
-      const response = await executeFun(
-        () => getProductsOptions(searchInput, true),
-        "select"
-      );
-      let { data } = response;
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      // return arr;
-      setAsyncSelect(arr);
-    }
+    const response = await executeFun(
+      () => getProductsOptions(searchInput, true),
+      "select"
+    );
+    let { data } = response;
+
+    setAsyncSelect(data);
   };
 
   const skuWise = async () => {

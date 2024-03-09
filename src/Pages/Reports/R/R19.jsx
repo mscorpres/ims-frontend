@@ -30,12 +30,8 @@ function R19() {
         () => getProductsOptions(searchInput, true),
         "select"
       );
-      let { data } = response;
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      setAsyncOptions(arr);
+
+      setAsyncOptions(response.data);
     }
   };
 
