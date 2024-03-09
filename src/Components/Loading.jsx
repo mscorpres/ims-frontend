@@ -15,6 +15,7 @@ export default function Loading({ size, offsetY }) {
         alignItems: "center",
         // width: "80px",
         background: "transparent",
+        filter: blur(8),
         zIndex: 99,
         // transform: "translate(-50%) translateY(-50%)",
       }}

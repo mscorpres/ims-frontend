@@ -164,14 +164,12 @@ const SingleRow = memo(
     );
     const valueObj = form.getFieldValue([listName, field.name]);
     const isComponentRequired = () => {
-      console.log("goes here", componentRequiredValues);
       let isRequired = false;
       componentRequiredValues.map((val) => {
         if (val && val.length > 0) {
           isRequired = true;
         }
       });
-      console.log("this is rerquired", isRequired);
       return isRequired;
     };
     useEffect(() => {
@@ -184,8 +182,6 @@ const SingleRow = memo(
             [key]: form.getFieldValue([listName, field.name, key]),
           };
         });
-        console.log("renedering watch values", watchValues);
-        console.log("renedering watch non wathcn", nonListWatchValues);
         calculation(field.name, obj);
       }
     }, [...[...watchValues, ...nonListWatchValues]]);
@@ -236,7 +232,7 @@ const SingleRow = memo(
                 </Form.Item>
               </td>
             ) : (
-              row.condition() && (
+              row.condition({ fieldName: field.name, ...valueObj }, index) && (
                 <td style={columnCellStyle(row, index)}>
                   <Form.Item
                     rules={

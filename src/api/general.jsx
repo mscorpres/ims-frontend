@@ -12,7 +12,20 @@ export const getVendorOptions = async (search) => {
     console.log("something happened wrong", error);
   }
 };
+export const getVendorBranchOptions = async (vendorCode) => {
+  const response = await imsAxios.post("/backend/vendorBranchList", {
+    vendorcode: vendorCode,
+  });
 
+  return response;
+};
+export const getVendorBranchDetails = async (vendorCode, branchCode) => {
+  const response = await imsAxios.post("/backend/vendorAddress", {
+    branchcode: branchCode,
+    vendorcode: vendorCode,
+  });
+  return response;
+};
 export const getCostCentresOptions = async (search) => {
   const response = await imsAxios.post("/backend/costCenter", {
     search,
