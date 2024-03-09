@@ -277,7 +277,7 @@ export default function UpdateComponent() {
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item name="newPartCode" label="New Part Code">
+                  <Form.Item name="newPartCode" label="Cat Part Code">
                     <Input />
                   </Form.Item>
                 </Col>

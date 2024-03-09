@@ -450,7 +450,7 @@ const Material = () => {
                     <Col span={6}>
                       <Form.Item
                         rules={headerRules.newPart}
-                        label="New Part Code"
+                        label="Cat Part Code"
                         name="newPart"
                       >
                         <Input />
@@ -1259,7 +1259,7 @@ const headerRules = {
   newPart: [
     {
       required: true,
-      message: "Please provide a New Part code",
+      message: "Please provide a Cat Part code",
     },
   ],
 };

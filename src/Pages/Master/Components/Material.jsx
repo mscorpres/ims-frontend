@@ -371,7 +371,7 @@ const Material = () => {
               <div>
                 <Input
                   style={{ width: "100%" }}
-                  placeholder="new Part Code"
+                  placeholder="Cat Part Code"
                   name="new_partno"
                   value={material.new_partno}
                   onChange={(e) =>

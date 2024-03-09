@@ -540,7 +540,7 @@ export default function UpdateComponent() {
                             width: 350,
                           }}
                         >
-                          New Part Code
+                          Cat Part Code
                           {/* Alternate Part Code */}
                           <span
                             onClick={() => setAlternatePartModal(true)}
