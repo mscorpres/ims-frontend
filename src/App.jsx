@@ -149,6 +149,7 @@ const App = () => {
   const handleSelectSession = (value) => {
     dispatch(setSession(value));
   };
+  // to trigger
 
   const getModuleSearchOptions = (search) => {
     let arr = [];
