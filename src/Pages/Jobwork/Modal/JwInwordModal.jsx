@@ -300,6 +300,14 @@ export default function JwInwordModal({
       renderCell: ({ row }) => <Typography.Text>{row.partNo}</Typography.Text>,
     },
     {
+      field: "catPartName",
+      headerName: "Cat Part No.",
+      width: 50,
+      renderCell: ({ row }) => (
+        <Typography.Text>{row.catPartName}</Typography.Text>
+      ),
+    },
+    {
       field: "partName",
       headerName: "Part Name",
       width: 320,
@@ -323,6 +331,12 @@ export default function JwInwordModal({
       width: 50,
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
+    // {
+    //   field: "conRemark",
+    //   headerName: "Remark",
+    //   width: 150,
+    //   renderCell: ({ row }) => <Input value={row.conRemark} />,
+    // },
     // {
     //   field: "pendingStock",
     //   headerName: "Pending Stock",
@@ -354,8 +368,9 @@ export default function JwInwordModal({
       ewaybill: eWayBill,
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
+      consRemark: bomList.map((r) => r.conRemark),
     };
-    // console.log("payload", payload);
+    console.log("payload", payload);
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     console.log("response", response);
     const { data } = response;
@@ -412,6 +427,7 @@ export default function JwInwordModal({
           id: id + 1,
           bomQty: r.bom_qty,
           partName: r.part_name,
+          catPartName: r.cat_part_no,
           partNo: r.part_no,
           pendingStock: r.pendingStock,
           rqdQty: r.rqd_qty,
