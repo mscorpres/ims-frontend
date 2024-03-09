@@ -109,13 +109,8 @@ const R7 = () => {
         () => getProductsOptions(searchInput, true),
         "select"
       );
-      let { data } = response;
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      // return arr;
-      setAsyncOptions(arr);
+
+      setAsyncOptions(response.data);
     }
   };
 

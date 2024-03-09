@@ -72,18 +72,12 @@ const R12 = () => {
   };
 
   const getDataBySearch = async (searchInput) => {
-    if (searchInput?.length > 2) {
-      const response = await executeFun(
-        () => getProductsOptions(searchInput, true),
-        "select"
-      );
-      let { data } = response;
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      setAsyncOptions(arr);
-    }
+    const response = await executeFun(
+      () => getProductsOptions(searchInput, true),
+      "select"
+    );
+
+    setAsyncOptions(response.data);
   };
 
   const getBom = async () => {

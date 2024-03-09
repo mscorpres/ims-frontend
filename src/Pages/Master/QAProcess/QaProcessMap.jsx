@@ -83,11 +83,8 @@ const QaProcessMap = () => {
       "select"
     );
     let { data } = response;
-    let arr = [];
-    arr = data.map((d) => {
-      return { text: d.text, value: d.id };
-    });
-    setskuoptions(arr);
+
+    setskuoptions(data);
     processList();
   };
   //get BOM for Single Product If bom Rquired

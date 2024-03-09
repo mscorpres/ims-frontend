@@ -127,7 +127,7 @@ export const getProductsOptions = async (search, sku) => {
 
   let arr = [];
   if (response.success) arr = convertSelectOptions(response.data);
-  // response.data = arr;
+  response.data = arr;
   return response;
 
   // if (sku) {
