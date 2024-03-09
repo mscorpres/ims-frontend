@@ -448,7 +448,7 @@ export default function UpdateComponent() {
     <>
       <Drawer
         // width={600}
-        title="Update Alternate Part Code"
+        title="Update Similar Part Code"
         open={alternatePartModal}
         footer={[
           <Row justify="space-between">
@@ -585,7 +585,7 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={8}>
-                    <Form.Item label="Category">
+                    <Form.Item label="Attribute Code">
                       <Row justify="space-between">
                         {categoryData && (
                           <Col>{categoryData?.text ?? "--"}</Col>
