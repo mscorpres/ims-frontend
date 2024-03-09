@@ -79,15 +79,13 @@ function R9() {
   const getDataBySearch = async (searchInput) => {
     if (searchInput?.length > 2) {
       const response = await executeFun(
-        () => getProductsOptions(searchInput,true),
+        () => getProductsOptions(searchInput, true),
         "select"
       );
+
       let { data } = response;
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      setAsyncOptions(arr);
+
+      setAsyncOptions(data);
     }
   };
 
@@ -258,7 +256,6 @@ function R9() {
                 optionsState={asyncOptions}
                 placeholder="Select Product"
                 loadOptions={getDataBySearch}
-                onInputChange={(e) => setSearch(e)}
                 value={allData.selectProduct.value}
                 onChange={(e) =>
                   setAllData((allData) => {
@@ -355,7 +352,5 @@ function R9() {
     </div>
   );
 }
-
-// to trigger
 
 export default R9;
