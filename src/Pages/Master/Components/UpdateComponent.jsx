@@ -303,7 +303,7 @@ export default function UpdateComponent() {
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item label="Category">
+                <Form.Item label="Attribute Code">
                     <Row justify="space-between">
                       {categoryData && <Col>{categoryData.name}</Col>}
                       {categoryData && (
