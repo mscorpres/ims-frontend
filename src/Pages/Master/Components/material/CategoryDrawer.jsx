@@ -25,6 +25,7 @@ export default function CategoryDrawer({
   getDetails,
   setUniqueIdData,
 }) {
+  console.log("this is the cat show", show);
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState([]);
   const [uniqueId, setUniqueId] = useState("");
@@ -200,10 +201,11 @@ export default function CategoryDrawer({
       // getCategoryFields();
       getFieldValues();
       getCategoryOptions();
+      setSelectedCategory(show?.category);
+      setUniqueId(show?.catCode);
     }
-    if (show?.value !== "NA") {
-      setSelectedCategory(show);
-    }
+    // if (show?.value !== "NA") {
+    // }
   }, [show]);
   useEffect(() => {
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
@@ -364,8 +366,8 @@ export default function CategoryDrawer({
   // ---
   useEffect(() => {
     if (value) {
-      checkDecimal(value);
-      getUniqueNo();
+      // checkDecimal(value);
+      // getUniqueNo();
     }
   }, [value, alpha]);
   const sortedFields = [...fields].sort((a, b) => {
@@ -448,7 +450,7 @@ export default function CategoryDrawer({
                   label={row.label.replaceAll("_", " ")}
                 >
                   <MySelect
-                    labelInValue
+                    // labelInValue
                     disabled={row.label === "multiplier"}
                     options={
                       fieldSelectOptions.find(

@@ -43,17 +43,10 @@ export default function UpdateComponent() {
   const [showCategoryDetails, setShowCategoryDetails] = useState(false);
   const [fetchPartCode, setFetchPartCode] = useState("");
   const [newPartCodeDb, setNewPartCodeDb] = useState([]);
-  const [getAlternate_part_codes, setGetAlternate_part_codes] = useState([]);
   const { componentKey } = useParams();
   const [componentForm] = Form.useForm();
   const [altPartCodeForm] = Form.useForm();
-  const [asyncOptions, setAsyncOptions] = useState([]);
   const [alternatePartModal, setAlternatePartModal] = useState(false);
-  const [manfCode, setManfCode] = useState(null);
-  const [partOptions, setPartOptions] = useState([]);
-
-  const attrCategory = Form.useWatch("attrCategory", componentForm);
-  console.log("attr_raw", attr_raw);
 
   const { executeFun, loading: loading1 } = useApi();
   const getDetails = async () => {
@@ -115,18 +108,13 @@ export default function UpdateComponent() {
             alternate_part_codes: value.alternate_part_codes,
             alternate_part_keys: value.alternate_part_keys,
             alternate_part_name: value.alternate_part_name,
-            attrCategory: {
-              text: value.attr_category.text,
-              value: value.attr_category.value,
-            },
+            attrCategory: value.attr_category,
             // componentcategory: value.attr_raw.matType,
             category: value.category,
           };
           setCategoryData({
-            // text: value.attr_category.text,
-            // value: value.attr_category.value,
-            text: value.attr_code,
-            value: value.attr_code,
+            catCode: value.attr_code,
+            category: value.attr_category,
           });
           componentForm.setFieldsValue(finalObj);
           console.log("finalObj", finalObj);
@@ -151,25 +139,8 @@ export default function UpdateComponent() {
     }
   };
 
-  console.log("this is the category data", categoryData);
-  // console.log("this is the alternate part codes values,", partOptions);
   useEffect(() => {
-    console.log("alternate_part_codes in useefect", fetchPartCode);
     if (fetchPartCode) {
-      // setGetAlternate_part_codes(fetchPartCode.alternate_part_codes);
-      //  if (getAlternate_part_codes) {
-      // console.log("getAlternate_part_codes", getAlternate_part_codes);
-      // let alterpartcode = fetchPartCode.map((r, index, name) => {
-      //   return {
-      //     code: r.alternate_part_codes,
-      //     id: index + 1,
-      //     name: alternate_part_name[r],
-      //   };
-      // });
-
-      // let alterpartcode = fetchPartCode.alternate_part_codes.map((r, index) => {
-      //   return { r, id: index + 1 };
-      // });
       const alterpartcode = fetchPartCode.alternate_part_name.map(
         (name, index) => {
           return {
@@ -177,15 +148,11 @@ export default function UpdateComponent() {
             partName: name,
             partCode: fetchPartCode.alternate_part_codes[index],
           };
-          // return { name, code: alternate_part_codes[index], id: index + 1 };
         }
       );
-      console.log("alterpartcode", alterpartcode);
       setNewPartCodeDb(alterpartcode);
-      //  }
     }
   }, [fetchPartCode]);
-  // console.log("alterPArt", newPartCodeDb);
 
   const getUomOptions = async () => {
     try {
@@ -231,9 +198,6 @@ export default function UpdateComponent() {
   };
   const modalConfirmMaterial = async () => {
     const values = await componentForm.validateFields();
-    console.log("attr_raw =======", attr_raw);
-    console.log("values", values);
-    console.log("categoryData", categoryData);
     let attrCat;
     if (attr_raw?.attribute_category === "Resistor") {
       attrCat = "R";
@@ -271,21 +235,15 @@ export default function UpdateComponent() {
       othercost: values.otherCost,
       attr_code: attr_raw?.attributeCode ?? "--",
       attr_raw: attr_raw?.attr_raw ?? "",
-      // attr_category: attr_raw?.C_type ?? "O",
       attr_category: attrCat,
       componentcategory: "--",
-
-      // c_type: attr_raw?.C_type ?? "O",
-      //manu
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
     };
-    console.log("payload", payload);
 
     const response = await imsAxios.post(
       "/component/updateComponent/verify",
       payload
     );
-    console.log("response", response);
     const { data } = response;
     if (data.code === 200) {
       Modal.confirm({
@@ -298,14 +256,6 @@ export default function UpdateComponent() {
       });
     } else {
       toast.error(data.message.msg);
-      // Modal.confirm({
-      //   title: "Are you sure you want to submit this Material?",
-      //   content: `${data.message.msg}`,
-      //   // onOk() {
-      //   //   submitHandler(payload);
-      //   // },
-      //   onCancel() {},
-      // });
     }
   };
   const validateHandler = async () => {
@@ -415,24 +365,6 @@ export default function UpdateComponent() {
     componentForm.resetFields();
   };
 
-  const updatePartCode = async () => {
-    const values = await altPartCodeForm.validateFields();
-    console.log("values", values);
-    let arr = values.alternatePart.map((r) => r.value);
-    console.log("arr", arr);
-    console.log("componentKey", componentKey);
-    const response = await executeFun(
-      () => updateAlternatePartCode(arr, componentKey),
-      "select"
-    );
-    console.log("response", response);
-    if (response.success) {
-      setAlternatePartModal(false);
-    }
-    // const partCodes = altPartCodeForm.getFieldsValue("partCode");
-    // console.log("partCodes", partCodes);
-    // updateAlternatePartCode
-  };
   useEffect(() => {
     getDetails();
     getUomOptions();
@@ -501,7 +433,7 @@ export default function UpdateComponent() {
                           New Part Code
                           {/* Alternate Part Code */}
                           <span
-                            onClick={() => setAlternatePartModal(true)}
+                            onClick={() => setAlternatePartModal(componentKey)}
                             style={{
                               color: "#1890FF",
                               cursor: "pointer",
@@ -543,23 +475,21 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={8}>
-                    <Form.Item label="Category">
+                    <Form.Item label="Attribute Code">
                       <Row justify="space-between">
-                        {categoryData && (
-                          <Col>{categoryData?.text ?? "--"}</Col>
-                        )}
-                        {(!categoryData?.value ||
-                          categoryData?.value === "--") && (
-                          <Col>
-                            <Button
-                              onClick={() =>
-                                setShowCategoryDetails(categoryData)
-                              }
-                            >
-                              Details
-                            </Button>
-                          </Col>
-                        )}
+                        {/* {categoryData && ( */}
+                        <Col>{categoryData?.catCode ?? "--"}</Col>
+                        {/* )} */}
+                        {/* {(!categoryData?.value ||
+                          categoryData?.value === "--") && ( */}
+                        <Col>
+                          <Button
+                            onClick={() => setShowCategoryDetails(categoryData)}
+                          >
+                            Details
+                          </Button>
+                        </Col>
+                        {/* )} */}
                       </Row>
                     </Form.Item>
                   </Col>

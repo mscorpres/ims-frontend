@@ -1,10 +1,17 @@
-import { Drawer, Row, Col, Form } from "antd";
+import { Drawer, Row, Col, Form, Button } from "antd";
 import useApi from "../../../../hooks/useApi";
-import { getComponentOptions } from "../../../../api/general";
+import {
+  getComponentOptions,
+  updateAlternatePartCode,
+} from "../../../../api/general";
 import { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+import { imsAxios } from "../../../../axiosInterceptor";
+import { getAlternativePartCodes } from "../../../../api/master/component";
+import TableActions from "../../../../Components/TableActions.jsx/TableActions";
+
 const AlternatePartCode = ({ open, hide }) => {
   const [addedPartCodes, setAddedPartCodes] = useState([]);
   const [newPartCodes, setNewPartCodes] = useState([]);
@@ -28,10 +35,55 @@ const AlternatePartCode = ({ open, hide }) => {
           partCode: row.newPart,
         }));
 
-        // console.log("arr", arr);
         setAsyncOptions(arr);
       }
     }
+  };
+
+  const handleFetchAlternates = async (componentKey) => {
+    const response = await executeFun(
+      () => getAlternativePartCodes(componentKey),
+      "fetch"
+    );
+    setAddedPartCodes(response.data);
+  };
+
+  const handleDelete = (addedComponent) => {
+    if (!addedComponent.added) {
+      setNewPartCodes((curr) =>
+        curr.filter((row) => row.id !== addedComponent.id)
+      );
+    } else {
+      setAddedPartCodes((curr) =>
+        curr.filter((row) => row.id !== addedComponent.id)
+      );
+    }
+  };
+
+  const handleUpdateAlternatives = async () => {
+    const arr = [...addedPartCodes, ...newPartCodes].map(
+      (row) => row.componentKey
+    );
+    const response = await executeFun(
+      () => updateAlternatePartCode(arr, open),
+      "select"
+    );
+    // if (response.success) {
+    // setAlternatePartModal(false);
+    // }
+    // const partCodes = altPartCodeForm.getFieldsValue("partCode");
+    // console.log("partCodes", partCodes);
+    // updateAlternatePartCode
+  };
+
+  const actionColumn = {
+    headerName: "",
+    field: "actions",
+    width: 100,
+    type: "actions",
+    getActions: ({ row }) => [
+      <TableActions action="delete" onClick={() => handleDelete(row)} />,
+    ],
   };
   useEffect(() => {
     if (newComponent) {
@@ -39,30 +91,39 @@ const AlternatePartCode = ({ open, hide }) => {
         id: newComponent.value,
         partCode: asyncOptions.find((row) => row.value === newComponent.value)
           ?.partCode,
-        partName: newComponent.label,
+        component: newComponent.label,
+        componentKey: newComponent.value,
       };
       setNewPartCodes((curr) => [newPart, ...curr]);
     }
   }, [newComponent]);
+
+  useEffect(() => {
+    if (open) {
+      handleFetchAlternates(open);
+    }
+  }, [open]);
+
+  console.log("this is the component key", open);
   return (
     <Drawer
       width={600}
-      title="Update Alternate Part Code"
+      destroyOnClose={true}
+      title="Update Similar Part Code"
       open={open}
-      //   footer={[
-      //     <Row justify="space-between">
-      //       <Col span={4}></Col>
-      //       <Col>
-      //         <Button
-      //           // loading={updateLoading}
-      //           type="primary"
-      //           onClick={() => updatePartCode()}
-      //         >
-      //           Update
-      //         </Button>
-      //       </Col>
-      //     </Row>,
-      //   ]}
+      footer={[
+        <Row justify="end">
+          <Col>
+            <Button
+              // loading={updateLoading}
+              type="primary"
+              onClick={handleUpdateAlternatives}
+            >
+              Update
+            </Button>
+          </Col>
+        </Row>,
+      ]}
       // confirmLoading={confirmLoading}
       onClose={hide}
     >
@@ -85,7 +146,7 @@ const AlternatePartCode = ({ open, hide }) => {
         </Row>
       </Form>
       <MyDataTable
-        columns={columns}
+        columns={[...columns, actionColumn]}
         data={[...newPartCodes, ...addedPartCodes]}
       />
     </Drawer>
@@ -94,21 +155,32 @@ const AlternatePartCode = ({ open, hide }) => {
 export default AlternatePartCode;
 const columns = [
   {
-    headerName: "#",
-    field: "id",
+    headerName: "Part Code",
+    field: "partCode",
     width: 80,
   },
   {
-    headerName: "Part Code",
-    field: "partCode",
-    width: 120,
-  },
-  {
     headerName: "Component",
-    field: "partName",
+    field: "component",
     width: 350,
     renderCell: ({ row }) => (
-      <ToolTipEllipses text={row.partName} copy={true} />
+      <ToolTipEllipses text={row.component} copy={true} />
     ),
+  },
+  {
+    headerName: "",
+    field: "added",
+    width: 50,
+    renderCell: ({ row }) =>
+      row.added && (
+        <div
+          style={{
+            width: 10,
+            height: 10,
+            background: "#047780",
+            borderRadius: "100%",
+          }}
+        ></div>
+      ),
   },
 ];
