@@ -109,9 +109,9 @@ export const HSNCell = ({ row }, inputHandler) => (
 );
 export const gstTypeCell = ({ row }, inputHandler, stateCode) => (
   <MySelect
-    defaultValue={
-      stateCode === "09" ? (row.gsttype = "L") : (row.gsttype = "I")
-    }
+    // defaultValue={
+    //   stateCode === "09" ? (row.gsttype = "L") : (row.gsttype = "I")
+    // }
     // value={stateCode === "09" ? (row.gsttype = "L") : (row.gsttype = "I")}
     // value={row.gsttype}
     // gsttype
