@@ -238,6 +238,7 @@ import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challa
 import R32 from "../Pages/Reports/R/R32";
 import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
+import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 
 const Routes = [
   {
@@ -869,6 +870,10 @@ const Routes = [
   {
     path: "/woShipment",
     main: () => <WoShipment />,
+  },
+  {
+    path: "/wocreatescrapechallan",
+    main: () => <CreateScrapeChallan />,
   },
   {
     path: "/woviewchallan",

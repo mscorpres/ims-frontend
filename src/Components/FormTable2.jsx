@@ -28,7 +28,6 @@ const FormTable2 = ({
     }
 
     const rows = form.getFieldValue(listName);
-    console.log("these are the rows", rows);
     let arr = [];
     if (reverse) {
       arr = [...rows, obj];
@@ -152,7 +151,6 @@ const SingleRow = memo(
     nonListWatchKeys = [],
     componentRequiredRef = [],
   }) => {
-    console.log("this is the field", field);
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
