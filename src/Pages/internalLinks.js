@@ -1,3 +1,5 @@
+import routeConstants from "../Routes/routeConstants";
+
 const links = [
   // purchase order links
   [
@@ -1057,11 +1059,11 @@ const links = [
   [
     {
       routeName: "Vendor Reconciliation",
-      routePath: "/vendorreco",
+      routePath: routeConstants.finance.vendor.reco.create,
     },
     {
       routeName: "View Reconciliations",
-      routePath: "/viewvendorreco",
+      routePath: routeConstants.finance.vendor.reco.report,
     },
   ],
   // task manager links

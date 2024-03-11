@@ -29,6 +29,7 @@ import { SiPaytm } from "react-icons/si";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import routeConstants from "../Routes/routeConstants";
 export const items = (user) => [
   getItem(
     "Favorites",
@@ -185,7 +186,9 @@ export const items = (user) => [
     ]),
     getItem("Others", "D9", <IoJournalSharp />, [
       getItem(
-        <Link to="/vendorreco">Vendor Reconciliation</Link>
+        <Link to={routeConstants.finance.vendor.reco.create}>
+          Vendor Reconciliation
+        </Link>
         // <AiOutlineMinus />
       ),
       getItem(
