@@ -15,6 +15,7 @@ import {
   fetchReturnChallanDetails,
   getClientOptions,
   getReturnRowsInViewChallan,
+  getScrapeInViewChallan,
   getWorkOrderAnalysis,
   getdetailsOfReturnChallan,
   printreturnChallan,
@@ -181,83 +182,24 @@ const WoViewChallan = () => {
       // />,
     ],
   };
-  // const getRows = async () => {
-  //   try {
-  //     setLoading("fetch");
-  //     if (challantype === "Delivery Challan") {
-  //       const response = await imsAxios.post(
-  //         "/wo_challan/getWorkOrderDeliveryChallan",
-  //         {
-  //           wise: wise,
-  //           data: searchInput,
-  //         }
-  //       );
-  //       const { data } = response;
-  //       if (data.code === 200) {
-  //         const arr = data.data.map((row, index) => ({
-  //           id: index + 1,
-  //           date: row.received_challan_rm_dt,
-  //           client: row.client,
-  //           requiredQty: row.wo_order_qty,
-  //           challanId: row.challan_id,
-  //           sku: row.sku_code,
-  //           productId: row.sku,
-  //           product: row.wo_sku_name,
-  //           transactionId: row.wo_transaction_id,
-  //           challantype: challantype,
-  //           clientCode: row.client_code,
-  //           shipaddress: row.shippingaddress,
-  //           billaddress: row.billingaddress,
-  //           clientaddress: row.clientaddress,
-  //         }));
-  //         setRows(arr);
-  //       } else {
-  //         toast.error(data.message.msg);
-  //       }
-  //     } else {
-  //       const response = await imsAxios.post(
-  //         "/wo_challan/getWorkOrderReturnChallan",
-  //         {
-  //           wise: wise,
-  //           data: searchInput,
-  //         }
-  //       );
-  //       const { data } = response;
-  //       console.log(response);
-  //       if (data.code === 200) {
-  //         const arr = data.data.map((row, index) => ({
-  //           id: index + 1,
-  //           date: row.received_challan_rm_dt,
-  //           client: row.client,
-  //           requiredQty: row.wo_order_qty,
-  //           challanId: row.challan_id,
-  //           sku: row.sku_code,
-  //           product: row.wo_sku_name,
-  //           transactionId: row.wo_transaction_id,
-  //           challantype: challantype,
-  //           clientCode: row.client_code,
-  //           shipaddress: row.shippingaddress,
-  //           billaddress: row.billingaddress,
-  //           clientaddress: row.clientaddress,
-  //         }));
-  //         setRows(arr);
-  //       } else {
-  //         toast.error(data.message.msg);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("some error occured while fetching rows", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+
   const getRows = async () => {
     // challantype
     if (challantype === "Delivery Challan") {
       getDeliveryRows();
-    } else {
+    } else if (challantype === "RM Challan") {
       getReturnRows();
+    } else {
+      getScrapeRows();
     }
+  };
+  const getScrapeRows = async () => {
+    setRows([]);
+    setLoading("fetch");
+    let arr = await getScrapeInViewChallan(wise, searchInput);
+
+    setRows(arr);
+    setLoading(false);
   };
   const getReturnRows = async () => {
     setRows([]);
@@ -664,6 +606,7 @@ const columns = [
 const challanoptions = [
   { text: "Delivery Challan", value: "Delivery Challan" },
   { text: "Return Challan", value: "RM Challan" },
+  { text: "Scrape Challan", value: "Scrape Challan" },
 ];
 
 export default WoViewChallan;
