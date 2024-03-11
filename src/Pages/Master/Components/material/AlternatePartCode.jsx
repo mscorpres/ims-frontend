@@ -47,7 +47,7 @@ const AlternatePartCode = ({ open, hide }) => {
   return (
     <Drawer
       width={600}
-      title="Update Alternate Part Code"
+      title="Update Similar Part Code"
       open={open}
       //   footer={[
       //     <Row justify="space-between">

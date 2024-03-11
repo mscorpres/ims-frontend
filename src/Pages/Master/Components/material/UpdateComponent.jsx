@@ -498,7 +498,7 @@ export default function UpdateComponent() {
                             width: 350,
                           }}
                         >
-                          New Part Code
+                          Cat Part Code
                           {/* Alternate Part Code */}
                           <span
                             onClick={() => setAlternatePartModal(true)}
@@ -543,7 +543,7 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={8}>
-                    <Form.Item label="Category">
+                    <Form.Item label="Attribute Code">
                       <Row justify="space-between">
                         {categoryData && (
                           <Col>{categoryData?.text ?? "--"}</Col>
