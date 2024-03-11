@@ -27,10 +27,12 @@ export const getManualTransactions = async (vendor, date) => {
   return response;
 };
 
-export const updateMatchStatus = async (status, voucherNum) => {
-  const response = await imsAxios.get(
-    `/vendorReconciliation/update?status=${status}&voucherNo=${voucherNum}`
-  );
+export const updateMatchStatus = async (status, voucherArr) => {
+  const payload = {
+    voucherNo: voucherArr,
+    status: status,
+  };
+  const response = await imsAxios.put(`/vendorReconciliation/update`, payload);
   return response;
 };
 
@@ -66,5 +68,24 @@ export const updateTransaction = async (payload) => {
     "/vendorReconciliation/edit/transaction",
     payload
   );
+  return response;
+};
+
+export const getRecoReport = async (vendorCode) => {
+  const response = await imsAxios.get(
+    `/vendorReconciliation/view/reconciliation?wise=vendorwise&data=${vendorCode}`
+  );
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row, index) => ({
+      id: index + 1,
+      dateRange: row.dateRange,
+      status: row.status,
+      month: row.month,
+      vendorCode: row.vendorCode,
+      vendor: row.vendorName,
+    }));
+  }
+  response.data = arr;
   return response;
 };

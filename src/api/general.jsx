@@ -99,10 +99,10 @@ export const getComponentOptions = async (search) => {
   });
   return response;
 };
-export const updateAlternatePartCode = async (arr, fetchPartCode) => {
+export const updateAlternatePartCode = async (alternativeArr, basePartCode) => {
   const response = await imsAxios.post("/component/update_alt_part_no", {
-    componentKey: fetchPartCode,
-    alt_part_key: arr,
+    componentKey: basePartCode,
+    alt_part_key: alternativeArr,
   });
   return response;
 };

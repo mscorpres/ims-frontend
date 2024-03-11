@@ -237,6 +237,7 @@ import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challa
 
 import R32 from "../Pages/Reports/R/R32";
 import Index from "../Pages/Query/ClosingStock/Index";
+import routeConstants from "./routeConstants";
 
 const Routes = [
   {
@@ -1227,12 +1228,13 @@ const Routes = [
     path: "/tasks/user",
     main: () => <UserTasks />,
   },
+  //over here
   {
-    path: "/vendorreco",
+    path: routeConstants.finance.vendor.reco.create,
     main: () => <VendorReconcilation />,
   },
   {
-    path: "/viewvendorreco",
+    path: routeConstants.finance.vendor.reco.report,
     main: () => <ViewReconcilation />,
   },
   // CreateSalesOrder
