@@ -43,6 +43,7 @@ export default function JwInwordModal({
   const [eWayBill, setEWayBill] = useState("");
   const [bomList, setBomList] = useState([]);
   const [showBomList, setShowBomList] = useState(false);
+  const [conrem, setConRem] = useState("");
   const [loading, setLoading] = useState(false);
   // console.log(mainData);
   const { executeFun, loading: loading1 } = useApi();
@@ -149,6 +150,18 @@ export default function JwInwordModal({
           if (aa.id == id) {
             {
               return { ...aa, remark: value };
+            }
+          } else {
+            return aa;
+          }
+        })
+      );
+    } else if (name == "conRemark") {
+      setBomList((a) =>
+        a.map((aa) => {
+          if (aa.id == id) {
+            {
+              return { ...aa, conRemark: value };
             }
           } else {
             return aa;
@@ -331,12 +344,20 @@ export default function JwInwordModal({
       width: 50,
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
-    // {
-    //   field: "conRemark",
-    //   headerName: "Remark",
-    //   width: 150,
-    //   renderCell: ({ row }) => <Input value={row.conRemark} />,
-    // },
+    {
+      field: "conRemark",
+      headerName: "Consumption Remark",
+      width: 150,
+      renderCell: ({ row }) => (
+        <Input
+          // value={row.conRemark}
+          // onChange={(e) => {
+          //   setConRem(e.target.value);
+          // }}
+          onChange={(e) => inputHandler("conRemark", row.id, e.target.value)}
+        />
+      ),
+    },
     // {
     //   field: "pendingStock",
     //   headerName: "Pending Stock",
@@ -355,6 +376,7 @@ export default function JwInwordModal({
   const saveFunction = async () => {
     setModalUploadLoad(true);
     console.log("bomList", bomList);
+    console.log("conrem", conrem);
     let payload = {
       companybranch: "BRMSC012",
       jobwork_trans_id: mainData[0].jobwork_id,
