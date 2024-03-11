@@ -167,6 +167,11 @@ const Qctest = () => {
     const { data } = await imsAxios.post("qaProcessmaster/fetchQAProcess", {
       sku: skucode,
     });
+    if (data.status === "error") {
+      toast.error(data.message.msg);
+      setProcessOptions([]);
+      return;
+    }
     setProcessData(data.data);
     let arr = [];
     arr = data.data.map((d) => {
@@ -469,7 +474,7 @@ const Qctest = () => {
             </Col>
             <Col span={18}>
               <Form.Item name="Process" label="Process" rules={rules.pprno}>
-                <MyAsyncSelect
+                <MySelect
                   optionsState={processOptions}
                   onChange={(e, selectedValue) => {
                     handleProcessSelect(e, selectedValue);
