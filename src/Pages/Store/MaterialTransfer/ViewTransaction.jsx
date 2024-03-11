@@ -26,6 +26,7 @@ function ViewTransaction() {
   const col = [
     { name: "Date", selector: (row) => row.date },
     { name: "Part", selector: (row) => row.part },
+    { name: "Cat Part", selector: (row) => row.cat_part },
     { name: "Component", selector: (row) => row.name },
     { name: "Out Location", selector: (row) => row.out_location },
     { name: "In Location", selector: (row) => row.in_location },
@@ -37,7 +38,8 @@ function ViewTransaction() {
 
   const columns = [
     { field: "date", headerName: "Date", width: 150 },
-    { field: "part", headerName: "Part", width: 150 },
+    { field: "part", headerName: "Part Code", width: 150 },
+    { field: "cat_part", headerName: "Cat Part Code", width: 150 },
     { field: "name", headerName: "Component", width: 350 },
     { field: "out_location", headerName: "Out Location", width: 150 },
     { field: "in_location", headerName: "In Location", width: 150 },
@@ -70,7 +72,7 @@ function ViewTransaction() {
         data: datee,
         wise: allData.selectdate,
       });
-      // console.log(data);
+      console.log(data);
       if (data.code == 200) {
         let arr = data.data.map((row) => {
           return {

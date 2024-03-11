@@ -451,7 +451,7 @@ const Material = () => {
                     <Col span={6}>
                       <Form.Item
                         rules={headerRules.newPart}
-                        label="New Part Code"
+                        label="Cat Part Code"
                         name="newPart"
                       >
                         <Input />

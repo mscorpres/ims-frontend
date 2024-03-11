@@ -43,6 +43,7 @@ export default function JwInwordModal({
   const [eWayBill, setEWayBill] = useState("");
   const [bomList, setBomList] = useState([]);
   const [showBomList, setShowBomList] = useState(false);
+  const [conrem, setConRem] = useState("");
   const [loading, setLoading] = useState(false);
   // console.log(mainData);
   const { executeFun, loading: loading1 } = useApi();
@@ -149,6 +150,18 @@ export default function JwInwordModal({
           if (aa.id == id) {
             {
               return { ...aa, remark: value };
+            }
+          } else {
+            return aa;
+          }
+        })
+      );
+    } else if (name == "conRemark") {
+      setBomList((a) =>
+        a.map((aa) => {
+          if (aa.id == id) {
+            {
+              return { ...aa, conRemark: value };
             }
           } else {
             return aa;
@@ -300,6 +313,14 @@ export default function JwInwordModal({
       renderCell: ({ row }) => <Typography.Text>{row.partNo}</Typography.Text>,
     },
     {
+      field: "catPartName",
+      headerName: "Cat Part No.",
+      width: 50,
+      renderCell: ({ row }) => (
+        <Typography.Text>{row.catPartName}</Typography.Text>
+      ),
+    },
+    {
       field: "partName",
       headerName: "Part Name",
       width: 320,
@@ -321,7 +342,21 @@ export default function JwInwordModal({
       field: "uom",
       headerName: "Uom",
       width: 50,
-      renderCell: ({ row }) => <Input disabled value={row.uom} />,
+      renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
+    },
+    {
+      field: "conRemark",
+      headerName: "Consumption Remark",
+      width: 150,
+      renderCell: ({ row }) => (
+        <Input
+          // value={row.conRemark}
+          // onChange={(e) => {
+          //   setConRem(e.target.value);
+          // }}
+          onChange={(e) => inputHandler("conRemark", row.id, e.target.value)}
+        />
+      ),
     },
     // {
     //   field: "pendingStock",
@@ -330,10 +365,18 @@ export default function JwInwordModal({
     //   renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
     // },
   ];
+  const prev = async () => {
+    getFetchData();
+    getLocation();
+    setEWayBill("");
+    setShowBomList(false);
+    setBomList([]);
+  };
 
   const saveFunction = async () => {
     setModalUploadLoad(true);
     console.log("bomList", bomList);
+    console.log("conrem", conrem);
     let payload = {
       companybranch: "BRMSC012",
       jobwork_trans_id: mainData[0].jobwork_id,
@@ -347,8 +390,9 @@ export default function JwInwordModal({
       ewaybill: eWayBill,
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
+      consRemark: bomList.map((r) => r.conRemark),
     };
-    // console.log("payload", payload);
+    console.log("payload", payload);
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     console.log("response", response);
     const { data } = response;
@@ -405,6 +449,7 @@ export default function JwInwordModal({
           id: id + 1,
           bomQty: r.bom_qty,
           partName: r.part_name,
+          catPartName: r.cat_part_no,
           partNo: r.part_no,
           pendingStock: r.pendingStock,
           rqdQty: r.rqd_qty,
@@ -571,6 +616,7 @@ export default function JwInwordModal({
                     //   nextLabel="Submit"
                     // />
                     <>
+                      <Button onClick={prev}>Back</Button>
                       <Popconfirm
                         placement="topLeft"
                         title={text}
@@ -579,7 +625,9 @@ export default function JwInwordModal({
                         okText="Yes"
                         cancelText="No"
                       >
-                        <Button type="primary">Save</Button>
+                        <Button style={{ marginLeft: 4 }} type="primary">
+                          Save
+                        </Button>
                       </Popconfirm>
                     </>
                   ) : (

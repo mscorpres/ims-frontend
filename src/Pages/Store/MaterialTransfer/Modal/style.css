@@ -6,8 +6,8 @@ td {
 }
 .an {
   padding: 10px;
-  background-color: #245181;
-  color: white;
+  /* background-color: #245181; */
+  color: rgb(0, 0, 0);
 }
 
 table {
