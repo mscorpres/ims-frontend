@@ -513,6 +513,7 @@ const links = [
     { routeName: "CREATE WO", routePath: "/createwo" },
     { routeName: "WO ANALYSIS", routePath: "/woanalysis" },
     { routeName: "WO CREATE CHALLAN", routePath: "/wocreatechallan" },
+    { routeName: "WO SCRAPE CHALLAN", routePath: "/wocreatescrapechallan" },
     { routeName: "WO SHIPMENT", routePath: "/woShipment" },
     { routeName: "WO VIEW CHALLAN", routePath: "/woviewchallan" },
     { routeName: "WO COMPLETED", routePath: "/wocompleted" },
