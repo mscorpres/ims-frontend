@@ -54,7 +54,7 @@ function R8() {
     let newId = v4();
 
     socket.emit("generate_r8_report", {
-      otherdata: { date: searchInput },
+      otherdata: searchInput,
       notificationId: newId,
     });
   };
