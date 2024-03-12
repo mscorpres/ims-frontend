@@ -126,8 +126,10 @@ const QaProcessMap = () => {
     setProcessListOptions(processArr);
   };
   //to get location from database
-  const locationList = async () => {
-    const { data } = await imsAxios.post("/backend/fetchLocation");
+  const locationList = async (search) => {
+    const { data } = await imsAxios.post("/backend/fetchLocation", {
+      searchTerm: search,
+    });
     let locArr = [];
     locArr = data.map((d) => {
       return { text: d.text, value: d.id };
