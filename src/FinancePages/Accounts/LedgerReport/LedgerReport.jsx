@@ -14,6 +14,7 @@ import {
   Typography,
   Flex,
   Form,
+  Divider,
 } from "antd";
 import { v4 } from "uuid";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
@@ -22,21 +23,24 @@ import { useEffect } from "react";
 import { setCurrentLinks } from "../../../Features/loginSlice/loginSlice.js";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { imsAxios } from "../../../axiosInterceptor";
 import { useLocation, useParams } from "react-router-dom";
 import useApi from "../../../hooks/useApi.jsx";
 import { getLedgerReport } from "../../../api/finance/reports.js";
 import MyButton from "../../../Components/MyButton/index.jsx";
 import { getLedgerOptions } from "../../../api/ledger.jsx";
 import { getRecoReport } from "../../../api/finance/vendor-reco.jsx";
+import Loading from "../../../Components/Loading.jsx";
 
 export default function LedgerReport() {
   const [asyncOptions, setAsyncOptions] = useState([]);
 
   const [selectLoading, setSelectLoading] = useState(false);
-  const [ledgerData, setLedgerData] = useState({ rows: [] });
+  const [rows, setRows] = useState({ rows: [] });
+  const [summary, setSummary] = useState({});
+
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [recoRows, setRecoRows] = useState([]);
 
   const [filterForm] = Form.useForm();
   const dispatch = useDispatch();
@@ -66,8 +70,10 @@ export default function LedgerReport() {
       () => getLedgerReport(values.vendor.value, values.date),
       "fetch"
     );
-
-    setLedgerData(response.data);
+    handleFetchRecoReport();
+    setRows(response.data.rows);
+    console.log();
+    setSummary(response.data.summary);
 
     console.log("ledger report response", response);
     // if (searchLedger && searchDateRange) {
@@ -95,9 +101,11 @@ export default function LedgerReport() {
   const handleFetchRecoReport = async () => {
     const values = await filterForm.validateFields();
     const response = await executeFun(
-      () => getRecoReport(values.vendor),
+      () => getRecoReport(values.vendor.value),
       "fetch"
     );
+
+    setRecoRows(response.data);
   };
   const handleFetchLedgerOptions = async (search) => {
     const response = await executeFun(() => getLedgerOptions(search), "select");
@@ -158,7 +166,7 @@ export default function LedgerReport() {
     },
   ];
   const downloadFun = () => {
-    let csvData = ledgerData.rows.map((row, index) => {
+    let csvData = rows.map((row, index) => {
       return {
         "Ref Date": row.ref_date,
         Refrence: row.ref,
@@ -179,16 +187,12 @@ export default function LedgerReport() {
         Date: searchDateRange,
       },
       {
-        Opening:
-          "Opening: " + ledgerData?.summary[0]?.opening.replaceAll(",", ""),
+        Opening: "Opening: " + summary?.opening.replaceAll(",", ""),
         "Current Total Debit":
-          "Current Total Debit: " +
-          ledgerData?.summary[0]?.total_debit.replaceAll(",", ""),
+          "Current Total Debit: " + summary?.total_debit.replaceAll(",", ""),
         "Current Total Credit":
-          "Current Total Credit: " +
-          ledgerData?.summary[0]?.total_credit.replaceAll(",", ""),
-        Closing:
-          "Closing: " + ledgerData?.summary[0]?.closing.replaceAll(",", ""),
+          "Current Total Credit: " + summary?.total_credit.replaceAll(",", ""),
+        Closing: "Closing: " + summary?.closing.replaceAll(",", ""),
       },
     ];
     downloadCSVCustomColumns(
@@ -205,8 +209,8 @@ export default function LedgerReport() {
     }
   }, [params]);
   return (
-    <Row gutter={6} style={{ height: "95%", padding: 10 }}>
-      <Col span={4}>
+    <Row gutter={6} style={{ height: "95%", padding: 10, overflow: "hidden" }}>
+      <Col span={4} style={{ height: "100%", overflow: "auto" }}>
         <Flex vertical gap={6}>
           <Card size="small">
             <Form form={filterForm} layout="vertical">
@@ -231,6 +235,7 @@ export default function LedgerReport() {
                 <Space>
                   <CommonIcons action="downloadButton" />
                   <MyButton
+                    loading={loading1("fetch")}
                     variant="search"
                     onClick={handleFetchLedgerReport}
                   />
@@ -256,16 +261,16 @@ export default function LedgerReport() {
                   paragraph={false}
                   style={{ width: "100%" }}
                   rows={2}
-                  loading={loading}
+                  loading={loading1("fetch")}
                   active
                 />
-                {!loading && ledgerData?.summary && (
+                {!loading1("fetch") && summary && (
                   <Typography.Text
                     style={{
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {ledgerData?.summary[0]?.opening}
+                    {summary?.opening}
                   </Typography.Text>
                 )}
               </Col>
@@ -285,16 +290,16 @@ export default function LedgerReport() {
                   paragraph={false}
                   style={{ width: "100%" }}
                   rows={2}
-                  loading={loading}
+                  loading={loading1("fetch")}
                   active
                 />
-                {!loading && ledgerData?.summary && (
+                {!loading1("fetch") && summary && (
                   <Typography.Text
                     style={{
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {ledgerData?.summary[0]?.total_debit}
+                    {summary?.debitTotal ?? "--"}
                   </Typography.Text>
                 )}
               </Col>
@@ -314,16 +319,16 @@ export default function LedgerReport() {
                   paragraph={false}
                   style={{ width: "100%" }}
                   rows={2}
-                  loading={loading}
+                  loading={loading1("fetch")}
                   active
                 />
-                {!loading && ledgerData?.summary && (
+                {!loading1("fetch") && summary && (
                   <Typography.Text
                     style={{
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {ledgerData?.summary[0]?.total_credit}
+                    {summary?.creditTotal}
                   </Typography.Text>
                 )}
               </Col>
@@ -343,30 +348,54 @@ export default function LedgerReport() {
                   paragraph={false}
                   style={{ width: "100%" }}
                   rows={2}
-                  loading={loading}
+                  loading={loading1("fetch")}
                   active
                 />
-                {!loading && ledgerData?.summary && (
+                {!loading1("fetch") && summary && (
                   <Typography.Text
                     style={{
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {ledgerData?.summary[0]?.closing}
+                    {summary?.closing}
                   </Typography.Text>
                 )}
               </Col>
             </Row>
           </Card>
+          <Card title="Reconcillations" size="small">
+            {loading1("fetch") && <Loading />}
+            {recoRows.length === 0 && (
+              <Flex justify="center">
+                <Typography.Text type="secondary" strong>
+                  No Recos found
+                </Typography.Text>
+              </Flex>
+            )}
+            {recoRows.length > 0 && (
+              <Flex vertical>
+                <Flex justify="space-between">
+                  <Typography.Text strong>Month</Typography.Text>
+                  <Typography.Text strong>Status</Typography.Text>
+                </Flex>
+                <Divider />
+                {recoRows.map((row) => (
+                  <Flex justify="space-between">
+                    <Typography.Text>{row.month}</Typography.Text>
+                    <Typography.Text>{row.status}</Typography.Text>
+                  </Flex>
+                ))}
+              </Flex>
+            )}
+          </Card>
         </Flex>
       </Col>
       <Col style={{ height: "100%" }} span={20}>
         <MyDataTable
-          sortable={true}
-          loading={loading}
           columns={ledgerReportColumns}
-          data={ledgerData?.rows}
-          pagination
+          data={rows}
+          // pagination
+          loading={loading1("fetch")}
           headText="center"
           // export={true}
         />
