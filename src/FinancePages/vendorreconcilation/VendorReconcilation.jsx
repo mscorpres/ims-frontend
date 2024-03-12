@@ -17,7 +17,6 @@ import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDatePicker from "../../Components/MyDatePicker";
 import { getLedgerReport } from "../../api/ledger";
 import MyDataTable from "../../Components/MyDataTable";
-import { PlusOutlined } from "@ant-design/icons";
 import ManualTransactions from "./components/manualTransactions";
 import {
   addNote,
@@ -34,15 +33,27 @@ import Loading from "../../Components/Loading";
 import * as xlsx from "xlsx";
 import { downloadExcel } from "../../Components/printFunction";
 import { useSelector } from "react-redux/es/exports";
-import { convertSelectOptions } from "../../utils/general";
+import {
+  // convertDateRangeValue,
+  convertSelectOptions,
+} from "../../utils/general";
+import { useSearchParams } from "react-router-dom";
+// import MyFormDatePicker from "../../Components/MyFormDatePicker";
+import dayjs from "dayjs";
+import RequestLedgerModal from "./ledgers/RequestLedger";
+import Ledgers from "./ledgers";
 
 const initialValues = {
   location: undefined,
   date: "",
 };
 
+const statusOption = {
+  match: "matched",
+  unmatch: "unmatched",
+};
+
 const VendorReconcilation = () => {
-  const [showFilters, setShowFilters] = useState(true);
   const [details, setDetails] = useState({});
   const [rows, setRows] = useState([]);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
@@ -60,6 +71,9 @@ const VendorReconcilation = () => {
     creditVendor: "0",
   });
   const [showNotesModal, setShowNotesModal] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [showRequestLedgerModal, setShowRequestLedgerModal] = useState(null);
 
   const { executeFun, loading } = useApi();
   const [filterForm] = Form.useForm();
@@ -68,16 +82,23 @@ const VendorReconcilation = () => {
   const selectedVendor = Form.useWatch("vendor", filterForm);
 
   const hideFilters = async () => {
-    // await filterForm.validateFields();
     setShowFilters(false);
   };
 
-  const handleFetchLedgerDetais = async () => {
+  var paramsVendorCode = searchParams.get("vendorCode");
+  var paramsVendor = searchParams.get("vendor");
+  var paramsDate = searchParams.get("date");
+  const [showFilters, setShowFilters] = useState(
+    paramsVendorCode ? false : true
+  );
+
+  const handleFetchLedgerDetais = async (vendor, date) => {
     const values = await filterForm.getFieldsValue();
+    console.log("values", values);
     // const values = await filterForm.validateFields();
     const payload = {
-      date: values.date,
-      ledger: values.vendor.value,
+      date: date ?? values.date,
+      ledger: vendor ?? values.vendor.value,
     };
 
     const response = await executeFun(
@@ -87,8 +108,8 @@ const VendorReconcilation = () => {
     if (response.success) {
       const { summary, rows } = response.data.data;
       const obj = {
-        closing: summary[0].closing,
-        opening: summary[0].opening,
+        closing: summary.closing,
+        opening: summary.opening,
       };
       const arr = rows.map((row, index) => ({
         id: index + 1,
@@ -109,10 +130,18 @@ const VendorReconcilation = () => {
     }
   };
 
-  const handleFetchManualTransactions = async () => {
+  const handleFetchManualTransactions = async (
+    vendorFromParams,
+    dateFromParams
+  ) => {
     const { vendor, date } = await filterForm.getFieldsValue();
+    console.log("getting cendor parans", vendorFromParams);
     const response = await executeFun(
-      () => getManualTransactions(vendor.value, date),
+      () =>
+        getManualTransactions(
+          vendorFromParams ?? vendor.value,
+          dateFromParams ?? date
+        ),
       "fetchManualTrans"
     );
 
@@ -177,9 +206,17 @@ const VendorReconcilation = () => {
     }
   };
 
-  const handleUpdateMatchStatus = async (status, voucherNum) => {
+  const handleUpdateMatchStatus = async (status) => {
+    let finalArr = [];
+    selectedRows.map((selRow) => {
+      const found = rows.find((row) => row.id === selRow);
+      if (found) {
+        finalArr = [...finalArr, found.voucherNo];
+      }
+    });
+
     const response = await executeFun(
-      () => updateMatchStatus(status, voucherNum),
+      () => updateMatchStatus(status, finalArr),
       "updateStatus"
     );
     if (response.success) {
@@ -222,12 +259,32 @@ const VendorReconcilation = () => {
     }
   };
 
+  const toggleShowRequestLedgerModal = async () => {
+    const values = await filterForm.validateFields();
+    setShowRequestLedgerModal(values);
+  };
+
   useEffect(() => {
     if (showNoteDialog) {
       const vendor = filterForm.getFieldValue("vendor");
       handleFetchNote(vendor?.value);
     }
   }, [showNoteDialog]);
+
+  useEffect(() => {
+    if (paramsVendor) {
+      setShowFilters(false);
+      console.log("calling fetchin gledger rport", paramsVendorCode);
+      filterForm.setFieldValue("vendor", {
+        label: paramsVendor,
+        value: paramsVendorCode,
+      });
+
+      filterForm.setFieldValue("date", paramsDate);
+      handleFetchManualTransactions(paramsVendorCode, paramsDate);
+      handleFetchLedgerDetais(paramsVendorCode, paramsDate);
+    }
+  }, [paramsVendorCode]);
 
   // useEffect(() => {
   //   setVendorInput({
@@ -278,6 +335,10 @@ const VendorReconcilation = () => {
         submitHandler={handleAddNoteForm}
         loading={loading("addNote")}
       /> */}
+      <Ledgers
+        open={showRequestLedgerModal}
+        hide={() => setShowRequestLedgerModal(null)}
+      />
       <Filters
         show={showFilters}
         form={filterForm}
@@ -339,12 +400,19 @@ const VendorReconcilation = () => {
               setShowTransactionModal={setShowTransactionModal}
               setShowNoteDialog={setShowNoteDialog}
               selectedVendor={selectedVendor}
+              selectedRows={selectedRows}
               setShowNotesModal={setShowNotesModal}
+              handleUpdateMatchStatus={handleUpdateMatchStatus}
+              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
             />
           </Flex>
         </Col>
         <Col span={20}>
           <MyDataTable
+            checkboxSelection
+            onSelectionModelChange={(newSelectionModel) => {
+              setSelectedRows(newSelectionModel);
+            }}
             rows={rows}
             columns={[actionColumn, ...columns]}
             loading={loading("fetchManualTrans") || loading("updateStatus")}
@@ -364,11 +432,15 @@ const Filters = ({
   submitFun,
   loading,
   manualTransactions,
+  vcode,
+  daterange,
 }) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const { executeFun, loading: fetchLoading } = useApi();
-
+  const dateValue = Form.useWatch("date", form);
   const handleFetchVendorOptiions = async (search) => {
+    // if (vcode) {
+    // }
     const response = await executeFun(
       () => getVendorOptions(search),
       "vendorSelect"
@@ -381,7 +453,6 @@ const Filters = ({
     setAsyncOptions(arr);
   };
 
-  useEffect(() => {}, []);
   return (
     <Modal
       open={show}
@@ -403,14 +474,16 @@ const Filters = ({
                 loadOptions={handleFetchVendorOptiions}
                 selectLoading={fetchLoading("vendorSelect")}
                 onBlur={() => setAsyncOptions([])}
+                defaultValue={vcode}
               />
             </Form.Item>
 
             <Form.Item name="date" label="Time Period" rules={filterRule.date}>
               <MyDatePicker
-                setDateRange={(value) => {
-                  form.setFieldValue("date", value);
-                }}
+                setDateRange={(value) => form.setFieldValue("date", value)}
+                // defaultValue={daterange}
+
+                // format="YYYY-MM-DD"
               />
             </Form.Item>
           </Form>
@@ -590,13 +663,11 @@ const VendorCard = ({
                 <Col>
                   <Row gutter={4}>
                     <Col>
-                      <Button
+                      <CommonIcons
                         onClick={() => setShowFilters(true)}
-                        type="primary"
                         size="small"
-                      >
-                        Change
-                      </Button>
+                        action="editButton"
+                      />
                     </Col>
 
                     <Col>
@@ -853,24 +924,44 @@ const ButtonsCard = ({
   setShowNoteDialog,
   selectedVendor,
   setShowNotesModal,
+  selectedRows,
+  handleUpdateMatchStatus,
+  toggleShowRequestLedgerModal,
 }) => {
   return (
     <Card size="small">
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         <Button
           type="primary"
+          disabled={selectedRows.length === 0}
+          onClick={() => handleUpdateMatchStatus(statusOption.match)}
+        >
+          Match Selected
+        </Button>
+        <Button
+          type="primary"
+          disabled={selectedRows.length === 0}
+          onClick={() => handleUpdateMatchStatus(statusOption.unmatch)}
+        >
+          Un-Match Selected
+        </Button>
+        <Button
+          disabled={!selectedVendor}
+          onClick={() => setShowTransactionModal(true)}
+        >
+          Manual Transactions
+        </Button>
+        <Button
           disabled={!selectedVendor}
           onClick={() => setShowNoteDialog(true)}
         >
           Notes
         </Button>
-
         <Button
           disabled={!selectedVendor}
-          onClick={() => setShowTransactionModal(true)}
-          type="primary"
+          onClick={toggleShowRequestLedgerModal}
         >
-          Manual Transactions
+          Ledgers
         </Button>
       </div>
     </Card>
