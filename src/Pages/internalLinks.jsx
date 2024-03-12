@@ -302,7 +302,7 @@ const links = [
     },
   ],
   // UOM links
-  [{ routeName: "Uom", routePath: "/uom" }],
+  [{ routeName: "UoM", routePath: "/uom" }],
   // components links
   [
     { routeName: "Materials", routePath: "/material" },

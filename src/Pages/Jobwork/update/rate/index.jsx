@@ -265,7 +265,7 @@ const columns = [
     ),
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     width: 100,
     field: "uom",
   },

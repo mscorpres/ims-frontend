@@ -206,7 +206,7 @@ function R9() {
     },
     { field: "bomalt_part", headerName: "Alt Of", width: 120 },
     { field: "bomqty", headerName: "Bom Qty", width: 120 },
-    { field: "uom", headerName: "UOM", width: 100 },
+    { field: "uom", headerName: "UoM", width: 100 },
     { field: "openBal", headerName: "Op Qty", width: 100 },
     { field: "creditBal", headerName: "In Qty", width: 100 },
     { field: "debitBal", headerName: "Out Qty", width: 100 },

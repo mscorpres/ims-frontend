@@ -30,7 +30,7 @@ function TransactionRej() {
     { field: "out_location", headerName: "Out Location", width: 150 },
     { field: "in_location", headerName: "In Location", width: 150 },
     { field: "qty", headerName: "Qty", width: 100 },
-    { field: "uom", headerName: "Uom", width: 80 },
+    { field: "uom", headerName: "UoM", width: 80 },
     { field: "transaction", headerName: "Transaction In", width: 150 },
     { field: "completed_by", headerName: "Shiffed By", width: 150 },
   ];

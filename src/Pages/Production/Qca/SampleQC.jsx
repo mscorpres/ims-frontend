@@ -159,7 +159,7 @@ function SampleQC() {
       renderCell: ({ row }) => row.inQty,
     },
     {
-      headerName: "UOM",
+      headerName: "UoM",
       width: 100,
       field: "unit",
       renderCell: ({ row }) => row.unit,

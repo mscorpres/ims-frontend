@@ -170,7 +170,7 @@ const columns = [
   { field: "bomqty", headerName: "Bom Qty", width: 80 },
   { field: "category", headerName: "Category", width: 80 },
   { field: "components", headerName: "Components", flex: 1 },
-  { field: "uom", headerName: "UOM", width: 80 },
+  { field: "uom", headerName: "UoM", width: 80 },
   { field: "closingBal", headerName: "Cl Qty", width: 80 },
   { field: "openBal", headerName: "Op Qty", width: 80 },
   { field: "creditBal", headerName: "In Qty", width: 80 },

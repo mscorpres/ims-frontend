@@ -178,7 +178,7 @@ export default function CreateGP() {
       field: "component",
     },
     {
-      headerName: "UOM",
+      headerName: "UoM",
       width: 200,
       renderCell: ({ row }) => (
         <Input

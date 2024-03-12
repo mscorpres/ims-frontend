@@ -41,7 +41,7 @@ const columns = [
     width: 150,
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     field: "unit",
     width: 150,
   },

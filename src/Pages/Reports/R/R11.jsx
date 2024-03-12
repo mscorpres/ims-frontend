@@ -33,7 +33,7 @@ const R11 = () => {
     },
     { field: "exchange_rate", headerName: "Exchange Rate", width: 150 },
     { field: "currency", headerName: "Currency", width: 100 },
-    { field: "uom", headerName: "Uom", width: 100 },
+    { field: "uom", headerName: "UoM", width: 100 },
     { field: "last_in_rate", headerName: "Last Rate", width: 150 },
     { field: "op", headerName: "Opening Qty", width: 200 },
     { field: "in", headerName: "Today In Qty", width: 150 },

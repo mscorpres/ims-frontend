@@ -453,7 +453,7 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item name="uom" label="UOM">
+                    <Form.Item name="uom" label="UoM">
                       <MySelect options={uomOptions} />
                     </Form.Item>
                   </Col>

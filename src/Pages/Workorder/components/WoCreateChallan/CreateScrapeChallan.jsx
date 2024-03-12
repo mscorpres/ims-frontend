@@ -121,6 +121,7 @@ const CreateScrapeChallan = () => {
         // challanForm.setFieldValue("billPan", clientData.client.pan_no);
         // challanForm.setFieldValue("billGST", item.gst);
         challanForm.setFieldValue("billingaddress", item.address);
+        challanForm.setFieldValue("clientAddrId", item.id);
       }
     });
   };
@@ -132,7 +133,7 @@ const CreateScrapeChallan = () => {
         code: clientcode,
       });
       if (data.code === 200) {
-        // console.log("data", data);
+        console.log("data---", data);
         // createWoForm.setFieldValue("gstin", data.data.gst);
         challanForm.setFieldValue("address", data.data.address);
         toast.error(data.message.msg);
@@ -269,12 +270,13 @@ const CreateScrapeChallan = () => {
     const remarkvalue = await ModalForm.validateFields();
     console.log("value", values);
     console.log("remarkvalue", remarkvalue);
+
     let payload = {
       header: {
         billingaddr: values.billingaddress,
         billingid: values.billingid,
         client_id: values.clientname.value,
-        client_addr_id: "CLI431749782",
+        client_addr_id: values.clientbranch,
         clientaddr: values.address,
         dispatchaddr: values.shippingaddress,
         dispatchid: values.dispatchid,
@@ -300,6 +302,10 @@ const CreateScrapeChallan = () => {
       () => submitScrapreChallan(payload),
       "select"
     );
+    // console.log(response);
+    if (response.success) {
+      challanForm.resetFields();
+    }
   };
   return (
     <>

@@ -220,7 +220,7 @@ function UpdateJW() {
       renderCell: ({ row }) => <Input value={row.component_part} disabled />,
     },
     {
-      headerName: "UOM",
+      headerName: "UoM",
       field: "component_uom",
       width: 150,
       sortable: false,

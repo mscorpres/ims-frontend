@@ -503,8 +503,8 @@ const submitScrapreChallan = async (payload) => {
     "/wo_challan/saveCreateScrapChallan",
     payload
   );
-  console.log("data", response);
-  return data;
+  // console.log("data", response);
+  return response;
 };
 export {
   getClientOptions,

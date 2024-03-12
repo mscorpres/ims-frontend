@@ -63,7 +63,7 @@ const PartCodeConversionReport = () => {
       key: "final_qty",
     },
     {
-      title: "UOM",
+      title: "UoM",
       dataIndex: "uom",
       key: "uom",
     },
@@ -117,7 +117,7 @@ const PartCodeConversionReport = () => {
       },
 
       {
-        title: "UOM",
+        title: "UoM",
         dataIndex: "uom",
         key: "uom",
         width: "44.5%",
@@ -226,7 +226,7 @@ const PartCodeConversionReport = () => {
       { header: "Final Label", key: "final_label", width: 20 },
       { header: "Final Part", key: "final_part", width: 15 },
       { header: "Final Qty", key: "final_qty", width: 10 },
-      { header: "UOM", key: "uom", width: 10 },
+      { header: "UoM", key: "uom", width: 10 },
       { header: "Transaction Date", key: "txn_dt", width: 20 },
       { header: "Transaction By", key: "txn_by", width: 20 },
       { header: "Transaction Id", key: "txn_id", width: 20 },
@@ -235,7 +235,7 @@ const PartCodeConversionReport = () => {
       { header: "Consumption Part Name", key: "consump_part_name", width: 20 },
       { header: "Consumption Part Code", key: "consump_part_code", width: 20 },
       { header: "Consumption Quantity", key: "consump_qty", width: 10 },
-      { header: "Consumption UOM", key: "consump_uom", width: 10 },
+      { header: "Consumption UoM", key: "consump_uom", width: 10 },
       { header: "Pick Location", key: "pick_location", width: 20 },
     ];
 

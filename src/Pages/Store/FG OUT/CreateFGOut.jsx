@@ -234,7 +234,7 @@ const CreateFGOut = () => {
       ),
     },
     {
-      headerName: "Issue Qty|UOM",
+      headerName: "Issue Qty|UoM",
       field: "quantity ",
       width: 170,
       renderCell: ({ row }) => (

@@ -29,7 +29,7 @@ export default function ViewSFGModal({ sfgViewModal, setSfgViewModal }) {
     // { field: "serial_no", headerName: "#", width: 80 },
     { field: "c_name", headerName: "Component Name", width: 450 },
     { field: "c_part_no", headerName: "Part No", flex: 1 },
-    { field: "units_name", headerName: "Uom", flex: 1 },
+    { field: "units_name", headerName: "UoM", flex: 1 },
     { field: "qty", headerName: "Req. Qty", flex: 1 },
   ];
 
