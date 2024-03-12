@@ -85,3 +85,13 @@ export const getRequestedLedgerMails = async (vendorCode) => {
 
   return response;
 };
+
+export const uploadLedgerAttachmnt = async (vendorCode, refId, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await imsAxios.put(
+    `/vendorReconciliation/uploadLedger?vendor=${vendorCode}&refID=${refId}`,
+    formData
+  );
+  return response;
+};

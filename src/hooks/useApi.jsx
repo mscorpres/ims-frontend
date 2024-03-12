@@ -13,7 +13,7 @@ const useApi = () => {
 
       if (response.success !== undefined) {
         if (response.success && response.message) {
-          toast.success(response.data.message);
+          toast.success(response?.message ?? response.data?.message);
         } else if (!response.success && response.message) {
           toast.error(response.message);
         }
