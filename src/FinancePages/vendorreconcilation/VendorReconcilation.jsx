@@ -40,6 +40,8 @@ import {
 import { useSearchParams } from "react-router-dom";
 // import MyFormDatePicker from "../../Components/MyFormDatePicker";
 import dayjs from "dayjs";
+import RequestLedgerModal from "./ledgers/RequestLedger";
+import Ledgers from "./ledgers";
 
 const initialValues = {
   location: undefined,
@@ -71,6 +73,8 @@ const VendorReconcilation = () => {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedRows, setSelectedRows] = useState([]);
+  const [showRequestLedgerModal, setShowRequestLedgerModal] = useState(null);
+
   const { executeFun, loading } = useApi();
   const [filterForm] = Form.useForm();
   const [noteAddForm] = Form.useForm();
@@ -78,7 +82,6 @@ const VendorReconcilation = () => {
   const selectedVendor = Form.useWatch("vendor", filterForm);
 
   const hideFilters = async () => {
-    // await filterForm.validateFields();
     setShowFilters(false);
   };
 
@@ -105,8 +108,8 @@ const VendorReconcilation = () => {
     if (response.success) {
       const { summary, rows } = response.data.data;
       const obj = {
-        closing: summary[0].closing,
-        opening: summary[0].opening,
+        closing: summary.closing,
+        opening: summary.opening,
       };
       const arr = rows.map((row, index) => ({
         id: index + 1,
@@ -256,6 +259,11 @@ const VendorReconcilation = () => {
     }
   };
 
+  const toggleShowRequestLedgerModal = async () => {
+    const values = await filterForm.validateFields();
+    setShowRequestLedgerModal(values);
+  };
+
   useEffect(() => {
     if (showNoteDialog) {
       const vendor = filterForm.getFieldValue("vendor");
@@ -327,6 +335,10 @@ const VendorReconcilation = () => {
         submitHandler={handleAddNoteForm}
         loading={loading("addNote")}
       /> */}
+      <Ledgers
+        open={showRequestLedgerModal}
+        hide={() => setShowRequestLedgerModal(null)}
+      />
       <Filters
         show={showFilters}
         form={filterForm}
@@ -360,6 +372,15 @@ const VendorReconcilation = () => {
       <Row style={{ height: "100%" }} gutter={6}>
         <Col span={4} style={{ height: "100%", overflowY: "auto" }}>
           <Flex gap={6} vertical>
+            <ButtonsCard
+              setShowTransactionModal={setShowTransactionModal}
+              setShowNoteDialog={setShowNoteDialog}
+              selectedVendor={selectedVendor}
+              selectedRows={selectedRows}
+              setShowNotesModal={setShowNotesModal}
+              handleUpdateMatchStatus={handleUpdateMatchStatus}
+              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
+            />
             <VendorCard
               form={filterForm}
               setShowFilters={setShowFilters}
@@ -383,14 +404,6 @@ const VendorReconcilation = () => {
               manualTotal={manualTotal}
               details={details}
               vendorInput={vedorInput}
-            />
-            <ButtonsCard
-              setShowTransactionModal={setShowTransactionModal}
-              setShowNoteDialog={setShowNoteDialog}
-              selectedVendor={selectedVendor}
-              selectedRows={selectedRows}
-              setShowNotesModal={setShowNotesModal}
-              handleUpdateMatchStatus={handleUpdateMatchStatus}
             />
           </Flex>
         </Col>
@@ -915,6 +928,7 @@ const ButtonsCard = ({
   setShowNotesModal,
   selectedRows,
   handleUpdateMatchStatus,
+  toggleShowRequestLedgerModal,
 }) => {
   return (
     <Card size="small">
@@ -940,11 +954,16 @@ const ButtonsCard = ({
           Manual Transactions
         </Button>
         <Button
-          type="link"
           disabled={!selectedVendor}
           onClick={() => setShowNoteDialog(true)}
         >
           Notes
+        </Button>
+        <Button
+          disabled={!selectedVendor}
+          onClick={toggleShowRequestLedgerModal}
+        >
+          Ledgers
         </Button>
       </div>
     </Card>

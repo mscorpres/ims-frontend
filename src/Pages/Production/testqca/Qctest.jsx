@@ -30,17 +30,11 @@ const Qctest = () => {
     e.key === "Enter" ? showModal(e) : console.log();
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
     passbutton.current.style.display = "";
     sethidefail({ display: "none" });
   };
-
-  const pprHandle = () => {};
 
   const rules = {
     pprno: [
@@ -104,12 +98,7 @@ const Qctest = () => {
     remainingQuantity: "",
     totalQuantity: "",
   });
-  const [currentScanDetails, setCurrentDetails] = useState({
-    currentScanned: "",
-    passedQuantity: "",
-    failedQuantity: "",
-  });
-  const [qrNumber, setQrNumber] = useState("");
+
   const [processLevel, setProcessLevel] = useState("Process Level");
   const [skuNumber, setSkuNumber] = useState("SKU Code");
   const [pprNo, setPprNo] = useState("");
@@ -126,8 +115,7 @@ const Qctest = () => {
   const [accesstoken, setAccesstoken] = useState("");
   const [faillist, setfaillist] = useState("");
   const [defaultLotsize, setdefaultlotsize] = useState(0);
-  var pass = 0;
-  var fail = 0;
+  console.log("set process data", processData);
   //API FUNCTIONS
   //1) PPR SEARCH API
   const getAllPPR = async (e) => {
@@ -167,6 +155,11 @@ const Qctest = () => {
     const { data } = await imsAxios.post("qaProcessmaster/fetchQAProcess", {
       sku: skucode,
     });
+    if (data.status === "error") {
+      toast.error(data.message.msg);
+      setProcessOptions([]);
+      return;
+    }
     setProcessData(data.data);
     let arr = [];
     arr = data.data.map((d) => {
@@ -469,8 +462,8 @@ const Qctest = () => {
             </Col>
             <Col span={18}>
               <Form.Item name="Process" label="Process" rules={rules.pprno}>
-                <MyAsyncSelect
-                  optionsState={processOptions}
+                <MySelect
+                  options={processOptions}
                   onChange={(e, selectedValue) => {
                     handleProcessSelect(e, selectedValue);
                   }}
