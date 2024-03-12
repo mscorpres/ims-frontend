@@ -245,9 +245,16 @@ const CreateScrapeChallan = () => {
     );
     if (response.success) {
       const { data } = response;
-      challanForm.setFieldValue(["components", rowId, "gstRate"], data.gstrate);
-      challanForm.setFieldValue(["components", rowId, "hsnCode"], data.hsn);
-      challanForm.setFieldValue(["components", rowId, "rate"], data.rate);
+      console.log("data", data);
+      challanForm.setFieldValue(
+        ["components", rowId, "gstRate"],
+        data.data.gstrate
+      );
+      challanForm.setFieldValue(
+        ["components", rowId, "hsnCode"],
+        data.data.hsn
+      );
+      challanForm.setFieldValue(["components", rowId, "rate"], data.data.rate);
     }
   };
   const validateHandler = async () => {
