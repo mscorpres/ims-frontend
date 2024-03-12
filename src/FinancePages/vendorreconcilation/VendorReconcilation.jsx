@@ -372,15 +372,6 @@ const VendorReconcilation = () => {
       <Row style={{ height: "100%" }} gutter={6}>
         <Col span={4} style={{ height: "100%", overflowY: "auto" }}>
           <Flex gap={6} vertical>
-            <ButtonsCard
-              setShowTransactionModal={setShowTransactionModal}
-              setShowNoteDialog={setShowNoteDialog}
-              selectedVendor={selectedVendor}
-              selectedRows={selectedRows}
-              setShowNotesModal={setShowNotesModal}
-              handleUpdateMatchStatus={handleUpdateMatchStatus}
-              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
-            />
             <VendorCard
               form={filterForm}
               setShowFilters={setShowFilters}
@@ -404,6 +395,15 @@ const VendorReconcilation = () => {
               manualTotal={manualTotal}
               details={details}
               vendorInput={vedorInput}
+            />
+            <ButtonsCard
+              setShowTransactionModal={setShowTransactionModal}
+              setShowNoteDialog={setShowNoteDialog}
+              selectedVendor={selectedVendor}
+              selectedRows={selectedRows}
+              setShowNotesModal={setShowNotesModal}
+              handleUpdateMatchStatus={handleUpdateMatchStatus}
+              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
             />
           </Flex>
         </Col>
@@ -663,13 +663,11 @@ const VendorCard = ({
                 <Col>
                   <Row gutter={4}>
                     <Col>
-                      <Button
+                      <CommonIcons
                         onClick={() => setShowFilters(true)}
-                        type="primary"
                         size="small"
-                      >
-                        Change
-                      </Button>
+                        action="editButton"
+                      />
                     </Col>
 
                     <Col>
