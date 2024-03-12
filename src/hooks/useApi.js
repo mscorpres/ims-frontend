@@ -10,6 +10,7 @@ const useApi = () => {
       setLoading(loadingLabel, true);
       const response = await fun();
       console.log("response in use api", response);
+
       if (response.success !== undefined) {
         if (response.success && response.message) {
           toast.success(response?.message ?? response.data?.message);
@@ -18,7 +19,16 @@ const useApi = () => {
         }
         return response;
       }
-      // console.log("this is the response up 123", response);
+      //prev
+      // if (response.success !== undefined) {
+      //   if (response.success && response.message) {
+      //     toast.success(response.message);
+      //   } else if (!response.success && response.message) {
+      //     toast.error(response.message);
+      //   }
+      //   return response;
+      // }
+
       if (typeof response?.data === "string") {
         if (response?.status === 200) {
           toast.success(response?.data);
@@ -49,13 +59,12 @@ const useApi = () => {
         message = response?.data.message.msg;
         throw new Error(message);
       } else if (
-        (response?.data.code === 200 &&
-          response?.data.message &&
-          response?.data.message.length &&
-          typeof response?.data.message === "string") ||
-        (response?.data.success && response?.data.message !== "")
+        (response?.data?.code === 200 &&
+          response?.data?.message &&
+          response?.data?.message.length &&
+          typeof response?.data?.message === "string") ||
+        (response?.data?.success && response?.data.message !== "")
       ) {
-        // console.log('got a success message')
         message = response?.data.message;
         toast.success(message);
       }
