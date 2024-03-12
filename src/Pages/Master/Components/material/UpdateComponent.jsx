@@ -32,6 +32,7 @@ import useApi from "../../../../hooks/useApi";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+
 import AlternatePartCode from "./AlternatePartCode";
 
 export default function UpdateComponent() {
@@ -430,7 +431,6 @@ export default function UpdateComponent() {
                             width: 350,
                           }}
                         >
-                          New Part Code
                           {/* Alternate Part Code */}
                           <span
                             onClick={() => setAlternatePartModal(componentKey)}
@@ -439,7 +439,7 @@ export default function UpdateComponent() {
                               cursor: "pointer",
                             }}
                           >
-                            Update Part Code
+                            Similar Part Codes
                           </span>
                         </div>
                       }

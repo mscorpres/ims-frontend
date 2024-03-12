@@ -11,6 +11,7 @@ import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { getAlternativePartCodes } from "../../../../api/master/component";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
+import { toast } from "react-toastify";
 
 const AlternatePartCode = ({ open, hide }) => {
   const [addedPartCodes, setAddedPartCodes] = useState([]);
@@ -22,6 +23,7 @@ const AlternatePartCode = ({ open, hide }) => {
   const newComponent = Form.useWatch("component", form);
 
   const handleFetchComponentOptions = async (searchTerm) => {
+    setAsyncOptions([]);
     const response = await executeFun(
       () => getComponentOptions(searchTerm, true),
       "select"
@@ -29,6 +31,7 @@ const AlternatePartCode = ({ open, hide }) => {
     let { data } = response;
     if (data) {
       if (data[0]) {
+        setAsyncOptions([]);
         let arr = data.map((row) => ({
           text: row.text,
           value: row.id,
@@ -45,7 +48,11 @@ const AlternatePartCode = ({ open, hide }) => {
       () => getAlternativePartCodes(componentKey),
       "fetch"
     );
-    setAddedPartCodes(response.data);
+    // console.log("reponse", response);
+    if (response.success) {
+      // toast.success(response.message);
+      setAddedPartCodes(response.data);
+    }
   };
 
   const handleDelete = (addedComponent) => {
@@ -61,6 +68,7 @@ const AlternatePartCode = ({ open, hide }) => {
   };
 
   const handleUpdateAlternatives = async () => {
+    setAsyncOptions([]);
     const arr = [...addedPartCodes, ...newPartCodes].map(
       (row) => row.componentKey
     );
@@ -68,6 +76,10 @@ const AlternatePartCode = ({ open, hide }) => {
       () => updateAlternatePartCode(arr, open),
       "select"
     );
+    // console.log("response", response);
+    // console.log("componentKey", componentKey);
+    getAlternativePartCodes(open);
+    hide();
     // if (response.success) {
     // setAlternatePartModal(false);
     // }
@@ -87,6 +99,7 @@ const AlternatePartCode = ({ open, hide }) => {
   };
   useEffect(() => {
     if (newComponent) {
+      setAsyncOptions([]);
       const newPart = {
         id: newComponent.value,
         partCode: asyncOptions.find((row) => row.value === newComponent.value)
@@ -94,7 +107,30 @@ const AlternatePartCode = ({ open, hide }) => {
         component: newComponent.label,
         componentKey: newComponent.value,
       };
-      setNewPartCodes((curr) => [newPart, ...curr]);
+      // console.log("newPart", newPart);
+      // console.log("newPartCodes", newPartCodes);
+      // console.log("addedPartCodes", addedPartCodes);
+      // console.log("newComponent", newComponent);
+      let arr = [...newPartCodes, ...addedPartCodes];
+      // console.log("arr", arr);
+      const newComponentKey = newPart.componentKey;
+      const isDuplicate = arr.some(
+        (obj) => obj.componentKey === newComponentKey
+      );
+      // console.log("is", isDuplicate);
+      if (!isDuplicate) {
+        setNewPartCodes((curr) => [newPart, ...curr]);
+        setAsyncOptions([]);
+        // console.log("New object added successfully.");
+      } else {
+        toast.info("Component already pressent!");
+      }
+      // if (newPart.componentKey in arr) {
+      //   console.log("here");
+      // } else {
+      //   setNewPartCodes((curr) => [newPart, ...curr]);
+      //   console.log("here");
+      // }
     }
   }, [newComponent]);
 
