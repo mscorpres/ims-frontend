@@ -173,13 +173,15 @@ export default function CreateJW({}) {
     }
   };
   //   get cost center options
+
   const handleFetchCostCenterOptions = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
       "select"
     );
     let arr = [];
-    if (response.success) setAsyncOptions(arr);
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
   };
 
   // get project options
