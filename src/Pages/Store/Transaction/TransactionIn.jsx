@@ -67,7 +67,7 @@ const TransactionIn = () => {
     },
     { headerName: "Transaction Type", field: "TYPE", width: 120 },
     { headerName: "Part No.", field: "PART", width: 100 },
-    { headerName: "New Part No.", field: "PART_NEW", width: 100 },
+    { headerName: "Cat Part Code", field: "PART_NEW", width: 100 },
     {
       headerName: "Component",
       field: "COMPONENT",
