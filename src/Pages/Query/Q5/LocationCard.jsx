@@ -40,17 +40,17 @@ const LocationCard = ({
               <Col span={24}>
                 <Row justify="center">
                   <Typography.Text>
-                    Cl: {value} {unit}
+                    {value} {unit}
                   </Typography.Text>
                 </Row>
               </Col>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Row justify="center">
                   <Typography.Text>
                     Op: {value} {unit}
                   </Typography.Text>
                 </Row>
-              </Col>
+              </Col> */}
             </Row>
           </Col>
         </Row>
