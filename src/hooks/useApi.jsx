@@ -9,15 +9,25 @@ const useApi = () => {
       let message = "";
       setLoading(loadingLabel, true);
       const response = await fun();
+      console.log("response in use api", response);
 
       if (response.success !== undefined) {
         if (response.success && response.message) {
-          toast.success(response.message);
+          toast.success(response.data.message);
         } else if (!response.success && response.message) {
           toast.error(response.message);
         }
         return response;
       }
+      //prev
+      // if (response.success !== undefined) {
+      //   if (response.success && response.message) {
+      //     toast.success(response.message);
+      //   } else if (!response.success && response.message) {
+      //     toast.error(response.message);
+      //   }
+      //   return response;
+      // }
 
       if (typeof response?.data === "string") {
         if (response?.status === 200) {

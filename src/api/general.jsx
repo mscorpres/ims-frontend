@@ -97,6 +97,7 @@ export const getComponentOptions = async (search) => {
   const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
     search,
   });
+
   return response;
 };
 export const updateAlternatePartCode = async (alternativeArr, basePartCode) => {
