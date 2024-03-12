@@ -121,7 +121,7 @@ function R30() {
     { headerName: "HSN", field: "hsn", flex: 1 },
     { headerName: "Left Qty", field: "jw_leftqty", flex: 1 },
     { headerName: "Qty", field: "jw_qty", flex: 1 },
-    { headerName: "UOM", field: "uom", flex: 1 },
+    { headerName: "UoM", field: "uom", flex: 1 },
     { headerName: "Rate", field: "jw_rate", flex: 1 },
   ];
   const getVendors = async (search) => {

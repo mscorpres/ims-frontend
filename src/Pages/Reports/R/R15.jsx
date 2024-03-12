@@ -109,7 +109,7 @@ function R15() {
     { field: "RATE", headerName: "Rate", width: 80 },
     { field: "CURRENCY", headerName: "Currency", width: 120 },
     { field: "INQTY", headerName: "In Qty", width: 80 },
-    { field: "UNIT", headerName: "UOM", width: 80 },
+    { field: "UNIT", headerName: "UoM", width: 80 },
     { field: "VENDOR", headerName: "Vendor", width: 200 },
     { field: "INVOIVENUMBER", headerName: "Doc.Id ", width: 120 },
     { field: "TRANSACTION", headerName: "Transaction Id", width: 130 },

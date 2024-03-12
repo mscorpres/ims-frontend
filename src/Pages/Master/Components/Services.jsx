@@ -91,7 +91,7 @@ function Services() {
     { headerName: "Serial No.", width: 100, field: "index" },
     { headerName: "Part", width: 150, field: "c_part_no" },
     { headerName: "Component", flex: 1, field: "c_name" },
-    { headerName: "UOM", width: 120, field: "units_name" },
+    { headerName: "UoM", width: 120, field: "units_name" },
     {
       headerName: "Action",
       type: "actions",
@@ -156,7 +156,7 @@ function Services() {
                                 fontSize: window.innerWidth < 1600 && "0.7rem",
                               }}
                             >
-                              UOM
+                              UoM
                             </span>
                           }
                         >

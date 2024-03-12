@@ -153,10 +153,10 @@ export default function CPMAnalysis() {
     {
       title: (
         <Row justify="center" style={{ width: "100%", textAlign: "center" }}>
-          UOM
+          UoM
         </Row>
       ),
-      headerName: "UOM",
+      headerName: "UoM",
       dataIndex: "unit",
       key: "unit",
       width: 150,

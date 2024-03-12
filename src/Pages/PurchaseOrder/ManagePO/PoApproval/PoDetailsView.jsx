@@ -55,7 +55,7 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
       width: 120,
     },
     {
-      headerName: "UOM",
+      headerName: "UoM",
       field: "uom",
       width: 100,
     },

@@ -52,7 +52,7 @@ const R2 = () => {
       headerName: "Component",
       width: 350,
     },
-    { field: "unit_name", headerName: "UOM", width: 80 },
+    { field: "unit_name", headerName: "UoM", width: 80 },
     { field: "po_rate", headerName: "Rate", width: 100 },
     {
       field: "ordered_qty",

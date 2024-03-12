@@ -213,7 +213,7 @@ const columns = [
     width: 100,
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     field: "uom",
     width: 70,
   },

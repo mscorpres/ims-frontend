@@ -96,7 +96,7 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
         />
       ),
     },
-    { field: "uom", headerName: "UOM", width: 100 },
+    { field: "uom", headerName: "UoM", width: 100 },
     {
       // field: "bom_req_qty",
       headerName: "Update Qty",

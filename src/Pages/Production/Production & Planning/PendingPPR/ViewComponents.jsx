@@ -51,7 +51,7 @@ export default function ViewComponents({ viewComponents, setViewComponents }) {
     { headerName: "Type", field: "category" },
     { headerName: "BOM Qty", field: "bom_qty" },
     { headerName: "Rate", field: "rate" },
-    { headerName: "UOM", field: "uom", width: 80 },
+    { headerName: "UoM", field: "uom", width: 80 },
     { headerName: "Req. Qty", field: "req_qty", width: 150 },
     { headerName: "Exec. Qty", field: "executed_qty", width: 150 },
     { headerName: "Remaining Qty", field: "remaining_qty", width: 150 },

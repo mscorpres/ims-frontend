@@ -197,7 +197,7 @@ const Edit = ({
                 loading={detailsLoading}
               />
             )}
-            <Form.Item name="uomid" label="UOM">
+            <Form.Item name="uomid" label="UoM">
               {!detailsLoading && (
                 <MySelect options={uomOptions} />
               )}

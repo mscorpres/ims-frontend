@@ -47,7 +47,7 @@ const R13 = () => {
     },
     { field: "RATE", headerName: "Rate", width: 100 },
     { field: "INQTY", headerName: "In Qty", width: 120 },
-    { field: "UNIT", headerName: "Uom", width: 100 },
+    { field: "UNIT", headerName: "UoM", width: 100 },
     {
       field: "VENDOR",
       headerName: "Vendor Name",

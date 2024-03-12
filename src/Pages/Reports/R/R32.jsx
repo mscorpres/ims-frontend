@@ -68,7 +68,7 @@ const columns = [
   { headerName: "Part Code", field: "part_code", width: 130 },
   { headerName: "Cat Part Name", field: "part_name", width: 350 },
   { headerName: "Qty", field: "qty", width: 130 },
-  { headerName: "UOM", field: "uom", width: 130 },
+  { headerName: "UoM", field: "uom", width: 130 },
   { headerName: "In Location", field: "in_location", width: 100 },
   { headerName: "Out Location", field: "out_location", width: 100 },
   {

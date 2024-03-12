@@ -62,7 +62,7 @@ const R7 = () => {
       ),
     },
     { field: "bomqty", headerName: "BOM Qty", width: 120 },
-    { field: "unit_name", headerName: "UOM", width: 120 },
+    { field: "unit_name", headerName: "UoM", width: 120 },
     {
       field: "closingBal",
       headerName: "CL Qty",

@@ -52,7 +52,7 @@ const R14 = () => {
     { field: "name", headerName: "Part Name", width: 380 },
     { field: "part", headerName: "Part No", width: 100 },
     { field: "new_part", headerName: "Cat Part Code", width: 150 },
-    { field: "uom", headerName: "UOM", width: 100 },
+    { field: "uom", headerName: "UoM", width: 100 },
     {
       field: "cl",
       headerName: "IMS Stock",

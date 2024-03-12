@@ -64,7 +64,7 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
     { field: "index", headerName: "S No.", width: 8 },
     { field: "part_code", headerName: "Part Code", width: 120 },
     { field: "component_name", headerName: "Name", width: 350 },
-    { field: "bom_uom", headerName: "Uom", width: 100 },
+    { field: "bom_uom", headerName: "UoM", width: 100 },
     { field: "bom_qty", headerName: "BOM Qty", width: 100 },
     { field: "bom_rate", headerName: "BOM Rate", width: 100 },
     { field: "required_qty", headerName: "Req. Qty", width: 100 },

@@ -157,7 +157,7 @@ export default function PendingModal({
     { name: "FG Type", selector: (row) => row.fgtype },
     { name: "Part Code", selector: (row) => row.partcode },
     { name: "Component", selector: (row) => row.component },
-    { name: "UOM", selector: (row) => row.unit },
+    { name: "UoM", selector: (row) => row.unit },
     { name: "Part Consumed", selector: (row) => row.cons_qty },
     { name: "Consume Loc", selector: (row) => row.cons_loc },
   ];

@@ -282,7 +282,7 @@ export default function MaterialUpdate({
         </Col>
         <Col span={6}>
           {/* {console.log(allUpdateData)} */}
-          <div>Uom</div>
+          <div>UoM</div>
           <Select
             options={uom}
             value={allUpdateData?.uomid}

@@ -58,7 +58,7 @@ export default function MaterialTransferReport({ type }) {
     { headerName: "Out Loc.", field: "out_location", flex: 1 },
     { headerName: "In Loc.", field: "in_location", flex: 1 },
     { headerName: "Qty", field: "qty", flex: 1 },
-    { headerName: "UOM", field: "uom", flex: 1 },
+    { headerName: "UoM", field: "uom", flex: 1 },
     { headerName: "TXN ID", field: "transaction", flex: 1 },
     { headerName: "Shifted By", field: "completed_by", flex: 1 },
     { headerName: "Remarks", field: "remark", flex: 1 },

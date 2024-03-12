@@ -96,7 +96,7 @@ const R29 = () => {
       width: 120,
     },
     { field: "bomqty", headerName: "BOM Qty", width: 100 },
-    { field: "units_name", headerName: "UOM", width: 100 },
+    { field: "units_name", headerName: "UoM", width: 100 },
     { field: "opening", headerName: "Opening", width: 120 },
     { field: "inward", headerName: "Inward", width: 120 },
     { field: "outward", headerName: "Outward", width: 100 },
