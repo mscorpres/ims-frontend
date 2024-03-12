@@ -307,6 +307,12 @@ export default function JwInwordModal({
       ],
     },
     {
+      field: "id",
+      headerName: "#",
+      width: 50,
+      renderCell: ({ row }) => <Typography.Text>{row.id}</Typography.Text>,
+    },
+    {
       field: "partNo",
       headerName: "Part No.",
       width: 50,
