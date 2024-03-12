@@ -38,6 +38,9 @@ import {
   convertSelectOptions,
 } from "../../utils/general";
 import { useSearchParams } from "react-router-dom";
+// import MyFormDatePicker from "../../Components/MyFormDatePicker";
+import dayjs from "dayjs";
+import RequestLedgerModal from "./ledgers/RequestLedger";
 import Ledgers from "./ledgers";
 
 const initialValues = {
@@ -369,6 +372,15 @@ const VendorReconcilation = () => {
       <Row style={{ height: "100%" }} gutter={6}>
         <Col span={4} style={{ height: "100%", overflowY: "auto" }}>
           <Flex gap={6} vertical>
+            <ButtonsCard
+              setShowTransactionModal={setShowTransactionModal}
+              setShowNoteDialog={setShowNoteDialog}
+              selectedVendor={selectedVendor}
+              selectedRows={selectedRows}
+              setShowNotesModal={setShowNotesModal}
+              handleUpdateMatchStatus={handleUpdateMatchStatus}
+              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
+            />
             <VendorCard
               form={filterForm}
               setShowFilters={setShowFilters}
@@ -392,15 +404,6 @@ const VendorReconcilation = () => {
               manualTotal={manualTotal}
               details={details}
               vendorInput={vedorInput}
-            />
-            <ButtonsCard
-              setShowTransactionModal={setShowTransactionModal}
-              setShowNoteDialog={setShowNoteDialog}
-              selectedVendor={selectedVendor}
-              selectedRows={selectedRows}
-              setShowNotesModal={setShowNotesModal}
-              handleUpdateMatchStatus={handleUpdateMatchStatus}
-              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
             />
           </Flex>
         </Col>
@@ -660,11 +663,13 @@ const VendorCard = ({
                 <Col>
                   <Row gutter={4}>
                     <Col>
-                      <CommonIcons
+                      <Button
                         onClick={() => setShowFilters(true)}
+                        type="primary"
                         size="small"
-                        action="editButton"
-                      />
+                      >
+                        Change
+                      </Button>
                     </Col>
 
                     <Col>

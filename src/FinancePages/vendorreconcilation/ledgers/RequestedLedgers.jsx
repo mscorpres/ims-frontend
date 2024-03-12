@@ -13,17 +13,9 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../Components/MyDataTable";
 import { useEffect, useState } from "react";
 import useApi from "../../../hooks/useApi";
-import {
-  getRequestedLedgerMails,
-  uploadLedgerAttachmnt,
-} from "../../../api/ledger";
+import { getRequestedLedgerMails } from "../../../api/ledger";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { UploadOutlined } from "@ant-design/icons";
-import MyButton from "../../../Components/MyButton";
-
-const initialValues = {
-  upload: undefined,
-};
 
 const RequestedLedgers = ({ vendor, date, modalOpen }) => {
   const [rows, setRows] = useState([]);
@@ -40,15 +32,6 @@ const RequestedLedgers = ({ vendor, date, modalOpen }) => {
     setRows(response.data);
   };
 
-  const handleUploadAttachment = async () => {
-    const values = await form.validateFields();
-    const response = await executeFun(() =>
-      uploadLedgerAttachmnt(vendor.value, showDetails?.refId, values.upload)
-    );
-    if (response.success) {
-      form.resetFields();
-    }
-  };
   const actionColumn = {
     headerName: "",
     type: "actions",
@@ -75,12 +58,8 @@ const RequestedLedgers = ({ vendor, date, modalOpen }) => {
       </Col>
       {showDetails && (
         <Col span={12}>
-          <DetailsCard
-            handleUploadAttachment={handleUploadAttachment}
-            form={form}
-            mail={showDetails}
-            setShowDetails={setShowDetails}
-          />
+          {" "}
+          <DetailsCard mail={showDetails} setShowDetails={setShowDetails} />
         </Col>
       )}
     </Row>
@@ -117,12 +96,7 @@ const columns = [
   },
 ];
 
-const DetailsCard = ({
-  mail,
-  setShowDetails,
-  form,
-  handleUploadAttachment,
-}) => {
+const DetailsCard = ({ mail, setShowDetails }) => {
   return (
     <Card
       size="small"
@@ -174,10 +148,7 @@ const DetailsCard = ({
         <Col span={24}>
           <Flex vertical>
             <Row>
-              <UploadAttachementButton
-                handleUploadAttachment={handleUploadAttachment}
-                form={form}
-              />
+              <UploadAttachementButton />
             </Row>
             <Typography.Text type="secondary">Uploaded Ledgers</Typography.Text>
             {(!mail.uploadedLedgers || mail.uploadedLedgers?.length === 0) && (
@@ -185,14 +156,7 @@ const DetailsCard = ({
                 No ledgers files found..
               </Typography.Text>
             )}
-            <Flex vertical gap={10}>
-              {mail.uploadedLedgers &&
-                mail.uploadedLedgers.map((row) => (
-                  <a href={row} target="_blank">
-                    {row}
-                  </a>
-                ))}
-            </Flex>
+            {/* {mail.uploadedLedgers && mail.uploadedLedgers.map(row => ())} */}
           </Flex>
         </Col>
       </Row>
@@ -200,34 +164,24 @@ const DetailsCard = ({
   );
 };
 
-const UploadAttachementButton = ({ form, handleUploadAttachment }) => {
+const UploadAttachementButton = () => {
   return (
-    <Form
-      initialValues={initialValues}
-      layout="vertical"
-      form={form}
-      style={{ width: "100%" }}
-    >
+    <Form layout="vertical">
       <Form.Item
         name="upload"
         label="Upload Attachment"
         valuePropName="file"
-        getValueFromEvent={({ file }) => file}
+        getValueFromEvent={(file) => file}
       >
         <Upload
           beforeUpload={() => false}
           maxCount={1}
-          name="file"
+          name="logo"
           listType="picture"
         >
-          <Button x icon={<UploadOutlined />}>
-            Click to upload
-          </Button>
+          <Button icon={<UploadOutlined />}>Click to upload</Button>
         </Upload>
       </Form.Item>
-      <Row justify="end">
-        <MyButton onClick={handleUploadAttachment} variant="submit" />
-      </Row>
     </Form>
   );
 };
