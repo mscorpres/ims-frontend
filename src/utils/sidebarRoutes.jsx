@@ -614,24 +614,22 @@ export const items = (user) => [
     ]),
   ]),
   //Legal
-  user?.showlegal
-    ? getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
-        getItem("Master", "X1", <DeliveredProcedureOutlined />, [
-          getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),
-          getItem(
-            <Link to="/legal/addagreementtype">Add Type Of Agreement</Link>,
-            "X12"
-          ),
-        ]),
-        getItem("Agreements", "X2", <DeliveredProcedureOutlined />, [
-          getItem(
-            <Link to="/legal/createagreement">Create Agreement</Link>,
-            "X21"
-          ),
-          getItem(<Link to="/legal/viewagreement">View Agreement</Link>, "X22"),
-        ]),
-      ])
-    : null,
+  // user?.showlegal
+  // ?
+  getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
+    getItem("Master", "X1", <DeliveredProcedureOutlined />, [
+      getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),
+      getItem(
+        <Link to="/legal/addagreementtype">Add Type Of Agreement</Link>,
+        "X12"
+      ),
+    ]),
+    getItem("Agreements", "X2", <DeliveredProcedureOutlined />, [
+      getItem(<Link to="/legal/createagreement">Create Agreement</Link>, "X21"),
+      getItem(<Link to="/legal/viewagreement">View Agreement</Link>, "X22"),
+    ]),
+  ]),
+  // : null,
 
   //MES
   getItem("MES", "Z", <DeploymentUnitOutlined />, [
