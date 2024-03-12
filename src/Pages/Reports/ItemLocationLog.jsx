@@ -40,6 +40,7 @@ export default function ItemLocationLog() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
   const [bomDetails, setBomDetails] = useState([]);
+  const [altDetails, setAltDetails] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [summaryData, setSummaryData] = useState(initialSummaryData);
   const { executeFun, loading: loading1 } = useApi();
@@ -84,17 +85,31 @@ export default function ItemLocationLog() {
       }
     }
   };
-
+  const getDetails = async (values) => {
+    setLoading(true);
+    const response = await imsAxios.post("/report/common/altpartDetails", {
+      component: values.component,
+      location: values.location,
+    });
+    const { data } = response;
+    if (response.success) {
+      setAltDetails(data);
+      setLoading(false);
+    }
+    setLoading(false);
+  };
   // getting rows
   const getRows = async (values) => {
     try {
       setLoading("fetch");
       setSummaryData(initialSummaryData);
       setRows([]);
+
       const response = await imsAxios.post("/itemQueryL", {
         location: values.location,
         part_code: values.component,
       });
+      getDetails(values);
       const { data } = response;
       const {
         header,
@@ -377,6 +392,50 @@ export default function ItemLocationLog() {
                           <Divider style={{ margin: 5 }} />
                         </Row>
                       ))}
+                  </Collapse.Panel>
+                ))}
+              </Collapse>
+            </Card>
+            <Card title="Similar Components" size="small">
+              <Collapse loading={loading}>
+                {altDetails.map((row) => (
+                  <Collapse.Panel
+                    header={`${row.partName} `}
+                    key={row.partName}
+                  >
+                    {/* {altDetails?.length === 0 && (
+                      <Row key={row.name} justify="space-between">
+                        <Col>
+                          <Typography.Text
+                            style={{ fontSize: "0.8rem" }}
+                            type="secondary"
+                          >
+                            No Data found.
+                          </Typography.Text>
+                        </Col>
+                      </Row>
+                    )} */}
+                    {/* {altDetails &&
+                      altDetails?.map((row) => ( */}
+                    <Row key={row.partName} justify="space-between">
+                      <Col>
+                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                          Part: {row.partNo}
+                        </Typography.Text>
+                      </Col>
+                      <Col>
+                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                          Cat Part: {row.newPartNo}
+                        </Typography.Text>
+                      </Col>
+                      <Col>
+                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                          Closing: {row.closingQty + " " + row.uom}
+                        </Typography.Text>
+                      </Col>
+                      <Divider style={{ margin: 5 }} />
+                    </Row>
+                    {/* // ))} */}
                   </Collapse.Panel>
                 ))}
               </Collapse>
