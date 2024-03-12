@@ -104,7 +104,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .tax-modal .head {
   width: 100%;
-  background: #047780;
+  background: #003e7e;
+  /* background: #047780; */
   height: 39px;
   color: white;
   display: flex;
@@ -237,7 +238,8 @@ textarea {
 .ant-menu.ant-menu-dark .ant-menu-sub {
   line-height: 40.5px !important;
   /* background: #fff !important; */
-  background: #047780 !important;
+  /* background: #047780 !important; */
+   background: #003e7e !important
 }
 .ant-menu-sub {
   max-height: 50vh !important;

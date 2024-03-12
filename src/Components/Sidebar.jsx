@@ -18,7 +18,7 @@ const Sidebar = ({ showSideBar, setShowSideBar, items, items1, ...props }) => {
       <Menu
         theme="dark"
         // forceSubMenuRender
-        style={{ height: "70%", background: "#047780" }}
+        style={{ height: "70%", background: "#001529" }}
         defaultSelectedKeys={["1"]}
         mode="vertical"
         triggerSubMenuAction="hover"
@@ -30,7 +30,8 @@ const Sidebar = ({ showSideBar, setShowSideBar, items, items1, ...props }) => {
         // forceSubMenuRender
         style={{
           height: "30%",
-          background: "#047780",
+          // background: "#047780",
+          background: " #001529",
           display: "flex",
           flexDirection: "column",
           paddingBottom: 50,
