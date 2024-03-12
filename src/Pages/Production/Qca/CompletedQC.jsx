@@ -244,7 +244,7 @@ function CompletedQC() {
       renderCell: ({ row }) => <ToolTipEllipses text={row.inQty} />,
     },
     {
-      headerName: "UoM.",
+      headerName: "UoM",
       width: 100,
       field: "unit",
       renderCell: ({ row }) => <ToolTipEllipses text={row.unit} />,
