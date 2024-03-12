@@ -9,6 +9,7 @@ const useApi = () => {
       let message = "";
       setLoading(loadingLabel, true);
       const response = await fun();
+      console.log("response in use api", response);
       if (response.data.success !== undefined) {
         if (response.data.success && response.data.message) {
           toast.success(response.data.messae);

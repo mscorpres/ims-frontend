@@ -20,7 +20,7 @@ imsAxios.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+(error) => {
     console.log("this is the error response", error.response);
     // if (error.response.status === 404) {
     //   toast.error("Some Internal error occured");
