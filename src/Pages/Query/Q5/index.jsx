@@ -55,6 +55,7 @@ const QueryQ5 = () => {
       "select"
     );
     let arr = [];
+    console.log("apu response in q5", response);
     if (response.success) {
       const { data } = response;
       arr = convertSelectOptions(data);
@@ -72,12 +73,15 @@ const QueryQ5 = () => {
         date: values.date,
       };
       const { data, success } = await executeFun(() => getQ5(payload), "fetch");
-      if (success) {
+      if (success && data) {
         setHeaderData({
           uniqueId: data.component.unique_id,
-          lastEntryBy: data.last_physical_entry_by,
-          lastEntryDate: data.last_physical_entry_dt,
-          remark: data.last_remark,
+          lastEntryBy: data.last_audit_by,
+          lastEntryDate: data.last_audit_date,
+          remark: data.last_audit_remark,
+          componentName: data.component.name,
+          partCode: data.component.part_code,
+          unit: data.component.unit,
         });
         const obj = {
           component: data.component.name,
@@ -170,10 +174,34 @@ const QueryQ5 = () => {
               <Row>
                 <Col span={24}>
                   <Typography.Text strong type="secondary">
+                    Component:
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text>{headerData?.component}</Typography.Text>
+                </Col>
+                <Divider />
+                <Col span={24}>
+                  <Typography.Text strong type="secondary">
+                    Part Code
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text>{headerData?.partCode}</Typography.Text>
+                </Col>
+                <Divider />
+                <Col span={24}>
+                  <Typography.Text strong type="secondary">
+                    Unit
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text>{headerData?.unit}</Typography.Text>
+                </Col>
+                <Divider />
+                <Col span={24}>
+                  <Typography.Text strong type="secondary">
                     Unique Id:
                   </Typography.Text>
                   <br />
-                  <Typography.Text>{headerData.uniqueId}</Typography.Text>
+                  <Typography.Text>{headerData?.uniqueId}</Typography.Text>
                 </Col>
                 <Divider />
                 <Col span={24}>
@@ -181,7 +209,7 @@ const QueryQ5 = () => {
                     Last Entry By:
                   </Typography.Text>
                   <br />
-                  <Typography.Text>{headerData.lastEntryBy}</Typography.Text>
+                  <Typography.Text>{headerData?.lastEntryBy}</Typography.Text>
                 </Col>
                 <Divider />
                 <Col span={24}>
@@ -189,7 +217,7 @@ const QueryQ5 = () => {
                     Physical on:
                   </Typography.Text>
                   <br />
-                  <Typography.Text>{headerData.lastEntryDate}</Typography.Text>
+                  <Typography.Text>{headerData?.lastEntryDate}</Typography.Text>
                 </Col>
                 <Divider />
                 <Col span={24}>
@@ -197,7 +225,7 @@ const QueryQ5 = () => {
                     Physical Note:
                   </Typography.Text>
                   <br />
-                  <Typography.Text>{headerData.remark}</Typography.Text>
+                  <Typography.Text>{headerData?.remark}</Typography.Text>
                 </Col>
               </Row>
             </Card>
@@ -260,7 +288,7 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                              <Typography
+                              {/* <Typography
                                 sx={{
                                   width: "33%",
                                   flexShrink: 0,
@@ -268,7 +296,7 @@ const QueryQ5 = () => {
                                 }}
                               >
                                 Opening Total - {rmData.openingTotal}
-                              </Typography>
+                              </Typography> */}
                               <Typography
                                 sx={{
                                   width: "33%",
@@ -276,7 +304,7 @@ const QueryQ5 = () => {
                                   marginRight: "4px",
                                 }}
                               >
-                                Closing Total - {rmData.openingTotal}
+                                Total - {rmData.openingTotal} {headerData?.unit}
                               </Typography>
                             </Space>
                             <Button
@@ -325,7 +353,7 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                              <Typography
+                              {/* <Typography
                                 sx={{
                                   width: "33%",
                                   flexShrink: 0,
@@ -333,7 +361,7 @@ const QueryQ5 = () => {
                                 }}
                               >
                                 Opening Total - {sfData.openingTotal}
-                              </Typography>
+                              </Typography> */}
                               <Typography
                                 sx={{
                                   width: "33%",
@@ -341,7 +369,7 @@ const QueryQ5 = () => {
                                   marginRight: "4px",
                                 }}
                               >
-                                Closing Total - {sfData.openingTotal}
+                                Total - {sfData.openingTotal} {headerData?.unit}
                               </Typography>
                             </Space>
                             <Button
@@ -395,7 +423,7 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                              <Typography
+                              {/* <Typography
                                 sx={{
                                   width: "33%",
                                   flexShrink: 0,
@@ -403,7 +431,7 @@ const QueryQ5 = () => {
                                 }}
                               >
                                 Opening Total - {vendorData.openingTotal}
-                              </Typography>
+                              </Typography> */}
                               <Typography
                                 sx={{
                                   width: "33%",
@@ -411,7 +439,8 @@ const QueryQ5 = () => {
                                   marginRight: "4px",
                                 }}
                               >
-                                Closing Total - {vendorData.openingTotal}
+                                Total - {vendorData.openingTotal}{" "}
+                                {headerData?.unit}
                               </Typography>
                             </Space>
                             <Button

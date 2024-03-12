@@ -84,6 +84,7 @@ export const getComponentOptions = async (search) => {
   const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
     search,
   });
+
   return response;
 };
 export const getProductsOptions = async (search, sku) => {
