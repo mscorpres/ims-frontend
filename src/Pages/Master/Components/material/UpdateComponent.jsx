@@ -112,6 +112,7 @@ export default function UpdateComponent() {
             catType: catType,
             alternate_part_codes: value.alternate_part_codes,
             alternate_part_keys: value.alternate_part_keys,
+            alternate_part_name: value.alternate_part_name,
             attrCategory: {
               text: value.attr_category.text,
               value: value.attr_category.value,
@@ -155,7 +156,11 @@ export default function UpdateComponent() {
       //  if (getAlternate_part_codes) {
       // console.log("getAlternate_part_codes", getAlternate_part_codes);
       let alterpartcode = fetchPartCode.alternate_part_codes.map((r, index) => {
-        return { r, id: index + 1 };
+        return {
+          code: r,
+          id: index + 1,
+          name: fetchPartCode.alternate_part_name[index],
+        };
       });
       // console.log("alterPArt", alterpartcode);
       setNewPartCodeDb(alterpartcode);
@@ -412,8 +417,8 @@ export default function UpdateComponent() {
   };
   const updatePartCode = async () => {
     const values = await altPartCodeForm.validateFields();
-    // console.log("values", values);
-    let arr = values.alternatePart.map((r) => r.key);
+    console.log("values", values);
+    let arr = values.alternatePart.map((r) => r.value);
     // console.log("arr", arr);
     const response = await executeFun(
       () => updateAlternatePartCode(arr, componentKey),
@@ -440,14 +445,19 @@ export default function UpdateComponent() {
     },
     {
       headerName: "Part Code",
-      field: "r",
+      field: "code",
+      width: 200,
+    },
+    {
+      headerName: "Part Code",
+      field: "name",
       width: 200,
     },
   ];
   return (
     <>
       <Drawer
-        // width={600}
+        width={600}
         title="Update Similar Part Code"
         open={alternatePartModal}
         footer={[
