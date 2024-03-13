@@ -246,6 +246,22 @@ const getReturnRowsInViewChallan = async (wise, searchInput) => {
     return [];
   }
 };
+const getScrapeInViewChallan = async (wise, searchInput) => {
+  const { data } = await imsAxios.post("/wo_challan/fetchScrapChallanlist", {
+    wise,
+    data: searchInput,
+  });
+  if (data.code === 200) {
+    const arr = data.data.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
+    return arr;
+  } else {
+    toast.error(data.message.msg);
+    return [];
+  }
+};
 
 const createWorkOrderShipmentChallan = async (payload) => {
   const { data } = await imsAxios.post(
@@ -513,4 +529,5 @@ export {
   createWorkOrderReturnChallan,
   printreturnChallan,
   submitScrapreChallan,
+  getScrapeInViewChallan,
 };
