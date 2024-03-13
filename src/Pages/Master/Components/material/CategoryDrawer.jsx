@@ -25,7 +25,7 @@ export default function CategoryDrawer({
   getDetails,
   setUniqueIdData,
 }) {
-  console.log("this is the cat show", show);
+  // console.log("show", show, hide, getDetails, setUniqueIdData);
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState([]);
   const [uniqueId, setUniqueId] = useState("");
@@ -201,15 +201,24 @@ export default function CategoryDrawer({
       // getCategoryFields();
       getFieldValues();
       getCategoryOptions();
-      setSelectedCategory(show?.category);
-      setUniqueId(show?.catCode);
     }
-    // if (show?.value !== "NA") {
-    // }
+    if (show?.value !== "NA") {
+      setSelectedCategory(show);
+    }
+    if (show?.value == "--") {
+      setSelectedCategory("Other");
+    }
   }, [show]);
   useEffect(() => {
+    // console.log("selectedCategory?.value", selectedCategory?.value);
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
-      getCategoryFields(selectedCategory?.value);
+      if (
+        selectedCategory?.value !== "Other" ||
+        selectedCategory?.value !== undefined
+      ) {
+        console.log("here cs", selectedCategory?.value);
+        getCategoryFields(selectedCategory?.value);
+      }
     } else if (selectedCategory && selectedCategory?.value === "348423984423") {
       setFields([]);
     }
@@ -366,8 +375,8 @@ export default function CategoryDrawer({
   // ---
   useEffect(() => {
     if (value) {
-      // checkDecimal(value);
-      // getUniqueNo();
+      checkDecimal(value);
+      getUniqueNo();
     }
   }, [value, alpha]);
   const sortedFields = [...fields].sort((a, b) => {
@@ -450,7 +459,7 @@ export default function CategoryDrawer({
                   label={row.label.replaceAll("_", " ")}
                 >
                   <MySelect
-                    // labelInValue
+                    labelInValue
                     disabled={row.label === "multiplier"}
                     options={
                       fieldSelectOptions.find(
