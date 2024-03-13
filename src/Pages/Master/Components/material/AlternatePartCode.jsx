@@ -12,6 +12,7 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import { getAlternativePartCodes } from "../../../../api/master/component";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { toast } from "react-toastify";
+import { set } from "lodash";
 
 const AlternatePartCode = ({ open, hide }) => {
   const [addedPartCodes, setAddedPartCodes] = useState([]);
@@ -79,7 +80,9 @@ const AlternatePartCode = ({ open, hide }) => {
     // console.log("response", response);
     // console.log("componentKey", componentKey);
     getAlternativePartCodes(open);
+    setNewPartCodes([]);
     hide();
+
     // if (response.success) {
     // setAlternatePartModal(false);
     // }
@@ -125,6 +128,7 @@ const AlternatePartCode = ({ open, hide }) => {
       } else {
         toast.info("Component already pressent!");
       }
+      form.resetFields();
       // if (newPart.componentKey in arr) {
       //   console.log("here");
       // } else {
