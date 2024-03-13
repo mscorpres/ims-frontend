@@ -27,8 +27,8 @@ import { useLocation, useParams } from "react-router-dom";
 import useApi from "../../../hooks/useApi.js";
 import { getLedgerReport } from "../../../api/finance/reports.js";
 import MyButton from "../../../Components/MyButton/index.jsx";
-import { getLedgerOptions } from "../../../api/ledger.jsx";
-import { getRecoReport } from "../../../api/finance/vendor-reco.jsx";
+import { getLedgerOptions } from "../../../api/ledger.js";
+import { getRecoReport } from "../../../api/finance/vendor-reco.js";
 import Loading from "../../../Components/Loading.jsx";
 
 export default function LedgerReport() {
