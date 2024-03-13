@@ -577,8 +577,6 @@ export default function UpdateComponent() {
                       <MySelect options={uomOptions} />
                     </Form.Item>
                   </Col>
-                  {/* <Col span={4}> */}
-
                   <Col span={8}>
                     <Form.Item name="catType" label="Type">
                       <Input />
