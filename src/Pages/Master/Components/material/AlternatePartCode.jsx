@@ -12,6 +12,7 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import { getAlternativePartCodes } from "../../../../api/master/component";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { toast } from "react-toastify";
+import { CheckOutlined } from "@ant-design/icons";
 
 const AlternatePartCode = ({ open, hide }) => {
   const [addedPartCodes, setAddedPartCodes] = useState([]);
@@ -212,14 +213,15 @@ const columns = [
     width: 50,
     renderCell: ({ row }) =>
       row.added && (
-        <div
-          style={{
-            width: 10,
-            height: 10,
-            background: "#047780",
-            borderRadius: "100%",
-          }}
-        ></div>
+        <CheckOutlined />
+        // <div
+        //   style={{
+        //     width: 10,
+        //     height: 10,
+        //     background: "#047780",
+        //     borderRadius: "100%",
+        //   }}
+        // ></div>
       ),
   },
 ];

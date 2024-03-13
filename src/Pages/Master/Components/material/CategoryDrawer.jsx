@@ -25,6 +25,7 @@ export default function CategoryDrawer({
   getDetails,
   setUniqueIdData,
 }) {
+  // console.log("show", show, hide, getDetails, setUniqueIdData);
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState([]);
   const [uniqueId, setUniqueId] = useState("");
@@ -122,10 +123,10 @@ export default function CategoryDrawer({
 
   const validateHandler = async () => {
     const values = await form.validateFields();
-    console.log(values);
-    console.log(uniqueId);
-    console.log("selectedCategory", selectedCategory);
-    console.log("msnf", manfCode);
+    // console.log(values);
+    // console.log(uniqueId);
+    // console.log("selectedCategory", selectedCategory);
+    // console.log("msnf", manfCode);
 
     const attr_raw =
       selectedCategory.label === "Capacitor"
@@ -169,7 +170,7 @@ export default function CategoryDrawer({
       };
     }
 
-    console.log("payload,", payload);
+    // console.log("payload,", payload);
     setUniqueIdData(payload);
     hide();
   };
@@ -204,10 +205,20 @@ export default function CategoryDrawer({
     if (show?.value !== "NA") {
       setSelectedCategory(show);
     }
+    if (show?.value == "--") {
+      setSelectedCategory("Other");
+    }
   }, [show]);
   useEffect(() => {
+    // console.log("selectedCategory?.value", selectedCategory?.value);
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
-      getCategoryFields(selectedCategory?.value);
+      if (
+        selectedCategory?.value !== "Other" ||
+        selectedCategory?.value !== undefined
+      ) {
+        console.log("here cs", selectedCategory?.value);
+        getCategoryFields(selectedCategory?.value);
+      }
     } else if (selectedCategory && selectedCategory?.value === "348423984423") {
       setFields([]);
     }

@@ -31,6 +31,9 @@ import {
 import useApi from "../../../../hooks/useApi";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
+import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+
+import AlternatePartCode from "./AlternatePartCode";
 
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
@@ -41,17 +44,10 @@ export default function UpdateComponent() {
   const [showCategoryDetails, setShowCategoryDetails] = useState(false);
   const [fetchPartCode, setFetchPartCode] = useState("");
   const [newPartCodeDb, setNewPartCodeDb] = useState([]);
-  const [getAlternate_part_codes, setGetAlternate_part_codes] = useState([]);
   const { componentKey } = useParams();
   const [componentForm] = Form.useForm();
   const [altPartCodeForm] = Form.useForm();
-  const [asyncOptions, setAsyncOptions] = useState([]);
   const [alternatePartModal, setAlternatePartModal] = useState(false);
-  const [manfCode, setManfCode] = useState(null);
-  const [partOptions, setPartOptions] = useState([]);
-
-  const attrCategory = Form.useWatch("attrCategory", componentForm);
-  console.log("attr_raw", attr_raw);
 
   const { executeFun, loading: loading1 } = useApi();
   const getDetails = async () => {
@@ -128,6 +124,7 @@ export default function UpdateComponent() {
           });
           componentForm.setFieldsValue(finalObj);
           // console.log("finalObj");
+          console.log("cate", categoryData);
 
           setFetchPartCode(finalObj);
           const objects = finalObj.alternate_part_codes.map((code, index) => ({
@@ -148,26 +145,21 @@ export default function UpdateComponent() {
       setLoading(false);
     }
   };
-  // console.log("this is the alternate part codes values,", partOptions);
+
   useEffect(() => {
-    // console.log("alternate_part_codes in useefect", fetchPartCode);
     if (fetchPartCode) {
-      // setGetAlternate_part_codes(fetchPartCode.alternate_part_codes);
-      //  if (getAlternate_part_codes) {
-      // console.log("getAlternate_part_codes", getAlternate_part_codes);
-      let alterpartcode = fetchPartCode.alternate_part_codes.map((r, index) => {
-        return {
-          code: r,
-          id: index + 1,
-          name: fetchPartCode.alternate_part_name[index],
-        };
-      });
-      // console.log("alterPArt", alterpartcode);
+      const alterpartcode = fetchPartCode.alternate_part_name.map(
+        (name, index) => {
+          return {
+            id: index + 1,
+            partName: name,
+            partCode: fetchPartCode.alternate_part_codes[index],
+          };
+        }
+      );
       setNewPartCodeDb(alterpartcode);
-      //  }
     }
   }, [fetchPartCode]);
-  // console.log("alterPArt", newPartCodeDb);
 
   const getUomOptions = async () => {
     try {
@@ -213,9 +205,6 @@ export default function UpdateComponent() {
   };
   const modalConfirmMaterial = async () => {
     const values = await componentForm.validateFields();
-    console.log("attr_raw =======", attr_raw);
-    console.log("values", values);
-    console.log("categoryData", categoryData);
     let attrCat;
     if (attr_raw?.attribute_category === "Resistor") {
       attrCat = "R";
@@ -253,21 +242,15 @@ export default function UpdateComponent() {
       othercost: values.otherCost,
       attr_code: attr_raw?.attributeCode ?? "--",
       attr_raw: attr_raw?.attr_raw ?? "",
-      // attr_category: attr_raw?.C_type ?? "O",
       attr_category: attrCat,
       componentcategory: "--",
-
-      // c_type: attr_raw?.C_type ?? "O",
-      //manu
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
     };
-    console.log("payload", payload);
 
     const response = await imsAxios.post(
       "/component/updateComponent/verify",
       payload
     );
-    console.log("response", response);
     const { data } = response;
     if (data.code === 200) {
       Modal.confirm({
@@ -280,14 +263,6 @@ export default function UpdateComponent() {
       });
     } else {
       toast.error(data.message.msg);
-      // Modal.confirm({
-      //   title: "Are you sure you want to submit this Material?",
-      //   content: `${data.message.msg}`,
-      //   // onOk() {
-      //   //   submitHandler(payload);
-      //   // },
-      //   onCancel() {},
-      // });
     }
   };
   const validateHandler = async () => {
@@ -396,107 +371,19 @@ export default function UpdateComponent() {
   const resetHandler = () => {
     componentForm.resetFields();
   };
-  const getComponentOption = async (searchTerm) => {
-    const response = await executeFun(
-      () => getComponentOptions(searchTerm, true),
-      "select"
-    );
-    let { data } = response;
-    if (data) {
-      if (data[0]) {
-        let arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-          newPart: row.newPart,
-        }));
 
-        // console.log("arr", arr);
-        setAsyncOptions(arr);
-      }
-    }
-  };
-  const updatePartCode = async () => {
-    const values = await altPartCodeForm.validateFields();
-    console.log("values", values);
-    let arr = values.alternatePart.map((r) => r.value);
-    // console.log("arr", arr);
-    const response = await executeFun(
-      () => updateAlternatePartCode(arr, componentKey),
-      "select"
-    );
-    // console.log("response", response);
-    if (response.success) {
-      setAlternatePartModal(false);
-    }
-    // const partCodes = altPartCodeForm.getFieldsValue("partCode");
-    // console.log("partCodes", partCodes);
-    // updateAlternatePartCode
-  };
   useEffect(() => {
     getDetails();
     getUomOptions();
     getGroupOptions();
   }, []);
-  const columns = [
-    {
-      headerName: "#",
-      field: "id",
-      width: 80,
-    },
-    {
-      headerName: "Part Code",
-      field: "code",
-      width: 200,
-    },
-    {
-      headerName: "Part Code",
-      field: "name",
-      width: 200,
-    },
-  ];
+
   return (
     <>
-      <Drawer
-        width={600}
-        title="Update Similar Part Code"
+      <AlternatePartCode
         open={alternatePartModal}
-        footer={[
-          <Row justify="space-between">
-            <Col span={4}></Col>
-            <Col>
-              <Button
-                // loading={updateLoading}
-                type="primary"
-                onClick={() => updatePartCode()}
-              >
-                Update
-              </Button>
-            </Col>
-          </Row>,
-        ]}
-        // confirmLoading={confirmLoading}
-        onClose={() => setAlternatePartModal(null)}
-      >
-        {/* {modalLoading && <Loading />} */}
-        <Form form={altPartCodeForm} layout="vertical">
-          <Row>
-            {/* components select */}
-            <Col span={24}>
-              <Form.Item label="Select Components" name="alternatePart">
-                <MyAsyncSelect
-                  optionsState={asyncOptions}
-                  onBlur={() => setAsyncOptions([])}
-                  mode="multiple"
-                  labelInValue
-                  selectLoading={loading1("select")}
-                  loadOptions={getComponentOption}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-        <MyDataTable columns={columns} data={newPartCodeDb} />
-      </Drawer>
+        hide={() => setAlternatePartModal(false)}
+      />
       <Form
         layout="vertical"
         form={componentForm}
@@ -550,16 +437,15 @@ export default function UpdateComponent() {
                             width: 350,
                           }}
                         >
-                          Cat Part Code
                           {/* Alternate Part Code */}
                           <span
-                            onClick={() => setAlternatePartModal(true)}
+                            onClick={() => setAlternatePartModal(componentKey)}
                             style={{
                               color: "#1890FF",
                               cursor: "pointer",
                             }}
                           >
-                            Update Part Code
+                            Similar Part Codes
                           </span>
                         </div>
                       }
@@ -573,7 +459,7 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item name="uom" label="UOM">
+                    <Form.Item name="uom" label="UoM">
                       <MySelect options={uomOptions} />
                     </Form.Item>
                   </Col>
@@ -593,22 +479,23 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={8}>
-                    <Form.Item label="Attribute Code">
+                    <Form.Item label="Attribute Code">
                       <Row justify="space-between">
-                        {categoryData && (
-                          <Col>{categoryData?.text ?? "--"}</Col>
-                        )}
-                        {categoryData && (
-                          <Col>
-                            <Button
-                              onClick={() =>
-                                setShowCategoryDetails(categoryData)
-                              }
-                            >
-                              Details
-                            </Button>
-                          </Col>
-                        )}
+                        {/* {categoryData && ( */}
+                        <Col>{categoryData?.text ?? "--"}</Col>
+                        {/* )} */}
+                        {/* {(!categoryData?.value ||
+                          categoryData?.value === "--") && ( */}
+
+                        <Col>
+                          <Button
+                            onClick={() => setShowCategoryDetails(categoryData)}
+                            disabled={categoryData?.value.length > 3}
+                          >
+                            Details
+                          </Button>
+                        </Col>
+                        {/* )} */}
                       </Row>
                     </Form.Item>
                   </Col>
