@@ -233,6 +233,7 @@ import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected";
 import EditSalesOrder from "../Pages/Sales/SalesOrder/edit";
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser";
 import Index from "../Pages/Query/ClosingStock/Index";
+import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 const Routes = [
   {
@@ -1223,11 +1224,11 @@ const Routes = [
     main: () => <UserTasks />,
   },
   {
-    path: "/vendorreco",
+    path: routeConstants.finance.vendor.reco.create,
     main: () => <VendorReconcilation />,
   },
   {
-    path: "/viewvendorreco",
+    path: routeConstants.finance.vendor.reco.report,
     main: () => <ViewReconcilation />,
   },
   // CreateSalesOrder
