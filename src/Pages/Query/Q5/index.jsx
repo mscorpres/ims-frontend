@@ -334,7 +334,6 @@ const QueryQ5 = () => {
                     <Accordion
                       defaultExpanded
                       // expanded={expanded === "panel2"}
-                      // onChange={handleChange("panel2")}
                     >
                       <AccordionSummary
                         expandIcon={<GridExpandMoreIcon />}
@@ -353,15 +352,7 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                              {/* <Typography
-                                sx={{
-                                  width: "33%",
-                                  flexShrink: 0,
-                                  marginRight: "4px",
-                                }}
-                              >
-                                Opening Total - {sfData.openingTotal}
-                              </Typography> */}
+                      
                               <Typography
                                 sx={{
                                   width: "33%",
@@ -404,7 +395,6 @@ const QueryQ5 = () => {
                     <Accordion
                       defaultExpanded
                       // expanded={expanded === "panel2"}
-                      // onChange={handleChange("panel2")}
                     >
                       <AccordionSummary
                         expandIcon={<GridExpandMoreIcon />}
