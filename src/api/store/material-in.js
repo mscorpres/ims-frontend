@@ -8,6 +8,14 @@ export const validateInvoice = async (values) => {
   });
   return response;
 };
+export const validateInvoiceforSFG = async (values) => {
+  const invoices = values.components.map((row) => row.jw);
+  const response = await imsAxios.post("/backend/checkInvoice", {
+    invoice: invoices,
+    vendor: values.vendorName.value,
+  });
+  return response;
+};
 
 export const uploadMinInvoice = async (file) => {
   const formData = new FormData();

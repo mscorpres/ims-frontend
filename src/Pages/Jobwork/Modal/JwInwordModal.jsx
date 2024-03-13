@@ -12,8 +12,10 @@ import {
   Popconfirm,
   Form,
   Typography,
+  Upload,
+  Modal,
 } from "antd";
-import { CloseCircleFilled } from "@ant-design/icons";
+import { CloseCircleFilled, InboxOutlined } from "@ant-design/icons";
 import { v4 } from "uuid";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
@@ -25,6 +27,12 @@ import useApi from "../../../hooks/useApi";
 import NavFooter from "../../../Components/NavFooter";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { AiOutlineMinusSquare } from "react-icons/ai";
+import {
+  uploadMinInvoice,
+  validateInvoice,
+  validateInvoiceforSFG,
+} from "../../../api/store/material-in";
+import { Save } from "@mui/icons-material";
 export default function JwInwordModal({
   editModal,
   setEditModal,
@@ -45,6 +53,9 @@ export default function JwInwordModal({
   const [showBomList, setShowBomList] = useState(false);
   const [conrem, setConRem] = useState("");
   const [loading, setLoading] = useState(false);
+  const [attachment, setAttachment] = useState("");
+
+  const [modalForm] = Form.useForm();
   // console.log(mainData);
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
@@ -345,6 +356,14 @@ export default function JwInwordModal({
       renderCell: ({ row }) => <Input value={row.rqdQty} />,
     },
     {
+      field: "pendingWithjobwork",
+      headerName: "Pending with Jw",
+      width: 120,
+      renderCell: ({ row }) => (
+        <Typography.Text>{row.pendingWithjobwork}</Typography.Text>
+      ),
+    },
+    {
       field: "uom",
       headerName: "Uom",
       width: 50,
@@ -379,7 +398,7 @@ export default function JwInwordModal({
     setBomList([]);
   };
 
-  const saveFunction = async () => {
+  const saveFunction = async (fetchAttachment) => {
     setModalUploadLoad(true);
     console.log("bomList", bomList);
     console.log("conrem", conrem);
@@ -397,6 +416,7 @@ export default function JwInwordModal({
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
       consRemark: bomList.map((r) => r.conRemark),
+      attachment: fetchAttachment,
     };
     console.log("payload", payload);
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
@@ -459,6 +479,7 @@ export default function JwInwordModal({
           partNo: r.part_no,
           pendingStock: r.pendingStock,
           rqdQty: r.rqd_qty,
+          pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
           key: r.key,
         };
@@ -470,6 +491,76 @@ export default function JwInwordModal({
     }
 
     setLoading(false);
+  };
+  const addAttachmentModal = async () => {
+    // const values = await modalForm.validateFields();
+    Modal.confirm({
+      title: "Do you want to submit this JW SF Inward??",
+      content: (
+        <Form form={modalForm} layout="vertical">
+          <Form.Item
+            label="Invoice / Document"
+            rules={[
+              {
+                required: true,
+                message: "Please Select attachment!",
+              },
+            ]}
+          >
+            <Form.Item
+              name="invoice"
+              valuePropName="file"
+              getValueFromEvent={(e) => e?.file}
+              noStyle
+              rules={[
+                {
+                  required: true,
+                  message: "Please Select attachment!",
+                },
+              ]}
+            >
+              <Upload.Dragger
+                name="invoice"
+                beforeUpload={() => false}
+                // maxCount={1}
+                multiple={true}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">
+                  Click or drag file to this area to upload
+                </p>
+                <p className="ant-upload-hint">
+                  Upload vendor invoice / Document.
+                </p>
+              </Upload.Dragger>
+            </Form.Item>
+          </Form.Item>
+        </Form>
+      ),
+      onOk: () => submitHandler(),
+      okText: "Submit",
+    });
+  };
+  const submitHandler = async () => {
+    const values = await modalForm.validateFields();
+    console.log("values", values);
+    let fileName;
+    const fileResponse = await executeFun(
+      () => uploadMinInvoice(values.invoice),
+      "submit"
+    );
+    console.log("fileResponse", fileResponse);
+    if (fileResponse.success) {
+      const { data } = fileResponse;
+      let fetchAttachment = data.data;
+      setAttachment(fetchAttachment);
+
+      console.log("fethc", fetchAttachment);
+
+      saveFunction(fetchAttachment);
+    }
   };
 
   useEffect(() => {
@@ -623,18 +714,22 @@ export default function JwInwordModal({
                     // />
                     <>
                       <Button onClick={prev}>Back</Button>
-                      <Popconfirm
+                      {/* <Popconfirm
                         placement="topLeft"
                         title={text}
                         onConfirm={saveFunction}
                         loading={modalUploadLoad}
                         okText="Yes"
                         cancelText="No"
+                      > */}
+                      <Button
+                        style={{ marginLeft: 4 }}
+                        type="primary"
+                        onClick={addAttachmentModal}
                       >
-                        <Button style={{ marginLeft: 4 }} type="primary">
-                          Save
-                        </Button>
-                      </Popconfirm>
+                        Save
+                      </Button>
+                      {/* </Popconfirm> */}
                     </>
                   ) : (
                     <NavFooter

@@ -26,6 +26,10 @@ imsAxios.interceptors.response.use(
       typeof error.response?.data
     );
     if (typeof error.response?.data === "object") {
+      toast.error(
+        error.response.data?.message?.msg ??
+          "Error while connecting to backend."
+      );
       return error.response.data;
     }
 
