@@ -11,7 +11,6 @@ const imsAxios = axios.create({
   },
 });
 
-// to trigger deployment
 imsAxios.interceptors.response.use(
   (response) => {
     if (response.data?.success !== undefined) {
@@ -20,14 +19,25 @@ imsAxios.interceptors.response.use(
     }
     return response;
   },
-(error) => {
-    console.log("this is the error response", error.response);
+  (error) => {
+    console.log("this is the error response", error);
+    console.log(
+      "this is the type of response data",
+      typeof error.response?.data
+    );
+    if (typeof error.response?.data === "object") {
+      return error.response.data;
+    }
+
     // if (error.response.status === 404) {
     //   toast.error("Some Internal error occured");
     // } else {
-    toast.error(error.response.data);
-    if (error.response.data.message) {
-      toast.error(error.response.data.message.msg);
+    toast.error(error.response?.data);
+    if (error.response.data?.message) {
+      toast.error(
+        error.response.data?.message?.msg ??
+          "Error while connecting to backend."
+      );
     }
     // }
     return error.response;
