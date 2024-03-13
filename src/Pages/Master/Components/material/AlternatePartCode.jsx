@@ -12,7 +12,6 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import { getAlternativePartCodes } from "../../../../api/master/component";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { toast } from "react-toastify";
-import { set } from "lodash";
 
 const AlternatePartCode = ({ open, hide }) => {
   const [addedPartCodes, setAddedPartCodes] = useState([]);
