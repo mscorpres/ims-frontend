@@ -239,7 +239,7 @@ textarea {
   line-height: 40.5px !important;
   /* background: #fff !important; */
   /* background: #047780 !important; */
-   background: #003e7e !important
+  background: #003e7e !important;
 }
 .ant-menu-sub {
   max-height: 50vh !important;
@@ -544,4 +544,104 @@ ul.MuiDataGrid-menuList li.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
     width: 18px !important;
     line-height: 18px !important;
   }
+}
+
+.highlight-development-mode-container {
+  z-index: 1112;
+  position: absolute;
+  width: 100%;
+  animation: fadein 2s;
+}
+
+.highlight-development-mode-container .horizontal-line {
+  background-color: #ffed00;
+  width: 100%;
+  height: 5px;
+  position: fixed;
+  top: 0;
+}
+
+.highlight-development-mode-container .content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.highlight-development-mode-container .content .trapezoid {
+  height: 32px;
+  width: 250px;
+  position: fixed;
+  top: -18px;
+  background-color: #ffed00;
+  clip-path: polygon(5% 97%, 95% 97%, 100% 41%, 0 40%);
+  border-radius: 25px;
+  text-align: center;
+  padding-top: 17px;
+  padding-left: 15px;
+  color: #2d3242;
+  font-weight: 550;
+  font-size: 12px;
+}
+
+.highlight-development-mode-container .content .info {
+  position: fixed;
+  top: 9px;
+  margin-left: 3px;
+  cursor: pointer;
+}
+
+.highlight-development-mode-container .content .info i {
+  vertical-align: middle;
+  color: #4d636f;
+}
+
+.highlight-offline-mode-container {
+  z-index: 1112;
+  position: absolute;
+  width: 100%;
+  animation: fadein 2s;
+}
+
+.highlight-offline-mode-container .horizontal-line {
+  background-color: #ff7138;
+  width: 100%;
+  height: 5px;
+  position: fixed;
+  top: 0;
+}
+
+.highlight-offline-mode-container .content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.highlight-offline-mode-container .content .trapezoid {
+  height: 55px;
+  width: 250px;
+  position: fixed;
+  top: -18px;
+  background-color: #ff7138;
+  clip-path: polygon(5% 97%, 95% 97%, 100% 41%, 0 40%);
+  border-radius: 25px;
+  text-align: center;
+  padding-top: 27px;
+  padding-left: 15px;
+  color: #ffffff;
+  font-weight: 550;
+  font-size: 12px;
+}
+
+.highlight-offline-mode-container .content .info {
+  position: fixed;
+  top: 9px;
+  margin-left: 3px;
+  cursor: pointer;
+}
+
+.highlight-offline-mode-container .content .info i {
+  vertical-align: middle;
+  color: #ffffff;
 }
