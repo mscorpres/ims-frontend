@@ -25,16 +25,16 @@ const initialValues = {
   upload: undefined,
 };
 
-const RequestedLedgers = ({ vendor, date, modalOpen }) => {
+const RequestedLedgers = ({ vendor, refId, modalOpen }) => {
   const [rows, setRows] = useState([]);
   const [showDetails, setShowDetails] = useState(null);
 
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
-  const handleFetchMails = async (vendorCode) => {
+  const handleFetchMails = async (refId) => {
     const response = await executeFun(
-      () => getRequestedLedgerMails(vendorCode),
+      () => getRequestedLedgerMails(refId),
       "fetch"
     );
     setRows(response.data);
@@ -47,6 +47,7 @@ const RequestedLedgers = ({ vendor, date, modalOpen }) => {
     );
     if (response.success) {
       form.resetFields();
+      handleFetchMails();
     }
   };
   const actionColumn = {
@@ -64,8 +65,8 @@ const RequestedLedgers = ({ vendor, date, modalOpen }) => {
   };
 
   useEffect(() => {
-    if (vendor && modalOpen) {
-      handleFetchMails(vendor.value);
+    if (vendor && modalOpen && refId) {
+      handleFetchMails(refId);
     }
   }, [modalOpen]);
   return (

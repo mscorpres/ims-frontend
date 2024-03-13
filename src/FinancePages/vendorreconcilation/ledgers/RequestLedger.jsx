@@ -48,7 +48,7 @@ const RequestLedgerModal = ({ open, hide }) => {
     values["vendor"] = open.vendor;
     values["date"] = open.date;
     const response = await executeFun(
-      () => sendRequestLedgerMail(values),
+      () => sendRequestLedgerMail({ ...values, refId: open.refId }),
       "submit"
     );
     if (response.success) {

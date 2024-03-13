@@ -73,8 +73,7 @@ const Notes = ({ notes, fetchLoading, handleFetchNotes, filterForm }) => {
       <Col span={24}>
         <Row style={{ maxHeight: 400, overflowY: "auto", overflowX: "hidden" }}>
           {notes
-
-            .filter(
+            ?.filter(
               (row) =>
                 row.date.includes(searchString) ||
                 row.note.includes(searchString)
@@ -100,7 +99,7 @@ const Notes = ({ notes, fetchLoading, handleFetchNotes, filterForm }) => {
         </Row>
       </Col>
 
-      {!notes.length === 0 && (
+      {!notes?.length === 0 && (
         <Col span={24} style={{ padding: 20 }}>
           <Typography.Text strong>No notes found...</Typography.Text>
         </Col>

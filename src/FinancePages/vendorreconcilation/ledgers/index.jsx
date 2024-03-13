@@ -19,6 +19,7 @@ const Ledgers = ({ open, hide }) => {
           modalOpen={open}
           vendor={open?.vendor}
           date={open?.date}
+          refId={open?.refId}
         />
       ),
     },

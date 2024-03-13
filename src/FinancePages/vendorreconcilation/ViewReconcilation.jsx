@@ -12,15 +12,33 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
 import routeConstants from "../../Routes/routeConstants";
 import Notes from "./Notes";
+import MySelect from "../../Components/MySelect";
+
+const statusWiseOptions = [
+  {
+    text: "Draft",
+    value: "draft",
+  },
+  {
+    text: "Completed",
+    value: "completed",
+  },
+  {
+    text: "All",
+    value: "all",
+  },
+];
 
 const RecoReport = () => {
   const [rows, setRows] = useState([]);
   const [notes, setNotes] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   // const [isData, setIsData] = useState()
+  const [showNotes, setShowNotes] = useState(false);
   const navigate = useNavigate();
 
   const [form] = Form.useForm();
+  const selectedVendor = Form.useWatch("vendor", form);
   const { executeFun, loading } = useApi();
 
   const handleFetchVendors = async (search) => {
@@ -35,11 +53,18 @@ const RecoReport = () => {
   };
   const handleFetchRows = async () => {
     const values = await form.validateFields();
-    console.log("these are the validated values", values);
+    let wise = "all";
+    console.log("these are the values", values);
+    if (values.vendor?.value) {
+      wise = "vendorwise";
+    }
+    console.log("these are the validated values", wise);
+
     const response = await executeFun(
-      () => getRecoReport(values.vendor.value),
+      () => getRecoReport(values.vendor?.value, wise, values.status),
       "fetch"
     );
+    setShowNotes(false);
     setRows(response.data);
   };
   const handleConitnue = async (date) => {
@@ -83,7 +108,13 @@ const RecoReport = () => {
         <Flex vertical gap={6}>
           {" "}
           <Card size="small" title="Filters">
-            <Form layout="vertical" form={form}>
+            <Form
+              layout="vertical"
+              initialValues={{
+                status: "draft",
+              }}
+              form={form}
+            >
               <Form.Item name="vendor" label="Vendor">
                 <MyAsyncSelect
                   labelInValue={true}
@@ -93,6 +124,9 @@ const RecoReport = () => {
                   loadOptions={handleFetchVendors}
                   selectLoading={loading("select")}
                 />
+              </Form.Item>
+              <Form.Item name="status" label="Status">
+                <MySelect options={statusWiseOptions} />
               </Form.Item>
               <Row justify="end">
                 <Space>
@@ -106,14 +140,16 @@ const RecoReport = () => {
               </Row>
             </Form>
           </Card>
-          <Card size="small" title="Notes">
-            <Notes
-              handleFetchNotes={handleFetchNotes}
-              notes={notes}
-              fetchLoading={loading("notes")}
-              filterForm={form}
-            />
-          </Card>
+          {selectedVendor && showNotes && (
+            <Card size="small" title="Notes">
+              <Notes
+                handleFetchNotes={handleFetchNotes}
+                notes={notes}
+                fetchLoading={loading("notes")}
+                filterForm={form}
+              />
+            </Card>
+          )}
         </Flex>
       </Col>
       <Col span={16} xl={14}>

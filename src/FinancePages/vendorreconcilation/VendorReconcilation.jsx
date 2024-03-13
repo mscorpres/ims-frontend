@@ -41,7 +41,6 @@ import {
 import { useSearchParams } from "react-router-dom";
 import Ledgers from "./ledgers";
 import { createDraft } from "../../api/finance/vendor-reco";
-import MyButton from "../../Components/MyButton";
 
 const initialValues = {
   location: undefined,
@@ -305,7 +304,7 @@ const VendorReconcilation = () => {
 
   const toggleShowRequestLedgerModal = async () => {
     const values = await filterForm.validateFields();
-    setShowRequestLedgerModal(values);
+    setShowRequestLedgerModal({ ...values, refId: recoRef });
   };
 
   useEffect(() => {

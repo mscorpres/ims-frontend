@@ -96,9 +96,11 @@ export const updateTransaction = async (payload) => {
   return response;
 };
 
-export const getRecoReport = async (vendorCode) => {
+export const getRecoReport = async (vendorCode, wise, status) => {
   const response = await imsAxios.get(
-    `/vendorReconciliation/view/reconciliation?wise=vendorwise&data=${vendorCode}`
+    `/vendorReconciliation/view/reconciliation?${
+      vendorCode ? `data=${vendorCode}` : ""
+    }&wise=${wise}&status=${status}`
   );
   let arr = [];
   if (response.success) {
