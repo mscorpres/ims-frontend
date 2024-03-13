@@ -497,7 +497,7 @@ const finalizeOrder = async (values, woId) => {
     };
   }
 };
-/// scrape
+/// scrape challan added
 const submitScrapreChallan = async (payload) => {
   const response = await imsAxios.post(
     "/wo_challan/saveCreateScrapChallan",

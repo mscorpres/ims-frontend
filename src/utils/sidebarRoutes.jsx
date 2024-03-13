@@ -431,6 +431,7 @@ export const items = (user) => [
         getItem(<Link to="/createwo">Create Work-order</Link>, "B71"),
         getItem(<Link to="/woanalysis">WO Analysis</Link>, "B72"),
         getItem(<Link to="/wocreatechallan">WO Create Challan</Link>, "B73"),
+        //
         getItem(
           <Link to="/wocreatescrapechallan">WO SCRAPE Challan</Link>,
           "B74"
@@ -623,6 +624,7 @@ export const items = (user) => [
   //Legal
   // user?.showlegal
   // ?
+
   getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
     getItem("Master", "X1", <DeliveredProcedureOutlined />, [
       getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),
