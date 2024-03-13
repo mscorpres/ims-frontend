@@ -50,6 +50,21 @@ export default function UpdateComponent() {
   const [alternatePartModal, setAlternatePartModal] = useState(false);
 
   const { executeFun, loading: loading1 } = useApi();
+  console.log("categoryData", categoryData);
+  useEffect(() => {
+    // console.log("attr_raw", attr_raw);/
+    if (attr_raw) {
+      // console.log("attr in use----", attr_raw);
+      setCategoryData({
+        // text: value.attr_category.text,
+        // value: value.attr_category.value,
+        text: attr_raw.attributeCode,
+        value: attr_raw.attributeCode,
+      });
+      componentForm.setFieldValue("catType", attr_raw.attribute_category);
+    }
+  }, [attr_raw]);
+
   const getDetails = async () => {
     try {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
@@ -124,7 +139,7 @@ export default function UpdateComponent() {
           });
           componentForm.setFieldsValue(finalObj);
           // console.log("finalObj");
-          console.log("cate", categoryData);
+          // console.log("cate", categoryData);
 
           setFetchPartCode(finalObj);
           const objects = finalObj.alternate_part_codes.map((code, index) => ({
@@ -205,14 +220,25 @@ export default function UpdateComponent() {
   };
   const modalConfirmMaterial = async () => {
     const values = await componentForm.validateFields();
+    console.log("attr_raw", attr_raw);
+    console.log("catType", componentForm.getFieldValue("catType"));
+    let catTypeCategory = componentForm.getFieldValue("catType");
     let attrCat;
-    if (attr_raw?.attribute_category === "Resistor") {
+    if (catTypeCategory === "Resistor") {
       attrCat = "R";
-    } else if (attr_raw.attribute_category === "Capacitor") {
+    } else if (catTypeCategory === "Capacitor") {
       attrCat = "C";
     } else {
       attrCat = "O";
     }
+    // if (attr_raw?.attribute_category === "Resistor") {
+    //   attrCat = "R";
+    // } else if (attr_raw.attribute_category === "Capacitor") {
+    //   attrCat = "C";
+    // } else {
+    //   attrCat = "O";
+    // }
+    // console.log("values", values);
     const payload = {
       componentKey: componentKey,
       componentname: values.component,
@@ -246,6 +272,7 @@ export default function UpdateComponent() {
       componentcategory: "--",
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
     };
+    // console.log("payload", payload);
 
     const response = await imsAxios.post(
       "/component/updateComponent/verify",
@@ -490,7 +517,7 @@ export default function UpdateComponent() {
                         <Col>
                           <Button
                             onClick={() => setShowCategoryDetails(categoryData)}
-                            disabled={categoryData?.value.length > 3}
+                            // disabled={categoryData?.value.length > 3}
                           >
                             Details
                           </Button>
