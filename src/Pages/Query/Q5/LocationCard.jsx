@@ -1,6 +1,5 @@
 import { Card, Col, Row, Tooltip, Typography, Space } from "antd";
 import React from "react";
-// import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import {
   EyeOutlined,
   UserOutlined,
@@ -32,7 +31,6 @@ const LocationCard = ({
             </Row>
             <Row justify="center">
               <Typography.Text strong>{location}</Typography.Text>
-              {/* <CommonIcons action="viewButton" type='secondary'/> */}
             </Row>{" "}
           </Col>
           <Col span={24}>
