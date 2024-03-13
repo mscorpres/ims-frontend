@@ -1,5 +1,14 @@
 import { imsAxios } from "../../axiosInterceptor";
 
+export const createDraft = async (vendor, date) => {
+  const respnose = await imsAxios.post("/vendorReconciliation/create", {
+    vendor,
+    date,
+  });
+
+  return response;
+};
+
 export const addTransaction = async (values) => {
   const payload = {
     vendor: values.vendor,
