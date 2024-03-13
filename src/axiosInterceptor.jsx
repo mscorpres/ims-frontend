@@ -21,6 +21,14 @@ imsAxios.interceptors.response.use(
   },
   (error) => {
     console.log("this is the error response", error);
+    console.log(
+      "this is the type of response data",
+      typeof error.response?.data
+    );
+    if (typeof error.response?.data === "object") {
+      return error.response.data;
+    }
+
     // if (error.response.status === 404) {
     //   toast.error("Some Internal error occured");
     // } else {

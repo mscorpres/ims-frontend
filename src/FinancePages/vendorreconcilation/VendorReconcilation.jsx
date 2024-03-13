@@ -23,6 +23,7 @@ import {
   deleteManualTransaction,
   getManualTransactions,
   getNotes,
+  updateDraft,
   updateMatchStatus,
 } from "../../api/finance/vendor-reco";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
@@ -38,10 +39,9 @@ import {
   convertSelectOptions,
 } from "../../utils/general";
 import { useSearchParams } from "react-router-dom";
-// import MyFormDatePicker from "../../Components/MyFormDatePicker";
-import dayjs from "dayjs";
-import RequestLedgerModal from "./ledgers/RequestLedger";
 import Ledgers from "./ledgers";
+import { createDraft } from "../../api/finance/vendor-reco";
+import MyButton from "../../Components/MyButton";
 
 const initialValues = {
   location: undefined,
@@ -57,6 +57,7 @@ const VendorReconcilation = () => {
   const [details, setDetails] = useState({});
   const [rows, setRows] = useState([]);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
+  const [recoRef, setRecoRef] = useState(null);
   const [vedorInput, setVendorInput] = useState({
     opening: "",
     closing: "",
@@ -91,6 +92,50 @@ const VendorReconcilation = () => {
   const [showFilters, setShowFilters] = useState(
     paramsVendorCode ? false : true
   );
+
+  const handleGenerateRecoRef = async (vendor, date) => {
+    const response = await executeFun(() => createDraft(vendor, date), "fetch");
+    if (response.success) {
+      setRecoRef(response.data.recoID);
+      if (response.data.draftData) {
+        Modal.confirm({
+          title: "Draft Reco Found",
+          content: `It seems you started this reconcilation on ${response.data.createdOn}. Do you want to continue the reconcillation?`,
+          okText: "Continue",
+          cancelText: "No",
+          onOk: () => {
+            setVendorInput({
+              opening: response.data.draftData.vendorOpeningBalance.toString(),
+              closing: response.data.draftData.vendorClosingBalance.toString(),
+            });
+          },
+        });
+      }
+    }
+  };
+
+  const handleSaveToDraft = async (status) => {
+    const response = await executeFun(() =>
+      updateDraft(recoRef, vedorInput, status)
+    );
+    if (!response.success) {
+      Modal.confirm({
+        title: "Could not complete",
+        content: (
+          <Flex vertical gap={15}>
+            <Typography.Text strong>
+              Following transactions are not matched"
+            </Typography.Text>
+            <div>
+              {response.data.map((row) => (
+                <Typography.Text>{row.moduleUsed}, </Typography.Text>
+              ))}
+            </div>
+          </Flex>
+        ),
+      });
+    }
+  };
 
   const handleFetchLedgerDetais = async (vendor, date) => {
     const values = await filterForm.getFieldsValue();
@@ -135,7 +180,6 @@ const VendorReconcilation = () => {
     dateFromParams
   ) => {
     const { vendor, date } = await filterForm.getFieldsValue();
-    console.log("getting cendor parans", vendorFromParams);
     const response = await executeFun(
       () =>
         getManualTransactions(
@@ -144,7 +188,7 @@ const VendorReconcilation = () => {
         ),
       "fetchManualTrans"
     );
-
+    handleGenerateRecoRef(vendor.value, date);
     if (response.success) {
       const arr = response.data.map((row, index) => ({
         id: index + 1,
@@ -404,6 +448,7 @@ const VendorReconcilation = () => {
               setShowNotesModal={setShowNotesModal}
               handleUpdateMatchStatus={handleUpdateMatchStatus}
               toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
+              handleSaveToDraft={handleSaveToDraft}
             />
           </Flex>
         </Col>
@@ -927,6 +972,7 @@ const ButtonsCard = ({
   selectedRows,
   handleUpdateMatchStatus,
   toggleShowRequestLedgerModal,
+  handleSaveToDraft,
 }) => {
   return (
     <Card size="small">
@@ -962,6 +1008,12 @@ const ButtonsCard = ({
           onClick={toggleShowRequestLedgerModal}
         >
           Ledgers
+        </Button>
+        <Button onClick={() => handleSaveToDraft("draft")}>
+          Save to Draft
+        </Button>
+        <Button onClick={() => handleSaveToDraft("completed")}>
+          Complete Reco
         </Button>
       </div>
     </Card>
