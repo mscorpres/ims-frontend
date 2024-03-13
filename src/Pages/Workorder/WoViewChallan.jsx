@@ -72,7 +72,6 @@ const WoViewChallan = () => {
         ref_id: "--",
       };
       const arr = await printreturnChallan(payload);
-      // console.log("console.log(response);", arr.data.buffer.data);
       printFunction(arr.data.buffer.data);
       setLoading(false);
     } else if (challantype === "Delivery Challan") {
@@ -207,6 +206,7 @@ const WoViewChallan = () => {
     } else if (challantype === "RM Challan") {
       getReturnRows();
     } else {
+      //scapre challan added
       getScrapeRows();
     }
   };
