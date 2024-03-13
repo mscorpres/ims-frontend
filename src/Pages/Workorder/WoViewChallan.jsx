@@ -15,6 +15,7 @@ import {
   fetchReturnChallanDetails,
   getClientOptions,
   getReturnRowsInViewChallan,
+  getScrapeInViewChallan,
   getWorkOrderAnalysis,
   getdetailsOfReturnChallan,
   printreturnChallan,
@@ -71,10 +72,9 @@ const WoViewChallan = () => {
         ref_id: "--",
       };
       const arr = await printreturnChallan(payload);
-      // console.log("console.log(response);", arr.data.buffer.data);
       printFunction(arr.data.buffer.data);
       setLoading(false);
-    } else {
+    } else if (challantype === "Delivery Challan") {
       const response = await imsAxios.post(
         "/wo_challan/printWorkorderDeliveryChallan",
         {
@@ -82,6 +82,14 @@ const WoViewChallan = () => {
           ref_id: "--",
         }
       );
+      console.log("console.log(response);", response.data.data.buffer.data);
+      printFunction(response.data.data.buffer.data);
+      setLoading(false);
+    } else {
+      const response = await imsAxios.post("/wo_challan/printScrapChallan", {
+        challan_id: row.challan_id,
+        ref_id: "--",
+      });
       console.log("console.log(response);", response.data.data.buffer.data);
       printFunction(response.data.data.buffer.data);
       setLoading(false);
@@ -98,7 +106,7 @@ const WoViewChallan = () => {
       // console.log("console.log(response);", arr);
       downloadFunction(arr.data.buffer.data, row.challan_id);
       setLoading(false);
-    } else {
+    } else if (challantype === "Delivery Challan") {
       setLoading("fetch");
       const response = await imsAxios.post(
         "/wo_challan/printWorkorderDeliveryChallan",
@@ -108,7 +116,16 @@ const WoViewChallan = () => {
         }
       );
       downloadFunction(response.data.data.buffer.data, row.challan_id);
-      console.log(response);
+      // console.log(response);
+      setLoading(false);
+    } else {
+      setLoading("fetch");
+      const response = await imsAxios.post("/wo_challan/printScrapChallan", {
+        challan_id: row.challan_id,
+        ref_id: "--",
+      });
+      downloadFunction(response.data.data.buffer.data, row.challan_id);
+      // console.log(response);
       setLoading(false);
     }
   };
@@ -181,83 +198,25 @@ const WoViewChallan = () => {
       // />,
     ],
   };
-  // const getRows = async () => {
-  //   try {
-  //     setLoading("fetch");
-  //     if (challantype === "Delivery Challan") {
-  //       const response = await imsAxios.post(
-  //         "/wo_challan/getWorkOrderDeliveryChallan",
-  //         {
-  //           wise: wise,
-  //           data: searchInput,
-  //         }
-  //       );
-  //       const { data } = response;
-  //       if (data.code === 200) {
-  //         const arr = data.data.map((row, index) => ({
-  //           id: index + 1,
-  //           date: row.received_challan_rm_dt,
-  //           client: row.client,
-  //           requiredQty: row.wo_order_qty,
-  //           challanId: row.challan_id,
-  //           sku: row.sku_code,
-  //           productId: row.sku,
-  //           product: row.wo_sku_name,
-  //           transactionId: row.wo_transaction_id,
-  //           challantype: challantype,
-  //           clientCode: row.client_code,
-  //           shipaddress: row.shippingaddress,
-  //           billaddress: row.billingaddress,
-  //           clientaddress: row.clientaddress,
-  //         }));
-  //         setRows(arr);
-  //       } else {
-  //         toast.error(data.message.msg);
-  //       }
-  //     } else {
-  //       const response = await imsAxios.post(
-  //         "/wo_challan/getWorkOrderReturnChallan",
-  //         {
-  //           wise: wise,
-  //           data: searchInput,
-  //         }
-  //       );
-  //       const { data } = response;
-  //       console.log(response);
-  //       if (data.code === 200) {
-  //         const arr = data.data.map((row, index) => ({
-  //           id: index + 1,
-  //           date: row.received_challan_rm_dt,
-  //           client: row.client,
-  //           requiredQty: row.wo_order_qty,
-  //           challanId: row.challan_id,
-  //           sku: row.sku_code,
-  //           product: row.wo_sku_name,
-  //           transactionId: row.wo_transaction_id,
-  //           challantype: challantype,
-  //           clientCode: row.client_code,
-  //           shipaddress: row.shippingaddress,
-  //           billaddress: row.billingaddress,
-  //           clientaddress: row.clientaddress,
-  //         }));
-  //         setRows(arr);
-  //       } else {
-  //         toast.error(data.message.msg);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("some error occured while fetching rows", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+
   const getRows = async () => {
     // challantype
     if (challantype === "Delivery Challan") {
       getDeliveryRows();
-    } else {
+    } else if (challantype === "RM Challan") {
       getReturnRows();
+    } else {
+      //scapre challan added
+      getScrapeRows();
     }
+  };
+  const getScrapeRows = async () => {
+    setRows([]);
+    setLoading("fetch");
+    let arr = await getScrapeInViewChallan(wise, searchInput);
+
+    setRows(arr);
+    setLoading(false);
   };
   const getReturnRows = async () => {
     setRows([]);
@@ -333,7 +292,7 @@ const WoViewChallan = () => {
       }));
       setViewChallanData(arr);
       setLoading(false);
-    } else {
+    } else if (challantype === "Delivery Challan") {
       setLoading("fetch");
       response = await imsAxios.post("/wo_challan/getDeliveryChallanDetails", {
         challan_id: challanID,
@@ -348,8 +307,23 @@ const WoViewChallan = () => {
         // console.log("arrrrr", arr);
         setLoading(false);
       }
+    } else {
+      setLoading("fetch");
+      response = await imsAxios.post("/wo_challan/fetchScrapChallanDetails", {
+        challan_id: challanID,
+      });
+      const { data } = response;
+      if (data.code === 200) {
+        let arr = data.data.map((row, index) => ({
+          id: index + 1,
+          ...row,
+        }));
+        setViewChallanData(arr);
+        // console.log("arrrrr", arr);
+        setLoading(false);
+      }
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -442,6 +416,39 @@ const WoViewChallan = () => {
       width: 100,
     },
   ];
+  const scrapecolms = [
+    {
+      headerName: "#",
+      field: "id",
+      width: 5,
+    },
+    {
+      headerName: "Part Name",
+      field: "part_name",
+      width: 300,
+    },
+    {
+      headerName: "Part Code",
+      field: "part_code",
+      width: 100,
+    },
+
+    {
+      headerName: "Qty",
+      field: "qty",
+      width: 100,
+    },
+    {
+      headerName: "Price",
+      field: "price",
+      width: 100,
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
+      width: 100,
+    },
+  ];
 
   return (
     <>
@@ -505,11 +512,19 @@ const WoViewChallan = () => {
           </Row>
         </Col>
         <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-          <MyDataTable
-            loading={loading === "fetch"}
-            data={rows}
-            columns={[actionColumn, ...columns]}
-          />
+          {challantype === "Scrape Challan" ? (
+            <MyDataTable
+              loading={loading === "fetch"}
+              data={rows}
+              columns={[actionColumn, ...scrapeColumns]}
+            />
+          ) : (
+            <MyDataTable
+              loading={loading === "fetch"}
+              data={rows}
+              columns={[actionColumn, ...columns]}
+            />
+          )}
         </div>
 
         <CreateChallanModal
@@ -519,7 +534,11 @@ const WoViewChallan = () => {
         />
       </div>
       <Drawer
-        title={`${viewChallanData[0]?.client}`}
+        title={
+          challantype === "Scrape Challan"
+            ? "Scrape Challan"
+            : `${viewChallanData[0]?.client}`
+        }
         // right
         placement="right"
         // centered
@@ -539,11 +558,17 @@ const WoViewChallan = () => {
             data={viewChallanData}
             columns={colms}
           />
-        ) : (
+        ) : challantype === "RM Challan" ? (
           <MyDataTable
             loading={loading === "fetch"}
             data={viewChallanData}
             columns={returncolms}
+          />
+        ) : (
+          <MyDataTable
+            loading={loading === "fetch"}
+            data={viewChallanData}
+            columns={scrapecolms}
           />
         )}
 
@@ -587,6 +612,78 @@ const typeOptions = [
     text: "Return Challan",
     value: "return",
   },
+];
+const scrapeColumns = [
+  {
+    headerName: "#",
+    field: "id",
+    width: 30,
+  },
+  {
+    headerName: "Challan Date",
+    field: "challan_dt",
+    width: 100,
+  },
+  {
+    headerName: "Challan ID",
+    field: "challan_id",
+    minWidth: 150,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.challan_id} copy={true} />
+    ),
+  },
+  {
+    headerName: "Client",
+    field: "client",
+    minWidth: 180,
+    flex: 1,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.client} />,
+  },
+  {
+    headerName: "Client Code",
+    field: "client_code",
+    minWidth: 100,
+    flex: 1,
+  },
+  {
+    headerName: "Client Address",
+    field: "clientaddress",
+    minWidth: 150,
+    flex: 1,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.clientaddress} />,
+  },
+  {
+    headerName: "Billing Address",
+    field: "billingaddress",
+    minWidth: 150,
+    flex: 1,
+
+    renderCell: ({ row }) => <ToolTipEllipses text={row.billingaddress} />,
+  },
+  {
+    headerName: "Shipping Address",
+    field: "shippingaddress",
+    minWidth: 150,
+    flex: 1,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.shippingaddress} />,
+  },
+
+  // {
+  //   headerName: "Product",
+  //   field: "product",
+  //   minWidth: 250,
+  //   flex: 1,
+  // },
+  // {
+  //   headerName: "SKU",
+  //   field: "sku",
+  //   width: 150,
+  // },
+  // {
+  //   headerName: "Qty",
+  //   field: "requiredQty",
+  //   width: 150,
+  // },
 ];
 const columns = [
   {
@@ -664,6 +761,7 @@ const columns = [
 const challanoptions = [
   { text: "Delivery Challan", value: "Delivery Challan" },
   { text: "Return Challan", value: "RM Challan" },
+  { text: "Scrape Challan", value: "Scrape Challan" },
 ];
 
 export default WoViewChallan;

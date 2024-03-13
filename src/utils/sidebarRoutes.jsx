@@ -431,10 +431,15 @@ export const items = (user) => [
         getItem(<Link to="/createwo">Create Work-order</Link>, "B71"),
         getItem(<Link to="/woanalysis">WO Analysis</Link>, "B72"),
         getItem(<Link to="/wocreatechallan">WO Create Challan</Link>, "B73"),
-        getItem(<Link to="/woShipment">WO Shipment</Link>, "B74"),
-        getItem(<Link to="/woviewchallan">WO View Challan</Link>, "B75"),
-        getItem(<Link to="/wocompleted">WO Completed</Link>, "B76"),
-        getItem(<Link to="/woreport">WO Report</Link>, "B77"),
+        //
+        getItem(
+          <Link to="/wocreatescrapechallan">WO SCRAPE Challan</Link>,
+          "B74"
+        ),
+        getItem(<Link to="/woShipment">WO Shipment</Link>, "B75"),
+        getItem(<Link to="/woviewchallan">WO View Challan</Link>, "B76"),
+        getItem(<Link to="/wocompleted">WO Completed</Link>, "B77"),
+        getItem(<Link to="/woreport">WO Report</Link>, "B78"),
       ]),
       getItem(
         <Link to="/create-dc">RGP - DC</Link>,
@@ -619,6 +624,7 @@ export const items = (user) => [
   //Legal
   // user?.showlegal
   // ?
+
   getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
     getItem("Master", "X1", <DeliveredProcedureOutlined />, [
       getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),

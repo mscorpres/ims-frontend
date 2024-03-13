@@ -481,6 +481,15 @@ const finalizeOrder = async (values, woId) => {
     };
   }
 };
+/// scrape challan added
+const submitScrapreChallan = async (payload) => {
+  const response = await imsAxios.post(
+    "/wo_challan/saveCreateScrapChallan",
+    payload
+  );
+  // console.log("data", response);
+  return response;
+};
 export {
   getClientOptions,
   getWorkOrderAnalysis,
@@ -503,4 +512,5 @@ export {
   fetchReturnChallanDetails,
   createWorkOrderReturnChallan,
   printreturnChallan,
+  submitScrapreChallan,
 };

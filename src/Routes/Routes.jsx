@@ -233,6 +233,7 @@ import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected";
 import EditSalesOrder from "../Pages/Sales/SalesOrder/edit";
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser";
 import Index from "../Pages/Query/ClosingStock/Index";
+import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 const Routes = [
   {
     path: "/login",
@@ -858,9 +859,14 @@ const Routes = [
     path: "/woShipment",
     main: () => <WoShipment />,
   },
+  //
   {
     path: "/woviewchallan",
     main: () => <WoViewChallan />,
+  },
+  {
+    path: "/wocreatescrapechallan",
+    main: () => <CreateScrapeChallan />,
   },
   {
     path: "/addClient",
