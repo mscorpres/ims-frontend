@@ -517,7 +517,7 @@ export default function UpdateComponent() {
                         <Col>
                           <Button
                             onClick={() => setShowCategoryDetails(categoryData)}
-                            // disabled={categoryData?.value.length > 3}
+                            disabled={categoryData?.value.length > 3}
                           >
                             Details
                           </Button>
