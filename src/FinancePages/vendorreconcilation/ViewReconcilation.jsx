@@ -54,7 +54,7 @@ const RecoReport = () => {
   const handleFetchRows = async () => {
     const values = await form.validateFields();
     let wise = "all";
-    console.log("these are the values", values);
+    // console.log("these are the values", values);
     if (values.vendor?.value) {
       wise = "vendorwise";
     }
@@ -67,10 +67,10 @@ const RecoReport = () => {
     setShowNotes(false);
     setRows(response.data);
   };
-  const handleConitnue = async (date) => {
+  const handleConitnue = async (date, vendorCode, vendorName) => {
     const values = await form.validateFields();
     navigate(
-      `${routeConstants.finance.vendor.reco.create}?vendorCode=${values.vendor.value}&vendor=${values.vendor.label}&date=${date}`
+      `${routeConstants.finance.vendor.reco.create}?vendorCode=${vendorCode}&vendor=${vendorName}&date=${date}`
     );
   };
 
@@ -81,11 +81,13 @@ const RecoReport = () => {
 
   const handleFetchNotes = async () => {
     const values = await form.validateFields();
-    const response = await executeFun(
-      () => getNotes(values.vendor.value),
-      "notes"
-    );
-    setNotes(response.data);
+    if (values.vendor) {
+      const response = await executeFun(
+        () => getNotes(values.vendor.value),
+        "notes"
+      );
+      setNotes(response.data);
+    }
   };
 
   const actionColum = {
@@ -98,7 +100,7 @@ const RecoReport = () => {
         showInMenu
         // disabled={disabled}
         label="Continue"
-        onClick={() => handleConitnue(row.dateRange)}
+        onClick={() => handleConitnue(row.period, row.vendorCode, row.vendor)}
       />,
     ],
   };
@@ -183,8 +185,8 @@ const columns = [
     flex: 1,
   },
   {
-    headerName: "Month",
-    field: "month",
+    headerName: "Period",
+    field: "period",
     minWidth: 100,
   },
 
