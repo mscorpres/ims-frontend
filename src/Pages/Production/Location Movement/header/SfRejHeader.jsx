@@ -34,7 +34,7 @@ export default function SfRejHeader() {
             <ul className="nav w-auto has-active-border active-on-right active-on-top">
               <li className={`nav-item ${pathname == "/sf-to-rej" && "active"}`}>
                 <Link className="nav-link" to="/sf-to-rej">
-                  <span>SF - Rej Transfer</span>
+                  <span>SF - REJ Transfer</span>
                 </Link>
                 <b className="sub-arrow"></b>
               </li>

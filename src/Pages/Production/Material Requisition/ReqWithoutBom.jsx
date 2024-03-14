@@ -319,16 +319,20 @@ export default function ReqWithoutBom() {
       "/production/createWithoutBom",
       values
     );
-    // setLoading(false);
+    setLoading(false);
     const { data } = response;
     if (data) {
       if (data.code === 200) {
         toast.success(data.message);
         resetHandler();
+        setLoading(false);
       } else {
         toast.error(data.message);
+        setLoading(false);
       }
+      setLoading(false);
     }
+    setLoading(false);
   };
 
   // show submit confirm dialog
