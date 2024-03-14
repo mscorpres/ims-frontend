@@ -98,7 +98,7 @@ function R31() {
     { headerName: "Create Date", field: "create_dt", width: 130 },
     { headerName: "Doc Date", field: "doc_date", width: 130 },
     { headerName: "Doc Reference", field: "doc_ref", width: 130 },
-    { headerName: "Hsn", field: "hsn", width: 130 },
+    { headerName: "HSN", field: "hsn", width: 130 },
     { headerName: "Qty", field: "qty", width: 130 },
     { headerName: "Transaction Id", field: "txn_id", width: 130 },
     { headerName: "Unit", field: "unit", width: 130 },
