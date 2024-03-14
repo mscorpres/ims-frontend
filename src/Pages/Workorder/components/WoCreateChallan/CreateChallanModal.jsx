@@ -916,11 +916,8 @@ const CreateChallanModal = ({
         updateWoShipment(newpayload);
       } else {
         try {
-          let a = rows.filter((b) => b.out_qty > 0);
-          // let as = challanForm.getFieldsValue("challanForm");
-          // console.log("as----------", as);
-          console.log("minRows----------", a);
           const values = await challanForm.validateFields();
+          let a = rows.filter((b) => b.out_qty > 0);
           // console.log("values", values);
           // console.log("add----------", addOptions);
           // setRows(a);
@@ -1543,7 +1540,7 @@ const Product = ({
                 listName="components"
                 watchKeys={["rate", "qty", "gstRate"]}
                 nonListWatchKeys={["gstType"]}
-                // componentRequiredRef={["rate", "qty"]}
+                componentRequiredRef={["rate", "qty"]}
                 form={form}
                 calculation={calculation}
                 // rules={listRules}
