@@ -83,7 +83,7 @@ const Uom = () => {
                 <Input
                   size="large"
                   style={{ width: "100%" }}
-                  placeholder="Unit(UOM)"
+                  placeholder="Unit(UoM)"
                   value={newUom.uom}
                   onChange={(e) =>
                     setNewUom((newUom) => {

@@ -216,7 +216,7 @@ export const items = (user) => [
   getItem("Material Management", "B", <BiTransfer />, [
     getItem("Master", "B1", <BsFillHddStackFill />, [
       getItem(
-        <Link to="/uom">UOM</Link>,
+        <Link to="/uom">UoM</Link>,
         "Material Management/B11"
         // <AiOutlineMinus />
       ),
