@@ -14,6 +14,7 @@ export default function SingleDatePicker({
   tablePicker,
   name,
   disabled,
+  legal,
   format = "DD-MM-YYYY",
 }) {
   const onChange = (date, dateString) => {
@@ -25,9 +26,13 @@ export default function SingleDatePicker({
       setDate(dateString);
     }
   };
-
+  // console.log("legal", legal);
   const disabledDate = (current) => {
-    return current && current > dayjs().endOf("day");
+    if (legal) {
+      return;
+    } else {
+      return current && current > dayjs().endOf("day");
+    }
   };
   useEffect(() => {
     if (setDate) {
@@ -46,6 +51,7 @@ export default function SingleDatePicker({
 
   return (
     <DatePicker
+      legal={legal ?? false}
       disabled={disabled}
       disabledDate={disabledDate}
       size={size ?? "default"}

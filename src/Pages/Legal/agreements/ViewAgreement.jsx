@@ -558,6 +558,7 @@ const AddAddendumModal = ({
                 ]}
               >
                 <SingleDatePicker
+                  legal={true}
                   setDate={(value) => {
                     addaddendumform.setFieldValue("effectivedate", value);
                   }}
@@ -595,6 +596,7 @@ const AddAddendumModal = ({
                   ]}
                 >
                   <SingleDatePicker
+                    legal={true}
                     setDate={(value) => {
                       addaddendumform.setFieldValue("expirydate", value);
                     }}
@@ -618,6 +620,7 @@ const AddAddendumModal = ({
                 ]}
               >
                 <SingleDatePicker
+                  legal={true}
                   setDate={(value) => {
                     addaddendumform.setFieldValue("executiondate", value);
                   }}
@@ -636,6 +639,7 @@ const AddAddendumModal = ({
                 ]}
               >
                 <SingleDatePicker
+                  legal={true}
                   setDate={(value) => {
                     addaddendumform.setFieldValue("renewaldate", value);
                   }}
