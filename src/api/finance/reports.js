@@ -18,7 +18,7 @@ export const getLedgerReport = async (vendorCode, dateRange) => {
       debitAmount: row.debit,
       insertDate: row.insert_date,
       invoiceDate: row.invoice_date,
-      invoiceNumber: row.invoice_date,
+      invoiceNumber: row.invoice_no,
       moduleUsed: row.module_used,
       recoStatus: row.recoStatus,
       reference: row.ref,
