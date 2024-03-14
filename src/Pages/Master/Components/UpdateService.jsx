@@ -137,7 +137,7 @@ export default function UpdateService({ editService, setEditService, units }) {
                         fontSize: window.innerWidth < 1600 && "0.7rem",
                       }}
                     >
-                      UOM
+                      UoM
                     </span>
                   }
                 >

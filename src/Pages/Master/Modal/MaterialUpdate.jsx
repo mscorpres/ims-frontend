@@ -163,7 +163,7 @@ export default function MaterialUpdate({
     // console.log(allUpdateData?.uomname);
     // console.log(allUpdateData?.uomid);
     if (!allUpdateData.uomname) {
-      toast.error("Please Select UOM");
+      toast.error("Please Select UoM");
     } else {
       setLoading("submit");
 
