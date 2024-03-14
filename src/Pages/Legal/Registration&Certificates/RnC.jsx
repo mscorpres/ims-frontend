@@ -598,6 +598,7 @@ export default function RnC({}) {
                     ]}
                   >
                     <SingleDatePicker
+                      legal={true}
                       setDate={(value) => {
                         addAgreementForm.setFieldValue("effectivedate", value);
                       }}
@@ -636,6 +637,7 @@ export default function RnC({}) {
                       ]}
                     >
                       <SingleDatePicker
+                        legal={true}
                         setDate={(value) => {
                           addAgreementForm.setFieldValue("expirydate", value);
                         }}
@@ -657,6 +659,7 @@ export default function RnC({}) {
                     ]}
                   >
                     <SingleDatePicker
+                      legal={true}
                       setDate={(value) => {
                         addAgreementForm.setFieldValue("executiondate", value);
                       }}
@@ -675,6 +678,7 @@ export default function RnC({}) {
                     ]}
                   >
                     <SingleDatePicker
+                      legal={true}
                       setDate={(value) => {
                         addAgreementForm.setFieldValue("renewaldate", value);
                       }}
