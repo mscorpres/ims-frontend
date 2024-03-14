@@ -88,6 +88,7 @@ const VendorReconcilation = () => {
   var paramsVendorCode = searchParams.get("vendorCode");
   var paramsVendor = searchParams.get("vendor");
   var paramsDate = searchParams.get("date");
+  // var paramsRecoId = searchParams.get("date");
   const [showFilters, setShowFilters] = useState(
     paramsVendorCode ? false : true
   );
@@ -326,6 +327,7 @@ const VendorReconcilation = () => {
       filterForm.setFieldValue("date", paramsDate);
       handleFetchManualTransactions(paramsVendorCode, paramsDate);
       handleFetchLedgerDetais(paramsVendorCode, paramsDate);
+      handleGenerateRecoRef(paramsVendorCode, paramsDate);
     }
   }, [paramsVendorCode]);
 

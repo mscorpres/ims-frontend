@@ -108,9 +108,10 @@ export const getRecoReport = async (vendorCode, wise, status) => {
       id: index + 1,
       dateRange: row.dateRange,
       status: row.status,
-      month: row.month,
-      vendorCode: row.vendorCode,
+      period: row.period,
+      vendorCode: row.vendor,
       vendor: row.vendorName,
+      recoId: row.recoID,
     }));
   }
   response.data = arr;
