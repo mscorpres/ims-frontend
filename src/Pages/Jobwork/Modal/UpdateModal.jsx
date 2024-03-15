@@ -82,7 +82,7 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
   };
   const columns = [
     { field: "index", headerName: "S No.", width: 8 },
-    { field: "part_code", headerName: "Part Code.", width: 120 },
+    { field: "part_code", headerName: "Part Code", width: 120 },
     { field: "component_name", headerName: "Component Name", width: 450 },
     { field: "bom_req_qty", headerName: "BOM Required Qty", width: 180 },
     {

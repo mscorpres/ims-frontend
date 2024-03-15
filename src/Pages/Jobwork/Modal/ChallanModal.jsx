@@ -166,7 +166,7 @@ function ChallanModal({ challanModal, setChallanModal }) {
         <Input
           value={row.issue_qty * row.part_rate}
           disabled
-          placeholder="HSN CODE"
+          placeholder="value"
         />
       ),
     },

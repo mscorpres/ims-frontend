@@ -766,13 +766,13 @@ const CreateChallanModal = ({
         // });
         data.branchList.map((row) => {
           if (row.address === badd) {
-            // console.log("coming here", badd);
+            // console.log("coming here", badd, row);
             challanForm.setFieldValue("billingid", row.id);
             challanForm.setFieldValue("billingaddress", badd);
             // challanForm.setFieldValue("dispatchfrompincode", data.pincode);
             setBillId(row.id);
           } else if (row.address === sadd) {
-            // console.log("coming here", sadd);
+            // console.log("coming here dispatch", sadd, row);
             challanForm.setFieldValue("dispatchid", row.text);
             challanForm.setFieldValue("shippingaddress", sadd);
             challanForm.setFieldValue("dispatchfromgst", row.gst);
@@ -916,10 +916,13 @@ const CreateChallanModal = ({
         updateWoShipment(newpayload);
       } else {
         try {
-          const values = await challanForm.validateFields();
           let a = rows.filter((b) => b.out_qty > 0);
-
-          // console.log("minRows----------", a);
+          // let as = challanForm.getFieldsValue("challanForm");
+          // console.log("as----------", as);
+          console.log("minRows----------", a);
+          const values = await challanForm.validateFields();
+          // console.log("values", values);
+          // console.log("add----------", addOptions);
           // setRows(a);
           console.log(billid);
           // return;
@@ -937,10 +940,10 @@ const CreateChallanModal = ({
               billingaddrid: bid,
               billingaddr: values.billingaddress,
               transaction_id: data.transactionId,
-              dispatchfromaddrid: did,
+              dispatchfromaddrid: values.dispatchid,
               dispatchfromaddr: values.shippingaddress,
-              dispatchfrompincode: "--",
-              dispatchfromgst: "--",
+              dispatchfrompincode: values.dispatchfrompincode,
+              dispatchfromgst: values.dispatchfromgst,
               vehicle: values.vn,
               clientbranch: values.clientbranch,
               clientaddress: values.address,
@@ -1543,7 +1546,7 @@ const Product = ({
                 componentRequiredRef={["rate", "qty"]}
                 form={form}
                 calculation={calculation}
-                rules={listRules}
+                // rules={listRules}
               />
             </Card>
             <Card
@@ -2297,7 +2300,7 @@ const listRules = {
   hsn: [
     {
       required: true,
-      message: "Please enter a hsn code!",
+      message: "Please enter a HSN code!",
     },
   ],
   location: [

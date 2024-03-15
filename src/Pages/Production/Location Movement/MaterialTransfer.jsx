@@ -15,7 +15,7 @@ const { TextArea } = Input;
 function MaterialTransfer({ type }) {
   // console.log(type)
   type == "sftorej"
-    ? (document.title = "SF to Rej")
+    ? (document.title = "SF to REJ")
     : (document.title = "SF to SF");
 
   const [allData, setAllData] = useState({

@@ -17,11 +17,10 @@ const FormTable2 = ({
   addableRow,
   newRow,
   reverse,
-  validatingRules,
 }) => {
   const formValues = Form.useWatch();
   const addRow = (newRow) => {
-    let obj = newRow ?? {};
+    let obj = newRow;
     const names = columns.map((row) => row.name);
     if (!newRow) {
       names.map((name) => name !== "" && (obj[name] = ""));
@@ -55,15 +54,11 @@ const FormTable2 = ({
             <td
               style={{
                 ...columnHeaderStyle(),
-                // width: 30,
+                width: 30,
               }}
             >
               {addableRow && (
-                <CommonIcons
-                  size="large"
-                  action="addRow"
-                  onClick={() => addRow(newRow)}
-                />
+                <CommonIcons action="addRow" onClick={() => addRow(newRow)} />
               )}
             </td>
           )}
@@ -96,7 +91,6 @@ const FormTable2 = ({
       >
         <Form.List
           name={listName}
-          rules={validatingRules ?? []}
           style={{
             width: "fit-content",
             height: "100%",
@@ -144,12 +138,12 @@ const SingleRow = memo(
     remove,
     index,
     columns,
-    watchKeys = [],
+    watchKeys,
     listName,
     form,
     calculation,
-    nonListWatchKeys = [],
-    componentRequiredRef = [],
+    nonListWatchKeys,
+    componentRequiredRef,
   }) => {
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
@@ -182,7 +176,7 @@ const SingleRow = memo(
         });
         calculation(field.name, obj);
       }
-    }, [...[...watchValues, ...nonListWatchValues]]);
+    }, [[...watchValues, ...nonListWatchValues]]);
     return (
       <Form.Item noStyle>
         <tr align="middle" key={field.key} style={tableColumnStyle}>
@@ -190,10 +184,7 @@ const SingleRow = memo(
             <td
               style={{
                 whiteSpace: "nowrap",
-                width: 38,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                width: 30,
               }}
             >
               {fieldsLength > nonRemovableColumns && (
@@ -205,18 +196,7 @@ const SingleRow = memo(
             !row.conditional ? (
               <td key={columnIndex} style={columnCellStyle(row, index)}>
                 <Form.Item
-                  validateStatus={row.validateStatus}
-                  help={row.help}
-                  rules={
-                    isComponentRequired()
-                      ? [
-                          {
-                            required: true,
-                            message: `${row.headerName} is required`,
-                          },
-                        ]
-                      : row.rules ?? []
-                  }
+                  rules={isComponentRequired() && rules[row.name]}
                   name={[field.name, row.name]}
                   style={{
                     margin: 0,
@@ -230,17 +210,10 @@ const SingleRow = memo(
                 </Form.Item>
               </td>
             ) : (
-              row.condition({ fieldName: field.name, ...valueObj }, index) && (
+              row.condition() && (
                 <td style={columnCellStyle(row, index)}>
                   <Form.Item
-                    rules={
-                      isComponentRequired() && [
-                        {
-                          required: true,
-                          message: `${row.headerName} is required`,
-                        },
-                      ]
-                    }
+                    rules={isComponentRequired() && rules[row.name]}
                     name={[field.name, row.name]}
                     style={{
                       margin: 0,
@@ -268,7 +241,6 @@ const columnHeaderStyle = (col) => ({
   margin: "0px 1px",
   background: "#f5f5f5",
   borderRadius: 3,
-  padding: 8,
 });
 
 const columnCellStyle = (row, index) => ({
@@ -301,17 +273,17 @@ const tableColumnStyle = {
   borderRadius: 5,
 };
 
-// const rules = {
-//   hsn: [
-//     {
-//       required: true,
-//       message: "Please enter a hsn code!",
-//     },
-//   ],
-//   location: [
-//     {
-//       required: true,
-//       message: "Please select a Location!",
-//     },
-//   ],
-// };
+const rules = {
+  hsn: [
+    {
+      required: true,
+      message: "Please enter a hsn code!",
+    },
+  ],
+  location: [
+    {
+      required: true,
+      message: "Please select a Location!",
+    },
+  ],
+};
