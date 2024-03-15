@@ -118,7 +118,7 @@ export default function MaterialInWithoutPO() {
     const values = await form.validateFields();
 
     const response = await executeFun(() => validateInvoice(values), "submit");
-
+    console.log("success from validate invoice");
     if (response.success) {
       const { data } = response;
       if (data.invoicesFound) {
@@ -133,6 +133,8 @@ export default function MaterialInWithoutPO() {
           confirmLoading: loading("submit"),
           cancelText: "Cancel",
         });
+      } else {
+        submitMIN(values);
       }
     } else {
       submitMIN(values);
@@ -140,6 +142,7 @@ export default function MaterialInWithoutPO() {
   };
   const submitMIN = async () => {
     let fileName;
+    console.log("submittinh min");
     const values = await form.validateFields();
     const fileResponse = await executeFun(
       () => uploadMinInvoice(values.invoice),
