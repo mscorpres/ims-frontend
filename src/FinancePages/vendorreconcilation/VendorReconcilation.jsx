@@ -53,6 +53,7 @@ const statusOption = {
 };
 
 const VendorReconcilation = () => {
+  const [showFilters, setShowFilters] = useState(true);
   const [details, setDetails] = useState({});
   const [rows, setRows] = useState([]);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
@@ -89,9 +90,6 @@ const VendorReconcilation = () => {
   var paramsVendor = searchParams.get("vendor");
   var paramsDate = searchParams.get("date");
   // var paramsRecoId = searchParams.get("date");
-  const [showFilters, setShowFilters] = useState(
-    paramsVendorCode ? false : true
-  );
 
   const handleGenerateRecoRef = async (vendor, date) => {
     const response = await executeFun(() => createDraft(vendor, date), "fetch");
@@ -316,11 +314,12 @@ const VendorReconcilation = () => {
   }, [showNoteDialog]);
 
   useEffect(() => {
-    if (paramsVendor) {
+    if (paramsVendorCode) {
       setShowFilters(false);
       console.log("calling fetchin gledger rport", paramsVendorCode);
       filterForm.setFieldValue("vendor", {
         label: paramsVendor,
+        text: paramsVendor,
         value: paramsVendorCode,
       });
 
@@ -328,6 +327,7 @@ const VendorReconcilation = () => {
       handleFetchManualTransactions(paramsVendorCode, paramsDate);
       handleFetchLedgerDetais(paramsVendorCode, paramsDate);
       handleGenerateRecoRef(paramsVendorCode, paramsDate);
+      setShowFilters(false);
     }
   }, [paramsVendorCode]);
 
@@ -371,6 +371,7 @@ const VendorReconcilation = () => {
       />,
     ],
   };
+
   return (
     <div style={{ padding: 10, height: "95%" }}>
       {/* <AddNote
@@ -520,7 +521,7 @@ const Filters = ({
                 loadOptions={handleFetchVendorOptiions}
                 selectLoading={fetchLoading("vendorSelect")}
                 onBlur={() => setAsyncOptions([])}
-                defaultValue={vcode}
+                // defaultValue={vcode}
               />
             </Form.Item>
 

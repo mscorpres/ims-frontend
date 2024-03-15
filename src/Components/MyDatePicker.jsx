@@ -56,7 +56,7 @@ export default function MyDatePicker({
         Today: [dayjs(), dayjs()],
         Yesterday: [dayjs().subtract(1, "day"), dayjs().subtract(1, "day")],
         "Last 7 Days": [dayjs().subtract(7, "d"), dayjs().subtract(1, "d")],
-        "This Month": [dayjs().startOf("month"), dayjs().endOf("month")],
+        "This Month": [dayjs().startOf("month"), dayjs()],
         "Last Month": [
           dayjs().startOf("month").subtract(1, "month"),
           dayjs().startOf("month").subtract(1, "d"),

@@ -45,6 +45,8 @@ const RequestLedgerModal = ({ open, hide }) => {
 
   const handleSendMail = async () => {
     const values = await form.validateFields();
+    console.log("these are the email values", values);
+    return;
     values["vendor"] = open.vendor;
     values["date"] = open.date;
     const response = await executeFun(
