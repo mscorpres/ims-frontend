@@ -4,7 +4,7 @@ import {
   getLedgerEmail,
   sendRequestLedgerMail,
   updateLedgerEmail,
-} from "../../../api/ledger.jsx";
+} from "../../../api/ledger";
 import { useEffect } from "react";
 import Loading from "../../../Components/Loading";
 

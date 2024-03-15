@@ -13,7 +13,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../Components/MyDataTable";
 import { useEffect, useState } from "react";
 import useApi from "../../../hooks/useApi";
-import { getRequestedLedgerMails } from "../../../api/ledger.jsx";
+import { getRequestedLedgerMails } from "../../../api/ledger";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { UploadOutlined } from "@ant-design/icons";
 
