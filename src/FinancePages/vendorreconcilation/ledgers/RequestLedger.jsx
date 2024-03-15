@@ -32,7 +32,6 @@ const RequestLedgerModal = ({ open, hide }) => {
 
   const handleUpdateEmail = async () => {
     const values = await form.validateFields(["receiverEmail"]);
-    console.log("receiver email is", values);
 
     const response = await executeFun(
       () => updateLedgerEmail(values.receiverEmail, open.vendor.value),
