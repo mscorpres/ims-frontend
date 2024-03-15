@@ -7,10 +7,16 @@ import printFunction, {
 } from "../../../Components/printFunction";
 import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
-export default function SuccessPage({ po, successColumns, newMinFunction }) {
+export default function SuccessPage({
+  po,
+  successColumns,
+  newMinFunction,
+  title,
+}) {
   const [printLoading, setPringLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const printFun = async () => {
+
     setPringLoading(true);
 
     const { data } = await imsAxios.post("/minPrint/printSingleMin", {
@@ -29,15 +35,27 @@ export default function SuccessPage({ po, successColumns, newMinFunction }) {
     downloadFunction(data.data.buffer.data, filename);
   };
   return (
-    <div style={{ height: "100vh" }}>
+    <div style={{ height: "50vh" }}>
       <Result
         status="success"
-        title="Material Inward successfull"
-        subTitle={`Material Inward ${po?.materialInId}  (${
-          po.components.length
-        } component${po.components.length > 1 ? "s" : ""}) ${
-          po?.poId ? `from  ${po?.poId}` : ""
-        } from ${po?.vendor.vendorname}`}
+        title={
+          title === "Sfg"
+            ? "SFG Inward successfull"
+            : "Material Inward successfull"
+        }
+        subTitle={
+          title === "Sfg"
+            ? `SFG Inward ${po?.materialInId}  (${
+                po.components.length
+              } component${po.components.length > 1 ? "s" : ""}) ${
+                po?.poId ? `from  ${po?.poId}` : ""
+              } from ${po?.vendor}`
+            : `Material Inward ${po?.materialInId}  (${
+                po.components.length
+              } component${po.components.length > 1 ? "s" : ""}) ${
+                po?.poId ? `from  ${po?.poId}` : ""
+              } from ${po?.vendor.vendorname}`
+        }
         extra={[
           <Row justify="center" gutter={16}>
             <Col>

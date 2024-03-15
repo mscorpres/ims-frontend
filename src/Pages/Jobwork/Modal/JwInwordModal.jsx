@@ -33,6 +33,8 @@ import {
   validateInvoiceforSFG,
 } from "../../../api/store/material-in";
 import { Save } from "@mui/icons-material";
+import SuccessPage from "../../Store/MaterialIn/SuccessPage";
+import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 export default function JwInwordModal({
   editModal,
   setEditModal,
@@ -55,6 +57,7 @@ export default function JwInwordModal({
   const [loading, setLoading] = useState(false);
   const [attachment, setAttachment] = useState("");
 
+  const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [modalForm] = Form.useForm();
   // console.log(mainData);
   const { executeFun, loading: loading1 } = useApi();
@@ -420,14 +423,40 @@ export default function JwInwordModal({
     };
     console.log("payload", payload);
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
-    console.log("response", response);
+    const minNum = response.message;
     const { data } = response;
 
     if (response.success) {
+      const pattern = /\[(.*?)\]/;
+      let getMin;
+      // Using match() method to find the first match of the pattern in the input string
+      const match = minNum.match(pattern);
+      if (match) {
+        // console.log(); // Output the text inside square brackets
+        getMin = match[1];
+      } else {
+      }
       toast.success(response.message);
-      setEditModal(false);
+      // setEditModal(false);
       setShowBomList(false);
       setBomList([]);
+      setMaterialInSuccess({
+        materialInId: getMin,
+        poId: mainData[0].jobwork_id,
+        vendor: row?.vendor,
+        components: bomList.map((row) => {
+          return {
+            id: row.partNo,
+            componentName: row.partName,
+            partNo: row.key,
+            inQuantity: row.bomQty,
+            invoiceNumber: mainData[0].invoice,
+            // invoiceDate: mainData[0].invoice,
+            location: mainData[0].location,
+            poQuantity: row.rqdQty,
+          };
+        }),
+      });
     } else {
       toast.error(data.message);
     }
@@ -543,6 +572,9 @@ export default function JwInwordModal({
       okText: "Submit",
     });
   };
+  const newMinFunction = () => {
+    setMaterialInSuccess(false);
+  };
   const submitHandler = async () => {
     const values = await modalForm.validateFields();
     console.log("values", values);
@@ -565,12 +597,12 @@ export default function JwInwordModal({
 
   useEffect(() => {
     if (editModal) {
-      // console.log("editModal", editModal);
       getFetchData();
       getLocation();
       setEWayBill("");
       setShowBomList(false);
       setBomList([]);
+      newMinFunction();
     }
   }, [editModal]);
 
@@ -608,113 +640,114 @@ export default function JwInwordModal({
         }
       >
         <>
-          <Skeleton active loading={modalLoad("fetch")}>
-            <Card type="inner" title={header?.jobwork_id}>
-              <Row gutter={10}>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  JW PO ID: {header?.jobwork_id}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  Jobwork ID: {header?.jobwork_id}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  FG/SFG Name & SKU:{" "}
-                  {`${header?.product_name} / ${header?.sku_code}`}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  JW PO created by: {header?.created_by}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  FG/SFG BOM of Recipe: {header?.subject_name}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  Regisered Date & Time: {header?.registered_date}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  FG/SFG Ord Qty: {header?.ordered_qty}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  Job ID Status: {header?.jw_status}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  FG/SFG processed Qty: {header?.proceed_qty}
-                </Col>
-                <Col
-                  span={8}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  Job Worker: {header?.vendor_name}
-                </Col>
-                <Col
-                  span={6}
-                  style={{ fontSize: "12px", fontWeight: "bolder" }}
-                >
-                  <Form size="small">
-                    <Form.Item label="E-Way Bill Bo.">
-                      <Input
-                        size="small"
-                        value={eWayBill}
-                        onChange={(e) => setEWayBill(e.target.value)}
-                      />
-                    </Form.Item>
-                  </Form>
-                </Col>
-              </Row>
-            </Card>
-            <div style={{ height: "50%", marginTop: "5px" }}>
-              <div style={{ height: "100%" }}>
-                {showBomList && bomList ? (
-                  <FormTable
-                    data={bomList}
-                    columns={bomcolumns}
-                    loading={loading}
-                  />
-                ) : (
-                  <FormTable data={mainData} columns={columns} />
-                )}
+          {!materialInSuccess && (
+            <Skeleton active loading={modalLoad("fetch")}>
+              <Card type="inner" title={header?.jobwork_id}>
+                <Row gutter={10}>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    JW PO ID: {header?.jobwork_id}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    Jobwork ID: {header?.jobwork_id}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    FG/SFG Name & SKU:{" "}
+                    {`${header?.product_name} / ${header?.sku_code}`}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    JW PO created by: {header?.created_by}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    FG/SFG BOM of Recipe: {header?.subject_name}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    Regisered Date & Time: {header?.registered_date}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    FG/SFG Ord Qty: {header?.ordered_qty}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    Job ID Status: {header?.jw_status}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    FG/SFG processed Qty: {header?.proceed_qty}
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    Job Worker: {header?.vendor_name}
+                  </Col>
+                  <Col
+                    span={6}
+                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                  >
+                    <Form size="small">
+                      <Form.Item label="E-Way Bill Bo.">
+                        <Input
+                          size="small"
+                          value={eWayBill}
+                          onChange={(e) => setEWayBill(e.target.value)}
+                        />
+                      </Form.Item>
+                    </Form>
+                  </Col>
+                </Row>
+              </Card>
+              <div style={{ height: "50%", marginTop: "5px" }}>
+                <div style={{ height: "100%" }}>
+                  {showBomList && bomList ? (
+                    <FormTable
+                      data={bomList}
+                      columns={bomcolumns}
+                      loading={loading}
+                    />
+                  ) : (
+                    <FormTable data={mainData} columns={columns} />
+                  )}
+                </div>
               </div>
-            </div>
-            <Row style={{ marginTop: "50px" }}>
-              <Col span={24}>
-                <div style={{ textAlign: "end" }}>
-                  {showBomList ? (
-                    // <NavFooter
-                    //   // loading={loading}
-                    //   submitFunction={saveFunction}
-                    //   backFunction={() => setEditModal(false)}
-                    //   // resetFunction={resetHandler}
-                    //   nextLabel="Submit"
-                    // />
-                    <>
-                      <Button onClick={prev}>Back</Button>
-                      {/* <Popconfirm
+              <Row style={{ marginTop: "50px" }}>
+                <Col span={24}>
+                  <div style={{ textAlign: "end" }}>
+                    {showBomList ? (
+                      // <NavFooter
+                      //   // loading={loading}
+                      //   submitFunction={saveFunction}
+                      //   backFunction={() => setEditModal(false)}
+                      //   // resetFunction={resetHandler}
+                      //   nextLabel="Submit"
+                      // />
+                      <>
+                        <Button onClick={prev}>Back</Button>
+                        {/* <Popconfirm
                         placement="topLeft"
                         title={text}
                         onConfirm={saveFunction}
@@ -722,26 +755,26 @@ export default function JwInwordModal({
                         okText="Yes"
                         cancelText="No"
                       > */}
-                      <Button
-                        style={{ marginLeft: 4 }}
-                        type="primary"
-                        onClick={addAttachmentModal}
-                      >
-                        Save
-                      </Button>
-                      {/* </Popconfirm> */}
-                    </>
-                  ) : (
-                    <NavFooter
-                      loading={loading}
-                      submitFunction={getBomList}
-                      backFunction={closeModal}
-                      // resetFunction={resetHandler}
-                      nextLabel="Next"
-                    />
-                  )}
+                        <Button
+                          style={{ marginLeft: 4 }}
+                          type="primary"
+                          onClick={addAttachmentModal}
+                        >
+                          Save
+                        </Button>
+                        {/* </Popconfirm> */}
+                      </>
+                    ) : (
+                      <NavFooter
+                        loading={loading}
+                        submitFunction={getBomList}
+                        backFunction={closeModal}
+                        // resetFunction={resetHandler}
+                        nextLabel="Next"
+                      />
+                    )}
 
-                  {/* <Popconfirm
+                    {/* <Popconfirm
                     placement="topLeft"
                     title={text}
                     // onConfirm={saveFunction}
@@ -751,22 +784,46 @@ export default function JwInwordModal({
                   >
                     <Button type="primary">Save</Button>
                   </Popconfirm> */}
-                  {/* <Button
+                    {/* <Button
                     onClick={() => setEditModal(false)}
                     style={{ background: "red", color: "white", marginLeft: "5px" }}
                   >
                     Reset
                   </Button> */}
-                  {/* 
+                    {/* 
                   <Button type="primary" loading={modalUploadLoad} onClick={saveFunction}>
                     Save
                   </Button> */}
-                </div>
-              </Col>
-            </Row>
-          </Skeleton>
+                  </div>
+                </Col>
+              </Row>
+            </Skeleton>
+          )}
+
+          {materialInSuccess && (
+            <SuccessPage
+              newMinFunction={newMinFunction}
+              title={"Sfg"}
+              po={materialInSuccess}
+              successColumns={successColumns}
+            />
+          )}
         </>
       </Drawer>
     </Space>
   );
 }
+const successColumns = [
+  {
+    headerName: "Component",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.componentName} />,
+    field: "componentName",
+    flex: 1,
+  },
+  { headerName: "Part No.", field: "partNo", flex: 1 },
+  { headerName: "SFG Quantity", field: "poQuantity", flex: 1 },
+  { headerName: "In Quantity", field: "inQuantity", flex: 1 },
+  { headerName: "Invoice Number", field: "invoiceNumber", flex: 1 },
+  // { headerName: "Invoice Date", field: "invoiceDate", flex: 1 },
+  // { headerName: "Location", field: "location", flex: 1 },
+];
