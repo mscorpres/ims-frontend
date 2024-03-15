@@ -148,7 +148,7 @@ const SingleRow = memo(
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
-    const nonListWatchValues = nonListWatchKeys ? .map((val) =>
+    const nonListWatchValues = nonListWatchKeys?.map((val) =>
       form.getFieldValue(val)
     );
     const componentRequiredValues = componentRequiredRef.map((val) =>

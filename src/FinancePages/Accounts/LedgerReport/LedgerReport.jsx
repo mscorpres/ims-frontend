@@ -24,11 +24,11 @@ import { setCurrentLinks } from "../../../Features/loginSlice/loginSlice.js";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { useLocation, useParams } from "react-router-dom";
-import useApi from "../../../hooks/useApi.jsx";
+import useApi from "../../../hooks/useApi";
 import { getLedgerReport } from "../../../api/finance/reports.js";
 import MyButton from "../../../Components/MyButton/index.jsx";
-import { getLedgerOptions } from "../../../api/ledger.jsx";
-import { getRecoReport } from "../../../api/finance/vendor-reco.jsx";
+import { getLedgerOptions } from "../../../api/ledger";
+import { getRecoReport } from "../../../api/finance/vendor-reco";
 import Loading from "../../../Components/Loading.jsx";
 
 export default function LedgerReport() {
