@@ -331,47 +331,6 @@ const VendorReconcilation = () => {
     }
   }, [paramsVendorCode]);
 
-  // useEffect(() => {
-  //   setVendorInput({
-  //     opening: "",
-  //     closing: "",
-  //   });
-  // }, [details]);
-  // const actionColumn = {
-  //   headerName: "Matched?",
-  //   field: "matched",
-  //   renderCell: ({ row }) =>
-  //     row.matched ? (
-  //       <div onClick={() => handleUpdateMatchStatus("Draft")}>
-  //         <CheckCircleOutlined style={{ color: "green" }} />
-  //       </div>
-  //     ) : (
-  //       <div onClick={() => handleUpdateMatchStatus("Matched")}>
-  //         <CloseCircleOutlined style={{ color: "red" }} />
-  //       </div>
-  //     ),
-  //   width: 80,
-  // };
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // match icon
-      <GridActionsCellItem
-        showInMenu
-        disabled={row.type === "M"}
-        label={row.matched ? "Unmatch" : "Match"}
-        onClick={() =>
-          handleUpdateMatchStatus(
-            row.matched ? "Draft" : "Matched",
-            row.voucherNo
-          )
-        }
-      />,
-    ],
-  };
-
   return (
     <div style={{ padding: 10, height: "95%" }}>
       {/* <AddNote
@@ -461,7 +420,7 @@ const VendorReconcilation = () => {
               setSelectedRows(newSelectionModel);
             }}
             rows={rows}
-            columns={[actionColumn, ...columns]}
+            columns={columns}
             loading={loading("fetchManualTrans") || loading("updateStatus")}
           />
         </Col>
@@ -1135,17 +1094,17 @@ const columns = [
     width: 100,
     renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceDate} />,
   },
-  {
-    headerName: "Reference",
-    field: "reference",
-    minWidth: 120,
-    flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.reference} />,
-  },
+  // {
+  //   headerName: "Reference",
+  //   field: "reference",
+  //   minWidth: 120,
+  //   flex: 1,
+  //   renderCell: ({ row }) => <ToolTipEllipses text={row.reference} />,
+  // },
   {
     headerName: "Type",
     field: "type",
-    width: 50,
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.type} />,
   },
   {

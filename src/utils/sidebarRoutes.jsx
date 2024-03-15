@@ -186,7 +186,7 @@ export const items = (user) => [
     ]),
     getItem("Others", "D9", <IoJournalSharp />, [
       getItem(
-        <Link to={routeConstants.finance.vendor.reco.create}>
+        <Link to={routeConstants.finance.vendor.reco.report}>
           Vendor Reconciliation
         </Link>
         // <AiOutlineMinus />
