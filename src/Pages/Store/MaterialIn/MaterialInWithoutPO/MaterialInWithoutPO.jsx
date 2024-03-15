@@ -103,14 +103,14 @@ export default function MaterialInWithoutPO() {
   const vendorType = Form.useWatch("vendorType", form);
 
   const handleSubmit = async () => {
-    await form.validateFields();
+    const values = await form.validateFields();
     Modal.confirm({
       title: "Create MIN",
       content: "Are you sure you want to create this MIN?",
       okText: "Continue",
       confirmLoading: loading("submit"),
       cancelText: "Back",
-      onOk: handleValidatingInvoices,
+      onOk: values.vendorType === "p01" ? submitMIN : handleValidatingInvoices,
     });
   };
 
@@ -575,6 +575,16 @@ export default function MaterialInWithoutPO() {
       getVendorBracnch(vendor.value);
     }
   }, [vendor]);
+  useEffect(() => {
+    if (vendorType === "p01") {
+      form.resetFields([
+        "vendorName",
+        "vendorBranch",
+        "vendorAddress",
+        "gstin",
+      ]);
+    }
+  }, [vendorType]);
 
   useEffect(() => {
     handleFetchVendorBranchDetails(vendorBranch);
