@@ -7,6 +7,7 @@ import printFunction, {
 } from "../../../Components/printFunction";
 import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
+import { downloadCSV } from "../../../Components/exportToCSV";
 export default function SuccessPage({
   po,
   successColumns,
@@ -16,7 +17,6 @@ export default function SuccessPage({
   const [printLoading, setPringLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const printFun = async () => {
-
     setPringLoading(true);
 
     const { data } = await imsAxios.post("/minPrint/printSingleMin", {
@@ -25,7 +25,12 @@ export default function SuccessPage({
     setPringLoading(false);
     printFunction(data.data.buffer.data);
   };
+  const downloadExcel = async () => {
+    console.log("jere in ");
+    downloadCSV(po.components, successColumns, `SFG Inward Report`);
+  };
   const handleDownload = async () => {
+    console.log("");
     setDownloadLoading(true);
     const { data } = await imsAxios.post("/minPrint/printSingleMin", {
       transaction: po?.materialInId,
@@ -72,7 +77,7 @@ export default function SuccessPage({
               <CommonIcons
                 loading={downloadLoading}
                 action={"downloadButton"}
-                onClick={handleDownload}
+                onClick={title === "Sfg" ? downloadExcel : handleDownload}
               />
             </Col>
           </Row>,

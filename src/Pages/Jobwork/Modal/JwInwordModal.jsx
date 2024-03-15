@@ -446,14 +446,15 @@ export default function JwInwordModal({
         vendor: row?.vendor,
         components: bomList.map((row) => {
           return {
-            id: row.partNo,
+            id: row.id,
             componentName: row.partName,
-            partNo: row.key,
+            partNo: row.partNo,
             inQuantity: row.bomQty,
             invoiceNumber: mainData[0].invoice,
             // invoiceDate: mainData[0].invoice,
             location: mainData[0].location,
             poQuantity: row.rqdQty,
+            pendingWithjobwork: row.pendingWithjobwork,
           };
         }),
       });
@@ -824,6 +825,7 @@ const successColumns = [
   { headerName: "SFG Quantity", field: "poQuantity", flex: 1 },
   { headerName: "In Quantity", field: "inQuantity", flex: 1 },
   { headerName: "Invoice Number", field: "invoiceNumber", flex: 1 },
+  { headerName: "Pending With Jobwork", field: "pendingWithjobwork", flex: 1 },
   // { headerName: "Invoice Date", field: "invoiceDate", flex: 1 },
   // { headerName: "Location", field: "location", flex: 1 },
 ];
