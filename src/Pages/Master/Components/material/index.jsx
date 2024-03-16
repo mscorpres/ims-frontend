@@ -44,8 +44,10 @@ const Material = () => {
   const [hsnRows, setHsnRows] = useState([]);
   const [attributeValues, setAttributeValues] = useState(null);
   const [uniqueId, setUniqueId] = useState(null);
+  const [generatedCompName, setGeneratedCompName] = useState("");
   const [manfCode, setManfCode] = useState(null);
 
+  const [valFromName, setValForName] = useState("");
   const { executeFun, loading: loading1 } = useApi();
 
   const [hsnForm] = Form.useForm();
@@ -183,26 +185,27 @@ const Material = () => {
 
   const modalConfirmMaterial = async () => {
     const headerValues = await headerForm.validateFields();
+    // console.log("headerValues", headerValues);
     console.log("attributeValues", attributeValues);
     console.log("manfCode", manfCode);
     // return;
     let atrrRes = {
       multipler: attributeValues?.multiplier,
-      tolerance: attributeValues?.tolerance,
-      mountingStyle: attributeValues?.mounting_style,
-      packageSize: attributeValues?.package_size,
-      powerRating: attributeValues?.power_rating,
+      tolerance: attributeValues?.tolerance?.key,
+      mountingStyle: attributeValues?.mounting_style?.key,
+      packageSize: attributeValues?.package_size?.key,
+      powerRating: attributeValues?.power_rating?.key,
       value: attributeValues?.value,
     };
     let atrrCAP = {
       // multipler: attributeValues.multiplier,
-      tolerance: attributeValues?.tolerance,
-      mountingStyle: attributeValues?.mounting_style,
-      packageSize: attributeValues?.package_size,
-      voltage: attributeValues?.voltage,
+      tolerance: attributeValues?.tolerance?.key,
+      mountingStyle: attributeValues?.mounting_style?.key,
+      packageSize: attributeValues?.package_size?.key,
+      voltage: attributeValues?.voltage?.key,
       value: attributeValues?.value,
       typeofCapacitor: attributeValues?.type_Of_capacitor,
-      siUnit: attributeValues?.si_unit,
+      siUnit: attributeValues?.si_unit?.key,
     };
     let payload;
     if (selectedCategory?.label === "Resistor") {
@@ -210,7 +213,7 @@ const Material = () => {
       payload = {
         part: headerValues.code,
         uom: headerValues.unit,
-        component: headerValues.name,
+        component: headerValues.componentname,
         new_partno: headerValues.newPart,
         comp_type: "R",
         c_category: headerValues.category,
@@ -230,7 +233,7 @@ const Material = () => {
       payload = {
         part: headerValues.code,
         uom: headerValues.unit,
-        component: headerValues.name,
+        component: headerValues.componentname,
         new_partno: headerValues.newPart,
         comp_type: "C",
         c_category: headerValues.category,
@@ -250,7 +253,7 @@ const Material = () => {
       payload = {
         part: headerValues.code,
         uom: headerValues.unit,
-        component: headerValues.name,
+        component: headerValues.componentname,
         new_partno: headerValues.newPart,
         comp_type: "O",
         c_category: headerValues.category,
@@ -319,6 +322,7 @@ const Material = () => {
         if (data.code === 200) {
           toast.success(data.message);
           setUniqueId("");
+          setGeneratedCompName("");
           resetHandler();
           getRows();
         } else {
@@ -412,12 +416,13 @@ const Material = () => {
         content: "Note: It will reset the unique Id if generated",
         onOk: () => {
           setUniqueId(null);
+          setGeneratedCompName(null);
           setAttributeValues(null);
         },
       });
     }
   }, [selectedCategory]);
-
+  const typeIs = headerForm.getFieldValue("attrCategory");
   return (
     <div style={{ height: "90%" }}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
@@ -441,11 +446,38 @@ const Material = () => {
                   <Row gutter={6}>
                     <Col span={12}>
                       <Form.Item
+                        label="Category"
+                        name="category"
+                        rules={headerRules.category}
+                      >
+                        <MySelect options={categoryOptions} />
+                      </Form.Item>
+                    </Col>
+
+                    <Col span={12}>
+                      <Form.Item
+                        label="Type"
+                        name="attrCategory"
+                        rules={headerRules.attrCategory}
+                      >
+                        <MySelect
+                          labelInValue={true}
+                          options={attrCategoryOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
                         rules={headerRules.name}
                         label="Component Name"
-                        name="name"
+                        name="componentname"
                       >
-                        <Input />
+                        <Input
+                          disabled={
+                            typeIs?.label === "Resistor" ||
+                            typeIs?.label === "Capacitor"
+                          }
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={6}>
@@ -484,28 +516,7 @@ const Material = () => {
                         <MySelect options={groupOptions} />
                       </Form.Item>
                     </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        label="Category"
-                        name="category"
-                        rules={headerRules.category}
-                      >
-                        <MySelect options={categoryOptions} />
-                      </Form.Item>
-                    </Col>
 
-                    <Col span={12}>
-                      <Form.Item
-                        label="Type"
-                        name="attrCategory"
-                        rules={headerRules.attrCategory}
-                      >
-                        <MySelect
-                          labelInValue={true}
-                          options={attrCategoryOptions}
-                        />
-                      </Form.Item>
-                    </Col>
                     {uniqueId && (
                       <Col span={24}>
                         <Row justify="end">
@@ -699,6 +710,10 @@ const Material = () => {
         setAttributeValues={setAttributeValues}
         uniqueId={uniqueId}
         setUniqueId={setUniqueId}
+        setGeneratedCompName={setGeneratedCompName}
+        generatedCompName={generatedCompName}
+        setValForName={setValForName}
+        valFromName={valFromName}
         form={attributeForm}
         headerForm={headerForm}
         setManfCode={setManfCode}
@@ -721,7 +736,7 @@ const hsnInitialValues = {
 };
 
 const headerInitialValues = {
-  name: undefined,
+  componentname: undefined,
   code: undefined,
   unit: undefined,
   group: undefined,
@@ -751,6 +766,10 @@ const CategoryModal = ({
   setAttributeValues,
   uniqueId,
   setUniqueId,
+  generatedCompName,
+  setGeneratedCompName,
+  setValForName,
+  valFromName,
   form,
   headerForm,
   setManfCode,
@@ -829,15 +848,15 @@ const CategoryModal = ({
   const checkDecimal = (value) => {
     {
       result = value - Math.floor(value) !== 0;
-      console.log("result", result);
+      // console.log("result", result);
       if (result) {
         let decimalPartLength = (value.toString().split(".")[1] || "").length;
-        console.log("Number has a decimal place.", decimalPartLength);
+        // console.log("Number has a decimal place.", decimalPartLength);
         let decimalVal = addZerosToTen(decimalPartLength);
-        console.log("decimal", decimalVal);
+        // console.log("decimal", decimalVal);
         let pointVal = 1 / decimalVal;
         alpha = getLetterFromDeciNumber(pointVal);
-        console.log("pointVAAAAAA", alpha);
+        // console.log("pointVAAAAAA", alpha);
         form.setFieldValue("multiplier", alpha);
         getWholeNumber(value, decimalVal);
         // getAlpha = removeTrailingZerosUsingSwitch(pointVal.count);
@@ -850,9 +869,9 @@ const CategoryModal = ({
         // const countZ = countZeros(numberWithoutZeros);
         // console.log("Number without Zeros:", numberWithoutZeros);
         let newNum = removeAndCountTrailingZeros(value);
-        console.log("newNum", newNum);
+        // console.log("newNum", newNum);
         getAlpha = removeTrailingZerosUsingSwitch(newNum.count);
-        console.log("getAlpha", getAlpha);
+        // console.log("getAlpha", getAlpha);
         extractednum = newNum.stringWithoutTrailingZeros;
       }
     }
@@ -861,11 +880,28 @@ const CategoryModal = ({
   function zeroPad(num) {
     return num.toString().padStart(5, "0");
   }
+  const getComponentValueForName = (value) => {
+    // console.log("value===========", value);
+    let componentVal;
+    if (value < 999) {
+      // console.log("R", value + "R");
+      componentVal = value + "R";
+    } else if (value < 999999 && value > 1000) {
+      componentVal = +Number(value / 1000).toFixed(1) + "K";
+      // console.log("K", componentVal + "K");
+    } else if (value > 1000000) {
+      componentVal = +Number(value / 1000000).toFixed(1) + "M";
+      // console.log("M", componentVal + "M");
+    }
+    setValForName(componentVal);
+    // console.log("componentVal", componentVal);
+    return componentVal;
+  };
   //generate code
-  const getUniqueNo = async () => {
-    console.log("alpha getUniqueNo", alpha);
+  const getUniqueNo = async (compCode) => {
+    // console.log("alpha getUniqueNo", alpha);
     let values = await form.validateFields();
-    console.log("valuesvalues-----------", values);
+    // console.log("valuesvalues-----------", values);
     setAttributeValues(values);
     //
     let makingString;
@@ -877,42 +913,78 @@ const CategoryModal = ({
 
     let categorSnip = selectedCategory.label.toUpperCase();
     let newSnip = categorSnip.substr(0, 3);
-    console.log("categorSnip=", newSnip);
+    // console.log("categorSnip=", newSnip);
     if (newSnip == "CAP") {
-      console.log("inised cap");
+      let compName =
+        values.package_size.key +
+        "-" +
+        compCode +
+        "-" +
+        values.si_unit.label +
+        "-" +
+        values.tolerance.label +
+        "-" +
+        values.voltage.label +
+        "-" +
+        values.mounting_style.label +
+        "-" +
+        "Capacitor";
+
+      // console.log("compName", compCode);
+      setGeneratedCompName(compName);
+
       let filledFields =
         newSnip +
-        values.mounting_style +
-        values.type_Of_capacitor +
+        values.mounting_style.key +
+        values.type_Of_capacitor.key +
         "(" +
-        values.package_size +
+        values.package_size.key +
         ")" +
         // values.power_rating.value +
-        values.tolerance +
-        values.voltage;
-      console.log("filledFields", filledFields);
+        values.tolerance.key +
+        values.voltage.key;
+      // console.log("filledFields", filledFields);
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
 
-        console.log("!codeValue!", filledFields + codeValue + values.si_unit);
-        setUniqueId(filledFields + codeValue + values.si_unit);
+        // console.log("!codeValue!", filledFields + codeValue + values.si_unit);
+        setUniqueId(filledFields + codeValue + values.si_unit.key);
       }
+      //the Filledfields are change
     } else if (newSnip == "RES") {
+      let compName =
+        values.package_size.key +
+        "-" +
+        compCode +
+        "-" +
+        values.tolerance.label +
+        "-" +
+        values.power_rating.label +
+        "-" +
+        values.mounting_style.label +
+        "-" +
+        "Resistor";
+
+      // console.log("compName", compCode);
+      setGeneratedCompName(compName);
+      headerForm.setFieldValue("componentname", compName);
+
+      //
       let filledFields =
         newSnip +
-        values.mounting_style +
+        values.mounting_style.key +
         "(" +
-        values.package_size +
+        values.package_size.key +
         ")" +
-        values.power_rating +
-        values.tolerance;
-      console.log("filledFields", filledFields);
+        values.power_rating.key +
+        values.tolerance.key;
+      // console.log("filledFields", filledFields);
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
         setUniqueId(filledFields + codeValue);
-        console.log("codeValue ", filledFields + codeValue);
+        // console.log("codeValue ", filledFields + codeValue);
       }
     }
     // console.log("valuesvalues=", values);
@@ -1011,11 +1083,20 @@ const CategoryModal = ({
   // ---
   useEffect(() => {
     if (value) {
-      console.log("valueis added", value);
+      let a = getComponentValueForName(value);
+      // console.log("value a", a);
+      // console.log("valueis added", value);
+      // console.log("alpha added", alpha);
       checkDecimal(value);
-      getUniqueNo();
+      getUniqueNo(a);
     }
   }, [value, alpha]);
+  useEffect(() => {
+    let a = getComponentValueForName(value);
+    // console.log("value a", a);
+    setValForName(a);
+  }, [value]);
+
   const submitHandler = async (payload) => {
     try {
       setUniqueId(uniqueId);
@@ -1053,6 +1134,7 @@ const CategoryModal = ({
       title="Assign Attributes"
       open={show}
       onOk={submitHandler}
+      width={800}
       okText="Continue"
       cancelText={stage === 0 ? "Cancel" : "Back"}
       confirmLoading={loading === "submit"}
@@ -1066,16 +1148,19 @@ const CategoryModal = ({
       }
     >
       <Row>
+        {" "}
+        {/* <Divider /> */}
         <Col span={24}>
           <Flex justify="center" gap={5}>
-            <Typography.Text strong>
+            <Typography.Text underline strong>
               Selected Category: {selectedCategory?.label}
             </Typography.Text>
 
             {/* <Typography.Text>{show?.selectedCategory?.label} </Typography.Text> */}
           </Flex>
         </Col>
-        <Col span={24} style={{ marginTop: 6 }}>
+        <Divider />
+        <Col span={24} style={{ marginTop: 10 }}>
           <Row>
             <Col span={14}>
               {/* <Flex justify="center"> */}
@@ -1091,11 +1176,17 @@ const CategoryModal = ({
             </Col>
           </Row>
         </Col>
+        {/* <Divider /> */}
+        <Col span={24} style={{ marginTop: 10 }}>
+          <Typography.Text strong>
+            Component Name: {generatedCompName}
+          </Typography.Text>
+        </Col>
         <Divider />
       </Row>
       {loading === "fetch" && <Loading />}
       {stage === 0 && (
-        <Form form={form} layout="vertical">
+        <Form form={form} layout="vertical" style={{ marginTop: 10 }}>
           <Row gutter={6}>
             {sortedFields.map((row) => (
               <Col span={8} key={row.label}>
@@ -1108,7 +1199,7 @@ const CategoryModal = ({
                     label={row.label.replaceAll("_", " ")}
                   >
                     <MySelect
-                      // labelInValue
+                      labelInValue
                       // disabled={row.label === "multiplier"}
                       options={
                         fieldSelectOptions.find(
