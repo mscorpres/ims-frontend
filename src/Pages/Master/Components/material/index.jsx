@@ -46,7 +46,7 @@ const Material = () => {
   const [uniqueId, setUniqueId] = useState(null);
   const [generatedCompName, setGeneratedCompName] = useState("");
   const [manfCode, setManfCode] = useState(null);
-
+  const [typeOfComp, setTypeOfComp] = useState("");
   const [valFromName, setValForName] = useState("");
   const { executeFun, loading: loading1 } = useApi();
 
@@ -416,8 +416,9 @@ const Material = () => {
         content: "Note: It will reset the unique Id if generated",
         onOk: () => {
           setUniqueId(null);
-          setGeneratedCompName(null);
+          setGeneratedCompName("");
           setAttributeValues(null);
+          headerForm.setFieldValue("componentname", "");
         },
       });
     }
@@ -719,6 +720,8 @@ const Material = () => {
         headerForm={headerForm}
         setManfCode={setManfCode}
         manfCode={manfCode}
+        typeOfComp={typeOfComp}
+        setTypeOfComp={setTypeOfComp}
       />
     </div>
   );
@@ -775,6 +778,8 @@ const CategoryModal = ({
   headerForm,
   setManfCode,
   manfCode,
+  typeOfComp,
+  setTypeOfComp,
 }) => {
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState("fetch");
@@ -849,26 +854,14 @@ const CategoryModal = ({
   const checkDecimal = (value) => {
     {
       result = value - Math.floor(value) !== 0;
-      // console.log("result", result);
       if (result) {
         let decimalPartLength = (value.toString().split(".")[1] || "").length;
-        // console.log("Number has a decimal place.", decimalPartLength);
         let decimalVal = addZerosToTen(decimalPartLength);
-        // console.log("decimal", decimalVal);
         let pointVal = 1 / decimalVal;
         alpha = getLetterFromDeciNumber(pointVal);
-        // console.log("pointVAAAAAA", alpha);
         form.setFieldValue("multiplier", alpha);
         getWholeNumber(value, decimalVal);
-        // getAlpha = removeTrailingZerosUsingSwitch(pointVal.count);
-        // console.log("getAlpha", getAlpha);
-        // extractednum = newNum.stringWithoutTrailingZeros;
       } else {
-        // let newNum = removeZeros(result);
-        // console.log("It is a whole number.", newNum);
-        // const numberWithoutZeros = removeZeros(value);
-        // const countZ = countZeros(numberWithoutZeros);
-        // console.log("Number without Zeros:", numberWithoutZeros);
         let newNum = removeAndCountTrailingZeros(value);
         // console.log("newNum", newNum);
         getAlpha = removeTrailingZerosUsingSwitch(newNum.count);
@@ -884,10 +877,10 @@ const CategoryModal = ({
   const getComponentValueForName = (value) => {
     // console.log("value===========", value);
     let componentVal;
-    if (value < 999) {
+    if (value <= 999) {
       // console.log("R", value + "R");
       componentVal = value + "R";
-    } else if (value < 999999 && value > 1000) {
+    } else if (value <= 999999 && value >= 1000) {
       componentVal = +Number(value / 1000).toFixed(1) + "K";
       // console.log("K", componentVal + "K");
     } else if (value > 1000000) {
@@ -1101,7 +1094,7 @@ const CategoryModal = ({
   const submitHandler = async (payload) => {
     try {
       setUniqueId(uniqueId);
-      form.resetFields();
+
       hide();
       if (stage === 0) {
       } else {
@@ -1123,9 +1116,20 @@ const CategoryModal = ({
     if (show) {
       setStage(0);
       getCategoryFields(show.selectedCategory);
+      console.log("show.selectedCategory", show.selectedCategory);
+      setTypeOfComp(show.selectedCategory);
     }
   }, [show]);
-
+  useEffect(() => {
+    if (typeOfComp) {
+      form.resetFields();
+      form.setFieldValue("componentname", "");
+      headerForm.setFieldValue("componentname", "");
+      setUniqueId("");
+      setGeneratedCompName("");
+    } else if (selectedCategory?.value === "348423984423") {
+    }
+  }, [typeOfComp]);
   useEffect(() => {
     getieldSelectOptions(fields);
   }, [fields]);
