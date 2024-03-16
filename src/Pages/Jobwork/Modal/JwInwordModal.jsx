@@ -425,7 +425,6 @@ export default function JwInwordModal({
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     const minNum = response.message;
     const { data } = response;
-
     if (response.success) {
       const pattern = /\[(.*?)\]/;
       let getMin;
