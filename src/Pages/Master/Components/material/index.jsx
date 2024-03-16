@@ -477,6 +477,7 @@ const Material = () => {
                             typeIs?.label === "Resistor" ||
                             typeIs?.label === "Capacitor"
                           }
+                          value={generatedCompName}
                         />
                       </Form.Item>
                     </Col>
