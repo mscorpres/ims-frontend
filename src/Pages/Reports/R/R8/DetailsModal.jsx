@@ -96,7 +96,7 @@ const columns = [
   },
 
   {
-    headerName: "UOM",
+    headerName: "UoM",
     field: "unit",
     width: 50,
   },

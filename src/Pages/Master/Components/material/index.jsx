@@ -467,7 +467,7 @@ const Material = () => {
                     </Col>
                     <Col span={6}>
                       <Form.Item
-                        label="UOM"
+                        label="UoM"
                         name="unit"
                         rules={headerRules.uom}
                       >

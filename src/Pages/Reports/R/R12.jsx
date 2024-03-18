@@ -41,7 +41,7 @@ const R12 = () => {
       headerName: "Component",
       width: 380,
     },
-    { field: "uom", headerName: "Uom", width: 100 },
+    { field: "uom", headerName: "UoM", width: 100 },
     { field: "bomqty", headerName: "Bom Qty", width: 200 },
     { field: "currentStock", headerName: "Available Qty", width: 200 },
     { field: "reqStock", headerName: "Req Qty", width: 220 },

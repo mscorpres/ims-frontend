@@ -30,7 +30,7 @@ function R16() {
     { field: "FROMLOCATION", headerName: "Out Location", width: 120 },
     { field: "TOLOCATION", headerName: "In Location", width: 120 },
     { field: "OUTQTY", headerName: "Qty", width: 90 },
-    { field: "UNIT", headerName: "UOM", width: 90 },
+    { field: "UNIT", headerName: "UoM", width: 90 },
     { field: "VENDORCODE", headerName: "Vendor", width: 90 },
     { field: "REQUESTEDBY", headerName: "Requested By", width: 120 },
     { field: "ISSUEBY", headerName: "Approved By", width: 130 },

@@ -370,7 +370,7 @@ const componentsItems = (
     ),
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     name: "unit",
     width: 100,
     field: (row, _, inputHandler, name) => <Input value={row[name]} disabled />,

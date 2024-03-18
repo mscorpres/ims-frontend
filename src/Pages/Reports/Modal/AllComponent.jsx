@@ -19,7 +19,7 @@ export default function AllComponent({
     { field: "fgtype", headerName: "FG Type", width: 100 },
     { field: "partcode", headerName: "Part Code", width: 150 },
     { field: "component", headerName: "Component", width: 420 },
-    { field: "unit", headerName: "UOM", width: 190 },
+    { field: "unit", headerName: "UoM", width: 190 },
     { field: "cons_qty", headerName: "Part Consumed", width: 230 },
     { field: "cons_loc", headerName: "Consume Location", width: 240 },
   ];

@@ -187,7 +187,7 @@ function ProductModal({ productModal, setProductModal, fetchProductData }) {
               />
             </Col>
             <Col span={6}>
-              <div>Uom</div>
+              <div>UoM</div>
               <Select
                 options={uom}
                 value={product?.uomid}

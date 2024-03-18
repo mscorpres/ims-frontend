@@ -33,7 +33,7 @@ const Uom = () => {
     e.preventDefault();
 
     if (!newUom.uom) {
-      toast.error("Please Add UOM");
+      toast.error("Please Add UoM");
     } else if (!newUom.description) {
       toast.error("Please Add Description");
     } else {
@@ -83,7 +83,7 @@ const Uom = () => {
                 <Input
                   size="large"
                   style={{ width: "100%" }}
-                  placeholder="Unit(UOM)"
+                  placeholder="Unit(UoM)"
                   value={newUom.uom}
                   onChange={(e) =>
                     setNewUom((newUom) => {

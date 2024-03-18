@@ -145,7 +145,7 @@ function ReportQC() {
     },
     { headerName: "In Qty", flex: 1, field: "min_qty" },
     { headerName: "Sample Qty", flex: 1, field: "smp_qty" },
-    { headerName: "UOM", flex: 1, field: "uom" },
+    { headerName: "UoM", flex: 1, field: "uom" },
     { headerName: "Approval Date", width: 150, field: "apv_dt" },
   ];
   return (

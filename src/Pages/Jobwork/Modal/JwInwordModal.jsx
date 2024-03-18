@@ -368,7 +368,7 @@ export default function JwInwordModal({
     },
     {
       field: "uom",
-      headerName: "Uom",
+      headerName: "UoM",
       width: 50,
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
