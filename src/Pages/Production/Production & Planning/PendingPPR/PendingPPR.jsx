@@ -177,7 +177,7 @@ const PendingPPR = () => {
       renderCell: ({ row }) => <ToolTipEllipses text={row.prod_insert_dt} />,
     },
     {
-      headerName: "Product Sku",
+      headerName: "Product SKU",
       width: 120,
       field: "prod_product_sku",
     },
@@ -233,7 +233,7 @@ const PendingPPR = () => {
       renderCell: ({ row }) => <ToolTipEllipses text={row.prod_insert_dt} />,
     },
     {
-      headerName: "Product Sku",
+      headerName: "Product SKU",
       width: 120,
       field: "prod_product_sku",
     },

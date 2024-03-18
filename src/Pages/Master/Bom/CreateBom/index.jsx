@@ -39,7 +39,7 @@ const CreateBom = () => {
         }
       }
     } catch (error) {
-      console.log("error while fetching sku details", error);
+      console.log("error while fetching SKU details", error);
     } finally {
       setLoading(false);
     }

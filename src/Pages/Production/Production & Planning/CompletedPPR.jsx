@@ -80,7 +80,7 @@ const CompletedPPR = () => {
     { headerName: "Customer", flex: 1, field: "prod_customer" },
     { headerName: "Create By", flex: 1, field: "prod_insert_by" },
     { headerName: "Req Data/Time", flex: 1, field: "prod_insert_dt" },
-    { headerName: "Product Sku", flex: 1, field: "prod_product_sku" },
+    { headerName: "Product SKU", flex: 1, field: "prod_product_sku" },
     { headerName: "Product Name", flex: 1, field: "prod_name" },
     { headerName: "Planned Qty", flex: 1, field: "prod_planned_qty" },
     { headerName: "Due Date", flex: 1, field: "prod_due_date" },
