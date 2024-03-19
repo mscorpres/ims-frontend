@@ -148,6 +148,7 @@ export default function MaterialInWithoutPO() {
       () => uploadMinInvoice(values.invoice),
       "submit"
     );
+    console.log("fileResponse-------", fileResponse);
     if (fileResponse.success) {
       fileName = fileResponse.data.data;
 
@@ -155,25 +156,31 @@ export default function MaterialInWithoutPO() {
         () => materialInWithoutPo(values, fileName),
         "submit"
       );
+      console.log("response-------", response);
       if (response.success) {
         const { data } = response.data;
-        setShowSuccessPage({
-          materialInId: data.txn,
-          vendor: { vendorname: values.vendorName.label },
-          components: values.components.map((row, index) => {
-            return {
-              id: index,
-              componentName: row.component.label,
-              inQuantity: row.qty,
-              invoiceNumber: row.invoiceId,
-              invoiceDate: row.invoiceDate,
-              location: row.location.label,
-            };
-          }),
-        });
-        form.resetFields();
-        vendorResetFunction();
-        materialResetFunction();
+        if (data.code === 200) {
+          setShowSuccessPage({
+            materialInId: data.txn,
+            vendor: { vendorname: values.vendorName.label },
+            components: values.components.map((row, index) => {
+              return {
+                id: index,
+                componentName: row.component.label,
+                inQuantity: row.qty,
+                invoiceNumber: row.invoiceId,
+                invoiceDate: row.invoiceDate,
+                location: row.location.label,
+              };
+            }),
+          });
+          form.resetFields();
+          vendorResetFunction();
+          materialResetFunction();
+        }
+        toast.error(response.data.message);
+      } else {
+        toast.error(response.data.message);
       }
     }
   };
