@@ -368,7 +368,7 @@ export default function JwInwordModal({
     },
     {
       field: "uom",
-      headerName: "Uom",
+      headerName: "UoM",
       width: 50,
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
@@ -425,7 +425,6 @@ export default function JwInwordModal({
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     const minNum = response.message;
     const { data } = response;
-
     if (response.success) {
       const pattern = /\[(.*?)\]/;
       let getMin;

@@ -302,7 +302,7 @@ const links = [
     },
   ],
   // UOM links
-  [{ routeName: "Uom", routePath: "/uom" }],
+  [{ routeName: "UoM", routePath: "/uom" }],
   // components links
   [
     { routeName: "Materials", routePath: "/material" },
@@ -436,7 +436,7 @@ const links = [
   ],
   // RM to REJ links
   [
-    { routeName: "Rm To Rej", routePath: "/re-to-rej" },
+    { routeName: "RM To REJ", routePath: "/re-to-rej" },
     {
       routeName: "View Transaction",
       routePath: "/trans-rej",

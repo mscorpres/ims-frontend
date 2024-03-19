@@ -264,7 +264,7 @@ const Material = () => {
       headerName: "Component",
       width: 350,
     },
-    { field: "units_name", headerName: "UOM", width: 100 },
+    { field: "units_name", headerName: "UoM", width: 100 },
   ];
 
   const column = [
@@ -390,7 +390,7 @@ const Material = () => {
                 <MySelect
                   style={{ width: "100%" }}
                   options={Uom}
-                  placeholder="Please select UOM"
+                  placeholder="Please select UoM"
                   value={material.unit.value}
                   onChange={(e) =>
                     setMaterial((material) => {

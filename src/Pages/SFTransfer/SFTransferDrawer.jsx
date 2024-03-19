@@ -344,7 +344,7 @@ function SFTransferDrawer({
       renderCell: ({ row }) => <p>{row.qty}</p>,
     },
     {
-      headerName: "UOM",
+      headerName: "UoM",
       field: "uom",
       sortable: false,
       flex: 1,

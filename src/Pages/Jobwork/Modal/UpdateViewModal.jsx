@@ -7,7 +7,7 @@ function UpdateViewModal({ viewModal, setViewModal, header, component, loadingUp
     { field: "index", headerName: "S No.", width: 100 },
     { field: "component_name", headerName: "Name", width: 480 },
     { field: "component_part", headerName: "Part", width: 140 },
-    { field: "component_uom", headerName: "Uom", width: 150 },
+    { field: "component_uom", headerName: "UoM", width: 150 },
     {
       field: "recipe_qty",
       headerName: "Recipe Qty",

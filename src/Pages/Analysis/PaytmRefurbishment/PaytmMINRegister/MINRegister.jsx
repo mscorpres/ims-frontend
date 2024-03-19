@@ -158,7 +158,7 @@ function MINRegister() {
       renderCell: ({ row }) => <ToolTipEllipses text={row.vname} />,
     },
     { headerName: "Qty", width: 120, field: "qty" },
-    { headerName: "UOM", width: 80, field: "uom" },
+    { headerName: "UoM", width: 80, field: "uom" },
     {
       headerName: "In Date",
       width: 150,

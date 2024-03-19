@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Result, Row } from "antd";
 import axios from "axios";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
@@ -16,6 +16,7 @@ export default function SuccessPage({
 }) {
   const [printLoading, setPringLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [rows, setRows] = useState([]);
   const printFun = async () => {
     setPringLoading(true);
 
@@ -26,7 +27,6 @@ export default function SuccessPage({
     printFunction(data.data.buffer.data);
   };
   const downloadExcel = async () => {
-    console.log("jere in ");
     downloadCSV(po.components, successColumns, `SFG Inward Report`);
   };
   const handleDownload = async () => {
@@ -39,6 +39,12 @@ export default function SuccessPage({
     let filename = `MIN ${po?.materialInId}`;
     downloadFunction(data.data.buffer.data, filename);
   };
+  useEffect(() => {
+    if (po?.components) {
+      setRows(po?.components);
+    }
+  }, [po?.components]);
+
   return (
     <div style={{ height: "50vh" }}>
       <Result
@@ -51,15 +57,15 @@ export default function SuccessPage({
         subTitle={
           title === "Sfg"
             ? `SFG Inward ${po?.materialInId}  (${
-                po.components.length
-              } component${po.components.length > 1 ? "s" : ""}) ${
+                po?.components?.length
+              } component${po?.components?.length > 1 ? "s" : ""}) ${
                 po?.poId ? `from  ${po?.poId}` : ""
               } from ${po?.vendor}`
             : `Material Inward ${po?.materialInId}  (${
-                po.components.length
-              } component${po.components.length > 1 ? "s" : ""}) ${
+                po?.components?.length
+              } component${po?.components?.length > 1 ? "s" : ""}) ${
                 po?.poId ? `from  ${po?.poId}` : ""
-              } from ${po?.vendor.vendorname}`
+              } from ${po?.vendor?.vendorname}`
         }
         extra={[
           <Row justify="center" gutter={16}>
@@ -82,7 +88,7 @@ export default function SuccessPage({
             </Col>
           </Row>,
           <Row style={{ marginTop: 15, height: "40vh" }}>
-            <MyDataTable data={po.components} columns={successColumns} />
+            <MyDataTable data={rows} columns={successColumns} />
           </Row>,
         ]}
       />

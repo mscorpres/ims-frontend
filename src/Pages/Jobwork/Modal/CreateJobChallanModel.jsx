@@ -215,7 +215,7 @@ function CreateJobChallanModel({ challanModal, setChallanModal }) {
     { field: "component_name", headerName: "Component/Part Code", width: 300 },
     {
       field: "issue_qty",
-      headerName: "Order Qty/UOM",
+      headerName: "Order Qty/UoM",
       width: 130,
       renderCell: ({ row }) => (
         <Input

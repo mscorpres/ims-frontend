@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Col, Row, Input, Typography } from "antd";
+import { Col, Row, Input, Typography, Card } from "antd";
 import MySelect from "../../../Components/MySelect";
 import NavFooter from "../../../Components/NavFooter";
 import { v4 } from "uuid";
@@ -15,7 +15,7 @@ const { TextArea } = Input;
 function MaterialTransfer({ type }) {
   // console.log(type)
   type == "sftorej"
-    ? (document.title = "SF to Rej")
+    ? (document.title = "SF to REJ")
     : (document.title = "SF to SF");
 
   const [allData, setAllData] = useState({
@@ -206,98 +206,102 @@ function MaterialTransfer({ type }) {
     <div style={{ height: "90vh" }}>
       <Row gutter={10} style={{ margin: "10px" }}>
         <Col span={6}>
-          <Row>
-            <Col span={24} style={{ padding: "5px" }}>
-              <span>PICK LOCATION</span>
-              <MySelect
-                options={locationData}
-                placeholder="Check Location"
-                value={allData.locationSel}
-                onChange={(e) =>
-                  setAllData((allData) => {
-                    return { ...allData, locationSel: e };
-                  })
-                }
-              />
-            </Col>
-            <Col span={24} style={{ padding: "5px" }}>
-              <TextArea disabled value={locDetail} />
-            </Col>
-            <Col span={24} style={{ padding: "5px" }}>
-              <TextArea
-                value={allData.detail}
-                placeholder="Add Description"
-                onChange={(e) =>
-                  setAllData((allData) => {
-                    return { ...allData, detail: e.target.value };
-                  })
-                }
-              />
-            </Col>
-          </Row>
+          <Card>
+            <Row>
+              <Col span={24} style={{ padding: "5px" }}>
+                <span>PICK LOCATION</span>
+                <MySelect
+                  options={locationData}
+                  placeholder="Check Location"
+                  value={allData.locationSel}
+                  onChange={(e) =>
+                    setAllData((allData) => {
+                      return { ...allData, locationSel: e };
+                    })
+                  }
+                />
+              </Col>
+              <Col span={24} style={{ padding: "5px" }}>
+                <TextArea disabled value={locDetail} />
+              </Col>
+              <Col span={24} style={{ padding: "5px" }}>
+                <TextArea
+                  value={allData.detail}
+                  placeholder="Add Description"
+                  onChange={(e) =>
+                    setAllData((allData) => {
+                      return { ...allData, detail: e.target.value };
+                    })
+                  }
+                />
+              </Col>
+            </Row>
+          </Card>
         </Col>
-        <Col span={18} style={{ border: "0.3px solid grey", height: "50vh" }}>
-          <table className="table table-hover">
-            <thead style={{ backgroundColor: "grey", color: "white" }}>
-              <tr>
-                <th style={{ width: "8vw" }}>Component/Part</th>
-                <th style={{ width: "4vw" }}>In Stock Qty</th>
-                <th style={{ width: "3vw" }}>Transfer Qty</th>
-                <th style={{ width: "3vw" }}>DROP (+) Loc</th>
-                <th style={{ width: "10vw" }}>Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ width: "8vw" }}>
-                  <MyAsyncSelect
-                    loadOptions={getComponent}
-                    optionsState={asyncOptions}
-                    value={allData.componentName}
-                    selectLoading={loading1("select")}
-                    onChange={(e) =>
-                      setAllData((allData) => {
-                        return { ...allData, componentName: e };
-                      })
-                    }
-                  />
-                </td>
-                <td style={{ textAlign: "center" }}>
-                  <paragraph>
-                    {restDetail?.available_qty
-                      ? `${restDetail?.available_qty} ${restDetail?.unit}`
-                      : "0"}
-                  </paragraph>
-                </td>
-                <td>
-                  <Input
-                    value={allData.qty}
-                    onChange={(e) =>
-                      setAllData((allData) => {
-                        return { ...allData, qty: e.target.value };
-                      })
-                    }
-                    // suffix={restDetail?.available_qty ? `${restDetail?.available_qty} ${restDetail?.unit}` : "0"}
-                  />
-                </td>
-                <td>
-                  <MySelect
-                    options={locRejDetail}
-                    placeholder="Check Location"
-                    value={allData.rejLoc}
-                    onChange={(e) =>
-                      setAllData((allData) => {
-                        return { ...allData, rejLoc: e };
-                      })
-                    }
-                  />
-                </td>
-                <td>
-                  <TextArea disabled value={address} />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <Col span={18} style={{ height: "50vh" }}>
+          <Card style={{ height: "100%" }}>
+            <table className="table table-hover">
+              <thead style={{ backgroundColor: "grey", color: "white" }}>
+                <tr>
+                  <th style={{ width: "8vw" }}>Component/Part</th>
+                  <th style={{ width: "4vw" }}>In Stock Qty</th>
+                  <th style={{ width: "3vw" }}>Transfer Qty</th>
+                  <th style={{ width: "3vw" }}>DROP (+) Loc</th>
+                  <th style={{ width: "10vw" }}>Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ width: "8vw" }}>
+                    <MyAsyncSelect
+                      loadOptions={getComponent}
+                      optionsState={asyncOptions}
+                      value={allData.componentName}
+                      selectLoading={loading1("select")}
+                      onChange={(e) =>
+                        setAllData((allData) => {
+                          return { ...allData, componentName: e };
+                        })
+                      }
+                    />
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <paragraph>
+                      {restDetail?.available_qty
+                        ? `${restDetail?.available_qty} ${restDetail?.unit}`
+                        : "0"}
+                    </paragraph>
+                  </td>
+                  <td>
+                    <Input
+                      value={allData.qty}
+                      onChange={(e) =>
+                        setAllData((allData) => {
+                          return { ...allData, qty: e.target.value };
+                        })
+                      }
+                      // suffix={restDetail?.available_qty ? `${restDetail?.available_qty} ${restDetail?.unit}` : "0"}
+                    />
+                  </td>
+                  <td>
+                    <MySelect
+                      options={locRejDetail}
+                      placeholder="Check Location"
+                      value={allData.rejLoc}
+                      onChange={(e) =>
+                        setAllData((allData) => {
+                          return { ...allData, rejLoc: e };
+                        })
+                      }
+                    />
+                  </td>
+                  <td>
+                    <TextArea disabled value={address} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </Card>
         </Col>
       </Row>
       <NavFooter

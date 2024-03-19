@@ -175,7 +175,7 @@ function ProductModal({ productModal, setProductModal, fetchProductData }) {
               </div>
             </Col>
             <Col span={6}>
-              <div>Sku</div>
+              <div>SKU</div>
               <Input value={product?.sku} style={{ width: "100%" }} disabled />
             </Col>
             <Col span={6}>
@@ -187,7 +187,7 @@ function ProductModal({ productModal, setProductModal, fetchProductData }) {
               />
             </Col>
             <Col span={6}>
-              <div>Uom</div>
+              <div>UoM</div>
               <Select
                 options={uom}
                 value={product?.uomid}

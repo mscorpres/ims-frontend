@@ -568,7 +568,7 @@ const listRules = {
   hsn: [
     {
       required: true,
-      message: "Please enter a hsn code!",
+      message: "Please enter a HSN code!",
     },
   ],
   location: [

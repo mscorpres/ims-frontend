@@ -82,7 +82,7 @@ function ReverseMin() {
     },
     {
       field: "uom",
-      headerName: "UOM",
+      headerName: "UoM",
       width: 90,
     },
     {

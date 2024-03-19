@@ -163,7 +163,7 @@ export default function MaterialUpdate({
     // console.log(allUpdateData?.uomname);
     // console.log(allUpdateData?.uomid);
     if (!allUpdateData.uomname) {
-      toast.error("Please Select UOM");
+      toast.error("Please Select UoM");
     } else {
       setLoading("submit");
 
@@ -282,7 +282,7 @@ export default function MaterialUpdate({
         </Col>
         <Col span={6}>
           {/* {console.log(allUpdateData)} */}
-          <div>Uom</div>
+          <div>UoM</div>
           <Select
             options={uom}
             value={allUpdateData?.uomid}

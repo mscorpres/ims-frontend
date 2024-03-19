@@ -430,7 +430,7 @@ const columns = [
     ),
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     width: 80,
     field: "unit",
   },

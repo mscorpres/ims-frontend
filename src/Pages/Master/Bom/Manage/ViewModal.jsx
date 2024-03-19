@@ -100,7 +100,7 @@ const columns = [
     field: "qty",
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     width: 80,
     field: "uom",
   },

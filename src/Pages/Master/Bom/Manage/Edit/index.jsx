@@ -104,6 +104,7 @@ const EditModal = ({ show, close, bomType }) => {
           );
         }
         toast.success(data.message);
+        getDetails(show.id);
       } else {
         toast.error(data.message.msg);
       }

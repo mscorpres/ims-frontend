@@ -128,7 +128,7 @@ const columns = [
     flex: 1,
   },
   {
-    headerName: "UOM",
+    headerName: "UoM",
     field: "unit",
     width: 50,
   },

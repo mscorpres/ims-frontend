@@ -31,7 +31,7 @@ function ViewTransaction() {
     { name: "Out Location", selector: (row) => row.out_location },
     { name: "In Location", selector: (row) => row.in_location },
     { name: "Qty", selector: (row) => row.qty },
-    { name: "UOM", selector: (row) => row.uom },
+    { name: "UoM", selector: (row) => row.uom },
     { name: "Txd In", selector: (row) => row.transaction },
     { name: "Shiffed By", selector: (row) => row.date },
   ];

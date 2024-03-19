@@ -230,7 +230,7 @@ function PendingQC() {
       renderCell: ({ row }) => <ToolTipEllipses text={row.samQty} />,
     },
     {
-      headerName: "UOM.",
+      headerName: "UoM",
       width: 120,
       field: "unit",
       renderCell: ({ row }) => <ToolTipEllipses text={row.unit} />,

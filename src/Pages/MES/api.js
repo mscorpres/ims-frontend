@@ -100,7 +100,7 @@ const getSkuSfgOptions = async (sku) => {
     }
   } catch (error) {
     console.log(
-      "some error occured while fetching sfg product sku options",
+      "some error occured while fetching sfg product SKU options",
       error
     );
     return apiResponse([], "", false, true, false);
