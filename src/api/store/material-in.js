@@ -29,7 +29,7 @@ export const materialInWithoutPo = async (values, fileName) => {
   const payload = {
     attachment: fileName ?? "",
     vendor: values.vendorName.value ?? "--",
-    vendorbranch: values.vendorBranch.length ?? "--",
+    vendorbranch: values.vendorBranch ?? "--",
     address: values.vendorAddress,
     vendortype: values.vendorType,
     ewaybill: values.ewaybill ?? "--",
