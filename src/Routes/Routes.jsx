@@ -239,6 +239,7 @@ import R32 from "../Pages/Reports/R/R32";
 import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
+import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
 
 const Routes = [
   {
@@ -252,6 +253,10 @@ const Routes = [
   {
     path: "/",
     main: () => <Dashboard />,
+  },
+  {
+    path: "/dashboardProcurement",
+    main: () => <ProcurementDashboard />,
   },
   {
     path: "/material",

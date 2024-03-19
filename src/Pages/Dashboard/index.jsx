@@ -189,7 +189,7 @@ const Dashboard = () => {
             setGatePassSummary([
               {
                 title: "Gatepass",
-                
+
                 value: data.data.totalGatePass,
               },
               {

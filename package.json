@@ -28,6 +28,7 @@
     "better-xlsx": "^0.7.6",
     "buffer": "^6.0.3",
     "caniuse-lite": "^1.0.30001585",
+    "chart.js": "^4.4.2",
     "convert-array-to-csv": "^2.0.0",
     "dayjs": "^1.11.7",
     "exceljs": "^4.4.0",
