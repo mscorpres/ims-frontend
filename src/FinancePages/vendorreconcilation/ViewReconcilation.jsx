@@ -187,7 +187,7 @@ const columns = [
   {
     headerName: "Period",
     field: "period",
-    minWidth: 100,
+    minWidth: 150,
   },
 
   {

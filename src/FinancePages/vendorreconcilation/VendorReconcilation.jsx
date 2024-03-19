@@ -316,7 +316,6 @@ const VendorReconcilation = () => {
   useEffect(() => {
     if (paramsVendorCode) {
       setShowFilters(false);
-      console.log("calling fetchin gledger rport", paramsVendorCode);
       filterForm.setFieldValue("vendor", {
         label: paramsVendor,
         text: paramsVendor,
@@ -557,12 +556,12 @@ const VendorCard = ({
   const adjustedVendorBalance = vendorInputClosing + vendorManualTotal;
   const arr1 = [
     {
-      type: vendorDetailsClosing > 0 ? "Dr Closing" : "Cr Closing",
+      type: vendorDetailsClosing >= 0 ? "Dr Closing" : "Cr Closing",
       particulars: "Balance as per Oakter (Riot Labz) books",
       amount: vendorDetailsClosing,
     },
     {
-      type: vendorInputClosing > 0 ? "Dr Closing" : "Cr Closing",
+      type: vendorInputClosing >= 0 ? "Dr Closing" : "Cr Closing",
       particulars: `Balance as per ${vendor?.label} books`,
       amount: vendorInputClosing,
     },
@@ -968,11 +967,9 @@ const ButtonsCard = ({
           disabled={!selectedVendor}
           onClick={toggleShowRequestLedgerModal}
         >
-          Ledgers
+          Mails
         </Button>
-        <Button onClick={() => handleSaveToDraft("draft")}>
-          Save to Draft
-        </Button>
+        <Button onClick={() => handleSaveToDraft("draft")}>Save</Button>
         <Button onClick={() => handleSaveToDraft("completed")}>
           Complete Reco
         </Button>
@@ -1238,12 +1235,12 @@ const handleDownload = (payload) => {
       origin: "A3",
     }
   );
-  // perios details
+  // period details
   xlsx.utils.sheet_add_json(
     ws,
     [
       {
-        A5: "Periods",
+        A5: "Period",
         B5: payload.date,
       },
     ],
