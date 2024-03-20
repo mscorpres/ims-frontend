@@ -1030,6 +1030,14 @@ const links = [
       routeName: "Sales Order Register",
       routePath: "/sales/order/register",
     },
+    {
+      routeName: "Shipment",
+      routePath: "/sales/order/shipments",
+    },
+    {
+      routeName: "Challan",
+      routePath: "/sales/order/challan",
+    },
   ],
   // mes links
   [
