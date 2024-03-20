@@ -1107,14 +1107,14 @@ const links = [
     },
   ],
   [
-    // {
-    //   routeName: "All Pages",
-    //   routePath: "/controlPanel/allPages",
-    // },
-    // {
-    //   routeName: "All Users",
-    //   routePath: "/controlPanel/allUsers",
-    // },
+    {
+      routeName: "All Pages",
+    routePath: "/controlPanel/allPages",
+    },
+    {
+      routeName: "All Users",
+    routePath: "/controlPanel/allUsers",
+    },
     ///
     {
       routeName: "Registered Users",
