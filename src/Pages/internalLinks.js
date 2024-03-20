@@ -1,6 +1,7 @@
 import routeConstants from "../Routes/routeConstants";
 
 const links = [
+  // purchase order links
   [
     {
       routeName: "Home",
@@ -13,7 +14,6 @@ const links = [
       key: 0,
     },
   ],
-  // purchase order links
   [
     {
       routeName: "Create PO",
@@ -764,6 +764,13 @@ const links = [
 
       placeholder: "Vendor RM Consumption Report",
     },
+
+    {
+      routeName: "R32",
+      routePath: "/r32",
+
+      placeholder: "Cost Center Transaction Report",
+    },
   ],
   // MIN label links
 
@@ -1030,6 +1037,14 @@ const links = [
       routeName: "Sales Order Register",
       routePath: "/sales/order/register",
     },
+    {
+      routeName: "Shipment",
+      routePath: "/sales/order/shipments",
+    },
+    {
+      routeName: "Challan",
+      routePath: "/sales/order/challan",
+    },
   ],
   // mes links
   [
@@ -1094,11 +1109,11 @@ const links = [
   [
     {
       routeName: "All Pages",
-      routePath: "/controlPanel/allPages",
+    routePath: "/controlPanel/allPages",
     },
     {
       routeName: "All Users",
-      routePath: "/controlPanel/allUsers",
+    routePath: "/controlPanel/allUsers",
     },
     ///
     {
