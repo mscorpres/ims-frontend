@@ -165,39 +165,42 @@ export default function LedgerReport() {
       field: "creditAmount",
     },
   ];
-  const downloadFun = () => {
+  const downloadFun = async () => {
+    console.log("this are the rows", summary);
+
+    const values = await filterForm.validateFields();
     let csvData = rows.map((row, index) => {
       return {
-        "Ref Date": row.ref_date,
-        Refrence: row.ref,
-        "Invoice Date": row.invoice_date,
-        "Invoice No.": row.invoice_no,
-        "Voucher Type.": row.which_module,
-        "Voucher Number": row.module_used,
-        "Debit.": row.debit.replaceAll(",", ""),
-        Credit: row.credit.replaceAll(",", ""),
+        "Ref Date": row.referenceDate,
+        Refrence: row.reference,
+        "Invoice Date": row.invoiceDate,
+        "Invoice No.": row.invoiceNumber,
+        "Voucher Type.": row.whichModule,
+        "Voucher Number": row.moduleUsed,
+        "Debit.": row.debitAmount.replaceAll(",", ""),
+        Credit: row.creditAmount.replaceAll(",", ""),
       };
     });
     csvData = [
       ...csvData,
       {
         title: "Ledger: ",
-        Ledger: searchLedger.label,
+        Ledger: values.vendor.label,
         datetitle: "Date Range",
-        Date: searchDateRange,
+        Date: values.date,
       },
       {
         Opening: "Opening: " + summary?.opening.replaceAll(",", ""),
         "Current Total Debit":
-          "Current Total Debit: " + summary?.total_debit.replaceAll(",", ""),
+          "Current Total Debit: " + summary?.debitTotal.replaceAll(",", ""),
         "Current Total Credit":
-          "Current Total Credit: " + summary?.total_credit.replaceAll(",", ""),
+          "Current Total Credit: " + summary?.creditTotal.replaceAll(",", ""),
         Closing: "Closing: " + summary?.closing.replaceAll(",", ""),
       },
     ];
     downloadCSVCustomColumns(
       csvData,
-      `Ledger Report ${searchLedger.label} ${searchDateRange}`
+      `Ledger Report ${values.vendor.label} ${values.date}`
     );
   };
   useEffect(() => {
@@ -233,7 +236,7 @@ export default function LedgerReport() {
               </Form.Item>
               <Row justify="end">
                 <Space>
-                  <CommonIcons action="downloadButton" />
+                  <CommonIcons onClick={downloadFun} action="downloadButton" />
                   <MyButton
                     loading={loading1("fetch")}
                     variant="search"
