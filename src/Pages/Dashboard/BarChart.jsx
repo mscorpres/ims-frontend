@@ -43,7 +43,7 @@ const BarChart = ({ data }) => {
   }, [data]);
 
   return (
-    <Card title="Top Items" size={small}>
+    <Card title="Top Items" size="small">
         <canvas ref={chartRef} width="400" height="300"></canvas>
     </Card>
   );
