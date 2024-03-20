@@ -43,12 +43,8 @@ const BarChart = ({ data }) => {
   }, [data]);
 
   return (
-    <Card style={{ width: "450px", height: "350px" }}>
-      {" "}
-      <Typography.Text>Top Items</Typography.Text>
-      <div style={{ width: "420px", height: "300px" }}>
+    <Card title="Top Items" size="small">
         <canvas ref={chartRef} width="400" height="300"></canvas>
-      </div>
     </Card>
   );
 };
