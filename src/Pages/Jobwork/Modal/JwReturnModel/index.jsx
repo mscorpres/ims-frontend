@@ -16,6 +16,7 @@ const JwReturnModel = ({ show, close }) => {
   const [totalValue, setTotalValue] = useState(0);
   const [rows, setRows] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
+  const [autoConsOptions, setAutoConsumptionOption] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
 
   const [form] = Form.useForm();
@@ -36,6 +37,21 @@ const JwReturnModel = ({ show, close }) => {
       console.log("some error while fetching locations", error);
     } finally {
       setLoading("fetch", false);
+    }
+  };
+  const getAutoComnsumptionOptions = async () => {
+    // setPageLoading(true);
+    let { data } = await imsAxios.get("/transaction/fetchAutoConsumpLocation");
+    // setPageLoading(false);
+    if (data.code == 200) {
+      let arr = data.data.map((row) => {
+        return {
+          value: row.id,
+          text: row.text,
+        };
+      });
+      arr = [{ text: "NO", value: 0 }, ...arr];
+      setAutoConsumptionOption(arr);
     }
   };
   const getData = async (sku, transaction) => {
@@ -87,17 +103,20 @@ const JwReturnModel = ({ show, close }) => {
   };
   const validateHandler = async () => {
     const values = await form.validateFields();
+    console.log("selectedRows", selectedRows);
     const finalObj = {
       trans_id: show.transaction,
       component: selectedRows.map((row) => row.component.value),
       qty: selectedRows.map((row) => row.qty),
-      location: selectedRows.map((row) => row.location?.value ?? "--"),
+      in_location: selectedRows.map((row) => row.location?.value ?? "--"),
+      out_location: selectedRows.map((row) => row.autoCons?.value ?? "--"),
       rate: selectedRows.map((row) => row.rate),
       invoice: selectedRows.map((row) => row.invoiceId ?? ""),
       remark: selectedRows.map((row) => row.remark ?? "--"),
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
     };
+    // return;
 
     Modal.confirm({
       title: "Are you sure you want to submit?",
@@ -112,9 +131,12 @@ const JwReturnModel = ({ show, close }) => {
   const submitHandler = async (values) => {
     try {
       setLoading("submit", true);
-      const { data } = await imsAxios.post("/jobwork/saveJwRmReturn", values);
-      if (data.code === 200) {
-        toast.success(data.message);
+      const response = await imsAxios.post("/jobwork/saveJwRmReturn", values);
+      console.log("response", response);
+      let { data } = response;
+      if (response.success) {
+        // console.log("data.message", data.message.msg);
+        toast.success(response.message.msg);
         close();
       }
     } catch (error) {
@@ -133,6 +155,7 @@ const JwReturnModel = ({ show, close }) => {
   useEffect(() => {
     if (show) {
       getData(show.sku, show.transaction);
+      getAutoComnsumptionOptions();
       getLocationOptions();
     }
   }, [show]);
@@ -185,6 +208,8 @@ const JwReturnModel = ({ show, close }) => {
             <Components
               form={form}
               locationOptions={locationOptions}
+              autoConsOptions={autoConsOptions}
+              setAutoConsumptionOption={setAutoConsumptionOption}
               formRules={formRules}
               rows={rows}
               setRows={setRows}
