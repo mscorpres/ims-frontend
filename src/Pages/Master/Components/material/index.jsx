@@ -453,8 +453,7 @@ const Material = () => {
                   initialValues={headerInitialValues}
                   layout="vertical"
                 >
-                  <Row gutter={6}>
-                    {/* <Col span={12}>
+                  {/* <Col span={12}>
                       <Form.Item
                         label="Category"
                         name="category"
@@ -463,7 +462,7 @@ const Material = () => {
                         <MySelect options={categoryOptions} />
                       </Form.Item>
                     </Col> */}
-
+                  <Row gutter={6}>
                     <Col span={12}>
                       <Form.Item
                         label="Type"
