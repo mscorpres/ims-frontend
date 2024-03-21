@@ -752,6 +752,12 @@ const links = [
 
       placeholder: "Vendor RM Consumption Report",
     },
+    {
+      routeName: "R32",
+      routePath: "/r32",
+
+      placeholder: "Cost Center Transaction Report",
+    },
   ],
   // MIN label links
 

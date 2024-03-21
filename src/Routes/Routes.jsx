@@ -235,6 +235,7 @@ import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser"
 import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
+import R32 from "../Pages/Reports/R/R32";
 const Routes = [
   {
     path: "/login",
@@ -663,6 +664,11 @@ const Routes = [
     path: "/r31",
 
     main: () => <R31 />,
+  },
+  {
+    path: "/r32",
+
+    main: () => <R32 />,
   },
   {
     path: "/reqWithBom",
