@@ -44,7 +44,7 @@ const Material = () => {
   const [hsnRows, setHsnRows] = useState([]);
   const [attributeValues, setAttributeValues] = useState(null);
   const [uniqueId, setUniqueId] = useState(null);
-  const [generatedCompName, setGeneratedCompName] = useState("");
+  const [generatedCompName, setGeneratedCompName] = useState(null);
   const [manfCode, setManfCode] = useState(null);
   const [typeOfComp, setTypeOfComp] = useState("");
   const [valFromName, setValForName] = useState("");
@@ -424,6 +424,15 @@ const Material = () => {
     }
   }, [selectedCategory]);
   const typeIs = headerForm.getFieldValue("attrCategory");
+
+  // console.log("generatedCompName", generatedCompName);
+  useEffect(() => {
+    if (generatedCompName) {
+      setGeneratedCompName(generatedCompName);
+      headerForm.setFieldValue("componentname", generatedCompName);
+    }
+  }, [generatedCompName]);
+
   return (
     <div style={{ height: "90%" }}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
@@ -445,7 +454,7 @@ const Material = () => {
                   layout="vertical"
                 >
                   <Row gutter={6}>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                       <Form.Item
                         label="Category"
                         name="category"
@@ -453,7 +462,7 @@ const Material = () => {
                       >
                         <MySelect options={categoryOptions} />
                       </Form.Item>
-                    </Col>
+                    </Col> */}
 
                     <Col span={12}>
                       <Form.Item
@@ -478,11 +487,11 @@ const Material = () => {
                             typeIs?.label === "Resistor" ||
                             typeIs?.label === "Capacitor"
                           }
-                          value={generatedCompName}
+                          // value={generatedCompName}
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={8}>
                       <Form.Item
                         rules={headerRules.newPart}
                         label="Cat Part Code"
@@ -491,7 +500,7 @@ const Material = () => {
                         <Input />
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={8}>
                       <Form.Item
                         rules={headerRules.partCode}
                         label="Part Code"
@@ -500,7 +509,7 @@ const Material = () => {
                         <Input />
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    <Col span={8}>
                       <Form.Item
                         label="UoM"
                         name="unit"
@@ -509,7 +518,7 @@ const Material = () => {
                         <MySelect options={uomOptions} />
                       </Form.Item>
                     </Col>
-                    <Col span={18}>
+                    <Col span={10}>
                       <Form.Item
                         label="Group"
                         name="group"
@@ -520,7 +529,7 @@ const Material = () => {
                     </Col>
 
                     {uniqueId && (
-                      <Col span={24}>
+                      <Col span={14}>
                         <Row justify="end">
                           <Space>
                             <Typography.Text strong type="secondary">
@@ -924,7 +933,7 @@ const CategoryModal = ({
         "-" +
         "Capacitor";
 
-      // console.log("compName", compCode);
+      console.log("compName", compCode);
       setGeneratedCompName(compName);
 
       let filledFields =
@@ -960,7 +969,7 @@ const CategoryModal = ({
         "-" +
         "Resistor";
 
-      // console.log("compName", compCode);
+      console.log("compName", compCode);
       setGeneratedCompName(compName);
       headerForm.setFieldValue("componentname", compName);
 
@@ -1125,15 +1134,14 @@ const CategoryModal = ({
       form.resetFields();
       form.setFieldValue("componentname", "");
       headerForm.setFieldValue("componentname", "");
-      setUniqueId("");
-      setGeneratedCompName("");
+      setUniqueId(null);
+      setGeneratedCompName(null);
     } else if (selectedCategory?.value === "348423984423") {
     }
   }, [typeOfComp]);
   useEffect(() => {
     getieldSelectOptions(fields);
   }, [fields]);
-
   return (
     <Modal
       title="Assign Attributes"
