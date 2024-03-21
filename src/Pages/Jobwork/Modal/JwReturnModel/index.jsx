@@ -221,6 +221,7 @@ const JwReturnModel = ({ show, close }) => {
       </Form>
       <NavFooter
         submitFunction={validateHandler}
+        nextDisabled={selectedRows.length === 0}
         nextLabel="Submit"
         backLabel="Back"
         loading={loading("submit")}

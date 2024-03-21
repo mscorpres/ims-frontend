@@ -88,7 +88,7 @@ const Components = ({
                   <Col span={2}>
                     <Typography.Text strong>Part Code</Typography.Text>
                   </Col>
-                  <Col span={2}>
+                  <Col span={1}>
                     <Typography.Text strong>Qty</Typography.Text>
                   </Col>
                   <Col span={1}>
