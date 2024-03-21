@@ -29,6 +29,7 @@ import {
   getComponentOptions,
   getProductsOptions,
 } from "../../../../api/general";
+import { convertSelectOptions } from "../../../../utils/general";
 export default function AddComponents({
   rowCount,
   setRowCount,
@@ -52,7 +53,7 @@ export default function AddComponents({
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const newdata = form.getFieldsValue();
-
+  
   const { executeFun, loading } = useApi();
   const addRows = () => {
     const newRow = {
@@ -322,7 +323,7 @@ export default function AddComponents({
           "/purchaseOrder/getComponentDetailsByCode",
           {
             component_code: value.value,
-            vencode: newdata.client.value,
+            vencode: newdata.client?.value,
             project: newdata.project_name.value ?? newdata.project_name,
           }
         );
@@ -410,8 +411,12 @@ export default function AddComponents({
         () => getProductsOptions(searchInput),
         "select"
       );
-      let { data } = response;
-      setAsyncOptions(data);
+      if (response.success) {
+        let arr = convertSelectOptions(response.data);
+        setAsyncOptions(arr);
+      } else {
+        setAsyncOptions([]);
+      }
     } else {
       const response = await executeFun(
         () => getComponentOptions(searchInput),
@@ -419,7 +424,8 @@ export default function AddComponents({
       );
 
       if (response.success) {
-        setAsyncOptions(response.data);
+        let arr = convertSelectOptions(response.data);
+        setAsyncOptions(arr);
       } else {
         setAsyncOptions([]);
       }
@@ -500,7 +506,7 @@ export default function AddComponents({
       },
     ];
     setTotalValues(obj);
-  }, [rowCount]);
+  }, [rowCount, rowCount.qty]);
   //getting currencies on page load
   const getCurrencies = async () => {
     const { data } = await imsAxios.get("/backend/fetchAllCurrecy");

@@ -42,6 +42,7 @@ import {
   getOrderDetails,
   updateOrder,
 } from "../../../api/sales/salesOrder";
+import { toast } from "react-toastify";
 
 const SalesOrderForm = () => {
   const [successData, setSuccessData] = useState(false);
@@ -92,7 +93,9 @@ const SalesOrderForm = () => {
   const clientbranch = Form.useWatch("clientbranch", form);
   const billaddressid = Form.useWatch("billaddressid", form);
   const shipaddressid = Form.useWatch("shipaddressid", form);
+  const fetchQty = form.getFieldValue("qty");
 
+  // console.log("fetchQty", fetchQty, shipaddressid);
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
 
@@ -351,15 +354,25 @@ const SalesOrderForm = () => {
       }
     } else {
       const response = await executeFun(() => createOrder(payload), "submit");
+      // console.log("response", response);
       if (response.success) {
         setActiveTab("1");
         form.resetFields();
+        // newdata.resetFields();
+        setSelectLoading(false);
         setSelectLoading(false);
         setConfirmSubmit(false);
+        toast.success(response.message.msg);
+      } else {
+        // console.log("response.data", response.data);
+        toast.error(response.data.message);
+        setConfirmSubmit(false);
+
+        setSelectLoading(false);
       }
-      setConfirmSubmit(false);
     }
     setSelectLoading(false);
+    setConfirmSubmit(false);
   };
 
   const setNewPO = () => {
@@ -629,12 +642,17 @@ const SalesOrderForm = () => {
                         </Col>
                         {/* quotations */}
                         <Col span={6}>
-                          <Form.Item name="quotationdetail" label="Quotation">
-                            <Input
-                              size="default"
-                              name="quotationdetail"
-                              rules={rules.quotationdetails}
-                            />
+                          <Form.Item
+                            name="quotationdetail"
+                            label="Quotation"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please provide a quotationdetail!",
+                              },
+                            ]}
+                          >
+                            <Input size="default" name="quotationdetail" />
                           </Form.Item>
                         </Col>
                         {/* payment terms */}
@@ -983,7 +1001,7 @@ const rules = {
       message: "Please provide a Due Date!",
     },
   ],
-  quotationdetails: [
+  quotation: [
     {
       required: true,
       message: "Please provide a quotationdetail!",
