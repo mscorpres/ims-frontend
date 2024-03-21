@@ -200,7 +200,7 @@ const Login = () => {
             <Row justify="center" style={{ marginTop: "80%" }}>
               <Col offset={1}>
                 <Text>
-                  IMS from 2019 - 2022. All Rights reserved | Performance &
+                  IMS from 2019 - 2024. All Rights reserved | Performance &
                   security by
                   <Link
                     style={{ marginLeft: 5 }}
@@ -348,7 +348,7 @@ const Login = () => {
                     }}
                     level={4}
                   >
-                    Secure Login To IMS
+                    Register To IMS
                   </Title>
                   <Form
                     name="basic"

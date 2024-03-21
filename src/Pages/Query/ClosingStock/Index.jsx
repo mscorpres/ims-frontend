@@ -1,5 +1,5 @@
 import { Button, Col, DatePicker, Row, Space } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import useApi from "../../../hooks/useApi";
 import MyDatePicker from "../../../Components/MyDatePicker";
@@ -7,6 +7,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { getClosingStockForQuery6 } from "../../../api/general";
+import { toast } from "react-toastify";
 
 function Index() {
   const [searchInput, setSearchInput] = useState("");
@@ -38,6 +39,10 @@ function Index() {
       setRows(arr);
     }
   };
+  useEffect(() => {
+    toast.info("Under development");
+  }, []);
+
   return (
     <div style={{ height: "90%" }}>
       <Row justify="space-between" style={{ padding: 5, paddingTop: 0 }}>
