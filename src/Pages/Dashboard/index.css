@@ -16,3 +16,13 @@
   align-items: center;
   font-size: 20px;
 }
+.tcircle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 6px solid rgb(81, 125, 208);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}

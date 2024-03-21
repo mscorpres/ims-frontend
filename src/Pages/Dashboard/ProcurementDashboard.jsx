@@ -9,6 +9,7 @@ import PieChart from "./PieChart";
 import "./index.css";
 import CircleNumber from "./CircleNumber";
 import { width } from "@mui/system";
+import { Timeline } from "@mui/icons-material";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [transactionSummary, setTransactionSummary] = useState([
@@ -206,6 +207,9 @@ function ProcurementDashboard() {
                 <CircleNumber value={12} heading={"Total Vendors"} />
               </Col>
             </Row>
+          </Card>
+          <Card>
+            <Timeline />
           </Card>
         </Row>
         <Row style={{ marginTop: "2em" }}>
