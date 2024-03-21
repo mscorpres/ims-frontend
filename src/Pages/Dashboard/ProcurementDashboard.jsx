@@ -8,6 +8,7 @@ import LineChart from "./LineChart";
 import PieChart from "./PieChart";
 import "./index.css";
 import CircleNumber from "./CircleNumber";
+import { width } from "@mui/system";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [transactionSummary, setTransactionSummary] = useState([
@@ -211,7 +212,9 @@ function ProcurementDashboard() {
           <Col span={24}>
             <Row gutter={[2, 2]}>
               <Col span={10} style={{ height: "10vh" }}>
-                <BarChart data={chartData} />
+                <div style={{ height: "22rem", width: " 27rem" }}>
+                  <BarChart data={chartData} />
+                </div>
               </Col>
               <Col
                 span={10}
