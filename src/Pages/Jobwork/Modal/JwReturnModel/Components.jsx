@@ -23,6 +23,8 @@ const Components = ({
   setRows,
   selectedRows,
   setSelectedRows,
+  autoConsOptions,
+  setAutoConsumptionOption,
 }) => {
   const addComponent = async () => {
     const values = await form.validateFields();
@@ -65,6 +67,7 @@ const Components = ({
             rows={rows}
             form={form}
             locationOptions={locationOptions}
+            autoConsOptions={autoConsOptions}
           />
         </Form>
       </Card>
@@ -79,7 +82,7 @@ const Components = ({
               <Col span={24}>
                 <Row>
                   <Col span={1}></Col>
-                  <Col span={4}>
+                  <Col span={3}>
                     <Typography.Text strong>Component</Typography.Text>
                   </Col>
                   <Col span={2}>
@@ -88,7 +91,7 @@ const Components = ({
                   <Col span={2}>
                     <Typography.Text strong>Qty</Typography.Text>
                   </Col>
-                  <Col span={2}>
+                  <Col span={1}>
                     <Typography.Text strong>Rate</Typography.Text>
                   </Col>
                   <Col span={2}>
@@ -97,13 +100,16 @@ const Components = ({
                   <Col span={2}>
                     <Typography.Text strong>Value</Typography.Text>
                   </Col>
-                  <Col span={3}>
+                  <Col span={2}>
                     <Typography.Text strong>Invoice</Typography.Text>
                   </Col>
                   <Col span={2}>
                     <Typography.Text strong>Location</Typography.Text>
                   </Col>
                   <Col span={3}>
+                    <Typography.Text strong>Auto Consmp</Typography.Text>
+                  </Col>
+                  <Col span={4}>
                     <Typography.Text strong>Remark</Typography.Text>
                   </Col>
                 </Row>
@@ -126,23 +132,24 @@ const Components = ({
                             </Typography.Text>
                           </Flex>
                         </Col>
-                        <Col span={4}>{row.component.label}</Col>
+                        <Col span={3}>{row.component.label}</Col>
                         <Col span={2}>{row.partCode}</Col>
 
                         <Col span={2}>
                           <ToolTipEllipses text={row.qty} />
                         </Col>
-                        <Col span={2}>
+                        <Col span={1}>
                           <ToolTipEllipses text={row.rate} />
                         </Col>
                         <Col span={2}>{row.hsn}</Col>
                         <Col span={2}>
                           <ToolTipEllipses text={row.value} />
                         </Col>
-                        <Col span={3}>
+                        <Col span={2}>
                           <ToolTipEllipses text={row.invoiceId} copy={true} />
                         </Col>
                         <Col span={2}>{row.location?.label ?? "--"}</Col>
+                        <Col span={3}>{row.autoCons?.label ?? "--"}</Col>
                         <Col span={4}>
                           <ToolTipEllipses text={row.remark} copy={true} />
                         </Col>
@@ -162,7 +169,7 @@ const Components = ({
 
 export default Components;
 
-const SingleComponent = ({ form, locationOptions, rows }) => {
+const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
 
   const component = Form.useWatch("component", form);
@@ -218,17 +225,17 @@ const SingleComponent = ({ form, locationOptions, rows }) => {
         </Form.Item>
       </Col>
 
-      <Col span={2}>
+      <Col span={1}>
         <Form.Item label="Qty" name="qty">
           <Input />
         </Form.Item>
       </Col>
-      <Col span={2}>
+      <Col span={1}>
         <Form.Item label="Rate" name="rate">
           <Input />
         </Form.Item>
       </Col>
-      <Col span={2}>
+      <Col span={1}>
         <Form.Item label="HSN" name="hsn">
           <Input />
         </Form.Item>
@@ -238,7 +245,7 @@ const SingleComponent = ({ form, locationOptions, rows }) => {
           <Input disabled />
         </Form.Item>
       </Col>
-      <Col span={3}>
+      <Col span={2}>
         <Form.Item label="Invoice" name="invoiceId">
           <Input />
         </Form.Item>
@@ -246,6 +253,11 @@ const SingleComponent = ({ form, locationOptions, rows }) => {
       <Col span={2}>
         <Form.Item label="Location" name="location">
           <MySelect labelInValue={true} options={locationOptions} />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Auto Consump" name="autoCons">
+          <MySelect labelInValue={true} options={autoConsOptions} />
         </Form.Item>
       </Col>
       <Col span={5}>
@@ -265,5 +277,6 @@ const initialValues = {
   value: 0,
   invoice: "",
   location: undefined,
+  autoCons: undefined,
   remarks: "",
 };
