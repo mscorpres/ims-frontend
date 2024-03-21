@@ -22,10 +22,10 @@ import useApi from "../../hooks/useApi";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
-  {
-    title: "Closing",
-    description: "--",
-  },
+  // {
+  //   title: "Closing",
+  //   description: "--",
+  // },
   {
     title: "Last In (Date)",
     description: "--",
@@ -150,10 +150,10 @@ export default function ItemLocationLog() {
             { title: "Component", description: header.component },
             { title: "Part Code", description: header.partno },
             { title: "Unique Id", description: header.unique_id },
-            {
-              title: "Closing",
-              description: header.closingqty + " " + header.uom,
-            },
+            // {
+            //   title: "Closing",
+            //   description: header.closingqty + " " + header.uom,
+            // },
             {
               title: "Last In (Date)",
               description: header.last_date ?? "--",
@@ -428,11 +428,11 @@ export default function ItemLocationLog() {
                           Cat Part: {row.newPartNo}
                         </Typography.Text>
                       </Col>
-                      <Col>
+                      {/* <Col>
                         <Typography.Text style={{ fontSize: "0.8rem" }} strong>
                           Closing: {row.closingQty + " " + row.uom}
                         </Typography.Text>
-                      </Col>
+                      </Col> */}
                       <Divider style={{ margin: 5 }} />
                     </Row>
                     {/* // ))} */}
