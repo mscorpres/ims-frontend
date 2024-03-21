@@ -73,9 +73,9 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
     { field: "comsump_qty", headerName: "Consumption", width: 120 },
     { field: "rm_return_qty", headerName: "RM Return", width: 120 },
     { field: "p_with_jw", headerName: "Pending With JW", width: 150 },
-    { field: "outward_value", headerName: "Outward Value", width: 120 },
-    { field: "inward_value", headerName: "Consumption Value", width: 120 },
-    { field: "rtn_inward_value", headerName: "RM Return Value", width: 120 },
+    { field: "outward_value", headerName: "Outward Value", width: 150 },
+    { field: "consump_qty_value", headerName: "Consumption Value", width: 150 },
+    { field: "rtn_inward_value", headerName: "RM Return Value", width: 150 },
   ];
 
   const cancel = () => {
