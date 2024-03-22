@@ -21,7 +21,7 @@ const LocationCard = ({
           <Col span={24}>
             <Row justify="end">
               <Space>
-                <Tooltip title={locationAddress}>
+                <Tooltip title={locationAddress.split("Stock")}>
                   <InfoCircleOutlined />
                 </Tooltip>
                 <Tooltip title={owner}>
