@@ -53,7 +53,7 @@ export default function AddComponents({
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const newdata = form.getFieldsValue();
-  
+
   const { executeFun, loading } = useApi();
   const addRows = () => {
     const newRow = {
@@ -110,7 +110,7 @@ export default function AddComponents({
   };
   const inputHandler = async (name, value, id) => {
     let arr = rowCount;
-
+    console.log("update rate and value", value);
     arr = arr.map((row) => {
       if (row.id == id) {
         let obj = row;
@@ -218,6 +218,7 @@ export default function AddComponents({
             exchange_rate: value.rate,
             currency: value.currency,
             foreginValue: row.inrValue * value.rate,
+            inrValue: row.qty * row.rate * value.rate,
             currencySymbol: currencies.filter(
               (row) => row.value == value.currency
             ),
@@ -235,6 +236,16 @@ export default function AddComponents({
         } else if (name == "currency") {
           if (value == "364907247") {
             setShowCurrencyUpdateConfirmModal({ value: value, id: id });
+            obj = {
+              ...obj,
+              exchange_rate: 1,
+              [name]: value,
+              foreginValue: 0,
+              inrValue: row.qty * row.rate,
+              currencySymbol: currencies.filter(
+                (row) => row.value == value.currency
+              ),
+            };
           } else {
             setShowCurrencyModal({
               currency: value,
@@ -718,6 +729,7 @@ export default function AddComponents({
       {pageLoading && <Loading />}
       {showCurrencyModal != null && (
         <CurrenceModal
+          inputHandler={inputHandler}
           showCurrency={showCurrencyModal}
           setShowCurrencyModal={setShowCurrencyModal}
         />

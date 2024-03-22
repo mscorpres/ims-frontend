@@ -28,7 +28,7 @@ import {
   getClientBranches,
   getClientsOptions,
 } from "../../../api/finance/clients";
-import { convertSelectOptions } from "../../../utils/general";
+import { convertSelectOptions, getInt } from "../../../utils/general";
 import {
   getBillingAddressDetails,
   getBillingAddressOptions,
@@ -200,6 +200,7 @@ const SalesOrderForm = () => {
     }
     setBillTopOptions(arr);
   };
+
   const handleFetchProjectOptions = async (search) => {
     const response = await executeFun(
       () => getProjectOptions(search),
@@ -271,14 +272,20 @@ const SalesOrderForm = () => {
         id: { v4 },
         updateRow: row.updateid,
         index: index + 1,
-        currency: "364907247",
-        exchange_rate: 1,
+        currency: row.currency,
+        exchange_rate: row.exchangerate,
         component: {
           label: row.selectedItem[0]?.text,
           value: row.selectedItem[0]?.id,
         },
         qty: row.orderqty,
         rate: row.rate,
+        inrValue:
+          getInt(row.orderqty) * getInt(row.rate) * getInt(row.exchangerate),
+        usdValue:
+          row.exchangerate === "364907247"
+            ? 0
+            : getInt(row.orderqty) * getInt(row.rate),
         duedate: row.due_date, //this
         hsncode: row.hsncode,
         gsttype: row.gsttype[0].id, //this
@@ -287,7 +294,6 @@ const SalesOrderForm = () => {
         sgst: row.sgst,
         igst: row.igst,
         remark: row.remark,
-        inrValue: 0,
         foreginValue: 0,
         unit: "", //this one
         rate_cap: 0,
@@ -300,6 +306,8 @@ const SalesOrderForm = () => {
       form.setFieldsValue(obj);
     }
   };
+
+  console.log("rows =>", rowCount);
 
   const validateSales = async () => {
     setSelectLoading(true);
