@@ -396,7 +396,7 @@ const SummaryCard = ({ details, bomType }) => {
           <>
             {" "}
             <Col span={24}>
-              <Typography.Text strong>SFG Code</Typography.Text>
+              <Typography.Text strong>SFG Part Code</Typography.Text>
             </Col>
             <Col span={24}>
               <Typography.Text>{details.partCode}</Typography.Text>
