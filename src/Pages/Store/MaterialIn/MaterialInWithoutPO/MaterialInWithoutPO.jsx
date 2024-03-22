@@ -158,10 +158,10 @@ export default function MaterialInWithoutPO() {
       );
       console.log("response-------", response);
       if (response.success) {
-        const { data } = response.data;
-        if (data.code === 200) {
+        // const { data } = response.data;
+        if (response.data.code === 200) {
           setShowSuccessPage({
-            materialInId: data.txn,
+            materialInId: response.data.data.txn,
             vendor: { vendorname: values.vendorName.label },
             components: values.components.map((row, index) => {
               return {
@@ -177,8 +177,9 @@ export default function MaterialInWithoutPO() {
           form.resetFields();
           vendorResetFunction();
           materialResetFunction();
+        } else {
+          toast.error(response.data.message);
         }
-        toast.error(response.data.message);
       } else {
         toast.error(response.data.message);
       }
