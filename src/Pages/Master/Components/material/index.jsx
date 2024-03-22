@@ -249,6 +249,26 @@ const Material = () => {
         //manufacturing code
         manufacturing_code: manfCode,
       };
+    } else if (selectedCategory?.label === "Inductor") {
+      payload = {
+        part: headerValues.code,
+        uom: headerValues.unit,
+        component: headerValues.componentname,
+        new_partno: headerValues.newPart,
+        comp_type: "I",
+        c_category: headerValues.category,
+        notes: headerValues.description,
+        group: headerValues.group,
+        // attr_category: headerValues.attrCategory.value,
+        attr_category: "I",
+        attr_code: "--",
+        // attr_code
+        hsns: hsnRows.map((row) => row.code.value),
+        taxs: hsnRows.map((row) => row.percentage),
+        attr_raw: "",
+        //manufacturing code
+        manufacturing_code: manfCode,
+      };
     } else {
       payload = {
         part: headerValues.code,
@@ -270,6 +290,8 @@ const Material = () => {
         manufacturing_code: manfCode,
       };
     }
+    // console.log("payload", payload);
+    // return;
 
     const response = await imsAxios.post(
       "/component/addComponent/verify",
@@ -484,7 +506,8 @@ const Material = () => {
                         <Input
                           disabled={
                             typeIs?.label === "Resistor" ||
-                            typeIs?.label === "Capacitor"
+                            typeIs?.label === "Capacitor" ||
+                            typeIs?.label === "Inductor"
                           }
                           // value={generatedCompName}
                         />
@@ -855,6 +878,7 @@ const CategoryModal = ({
             },
           ]);
         }
+        // console.log("fieldsss", fieldSelectOptions);
       });
     } catch (error) {}
     setLoading(false);
@@ -969,6 +993,44 @@ const CategoryModal = ({
         "Resistor";
 
       console.log("compName", compCode);
+      setGeneratedCompName(compName);
+      headerForm.setFieldValue("componentname", compName);
+
+      //
+      let filledFields =
+        newSnip +
+        values.mounting_style.key +
+        "(" +
+        values.package_size.key +
+        ")" +
+        values.power_rating.key +
+        values.tolerance.key;
+      // console.log("filledFields", filledFields);
+
+      if (makingString.length <= 5) {
+        let codeValue = zeroPad(makingString);
+        setUniqueId(filledFields + codeValue);
+        // console.log("codeValue ", filledFields + codeValue);
+      }
+    } else if (newSnip == "IND") {
+      // console.log(
+      //   " values.current_SI_Unit.label",
+      //   values.current_SI_Unit.label.split(" ")
+      // );
+      let siUnit = values.current_SI_Unit.label.split(" ")[0];
+      console.log("siUnit", siUnit);
+      let compName =
+        values.mounting_style.label +
+        "-" +
+        values.package_size.key +
+        "-" +
+        compCode +
+        "-" +
+        values.frequency.label +
+        "-" +
+        siUnit;
+
+      // console.log("compName", compCode);
       setGeneratedCompName(compName);
       headerForm.setFieldValue("componentname", compName);
 
@@ -1211,6 +1273,7 @@ const CategoryModal = ({
                     label={row.label.replaceAll("_", " ")}
                   >
                     <MySelect
+                      style={{ textTransform: "none" }}
                       labelInValue
                       // disabled={row.label === "multiplier"}
                       options={
