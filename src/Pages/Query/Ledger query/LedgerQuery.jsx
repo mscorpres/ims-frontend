@@ -8,8 +8,8 @@ import MyButton from "../../../Components/MyButton";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../Components/MyDataTable";
-import { fetchQ4 } from "../../../api/store/query";
 import { downloadCSV } from "../../../Components/exportToCSV";
+import { fetchQ4 } from "../../../api/reports/query";
 
 const Q4 = () => {
   const [summary, setSummary] = useState({});
