@@ -19,7 +19,7 @@ export default function ItemAllLogs() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [summaryData, setSummaryData] = useState([
     { title: "Component", description: "" },
-    { title: "Closing Stock", description: "" },
+    // { title: "Closing Stock", description: "" },
     { title: "Last In (Date)", description: "" },
     { title: "Last Rate", description: "" },
   ]);
@@ -64,7 +64,7 @@ export default function ItemAllLogs() {
     setLoading("fetch");
     setSummaryData([
       { title: "Component", description: "" },
-      { title: "Closing Stock", description: "" },
+      // { title: "Closing Stock", description: "" },
       { title: "Last In (Date)", description: "" },
       { title: "Last Rate", description: "" },
     ]);
