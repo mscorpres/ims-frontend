@@ -158,8 +158,8 @@ export default function MaterialInWithoutPO() {
       );
       console.log("response-------", response);
       if (response.success) {
-        const { data } = response.data;
-        if (data.code === 200) {
+        // const { data } = response.data;
+        if (response.data.code === 200) {
           setShowSuccessPage({
             materialInId: data.txn,
             vendor: { vendorname: values.vendorName.label },
