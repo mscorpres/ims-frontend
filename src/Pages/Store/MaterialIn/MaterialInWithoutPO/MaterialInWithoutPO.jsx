@@ -161,7 +161,7 @@ export default function MaterialInWithoutPO() {
         // const { data } = response.data;
         if (response.data.code === 200) {
           setShowSuccessPage({
-            materialInId: data.txn,
+            materialInId: response.data.data.txn,
             vendor: { vendorname: values.vendorName.label },
             components: values.components.map((row, index) => {
               return {
