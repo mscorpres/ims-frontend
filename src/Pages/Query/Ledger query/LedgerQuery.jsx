@@ -1,203 +1,215 @@
-import React, { useEffect, useState } from "react";
-import { imsAxios } from "../../../axiosInterceptor";
-import { Button, Col, Collapse, Row, Typography } from "antd";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import Loading from "../../../Components/Loading";
-import MyDataTable from "../../../Components/MyDataTable";
-import { v4 } from "uuid";
-import { maxHeight } from "@mui/system";
-import { getComponentOptions } from "../../../api/general";
+import { useState } from "react";
+import { Row, Col, Divider, Flex, Form, Card, Typography } from "antd";
 import useApi from "../../../hooks/useApi";
-function LedgerQuery() {
-  const [component, setComponent] = useState("");
-  const [asyncOptions, setAsyncOptions] = useState([]);
-  const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
+import { getComponentOptions } from "../../../api/general";
+import { convertSelectOptions } from "../../../utils/general";
+import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import MyButton from "../../../Components/MyButton";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
+import ToolTipEllipses from "../../../Components/ToolTipEllipses";
+import MyDataTable from "../../../Components/MyDataTable";
+import { fetchQ4 } from "../../../api/store/query";
+import { downloadCSV } from "../../../Components/exportToCSV";
+
+const Q4 = () => {
+  const [summary, setSummary] = useState({});
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [asyncOptions, setAsyncOptions] = useState([]);
 
-  const [selectLoading, setSelectLoading] = useState(false);
-  const [totalConsideredQty, setTotalConsideredQty] = useState("");
-  const [closingDate, setClosingDate] = useState("");
-  const [totalPrice, setTotalPrice] = useState("");
-  const { executeFun, loading: loading1 } = useApi();
-  const getRows = async () => {
-    const response = await imsAxios.get(
-      `/itemLedger?componentID=${searchInput}`
-    );
-    console.log("response--", response);
-    if (response.status === 200) {
-      const { data } = response;
+  const { executeFun, loading } = useApi();
+  const [form] = Form.useForm();
 
-      console.log("data--", data);
-      let arr = data.result.map((row, index) => {
-        return {
-          ...row,
-          id: v4(),
-          index: index + 1,
-        };
-      });
-      setRows(arr);
-      setTotalConsideredQty(data.totalConsideredQty);
-      setTotalPrice(data.totalPrice);
-      setClosingDate(data.closingDate);
-    }
-  };
-
-  const getAsyncOptions = async (search) => {
-    // let link = "/backend/getComponentByNameAndNo";
-    // setLoading(true);
-    // const { data } = await imsAxios.post(link, {
-    //   search: search,
-    // });
-    // setLoading(false);
+  const handleFetchComponentOptons = async (search) => {
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
     );
-    const { data } = response;
-    if (data[0]) {
-      let arr = data.map((row) => ({
-        text: row.text,
-        value: row.id,
-      }));
-      setAsyncOptions(arr);
-    } else {
-      setAsyncOptions([]);
+    let arr = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
     }
+
+    setAsyncOptions(arr);
   };
 
-  const columns = [
-    {
-      headerName: "S.No",
-      field: "index",
-      renderCell: ({ row }) => row.index,
-      width: 30,
-    },
-    {
-      headerName: "Vendor Code",
-      field: "venCode",
-      renderCell: ({ row }) => row.venCode,
-      width: 100,
-    },
-    {
-      headerName: "Vendor Name",
-      field: "venName",
-      renderCell: ({ row }) => row.venName,
-      width: 200,
-      flex: 1,
-    },
-    {
-      headerName: "Effective Date",
-      field: "effectiveDate",
-      renderCell: ({ row }) => row.effectiveDate,
-      width: 200,
-      flex: 1,
-    },
-    {
-      headerName: "Insert Date",
-      field: "insertDate",
-      renderCell: ({ row }) => row.insertDate,
-      width: 200,
-      flex: 1,
-    },
-    {
-      headerName: "VBT No.",
-      field: "vbtKey",
-      renderCell: ({ row }) => row.vbtKey,
-      flex: 1,
-    },
-    {
-      headerName: "Project",
-      field: "project",
-      renderCell: ({ row }) => row.project,
-      flex: 1,
-    },
-    {
-      headerName: "PO ID",
-      field: "poID",
-      renderCell: ({ row }) => row.poID,
-      flex: 1,
-    },
-    {
-      headerName: "Min ID",
-      field: "minID",
-      renderCell: ({ row }) => row.minID,
-      flex: 1,
-    },
-    {
-      headerName: "Invoice No",
-      field: "invoiceNo",
-      renderCell: ({ row }) => row.invoiceNo,
-      flex: 1,
-    },
-    {
-      headerName: "In Rate",
-      field: "inRate",
-      renderCell: ({ row }) => row.inRate,
-      width: 70,
-    },
-    {
-      headerName: "In Qty",
-      field: "inQty",
-      renderCell: ({ row }) => row.inQty,
-      width: 70,
-    },
-    {
-      headerName: "Considered Qty",
-      field: "consideredQty",
-      renderCell: ({ row }) => row.consideredQty,
-      width: 110,
-    },
-    {
-      headerName: "Total Value",
-      field: "totalValue",
-      renderCell: ({ row }) => row.totalValue,
-      width: 110,
-    },
-  ];
-  return (
-    <div
-      style={{
-        margin: "2px 2px",
-      }}
-    >
-      <Row gutter={10}>
-        <Col span={4}>
-          <MyAsyncSelect
-            placeholder="Select a Component"
-            onBlur={() => setAsyncOptions([])}
-            value={searchInput}
-            optionsState={asyncOptions}
-            selectLoading={loading1("select")}
-            onChange={(value) => setSearchInput(value)}
-            loadOptions={(value) => getAsyncOptions(value)}
-          />
-        </Col>
-        <Col>
-          <Button type="primary" onClick={getRows}>
-            Search
-          </Button>
-        </Col>
-        <Col span={6} style={{ marginLeft: "18px", marginTop: "5px" }}>
-          <Typography.Text level={2}>Data As Per-{closingDate}</Typography.Text>
-        </Col>
-        <Col span={8} style={{ marginTop: "5px" }}>
-          <Typography.Text style={{ margin: 0 }} level={2}>
-            Total Considered Qty-{totalConsideredQty}
-          </Typography.Text>
-        </Col>
-        <Col span={2} style={{ marginTop: "5px" }}>
-          <Typography.Text style={{ margin: 0 }} level={2}>
-            Total Price-{totalPrice}
-          </Typography.Text>
-        </Col>
-      </Row>
+  const handleFetchRows = async () => {
+    const values = await form.validateFields();
+    const response = await executeFun(() => fetchQ4(values.component), "fetch");
+    setRows(response.data.result);
+    setSummary(response.data.summary);
+  };
 
-      <Row style={{ marginTop: 15, height: "90vh" }}>
-        <MyDataTable columns={columns} data={rows} />
-      </Row>
-    </div>
+  const handleDownload = async () => {
+    await form.validateFields();
+    downloadCSV(rows, columns, `Q4 Report `);
+  };
+  return (
+    <Row style={{ height: "95%", padding: 10 }} gutter={10}>
+      <Col span={4}>
+        <Flex vertical gap={10}>
+          <Card size="small">
+            <Form form={form} layout="vertical">
+              <Form.Item
+                name="component"
+                label="Component"
+                rules={rules.component}
+              >
+                <MyAsyncSelect
+                  onBlur={() => setAsyncOptions([])}
+                  loadOptions={handleFetchComponentOptons}
+                  optionsState={asyncOptions}
+                  selectLoading={loading("select")}
+                  placeholder="Select Component"
+                />
+              </Form.Item>
+              <Flex justify="end" gap={5}>
+                <CommonIcons action="downloadButton" onClick={handleDownload} />
+                <MyButton
+                  onClick={handleFetchRows}
+                  variant="search"
+                  loading={loading("fetch")}
+                />
+              </Flex>
+            </Form>
+          </Card>
+          <SummaryCard summary={summary} />
+        </Flex>
+      </Col>
+      <Col span={20}>
+        <MyDataTable data={rows} columns={columns} loading={loading("fetch")} />
+      </Col>
+    </Row>
   );
-}
-export default LedgerQuery;
+};
+
+export default Q4;
+
+const columns = [
+  {
+    headerName: "#",
+    width: 30,
+    field: "id",
+  },
+  {
+    headerName: "Vendor",
+    minWidth: 200,
+    flex: 1,
+    field: "vendor",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
+  },
+  {
+    headerName: "Vendor Code",
+    width: 100,
+    field: "vendorCode",
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.vendorCode} copy={true} />
+    ),
+  },
+  {
+    headerName: "Effective Date",
+    width: 150,
+    field: "effectiveDate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.effectiveDate} />,
+  },
+  {
+    headerName: "Insert Date",
+    width: 150,
+    field: "insertDate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.insertDate} />,
+  },
+  {
+    headerName: "VBT Code",
+    width: 150,
+    field: "vbtCode",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.vbtCode} copy={true} />,
+  },
+  {
+    headerName: "Project",
+    width: 150,
+    field: "project",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.project} copy={true} />,
+  },
+  {
+    headerName: "PO ID",
+    width: 150,
+    field: "poId",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.poId} copy={true} />,
+  },
+  {
+    headerName: "MIN ID",
+    width: 150,
+    field: "minId",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.minId} copy={true} />,
+  },
+  {
+    headerName: "Invoice No.",
+    width: 150,
+    field: "invoiceNumber",
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.invoiceNumber} copy={true} />
+    ),
+  },
+  {
+    headerName: "IN Rate",
+    width: 150,
+    field: "inRate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.inRate} />,
+  },
+  {
+    headerName: "CIF Rate",
+    width: 150,
+    field: "cifRate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.cifRate} />,
+  },
+
+  {
+    headerName: "In Qty",
+    width: 150,
+    field: "inQty",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.inQty} />,
+  },
+  {
+    headerName: "Considered Qty",
+    width: 150,
+    field: "consideredQty",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.consideredQty} />,
+  },
+  {
+    headerName: "Total Value",
+    width: 150,
+    field: "totalValue",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.totalValue} />,
+  },
+];
+
+const rules = {
+  component: [
+    {
+      required: true,
+      message: "Select a component",
+    },
+  ],
+};
+
+const SummaryCard = ({ summary }) => {
+  return (
+    <Card size="summary">
+      <Flex vertical>
+        <Flex justify="space-between">
+          <Typography.Text strong>Data as Per</Typography.Text>
+          <Typography.Text>{summary?.closingDate}</Typography.Text>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between">
+          <Typography.Text strong>Total Price</Typography.Text>
+          <Typography.Text>{summary?.totalPrice}</Typography.Text>
+        </Flex>
+        <Divider />
+        <Flex justify="space-between">
+          <Typography.Text strong>Total Considered Qty</Typography.Text>
+          <Typography.Text>{summary?.totalConsideredQty}</Typography.Text>
+        </Flex>
+      </Flex>
+    </Card>
+  );
+};
