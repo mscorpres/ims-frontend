@@ -19,6 +19,7 @@ import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import { convertSelectOptions } from "../../../utils/general";
 const { TextArea } = Input;
 function R9() {
   const [locDataTo, setloctionDataTo] = useState([]);
@@ -83,9 +84,12 @@ function R9() {
         "select"
       );
 
-      let { data } = response;
+      let arr = [];
+      if (response.success) {
+        arr = convertSelectOptions(response.data);
+      }
 
-      setAsyncOptions(data);
+      setAsyncOptions(arr);
     }
   };
 
