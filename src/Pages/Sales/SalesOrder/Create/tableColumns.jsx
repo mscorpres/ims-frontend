@@ -77,9 +77,7 @@ export const foreignCell = ({ row }) => {
     <Input
       size="default"
       disabled={true}
-      value={
-        row?.currency == 364907247 ? 0 : Number(row?.foreginValue).toFixed(2)
-      }
+      value={row?.currency == 364907247 ? 0 : Number(row?.usdValue).toFixed(2)}
     />
   );
 };
