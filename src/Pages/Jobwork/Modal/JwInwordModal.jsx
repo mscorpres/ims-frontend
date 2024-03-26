@@ -368,7 +368,10 @@ export default function JwInwordModal({
       field: "rqdQty",
       headerName: "Required Qty",
       width: 120,
-      renderCell: ({ row }) => <Input value={row.rqdQty} />,
+      renderCell: ({ row }) => <Input  value={row.conRemark}
+      onChange={(e) => {
+        inputHandler("rqdQty",row.id,e.target.value);
+      }} value={row.rqdQty} />,
     },
     {
       field: "pendingWithjobwork",
