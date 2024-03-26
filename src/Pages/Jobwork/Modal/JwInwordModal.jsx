@@ -208,6 +208,22 @@ export default function JwInwordModal({
       );
     }
   };
+
+  const inputHandler1 = async (name, id, value) => {
+    setBomList((curr) => {
+      let arr = curr.map((row) => {
+        let obj = row;
+        if (obj.id === id) {
+          obj = {
+            ...obj,
+            [name]: value,
+          };
+        }
+        return obj;
+      });
+      return arr;
+    });
+  };
   const removeRow = (id) => {
     let arr = bomList;
     arr = arr.filter((row) => row.id != id);
@@ -368,7 +384,14 @@ export default function JwInwordModal({
       field: "rqdQty",
       headerName: "Required Qty",
       width: 120,
-      renderCell: ({ row }) => <Input value={row.rqdQty} />,
+      renderCell: ({ row }) => (
+        <Input
+          onChange={(e) => {
+            inputHandler1("rqdQty", row.id, e.target.value);
+          }}
+          value={row.rqdQty}
+        />
+      ),
     },
     {
       field: "pendingWithjobwork",
@@ -394,7 +417,7 @@ export default function JwInwordModal({
           // onChange={(e) => {
           //   setConRem(e.target.value);
           // }}
-          onChange={(e) => inputHandler("conRemark", row.id, e.target.value)}
+          onChange={(e) => inputHandler1("conRemark", row.id, e.target.value)}
         />
       ),
     },
