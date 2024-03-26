@@ -194,6 +194,18 @@ export default function JwInwordModal({
           }
         })
       );
+    } else if (name == "rqdQty") {
+      setMainData((a) =>
+        a.map((aa) => {
+          if (aa.id == id) {
+            {
+              return { ...aa, rqdQty: value };
+            }
+          } else {
+            return aa;
+          }
+        })
+      );
     }
   };
   const removeRow = (id) => {
