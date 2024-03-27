@@ -73,6 +73,8 @@ export default function MaterialInWithPO({}) {
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [locationOptions, setLocationOptions] = useState([]);
+  const [codeCostCenter, setCodeCostCenter] = useState("");
+  let costCode;
   const { executeFun, loading: loading1 } = useApi();
   const validateData = async () => {
     let validation = false;
@@ -266,10 +268,11 @@ export default function MaterialInWithPO({}) {
     });
     setCurrencies(arr);
   };
-  const getLocation = async () => {
+  const getLocation = async (costCode) => {
     setPageLoading(true);
     const { data } = await imsAxios.post("/transaction/getLocationInMin", {
       search: "",
+      cost_center: costCode,
     });
     setPageLoading(false);
     let arr = data.data.data;
@@ -498,7 +501,10 @@ export default function MaterialInWithPO({}) {
           };
         }),
       };
-      console.log(obj);
+      costCode = obj.headers.cost_center_key;
+      // console.log("obj", costCode);
+      setCodeCostCenter(costCode);
+
       setPoData(obj);
       setResetPoData(obj);
     } else {
@@ -507,6 +513,14 @@ export default function MaterialInWithPO({}) {
       //   toast.error("Some error Occurred");
     }
   };
+  useEffect(() => {
+    // console.log("obj", costCode);
+    // console.log("codeCostCenter", codeCostCenter);
+    if (codeCostCenter) {
+      getLocation(codeCostCenter);
+    }
+  }, [codeCostCenter]);
+
   const removeRow = (id) => {
     let arr = poData?.materials;
     arr = arr.filter((row) => row.id != id);
@@ -731,7 +745,7 @@ export default function MaterialInWithPO({}) {
 
   useEffect(() => {
     // getDetail();
-    getLocation();
+    // getLocation();
     getCurrencies();
     getAutoComnsumptionOptions();
   }, []);
@@ -1071,7 +1085,7 @@ export default function MaterialInWithPO({}) {
                               window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                           }}
                         >
-                          {poData?.headers?.cost_center}
+                          {poData?.headers?.cost_center_name}
                         </Typography.Text>
                       )}
                       <Skeleton
