@@ -319,6 +319,7 @@ export default function ReqWithoutBom() {
       "/production/createWithoutBom",
       values
     );
+    console.log("response", response);
     setLoading(false);
     const { data } = response;
     if (data) {
@@ -327,7 +328,7 @@ export default function ReqWithoutBom() {
         resetHandler();
         setLoading(false);
       } else {
-        toast.error(data.message);
+        toast.error(data.message.msg);
         setLoading(false);
       }
       setLoading(false);
