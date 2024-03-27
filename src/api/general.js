@@ -125,33 +125,19 @@ export const getProductsOptions = async (search, sku) => {
     search,
     searchTerm: search,
   });
-  // console.log("response", response);
-  // console.log("responsejjj");
-  // let arr = [];
-  // if (response.success) {
-  //   arr = convertSelectOptions(response.data);
-  //   response = arr;
-  //   console.log("arr", arr);
-  //   return response;
-  // } else if (response.status === 200) {
-  //   console.log("response.data", response.data);
-  //   let arr = convertSelectOptions(response.data);
-  //   // response = arr;
+  let arr = [];
+  if (response.success) {
+    arr = convertSelectOptions(response.data);
+  }
+
+  if (response?.data.length) {
+    arr = convertSelectOptions(response.data);
+  }
+  response.data = arr;
+
   return response;
 };
 
-// if (sku) {
-//   const response = await imsAxios.post("/backend/fetchProduct", {
-//     searchTerm: search,
-//   });
-//   if (respon) return response;
-// } else {
-//   const response = await imsAxios.post("/backend/getProductByNameAndNo", {
-//     search,
-//   });
-//   return response;
-// }
-// };
 ///Query  6
 export const getClosingStockForQuery6 = async (search) => {
   const response = await imsAxios.post(
