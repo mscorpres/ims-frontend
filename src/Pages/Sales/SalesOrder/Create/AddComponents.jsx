@@ -422,12 +422,7 @@ export default function AddComponents({
         () => getProductsOptions(searchInput),
         "select"
       );
-      if (response.success) {
-        let arr = convertSelectOptions(response.data);
-        setAsyncOptions(arr);
-      } else {
-        setAsyncOptions([]);
-      }
+      setAsyncOptions(response.data)
     } else {
       const response = await executeFun(
         () => getComponentOptions(searchInput),

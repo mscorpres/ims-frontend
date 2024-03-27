@@ -23,11 +23,7 @@ import MyButton from "../../../../Components/MyButton";
 import Loading from "../../../../Components/Loading";
 import { Link } from "react-router-dom";
 import CategoryDrawer from "./CategoryDrawer";
-import {
-  getComponentOptions,
-  getProductsOptions,
-  updateAlternatePartCode,
-} from "../../../../api/general";
+
 import useApi from "../../../../hooks/useApi";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
