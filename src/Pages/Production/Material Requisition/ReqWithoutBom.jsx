@@ -299,7 +299,7 @@ export default function ReqWithoutBom() {
     requestForm.resetFields();
   };
 
-  // showing reset confirm dialog
+// showing reset confirm dialog
   const showResetConfirm = () => {
     Modal.confirm({
       title: "Are you sure you want to reset the form?",
@@ -325,11 +325,16 @@ export default function ReqWithoutBom() {
       if (data.code === 200) {
         toast.success(data.message);
         resetHandler();
+        setLoading(false);
       } else {
-        toast.error(data.message);
+        toast.error(data.message.msg);
+        setLoading(false);
       }
+      setLoading(false);
     }
+    setLoading(false);
   };
+
 
   // show submit confirm dialog
   const showSubmitConfirm = async () => {
