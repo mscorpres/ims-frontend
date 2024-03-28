@@ -10,6 +10,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { useSelector } from "react-redux";
 import { v4 } from "uuid";
 import socket from "../../../Components/socket";
+import MyButton from "../../../Components/MyButton";
 
 function ProfilLossReport() {
   let arr = [];
@@ -416,13 +417,14 @@ function ProfilLossReport() {
           <div style={{ width: 300 }}>
             <MyDatePicker setDateRange={setDateRange} />
           </div>
-          <Button
+          <MyButton
             loading={loading === "fetch"}
             type="primary"
             onClick={getRows}
+            variant="search"
           >
             Fetch
-          </Button>
+          </MyButton>
         </Space>
         <Space>
           <CommonIcons

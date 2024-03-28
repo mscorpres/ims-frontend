@@ -23,6 +23,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import MyButton from "../../../Components/MyButton";
 
 function JVReport() {
   const wiseOptions = [
@@ -284,13 +285,14 @@ function JVReport() {
                 />
               )}
             </div>
-            <Button
+            <MyButton
               loading={loading === "fetch"}
               type="primary"
               onClick={getRows}
+              variant="search"
             >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Space>

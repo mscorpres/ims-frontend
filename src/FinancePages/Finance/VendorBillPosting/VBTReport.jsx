@@ -28,6 +28,7 @@ import VBT02Report from "./FormVBT/VBTtype2/VBT02Report";
 import useApi from "../../../hooks/useApi";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 
 export default function VBTReport() {
   const [searchInput, setSearchInput] = useState("MIN/23-24/");
@@ -1105,7 +1106,7 @@ export default function VBTReport() {
                 value={vbtOption}
               />
             </div>
-            <Button
+            <MyButton
               disabled={
                 wise === "datewise" || wise === "effectivewise"
                   ? searchDateRange === ""
@@ -1117,9 +1118,10 @@ export default function VBTReport() {
               }
               type="primary"
               onClick={getSearchResults}
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
             <Button
               disabled={selectedRows.length === 0}
               type="primary"

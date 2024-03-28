@@ -12,6 +12,7 @@ import {
   contraColumns,
   vbtColumns,
 } from "./DayBookColumns";
+import MyButton from "../../../Components/MyButton";
 
 function DayBook() {
   const [searchDateRange, setSearchDateRange] = useState("");
@@ -219,7 +220,7 @@ function DayBook() {
               value={searchDateRange}
             />
 
-            <Button
+            <MyButton
               // disabled={
               //   wise === "date"
               //     ? searchDateRange === ""
@@ -232,9 +233,10 @@ function DayBook() {
               loading={loading > 0}
               type="primary"
               onClick={getAllRows}
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
       </Row>

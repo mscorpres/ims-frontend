@@ -12,6 +12,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import CashPaymentModal from "./model/CashPaymentModal";
 import CashEditModal from "./model/cashEditModal";
 import TableActions from "../../../Components/TableActions.jsx/TableActions";
+import MyButton from "../../../Components/MyButton";
 // import CashEditModal from "./model/CashEditModal";
 
 function CashPaymentResister() {
@@ -42,12 +43,9 @@ function CashPaymentResister() {
   const getLedgerFunction = async (e) => {
     if (e?.length > 1) {
       setSelectLoading(true);
-      const { data } = await imsAxios.post(
-        "/tally/ledger/ledger_options",
-        {
-          seacrh: e,
-        }
-      );
+      const { data } = await imsAxios.post("/tally/ledger/ledger_options", {
+        seacrh: e,
+      });
       setSelectLoading(false);
       // console.log(data.data);
       let arr = [];
@@ -62,13 +60,10 @@ function CashPaymentResister() {
     if (e == "date_wise") {
       setDateData([]);
       setLoading(true);
-      const { data } = await imsAxios.post(
-        "/tally/cash/cashpayment_list",
-        {
-          wise: selectedValue.selType,
-          data: datee,
-        }
-      );
+      const { data } = await imsAxios.post("/tally/cash/cashpayment_list", {
+        wise: selectedValue.selType,
+        data: datee,
+      });
       if (data.code == 200) {
         let arr = data?.data?.map((row) => {
           return {
@@ -85,13 +80,10 @@ function CashPaymentResister() {
     } else if (e == "eff_wise") {
       setEffectiveData([]);
       setLoading(true);
-      const { data } = await imsAxios.post(
-        "/tally/cash/cashpayment_list",
-        {
-          wise: selectedValue.selType,
-          data: datee,
-        }
-      );
+      const { data } = await imsAxios.post("/tally/cash/cashpayment_list", {
+        wise: selectedValue.selType,
+        data: datee,
+      });
       if (data.code == 200) {
         let arr = data?.data?.map((row) => {
           return {
@@ -108,13 +100,10 @@ function CashPaymentResister() {
     } else if (e == "key_wise") {
       setCodeData([]);
       setLoading(true);
-      const { data } = await imsAxios.post(
-        "/tally/cash/cashpayment_list",
-        {
-          wise: selectedValue.selType,
-          data: selectedValue?.code,
-        }
-      );
+      const { data } = await imsAxios.post("/tally/cash/cashpayment_list", {
+        wise: selectedValue.selType,
+        data: selectedValue?.code,
+      });
       if (data.code == 200) {
         let arr = data?.data?.map((row) => {
           return {
@@ -163,16 +152,12 @@ function CashPaymentResister() {
       type: "actions",
       getActions: ({ row }) => [
         <GridActionsCellItem
-          icon={
-            <EyeFilled
-              onClick={() => setOpen(row?.module_used)}
-            />
-          }
+          icon={<EyeFilled onClick={() => setOpen(row?.module_used)} />}
         />,
         <TableActions
-        action="edit"
-        onClick={() => setCashEdit(row.module_used)}
-      />,
+          action="edit"
+          onClick={() => setCashEdit(row.module_used)}
+        />,
       ],
     },
     { field: "ref_date", headerName: "DATE", width: 120 },
@@ -217,9 +202,7 @@ function CashPaymentResister() {
       headerName: "COMMENT",
       width: 240,
       renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.comment}>
-          {row?.comment}
-        </ToolTipEllipses>
+        <ToolTipEllipses text={row.comment}>{row?.comment}</ToolTipEllipses>
       ),
     },
     { field: "status", headerName: "STATUS", width: 140 },
@@ -228,7 +211,7 @@ function CashPaymentResister() {
   return (
     <>
       <div style={{ height: "90%", margin: "10px" }}>
-      <CashEditModal cashEdit={cashEdit} setCashEdit={setCashEdit} />
+        <CashEditModal cashEdit={cashEdit} setCashEdit={setCashEdit} />
         <Row gutter={10}>
           {selectedValue?.selType === "" ? (
             <>
@@ -249,10 +232,7 @@ function CashPaymentResister() {
                 />
               </Col>
               <Col span={4}>
-                <MyDatePicker
-                  setDateRange={setDatee}
-                  size="default"
-                />
+                <MyDatePicker setDateRange={setDatee} size="default" />
               </Col>
               <Col span={1}>
                 <Button
@@ -283,10 +263,7 @@ function CashPaymentResister() {
                 />
               </Col>
               <Col span={4}>
-                <MyDatePicker
-                  setDateRange={setDatee}
-                  size="default"
-                />
+                <MyDatePicker setDateRange={setDatee} size="default" />
               </Col>
               <Col span={1}>
                 <Button
@@ -317,10 +294,7 @@ function CashPaymentResister() {
                 />
               </Col>
               <Col span={4}>
-                <MyDatePicker
-                  setDateRange={setDatee}
-                  size="default"
-                />
+                <MyDatePicker setDateRange={setDatee} size="default" />
               </Col>
               <Col span={1}>
                 <Button
@@ -412,13 +386,12 @@ function CashPaymentResister() {
                   />
                 </Col>
                 <Col span={1}>
-                  <Button
+                  <MyButton
                     loading={loading}
                     type="primary"
                     onClick={() => fetchData("ledger_wise")}
-                  >
-                    Fetch
-                  </Button>
+                    variant="search"
+                  ></MyButton>
                 </Col>
               </>
             )
@@ -426,11 +399,7 @@ function CashPaymentResister() {
         </Row>
         <div style={{ height: "87%", marginTop: "5px" }}>
           {selectedValue?.selType == "date_wise" ? (
-            <MyDataTable
-              loading={loading}
-              data={dateData}
-              columns={columns}
-            />
+            <MyDataTable loading={loading} data={dateData} columns={columns} />
           ) : selectedValue?.selType == "eff_wise" ? (
             <MyDataTable
               loading={loading}
@@ -438,11 +407,7 @@ function CashPaymentResister() {
               columns={columns}
             />
           ) : selectedValue?.selType == "key_wise" ? (
-            <MyDataTable
-              loading={loading}
-              data={codeData}
-              columns={columns}
-            />
+            <MyDataTable loading={loading} data={codeData} columns={columns} />
           ) : (
             <MyDataTable
               loading={loading}

@@ -119,6 +119,28 @@ const MyButton = (props) => {
       </Button>
     );
   }
+  if (props.variant === "download") {
+    return (
+      <Button
+        {...props}
+        type={props.type ?? "primary"}
+        icon={<DownloadOutlined />}
+      >
+        {props.text ?? "Download"}
+      </Button>
+    );
+  }
+  if (props.variant === "upload") {
+    return (
+      <Button
+        {...props}
+        type={props.type ?? "primary"}
+        icon={<UploadOutlined />}
+      >
+        {props.text ?? "Upload File"}
+      </Button>
+    );
+  }
 };
 
 export default MyButton;

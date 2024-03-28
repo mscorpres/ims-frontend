@@ -513,7 +513,7 @@ export default function BankPayment() {
       <NavFooter
         resetFunction={resetFunction}
         submitFunction={validateHandler}
-        nextLabel="SUBMIT"
+        nextLabel="Submit"
         loading={loading}
       />
     </div>

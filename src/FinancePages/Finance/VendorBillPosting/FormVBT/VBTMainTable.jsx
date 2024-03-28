@@ -21,6 +21,7 @@ import VBT02Report from "./VBTtype2/VBT02Report";
 import useApi from "../../../../hooks/useApi";
 import { convertSelectOptions } from "../../../../utils/general";
 import { getVendorOptions } from "../../../../api/general";
+import MyButton from "../../../../Components/MyButton";
 
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
@@ -354,7 +355,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                 )}
               </div>
 
-              <Button
+              <MyButton
                 size="default"
                 disabled={
                   wise === "date_wise"
@@ -368,9 +369,10 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                 loading={searchLoading}
                 type="primary"
                 onClick={getRows}
+                variant="search"
               >
                 Search
-              </Button>
+              </MyButton>
               {wise == "vendor_wise" && (
                 <Button
                   onClick={getMultipleVBTDetail}

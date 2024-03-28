@@ -19,6 +19,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import TableActions from "../../../Components/TableActions.jsx/TableActions";
 import ContraEdit from "./ContraEdit";
+import MyButton from "../../../Components/MyButton";
 
 export default function ContraReport() {
   const [wise, setWise] = useState("date");
@@ -297,7 +298,7 @@ export default function ContraReport() {
                 )
               )}
             </div>
-            <Button
+            <MyButton
               disabled={
                 wise === "date" || wise === "effective"
                   ? searchDateRange === ""
@@ -309,9 +310,10 @@ export default function ContraReport() {
               }
               type="primary"
               onClick={getRows}
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>

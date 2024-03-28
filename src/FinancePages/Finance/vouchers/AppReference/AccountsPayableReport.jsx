@@ -307,7 +307,7 @@ export default function AccountsPayableReport() {
             disabled={!subgroup}
             onClick={() => setOpen(true)}
           >
-            Search
+            Fetch
           </Button>
         </Col>
 

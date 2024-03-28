@@ -7,6 +7,7 @@ import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import EditSheet from "./EditSheet";
+import MyButton from "../../../Components/MyButton";
 
 function BalanceSheet() {
   let arr = [];
@@ -190,13 +191,14 @@ function BalanceSheet() {
           <div style={{ width: 300 }}>
             <MyDatePicker setDateRange={setDateRange} />
           </div>
-          <Button
+          <MyButton
             loading={loading === "fetchLoading"}
             type="primary"
             onClick={getRows}
+            variant="search"
           >
             Fetch
-          </Button>
+          </MyButton>
         </Space>
         <Space>
           <CommonIcons

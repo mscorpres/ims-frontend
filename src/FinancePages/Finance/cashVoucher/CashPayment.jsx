@@ -311,7 +311,7 @@ function CashPayment() {
       <NavFooter
         resetFunction={resetFunction}
         submitFunction={saveFunction}
-        nextLabel="SUBMIT"
+        nextLabel="Submit"
         loading={loading}
       />
     </div>

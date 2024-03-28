@@ -25,6 +25,7 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import DebitView from "./DebitView";
 import DebitEdit from "./DebitEdit";
+import MyButton from "../../../Components/MyButton";
 
 function DebitRegister() {
   const wiseOptions = [
@@ -316,13 +317,14 @@ function DebitRegister() {
                 // />
               )}
             </div>
-            <Button
+            <MyButton
               loading={loading === "fetch"}
               type="primary"
               onClick={getRows}
+              variant="search"
             >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Space>

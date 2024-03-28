@@ -14,6 +14,7 @@ import { v4 } from "uuid";
 import Loading from "../../Components/Loading";
 import { DownloadOutlined } from "@ant-design/icons";
 import { downloadCSVCustomColumns } from "../../Components/exportToCSV";
+import MyButton from "../../Components/MyButton";
 
 function TrialBalReport() {
   const [date, setDate] = useState("");
@@ -29,7 +30,6 @@ function TrialBalReport() {
     });
     setLoading(false);
     setAllData(flatArray(data.data));
-
   };
 
   const handleDownloadCSV = () => {
@@ -132,13 +132,14 @@ function TrialBalReport() {
           <MyDatePicker setDateRange={setDate} size="default" />
         </Col>
         <Col span={1}>
-          <Button
+          <MyButton
             loading={loading}
             type={date ? "primary" : "default"}
             onClick={fetchTrialBalanceFun}
+            variant="search"
           >
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         <Col span={1} offset={17}>
           <Button

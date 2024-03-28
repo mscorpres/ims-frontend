@@ -399,7 +399,7 @@ export default function CreditJournal() {
         loading={loading}
         submitFunction={submitHandler}
         resetFunction={resetHandler}
-        nextLabel="SUBMIT"
+        nextLabel="Submit"
       />
     </div>
   );
