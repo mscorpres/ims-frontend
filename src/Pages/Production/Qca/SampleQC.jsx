@@ -14,6 +14,7 @@ import Loading from "../../../Components/Loading";
 import useApi from "../../../hooks/useApi";
 import { getComponentOptions, getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 function SampleQC() {
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("");
@@ -340,7 +341,8 @@ function SampleQC() {
                 )
               )}{" "}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={!searchInput ? true : false}
               type="primary"
               // loading={searchLoading}
@@ -349,7 +351,7 @@ function SampleQC() {
               // className="primary-button search-wise-btn"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>
@@ -360,7 +362,9 @@ function SampleQC() {
             icon={<DownloadOutlined />}
             disabled={rows.length == 0}
           />
-          <Button onClick={resetFun}>Reset</Button>
+          <MyButton variant="reset" onClick={resetFun}>
+            Reset
+          </MyButton>
           <Button onClick={openConfirmModal} type="primary">
             Save Samples
           </Button>

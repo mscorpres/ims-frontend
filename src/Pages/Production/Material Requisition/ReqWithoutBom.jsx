@@ -23,6 +23,7 @@ import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general";
 
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 export default function ReqWithoutBom() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [pickLocationOptions, setPickLocationOptions] = useState([]);
@@ -488,13 +489,14 @@ export default function ReqWithoutBom() {
           <Row justify="end">
             <Space>
               <Button onClick={showResetConfirm}>Reset</Button>
-              <Button
+              <MyButton
+                variant="search"
                 loading={loading === "submitting"}
                 type="primary"
                 onClick={showSubmitConfirm}
               >
                 Submit
-              </Button>
+              </MyButton>
             </Space>
           </Row>
         </Card>

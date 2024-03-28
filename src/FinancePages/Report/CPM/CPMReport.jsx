@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import useApi from "../../../hooks/useApi";
 import { getProjectOptions } from "../../../api/general";
+import MyButton from "../../../Components/MyButton";
 
 export default function CPMReport() {
   const [projectName, setProjectName] = useState("");
@@ -122,13 +123,14 @@ export default function CPMReport() {
                 </Form.Item>
               </Form>
             </div>
-            <Button
+            <MyButton
+              variant="search"
               onClick={getRows}
               type="primary"
               loading={loading === "fetch"}
             >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

@@ -17,6 +17,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
+import MyButton from "../../../Components/MyButton";
 
 function MesQcaReport() {
   const [searchLoading, setSearchLoading] = useState(false);
@@ -160,16 +161,16 @@ function MesQcaReport() {
       const response = await imsAxios.post(url, {
         qca_ppr: values.ppr,
         qca_process: values.process.value,
-        data: values.date
+        data: values.date,
       });
       const { data } = response;
-      if(data.status === 'error'){
-         toast.error(data.message)
-       }else if(data.status === 'success'){
+      if (data.status === "error") {
+        toast.error(data.message);
+      } else if (data.status === "success") {
         if (data.response.data) {
           const arr = data.response.data.map((row, index) => {
-            const date = row.barcode[0].insert_dt.split(' ')
-            const qty = row.barcode.length
+            const date = row.barcode[0].insert_dt.split(" ");
+            const qty = row.barcode.length;
             return {
               key: index,
               id: index,
@@ -187,11 +188,11 @@ function MesQcaReport() {
               lot: row.lot_no,
               processLoc: row.process_loc,
               sfg: row.sfg,
-              date: date[0]
+              date: date[0],
             };
           });
-          setRows(arr); 
-      }
+          setRows(arr);
+        }
       }
     } catch (error) {
       toast.error(error);
@@ -252,20 +253,23 @@ function MesQcaReport() {
                 </div>
                 <div style={{ width: 240 }}>
                   <Form.Item name="date" label="Date" rules={rules.date}>
-                    <MyDatePicker setDateRange={(value) =>
-                         qcReportForm.setFieldValue("date", value)
-                        } />
+                    <MyDatePicker
+                      setDateRange={(value) =>
+                        qcReportForm.setFieldValue("date", value)
+                      }
+                    />
                   </Form.Item>
                 </div>
 
-                <Button
+                <MyButton
+                  variant="search"
                   type="primary"
                   loading={loading === "rows"}
                   onClick={getRows}
                   id="submit"
                 >
                   Search
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Form>
@@ -394,7 +398,7 @@ const ViewModal = ({ show, setshow, detaildata, status }) => {
     failReason: row.fail_reason,
   }));
 
-  console.log(arr)
+  console.log(arr);
 
   const viewcolumns = [
     {
@@ -429,20 +433,22 @@ const ViewModal = ({ show, setshow, detaildata, status }) => {
       }}
       extra={
         <Space>
-            <Button
-              type="primary"
-              onClick={() =>
-                downloadCSV(
-                  arr,
-                  status === "R" ? [...viewcolumns, extraColumn] : [...viewcolumns],
-                  "Lot Report"
-                )
-              }
-              shape="circle"
-              icon={<DownloadOutlined />}
-              disabled={arr?.length == 0}
-            />
-          </Space>  
+          <Button
+            type="primary"
+            onClick={() =>
+              downloadCSV(
+                arr,
+                status === "R"
+                  ? [...viewcolumns, extraColumn]
+                  : [...viewcolumns],
+                "Lot Report"
+              )
+            }
+            shape="circle"
+            icon={<DownloadOutlined />}
+            disabled={arr?.length == 0}
+          />
+        </Space>
       }
       open={show}
       bodyStyle={{ paddingTop: 5 }}

@@ -4,12 +4,13 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
+import MyButton from "../../../Components/MyButton";
 
 function QaProcess() {
   const [rows, setRows] = useState([]);
   const [form] = Form.useForm();
   const addRows = async (values) => {
-    console.log("values",values)
+    console.log("values", values);
     const data = await imsAxios.post("/qaProcessmaster/insert_Process", values);
 
     console.log("row Data", data);
@@ -90,9 +91,9 @@ function QaProcess() {
                 <Button>Reset</Button>
               </Col>
               <Col span={4}>
-                <Button type="primary" onClick={submitForm}>
+                <MyButton variant="search" type="primary" onClick={submitForm}>
                   Submit
-                </Button>
+                </MyButton>
               </Col>
             </Row>
           </Card>

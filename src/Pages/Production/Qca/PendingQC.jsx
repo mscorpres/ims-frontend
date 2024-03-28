@@ -20,6 +20,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import useApi from "../../../hooks/useApi";
 import { getComponentOptions, getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 function PendingQC() {
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("");
@@ -391,7 +392,8 @@ function PendingQC() {
                 )
               )}{" "}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={!searchInput ? true : false}
               type="primary"
               loading={searchLoading}
@@ -399,7 +401,7 @@ function PendingQC() {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>

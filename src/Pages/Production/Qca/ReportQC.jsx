@@ -18,6 +18,7 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import { DownloadOutlined, MessageOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
 import { GridActionsCellItem } from "@mui/x-data-grid";
+import MyButton from "../../../Components/MyButton";
 
 function ReportQC() {
   document.title = "QC Report";
@@ -175,7 +176,8 @@ function ReportQC() {
                 value={setSearchInput}
               />
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={!searchInput ? true : false}
               type="primary"
               loading={searchLoading}
@@ -183,7 +185,7 @@ function ReportQC() {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>

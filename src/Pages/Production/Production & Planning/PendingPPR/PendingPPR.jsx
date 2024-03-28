@@ -16,6 +16,7 @@ import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
 import ExecutePPR from "./ExecutePPR";
 import ViewComponents from "./ViewComponents";
+import MyButton from "../../../../Components/MyButton";
 
 const PendingPPR = () => {
   const [cancelPPR, setsCancelPPR] = useState(null);
@@ -319,7 +320,8 @@ const PendingPPR = () => {
                 )
               )}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={!searchInput ? true : false}
               type="primary"
               loading={searchLoading}
@@ -327,7 +329,7 @@ const PendingPPR = () => {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>

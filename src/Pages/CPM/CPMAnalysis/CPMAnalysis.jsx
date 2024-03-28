@@ -9,6 +9,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { InfoCircleFilled } from "@ant-design/icons";
 import { getProjectOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 
 export default function CPMAnalysis() {
   const [fileInfo, setFileInfo] = useState("");
@@ -464,14 +465,15 @@ export default function CPMAnalysis() {
             />
 
           </div> */}
-          <Button
+          <MyButton
+            variant="search"
             type="primary"
             loading={searchLoading}
             onClick={getRows}
             id="submit"
           >
             Search
-          </Button>
+          </MyButton>
 
           <CommonIcons
             action="downloadButton"

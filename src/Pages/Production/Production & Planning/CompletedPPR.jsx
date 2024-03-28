@@ -9,6 +9,7 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const CompletedPPR = () => {
   const [wise, setWise] = useState("skuwise");
@@ -139,7 +140,8 @@ const CompletedPPR = () => {
                 )
               )}{" "}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={!searchInput ? true : false}
               type="primary"
               loading={searchLoading}
@@ -148,7 +150,7 @@ const CompletedPPR = () => {
               // className="primary-button search-wise-btn"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
           {/* <div className="po_search_options">
                 <div className="search-type">
