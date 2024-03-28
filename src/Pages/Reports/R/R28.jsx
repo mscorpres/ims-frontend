@@ -14,6 +14,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
+import MyButton from "../../../Components/MyButton";
 //weekky report
 function R28() {
   const [datee, setDatee] = useState("");
@@ -83,14 +84,15 @@ function R28() {
             value={datee}
           />
         </Col>
-        <Button
+        <MyButton
+          variant="search"
           style={{ marginLeft: 4 }}
           loading={loading}
           onClick={getRows}
           type="primary"
         >
           Fetch
-        </Button>
+        </MyButton>
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
         <MyDataTable loading={loading} columns={columns} data={dateData} />

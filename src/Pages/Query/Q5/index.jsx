@@ -24,6 +24,7 @@ import { getComponentOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { getQ5 } from "../../../api/reports/query";
+import MyButton from "../../../Components/MyButton";
 
 const initHeader = {
   uniqueId: "--",
@@ -153,7 +154,8 @@ const QueryQ5 = () => {
                       componentLabel={`${stockDetails.partCode} - ${stockDetails?.component}`}
                       rows={stockDetails?.stock}
                     />
-                    <Button
+                    <MyButton
+                      variant="search"
                       onClick={async () => {
                         await getStockDetails("VENDOR");
                         await getStockDetails("RM");
@@ -163,7 +165,7 @@ const QueryQ5 = () => {
                       loading={loading("fetch")}
                     >
                       Submit
-                    </Button>
+                    </MyButton>
                   </Space>
                 </Row>
               </Form>
@@ -352,7 +354,6 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                      
                               <Typography
                                 sx={{
                                   width: "33%",

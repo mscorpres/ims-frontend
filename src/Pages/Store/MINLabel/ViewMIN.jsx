@@ -30,6 +30,7 @@ import { useEffect } from "react";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import Loading from "../../../Components/Loading";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 export default function ViewMIN() {
   const [searchInput, setSearchInput] = useState("");
@@ -341,7 +342,8 @@ export default function ViewMIN() {
               )}{" "}
             </div>
             <Space>
-              <Button
+              <MyButton
+                variant="search"
                 disabled={
                   wise === "datewise"
                     ? searchDateRange === ""
@@ -356,7 +358,7 @@ export default function ViewMIN() {
                 onClick={getSearchResults}
               >
                 Search
-              </Button>
+              </MyButton>
               <Button onClick={() => setShowPrintLabels(true)} type="default">
                 Print / Download Labels
               </Button>

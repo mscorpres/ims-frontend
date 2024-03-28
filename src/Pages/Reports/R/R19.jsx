@@ -10,6 +10,7 @@ import ModalR19 from "../Modal/ModalR19";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions, getProductsOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 
 function R19() {
   const [loading, setLoading] = useState(false);
@@ -134,9 +135,9 @@ function R19() {
         </Col>
 
         <Col span={1}>
-          <Button type="primary" onClick={fetchData}>
+          <MyButton variant="search" type="primary" onClick={fetchData}>
             Fetch
-          </Button>
+          </MyButton>
         </Col>
 
         {/* {mainData?.length > 0 && ( */}

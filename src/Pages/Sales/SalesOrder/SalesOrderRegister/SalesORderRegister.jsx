@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import printFunction from "../../../../Components/printFunction";
 import CreateShipment from "./CreateShipment/CreateShipment";
+import MyButton from "../../../../Components/MyButton";
 function SalesORderRegister() {
   // const [loading, setLoading] = useState(false);
   const [componentList, setComponentList] = useState(false);
@@ -321,14 +322,15 @@ function SalesORderRegister() {
                     )}
                   </Col>
                   <Space>
-                    <Button
+                    <MyButton
+                      variant="search"
                       disabled={!setSearchTerm}
                       type="primary"
                       loading={loading("fetch")}
                       onClick={handleFetchRows}
                     >
                       Search
-                    </Button>
+                    </MyButton>
                   </Space>
                 </Space>
               </Col>

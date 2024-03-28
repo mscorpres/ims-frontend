@@ -11,6 +11,7 @@ import {
   downloadCSVCustomColumns,
 } from "../../../Components/exportToCSV";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 function R16() {
   const [datee, setDatee] = useState("");
@@ -72,9 +73,14 @@ function R16() {
         </Col>
 
         <Col span={1}>
-          <Button onClick={fetch} loading={loading} type="primary">
+          <MyButton
+            variant="search"
+            onClick={fetch}
+            loading={loading}
+            type="primary"
+          >
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {dateData.length > 0 && (
           <Col span={1} offset={18}>

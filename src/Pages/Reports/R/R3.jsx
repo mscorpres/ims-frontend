@@ -9,6 +9,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const R3 = () => {
   const [responseData, setResponseData] = useState([]);
@@ -91,9 +92,9 @@ const R3 = () => {
           <MyDatePicker setDateRange={setSelectDate} size="default" />
         </Col>
         <Col span={2} className="gutter-row">
-          <Button onClick={fetch} block type="primary">
+          <MyButton variant="search" onClick={fetch} block type="primary">
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {responseData.length > 1 && (
           <Col span={1} offset={16} className="gutter-row">

@@ -19,6 +19,7 @@ import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import { getComponentOptions } from "../../api/general";
 import useApi from "../../hooks/useApi";
+import MyButton from "../../Components/MyButton";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
@@ -319,14 +320,15 @@ export default function ItemLocationLog() {
                   <Col span={24}>
                     <Row gutter={6}>
                       <Col span={20}>
-                        <Button
+                        <MyButton
+                          variant="search"
                           loading={loading === "fetch"}
                           htmlType="submit"
                           block
                           type="primary"
                         >
                           Fetch
-                        </Button>
+                        </MyButton>
                       </Col>
                       <Col span={4}>
                         <CommonIcons

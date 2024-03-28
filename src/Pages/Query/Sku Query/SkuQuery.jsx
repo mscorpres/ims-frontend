@@ -15,6 +15,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
+import MyButton from "../../../Components/MyButton";
 
 const Q3 = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -90,14 +91,15 @@ const Q3 = () => {
                 value={searchInput}
               />
             </div>
-            <Button
+            <MyButton
+              variant="search"
               loading={loading == "fetch"}
               disabled={!searchInput || searchInput.length === 0}
               onClick={getRows}
               type="primary"
             >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <CommonIcons

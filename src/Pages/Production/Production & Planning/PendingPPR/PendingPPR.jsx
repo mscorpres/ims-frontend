@@ -144,7 +144,7 @@ const PendingPPR = () => {
     },
     { headerName: "#", width: 30, field: "serial_no" },
     {
-      headerName: "Req No.",
+      headerName: "PPR No.",
       minWidth: 160,
       field: "prod_transaction",
       renderCell: ({ row }) => (

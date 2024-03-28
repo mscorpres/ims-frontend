@@ -9,6 +9,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { DownloadOutlined } from "@ant-design/icons";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 function R15() {
   const [loading, setLoading] = useState(false);
@@ -188,9 +189,9 @@ function R15() {
               <MyDatePicker size="default" setDateRange={setDatee} />
             </Col>
             <Col span={1}>
-              <Button onClick={fetch} loading={loading} type="primary">
+              <MyButton variant="search" onClick={fetch} loading={loading} type="primary">
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
             {responseData.length > 0 && (
               <Col span={1} offset={15}>
@@ -218,9 +219,14 @@ function R15() {
               />
             </Col>
             <Col span={1}>
-              <Button onClick={fetchPo} loading={loading} type="primary">
+              <MyButton
+                variant="search"
+                onClick={fetchPo}
+                loading={loading}
+                type="primary"
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
             {responsePoData.length > 0 && (
               <Col span={1} offset={15}>
@@ -236,9 +242,9 @@ function R15() {
               <MyDatePicker size="default" setDateRange={setDatee} />
             </Col>
             <Col span={1}>
-              <Button onClick={fetch} type="primary">
+              <MyButton variant="search" onClick={fetch} type="primary">
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         )}

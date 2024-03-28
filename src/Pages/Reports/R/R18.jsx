@@ -9,6 +9,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { toast } from "react-toastify";
+import MyButton from "../../../Components/MyButton";
 
 function R18() {
   const [location, setLocation] = useState("RM");
@@ -131,9 +132,14 @@ function R18() {
               />
             </div>
             <SingleDatePicker setDate={setDate} />
-            <Button loading={fetchLoading} onClick={getRows} type="primary">
+            <MyButton
+              variant="search"
+              loading={fetchLoading}
+              onClick={getRows}
+              type="primary"
+            >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
           <Space>
             <Button

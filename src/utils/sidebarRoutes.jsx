@@ -490,11 +490,11 @@ export const items = (user) => [
           "B412"
           // <AiOutlineMinus />
         ),
-        getItem(
-          <Link to="/weeklyaudit">Weekly Audit</Link>,
-          "B414"
-          // <AiOutlineMinus />
-        ),
+        // getItem(
+        //   <Link to="/weeklyaudit">Weekly Audit</Link>,
+        //   "B414"
+        //   // <AiOutlineMinus />
+        // ),
         getItem(
           <Link to="/r1">Reports R1 - R32 </Link>,
 

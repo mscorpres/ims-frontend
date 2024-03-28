@@ -10,6 +10,7 @@ import { v4 } from "uuid";
 import MyDataTable from "../../../Components/MyDataTable";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const R5 = () => {
   const [responseData, setResponseData] = useState([]);
@@ -90,9 +91,9 @@ const R5 = () => {
           <MyDatePicker setDateRange={setSelectDate} size="default" />
         </Col>
         <Col span={1}>
-          <Button type="primary" onClick={fetch}>
+          <MyButton variant="search" type="primary" onClick={fetch}>
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {responseData.length > 1 && (
           <Col span={1} offset={17}>

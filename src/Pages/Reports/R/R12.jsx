@@ -16,6 +16,7 @@ import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi";
 import { getProductsOptions } from "../../../api/general";
+import MyButton from "../../../Components/MyButton";
 
 const R12 = () => {
   const [search, setSearch] = useState("");
@@ -192,9 +193,9 @@ const R12 = () => {
           /> */}
         </Col>
         <Col span={1}>
-          <Button onClick={fetchBySearch} type="primary">
+          <MyButton variant="search" onClick={fetchBySearch} type="primary">
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {resData.length > 1 && (
           <Col span={2} offset={9} className="gutter-row">

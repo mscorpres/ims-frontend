@@ -26,6 +26,7 @@ import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { getVendorOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 
 function R31() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -229,7 +230,7 @@ function R31() {
                 <Col span={24}>
                   <Space>
                     <Form.Item style={{ marginBottom: 0 }}>
-                      <Button
+                      <MyButton variant="search"
                         // loading={fetchLoading}
                         size="default"
                         htmlType="submit"
@@ -237,7 +238,7 @@ function R31() {
                         onClick={() => getRows()}
                       >
                         Generate
-                      </Button>
+                      </MyButton>
                     </Form.Item>
                     <Form.Item style={{ marginBottom: 0 }}>
                       <CommonIcons

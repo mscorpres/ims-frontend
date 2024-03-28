@@ -10,6 +10,7 @@ import socket from "../../../Components/socket";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { v4 } from "uuid";
+import MyButton from "../../../Components/MyButton";
 
 const R26 = () => {
   const [rows, setRows] = useState([]);
@@ -89,13 +90,14 @@ const R26 = () => {
             <Col>
               <Space>
                 <CommonIcons action="downloadButton" onClick={handleDownload} />
-                <Button
+                <MyButton
+                  variant="search"
                   loading={loading === "fetch"}
                   onClick={getRows}
                   type="primary"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </Col>
           </Row>

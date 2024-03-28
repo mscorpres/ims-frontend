@@ -10,6 +10,7 @@ import { v4 } from "uuid";
 import MyDataTable from "../../../Components/MyDataTable";
 import { getProductsOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 function R22() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [search, setSearch] = useState("");
@@ -133,9 +134,13 @@ function R22() {
                   >
                     Cancel
                   </Button> */}
-                <Button onClick={fetchBySearch} type="primary">
+                <MyButton
+                  variant="search"
+                  onClick={fetchBySearch}
+                  type="primary"
+                >
                   Generate
-                </Button>
+                </MyButton>
               </div>
             </Col>
           )}

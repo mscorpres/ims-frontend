@@ -17,6 +17,7 @@ import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { v4 } from "uuid";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const { RangePicker } = DatePicker;
 
@@ -150,9 +151,9 @@ const R13 = () => {
           <MyDatePicker setDateRange={setDatee} size="default" />
         </Col>
         <Col span={1} className="gutter-row">
-          <Button type="primary" onClick={fetch}>
+          <MyButton variant="search" type="primary" onClick={fetch}>
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {responseData.length > 1 && (
           <Col span={1} offset={16}>

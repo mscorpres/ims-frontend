@@ -25,6 +25,7 @@ import socket from "../../../Components/socket";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import useApi from "../../../hooks/useApi";
 import { getComponentOptions } from "../../../api/general";
+import MyButton from "../../../Components/MyButton";
 const WeeklyAudit = () => {
   const [rows, setRows] = useState([]);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -253,14 +254,15 @@ const WeeklyAudit = () => {
                 >
                   Download Sample File
                 </Button>
-                <Button
+                <MyButton
                   loading={loading === "1"}
                   onClick={verifyFile}
                   type="primary"
                   disabled={!uploadingFile}
+                  variant="next"
                 >
                   Next
-                </Button>
+                </MyButton>
               </Space>
             </Row>
           </Row>
