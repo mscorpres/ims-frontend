@@ -18,6 +18,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi";
 import { convertSelectOptions } from "../../../utils/general";
 import { getVendorOptions } from "../../../api/general";
+import MyButton from "../../../Components/MyButton";
 
 const CompletedPo = () => {
   const [loading, setLoading] = useState(false);
@@ -349,7 +350,7 @@ const CompletedPo = () => {
                 )
               )}{" "}
             </div>
-            <Button
+            <MyButton
               loading={searchLoading}
               disabled={
                 wise === "single_date_wise"
@@ -362,9 +363,10 @@ const CompletedPo = () => {
               }
               type="primary"
               onClick={getSearchResults}
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

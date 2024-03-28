@@ -23,6 +23,7 @@ import MyDataTable from "../gstreco/myDataTable";
 import TableActions from "../../Components/TableActions.jsx/TableActions";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { convertSelectOptions } from "../../utils/general";
+import MyButton from "../../Components/MyButton";
 
 function Location() {
   const [treeData, setTreeData] = useState([]);
@@ -494,25 +495,27 @@ function Location() {
                       <Row gutter={10} justify="end">
                         <Col>
                           <Form.Item>
-                            <Button
+                            <MyButton
                               htmlType="button"
                               size="default"
                               onClick={() => resetForm()}
+                              variant="reset"
                             >
                               Reset
-                            </Button>
+                            </MyButton>
                           </Form.Item>
                         </Col>
                         <Col>
                           <Form.Item>
-                            <Button
+                            <MyButton
                               loading={submitLoading}
                               htmlType="submit"
                               size="default"
                               type="primary"
+                              variant="add"
                             >
                               Submit
-                            </Button>
+                            </MyButton>
                           </Form.Item>
                         </Col>
                       </Row>

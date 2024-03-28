@@ -4,6 +4,7 @@ import { Button, Col, Input, Row, Space } from "antd";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
+import MyButton from "../../Components/MyButton";
 
 const Uom = () => {
   const [uomData, setUomData] = useState([]);
@@ -111,18 +112,15 @@ const Uom = () => {
             <Row justify="end" style={{ width: "100%", margin: "10px 0" }}>
               <Col className="gutter-row">
                 <Space style={{ textAlign: "end" }}>
-                  <Button
+                  <MyButton
                     onClick={reset}
                     // block
-                    style={{
-                      backgroundColor: "#3A4B53",
-                      color: "white",
-                      // marginTop: "6px",
-                    }}
+
+                    variant="reset"
                   >
                     Reset
-                  </Button>
-                  <Button
+                  </MyButton>
+                  <MyButton
                     type="primary"
                     // block
                     onClick={addUom}
@@ -131,9 +129,10 @@ const Uom = () => {
                       color: "white",
                       // marginTop: "6px",
                     }}
+                    variant="add"
                   >
                     Save
-                  </Button>
+                  </MyButton>
                 </Space>
               </Col>
             </Row>

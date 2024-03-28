@@ -9,9 +9,7 @@ import MySelect from "../../../../Components/MySelect";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyButton from "../../../../Components/MyButton";
-import {
-  downloadServiceMaster,
-} from "../../../../api/master/component";
+import { downloadServiceMaster } from "../../../../api/master/component";
 import useApi from "../../../../hooks/useApi";
 
 function Services() {
@@ -216,17 +214,22 @@ function Services() {
                         variant="downloadSample"
                         onClick={handleDownloadMaster}
                       />
-                      <Button size="default" onClick={resetFun}>
+                      <MyButton
+                        size="default"
+                        onClick={resetFun}
+                        variant="reset"
+                      >
                         Reset
-                      </Button>
-                      <Button
+                      </MyButton>
+                      <MyButton
                         size="default"
                         onClick={addService}
                         loading={submitLoading}
                         type="primary"
+                        variant="add"
                       >
                         Save
-                      </Button>
+                      </MyButton>
                     </Space>
                   </Row>
                 </Col>

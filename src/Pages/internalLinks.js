@@ -1076,11 +1076,11 @@ const links = [
       routePath: "/viewsummary",
     },
     {
-      routeName: "view book Data",
+      routeName: "View Book Data",
       routePath: "/viewbookdata",
     },
     {
-      routeName: "view GST Data",
+      routeName: "View GST Data",
       routePath: "/viewgstdata",
     },
   ],

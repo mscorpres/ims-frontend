@@ -4,6 +4,7 @@ import MySelect from "../../../../Components/MySelect";
 import UploadFile from "./UploadFile";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import Typography from "antd/es/typography/Typography";
+import MyButton from "../../../../Components/MyButton";
 
 const ProductDetails = ({
   submitHandler,
@@ -53,15 +54,19 @@ const ProductDetails = ({
         <Col span={24}>
           <Row justify="end">
             <Space>
-              <Button loading={loading === "fetch"} onClick={resetProduct}>
+              <MyButton
+                loading={loading === "fetch"}
+                onClick={resetProduct}
+                variant="reset"
+              >
                 Reset Product
-              </Button>
+              </MyButton>
               <Button
                 loading={loading === "fetch"}
                 onClick={getSKUDetails}
                 type="primary"
               >
-                Get Data
+                Fetch Data
               </Button>
             </Space>
           </Row>

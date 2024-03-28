@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Table, Row,Col,Button } from "antd";
+import { Table, Row, Col, Button } from "antd";
 // import api from "../config";
-import {
-  DownloadOutlined
-} from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 
 // import { CSVLink} from "react-csv";
 import axios from "axios";
@@ -11,6 +9,7 @@ import "./summary.css";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import { downloadCSV } from "../../../Components/exportToCSV";
+import MyButton from "../../../Components/MyButton";
 // import Spinner from "../Spin/Spinner";
 
 const columns = [
@@ -37,7 +36,7 @@ const columns = [
         dataIndex: "g_cgstSum",
         key: "g_cgstSum",
         width: 14,
-      
+
         align: "center",
       },
       {
@@ -45,7 +44,7 @@ const columns = [
         dataIndex: "g_sgstSum",
         key: "g_sgstSum",
         width: 14,
-      
+
         align: "center",
       },
     ],
@@ -85,39 +84,47 @@ const Summary = () => {
   }, []);
 
   const getData = async () => {
-    try{
+    try {
       const response = await imsAxios.get(`/summary/getsummary`);
-    if(response.status === 200){
-      setGstData(response.data);
-    }
-    else{
-      toast.error('error in getting data!')
-
-    }
-    }catch(error){
-      toast.error(error)
+      if (response.status === 200) {
+        setGstData(response.data);
+      } else {
+        toast.error("error in getting data!");
+      }
+    } catch (error) {
+      toast.error(error);
     }
   };
 
   return (
     <>
-    <Button style={{ marginTop: '1rem', marginLeft: '2rem', marginLeft: '2rem', marginBottom: '1rem' }} onClick={() => downloadCSV(summaryData, columns, 'Summary')}>Download</Button>
-    <div className="summary-container" >
-      
-
-      <>
-        <div style={{ height: "100%", marginLeft: '4rem' }}>
-          <Table
-            dataSource={summaryData}
-            columns={columns}
-            bordered={true}
-            // itemSizeSM={}
-            size="small"
-            pagination={false} />
-        </div>
-      </>
-
-    </div></>
+      <MyButton
+        style={{
+          marginTop: "1rem",
+          marginLeft: "2rem",
+          marginLeft: "2rem",
+          marginBottom: "1rem",
+        }}
+        onClick={() => downloadCSV(summaryData, columns, "Summary")}
+        variant="download"
+      >
+        Download
+      </MyButton>
+      <div className="summary-container">
+        <>
+          <div style={{ height: "100%", marginLeft: "4rem" }}>
+            <Table
+              dataSource={summaryData}
+              columns={columns}
+              bordered={true}
+              // itemSizeSM={}
+              size="small"
+              pagination={false}
+            />
+          </div>
+        </>
+      </div>
+    </>
   );
 };
 

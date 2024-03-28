@@ -5,6 +5,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import SubmitConfirmModal from "./SubmitConfirmModal";
 import { toast } from "react-toastify";
+import MyButton from "../../../Components/MyButton";
 
 function AddShippingAddress({ handleCSVDownload, getRows }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -179,10 +180,12 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
           <Col span={24}>
             <Row justify="end">
               <Space>
-                <Button htmlType="button">Reset</Button>
-                <Button type="primary" htmlType="submit">
+                <MyButton variant="reset" htmlType="button">
+                  Reset
+                </MyButton>
+                <MyButton variant="add" type="primary" htmlType="submit">
                   Save
-                </Button>
+                </MyButton>
                 <CommonIcons
                   action="downloadButton"
                   onClick={handleCSVDownload}

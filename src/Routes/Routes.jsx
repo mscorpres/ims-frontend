@@ -885,11 +885,11 @@ const Routes = [
     path: "/woviewchallan",
     main: () => <WoViewChallan />,
   },
-  {
-    path: "/addClient",
-    exact: true,
-    main: () => <AddClientInfo />,
-  },
+  // {
+  //   path: "/addClient",
+  //   exact: true,
+  //   main: () => <AddClientInfo />,
+  // },
   {
     path: "/clientView",
     exact: true,
