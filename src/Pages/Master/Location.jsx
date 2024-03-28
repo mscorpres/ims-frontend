@@ -619,18 +619,18 @@ function Location() {
           </Row>
         </Col>
         <Col span={16} style={{ height: "100%" }}>
-          <Card
+          {/* <Card
             style={{ maxHeight: 600, overflowY: "scroll" }}
             bodyStyle={{ height: "100%", overflowY: "scroll" }}
             title="Locations"
             size="small"
-          >
+          > */}
             {treeLoading && <Loading />}
             {/* <Tree showLine={true} treeData={treeData} /> */}
-            <div style={{ height: "80vh" }}>
+            <div style={{ height: "95%" }}>
               <MyDataTable columns={coloums} data={locationData} />
             </div>
-          </Card>
+          {/* </Card> */}
         </Col>
       </Row>
     </div>
