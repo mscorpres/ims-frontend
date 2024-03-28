@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
 import FormTable from "../../Components/FormTable";
+import MyButton from "../../Components/MyButton";
 
 function UpdateRM() {
   const [updteModal, setUpdteModal] = useState(false);
@@ -230,9 +231,14 @@ function UpdateRM() {
             />
           </Col>
           <Col span={1}>
-            <Button loading={loading} type="primary" onClick={fetchInputData}>
+            <MyButton
+              loading={loading}
+              type="primary"
+              onClick={fetchInputData}
+              variant="search"
+            >
               Fetch
-            </Button>
+            </MyButton>
           </Col>
           <Divider orientation="left"></Divider>
           {mainData?.length > 0 && (

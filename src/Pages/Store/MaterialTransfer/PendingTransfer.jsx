@@ -10,6 +10,7 @@ import { EyeTwoTone } from "@ant-design/icons";
 import { v4 } from "uuid";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const { RangePicker } = DatePicker;
 
@@ -187,9 +188,14 @@ function PendingTransfer() {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <Button onClick={dateWise} loading={loading} type="primary">
+              <MyButton
+                onClick={dateWise}
+                loading={loading}
+                type="primary"
+                variant="search"
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : allData.typeWise == "transactionwise" ? (
@@ -206,13 +212,14 @@ function PendingTransfer() {
               />
             </Col>
             <Col span={2}>
-              <Button
+              <MyButton
                 onClick={transactionWise}
                 loading={loading}
                 type="primary"
+                variant="search"
               >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : allData.typeWise == "locationwise" ? (
@@ -228,13 +235,14 @@ function PendingTransfer() {
               />
             </Col>
             <Col span={2}>
-              <Button
+              <MyButton
                 onClick={locationWiseDateFecth}
                 loading={loading}
                 type="primary"
+                variant="search"
               >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : (

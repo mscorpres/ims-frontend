@@ -410,7 +410,7 @@ const PartCodeConversion = () => {
             >
               {loading === "page" && <Loading />}
               <Row gutter={6}>
-                <Col span={16}>
+                <Col span={14}>
                   <Form.Item
                     extra={
                       <Typography.Text
@@ -437,7 +437,7 @@ const PartCodeConversion = () => {
                   </Form.Item>
                 </Col>
 
-                <Col span={4}>
+                <Col span={6}>
                   <Form.Item
                     label="Pick Location"
                     rules={rules.locationIn}
@@ -468,7 +468,7 @@ const PartCodeConversion = () => {
               extra={extraButtons(editingComponent, "final")}
             >
               <Row gutter={6}>
-                <Col span={16}>
+                <Col span={14}>
                   <Form.Item
                     label="Component"
                     rules={rules.componentOut}
@@ -484,7 +484,7 @@ const PartCodeConversion = () => {
                   </Form.Item>
                 </Col>
 
-                <Col span={4}>
+                <Col span={6}>
                   <Form.Item
                     label="Drop Location"
                     rules={rules.locationOut}

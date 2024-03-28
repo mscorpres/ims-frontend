@@ -8,6 +8,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 const { RangePicker } = DatePicker;
 
 function CreatePhysical() {
@@ -268,19 +269,25 @@ function CreatePhysical() {
       <Row gutter={16}>
         <Col span={24}>
           <div style={{ textAlign: "end", margin: "10px" }}>
-            <Button
+            <MyButton
+              variant="reset"
               onClick={resetFunction}
               style={{
-                backgroundColor: "red",
-                color: "white",
+                //   backgroundColor: "red",
+                //   color: "white",
                 marginRight: "5px",
               }}
             >
               Reset
-            </Button>
-            <Button onClick={savePhysical} loading={loading} type="primary">
+            </MyButton>
+            <MyButton
+              onClick={savePhysical}
+              loading={loading}
+              type="primary"
+              variant="add"
+            >
               Save
-            </Button>
+            </MyButton>
           </div>
         </Col>
       </Row>

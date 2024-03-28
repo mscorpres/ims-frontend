@@ -16,7 +16,8 @@ import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
 import { v4 } from "uuid";
-import * as XLSX from "xlsx"
+import * as XLSX from "xlsx";
+import MyButton from "../../Components/MyButton";
 const WoReport = () => {
   const actionColumn = {
     headerName: "",
@@ -287,13 +288,14 @@ const WoReport = () => {
 
                 <MyDatePicker setDateRange={setSearchInput} />
 
-                <Button
+                <MyButton
+                  variant="search"
                   onClick={getRows}
                   loading={loading === "fetch"}
                   type="primary"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Space>

@@ -14,6 +14,7 @@ import printFunction, {
 import EditDC from "./EditDC/EditDC";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 function ManageDC() {
   const [allData, setAlldata] = useState({
@@ -170,9 +171,9 @@ function ManageDC() {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2} className="gutter-row">
-              <Button type="primary" onClick={datewiseGP}>
+              <MyButton variant="search" type="primary" onClick={datewiseGP}>
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
             {dateData.length > 0 && (
               <Col span={1} offset={11} className="gutter-row">
@@ -201,9 +202,13 @@ function ManageDC() {
               </div>
             </Col>
             <Col span={2} className="gutter-row">
-              <Button type="primary" onClick={gpWiseDataFecth}>
+              <MyButton
+                variant="search"
+                type="primary"
+                onClick={gpWiseDataFecth}
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : (
@@ -212,9 +217,9 @@ function ManageDC() {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2} className="gutter-row">
-              <Button type="primary" onClick={datewiseGP}>
+              <MyButton variant="search" type="primary" onClick={datewiseGP}>
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         )}

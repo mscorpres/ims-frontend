@@ -12,6 +12,7 @@ import TableActions, {
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MINDrawer from "./MINDrawer";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 function SFGMIN() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -160,14 +161,15 @@ function SFGMIN() {
                       disabled={rows.length === 0}
                       onClick={handleDownloadCSV}
                     />
-                    <Button
+                    <MyButton
                       loading={fetchLoading}
                       size="default"
                       htmlType="submit"
                       type="primary"
+                      variant="search"
                     >
                       Search
-                    </Button>
+                    </MyButton>
                   </Space>
                 </Row>
               </Form.Item>

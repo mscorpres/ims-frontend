@@ -374,11 +374,11 @@ const Routes = [
     exact: true,
     main: () => <RmtoRm />,
   },
-  {
-    path: "/sf-to-rm",
-    exact: true,
-    main: () => <RmtoRm />,
-  },
+  // {
+  //   path: "/sf-to-rm",
+  //   exact: true,
+  //   main: () => <RmtoRm />,
+  // },
   {
     path: "/view-transaction",
     exact: true,

@@ -11,6 +11,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { EyeFilled } from "@ant-design/icons";
 import SFTransferDrawer from "./SFTransferDrawer";
 import { toast } from "react-toastify";
+import MyButton from "../../Components/MyButton";
 function Pending() {
   const [searchInput, setSearchInput] = useState("");
   const [rows, setRows] = useState([]);
@@ -33,8 +34,9 @@ function Pending() {
       });
       setRows(arr);
       setLoading(false);
-    }if(data.code === 500){
-      toast.error(data.message.msg)
+    }
+    if (data.code === 500) {
+      toast.error(data.message.msg);
     }
     setLoading(false);
   };
@@ -114,9 +116,14 @@ function Pending() {
               <Space>
                 <MyDatePicker setDateRange={setSearchInput} />
 
-                <Button onClick={getRows} loading={loading} type="primary">
+                <MyButton
+                  onClick={getRows}
+                  loading={loading}
+                  type="primary"
+                  variant="search"
+                >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Col>

@@ -141,6 +141,13 @@ const MyButton = (props) => {
       </Button>
     );
   }
+  if (props.variant === "save") {
+    return (
+      <Button {...props} type={props.type ?? "primary"} icon={<SaveOutlined />}>
+        {props.text ?? "Upload File"}
+      </Button>
+    );
+  }
 };
 
 export default MyButton;

@@ -28,6 +28,7 @@ import printFunction, {
 } from "../../Components/printFunction";
 import { responsiveArray } from "antd/es/_util/responsiveObserver";
 import { Drawer } from "antd/es";
+import MyButton from "../../Components/MyButton";
 const WoViewChallan = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [showTypeSelect, setShowTypeSelect] = useState(false);
@@ -499,13 +500,14 @@ const WoViewChallan = () => {
                     </div>
                   )} */}
 
-                  <Button
+                  <MyButton
+                    variant="search"
                     onClick={getRows}
                     loading={loading === "fetch"}
                     type="primary"
                   >
                     Fetch
-                  </Button>
+                  </MyButton>
                 </Space>
               </div>
             </Col>

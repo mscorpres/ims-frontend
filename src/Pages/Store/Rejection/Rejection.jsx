@@ -7,6 +7,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../Components/MyDataTable";
 import { DeleteTwoTone, DeleteOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const { TextArea } = Input;
 
@@ -225,9 +226,14 @@ const Rejection = () => {
           />
         </Col>
         <Col span={2}>
-          <Button type="primary" onClick={rejectListFunction} loading={loading}>
+          <MyButton
+            variant="search"
+            type="primary"
+            onClick={rejectListFunction}
+            loading={loading}
+          >
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {allDataComes.length > 0 && (
           <Col span={8} offset={10}>

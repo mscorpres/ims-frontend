@@ -21,6 +21,7 @@ import JWRMChallanEditMaterials from "./JWRMChallanEditMaterials";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import CancelEwayBillModal from "./CancelEwayBillModal";
+import MyButton from "../../../Components/MyButton";
 
 function JwRwChallan() {
   const [wise, setWise] = useState("datewise");
@@ -374,7 +375,8 @@ function JwRwChallan() {
                 />
               )}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               type="primary"
               disabled={wise === "" || searchInput === ""}
               loading={loading === "fetch"}
@@ -382,7 +384,7 @@ function JwRwChallan() {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

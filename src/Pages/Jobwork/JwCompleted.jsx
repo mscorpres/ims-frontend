@@ -16,6 +16,7 @@ import ViewModal from "./Modal/ViewModal";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
 import useApi from "../../hooks/useApi";
+import MyButton from "../../Components/MyButton";
 
 const JwCompleted = () => {
   const [viewModalOpen, setViewModalOpen] = useState(null);
@@ -235,9 +236,14 @@ const JwCompleted = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <Button type="primary" loading={loading} onClick={fetchDatewise}>
+              <MyButton
+                variant="search"
+                type="primary"
+                loading={loading}
+                onClick={fetchDatewise}
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : allData.setType == "jw_transaction_wise" ? (
@@ -254,9 +260,14 @@ const JwCompleted = () => {
               />
             </Col>
             <Col span={2}>
-              <Button loading={loading} type="primary" onClick={fetchJWwise}>
+              <MyButton
+                variant="search"
+                loading={loading}
+                type="primary"
+                onClick={fetchJWwise}
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : allData.setType == "jw_sfg_wise" ? (
@@ -277,9 +288,14 @@ const JwCompleted = () => {
               />
             </Col>
             <Col span={2}>
-              <Button loading={loading} type="primary" onClick={fetchSKUwise}>
+              <MyButton
+                variant="search"
+                loading={loading}
+                type="primary"
+                onClick={fetchSKUwise}
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : allData.setType == "vendorwise" ? (
@@ -301,13 +317,14 @@ const JwCompleted = () => {
               />
             </Col>
             <Col span={2}>
-              <Button
+              <MyButton
+                variant="search"
                 loading={loading}
                 type="primary"
                 onClick={fetchVendorwise}
               >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         ) : (
@@ -316,9 +333,14 @@ const JwCompleted = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <Button type="primary" loading={loading} onClick={fetchDatewise}>
+              <MyButton
+                variant="search"
+                type="primary"
+                loading={loading}
+                onClick={fetchDatewise}
+              >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         )}

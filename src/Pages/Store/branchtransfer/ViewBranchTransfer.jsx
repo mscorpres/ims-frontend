@@ -20,6 +20,7 @@ import printFunction, {
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 
 function ViewBranchTransfer() {
   const [searchLoading, setSearchLoading] = useState(false);
@@ -243,14 +244,15 @@ function ViewBranchTransfer() {
                   </div>
                 )}
 
-                <Button
+                <MyButton
+                  variant="search"
                   type="primary"
                   loading={loading === "rows"}
                   onClick={getRows}
                   id="submit"
                 >
                   Search
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Form>

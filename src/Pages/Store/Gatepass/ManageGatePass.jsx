@@ -13,6 +13,7 @@ import TableActions, {
   CommonIcons,
 } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 export default function ManageGatePass() {
   const [wise, setWise] = useState("datewise");
@@ -228,7 +229,8 @@ export default function ManageGatePass() {
                 )
               )}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               loading={searchLoading}
               disabled={
                 wise === "datewise"
@@ -244,7 +246,7 @@ export default function ManageGatePass() {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

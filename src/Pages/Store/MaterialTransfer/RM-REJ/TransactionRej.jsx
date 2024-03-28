@@ -7,6 +7,7 @@ import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
 import MyDataTable from "../../../../Components/MyDataTable";
 import MyDatePicker from "../../../../Components/MyDatePicker";
 import { imsAxios } from "../../../../axiosInterceptor";
+import MyButton from "../../../../Components/MyButton";
 
 const { RangePicker } = DatePicker;
 
@@ -106,13 +107,14 @@ function TransactionRej() {
         </Col>
         <Col span={1} className="gutter-row">
           <div>
-            <Button
+            <MyButton
+              variant="search"
               onClick={dataComesFromDBWhenClickButton}
               type="primary"
               loading={loading}
             >
               Fetch
-            </Button>
+            </MyButton>
           </div>
         </Col>
         {dataComesFromDateWise.length > 0 && (
