@@ -8,6 +8,7 @@ import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import MySelect from "../../../../Components/MySelect";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
+import MyButton from "../../../../Components/MyButton";
 
 function Services() {
   const [loading, setLoading] = useState(false);
@@ -198,17 +199,22 @@ function Services() {
                 <Col span={24}>
                   <Row justify="end">
                     <Space>
-                      <Button size="default" onClick={resetFun}>
+                      <MyButton
+                        size="default"
+                        onClick={resetFun}
+                        variant="reset"
+                      >
                         Reset
-                      </Button>
-                      <Button
+                      </MyButton>
+                      <MyButton
                         size="default"
                         onClick={addService}
                         loading={submitLoading}
                         type="primary"
+                        variant="add"
                       >
                         Save
-                      </Button>
+                      </MyButton>
                     </Space>
                   </Row>
                 </Col>
