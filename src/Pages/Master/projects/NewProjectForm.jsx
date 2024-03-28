@@ -3,6 +3,7 @@ import { useState } from "react";
 import CreateSubmitConfirmModal from "./CreateSubmitConfirmModal";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
+import MyButton from "../../../Components/MyButton";
 
 export default function NewProjectForm() {
   const [submitConfirm, setSubmitConfirm] = useState(false);
@@ -107,9 +108,9 @@ export default function NewProjectForm() {
       <Row>
         <Col span={22}>
           <Row justify="end">
-            <Button type="primary" htmlType="submit">
+            <MyButton type="primary" htmlType="submit" variant="add">
               Submit
-            </Button>
+            </MyButton>
           </Row>
         </Col>
       </Row>

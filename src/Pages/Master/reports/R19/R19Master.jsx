@@ -20,6 +20,7 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
 import { getComponentOptions } from "../../../../api/general";
 import useApi from "../../../../hooks/useApi";
+import MyButton from "../../../../Components/MyButton";
 function R19Master() {
   const [rows, setRows] = useState([]);
   const [uploadingFile, setUploadingFile] = useState(false);
@@ -205,20 +206,22 @@ function R19Master() {
 
           <Row justify="end">
             <Space>
-              <Button
+              <MyButton
                 href="https://ims.mscorpres.net/assets/files/R19.csv"
                 type="link"
+                variant="downloadSample"
               >
                 Download Sample File
-              </Button>
-              <Button
+              </MyButton>
+              <MyButton
                 loading={loading === "1"}
                 onClick={verifyFile}
                 type="primary"
                 disabled={!uploadingFile}
+                variant="next"
               >
                 Next
-              </Button>
+              </MyButton>
             </Space>
           </Row>
           <Col span={24}>

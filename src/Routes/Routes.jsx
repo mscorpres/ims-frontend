@@ -875,11 +875,11 @@ const Routes = [
     path: "/wocreatescrapechallan",
     main: () => <CreateScrapeChallan />,
   },
-  {
-    path: "/addClient",
-    exact: true,
-    main: () => <AddClientInfo />,
-  },
+  // {
+  //   path: "/addClient",
+  //   exact: true,
+  //   main: () => <AddClientInfo />,
+  // },
   {
     path: "/clientView",
     exact: true,

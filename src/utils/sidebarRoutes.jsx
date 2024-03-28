@@ -286,13 +286,13 @@ export const items = (user) => [
         "clients/add"
         // <AiOutlineMinus />
       ),
-      getItem("WorkOrder", "B28", <MdDashboard />, [
-        getItem(
-          <Link to="/addClient">Create Client</Link>,
-          "B281"
-          // <MdDashboard />
-        ),
-      ]),
+      // getItem("WorkOrder", "B28", <MdDashboard />, [
+      //   getItem(
+      //     <Link to="/addClient">Create Client</Link>,
+      //     "B281"
+      //     // <MdDashboard />
+      //   ),
+      // ]),
       getItem(
         <Link to="/master/reports/projects">Projects</Link>,
         "/master/reports/projects/B20"

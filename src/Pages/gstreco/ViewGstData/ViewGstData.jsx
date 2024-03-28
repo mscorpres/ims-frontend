@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import "react-toastify/dist/ReactToastify.css";
 import { downloadCSV } from "../../../Components/exportToCSV";
+import MyButton from "../../../Components/MyButton";
 
 const ViewGstData = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -242,12 +243,13 @@ const ViewGstData = () => {
       >
         Validate Data
       </Button>
-      <Button
+      <MyButton
         style={{ marginLeft: "2rem", marginLeft: "1rem" }}
         onClick={() => downloadCSV(gstData, columns, "gstdata")}
+        variant="download"
       >
         Download
-      </Button>
+      </MyButton>
       <Col
         style={{
           height: "80%",

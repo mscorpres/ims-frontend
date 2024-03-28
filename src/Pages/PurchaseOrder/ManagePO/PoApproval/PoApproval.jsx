@@ -21,6 +21,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { getProjectOptions, getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
 import useApi from "../../../../hooks/useApi";
+import MyButton from "../../../../Components/MyButton";
 
 export default function PoApproval() {
   const [loading, setLoading] = useState(false);
@@ -267,13 +268,14 @@ export default function PoApproval() {
             </Col>
             <Col>
               <Space>
-                <Button
+                <MyButton
                   loading={loading === "fetch"}
                   type="primary"
                   onClick={getRows}
+                  variant="search"
                 >
                   Fetch
-                </Button>
+                </MyButton>
                 <Button
                   loading={loading === "fetch"}
                   disabled={selectedPo.length === 0}

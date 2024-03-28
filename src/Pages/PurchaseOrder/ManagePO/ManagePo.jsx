@@ -23,6 +23,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../hooks/useApi";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 
 const ManagePO = () => {
   const [loading, setLoading] = useState(false);
@@ -393,7 +394,7 @@ const ManagePO = () => {
                 )
               )}
             </div>
-            <Button
+            <MyButton
               disabled={
                 wise === "single_date_wise"
                   ? searchDateRange === ""
@@ -407,9 +408,10 @@ const ManagePO = () => {
               loading={searchLoading}
               onClick={getSearchResults}
               id="submit"
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

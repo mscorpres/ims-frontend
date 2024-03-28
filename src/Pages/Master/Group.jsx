@@ -5,6 +5,7 @@ import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
+import MyButton from "../../Components/MyButton";
 
 const Group = () => {
   const { pathname } = useLocation();
@@ -85,14 +86,17 @@ const Group = () => {
             <Row justify="end">
               <Col>
                 <Space>
-                  <Button onClick={reset}>Reset</Button>
-                  <Button
+                  <MyButton onClick={reset} variant="reset">
+                    Reset
+                  </MyButton>
+                  <MyButton
                     loading={submitLoading}
                     type="primary"
                     onClick={addGroup}
+                    variant="add"
                   >
                     Submit
-                  </Button>
+                  </MyButton>
                 </Space>
               </Col>
             </Row>

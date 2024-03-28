@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 import { Button, Card, Col, Row, Space } from "antd";
 import { downloadCSVCustomColumns } from "../../Components/exportToCSV";
 import { imsAxios } from "../../axiosInterceptor";
+import MyButton from "../../Components/MyButton";
 
 export default function VendorPricingUpload() {
   const [file, setFile] = useState(null);
@@ -157,28 +158,31 @@ export default function VendorPricingUpload() {
           </form>
           <Row justify="end">
             <Space style={{ marginTop: 10 }} justify="start">
-              <Button
+              <MyButton
                 loading={previewLoading}
                 type="primary"
                 onClick={previewFile}
                 disabled={!file || previewLoading ? true : false}
+                variant="next"
               >
                 Next
-              </Button>
-              <Button
+              </MyButton>
+              <MyButton
                 onClick={resetFunction}
                 disabled={!file || previewLoading ? true : false}
+                variant="reset"
               >
                 Reset File
-              </Button>
-              <Button
+              </MyButton>
+              <MyButton
                 onClick={() =>
                   downloadCSVCustomColumns(sampleData, "POVENDORPRICNG")
                 }
                 type="link"
+                variant="downloadSample"
               >
                 Download Sample File
-              </Button>
+              </MyButton>
             </Space>
           </Row>
         </Col>

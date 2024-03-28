@@ -1,24 +1,12 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space,
-} from "antd";
+import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import MySelect from "../../../Components/MySelect";
 import Loading from "../../../Components/Loading";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
+import MyButton from "../../../Components/MyButton";
 
-const Add = ({
-  uomOptions,
-  formLoading,
-  productType,
-  getProductRows,
-}) => {
+const Add = ({ uomOptions, formLoading, productType, getProductRows }) => {
   const [addProductForm] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
   const category = [
@@ -58,18 +46,10 @@ const Add = ({
     <div style={{ height: "90%" }}>
       <Card
         size="small"
-        title={
-          productType === "sfg"
-            ? "Add New SFG"
-            : "Add New FG"
-        }
+        title={productType === "sfg" ? "Add New SFG" : "Add New FG"}
       >
         {formLoading && <Loading />}
-        <Form
-          form={addProductForm}
-          layout="vertical"
-          onFinish={submitHandler}
-        >
+        <Form form={addProductForm} layout="vertical" onFinish={submitHandler}>
           <Row gutter={[0, 6]}>
             <Col span={24}>
               <Form.Item
@@ -94,8 +74,7 @@ const Add = ({
                     rules={[
                       {
                         required: true,
-                        message:
-                          "Please entar a unique SKU Code!",
+                        message: "Please entar a unique SKU Code!",
                       },
                     ]}
                   >
@@ -109,8 +88,7 @@ const Add = ({
                     rules={[
                       {
                         required: true,
-                        message:
-                          "Please select a Unit for the product!",
+                        message: "Please select a Unit for the product!",
                       },
                     ]}
                   >
@@ -126,8 +104,7 @@ const Add = ({
                 rules={[
                   {
                     required: true,
-                    message:
-                      "Please entar a name for the product!",
+                    message: "Please entar a name for the product!",
                   },
                 ]}
               >
@@ -138,12 +115,13 @@ const Add = ({
               <Row justify="end">
                 <Space>
                   <Form.Item>
-                    <Button
-                      htmlType="button"
+                    <MyButton
+                      // htmlType="button"
                       onClick={resetHandler}
+                      variant="reset"
                     >
                       Reset
-                    </Button>
+                    </MyButton>
                   </Form.Item>
                   <Form.Item>
                     <Button

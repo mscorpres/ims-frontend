@@ -7,6 +7,7 @@ import { InboxOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import MyButton from "../../../../Components/MyButton";
 
 function StockControl() {
   const [loading, setLoading] = useState(false);
@@ -133,9 +134,13 @@ function StockControl() {
           </Form>
           <Row justify="end">
             <Space style={{ marginTop: 10 }}>
-              <Button loading={loading === "submitting"} onClick={reset}>
+              <MyButton
+                loading={loading === "submitting"}
+                onClick={reset}
+                variant="reset"
+              >
                 Reset
-              </Button>
+              </MyButton>
               <Button
                 loading={loading === "submitting"}
                 type="primary"
@@ -143,14 +148,15 @@ function StockControl() {
               >
                 Submit
               </Button>
-              <Button
+              <MyButton
                 type="link"
                 onClick={() =>
                   downloadCSVCustomColumns(sampleData, "Stock Control Sample")
                 }
+                variant="downloadSample"
               >
                 Download Sample File
-              </Button>
+              </MyButton>
             </Space>
           </Row>
         </Col>
