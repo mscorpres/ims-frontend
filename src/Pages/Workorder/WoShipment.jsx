@@ -28,6 +28,7 @@ import { Form, Modal } from "antd/es";
 import { imsAxios } from "../../axiosInterceptor";
 import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
 import CostCenter from "../Master/CostCenter";
+import MyButton from "../../Components/MyButton";
 const WoShipment = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [showTypeSelect, setShowTypeSelect] = useState(false);
@@ -375,13 +376,14 @@ const WoShipment = () => {
                   </div>
                 )} */}
 
-                  <Button
+                  <MyButton
+                    variant="search"
                     onClick={getRows}
                     loading={loading === "fetch"}
                     type="primary"
                   >
                     Fetch
-                  </Button>
+                  </MyButton>
                 </Space>
               </div>
               <div style={{ marginLeft: 4 }}>

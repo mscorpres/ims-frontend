@@ -11,6 +11,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
+import MyButton from "../../../Components/MyButton";
 
 const { RangePicker } = DatePicker;
 
@@ -108,9 +109,14 @@ function ViewTransaction() {
           <div style={{ width: 250 }}>
             <MyDatePicker size="default" setDateRange={setDatee} />
           </div>
-          <Button onClick={dateWise} loading={loading} type="primary">
+          <MyButton
+            onClick={dateWise}
+            loading={loading}
+            type="primary"
+            variant="search"
+          >
             Fetch
-          </Button>
+          </MyButton>
         </Space>
         <Col className="gutter-row">
           <CommonIcons

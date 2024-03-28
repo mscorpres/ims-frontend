@@ -8,6 +8,7 @@ import MyDataTable from "../../Components/MyDataTable";
 import { InfoCircleFilled } from "@ant-design/icons";
 import MinReverseModal from "./Modal/MinReverseModal";
 import { imsAxios } from "../../axiosInterceptor";
+import MyButton from "../../Components/MyButton";
 
 function ReverseMin() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -203,9 +204,14 @@ function ReverseMin() {
           />
         </Col>
         <Col span={2}>
-          <Button type="primary" loading={loading} onClick={fetchInputData}>
+          <MyButton
+            type="primary"
+            loading={loading}
+            onClick={fetchInputData}
+            variant="search"
+          >
             Fetch
-          </Button>
+          </MyButton>
         </Col>
         {mainData?.length > 0 && (
           <Col span={2} offset={15}>

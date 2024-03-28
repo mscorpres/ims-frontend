@@ -22,6 +22,7 @@ import printFunction, {
 } from "../../../Components/printFunction";
 import { getComponentOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 const PartCodeConversionReport = () => {
   const wiseOptions = [
     {
@@ -332,14 +333,15 @@ const PartCodeConversionReport = () => {
                   <MyDatePicker setDateRange={setSearchInput} />
                 )}
 
-                <Button
+                <MyButton
+                  variant="search"
                   onClick={handleSubmit}
                   // //   onClick={getRows}
                   loading={loading === "fetch"}
                   type="primary"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Space>

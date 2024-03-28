@@ -7,6 +7,7 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
+import MyButton from "../../../Components/MyButton";
 
 const ViewFGOut = () => {
   const [loading, setLoading] = useState(false);
@@ -106,9 +107,14 @@ const ViewFGOut = () => {
         </Col>
         <Col span={2} className="gutter-row">
           <div>
-            <Button onClick={dateWise} type="primary" loading={loading}>
+            <MyButton
+              onClick={dateWise}
+              type="primary"
+              loading={loading}
+              variant="search"
+            >
               Fetch
-            </Button>
+            </MyButton>
           </div>
         </Col>
       </Row>

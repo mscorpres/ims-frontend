@@ -15,7 +15,8 @@ import { toast } from "react-toastify";
 import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
-// 
+import MyButton from "../../Components/MyButton";
+//
 const WoCompleted = () => {
   const actionColumn = {
     headerName: "",
@@ -166,13 +167,14 @@ const WoCompleted = () => {
                   </div>
                 )}
 
-                <Button
+                <MyButton
+                  variant="search"
                   onClick={getRows}
                   loading={loading === "fetch"}
                   type="primary"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Space>

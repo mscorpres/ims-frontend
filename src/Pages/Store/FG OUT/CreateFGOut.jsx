@@ -6,6 +6,7 @@ import { Col, Row, Select, Button, Input } from "antd";
 import MyDataTable from "../../../Components/MyDataTable";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const { TextArea } = Input;
 const CreateFGOut = () => {
@@ -315,16 +316,17 @@ const CreateFGOut = () => {
       <Row style={{ margin: "10px" }}>
         <Col span={24}>
           <div style={{ textAlign: "end" }}>
-            <Button
+            <MyButton
               onClick={resetFunction}
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                marginRight: "5px",
-              }}
+              // style={{
+              //   backgroundColor: "red",
+              //   color: "white",
+              //   marginRight: "5px",
+              // }}
+              variant="reset"
             >
               Reset{" "}
-            </Button>
+            </MyButton>
             <Button
               type="primary"
               onClick={addFGOut}

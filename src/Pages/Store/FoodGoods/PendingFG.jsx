@@ -93,6 +93,9 @@ const PendingFG = () => {
     });
     downloadCSVCustomColumns(csvData, "Pending FG Report");
   };
+  useEffect(() => {
+    getPendingData();
+  }, []);
 
   return (
     <div style={{ height: "90%" }}>
@@ -102,13 +105,13 @@ const PendingFG = () => {
             <Select options={options} placeholder="Pending" style={{ width: "100%" }} />
           </div>
         </Col> */}
-        <Col span={3} className="gutter-row">
+        {/* <Col span={3} className="gutter-row">
           <div>
             <Button type="primary" onClick={getPendingData}>
               Pending Data
             </Button>
           </div>
-        </Col>
+        </Col> */}
         {pending.length > 1 && (
           <Col span={2} offset={19} className="gutter-row">
             <Button onClick={handleDownloadingCSV}>

@@ -17,6 +17,7 @@ import {
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import FinalizeModal from "./components/woAnalysis/FinalizeModal";
+import MyButton from "../../Components/MyButton";
 
 const WoAnalysis = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
@@ -235,13 +236,14 @@ const WoAnalysis = () => {
                   </div>
                 )}
 
-                <Button
+                <MyButton
                   onClick={getRows}
                   loading={loading === "fetch"}
                   type="primary"
+                  variant="search"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Col>

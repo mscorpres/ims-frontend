@@ -44,6 +44,7 @@ import { v4 } from "uuid";
 import { getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
 import useApi from "../../../../hooks/useApi";
+import MyButton from "../../../../Components/MyButton";
 
 export default function MaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
@@ -807,15 +808,16 @@ export default function MaterialInWithPO({}) {
                 }
               />
             </div>
-            <Button
+            <MyButton
               disabled={searchData.vendor == "" || searchData.poNumber == ""}
               type="primary"
               loading={searchLoading}
               onClick={getDetail}
               id="submit"
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

@@ -33,6 +33,7 @@ import { Link } from "react-router-dom";
 import useApi from "../../hooks/useApi";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
+import MyButton from "../../Components/MyButton";
 
 const POAnalysis = () => {
   const { executeFun, loading: loading1 } = useApi();
@@ -210,10 +211,9 @@ const POAnalysis = () => {
                       onClick={handleSocketDownload}
                     />
                   )}{" "}
-              
-                  <Button type="primary" onClick={getRows}>
+                  <MyButton variant="search" type="primary" onClick={getRows}>
                     Fetch
-                  </Button>
+                  </MyButton>
                 </Space>
               </Row>
             </Card>

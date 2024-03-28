@@ -18,6 +18,7 @@ import { imsAxios } from "../../axiosInterceptor";
 import JWRMChallanEditAll from "./JWRMChallan/JWRMChallanEditAll";
 import JWRMChallanEditMaterials from "./JWRMChallan/JWRMChallanEditMaterials";
 import JWRMChallanCancel from "./JWRMChallan/JWRMChallanCancel";
+import MyButton from "../../Components/MyButton";
 // import JWRMChallanEditAll from "./JWRMChallanEditAll";
 // import JWRMChallanEditMaterials from "./JWRMChallanEditMaterials";
 
@@ -318,7 +319,8 @@ function JwPendingRequest() {
                 />
               )}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               type="primary"
               disabled={wise === "" || searchInput === ""}
               loading={loading === "fetch"}
@@ -326,7 +328,7 @@ function JwPendingRequest() {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

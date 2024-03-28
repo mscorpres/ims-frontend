@@ -12,6 +12,7 @@ import useLoading from "../../hooks/useLoading";
 import useApi from "../../hooks/useApi";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
+import MyButton from "../../Components/MyButton";
 
 const JwIssue = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -331,13 +332,14 @@ const JwIssue = () => {
                 <MyDatePicker size="default" setDateRange={setDatee} />
               </Col>
               <Col span={1}>
-                <Button
+                <MyButton
+                  variant="search"
                   loading={loading("fetch")}
                   onClick={datewiseFetchData}
                   type="primary"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Col>
             </>
           )}

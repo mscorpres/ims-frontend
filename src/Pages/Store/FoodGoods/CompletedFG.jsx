@@ -10,6 +10,7 @@ import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi";
 import { getProductsOptions } from "../../../api/general";
+import MyButton from "../../../Components/MyButton";
 
 const CompletedFG = () => {
   const [loading, setLoading] = useState(false);
@@ -151,9 +152,9 @@ const CompletedFG = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2} className="gutter-row">
-              <Button onClick={dateWise} type="primary">
+              <MyButton onClick={dateWise} type="primary" variant="search">
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
             {dateData.length > 0 && (
               <Col span={2} offset={12} className="gutter-row">
@@ -186,9 +187,9 @@ const CompletedFG = () => {
                 </div>
               </Col>
               <Col span={2} className="gutter-row">
-                <Button onClick={skuWise} type="primary">
+                <MyButton onClick={skuWise} type="primary" variant="search">
                   Fetch
-                </Button>
+                </MyButton>
               </Col>
               {skuData.length > 0 && (
                 <Col span={2} offset={11} className="gutter-row">

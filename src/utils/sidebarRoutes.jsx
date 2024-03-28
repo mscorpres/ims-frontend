@@ -387,11 +387,11 @@ export const items = (user) => [
           "B361"
           // <MdDashboard />
         ),
-        getItem(
-          <Link to="/sf-to-rm">SF To RM</Link>,
-          "B362"
-          // <MdDashboard />
-        ),
+        // getItem(
+        //   <Link to="/sf-to-rm">SF To RM</Link>,
+        //   "B362"
+        //   // <MdDashboard />
+        // ),
         getItem(
           <Link to="/re-to-rej">RM To REJ</Link>,
           "B363"

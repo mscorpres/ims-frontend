@@ -12,6 +12,7 @@ import useLoading from "../../hooks/useLoading";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
 import useApi from "../../hooks/useApi";
+import MyButton from "../../Components/MyButton";
 
 const JwrmReturn = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -300,13 +301,14 @@ const JwrmReturn = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <Button
+              <MyButton
+                variant="search"
                 type="primary"
                 loading={loading("fetch")}
                 onClick={fetchDatewise}
               >
                 Fetch
-              </Button>
+              </MyButton>
             </Col>
           </>
         )}

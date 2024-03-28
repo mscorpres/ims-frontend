@@ -12,6 +12,7 @@ import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { getClientOptions, getWorkOrderAnalysis } from "./components/api";
 import Loading from "../../Components/Loading";
+import MyButton from "../../Components/MyButton";
 const WoCreateChallan = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [showTypeSelect, setShowTypeSelect] = useState(false);
@@ -116,13 +117,14 @@ const WoCreateChallan = () => {
                   </div>
                 )}
 
-                <Button
+                <MyButton
+                  variant="search"
                   onClick={getRows}
                   loading={loading === "fetch"}
                   type="primary"
                 >
                   Fetch
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Col>
