@@ -5,7 +5,7 @@ import { Card, Typography } from "antd";
 const BarChart = ({ data }) => {
   const chartRef = useRef(null);
   let chartInstance = null;
-
+  // console.log("data", data);
   useEffect(() => {
     if (chartRef && chartRef.current) {
       if (chartInstance) {
@@ -15,11 +15,11 @@ const BarChart = ({ data }) => {
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
-          labels: data.labels,
+          labels: data?.labels,
           datasets: [
             {
               label: "Bar Chart",
-              data: data.values,
+              data: data?.values,
               backgroundColor: "rgba(75, 192, 192, 0.2)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,

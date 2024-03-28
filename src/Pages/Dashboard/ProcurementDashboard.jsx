@@ -1,4 +1,4 @@
-import { Card, Col, Row, Typography } from "antd";
+import { Card, Col, List, Row, Steps, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { imsAxios } from "../../axiosInterceptor";
 import SummarySection from "./SummarySection";
@@ -12,6 +12,9 @@ import { width } from "@mui/system";
 import { Timeline } from "@mui/icons-material";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
+  const [barChartData, setBarChartData] = useState([]);
+  const [vendorData, setVendorData] = useState([]);
+  const [masterData, setMasterData] = useState("");
   const [transactionSummary, setTransactionSummary] = useState([
     {
       title: "Rejection",
@@ -133,17 +136,33 @@ function ProcurementDashboard() {
       gettingDateSummary("min", summaryDate);
     }
   }, [summaryDate]);
-  const getProcurementData = async () => {
+
+  var chartData;
+  const getPartNumDashboard = async () => {
     const response = await imsAxios.get("/dashboard/commonData");
-    console.log("response", response);
+    console.log("responsesss->", response);
+    if (response.success) {
+      let arr = response?.data?.topPart;
+      setMasterData(response?.data);
+      // console.log("arr", arr);
+      chartData = {
+        labels: arr.map((r) => r?.partCode),
+        values: arr.map((r) => r?.name.split(",")[1]),
+      };
+      setVendorData(response?.data?.topPo);
+
+      // if (a.length > 0) {
+      //   a = chartData;
+      // }
+      setBarChartData(chartData);
+    }
+    // console.log("chartData", chartData);
+    // console.log("chartData", barChartData);
   };
-  //   useEffect(() => {
-  //     getProcurementData();
-  //   }, []);
-  const chartData = {
-    labels: ["P0002", "P0011", "P0019", "P0014", "P0018", "P0010"],
-    values: [12, 19, 3, 5, 2, 3], // Example data values
-  };
+  //  = {
+  //   labels: ["P0002", "P0011", "P0019", "P0014", "P0018", "P0010"],
+  //   values: [12, 19, 3, 5, 2, 3], // Example data values
+  // };
   const lineData = {
     labels: ["January", "February", "March", "April", "May", "June"],
     datasets: [
@@ -174,6 +193,9 @@ function ProcurementDashboard() {
     labels: ["Purple", "Blue", "Yellow", "Green", "Purple"],
     values: [804, 16, 0, 0, 0],
   };
+  useEffect(() => {
+    getPartNumDashboard();
+  }, []);
 
   return (
     <div style={{ height: "50vh" }}>
@@ -194,22 +216,63 @@ function ProcurementDashboard() {
             //   loading={loading["transactions"]}
           /> */}
           {/* <PieChart data={pieData} /> */}
-          <Card>
+          <Card style={{ width: "30vw" }}>
             {" "}
             <Row gutter={24}>
               <Col span={8}>
                 <CircleNumber value={840} heading={"Total Vendors"} />
               </Col>
+              {/* <Col span={4}>
+                <CircleNumber value={12} heading={"GST Verified"} />
+              </Col>
+              <Col span={4}>
+                <CircleNumber value={12} heading={"Total Vendors"} />
+              </Col> */}
               <Col span={8}>
-                <CircleNumber value={12} heading={"GST verified"} />
+                <CircleNumber
+                  value={masterData?.totalComponent}
+                  heading={"Total Component"}
+                />
               </Col>
               <Col span={8}>
-                <CircleNumber value={12} heading={"Total Vendors"} />
+                <CircleNumber
+                  value={masterData?.totalProject}
+                  heading={"Total Project"}
+                />
               </Col>
             </Row>
           </Card>
-          <Card>
-            <Timeline />
+          <Card style={{ width: "62rem", marginLeft: "2em" }}>
+            <Steps
+              // current={1}
+              items={[
+                {
+                  title: "Create Order",
+                  // description,
+                  description: "0 Days",
+                },
+                {
+                  title: "Approval",
+                  // description,
+                  description: "2 Days",
+                },
+                {
+                  title: "MIN",
+                  // description,
+                  description: "2 Days",
+                },
+                {
+                  title: "Bill Booking",
+                  description: "2 Days",
+                  // description,
+                },
+                {
+                  title: "Payment",
+                  // description,
+                  description: "2 Days",
+                },
+              ]}
+            />
           </Card>
         </Row>
         <Row style={{ marginTop: "2em" }}>
@@ -217,7 +280,7 @@ function ProcurementDashboard() {
             <Row gutter={[2, 2]}>
               <Col span={10} style={{ height: "10vh" }}>
                 <div style={{ height: "22rem", width: " 27rem" }}>
-                  <BarChart data={chartData} />
+                  <BarChart data={barChartData} />
                 </div>
               </Col>
               <Col
@@ -236,36 +299,23 @@ function ProcurementDashboard() {
               >
                 {" "}
                 {/* <BarChart data={chartData} /> */}
-                <Card size="small">
-                  <StarTwoTone twoToneColor="#ffd700" />
-                  <Typography.Text style={{ margin: "1em" }}>
-                    vendor
-                  </Typography.Text>
-                </Card>
-                <Card size="small">
-                  <StarTwoTone twoToneColor="#ffd700" />
-                  <Typography.Text style={{ margin: "1em" }}>
-                    vendor
-                  </Typography.Text>
-                </Card>
-                <Card size="small">
-                  <StarTwoTone twoToneColor="#ffd700" />
-                  <Typography.Text style={{ margin: "1em" }}>
-                    vendor
-                  </Typography.Text>
-                </Card>
-                <Card size="small">
-                  <StarTwoTone twoToneColor="#ffd700" />
-                  <Typography.Text style={{ margin: "1em" }}>
-                    vendor
-                  </Typography.Text>
-                </Card>
-                <Card size="small">
-                  <StarTwoTone twoToneColor="#ffd700" />
-                  <Typography.Text style={{ margin: "1em" }}>
-                    vendor
-                  </Typography.Text>
-                </Card>
+                {/* <Card size="small"> */}
+                <List
+                  dataSource={vendorData}
+                  renderItem={(item) => (
+                    <>
+                      <List.Item key={vendorData.name}>
+                        <StarTwoTone
+                          style={{ marginRight: "1em" }}
+                          twoToneColor="#ffd700"
+                        />
+                        <List.Item.Meta title={item.name} />
+                        <div>{item.venCode}</div>
+                      </List.Item>
+                    </>
+                  )}
+                />
+                {/* </Card> */}
               </Card>
             </Row>
           </Col>
