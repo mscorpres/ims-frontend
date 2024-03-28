@@ -16,6 +16,7 @@ import {
 import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { DownloadOutlined } from "@ant-design/icons";
+import MyButton from "../../../Components/MyButton/index.jsx";
 
 const TransactionOut = () => {
   const [loading, setLoading] = useState(false);
@@ -125,9 +126,15 @@ const TransactionOut = () => {
           <Space>
             <MyDatePicker setDateRange={setDatee} size="default" />
 
-            <Button onClick={rmIssue} loading={loading} block type="primary">
+            <MyButton
+              variant="search"
+              onClick={rmIssue}
+              loading={loading}
+              block
+              type="primary"
+            >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         {/* {dateData.length > 0 && ( */}

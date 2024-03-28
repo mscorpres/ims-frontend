@@ -12,6 +12,7 @@ import MySelect from "../../../Components/MySelect";
 import MyDataTable from "../../../Components/MyDataTable";
 import InternalNav from "../../../Components/InternalNav";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 const { RangePicker } = DatePicker;
 
@@ -110,9 +111,9 @@ const R14 = () => {
           </Col>
 
           <Col span={2}>
-            <Button onClick={fetch} type="primary" block>
+            <MyButton variant="search" onClick={fetch} type="primary" block>
               Fetch
-            </Button>
+            </MyButton>
           </Col>
 
           {responseData.length > 1 ? (

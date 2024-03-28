@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { getComponentOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 const R24 = () => {
   const { user: stateUser } = useSelector((state) => state.login);
   const [loading, setLoading] = useState(false);
@@ -218,13 +219,14 @@ const R24 = () => {
                       onClick={downloadHandler}
                       disabled={rows.length === 0}
                     />
-                    <Button
+                    <MyButton
+                      variant="search"
                       loading={loading === "fetch"}
                       onClick={getRows}
                       type="primary"
                     >
                       Fetch
-                    </Button>
+                    </MyButton>
                   </Space>
                 </Row>
 
@@ -240,13 +242,14 @@ const R24 = () => {
                 </Form.Item>
                 <Row justify="end">
                   <Space>
-                    <Button
+                    <MyButton
+                      variant="add"
                       loading={loading === "addComponent"}
                       onClick={addUserComponent}
                       type="primary"
                     >
                       Add Component
-                    </Button>
+                    </MyButton>
                   </Space>
                 </Row>
               </Form>

@@ -14,6 +14,7 @@ import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 
 const R7 = () => {
   const [seacrh, setSearch] = useState(null);
@@ -223,13 +224,14 @@ const R7 = () => {
                     <DownloadOutlined style={{ fontSize: "10px" }} />
                   </Button>
                 )}
-                <Button
+                <MyButton
+                  variant="search"
                   onClick={fetchBySearch}
                   loading={loading}
                   type="primary"
                 >
                   Search
-                </Button>
+                </MyButton>
               </div>
             </Col>
           </Row>

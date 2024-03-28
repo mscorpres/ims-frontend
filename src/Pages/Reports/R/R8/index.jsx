@@ -9,6 +9,7 @@ import DetailsModal from "./DetailsModal";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import socket from "../../../../Components/socket";
 import { v4 } from "uuid";
+import MyButton from "../../../../Components/MyButton";
 
 function R8() {
   const [searchInput, setSearchInput] = useState("");
@@ -64,13 +65,13 @@ function R8() {
         <Col>
           <Space>
             <MyDatePicker setDateRange={setSearchInput} />
-            <Button
+            <MyButton variant="search"
               loading={loading === "fetch"}
               onClick={getRows}
               type="primary"
             >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Col>

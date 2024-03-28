@@ -12,6 +12,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import useApi from "../../../hooks/useApi";
 import { getProjectOptions } from "../../../api/general";
+import MyButton from "../../../Components/MyButton";
 
 const R2 = () => {
   const [loading, setLoading] = useState(false);
@@ -181,9 +182,14 @@ const R2 = () => {
               />
             )}
           </div>
-          <Button loading={loading} onClick={fetch} type="primary">
+          <MyButton
+            variant="search"
+            loading={loading}
+            onClick={fetch}
+            type="primary"
+          >
             Fetch
-          </Button>
+          </MyButton>
         </Space>
 
         <Col>

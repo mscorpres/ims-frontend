@@ -13,6 +13,7 @@ import { FileImageOutlined } from "@ant-design/icons";
 import ComponentImages from "../Master/Components/material/ComponentImages";
 import useApi from "../../hooks/useApi";
 import { getComponentOptions } from "../../api/general";
+import MyButton from "../../Components/MyButton";
 export default function ItemAllLogs() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
@@ -251,14 +252,15 @@ export default function ItemAllLogs() {
                   <Col span={24}>
                     <Row gutter={6}>
                       <Space>
-                        <Button
+                        <MyButton
+                          variant="search"
                           loading={loading === "fetch"}
                           block
                           htmlType="submit"
                           type="primary"
                         >
                           Fetch
-                        </Button>
+                        </MyButton>
 
                         <CommonIcons
                           disabled={rows.length === 0}

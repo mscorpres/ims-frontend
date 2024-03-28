@@ -13,6 +13,7 @@ import {
 import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
+import MyButton from "../../../Components/MyButton";
 
 function R27() {
   const [datee, setDatee] = useState("");
@@ -141,14 +142,14 @@ function R27() {
         <Col span={5}>
           <MyDatePicker size="default" setDateRange={setDatee} />
         </Col>
-        <Button
+        <MyButton variant="search"
           style={{ marginLeft: 4 }}
           loading={loading}
           onClick={getRows}
           type="primary"
         >
           Fetch
-        </Button>
+        </MyButton>
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
         <MyDataTable loading={loading} columns={columns} data={dateData} />

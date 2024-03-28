@@ -15,6 +15,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 
 function R30() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -272,14 +273,15 @@ function R30() {
                 <Col span={24}>
                   <Space>
                     <Form.Item style={{ marginBottom: 0 }}>
-                      <Button
+                      <MyButton
+                        variant="search"
                         // loading={fetchLoading}
                         size="default"
                         htmlType="submit"
                         type="primary"
                       >
                         Generate
-                      </Button>
+                      </MyButton>
                     </Form.Item>
                     <Form.Item style={{ marginBottom: 0 }}>
                       <CommonIcons

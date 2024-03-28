@@ -8,6 +8,7 @@ import MyDataTable from "../../gstreco/myDataTable";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { toast } from "react-toastify";
+import MyButton from "../../../Components/MyButton";
 
 function Index() {
   const [searchInput, setSearchInput] = useState("");
@@ -64,13 +65,14 @@ function Index() {
               {/* </Col>
             <Col> */}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               type="primary"
               onClick={getRows}
               loading={loading("select")}
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         {/* </Col> */}

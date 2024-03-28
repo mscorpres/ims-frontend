@@ -20,6 +20,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 const { TextArea } = Input;
 function R9() {
   const [locDataTo, setloctionDataTo] = useState([]);
@@ -307,9 +308,13 @@ function R9() {
                   >
                     Cancel
                   </Button> */}
-                  <Button onClick={fetchBySearch} type="primary">
+                  <MyButton
+                    variant="search"
+                    onClick={fetchBySearch}
+                    type="primary"
+                  >
                     Generate
-                  </Button>
+                  </MyButton>
                 </div>
               </Col>
             )}

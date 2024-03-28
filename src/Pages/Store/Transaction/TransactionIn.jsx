@@ -23,6 +23,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { DownloadOutlined } from "@ant-design/icons";
 import { downloadCSV } from "../../../Components/exportToCSV";
+import MyButton from "../../../Components/MyButton";
 
 const TransactionIn = () => {
   const [wise, setWise] = useState("M");
@@ -141,14 +142,15 @@ const TransactionIn = () => {
               />
             )}
           </div>
-          <Button
+          <MyButton
+            variant="search"
             onClick={getRows}
             type="primary"
             loading={loading === "fetch"}
             disabled={wise === "" || searchInput === ""}
           >
             Fetch
-          </Button>
+          </MyButton>
         </Space>
         <Space>
           <CommonIcons

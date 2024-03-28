@@ -14,6 +14,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { getComponentOptions, getVendorOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 function R17() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
@@ -263,14 +264,15 @@ function R17() {
                 <Col span={24}>
                   <Space>
                     <Form.Item style={{ marginBottom: 0 }}>
-                      <Button
+                      <MyButton
+                        variant="search"
                         loading={fetchLoading}
                         size="default"
                         htmlType="submit"
                         type="primary"
                       >
                         Generate
-                      </Button>
+                      </MyButton>
                     </Form.Item>
                     <Form.Item style={{ marginBottom: 0 }}>
                       <CommonIcons

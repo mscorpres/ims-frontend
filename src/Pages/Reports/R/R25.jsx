@@ -22,6 +22,7 @@ import Loading from "../../../Components/Loading";
 import { set } from "lodash";
 import { getComponentOptions } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 
 const R25 = () => {
   const [loading, setLoading] = useState(false);
@@ -267,9 +268,9 @@ const R25 = () => {
                       disabled={rows.length === 0}
                       onClick={toggleEdit}
                     />
-                    <Button onClick={getRows} type="primary">
+                    <MyButton variant="search" onClick={getRows} type="primary">
                       Fetch
-                    </Button>
+                    </MyButton>
                   </Space>
                 </Row>
               </Form>
