@@ -147,7 +147,7 @@ function ProcurementDashboard() {
       // console.log("arr", arr);
       chartData = {
         labels: arr.map((r) => r?.partCode),
-        values: arr.map((r) => r?.name.split(",")[1]),
+        values: arr.map((r) => r?.total_count),
       };
       setVendorData(response?.data?.topPo);
 
