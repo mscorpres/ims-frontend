@@ -61,47 +61,46 @@ function Location() {
     });
     // console.log("arr", arr);
     setLocationData(arr);
+    console.log("final arr", arr);
     // setLocationData(a);
     setTreeData(data.data);
   };
-  // for the tree
-  // const flatArray = (array) => {
-  //   let arr = [];
-  //   array?.map((row) => {
-  //     if (row.nodes || row.children) {
-  //       // delete row.nodes;]
-  //       row.children = row.children;
-  //       row.title = row.name;
-  //       row.key = v4();
-  //       arr = [...arr, { ...row }];
-  //       flatArray(row.children);
-  //     } else {
-  //       row.title = row.name;
-  //       row.key = v4();
-  //       arr = [...arr, { ...row }];
-  //     }
-  //   });
-  //   setTreeData(arr);
-  // };
+
   let arr = [];
-  const customFlatArray = (array) => {
+  const customFlatArray = (array, prev) => {
     array?.map((row) => {
-      // console.log("array", array);
-      // console.log("array", row);
-      // if (row.type.toLowerCase() === "group") {
+      let parent = "--";
+      let obj = row;
+      if (!row.children) {
+        if (prev) {
+          obj["parentLocation"] = prev.name;
+        } else {
+          obj["parentLocation"] = "--";
+        }
+      }
       if (row.children) {
+        if (prev) {
+          obj["parentLocation"] = prev.name;
+        } else {
+          obj["parentLocation"] = "--";
+        }
         let children = row.children;
 
-        delete row["children"];
-        arr = [...arr, row];
-        customFlatArray(children);
+        delete obj["children"];
+        arr = [...arr, obj];
+        customFlatArray(children, obj);
         arr = [...arr, ...children];
         // }
-      } else {
-        arr = [...arr, row];
       }
-      // } else if (row.type.toLowerCase() === "sub group") {
-      //   return row;
+      //  else {
+      //   let obj = row;
+
+      //   if (prev) {
+      //     obj["parentLocation"] = prev.name;
+      //   } else {
+      //     obj["parentLocation"] = "--";
+      //   }
+      //   arr = [...arr, obj];
       // }
     });
 
@@ -292,6 +291,11 @@ function Location() {
       headerName: "Locations Name",
       flex: 1,
       renderCell: ({ row }) => <span>{row?.name}</span>,
+    },
+    {
+      field: "parentLocation",
+      headerName: "Parent Location",
+      flex: 1,
     },
     {
       headerName: "Status",
@@ -620,7 +624,7 @@ function Location() {
           >
             {treeLoading && <Loading />}
             {/* <Tree showLine={true} treeData={treeData} /> */}
-            <div style={{ height: "70vh" }}>
+            <div style={{ height: "80vh" }}>
               <MyDataTable columns={coloums} data={locationData} />
             </div>
           </Card>
