@@ -9,6 +9,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
 
 export default function MaterialTransferReport({ type }) {
   const [wise, setWise] = useState("datewise");
@@ -89,7 +90,8 @@ export default function MaterialTransferReport({ type }) {
               />
             )}{" "}
           </div>
-          <Button
+          <MyButton
+            variant="search"
             disabled={
               wise === "datewise" && searchDateRange === "" ? true : false
             }
@@ -100,7 +102,7 @@ export default function MaterialTransferReport({ type }) {
             // className="primary-button search-wise-btn"
           >
             Search
-          </Button>
+          </MyButton>
         </Space>
 
         <div className="right search-type">

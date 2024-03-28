@@ -7,15 +7,16 @@ import { v4 } from "uuid";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import { EditOutlined } from "@ant-design/icons";
+import MyButton from "../../../Components/MyButton";
 
 function AddAgreementType() {
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [loading, setLoading] = useState('');
-  const [partysearch,setpartysearch] = useState('')
+  const [loading, setLoading] = useState("");
+  const [partysearch, setpartysearch] = useState("");
   const [form] = Form.useForm();
   const addRows = async (values) => {
-    console.log("values", values)
+    console.log("values", values);
     const data = await imsAxios.post("/qaProcessmaster/insert_Process", values);
 
     console.log("row Data", data);
@@ -24,44 +25,41 @@ function AddAgreementType() {
     }
   };
 
-const getpartydetails = async () =>{
-  console.log(partysearch);
-  setRows([]);
-  const response = await imsAxios.get("/agreement/fetchagreementtypes");
-  console.log(response.data.data)
-  if(response.status === 200){
-    const arr = response.data.data.map((row, index) => {
-      return {
-        index: index + 1,
-        id: index,
-        type_of_agreement: row.type_of_agreement,
-        nature_of_agreement: row.nature_of_agreement,
-      };
-    });
-    setRows(arr);
-  }
-}
+  const getpartydetails = async () => {
+    console.log(partysearch);
+    setRows([]);
+    const response = await imsAxios.get("/agreement/fetchagreementtypes");
+    console.log(response.data.data);
+    if (response.status === 200) {
+      const arr = response.data.data.map((row, index) => {
+        return {
+          index: index + 1,
+          id: index,
+          type_of_agreement: row.type_of_agreement,
+          nature_of_agreement: row.nature_of_agreement,
+        };
+      });
+      setRows(arr);
+    }
+  };
 
+  useEffect(() => {
+    getpartydetails();
+  }, []);
 
-useEffect(() => {
-  getpartydetails();
-}, []);
-
-
-  
   const submitForm = async () => {
     try {
-      setLoading("select"/"fetch");
+      setLoading("select" / "fetch");
       const values = await form.validateFields();
-      const response = await imsAxios.post('/agreement/addtypeofagreement',{
-        "type_of_agreement" : values.type_of_agreement,
-        "nature_of_agreement" : values.nature_of_agreement,
-        })
-      if(response.status === 200){
-        form.resetFields()
-        toast.success(response.data.msg)
-        getpartydetails()
-      } 
+      const response = await imsAxios.post("/agreement/addtypeofagreement", {
+        type_of_agreement: values.type_of_agreement,
+        nature_of_agreement: values.nature_of_agreement,
+      });
+      if (response.status === 200) {
+        form.resetFields();
+        toast.success(response.data.msg);
+        getpartydetails();
+      }
     } catch (error) {
       toast.error(error);
     } finally {
@@ -86,16 +84,15 @@ useEffect(() => {
       field: "type_of_agreement",
     },
     {
-      headerName: 'Action',
+      headerName: "Action",
       width: 100,
-      renderCell: ({ row }) => <EditOutlined onClick={() => editRow(row)} />
-    }
+      renderCell: ({ row }) => <EditOutlined onClick={() => editRow(row)} />,
+    },
   ];
 
-const editRow = (row) =>{
-  console.log(row)
-}
-
+  const editRow = (row) => {
+    console.log(row);
+  };
 
   const getStateOptions = async (searchTerm) => {
     setLoading("select");
@@ -114,9 +111,7 @@ const editRow = (row) =>{
     }
     setLoading(false);
   };
-  const getpartyoptions = async (searchTerm) => {
-    
-  };
+  const getpartyoptions = async (searchTerm) => {};
 
   return (
     <div>
@@ -124,7 +119,7 @@ const editRow = (row) =>{
         <Col span={8}>
           <Card>
             <Form form={form} layout="vertical">
-            <Form.Item
+              <Form.Item
                 name="nature_of_agreement"
                 label="Nature of Agreement"
                 rules={rules.nature_of_agreement}
@@ -144,23 +139,19 @@ const editRow = (row) =>{
                 <Button>Reset</Button>
               </Col>
               <Col span={4}>
-                <Button type="primary" onClick={submitForm}>
+                <MyButton variant="add" type="primary" onClick={submitForm}>
                   Submit
-                </Button>
+                </MyButton>
               </Col>
             </Row>
           </Card>
         </Col>
 
         <Col style={{ height: "100%" }} span={16}>
-
           <div style={{ height: "15rem", marginTop: "20px" }}>
             <Row>
-              <div style={{height: "80vh",width: "99%", marginTop: "10px"}}>
-              <MyDataTable
-                columns={columns}
-                data={rows} 
-              />
+              <div style={{ height: "80vh", width: "99%", marginTop: "10px" }}>
+                <MyDataTable columns={columns} data={rows} />
               </div>
             </Row>
           </div>
@@ -173,7 +164,7 @@ const editRow = (row) =>{
 export default AddAgreementType;
 
 const rules = {
-  type_of_agreement : [
+  type_of_agreement: [
     {
       required: true,
       message: "Type of Agreement is required",
@@ -186,4 +177,3 @@ const rules = {
     },
   ],
 };
- 

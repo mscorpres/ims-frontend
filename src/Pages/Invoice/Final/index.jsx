@@ -5,6 +5,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import printFunction from "../../../Components/printFunction";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
+import MyButton from "../../../Components/MyButton";
 
 function FinalInvoice() {
   const [finalData, setFinalData] = useState([]);
@@ -38,15 +39,16 @@ function FinalInvoice() {
       flex: 1,
       renderCell: ({ row }) => (
         <div>
-          <Button
+          <MyButton
+            variant="download"
             // icon={<DownloadOutlined />}
             // loading={loading}
             // onClick={downlaodData(row.invoice)}
             onClick={() => downloadFunction(row.invoice)}
-            type="primary"
+            type="secondary"
           >
             Download
-          </Button>
+          </MyButton>
         </div>
       ),
     },

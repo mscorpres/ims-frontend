@@ -22,6 +22,7 @@ import FormTable from "../../../Components/FormTable";
 import useApi from "../../../hooks/useApi";
 import { getComponentOptions, getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 function CompletedQC() {
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("");
@@ -448,7 +449,8 @@ function CompletedQC() {
                 )
               )}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={!searchInput ? true : false}
               type="primary"
               loading={searchLoading}
@@ -457,7 +459,7 @@ function CompletedQC() {
               // className="primary-button search-wise-btn"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>

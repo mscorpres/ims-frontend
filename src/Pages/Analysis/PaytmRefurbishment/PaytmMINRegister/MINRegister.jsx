@@ -22,6 +22,7 @@ import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { convertSelectOptions } from "../../../../utils/general";
 import { getVendorOptions } from "../../../../api/general";
 import useApi from "../../../../hooks/useApi";
+import MyButton from "../../../../Components/MyButton";
 
 function MINRegister() {
   const [wise, setWise] = useState("datewise");
@@ -246,7 +247,8 @@ function MINRegister() {
                 />
               )}
             </div>
-            <Button
+            <MyButton
+              variant="search"
               disabled={
                 !wise || !searchInput || searchInput === "" ? true : false
               }
@@ -256,7 +258,7 @@ function MINRegister() {
               id="submit"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         {/* <Col>

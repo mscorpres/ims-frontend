@@ -23,6 +23,7 @@ import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general";
 
 import useApi from "../../../hooks/useApi";
+import MyButton from "../../../Components/MyButton";
 export default function ReqWithoutBom() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [pickLocationOptions, setPickLocationOptions] = useState([]);
@@ -299,7 +300,7 @@ export default function ReqWithoutBom() {
     requestForm.resetFields();
   };
 
-// showing reset confirm dialog
+  // showing reset confirm dialog
   const showResetConfirm = () => {
     Modal.confirm({
       title: "Are you sure you want to reset the form?",
@@ -334,7 +335,6 @@ export default function ReqWithoutBom() {
     }
     setLoading(false);
   };
-
 
   // show submit confirm dialog
   const showSubmitConfirm = async () => {
@@ -488,13 +488,14 @@ export default function ReqWithoutBom() {
           <Row justify="end">
             <Space>
               <Button onClick={showResetConfirm}>Reset</Button>
-              <Button
+              <MyButton
+                variant="search"
                 loading={loading === "submitting"}
                 type="primary"
                 onClick={showSubmitConfirm}
               >
                 Submit
-              </Button>
+              </MyButton>
             </Space>
           </Row>
         </Card>

@@ -7,15 +7,16 @@ import { v4 } from "uuid";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import { EditOutlined } from "@ant-design/icons";
+import MyButton from "../../../Components/MyButton";
 
 function Addparty() {
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [loading, setLoading] = useState('');
-  const [partysearch,setpartysearch] = useState('')
+  const [loading, setLoading] = useState("");
+  const [partysearch, setpartysearch] = useState("");
   const [form] = Form.useForm();
   const addRows = async (values) => {
-    console.log("values", values)
+    console.log("values", values);
     const data = await imsAxios.post("/qaProcessmaster/insert_Process", values);
 
     console.log("row Data", data);
@@ -24,33 +25,35 @@ function Addparty() {
     }
   };
 
-const getpartydetails = async () =>{
-  console.log(partysearch);
-  setRows([]);
-  const response = await imsAxios.post("/agreement/fetchparties", {
-    searchTerm: partysearch,
-  });
-  console.log(response.data)
-  if(response.status === 200){
-    const newarr = response.data.parties.filter((row) => row.party_name === partysearch)
-    console.log(newarr)
-    const arr = newarr.map((row, index) => {
-      return {
-        key: index,
-        id: index,
-        party_name: row.party_name,
-        party_type: row.party_type,
-        mobile: row.party_mobile,
-        cin:row.party_cin,
-        pan:row.party_pan,
-        address:row.party_address,
-        state:row.state,
-        pin: row.pincode
-      };
+  const getpartydetails = async () => {
+    console.log(partysearch);
+    setRows([]);
+    const response = await imsAxios.post("/agreement/fetchparties", {
+      searchTerm: partysearch,
     });
-    setRows(arr);
-  }
-}
+    console.log(response.data);
+    if (response.status === 200) {
+      const newarr = response.data.parties.filter(
+        (row) => row.party_name === partysearch
+      );
+      console.log(newarr);
+      const arr = newarr.map((row, index) => {
+        return {
+          key: index,
+          id: index,
+          party_name: row.party_name,
+          party_type: row.party_type,
+          mobile: row.party_mobile,
+          cin: row.party_cin,
+          pan: row.party_pan,
+          address: row.party_address,
+          state: row.state,
+          pin: row.pincode,
+        };
+      });
+      setRows(arr);
+    }
+  };
 
   const getRows = async () => {
     const response = await imsAxios.get("/qaProcessmaster/fetch_Process");
@@ -70,23 +73,23 @@ const getpartydetails = async () =>{
   };
   const submitForm = async () => {
     try {
-      setLoading("select"/"fetch");
+      setLoading("select" / "fetch");
       const values = await form.validateFields();
-      const state = values.state.replace(/\s*\([^)]*\)\s*/, '')
-      const response = await imsAxios.post('/agreement/addparties',{
-        "party_name" : values.partyName,
-        "party_address" : values.partyAddress,
-        "party_type" : values.partyType,
-        "party_cin" : values.partyCin ,
-        "party_pan" : values.Pan,
-        "party_mobile" : values.mobile,
-        "state": state,
-        "pincode": values.pin
-        })
-      if(response.status === 200){
-        form.resetFields()
-        toast.success(response.data.msg)
-      } 
+      const state = values.state.replace(/\s*\([^)]*\)\s*/, "");
+      const response = await imsAxios.post("/agreement/addparties", {
+        party_name: values.partyName,
+        party_address: values.partyAddress,
+        party_type: values.partyType,
+        party_cin: values.partyCin,
+        party_pan: values.Pan,
+        party_mobile: values.mobile,
+        state: state,
+        pincode: values.pin,
+      });
+      if (response.status === 200) {
+        form.resetFields();
+        toast.success(response.data.msg);
+      }
     } catch (error) {
       toast.error(error);
     } finally {
@@ -111,26 +114,25 @@ const getpartydetails = async () =>{
       field: "party_type",
     },
     {
-      headerName: 'Mobile',
+      headerName: "Mobile",
       flex: 1,
-      field:'mobile'
+      field: "mobile",
     },
     {
-      headerName: 'CIN',
+      headerName: "CIN",
       flex: 1,
-      field:'cin'
+      field: "cin",
     },
     {
-      headerName: 'Action',
+      headerName: "Action",
       width: 100,
-      renderCell: ({ row }) => <EditOutlined onClick={() => editRow(row)} />
-    }
+      renderCell: ({ row }) => <EditOutlined onClick={() => editRow(row)} />,
+    },
   ];
 
-const editRow = (row) =>{
-  console.log(row)
-}
-
+  const editRow = (row) => {
+    console.log(row);
+  };
 
   const getStateOptions = async (searchTerm) => {
     setLoading("select");
@@ -150,14 +152,14 @@ const editRow = (row) =>{
     setLoading(false);
   };
   const getpartyoptions = async (searchTerm) => {
-    console.log(searchTerm.length)
-    if(searchTerm.length > 2){
+    console.log(searchTerm.length);
+    if (searchTerm.length > 2) {
       setLoading("select");
       const response = await imsAxios.post("/agreement/fetchparties", {
         searchTerm: searchTerm,
       });
       const { data } = response;
-      console.log(data.parties)
+      console.log(data.parties);
       if (response.status === 200) {
         let arr = data.parties.map((row) => ({
           value: row.party_name,
@@ -166,11 +168,10 @@ const editRow = (row) =>{
         setAsyncOptions(arr);
       } else {
         setAsyncOptions([]);
-        toast.error(data.msg)
+        toast.error(data.msg);
       }
       setLoading(false);
     }
-    
   };
 
   return (
@@ -214,30 +215,18 @@ const editRow = (row) =>{
               >
                 <Input />
               </Form.Item>
-              <Form.Item
-                name="mobile"
-                label="Mobile"
-                rules={rules.mobile}
-              >
+              <Form.Item name="mobile" label="Mobile" rules={rules.mobile}>
                 <Input />
               </Form.Item>
-              <Form.Item
-                name="state"
-                label="State"
-                rules={rules.state}
-              >
+              <Form.Item name="state" label="State" rules={rules.state}>
                 <MyAsyncSelect
-                selectLoading={loading === "select"}
-                loadOptions={getStateOptions}
-                optionsState={asyncOptions}
-                onBlur={() => setAsyncOptions([])}
-              />
+                  selectLoading={loading === "select"}
+                  loadOptions={getStateOptions}
+                  optionsState={asyncOptions}
+                  onBlur={() => setAsyncOptions([])}
+                />
               </Form.Item>
-              <Form.Item
-                name="pin"
-                label="pin Code"
-                rules={rules.pin}
-              >
+              <Form.Item name="pin" label="pin Code" rules={rules.pin}>
                 <Input />
               </Form.Item>
             </Form>
@@ -246,38 +235,41 @@ const editRow = (row) =>{
                 <Button>Reset</Button>
               </Col>
               <Col span={4}>
-                <Button type="primary" onClick={submitForm}>
+                <MyButton variant="add" type="primary" onClick={submitForm}>
                   Submit
-                </Button>
+                </MyButton>
               </Col>
             </Row>
           </Card>
         </Col>
 
         <Col style={{ height: "100%" }} span={16}>
-
           <div style={{ height: "15rem", marginTop: "20px" }}>
-            <Row >
+            <Row>
               <Col span={8}>
                 <MyAsyncSelect
-                loading={loading === "select"}
-                loadOptions={getpartyoptions}
-                optionsState={asyncOptions}
-                onChange= {(value)=>{setpartysearch(value)}}
-                onBlur={() => setAsyncOptions([])}
+                  loading={loading === "select"}
+                  loadOptions={getpartyoptions}
+                  optionsState={asyncOptions}
+                  onChange={(value) => {
+                    setpartysearch(value);
+                  }}
+                  onBlur={() => setAsyncOptions([])}
                 />
-                
               </Col>
               <Col>
-                <Button style={{ marginLeft: "10px" }} onClick={getpartydetails}>Fetch Details</Button>
+                <MyButton
+                  variant="search"
+                  style={{ marginLeft: "10px" }}
+                  onClick={getpartydetails}
+                >
+                  Fetch Details
+                </MyButton>
               </Col>
             </Row>
             <Row>
-              <div style={{height: "80vh",width: "99%", marginTop: "10px"}}>
-              <MyDataTable
-                columns={columns}
-                data={rows} 
-              />
+              <div style={{ height: "80vh", width: "99%", marginTop: "10px" }}>
+                <MyDataTable columns={columns} data={rows} />
               </div>
             </Row>
           </div>

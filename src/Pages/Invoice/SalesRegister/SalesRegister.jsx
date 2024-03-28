@@ -8,6 +8,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { v4 } from "uuid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { downloadCSV } from "../../../Components/exportToCSV";
+import MyButton from "../../../Components/MyButton";
 
 function SalesRegister() {
   const [wise, setWise] = useState("created_date_wise");
@@ -261,7 +262,8 @@ function SalesRegister() {
                   )}
                 </Col>
                 <Space>
-                  <Button
+                  <MyButton
+                    variant="search"
                     disabled={!setSearchTerm}
                     type="primary"
                     loading={loading}
@@ -269,7 +271,7 @@ function SalesRegister() {
                     onClick={getData}
                   >
                     Search
-                  </Button>
+                  </MyButton>
                 </Space>
               </Space>
             </Col>

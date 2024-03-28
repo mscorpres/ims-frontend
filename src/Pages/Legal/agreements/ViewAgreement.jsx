@@ -41,6 +41,7 @@ import NavFooter from "../../../Components/NavFooter";
 import useApi from "../../../hooks/useApi";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
+import MyButton from "../../../Components/MyButton";
 
 function ViewAgreement() {
   const [searchLoading, setSearchLoading] = useState(false);
@@ -282,14 +283,15 @@ function ViewAgreement() {
                   </div>
                 )}
 
-                <Button
+                <MyButton
+                  variant="search"
                   type="primary"
                   loading={loading === "rows"}
                   onClick={getRows}
                   id="submit"
                 >
                   Search
-                </Button>
+                </MyButton>
               </Space>
             </div>
           </Form>

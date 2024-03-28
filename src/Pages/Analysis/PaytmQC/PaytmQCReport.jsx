@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import PaytmQCUpdate from "./PaytmQCUpdate";
 import PaytmGraph from "./PaytmGraph";
 import { BarChartOutlined } from "@ant-design/icons";
+import MyButton from "../../../Components/MyButton";
 
 export default function PaytmQCReport() {
   const [searchDate, setSearchData] = useState("");
@@ -191,14 +192,15 @@ export default function PaytmQCReport() {
               <MyDatePicker setDateRange={setSearchData} spacedFormat={true} />
             </div>
             <Space>
-              <Button
+              <MyButton
+                variant="search"
                 disabled={searchDate === ""}
                 type="primary"
                 loading={searchLoading}
                 onClick={getRows}
               >
                 Search
-              </Button>
+              </MyButton>
               <Button onClick={() => setShowUploadDoc(true)} type="primary">
                 Upload Paytm QC
               </Button>
