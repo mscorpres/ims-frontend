@@ -16,6 +16,7 @@ import NavFooter from "../../../Components/NavFooter";
 import { toast } from "react-toastify";
 import Loading from "../../../Components/Loading";
 import ViewClients from "../ViewClients/ViewClients";
+import MyButton from "../../../Components/MyButton";
 
 export default function AddClients() {
   const [countriesOptions, setCountriesOptions] = useState([]);
@@ -139,17 +140,22 @@ export default function AddClients() {
         onOk={submitHandler}
         onCancel={() => setShowSubmitConfirm(false)}
         footer={[
-          <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
+          <MyButton
+            key="back"
+            onClick={() => setShowSubmitConfirm(false)}
+            variant="back"
+          >
             No
-          </Button>,
-          <Button
+          </MyButton>,
+          <MyButton
             key="submit"
             type="primary"
             loading={submitLoading}
             onClick={submitHandler}
+            variant="add"
           >
             Yes
-          </Button>,
+          </MyButton>,
         ]}
       >
         Are you sure you want to add this client?
@@ -161,12 +167,21 @@ export default function AddClients() {
         onOk={resetFunction}
         onCancel={() => setShowResetConfirm(false)}
         footer={[
-          <Button key="back" onClick={() => setShowResetConfirm(false)}>
-            No
-          </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction}>
-            Yes
-          </Button>,
+          <MyButton
+            key="back"
+            onClick={() => setShowResetConfirm(false)}
+            variant="back"
+          >
+            back
+          </MyButton>,
+          <MyButton
+            key="submit"
+            type="primary"
+            onClick={resetFunction}
+            variant="add"
+          >
+            Submit
+          </MyButton>,
         ]}
       >
         Are you sure you want to want to reset the entered Info?
@@ -271,16 +286,23 @@ export default function AddClients() {
                       </Form.Item>
                     </Col>
                     {/* <Row gutter={16}>Client email</Row> */}
-                    <Row justify="end" style={{}}>
-                      <Col span={4}>
-                        <Button onClick={() => setShowResetConfirm(true)}>
+                    <Row justify="end">
+                      <Col span={5}>
+                        <MyButton
+                          onClick={() => setShowResetConfirm(true)}
+                          variant="reset"
+                        >
                           Reset
-                        </Button>
+                        </MyButton>
                       </Col>
-                      <Col span={4}>
-                        <Button onClick={submitHandler} type="primary">
+                      <Col span={5}>
+                        <MyButton
+                          onClick={() => setShowSubmitConfirm(true)}
+                          type="primary"
+                          variant="add"
+                        >
                           Submit
-                        </Button>
+                        </MyButton>
                       </Col>
                     </Row>
                   </Card>

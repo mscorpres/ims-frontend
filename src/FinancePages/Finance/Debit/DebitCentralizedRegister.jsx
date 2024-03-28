@@ -23,6 +23,7 @@ import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
 import DebitEdit from "./DebitEdit";
+import MyButton from "../../../Components/MyButton";
 
 // import {loading}
 function DebitCentralizedRegister() {
@@ -474,13 +475,14 @@ function DebitCentralizedRegister() {
                 />
               )}
             </div>
-            <Button
+            <MyButton
               loading={loading === "fetch"}
               type="primary"
               onClick={getRows}
+              variant="search"
             >
               Fetch
-            </Button>
+            </MyButton>
           </Space>
         </Col>
         <Space>

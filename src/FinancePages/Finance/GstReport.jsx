@@ -578,7 +578,7 @@ function GstReport() {
                       loading={loading}
                       type="primary"
                     >
-                      Generate Report
+                      Fetch
                     </Button>
                   </Form>
                 </Space>

@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import errorToast from "../../../Components/errorToast";
+import MyButton from "../../../Components/MyButton";
 
 function MapClient() {
   const [client, setClient] = useState("");
@@ -225,14 +226,15 @@ function MapClient() {
           </Col>
           <Col span={12}>
             <Space align="center" style={{ height: "100%", paddingTop: 7 }}>
-              <Button
+              <MyButton
                 size="default"
                 loading={submitLoading}
                 htmlType="submit"
                 type="primary"
+                variant="search"
               >
                 Save
-              </Button>
+              </MyButton>
               <Button
                 size="default"
                 onClick={clientReset}

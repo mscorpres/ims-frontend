@@ -11,6 +11,7 @@ import { DeleteTwoTone } from "@ant-design/icons";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../../Components/exportToCSV";
+import MyButton from "../../../../Components/MyButton";
 
 function AppReport() {
   // const description = "Anuj";
@@ -220,9 +221,14 @@ function AppReport() {
             </div>
             <div>
               <Space>
-                <Button loading={loading} type="primary" onClick={fetchReport}>
+                <MyButton
+                  loading={loading}
+                  type="primary"
+                  onClick={fetchReport}
+                  variant="search"
+                >
                   Search
-                </Button>
+                </MyButton>
                 <Button
                   disabled={selectedRows.length === 0}
                   loading={deleteLoading}

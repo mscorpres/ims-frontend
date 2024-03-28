@@ -346,7 +346,7 @@ export default function Contra1() {
         loading={loading}
         submitFunction={submitHandler}
         resetFunction={resetHandler}
-        nextLabel="SUBMIT"
+        nextLabel="Submit"
       />
     </div>
   );

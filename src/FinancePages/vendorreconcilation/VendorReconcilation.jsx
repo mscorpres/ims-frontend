@@ -466,7 +466,7 @@ const Filters = ({
       width={350}
       onCancel={hide}
       onOk={submitFun}
-      okText="Fetch"
+      okText="Search"
       confirmLoading={loading}
     >
       <Row>

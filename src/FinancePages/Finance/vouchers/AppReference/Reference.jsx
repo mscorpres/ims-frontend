@@ -29,6 +29,7 @@ import {
 import { downloadCSV } from "../../../../Components/exportToCSV";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { async } from "q";
+import MyButton from "../../../../Components/MyButton";
 
 export default function Reference() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -770,9 +771,9 @@ export default function Reference() {
           />
         </Col>
         <Col span={1}>
-          <Button onClick={getVBTRows} type="primary">
+          <MyButton onClick={getVBTRows} type="primary" variant="search">
             Fetch
-          </Button>
+          </MyButton>
         </Col>
 
         {vbtRows.length > 0 ? (

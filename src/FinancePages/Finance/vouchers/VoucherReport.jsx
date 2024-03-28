@@ -25,6 +25,7 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import MyButton from "../../../Components/MyButton";
 
 export default function VoucherReport() {
   const { pathname } = useLocation();
@@ -386,7 +387,7 @@ export default function VoucherReport() {
               )}
             </div>
 
-            <Button
+            <MyButton
               disabled={
                 wise === "date_wise" || wise === "eff_wise"
                   ? searchDateRange === ""
@@ -399,9 +400,10 @@ export default function VoucherReport() {
               loading={searchLoading}
               type="primary"
               onClick={getRows}
+              variant="search"
             >
               Search
-            </Button>
+            </MyButton>
           </Space>
         </div>
         <Space>

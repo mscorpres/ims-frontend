@@ -274,10 +274,7 @@ function CashReceipt() {
 
   return (
     <div style={{ height: "90%" }}>
-      <Row
-        gutter={10}
-        style={{ height: "100%", margin: "10px" }}
-      >
+      <Row gutter={10} style={{ height: "100%", margin: "10px" }}>
         <Col span={6}>
           <Card title="Cash Receipt" size="small">
             <Form layout="vertical" size="small">
@@ -300,9 +297,7 @@ function CashReceipt() {
                       loadOptions={getCash}
                       value={headerCash}
                       placeholder="Select Account.."
-                      onChange={(value) =>
-                        setHeaderCash(value)
-                      }
+                      onChange={(value) => setHeaderCash(value)}
                     />
                   </Form.Item>
                 </Col>
@@ -337,7 +332,7 @@ function CashReceipt() {
       <NavFooter
         resetFunction={resetFunction}
         submitFunction={saveFunction}
-        nextLabel="SUBMIT"
+        nextLabel="Submit"
         loading={loading}
       />
     </div>
