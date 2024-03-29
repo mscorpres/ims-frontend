@@ -144,7 +144,7 @@ const MyButton = (props) => {
   if (props.variant === "save") {
     return (
       <Button {...props} type={props.type ?? "primary"} icon={<SaveOutlined />}>
-        {props.text ?? "Upload File"}
+        {props.text ?? "Save"}
       </Button>
     );
   }

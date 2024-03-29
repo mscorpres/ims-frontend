@@ -1,4 +1,4 @@
-import { Col, Form, Row, Space, Modal, Button } from "antd";
+import { Col, Form, Row, Space, Modal, Button, Card, Flex } from "antd";
 import Input from "antd/es/input/Input";
 import React, { useState, useEffect, useRef } from "react";
 import MySelect from "../../../Components/MySelect";
@@ -431,105 +431,166 @@ const Qctest = () => {
     <>
       <div
         style={{
-          height: "90%",
-          padding: "20px",
+          height: "95%",
+
+          padding: "10px",
         }}
       >
-        <Row>
-          <Space>
-            <Col span={18}>
-              <Form.Item name="PPRNO" label="PPR NO." rules={rules.pprno}>
-                <MyAsyncSelect
-                  value={pprNo}
-                  optionsState={pproptions}
-                  loadOptions={(e) => getAllPPR(e)}
-                  onChange={(e) => {
-                    fetchSinglePPR(e);
-                  }}
-                  placeholder="Enter the PPR NO."
-                />
-              </Form.Item>
-            </Col>
-            <Col span={18}>
-              <Form.Item name="Skuno" label="SKU">
-                <Input
-                  style={{ width: "100%" }}
-                  type="text"
-                  placeholder={skuNumber}
-                  disabled
-                />
-              </Form.Item>
-            </Col>
-            <Col span={18}>
-              <Form.Item name="Process" label="Process" rules={rules.pprno}>
-                <MySelect
-                  options={processOptions}
-                  onChange={(e, selectedValue) => {
-                    handleProcessSelect(e, selectedValue);
-                  }}
-                  placeholder="Select the process"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={18}>
-              <Form.Item name="Processlevel" label="Process Level">
-                <Input
-                  style={{ width: "100%" }}
-                  type="text"
-                  placeholder={processLevel}
-                  disabled
-                />
-              </Form.Item>
-            </Col>
-          </Space>
-        </Row>
+        <Row gutter={[10, 10]}>
+          <Col span={4}>
+            {/* <Row>
+              <Space> */}
+            <Card>
+              {" "}
+              <Col span={24}>
+                <Form.Item name="PPRNO" label="PPR NO." rules={rules.pprno}>
+                  <MyAsyncSelect
+                    value={pprNo}
+                    optionsState={pproptions}
+                    loadOptions={(e) => getAllPPR(e)}
+                    onChange={(e) => {
+                      fetchSinglePPR(e);
+                    }}
+                    placeholder="Enter the PPR NO."
+                  />
+                </Form.Item>
+              </Col>{" "}
+              <Col span={24}>
+                <Form.Item name="Skuno" label="SKU">
+                  <Input
+                    style={{ width: "100%" }}
+                    type="text"
+                    placeholder={skuNumber}
+                    disabled
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item name="Process" label="Process" rules={rules.pprno}>
+                  <MySelect
+                    options={processOptions}
+                    onChange={(e, selectedValue) => {
+                      handleProcessSelect(e, selectedValue);
+                    }}
+                    placeholder="Select the process"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item name="Processlevel" label="Process Level">
+                  <Input
+                    style={{ width: "100%" }}
+                    type="text"
+                    placeholder={processLevel}
+                    disabled
+                  />
+                </Form.Item>
+              </Col>
+            </Card>
 
-        <Row>
-          <Col>
-            <Row
-              gutter={"20px"}
+            {/* </Space>
+            </Row> */}
+          </Col>
+
+          <Col span={16}>
+            <Card
               style={{
-                width: "300px",
-                height: "calc(100vh - 15rem)",
-                borderRight: "solid 1px #cccccc",
+                // padding: "10px",
+                height: "100%",
+                // padding: "40px",
               }}
+              bodyStyle={{ height: "10%" }}
+              title={"PCB SCAN DETAILS"}
             >
               <div
                 style={{
-                  margin: "10px",
-                  borderBottom: "solid 1px #cccccc",
-                  width: "90%",
+                  // padding: "10px",
+                  height: "30rem",
+                  // padding: "40px",
                 }}
               >
-                <h2 style={{ marginBottom: "10px" }}>Customer Details</h2>
+                {/* <Row
+                  style={{
+                    backgroundColor: "#cccccc",
+                    padding: "10px",
+                    justifyContent: "center",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <h1>PCB SCAN DETAILS</h1>
+                </Row> */}
+                <Row style={{ justifyContent: "space-around" }}>
+                  <Col span={15} style={{ marginRight: "23%" }}>
+                    <Form.Item
+                      // name="QRNumber"
+                      label={
+                        <b>
+                          <p>QR Number</p>
+                        </b>
+                      }
+                    >
+                      <Input
+                        style={{ width: "20%" }}
+                        value={inputQrNumber}
+                        type="text"
+                        id="PCBTEST"
+                        placeholder="Scan QR Code"
+                        onChange={(e) => setInputQrNumber(e.target.value)}
+                        onKeyDownCapture={(e) => {
+                          qrInput(e);
+                        }}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col>
+                    <button
+                      id="GenerateQR"
+                      onClick={(e) => {
+                        showModal(e);
+                      }}
+                      style={{
+                        outline: "none",
+                        color: "#04B0A8",
+                        border: "solid 1PX #04B0A8",
+                        padding: "6px 12px 6px 12px",
+                        background: "rgba(0,0,0,0)",
+                        borderRadius: "8px",
+                        width: "119px",
+                      }}
+                    >
+                      Generate QR
+                    </button>
+                  </Col>
+                </Row>
+                <div style={{ height: "95%" }}>
+                  <MyDataTable data={ScanData} columns={Column} />
+                </div>
+
+                {/* <MyDataTable data={ScanData} columns={Column} /> */}
+              </div>
+            </Card>
+          </Col>
+          <Col span={4} style={{ height: "100%", overflow: "hidden" }}>
+            <Flex
+              gap={5}
+              vertical
+              style={{ height: "100%", overflowY: "auto" }}
+            >
+              <Card size="small" title={"Customer Details"}>
                 <h4>Customer Name</h4>
                 <p>{customerDetails.customerName}</p>
                 <h4>Product Name</h4>
                 <p>{customerDetails.productName}</p>
-              </div>
-              <div
-                style={{
-                  margin: "10px",
-                  borderBottom: "solid 1px #cccccc",
-                  width: "90%",
-                }}
-              >
-                <h2 style={{ marginBottom: "10px" }}>Location Details</h2>
+              </Card>
+              <Card size="small" title={"Location Details"}>
                 <h4>Testing Location</h4>
                 <p>{locationDetails.testingLocation}</p>
                 <h4>Passed Location</h4>
                 <p>{locationDetails.passedLocation}</p>
                 <h4>Failed Location</h4>
                 <p>{locationDetails.failedLocation}</p>
-              </div>
-              <div
-                style={{
-                  margin: "10px",
-                  borderBottom: "solid 1px #cccccc",
-                  width: "90%",
-                }}
-              >
-                <h2 style={{ marginBottom: "10px" }}>Product Details</h2>
+              </Card>
+              <Card size="small" title={"Product Details"}>
                 <p>Scanned Quantity</p>
                 <p>Passed Quantity</p>
                 <p>Failed Quantity</p>
@@ -537,87 +598,16 @@ const Qctest = () => {
                 <p>
                   <b>Total Quantity : {productDetails.totalQuantity}</b>
                 </p>
-              </div>
-              <div
-                style={{
-                  margin: "10px",
-                  borderBottom: "solid 1px #cccccc",
-                  width: "90%",
-                }}
-              >
-                <h2 style={{ marginBottom: "10px" }}>Current Scan Details</h2>
+              </Card>
+              <Card size="small" title={"Current Scan Details"}>
                 <p>Current Scanned: {currentscan}</p>
                 <p>Passed Quantity: {passedscan}</p>
                 <p>Failed Quantity: {failedscan}</p>
                 <p>
                   <b>Total Lot Scanned: {totallotscan}</b>
                 </p>
-              </div>
-            </Row>
-          </Col>
-          <Col span={18}>
-            <div
-              style={{
-                padding: "10px",
-                height: "calc(100vh - 22rem)",
-                padding: "40px",
-              }}
-            >
-              <Row
-                style={{
-                  backgroundColor: "#cccccc",
-                  padding: "10px",
-                  justifyContent: "center",
-                  marginBottom: "20px",
-                }}
-              >
-                <h1>PCB SCAN DETAILS</h1>
-              </Row>
-              <Row style={{ justifyContent: "space-around" }}>
-                <Col span={15}>
-                  <Form.Item
-                    // name="QRNumber"
-                    label={
-                      <b>
-                        <p>QR Number</p>
-                      </b>
-                    }
-                  >
-                    <Input
-                      style={{ width: "20%" }}
-                      value={inputQrNumber}
-                      type="text"
-                      id="PCBTEST"
-                      placeholder="Scan QR Code"
-                      onChange={(e) => setInputQrNumber(e.target.value)}
-                      onKeyDownCapture={(e) => {
-                        qrInput(e);
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col>
-                  <button
-                    id="GenerateQR"
-                    onClick={(e) => {
-                      showModal(e);
-                    }}
-                    style={{
-                      outline: "none",
-                      color: "#04B0A8",
-                      border: "solid 1PX #04B0A8",
-                      padding: "6px 12px 6px 12px",
-                      background: "rgba(0,0,0,0)",
-                      borderRadius: "8px",
-                      width: "119px",
-                    }}
-                  >
-                    Generate QR
-                  </button>
-                </Col>
-              </Row>
-              <MyDataTable data={ScanData} columns={Column} />
-            </div>
+              </Card>
+            </Flex>
           </Col>
         </Row>
       </div>
