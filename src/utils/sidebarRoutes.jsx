@@ -486,7 +486,7 @@ export const items = (user) => [
 
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "B414"),
         getItem(
-          <Link to="/transaction-Out">MIN Issue Register</Link>,
+          <Link to="/transaction-Out">RM Issue Register</Link>,
           "B412"
           // <AiOutlineMinus />
         ),
@@ -609,7 +609,7 @@ export const items = (user) => [
           "C411"
           // <AiOutlineMinus />
         ),
-        getItem(<Link to="/transaction-Out">MIN Issue Register</Link>, "C412"),
+        getItem(<Link to="/transaction-Out">RM Issue Register</Link>, "C412"),
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
 
         getItem(
