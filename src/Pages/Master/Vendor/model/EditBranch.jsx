@@ -22,10 +22,12 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [vendorStatus, setVendorStatus] = useState();
   const [statusLoading, setStatusLoading] = useState(false);
   const [tdsOptions, setTdsOptions] = useState([]);
+  // const [msmeStat, setMsmeStat] = useState("N");
   const [locationOptions, setLocationOptions] = useState([]);
   const [files, setFiles] = useState([]);
   const [updateVendorForm] = Form.useForm();
-
+  const msmeStat = Form.useWatch("vendor_msme_status", updateVendorForm);
+  // console.log("msmeStat here", msmeStat);/
   const getDetails = async () => {
     setSkeletonLoading(true);
 
@@ -37,8 +39,13 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     let tdsArr = tdsData?.data.map((row) => {
       return { text: row.tds_name, value: row.tds_key };
     });
-
+    // console.log("vendorData", vendorData);
     let obj = {
+      msmeStatus: vendorData.data.vendor_msme_status,
+      year: vendorData.data.vendor_msme_year,
+      msmeId: vendorData.data.vendor_msme_id,
+      type: vendorData.data.vendor_msme_type,
+      activity: vendorData.data.vendor_msme_activity,
       ...vendorData?.data[0],
     };
     updateVendorForm.setFieldsValue(obj);
@@ -55,6 +62,11 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       tally_tds: values.vendor_tds,
       vendor_loc: values.vendor_loc,
       term_days: values.vendor_term_days,
+      msme_status: values.vendor_msme_status,
+      msme_year: values.vendor_msme_year,
+      msme_id: values.vendor_msme_id,
+      msme_type: values.vendor_msme_type,
+      msme_activity: values.vendor_msme_activity,
     };
     const formData = new FormData();
     formData.append("uploadfile", files[0] ?? []);
@@ -117,7 +129,26 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       getAllVendorLocationOptions();
     }
   }, [editVendor]);
+  const msmeOptions = [
+    { text: "Yes", value: "Y" },
+    { text: "No", value: "N" },
+  ];
+  const msmeYearOptions = [
+    { text: "2023 -2024", value: "2023 -2024" },
+    { text: "2024 -2025", value: "2024 -2025" },
+  ];
+  const msmeTypeOptions = [
+    { text: "Micro", value: "Micro" },
+    { text: "Small", value: "Small" },
+    { text: "Medium", value: "Medium" },
+  ];
+  const msmeActivityOptions = [
+    { text: "Manufacturing", value: "Manufacturing" },
+    { text: "Service", value: "Service" },
+    { text: "Trading", value: "Trading" },
+  ];
 
+  // console.log("msmeStat", msmeStat);
   return (
     <Modal
       title={`Update Vendor: ${editVendor?.vendor_code}`}
@@ -160,7 +191,11 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       {<Skeleton active loading={skeletonLoading} />}
       {<Skeleton active loading={skeletonLoading} />}
       {!skeletonLoading && (
-        <Form form={updateVendorForm} layout="vertical">
+        <Form
+          form={updateVendorForm}
+          // initialValues={initialValues}
+          layout="vertical"
+        >
           <Row>
             {/* <Space> */}
             <Col span={24}>
@@ -216,6 +251,44 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
               </Form.Item>
             </Col>
             <Col span={24}>
+              <Row gutter={[10, 10]}>
+                <Col span={8}>
+                  <Form.Item label="MSME Status" name="vendor_msme_status">
+                    <MySelect
+                      options={msmeOptions}
+                      // value={msmeStat}
+                      // onChange={setMsmeStat}
+                    />
+                  </Form.Item>
+                </Col>
+                {msmeStat === "Y" && (
+                  <>
+                    <Col span={8}>
+                      <Form.Item label="Year" name="vendor_msme_year">
+                        <MySelect options={msmeYearOptions} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item label="Id" name="vendor_msme_id">
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item label="Type" name="vendor_msme_type">
+                        <MySelect options={msmeTypeOptions} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item label="Activity" name="vendor_msme_activity">
+                        <MySelect options={msmeActivityOptions} />
+                      </Form.Item>
+                    </Col>
+                  </>
+                )}
+              </Row>
+            </Col>
+
+            <Col span={24}>
               <Form.Item label="Vendor Document" name="file">
                 <Row className="material-in-upload">
                   <UploadDocs
@@ -235,3 +308,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
 };
 
 export default EditBranch;
+const initialValues = {
+  vendor_msme_status: "N",
+};

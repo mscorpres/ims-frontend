@@ -14,6 +14,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
+import MySelect from "../../../Components/MySelect";
 
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,10 @@ const AddVendor = () => {
   const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
-
+  // const [msmeStat, setMsmeStat] = useState("");
+  const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
+  // setMsmeStat(msmsStatus);
+  const [searchTerm, setSearchTerm] = useState("");
   const getFetchState = async (e) => {
     if (e.length > 2) {
       setSelectLoading(true);
@@ -45,7 +49,9 @@ const AddVendor = () => {
     formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
     formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
     // formData.append("uploadfile", files[0]);
+    // console.log("formData", formData);
     setLoading("submit");
+    // return;
     const response = await imsAxios.post("/vendor/addVendor", formData);
     setLoading(false);
     const { data } = response;
@@ -62,7 +68,7 @@ const AddVendor = () => {
 
   const validateHandler = async () => {
     const values = await addVendorForm.validateFields();
-
+    // console.log("values", values);
     let obj = {
       vendor: {
         vendorname: values.vendorName,
@@ -73,6 +79,11 @@ const AddVendor = () => {
           ? "--"
           : values.cinno.toUpperCase(),
         term_days: values.paymentTerms ?? 30,
+        msme_status: values.msmeStatus,
+        msme_year: values.year,
+        msme_id: values.msmeId,
+        msme_type: values.type,
+        msme_activity: values.activity,
       },
       branch: {
         branch: values.branch,
@@ -86,6 +97,7 @@ const AddVendor = () => {
         gstin: values.gstin.toUpperCase(),
       },
     };
+    // console.log("obj", obj);
     setShowSubmitConfirmModal(obj);
   };
 
@@ -95,6 +107,38 @@ const AddVendor = () => {
     addVendorForm.resetFields();
     setFiles([]);
   };
+  // useEffect(() => {
+  //   // console.log("msmsStatus", msmsStatus);
+  //   if (msmsStatus) {
+  //     setMsmeStat(msmsStatus);
+  //   }
+  // }, [msmsStatus]);
+
+  const msmeOptions = [
+    { text: "Yes", value: "Y" },
+    { text: "No", value: "N" },
+  ];
+  const msmeYearOptions = [
+    { text: "2023 -2024", value: "2023 -2024" },
+    { text: "2024 -2025", value: "2024 -2025" },
+  ];
+  const msmeTypeOptions = [
+    { text: "Micro", value: "Micro" },
+    { text: "Small", value: "Small" },
+    { text: "Medium", value: "Medium" },
+  ];
+  const msmeActivityOptions = [
+    { text: "Manufacturing", value: "Manufacturing" },
+    { text: "Service", value: "Service" },
+    { text: "Trading", value: "Trading" },
+  ];
+  // const changeMSmeStatus = (value) => {
+  //   console.log("value", value);
+  //   setMsmeStat(value);
+  // };
+  // useEffect(() => {
+  //       setMsmeStat(value);
+  // }, [third]);
 
   return (
     <div style={{ height: "90%" }}>
@@ -197,6 +241,39 @@ const AddVendor = () => {
                   <Input />
                 </Form.Item>
               </Col>
+              <Col span={4}>
+                <Form.Item label="MSME Status" name="msmeStatus">
+                  <MySelect
+                    options={msmeOptions}
+                    // value={msmeStat}
+                    // onChange={(value) => changeMSmeStatus(value)}
+                  />
+                </Form.Item>
+              </Col>
+              {msmeStat === "Y" && (
+                <>
+                  <Col span={4}>
+                    <Form.Item label="Year" name="year">
+                      <MySelect options={msmeYearOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item label="Id" name="msmeId">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item label="Type" name="type">
+                      <MySelect options={msmeTypeOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item label="Activity" name="activity">
+                      <MySelect options={msmeActivityOptions} />
+                    </Form.Item>
+                  </Col>
+                </>
+              )}
             </Row>
           </Col>
         </Row>
@@ -328,6 +405,7 @@ const initialValues = {
   vendorName: "",
   pincode: "",
   address: "",
+  msmeStatus: "N",
 };
 
 const rules = {
