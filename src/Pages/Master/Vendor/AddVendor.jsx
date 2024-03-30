@@ -61,7 +61,8 @@ const AddVendor = () => {
         reset();
       } else {
         setShowSubmitConfirmModal(false);
-        toast.error(data.message.msg);
+        // console.log("data.message", data.message);
+        toast.error(data.message);
       }
     }
   };
@@ -253,22 +254,26 @@ const AddVendor = () => {
               {msmeStat === "Y" && (
                 <>
                   <Col span={4}>
-                    <Form.Item label="Year" name="year">
+                    <Form.Item label="Year" name="year" rules={rules.year}>
                       <MySelect options={msmeYearOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item label="Id" name="msmeId">
+                    <Form.Item label="Id" name="msmeId" rules={rules.msmeId}>
                       <Input />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item label="Type" name="type">
+                    <Form.Item label="Type" name="type" rules={rules.type}>
                       <MySelect options={msmeTypeOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item label="Activity" name="activity">
+                    <Form.Item
+                      label="Activity"
+                      name="activity"
+                      rules={rules.activity}
+                    >
                       <MySelect options={msmeActivityOptions} />
                     </Form.Item>
                   </Col>
@@ -421,10 +426,40 @@ const rules = {
       message: "Please provide the PAN number",
     },
   ],
+  year: [
+    {
+      required: true,
+      message: "Please provide the year",
+    },
+  ],
+  msmeId: [
+    {
+      required: true,
+      message: "Please provide the MSME Id",
+    },
+  ],
+  type: [
+    {
+      required: true,
+      message: "Please provide the MSME type.",
+    },
+  ],
   gstin: [
     {
       required: true,
-      message: "Please provide the GST number",
+      message: "Please provide the gstin.",
+    },
+  ],
+  msmeId: [
+    {
+      required: true,
+      message: "Please provide the MSME Id.",
+    },
+  ],
+  activity: [
+    {
+      required: true,
+      message: "Please provide the MSME Activity.",
     },
   ],
   branch: [
