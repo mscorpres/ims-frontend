@@ -39,6 +39,7 @@ import {
 } from "../../../../api/general";
 import useApi from "../../../../hooks/useApi";
 import { convertSelectOptions } from "../../../../utils/general";
+import { useSearchParams } from "react-router-dom";
 
 const CreateScrapeChallan = () => {
   const [uplaodType, setUploadType] = useState("table");
@@ -48,7 +49,12 @@ const CreateScrapeChallan = () => {
   const [clientData, setClientData] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [clientcode, setClientCode] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [editScrapeChallan, setEditScrapeChallan] = useState("");
+  const [challanId, setChallanID] = useState("");
+
   const [challanForm] = Form.useForm();
+  const isthereClientCode = Form.useWatch("clientname", challanForm);
   const [ModalForm] = Form.useForm();
   const defaultValues = {
     vendorType: "v01",
@@ -71,7 +77,7 @@ const CreateScrapeChallan = () => {
       },
     ],
   };
-
+  var challan = searchParams.get("challan");
   const { executeFun, loading: loading1 } = useApi();
   const components = Form.useWatch("components", challanForm);
   const getComponent = async (searchTerm) => {
@@ -306,15 +312,104 @@ const CreateScrapeChallan = () => {
       },
     };
     console.log("payload", payload);
-    const response = await executeFun(
-      () => submitScrapreChallan(payload),
-      "select"
-    );
+    let response;
+    let editPayload = {
+      challan_id: challanId,
+      header: {
+        clientadd_id: values.clientbranch,
+        clientaddress: values.nature,
+        ship_doc_no: values.pd,
+        vehicle: values.vn,
+        other_ref: values.or,
+        billingid: values.billingid?.value,
+        billingaddress: values.billingaddress,
+        dispatchid: values.dispatchid.value,
+        dispatchaddress: values.shippingaddress,
+        challan_remark: remarkvalue.remark,
+      },
+      material: {
+        id: values.components.map((r) => r.rowID),
+        id: values.components.map((r) => r.rowID),
+        component: values.components.map((r) => r.componentKey),
+        qty: values.components.map((r) => r.qty),
+        rate: values.components.map((r) => r.rate),
+        hsncode: values.components.map((r) => r.hsnCode),
+        remark: values.components.map((r) => r.remarks),
+      },
+    };
+    console.log("editPayload", editPayload);
+    // return;
+    if (editScrapeChallan === "edit") {
+      // response = await imsAxios.post("/wo_challan/updateWO_ScrapChallan", {});
+    } else {
+      response = await executeFun(
+        () => submitScrapreChallan(payload),
+        "select"
+      );
+    }
     // console.log(response);
     if (response.success) {
       challanForm.resetFields();
     }
   };
+  const getScrapeDetails = async (challan) => {
+    const response = await imsAxios.post("/wo_challan/editWO_ScrapChallan", {
+      challan_no: challan,
+    });
+    console.log("response", response);
+    setEditScrapeChallan("edit");
+    const { data } = response;
+    if (data.status === "success") {
+      console.log("data", data);
+      challanForm.setFieldValue("clientname", data.header.clientcode.label);
+      challanForm.setFieldValue("clientnameCode", data.header.clientcode.value);
+      challanForm.setFieldValue("clientbranch", data.header.client_branch);
+      challanForm.setFieldValue("nature", data.header.eway_no);
+      challanForm.setFieldValue("pd", data.header.ship_doc_no);
+      challanForm.setFieldValue("vn", data.header.vehicle);
+      challanForm.setFieldValue("or", data.header.other_ref);
+      challanForm.setFieldValue("address", data.header.clientaddress.label);
+      challanForm.setFieldValue("addressid", data.header.clientaddress.value);
+      challanForm.setFieldValue("billingid", data.header.billing_info);
+      challanForm.setFieldValue("billingaddress", data.header.billing_address);
+      challanForm.setFieldValue("dispatchid", data.header.dispatch_info);
+      challanForm.setFieldValue(
+        "shippingaddress",
+        data.header.dispatch_address
+      );
+      let arr = data.material.map((r) => {
+        return {
+          component: r.component_name,
+          qty: r.out_qty,
+          rate: r.part_rate,
+          valu: r.component_name,
+          hsnCode: r.hsn_code,
+          remarks: r.remarks,
+          rowID: r.row_id,
+          componentKey: r.component_key,
+        };
+      });
+      console.log("arr", arr);
+
+      challanForm.setFieldValue("components", arr);
+      // const fields = challanForm.getFieldsValue();
+      // fields.components = arr;
+    }
+  };
+  useEffect(() => {
+    if (challan) {
+      getScrapeDetails(challan);
+      setChallanID(challan);
+    }
+  }, [challan]);
+  useEffect(() => {
+    if (isthereClientCode && editScrapeChallan === "edit") {
+      let a = challanForm.getFieldValue("clientnameCode");
+      console.log("isthereClientCode", a);
+      getclientDetials(a);
+    }
+  }, [isthereClientCode]);
+
   return (
     <>
       <Form
@@ -324,7 +419,7 @@ const CreateScrapeChallan = () => {
         initialValues={defaultValues}
       >
         <Row gutter={8} style={{ height: "95%", overflow: "hidden" }}>
-          <Col span={6} style={{ height: "100%", overflow: "hidden" }}>
+          <Col span={6} style={{ height: "90%", overflow: "hidden" }}>
             <Row gutter={[0, 6]} style={{ overflow: "auto", height: "100%" }}>
               <Col span={24}>
                 <Card size="small" title="Client Details">
