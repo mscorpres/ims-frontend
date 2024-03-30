@@ -102,7 +102,7 @@ export default function CreatePo() {
   const [successData, setSuccessData] = useState(false);
   const [projectDesc, setProjectDesc] = useState("");
   const [form] = Form.useForm();
-
+  console.log("newPurchaseOrder", newPurchaseOrder);
   const { executeFun, loading: loading1 } = useApi();
   const validatePO = () => {
     let newPo = {};
@@ -269,7 +269,7 @@ export default function CreatePo() {
     const { data } = response;
     if (data) {
       if (data.code === 200) {
-        return data.data.paymentterms;
+        return data.data;
       } else {
         toast.error(data.message.msg);
       }
@@ -285,13 +285,17 @@ export default function CreatePo() {
           vendorBranch: arr[0].value,
         });
         let paymentTermsDay = await getPaymentTermsDay(value.value);
+        // console.log("paymentTermsDay", paymentTermsDay);
         obj = {
           ...obj,
           [name]: value,
           vendorbranch: arr[0].value,
           vendoraddress: address.replaceAll("<br>", "\n"),
           gstin: gstin,
-          paymenttermsday: paymentTermsDay,
+          paymenttermsday: paymentTermsDay.paymentterms,
+          paymentterms: paymentTermsDay.po_payment_terms,
+          msmeType: paymentTermsDay.msme_data.msme_type,
+          msmeId: paymentTermsDay.msme_data.msme_id,
         };
       } else if (name == "vendorbranch") {
         setPageLoading(true);
@@ -849,7 +853,17 @@ export default function CreatePo() {
                         </Col>
                       </Row>
                       <Row gutter={8}>
-                        <Col span={18}>
+                        <Col span={6}>
+                          <Form.Item name="msmeType" label="MSME Type">
+                            <Input size="default" disabled />
+                          </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                          <Form.Item label="MSME Id" name="msmeId">
+                            <Input size="default" disabled />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
                           <Form.Item
                             name="vendoraddress"
                             label="Bill From Address"
