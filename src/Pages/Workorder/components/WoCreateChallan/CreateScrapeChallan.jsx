@@ -39,7 +39,7 @@ import {
 } from "../../../../api/general";
 import useApi from "../../../../hooks/useApi";
 import { convertSelectOptions } from "../../../../utils/general";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const CreateScrapeChallan = () => {
   const [uplaodType, setUploadType] = useState("table");
@@ -78,6 +78,8 @@ const CreateScrapeChallan = () => {
     ],
   };
   var challan = searchParams.get("challan");
+
+  const navigate = useNavigate();
   const { executeFun, loading: loading1 } = useApi();
   const components = Form.useWatch("components", challanForm);
   const getComponent = async (searchTerm) => {
@@ -182,7 +184,7 @@ const CreateScrapeChallan = () => {
           setAddOptions(arr);
           setClientData(data);
           // challanForm.setFieldValue("billingaddress", arr.address);
-          if (dm === undefined) {
+          if (dm === undefined && editScrapeChallan !== "edit") {
             challanForm.setFieldValue("clientbranch", "");
             challanForm.setFieldValue("gstin", "");
             challanForm.setFieldValue("address", "");
@@ -270,7 +272,16 @@ const CreateScrapeChallan = () => {
       title: "Do you want to submit Scrape Challan?",
       content: (
         <Form form={ModalForm} layout="vertical">
-          <Form.Item name="remark" label="Remark">
+          <Form.Item
+            name="remark"
+            label="Remark"
+            rules={[
+              {
+                required: true,
+                message: "Please input remark!",
+              },
+            ]}
+          >
             <Input.TextArea rows={3} placeholder="Please input the remark" />
           </Form.Item>
         </Form>
@@ -280,6 +291,7 @@ const CreateScrapeChallan = () => {
     });
   };
   const submitHandler = async () => {
+    setLoading(true);
     const values = await challanForm.validateFields();
     const remarkvalue = await ModalForm.validateFields();
     console.log("value", values);
@@ -312,14 +324,16 @@ const CreateScrapeChallan = () => {
       },
     };
     console.log("payload", payload);
+    console.log("addressid", values);
     let response;
     let editPayload = {
       challan_id: challanId,
       header: {
-        clientadd_id: values.clientbranch,
+        clientadd_id: values.components[0]?.clientBranchId,
         clientaddress: values.nature,
         ship_doc_no: values.pd,
         vehicle: values.vn,
+        eway_no: values.nature,
         other_ref: values.or,
         billingid: values.billingid?.value,
         billingaddress: values.billingaddress,
@@ -338,9 +352,25 @@ const CreateScrapeChallan = () => {
       },
     };
     console.log("editPayload", editPayload);
+    // navigate("/woviewchallan");
     // return;
     if (editScrapeChallan === "edit") {
-      // response = await imsAxios.post("/wo_challan/updateWO_ScrapChallan", {});
+      // console.log("her");
+      response = await imsAxios.post(
+        "/wo_challan/updateWO_ScrapChallan",
+        editPayload
+      );
+      console.log("response of edit ", response);
+      let { data } = response;
+      if (data.status === "success") {
+        toast.success(data.message);
+        challanForm.resetFields();
+        setLoading(true);
+        navigate("/woviewchallan");
+      } else {
+        toast.error(data.message.msg);
+        setLoading(true);
+      }
     } else {
       response = await executeFun(
         () => submitScrapreChallan(payload),
@@ -349,8 +379,10 @@ const CreateScrapeChallan = () => {
     }
     // console.log(response);
     if (response.success) {
+      setLoading(true);
       challanForm.resetFields();
     }
+    setLoading(true);
   };
   const getScrapeDetails = async (challan) => {
     const response = await imsAxios.post("/wo_challan/editWO_ScrapChallan", {
@@ -360,16 +392,23 @@ const CreateScrapeChallan = () => {
     setEditScrapeChallan("edit");
     const { data } = response;
     if (data.status === "success") {
-      console.log("data", data);
+      // console.log(
+      //   "data.header.clientaddress?.value",
+      //   data.header.clientaddress?.value
+      // );
       challanForm.setFieldValue("clientname", data.header.clientcode.label);
       challanForm.setFieldValue("clientnameCode", data.header.clientcode.value);
       challanForm.setFieldValue("clientbranch", data.header.client_branch);
+      // challanForm.setFieldValue(
+      //   "clientbranchid",
+      //   data.header.clientaddress?.value
+      // );
       challanForm.setFieldValue("nature", data.header.eway_no);
       challanForm.setFieldValue("pd", data.header.ship_doc_no);
       challanForm.setFieldValue("vn", data.header.vehicle);
       challanForm.setFieldValue("or", data.header.other_ref);
-      challanForm.setFieldValue("address", data.header.clientaddress.label);
-      challanForm.setFieldValue("addressid", data.header.clientaddress.value);
+      challanForm.setFieldValue("address", data.header.clientaddress?.label);
+      // challanForm.setFieldValue("addressid", data.header.clientaddress?.value);
       challanForm.setFieldValue("billingid", data.header.billing_info);
       challanForm.setFieldValue("billingaddress", data.header.billing_address);
       challanForm.setFieldValue("dispatchid", data.header.dispatch_info);
@@ -387,6 +426,7 @@ const CreateScrapeChallan = () => {
           remarks: r.remarks,
           rowID: r.row_id,
           componentKey: r.component_key,
+          clientBranchId: data.header.clientaddress?.value,
         };
       });
       console.log("arr", arr);
@@ -463,16 +503,7 @@ const CreateScrapeChallan = () => {
                     <>
                       <Row gutter={6}>
                         <Col span={12}>
-                          <Form.Item
-                            name="nature"
-                            label="E-way Bill Number"
-                            // rules={[
-                            //   {
-                            //     required: true,
-                            //     message: "Please input Nature of processing!",
-                            //   },
-                            // ]}
-                          >
+                          <Form.Item name="nature" label="E-way Bill Number">
                             <Input />
                           </Form.Item>
                         </Col>
@@ -519,6 +550,7 @@ const CreateScrapeChallan = () => {
                             challanForm.setFieldValue("insertDate", value)
                           }
                         />
+
                         {/* <InputMask
                       // name="due_date[]"
                       // value={vendorData?.invoice_date}
@@ -529,7 +561,7 @@ const CreateScrapeChallan = () => {
                       mask="99-99-9999"
                       placeholder="__-__-____"
                     /> */}
-                      </Form.Item>
+                      </Form.Item>{" "}
                     </>
                   )}
                 </Card>
