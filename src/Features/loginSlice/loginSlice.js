@@ -14,7 +14,7 @@ const initialState = {
         company_branch: JSON.parse(localStorage.getItem("otherData"))
           ?.company_branch,
         session:
-          JSON.parse(localStorage.getItem("otherData"))?.session ?? "23-24",
+          JSON.parse(localStorage.getItem("otherData"))?.session ?? "24-25",
         passwordChanged: "C",
         showlegal:
           JSON.parse(localStorage.getItem("loggedInUser"))?.department ===
