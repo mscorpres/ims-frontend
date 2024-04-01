@@ -62,7 +62,7 @@ const AddVendor = () => {
       } else {
         setShowSubmitConfirmModal(false);
         // console.log("data.message", data.message);
-        toast.error(data.message);
+        toast.error(data.message.msg);
       }
     }
   };
