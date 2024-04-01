@@ -448,15 +448,16 @@ const CreateChallanModal = ({
     if (data.code == 200) {
       let arrHead = data.header;
       console.log("data", response);
+
       // let arrHead = data.header.map((row) => ({
       //   clientbranch: row.client_branch,
       //   // nature:
       // }));
       // challanForm.setFieldValue("components", arrHead);
       // challanForm.setFieldValue("nature", arrHead.eway_nor);
-      // console.log("h.dispatch_info.value", arrHead);
+      // console.log("arrHead.client_branch", arrHead.client_branch);
       // challanForm.setFieldValue("clientbranch", arrHead.client_branch);
-      challanForm.setFieldValue("clientbranch", arrHead.billing_info.label);
+      challanForm.setFieldValue("clientbranch", arrHead.client_branch);
       challanForm.setFieldValue("nature", arrHead.eway_no);
       challanForm.setFieldValue("pd", arrHead.ship_doc_no);
       challanForm.setFieldValue("vn", arrHead.vehicle);
@@ -482,6 +483,7 @@ const CreateChallanModal = ({
 
       // challanForm.setFieldValue("components", [obj]);
       if (editShipment == "Shipment") {
+        console.log("data");
         challanForm.setFieldValue("components", [
           {
             productname: data.material.product_name,
@@ -493,12 +495,32 @@ const CreateChallanModal = ({
             // description: data.material.remarks,
             woId: h.woTransaction_Id,
             shipment_id: arrHead.shipment_id,
-            clientbranchid: arrHead.billing_info.value,
+            clientbranchid: arrHead.clientaddress.value,
             challan_remark: arrHead.challan_remark,
           },
         ]);
+        // let materialArr = data.min_out_data.map((a) => {
+        //   return {
+        //     materialRowId: a.row_id,
+        //     component_name: a.component_name,
+        //     component_key: a.component_key,
+        //     part_code: a.component_part_no,
+        //     min_id: a.wo_min_id,
+        //     min_date: a.wo_min_date,
+        //     out_qty: a.wo_out_qty,
+        //     hsn: a.hsn_code,
+        //     min_rate: a.wo_out_rate,
+        //     // description: a.remarks,
+        //     // description: data.material.remark,
+        //     // woId: h.woTransaction_Id,
+        //     // shipment_id: arrHead.shipment_id,
+        //     // clientbranchid: arrHead.clientaddress.value,
+        //     // description: arrHead.challan_remark,
+        //   };
+        // });
+        // // setMinRows(materialArr);
       } else {
-        // console.log("h", h);
+        console.log("here");
         // console.log("arrHead", arrHead);
         // console.log("data.material.", data.material);
         challanForm.setFieldValue("challanRemark", arrHead.challan_remark);
@@ -515,7 +537,7 @@ const CreateChallanModal = ({
             // description: data.material.remark,
             woId: h.woTransaction_Id,
             shipment_id: arrHead.shipment_id,
-            clientbranchid: arrHead.billing_info.value,
+            clientbranchid: arrHead.clientaddress.value,
             // description: arrHead.challan_remark,
           };
         });
@@ -532,7 +554,7 @@ const CreateChallanModal = ({
           // description: data.material.remarks,
           woId: h.woTransaction_Id,
           shipment_id: arrHead.shipment_id,
-          clientbranchid: arrHead.billing_info.value,
+          clientbranchid: arrHead.clientaddress.value,
           // description: arrHead.challan_remark,
         };
         console.log("a", a);
@@ -816,9 +838,9 @@ const CreateChallanModal = ({
           productname: dataProductdetails.text,
           qty: minqty,
         };
-        // console.log("obj ->", obj);
+        console.log("obj ->", obj);
         // challanForm.setFieldsValue()
-        challanForm.setFieldValue("components", [obj]);
+        // challanForm.setFieldValue("components", [obj]);
       } else {
         toast.error(data.message.msg);
       }
@@ -994,6 +1016,8 @@ const CreateChallanModal = ({
             // remark: values.components[0].description,
           },
         };
+        console.log("newpayload", newpayload);
+        console.log("values", values);
         updateWoShipment(newpayload);
       } else {
         try {
@@ -1023,8 +1047,10 @@ const CreateChallanModal = ({
               transaction_id: data.transactionId,
               dispatchfromaddrid: values.dispatchid,
               dispatchfromaddr: values.shippingaddress,
-              dispatchfrompincode: values.dispatchfrompincode,
-              dispatchfromgst: values.dispatchfromgst,
+              dispatchfrompincode: "",
+              dispatchfromgst: "",
+              // dispatchfrompincode: values.dispatchfrompincode,
+              // dispatchfromgst: values.dispatchfromgst,
               vehicle: values.vn,
               clientbranch: values.clientbranch,
               clientaddress: values.address,
@@ -1615,29 +1641,54 @@ const Product = ({
         {editShipment ? (
           <>
             {" "}
-            <FormTable2
-              nonRemovableColumns={1}
-              columns={[
-                ...productItemsEdit(
-                  location,
-                  gsttype,
-                  setlocationlist,
-                  getLocationList,
-                  locationlist,
-                  getComponentOptions,
-                  asyncOptions,
-                  setAsyncOptions,
-                  getComponentDetails
-                ),
-              ]}
-              listName="components"
-              watchKeys={["rate", "qty", "gstRate"]}
-              nonListWatchKeys={["gstType"]}
-              componentRequiredRef={["rate", "qty"]}
-              form={form}
-              calculation={calculation}
-              rules={listRules}
-            />
+            <Card>
+              {" "}
+              <FormTable2
+                nonRemovableColumns={1}
+                columns={[
+                  ...productItemsEdit(
+                    location,
+                    gsttype,
+                    setlocationlist,
+                    getLocationList,
+                    locationlist,
+                    getComponentOptions,
+                    asyncOptions,
+                    setAsyncOptions,
+                    getComponentDetails
+                  ),
+                ]}
+                listName="components"
+                watchKeys={["rate", "qty", "gstRate"]}
+                nonListWatchKeys={["gstType"]}
+                componentRequiredRef={["rate", "qty"]}
+                form={form}
+                calculation={calculation}
+                rules={listRules}
+              />
+            </Card>
+            <Card
+              style={{
+                height: "80%",
+                overflowY: "scroll",
+                maxHeight: "73%",
+                marginTop: "20px",
+              }}
+            >
+              <FormTable
+                columns={[
+                  ...productMinItems(
+                    inputHandler,
+                    removeRow,
+                    CommonIcons,
+                    rows,
+                    minRows
+                  ),
+                ]}
+                data={minRows}
+                inputHandle={inputHandler}
+              />
+            </Card>
           </>
         ) : (
           <>
