@@ -82,7 +82,7 @@ const Login = () => {
             ?.currentLink,
           id: data.data.crn_id,
           showlegal: data.data.department === "legal" ? true : false,
-          session: "23-24",
+          session: "24-25",
           company_branch: "BRMSC012",
         };
         dispatch(setUser(obj));
