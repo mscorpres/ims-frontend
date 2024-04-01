@@ -613,6 +613,7 @@ const App = () => {
   const sessionOptions = [
     { label: "Session 22-23", value: "22-23" },
     { label: "Session 23-24", value: "23-24" },
+    { label: "Session 24-25", value: "24-25" },
   ];
   return (
     <div id="development_status">
