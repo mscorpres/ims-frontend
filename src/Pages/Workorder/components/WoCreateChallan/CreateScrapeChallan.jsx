@@ -392,10 +392,7 @@ const CreateScrapeChallan = () => {
     setEditScrapeChallan("edit");
     const { data } = response;
     if (data.status === "success") {
-      // console.log(
-      //   "data.header.clientaddress?.value",
-      //   data.header.clientaddress?.value
-      // );
+      // console.log(" data.header.challan_remark", data.header.challan_remark);
       challanForm.setFieldValue("clientname", data.header.clientcode.label);
       challanForm.setFieldValue("clientnameCode", data.header.clientcode.value);
       challanForm.setFieldValue("clientbranch", data.header.client_branch);
@@ -412,6 +409,7 @@ const CreateScrapeChallan = () => {
       challanForm.setFieldValue("billingid", data.header.billing_info);
       challanForm.setFieldValue("billingaddress", data.header.billing_address);
       challanForm.setFieldValue("dispatchid", data.header.dispatch_info);
+      ModalForm.setFieldValue("remark", data.header.challan_remark);
       challanForm.setFieldValue(
         "shippingaddress",
         data.header.dispatch_address
@@ -426,7 +424,7 @@ const CreateScrapeChallan = () => {
           remarks: r.remarks,
           rowID: r.row_id,
           componentKey: r.component_key,
-          clientBranchId: data.header.clientaddress?.value,
+          clientBranchId: data.header?.clientaddress?.value,
         };
       });
       console.log("arr", arr);
@@ -535,23 +533,24 @@ const CreateScrapeChallan = () => {
                       >
                         <Input disabled />
                       </Form.Item>
-                      <Form.Item
-                        label="Insert Date"
-                        name="insertDate"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please Enter Insert Date",
-                          },
-                        ]}
-                      >
-                        <SingleDatePicker
-                          setDate={(value) =>
-                            challanForm.setFieldValue("insertDate", value)
-                          }
-                        />
+                      {!editScrapeChallan && (
+                        <Form.Item
+                          label="Insert Date"
+                          name="insertDate"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please Enter Insert Date",
+                            },
+                          ]}
+                        >
+                          <SingleDatePicker
+                            setDate={(value) =>
+                              challanForm.setFieldValue("insertDate", value)
+                            }
+                          />
 
-                        {/* <InputMask
+                          {/* <InputMask
                       // name="due_date[]"
                       // value={vendorData?.invoice_date}
                       // onChange={(e) =>
@@ -561,7 +560,8 @@ const CreateScrapeChallan = () => {
                       mask="99-99-9999"
                       placeholder="__-__-____"
                     /> */}
-                      </Form.Item>{" "}
+                        </Form.Item>
+                      )}
                     </>
                   )}
                 </Card>

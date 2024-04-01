@@ -325,13 +325,17 @@ const WoShipment = () => {
       setLoading(false);
     }
   };
-
+  const close = () => {
+    // console.log("setShowCreateChallanModal", showCreateChallanModal);
+    setShowCreateChallanModal(false);
+  };
+  //
   useEffect(() => {
     if (wise !== wiseOptions[1].value) {
       setSearchInput("");
     }
   }, [wise]);
-
+  // console.log("here in shipment");
   return (
     <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
       {loading === "fetch" && <Loading />}
@@ -452,7 +456,7 @@ const WoShipment = () => {
           show={showCreateChallanModal}
           data={detaildata}
           setDetailData={setDetailData}
-          close={() => setShowCreateChallanModal(false)}
+          close={close}
         />
       )}
     </div>

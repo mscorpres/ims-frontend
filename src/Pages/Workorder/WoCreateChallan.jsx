@@ -67,7 +67,7 @@ const WoCreateChallan = () => {
   };
   const close = () => {
     setShowCreateChallanModal(false);
-        challanForm.resetFields();
+    challanForm.resetFields();
     setRtnChallan(false);
   };
   //

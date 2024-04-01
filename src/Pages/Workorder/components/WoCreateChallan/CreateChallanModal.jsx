@@ -42,7 +42,6 @@ const CreateChallanModal = ({
   // challanForm,
   //testing
 }) => {
-  // log
   const [challanForm] = Form.useForm();
   const [locationlist, setlocationlist] = useState([]);
   const [updatechallan, setupdatechallan] = useState("");
@@ -83,6 +82,7 @@ const CreateChallanModal = ({
     // rtnchallan,
     // setRtnChallan
   );
+  // console.log("close", close);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [transaction, setTransactions] = useState("");
   ////uplaod
@@ -365,6 +365,7 @@ const CreateChallanModal = ({
 
   const updateRmChallan = async () => {
     try {
+      // console.log("update function woring");
       const values = await challanForm.validateFields();
       var bid;
       var did;
@@ -593,6 +594,7 @@ const CreateChallanModal = ({
   const closeDrawer = () => {
     challanForm.resetFields();
     close();
+    // console.log("here");
   };
   useEffect(() => {
     if (rows.length > 0) {
@@ -1229,13 +1231,15 @@ const CreateChallanModal = ({
       }
 
       if (response.data.code === 200) {
+        // console.log("response", response);
+        close();
         toast.success(response.data.message);
         challanForm.resetFields();
         setLoading(false);
         setRtnChallan(false);
-        // console.log("showCreateChallanModal", showCreateChallanModal);
-        setDetailData([]);
-        close();
+        // hide
+        // console.log("showCreateChallanModal-----");
+        // setDetailData("");
       } else {
         toast.error(response.data.message.msg);
         setLoading(false);
@@ -1358,7 +1362,7 @@ const CreateChallanModal = ({
 
                         {/* ?/? */}
                       </Form.Item>
-                      {editShipment !== "Shipment" && (
+                      {!editShipment && (
                         <Form.Item
                           label="Insert Date"
                           name="insertDate"
@@ -1445,6 +1449,7 @@ const CreateChallanModal = ({
                         inputHandler={inputHandler}
                         minRows={minRows}
                         removeRow={removeRow}
+                        editShipment={editShipment}
                       />
                     )
                   ) : show.label === "Create shipment" ||
@@ -1478,6 +1483,7 @@ const CreateChallanModal = ({
                       inputHandler={inputHandler}
                       minRows={minRows}
                       removeRow={removeRow}
+                      editShipment={editShipment}
                     />
                   )}
                 </Col>
@@ -1557,63 +1563,125 @@ const Component = ({
   removeRow,
   inputHandler,
   rows,
+  editShipment,
 }) => {
   return (
     <>
       <Col span={29} style={{ height: "100%", overflow: "hidden" }}>
-        <Card
-          style={{
-            height: "35%",
-            overflowY: "scroll",
-            overflowX: "scroll",
-            maxHeight: "35%",
-            marginTop: "20px",
-          }}
-        >
-          <FormTable2
-            removableRows={true}
-            nonRemovableColumns={1}
-            columns={[
-              ...componentsItems(
-                location,
-                gsttype,
-                setlocationlist,
-                getLocationList,
-                locationlist
-              ),
-            ]}
-            listName="components"
-            watchKeys={["rate", "qty", "gstRate"]}
-            nonListWatchKeys={["gstType"]}
-            componentRequiredRef={["rate", "qty"]}
-            form={form}
-            calculation={calculation}
-            rules={listRules}
-          />
-        </Card>
-        {/* </Card> */}
-        <Card
-          style={{
-            height: "63%",
-            overflowY: "scroll",
-            maxHeight: "63%",
-            marginTop: "30px",
-          }}
-        >
-          <FormTable
-            columns={[
-              ...compMinItems(
-                inputHandler,
-                removeRow,
-                CommonIcons,
-                rows,
-                minRows
-              ),
-            ]}
-            data={minRows}
-            inputHandle={inputHandler}
-          />
-        </Card>
+        {editShipment ? (
+          <>
+            <Card
+              style={{
+                height: "35%",
+                overflowY: "scroll",
+                overflowX: "scroll",
+                maxHeight: "35%",
+                marginTop: "20px",
+              }}
+            >
+              <FormTable2
+                removableRows={true}
+                nonRemovableColumns={1}
+                columns={[
+                  ...componentsItems(
+                    location,
+                    gsttype,
+                    setlocationlist,
+                    getLocationList,
+                    locationlist
+                  ),
+                ]}
+                listName="components"
+                watchKeys={["rate", "qty", "gstRate"]}
+                nonListWatchKeys={["gstType"]}
+                componentRequiredRef={["rate", "qty"]}
+                form={form}
+                calculation={calculation}
+                rules={listRules}
+              />
+            </Card>
+            {/* </Card> */}
+            <Card
+              style={{
+                height: "63%",
+                overflowY: "scroll",
+                maxHeight: "63%",
+                marginTop: "30px",
+              }}
+            >
+              <FormTable
+                columns={[
+                  ...compWithOutMINItems(
+                    inputHandler,
+                    removeRow,
+                    CommonIcons,
+                    rows,
+                    minRows
+                  ),
+                ]}
+                data={minRows}
+                inputHandle={inputHandler}
+              />
+            </Card>
+          </>
+        ) : (
+          <>
+            {" "}
+            <Card
+              style={{
+                height: "35%",
+                overflowY: "scroll",
+                overflowX: "scroll",
+                maxHeight: "35%",
+                marginTop: "20px",
+              }}
+            >
+              <FormTable2
+                removableRows={true}
+                nonRemovableColumns={1}
+                columns={[
+                  ...componentsItems(
+                    location,
+                    gsttype,
+                    setlocationlist,
+                    getLocationList,
+                    locationlist
+                  ),
+                ]}
+                listName="components"
+                watchKeys={["rate", "qty", "gstRate"]}
+                nonListWatchKeys={["gstType"]}
+                componentRequiredRef={["rate", "qty"]}
+                form={form}
+                calculation={calculation}
+                rules={listRules}
+              />
+            </Card>
+            {/* </Card> */}
+            <Card
+              style={{
+                height: "63%",
+                overflowY: "scroll",
+                maxHeight: "63%",
+                marginTop: "30px",
+              }}
+            >
+              <FormTable
+                columns={[
+                  ...compMinItems(
+                    inputHandler,
+                    removeRow,
+                    CommonIcons,
+                    rows,
+                    minRows
+                  ),
+                ]}
+                data={minRows}
+                inputHandle={inputHandler}
+              />
+            </Card>
+          </>
+        )}
       </Col>
     </>
   );
@@ -1655,7 +1723,7 @@ const Product = ({
               <FormTable2
                 nonRemovableColumns={1}
                 columns={[
-                  ...productItemsEdit(
+                  ...shipmentproductItemsEdit(
                     location,
                     gsttype,
                     setlocationlist,
@@ -1686,7 +1754,7 @@ const Product = ({
             >
               <FormTable
                 columns={[
-                  ...productMinItems(
+                  ...shipmentproductMinItems(
                     inputHandler,
                     removeRow,
                     CommonIcons,
@@ -1705,7 +1773,7 @@ const Product = ({
               <FormTable2
                 nonRemovableColumns={1}
                 columns={[
-                  ...productItems(
+                  ...shipmentproductItems(
                     location,
                     gsttype,
                     setlocationlist,
@@ -1736,7 +1804,7 @@ const Product = ({
             >
               <FormTable
                 columns={[
-                  ...productMinItems(
+                  ...shipmentproductWithOutMinItems(
                     inputHandler,
                     removeRow,
                     CommonIcons,
@@ -1755,7 +1823,7 @@ const Product = ({
   );
 };
 
-const productItems = (
+const shipmentproductItems = (
   location,
   gstType,
   getLocationList,
@@ -1878,7 +1946,171 @@ const productItems = (
     field: (row) => <TextArea row={3} />,
   },
 ];
-const productMinItems = (
+const shipmentproductMinItems = (
+  inputHandler,
+  removeRow,
+  CommonIcons,
+  rows,
+  minRows
+) => [
+  // {
+  //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
+  //   width: 40,
+  //   type: "actions",
+  //   field: "add",
+  //   sortable: false,
+  //   renderCell: ({ row }) =>
+  //     rows.length > 1 &&
+  //     !row?.total && (
+  //       <CommonIcons
+  //         action="removeRow"
+  //         onClick={() => {
+  //           removeRow(row.id);
+  //         }}
+  //       />
+  //     ),
+  // },
+  {
+    // headerName: <CommonIcons action="addRow" onClick={addRows} />,
+    field: "actions",
+    width: 40,
+    renderCell: ({ row }) => (
+      // row.type === "new" && (
+      <CommonIcons action="removeRow" onClick={() => removeRow(row.id)} />
+    ),
+    // ),
+  },
+  {
+    headerName: "Component Name",
+    field: "component_name",
+    width: 300,
+    sortable: false,
+    // width: "10vw",
+    renderCell: ({ row }) => (
+      <Input
+        // size="small"
+        //   value={row.total ? paymentTotal?.toFixed(2) : row.payment}
+        value={row.component_name}
+        onChange={(e) => inputHandler("component_name", e.target.value, row.ID)}
+        disabled={row.component_name}
+      />
+    ),
+  },
+  {
+    headerName: "Part Code",
+    // width: "20.5vw",
+    field: "part_code",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("part_code", e.target.value, row.id);
+          }}
+          value={row?.part_code}
+          name="part_code"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Date",
+    // width: "20.5vw",
+    field: "min_date",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_date", e.target.value, row.id);
+          }}
+          value={row?.min_date}
+          name="min_date"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Id",
+    // width: "20.5vw",
+    field: "min_id",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_id", e.target.value, row.id);
+          }}
+          value={row?.min_id}
+          name="min_id"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Rate",
+    // width: "20.5vw",
+    field: "min_rate",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_rate", e.target.value, row.id);
+          }}
+          value={row?.min_rate}
+          name="min_rate"
+          id={row.ID}
+        />
+      ),
+  },
+  // {
+  //   headerName: "MIN Available Qty",
+  //   // width: "20.5vw",
+  //   field: "min_available_qty",
+  //   flex: 1,
+  //   sortable: false,
+  //   renderCell: ({ row }) =>
+  //     !row.total && (
+  //       <Input
+  //         disabled
+  //         onChange={(e) => {
+  //           inputHandler("min_available_qty", e.target.value, row.id);
+  //         }}
+  //         value={row?.min_available_qty}
+  //         name="min_available_qty"
+  //         id={row.ID}
+  //       />
+  //     ),
+  // },
+  {
+    headerName: "Out Qty",
+    // width: "20.5vw",
+    field: "out_qty",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          onChange={(e) => {
+            inputHandler("out_qty", e.target.value, row.id);
+          }}
+          value={row?.out_qty}
+          name="out_qty"
+          id={row.ID}
+        />
+      ),
+  },
+];
+const shipmentproductWithOutMinItems = (
   inputHandler,
   removeRow,
   CommonIcons,
@@ -2042,7 +2274,14 @@ const productMinItems = (
       ),
   },
 ];
-const compMinItems = (inputHandler, removeRow, CommonIcons, rows, minRows) => [
+const compMinItems = (
+  inputHandler,
+  removeRow,
+  CommonIcons,
+  rows,
+  minRows,
+  editShipment
+) => [
   // {
   //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
   //   width: 40,
@@ -2197,6 +2436,150 @@ const compMinItems = (inputHandler, removeRow, CommonIcons, rows, minRows) => [
       ),
   },
 ];
+const compWithOutMINItems = (
+  inputHandler,
+  removeRow,
+  CommonIcons,
+  rows,
+  minRows,
+  editShipment
+) => [
+  // {
+  //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
+  //   width: 40,
+  //   type: "actions",
+  //   field: "add",
+  //   sortable: false,
+  //   renderCell: ({ row }) =>
+  //     rows.length > 1 &&
+  //     !row?.total && (
+  //       <CommonIcons
+  //         action="removeRow"
+  //         onClick={() => {
+  //           removeRow(row.id);
+  //         }}
+  //       />
+  //     ),
+  // },
+  {
+    // headerName: <CommonIcons action="addRow" onClick={addRows} />,
+    field: "actions",
+    width: 40,
+    renderCell: ({ row }) => (
+      // row.type === "new" && (
+      <CommonIcons action="removeRow" onClick={() => removeRow(row.id)} />
+    ),
+    // ),
+  },
+  {
+    headerName: "Component Name",
+    field: "component_name",
+    width: 300,
+    sortable: false,
+    // width: "10vw",
+    renderCell: ({ row }) => (
+      <Input
+        // size="small"
+        //   value={row.total ? paymentTotal?.toFixed(2) : row.payment}
+        value={row.component_name}
+        onChange={(e) => inputHandler("component_name", e.target.value, row.ID)}
+        disabled={row.component_name}
+      />
+    ),
+  },
+  {
+    headerName: "Part Code",
+    field: "part_code",
+    width: 80,
+    sortable: false,
+    // width: "10vw",
+    renderCell: ({ row }) => (
+      <Input
+        // size="small"
+        //   value={row.total ? paymentTotal?.toFixed(2) : row.payment}
+        value={row.part_code}
+        onChange={(e) => inputHandler("part_code", e.target.value, row.ID)}
+        disabled={row.part_code}
+      />
+    ),
+  },
+  {
+    headerName: "MIN Date",
+    // width: "20.5vw",
+    field: "min_date",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_date", e.target.value, row.id);
+          }}
+          value={row?.min_date}
+          name="min_date"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Id",
+    // width: "20.5vw",
+    field: "min_id",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_id", e.target.value, row.id);
+          }}
+          value={row?.min_id}
+          name="min_id"
+          id={row.ID}
+        />
+      ),
+  },
+  {
+    headerName: "MIN Rate",
+    // width: "20.5vw",
+    field: "min_rate",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          disabled
+          onChange={(e) => {
+            inputHandler("min_rate", e.target.value, row.id);
+          }}
+          value={row?.min_rate}
+          name="min_rate"
+          id={row.ID}
+        />
+      ),
+  },
+
+  {
+    headerName: "Out Qty",
+    // width: "20.5vw",
+    field: "out_qty",
+    flex: 1,
+    sortable: false,
+    renderCell: ({ row }) =>
+      !row.total && (
+        <Input
+          onChange={(e) => {
+            inputHandler("out_qty", e.target.value, row.id);
+          }}
+          value={row?.out_qty}
+          name="out_qty"
+          id={row.ID}
+        />
+      ),
+  },
+];
 // const productMinItems = () => [
 //   {
 //     headerName: "#",
@@ -2245,7 +2628,7 @@ const compMinItems = (inputHandler, removeRow, CommonIcons, rows, minRows) => [
 //     field: () => <Input />,
 //   },
 // ];
-const productItemsEdit = (
+const shipmentproductItemsEdit = (
   location,
   gstType,
   getLocationList,
