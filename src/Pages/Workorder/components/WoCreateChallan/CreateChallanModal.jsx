@@ -38,6 +38,7 @@ const CreateChallanModal = ({
   editShipment,
   rtnchallan,
   setRtnChallan,
+  setDetailData,
   // challanForm,
   //testing
 }) => {
@@ -479,7 +480,7 @@ const CreateChallanModal = ({
       //   hsn: arrMat.hsn_code,
       //   productdescription: arrMat.sku_desc,
       // };
-      // console.log("arrMat", newcomp);
+      // console.log("editShipment=", editShipment);
 
       // challanForm.setFieldValue("components", [obj]);
       if (editShipment == "Shipment") {
@@ -840,7 +841,7 @@ const CreateChallanModal = ({
         };
         console.log("obj ->", obj);
         // challanForm.setFieldsValue()
-        // challanForm.setFieldValue("components", [obj]);
+        challanForm.setFieldValue("components", [obj]);
       } else {
         toast.error(data.message.msg);
       }
@@ -984,6 +985,7 @@ const CreateChallanModal = ({
       createchallanThroughtExcel();
     } else {
       if (editShipment === "Shipment") {
+        // console.log("Min", minRows);
         const values = await challanForm.validateFields();
         const newpayload = {
           shipment_id: values.components[0].shipment_id,
@@ -1014,6 +1016,11 @@ const CreateChallanModal = ({
             gst_rate: values.components[0].gstRate,
             wo_sku_desc: values.components[0].productdescription,
             // remark: values.components[0].description,
+          },
+          min_out: {
+            id: minRows.map((e) => e.rowId),
+            comp: minRows.map((e) => e.component_key),
+            qty: minRows.map((e) => e.out_qty),
           },
         };
         console.log("newpayload", newpayload);
@@ -1226,6 +1233,8 @@ const CreateChallanModal = ({
         challanForm.resetFields();
         setLoading(false);
         setRtnChallan(false);
+        // console.log("showCreateChallanModal", showCreateChallanModal);
+        setDetailData([]);
         close();
       } else {
         toast.error(response.data.message.msg);

@@ -451,6 +451,7 @@ const WoShipment = () => {
           setEditShipment={setEditShipment}
           show={showCreateChallanModal}
           data={detaildata}
+          setDetailData={setDetailData}
           close={() => setShowCreateChallanModal(false)}
         />
       )}

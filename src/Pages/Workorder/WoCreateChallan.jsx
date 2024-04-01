@@ -152,6 +152,7 @@ const WoCreateChallan = () => {
         challanForm={challanForm}
         setRtnChallan={setRtnChallan}
         rtnchallan={rtnchallan}
+        setDetailData={setDetailData}
       />
     </div>
   );
