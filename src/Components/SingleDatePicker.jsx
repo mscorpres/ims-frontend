@@ -16,14 +16,22 @@ export default function SingleDatePicker({
   disabled,
   legal,
   format = "DD-MM-YYYY",
+  pickerType,
 }) {
   const onChange = (date, dateString) => {
     if (tablePicker) {
       inputHandler(name, dateString, row.id);
       return;
     }
-    if (setDate) {
+
+    if (!pickerType && setDate) {
+      console.log("this is the date string", dateString);
       setDate(dateString);
+    }
+    if (pickerType && setDate) {
+      console.log("this is the date ", date);
+      console.log("this is the date string", dateString);
+      setDate(date);
     }
   };
   // console.log("legal", legal);
@@ -51,16 +59,18 @@ export default function SingleDatePicker({
 
   return (
     <DatePicker
-      legal={legal ?? false}
       disabled={disabled}
       disabledDate={disabledDate}
       size={size ?? "default"}
+      picker={pickerType}
       style={{ width: "100%", height: "100%" }}
-      format={format ?? format}
+      format={format && !pickerType && format}
       value={
         daysAgo
           ? dayjs().subtract(daysAgo, "d")
-          : value && dayjs(value, format ?? format)
+          : value && !pickerType
+          ? dayjs(value, format ?? format)
+          : dayjs(value)
       }
       onChange={onChange}
       placeholder={placeholder && placeholder}
