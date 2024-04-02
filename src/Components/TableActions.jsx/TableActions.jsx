@@ -23,7 +23,6 @@ import {
 } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Button, Tooltip } from "antd";
-r;
 
 export default function TableActions({
   disabled,
