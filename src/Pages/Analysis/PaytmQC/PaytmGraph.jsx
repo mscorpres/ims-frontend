@@ -1,8 +1,5 @@
 import { Card, Col, Divider, Drawer, Row, Typography } from "antd";
 import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
-import { Column } from "@ant-design/plots";
 import { CChart } from "@coreui/react-chartjs";
 
 function PaytmGraph({
