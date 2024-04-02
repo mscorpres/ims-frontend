@@ -983,7 +983,7 @@ const links = [
       routePath: "/tally/vouchers/reference/tdsReport",
     },
     {
-      routeName: "GSTR1",
+      routeName: "GSTR Reports",
       routePath: "/tally/vouchers/reference/gst/gstReport1",
     },
     {
@@ -1109,22 +1109,16 @@ const links = [
   [
     {
       routeName: "All Pages",
-    routePath: "/controlPanel/allPages",
+      routePath: "/controlPanel/allPages",
     },
     {
       routeName: "All Users",
-    routePath: "/controlPanel/allUsers",
+      routePath: "/controlPanel/allUsers",
     },
     ///
     {
       routeName: "Registered Users",
       routePath: "/controlPanel/registeredUsers",
-    },
-  ],
-  [
-    {
-      routeName: "GSTR1",
-      routePath: "/tally/vouchers/reference/gst/gstReport1",
     },
   ],
 ];
