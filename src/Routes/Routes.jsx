@@ -236,6 +236,8 @@ import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 import R32 from "../Pages/Reports/R/R32";
+import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList";
+import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan";
 const Routes = [
   {
     path: "/login",
@@ -1249,6 +1251,16 @@ const Routes = [
   {
     path: "/sales/order/register",
     main: () => <SalesORderRegister />,
+  },
+  //
+  {
+    path: "/sales/order/shipments",
+    main: () => <ShipmentsList />,
+  },
+
+  {
+    path: "/sales/order/challan",
+    main: () => <Challan />,
   },
   //gst reco
   {

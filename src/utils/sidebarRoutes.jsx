@@ -475,6 +475,16 @@ export const items = (user) => [
         "C52"
         // <AiOutlineMinus />
       ),
+      getItem(
+        <Link to="/sales/order/challan">Challan</Link>,
+        "C53"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/sales/order/shipments">Shipment</Link>,
+        "C54"
+        // <AiOutlineMinus />
+      ),
     ]),
     getItem("Reports", "B4", <TbReportAnalytics />, [
       getItem("Inventory Reports", "B41", <MdDashboard />, [
