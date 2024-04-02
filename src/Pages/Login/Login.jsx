@@ -26,7 +26,7 @@ const Login = () => {
   document.title = "IMS Login";
   const [signUpPage, setSignUpPage] = useState("1");
   const [forgotPassword, setForgotPassword] = useState("0");
-
+  const [ispassSame, setIsPassSame] = useState(false);
   const { executeFun, loading } = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -63,6 +63,7 @@ const Login = () => {
           }),
         "submit"
       );
+      // console.log("data.message", data);
 
       if (success) {
         console.log("this is the login data", data);
@@ -87,6 +88,9 @@ const Login = () => {
         };
         dispatch(setUser(obj));
         dispatch(setSettings(data.data.settings));
+      } else {
+        // console.log("data.message", data);
+        toast.error(data.message);
       }
       // dispatch(
       //   loginAuth({ username: inpVal.username, password: inpVal.password })
@@ -164,6 +168,47 @@ const Login = () => {
   //     navigate("/");
   //   }
   // }, []);
+  const setThePassword = async () => {
+    const values = await signUp.validateFields();
+    // console.log("values", values);
+    // return;
+    let response = await imsAxios.post("/auth/forgot_password", {
+      username: values.username,
+      new_password: values.confirmPassword,
+    });
+    // console.log("response", response);
+    const { data } = response;
+    if (response.success) {
+      // console.log("data.message", response.message);
+      toast.success(response.message);
+    }
+  };
+  const back = () => {
+    setSignUpPage("1");
+    setForgotPassword("0");
+  };
+  const createAcc = () => {
+    setSignUpPage("2");
+    setForgotPassword("0");
+  };
+  const isPasswordSame = () => {
+    if (
+      signUp.getFieldValue("confirmPassword") ===
+      signUp.getFieldValue("password")
+    ) {
+      // console.log("same");
+      setIsPassSame(true);
+    } else {
+      setIsPassSame(false);
+    }
+  };
+  useEffect(() => {
+    isPasswordSame();
+  }, [
+    signUp.getFieldValue("confirmPassword"),
+    signUp.getFieldValue("password"),
+  ]);
+  // console.log("ispassSame", ispassSame);
   return (
     <div style={{ height: "100vh" }}>
       <Row style={{ height: "100%" }}>
@@ -264,9 +309,27 @@ const Login = () => {
                         size="large"
                       />
                     </Form.Item>
+                    <Form.Item
+                      label="Password"
+                      name="password"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please input your password!",
+                        },
+                      ]}
+                    >
+                      <Input.Password
+                        value={inpVal.password}
+                        onChange={(e) =>
+                          inputHandler("password", e.target.value)
+                        }
+                        size="large"
+                      />
+                    </Form.Item>
                     {forgotPassword === "0" ? (
                       <>
-                        <Form.Item
+                        {/* <Form.Item
                           label="Password"
                           name="password"
                           rules={[
@@ -283,10 +346,10 @@ const Login = () => {
                             }
                             size="large"
                           />
-                        </Form.Item>
-                        {/* <Link onClick={() => setForgotPassword("1")}>
+                        </Form.Item> */}
+                        <Link onClick={() => setForgotPassword("1")}>
                           Forgot Password
-                        </Link> */}
+                        </Link>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
                             loading={loading("submit")}
@@ -303,15 +366,30 @@ const Login = () => {
                           {" "}
                           Not Registered yet?
                         </Text>
-                        <Link
-                          style={{ marginLeft: "1em" }}
-                          onClick={() => setSignUpPage("2")}
-                        >
+                        <Link style={{ marginLeft: "1em" }} onClick={createAcc}>
                           Create an Account
                         </Link>
                       </>
                     ) : (
                       <>
+                        <Form.Item
+                          label="Confirm Password"
+                          name="confirmPassword"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please input your password!",
+                            },
+                          ]}
+                        >
+                          <Input.Password
+                            value={inpVal.password}
+                            onChange={(e) =>
+                              inputHandler("password", e.target.value)
+                            }
+                            size="large"
+                          />
+                        </Form.Item>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
                             // loading={loading}
@@ -320,17 +398,14 @@ const Login = () => {
                             type="primary"
                             htmlType="submit"
                             style={{ marginTop: "1em" }}
+                            disabled={!ispassSame}
+                            onClick={setThePassword}
                           >
                             Reset Password
                           </Button>
                         </Form.Item>
 
-                        <Link
-                          style={{ marginLeft: "8em" }}
-                          onClick={
-                            (() => setSignUpPage("1"), setForgotPassword("0"))
-                          }
-                        >
+                        <Link style={{ marginLeft: "8em" }} onClick={back}>
                           Back to Log In
                         </Link>
                         <Link
@@ -464,10 +539,7 @@ const Login = () => {
                     Sign Up
                   </Button>
                   <Row justify="center" style={{ marginTop: "1em" }}>
-                    <Link
-                      style={{ marginLeft: "1em" }}
-                      onClick={() => setSignUpPage("1")}
-                    >
+                    <Link style={{ marginLeft: "1em" }} onClick={back}>
                       Back to Log In
                     </Link>
                   </Row>
