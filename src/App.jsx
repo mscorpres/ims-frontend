@@ -267,6 +267,7 @@ const App = () => {
       // event for starting detail
       socket.on("download_start_detail", (data) => {
         console.log("start details arrived");
+        toast.success("Your report has been started generating");
         if (data.title || data.details) {
           let arr = notificationsRef.current;
           arr = [data, ...arr];
