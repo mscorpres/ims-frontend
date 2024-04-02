@@ -296,17 +296,17 @@ function Location() {
     {
       field: "parentLocation",
       headerName: "Parent Location",
-      flex: 1,
+      width: 150,
     },
     {
-      headerName: "Status",
-      width: 100,
+      headerName: "Is Blocked",
+      width: 180,
       field: "status",
       type: "actions",
       renderCell: ({ row }) => (
         <Switch
           size="small"
-          // checked={row.status === "ENABLE"}
+          checked={row.status === "BLOCK"}
           // loading={loading === row.bomId}
           onChange={() => {
             disableValidateHandler(row);
@@ -344,7 +344,9 @@ function Location() {
       },
     });
   };
-
+  const close = () => {
+    maploc.resetFields(), setMapCostCenerModal(false);
+  };
   useEffect(() => {
     addLocationForm.setFieldsValue({
       locationName: "",
@@ -368,6 +370,7 @@ function Location() {
         footer={null}
         width={400}
         title={`Map Cost Center with Location ${mapCostCenterModal.name} `}
+        closable={false}
       >
         <Form
           form={maploc}
@@ -391,7 +394,7 @@ function Location() {
           </Row>
           <Row justify="end">
             <Space>
-              <Button onClick={() => maploc.resetFields()}>Cancel</Button>
+              <Button onClick={close}>Cancel</Button>
               <Button type="primary" onClick={maplocValidateHandler}>
                 Submit
               </Button>
@@ -625,11 +628,11 @@ function Location() {
             title="Locations"
             size="small"
           > */}
-            {treeLoading && <Loading />}
-            {/* <Tree showLine={true} treeData={treeData} /> */}
-            <div style={{ height: "95%" }}>
-              <MyDataTable columns={coloums} data={locationData} />
-            </div>
+          {treeLoading && <Loading />}
+          {/* <Tree showLine={true} treeData={treeData} /> */}
+          <div style={{ height: "95%" }}>
+            <MyDataTable columns={coloums} data={locationData} />
+          </div>
           {/* </Card> */}
         </Col>
       </Row>
