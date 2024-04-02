@@ -19,6 +19,10 @@ import Loading from "../../Components/Loading";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi";
 import { getCostCentresOptions } from "../../api/general";
+import MyDataTable from "../gstreco/myDataTable";
+import TableActions from "../../Components/TableActions.jsx/TableActions";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import { convertSelectOptions } from "../../utils/general";
 import MyButton from "../../Components/MyButton";
 
 function Location() {
@@ -31,6 +35,8 @@ function Location() {
   const [disableLocationForm] = Form.useForm();
   const [maploc] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [locationData, setLocationData] = useState([]);
+  const [mapCostCenterModal, setMapCostCenerModal] = useState(false);
   const location = Form.useWatch("location", disableLocationForm);
   const { executeFun, loading: loading1 } = useApi();
 
@@ -50,27 +56,56 @@ function Location() {
     setTreeLoading(true);
     const { data } = await imsAxios.post("/location/fetchLocationTree");
     setTreeLoading(false);
-    flatArray(data.data);
+    let a = customFlatArray(data.data);
+    let arr = a.map((r, id) => {
+      return { id: id + 1, ...r };
+    });
+    // console.log("arr", arr);
+    setLocationData(arr);
+    console.log("final arr", arr);
+    // setLocationData(a);
     setTreeData(data.data);
   };
-  // for the tree
-  const flatArray = (array) => {
-    let arr = [];
+
+  let arr = [];
+  const customFlatArray = (array, prev) => {
     array?.map((row) => {
-      if (row.nodes || row.children) {
-        // delete row.nodes;]
-        row.children = row.children;
-        row.title = row.name;
-        row.key = v4();
-        arr = [...arr, { ...row }];
-        flatArray(row.children);
-      } else {
-        row.title = row.name;
-        row.key = v4();
-        arr = [...arr, { ...row }];
+      let parent = "--";
+      let obj = row;
+      if (!row.children) {
+        if (prev) {
+          obj["parentLocation"] = prev.name;
+        } else {
+          obj["parentLocation"] = "--";
+        }
       }
+      if (row.children) {
+        if (prev) {
+          obj["parentLocation"] = prev.name;
+        } else {
+          obj["parentLocation"] = "--";
+        }
+        let children = row.children;
+
+        delete obj["children"];
+        arr = [...arr, obj];
+        customFlatArray(children, obj);
+        arr = [...arr, ...children];
+        // }
+      }
+      //  else {
+      //   let obj = row;
+
+      //   if (prev) {
+      //     obj["parentLocation"] = prev.name;
+      //   } else {
+      //     obj["parentLocation"] = "--";
+      //   }
+      //   arr = [...arr, obj];
+      // }
     });
-    setTreeData(arr);
+
+    return arr;
   };
 
   const getParentLocationOptions = async (search) => {
@@ -148,16 +183,16 @@ function Location() {
     }
   };
 
-  const disableValidateHandler = async () => {
+  const disableValidateHandler = async (row) => {
     const values = await disableLocationForm.validateFields();
     const payload = {
-      location_key: values.location.value,
+      location_key: row.label,
       status: values.status ? "ACTIVE" : "BLOCK",
     };
 
     Modal.confirm({
       title: "Changing Location Status",
-      content: "Are you sure you want to change the status of this location?",
+      content: `Are you sure you want to change the status of location ${row.name}?`,
       okText: "Continue",
       onOk: () => disableSubmitHandler(payload),
       cancelText: "Back",
@@ -193,9 +228,11 @@ function Location() {
     }
   };
   const maplocValidateHandler = async () => {
+    setMapCostCenerModal(false);
+    console.log("row -", mapCostCenterModal);
     const values = await maploc.validateFields();
     const payload = {
-      location: values.location.value,
+      location: mapCostCenterModal.label,
       costcenter: values.costCenter.value,
     };
 
@@ -207,13 +244,108 @@ function Location() {
       cancelText: "Back",
     });
   };
+  // const getCostCenteres = async (search) => {
+  //   const response = await executeFun(
+  //     () => getCostCentresOptions(search),
+  //     "select"
+  //   );
+  //   let arr = [];
+  //   console.log("response", response);
+  //   if (response.success) {
+  //     arr = convertSelectOptions(response.data);
+  //     setAsyncOptions(arr);
+  //   }
+  // };
   const getCostCenteres = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
       "select"
     );
     let arr = [];
-    if (response.success) setAsyncOptions(arr);
+    console.log("response", response);
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
+      console.log("arr", arr);
+      setAsyncOptions(arr);
+    }
+  };
+  const coloums = [
+    {
+      headerName: "Actions",
+      width: 150,
+      type: "actions",
+      getActions: ({ row }) => [
+        <GridActionsCellItem
+          showInMenu
+          // disabled={loading}
+          onClick={() => {
+            // mapCC(row);
+            setMapCostCenerModal(row);
+          }}
+          label="Map Cost Center"
+        />,
+      ],
+    },
+
+    {
+      field: "name",
+      headerName: "Locations Name",
+      flex: 1,
+      renderCell: ({ row }) => <span>{row?.name}</span>,
+    },
+    {
+      field: "parentLocation",
+      headerName: "Parent Location",
+      width: 150,
+    },
+    {
+      headerName: "Is Blocked",
+      width: 180,
+      field: "status",
+      type: "actions",
+      renderCell: ({ row }) => (
+        <Switch
+          size="small"
+          checked={row.status === "BLOCK"}
+          // loading={loading === row.bomId}
+          onChange={() => {
+            disableValidateHandler(row);
+          }}
+        />
+      ),
+    },
+  ];
+
+  const mapCC = async (row) => {
+    console.log("row", row);
+    Modal.confirm({
+      title: `Please map the cost center to ${row.name}`,
+      // icon: <ExclamationCircleFilled />,
+      content: (
+        <Row style={{ marginTop: 10 }}>
+          <Col span={24}>
+            {/* <Form form={costcenterForm} layout="vertical">
+              <Form.Item name="costCenter" label="Cost Center"> */}
+            <MyAsyncSelect
+              labelInValue={true}
+              optionsState={asyncOptions}
+              onBlur={() => setAsyncOptions([])}
+              loadOptions={getCostCenteres}
+              selectLoading={loading1("select")}
+            />
+            {/* </Form.Item> */}
+            {/* </Form> */}
+          </Col>
+        </Row>
+      ),
+      onOk: async () => {
+        const values = await cancelForm.validateFields();
+        validateCancelRemarks(woId, wku, values);
+      },
+    });
+  };
+  const close = () => {
+    maploc.resetFields(), setMapCostCenerModal(false);
   };
   useEffect(() => {
     addLocationForm.setFieldsValue({
@@ -233,6 +365,43 @@ function Location() {
   }, [location]);
   return (
     <div style={{ height: "90%", overflow: "auto" }}>
+      <Modal
+        open={mapCostCenterModal}
+        footer={null}
+        width={400}
+        title={`Map Cost Center with Location ${mapCostCenterModal.name} `}
+        closable={false}
+      >
+        <Form
+          form={maploc}
+          initialValues={{
+            location: "",
+          }}
+          layout="vertical"
+        >
+          <Row gutter={6}>
+            <Col span={24}>
+              <Form.Item name="costCenter" label="Cost Center">
+                <MyAsyncSelect
+                  labelInValue={true}
+                  optionsState={asyncOptions}
+                  onBlur={() => setAsyncOptions([])}
+                  loadOptions={getCostCenteres}
+                  selectLoading={loading1("select")}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row justify="end">
+            <Space>
+              <Button onClick={close}>Cancel</Button>
+              <Button type="primary" onClick={maplocValidateHandler}>
+                Submit
+              </Button>
+            </Space>
+          </Row>
+        </Form>
+      </Modal>
       <Row gutter={10} style={{ margin: "10px", height: "80%" }}>
         <Col span={8}>
           <Row gutter={[0, 6]}>
@@ -358,7 +527,7 @@ function Location() {
                 </Form>
               </Card>
             </Col>
-            <Col span={24}>
+            {/* <Col span={24}>
               <Card size="small" title="Enable/Disable Location">
                 {loading === "fetchStatus" && <Loading />}
                 <Form
@@ -402,8 +571,8 @@ function Location() {
                   </Row>
                 </Form>
               </Card>
-            </Col>
-            <Col span={24}>
+            </Col> */}
+            {/* <Col span={24}>
               <Card size="small" title="Map Cost Center">
                 {loading === "fetchStatus" && <Loading />}
                 <Form
@@ -449,19 +618,22 @@ function Location() {
                   </Row>
                 </Form>
               </Card>
-            </Col>
+            </Col> */}
           </Row>
         </Col>
         <Col span={16} style={{ height: "100%" }}>
-          <Card
+          {/* <Card
             style={{ maxHeight: 600, overflowY: "scroll" }}
             bodyStyle={{ height: "100%", overflowY: "scroll" }}
             title="Locations"
             size="small"
-          >
-            {treeLoading && <Loading />}
-            <Tree showLine={true} treeData={treeData} />
-          </Card>
+          > */}
+          {treeLoading && <Loading />}
+          {/* <Tree showLine={true} treeData={treeData} /> */}
+          <div style={{ height: "95%" }}>
+            <MyDataTable columns={coloums} data={locationData} />
+          </div>
+          {/* </Card> */}
         </Col>
       </Row>
     </div>
