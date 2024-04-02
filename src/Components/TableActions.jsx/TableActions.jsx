@@ -23,7 +23,7 @@ import {
 } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Button, Tooltip } from "antd";
-import { tooltip } from "@antv/g2plot/lib/adaptor/common";
+r;
 
 export default function TableActions({
   disabled,
