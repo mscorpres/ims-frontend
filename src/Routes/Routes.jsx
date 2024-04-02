@@ -1261,10 +1261,13 @@ const Routes = [
     path: "/sales/order/register",
     main: () => <SalesORderRegister />,
   },
+  // 
   {
     path: "/sales/order/shipments",
     main: () => <ShipmentsList />,
   },
+
+  
   {
     path: "/sales/order/challan",
     main: () => <Challan />,

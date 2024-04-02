@@ -22,7 +22,8 @@ const ChallanDetails = ({ open, hide }) => {
     setRows(response.data.components);
     setDetails(response.data.details);
   };
-
+  
+  // 
   const clientDetails = {
     address: details?.clientAddress,
     client: details?.client,

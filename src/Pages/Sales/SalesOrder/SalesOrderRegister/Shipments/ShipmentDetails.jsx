@@ -24,6 +24,8 @@ const ShipmentDetails = ({ open, hide }) => {
       console.log("these are the shipment details", open);
     }
   }, [open]);
+
+  
   const clientDetails = {
     clientName: open?.client,
     address: open?.clientAddress,

@@ -56,7 +56,6 @@ function ShipmentsList() {
   const [showDetails, setShowDetails] = useState(null);
   const [createRemark, setCreateRemark] = useState("");
   const { executeFun, loading } = useApi();
-
   const [ModalForm] = Form.useForm();
   const [filterForm] = Form.useForm();
   const wise = Form.useWatch("wise", filterForm);
@@ -97,6 +96,7 @@ function ShipmentsList() {
   const sendUpdate = (row) => {
     setUpdateShipmentRow(row);
   };
+
   const createChallan = async (singleRow) => {
     Modal.confirm({
       title: "Are you sure you want to create this Challan?",
@@ -115,6 +115,7 @@ function ShipmentsList() {
       },
     });
   };
+
   const cancelShipment = async (singleRow) => {
     Modal.confirm({
       title: "Are you sure you want to cancel this Challan?",
