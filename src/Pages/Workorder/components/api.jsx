@@ -125,6 +125,7 @@ const getWorkOrderShipment = async (wise, searchInput) => {
         id: index + 1,
         shipmentDt: row.shipment_dt,
         woTransaction_Id: row.wo_transaction_id,
+        woshipmentId: row.shipment_id,
         shipmentId: row.shipment_id,
         sku: row.sku,
         skuCode: row.sku_code,

@@ -330,14 +330,14 @@ const CreateScrapeChallan = () => {
       challan_id: challanId,
       header: {
         clientadd_id: values.components[0]?.clientBranchId,
-        clientaddress: values.nature,
+        clientaddress: values.address,
         ship_doc_no: values.pd,
         vehicle: values.vn,
         eway_no: values.nature,
         other_ref: values.or,
-        billingid: values.billingid?.value,
+        billingid: values.billingid && values.billingid?.value,
         billingaddress: values.billingaddress,
-        dispatchid: values.dispatchid.value,
+        dispatchid: values.dispatchid && values.dispatchid?.value,
         dispatchaddress: values.shippingaddress,
         challan_remark: remarkvalue.remark,
       },
@@ -353,7 +353,7 @@ const CreateScrapeChallan = () => {
     };
     console.log("editPayload", editPayload);
     // navigate("/woviewchallan");
-    // return;
+    return;
     if (editScrapeChallan === "edit") {
       // console.log("her");
       response = await imsAxios.post(
@@ -586,6 +586,7 @@ const CreateScrapeChallan = () => {
                   >
                     <MySelect
                       options={addOptions}
+                      labelInValue
                       onChange={(e) => {
                         handlebilladress(e);
                       }}
@@ -619,6 +620,7 @@ const CreateScrapeChallan = () => {
                   >
                     <MySelect
                       options={addOptions}
+                      labelInValue
                       onChange={(e) => {
                         handleaddress(e);
                       }}
@@ -864,7 +866,7 @@ const columns = ({
   {
     headerName: "Remarks",
     name: "remarks",
-    field: () => <Input />,
+    field: () => <Input.TextArea rows={3} />,
     width: 250,
   },
 ];

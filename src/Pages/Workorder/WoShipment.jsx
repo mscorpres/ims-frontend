@@ -510,6 +510,15 @@ const columns = [
     ),
   },
   {
+    headerName: "Shipment Id",
+    field: "woshipmentId",
+    minWidth: 150,
+    flex: 1,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.woshipmentId} copy={true} />
+    ),
+  },
+  {
     headerName: "Product",
     field: "wo_sku_name",
     minWidth: 350,
