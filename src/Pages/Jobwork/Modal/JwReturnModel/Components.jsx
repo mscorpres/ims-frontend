@@ -88,10 +88,10 @@ const Components = ({
                   <Col span={2}>
                     <Typography.Text strong>Part Code</Typography.Text>
                   </Col>
-                  <Col span={1}>
+                  <Col span={2}>
                     <Typography.Text strong>Qty</Typography.Text>
                   </Col>
-                  <Col span={1}>
+                  <Col span={2}>
                     <Typography.Text strong>Rate</Typography.Text>
                   </Col>
                   <Col span={2}>
@@ -106,10 +106,10 @@ const Components = ({
                   <Col span={2}>
                     <Typography.Text strong>Location</Typography.Text>
                   </Col>
-                  <Col span={3}>
+                  <Col span={2}>
                     <Typography.Text strong>Auto Consmp</Typography.Text>
                   </Col>
-                  <Col span={4}>
+                  <Col span={5}>
                     <Typography.Text strong>Remark</Typography.Text>
                   </Col>
                 </Row>
@@ -225,17 +225,17 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
         </Form.Item>
       </Col>
 
-      <Col span={1}>
+      <Col span={2}>
         <Form.Item label="Qty" name="qty">
           <Input />
         </Form.Item>
       </Col>
-      <Col span={1}>
+      <Col span={2}>
         <Form.Item label="Rate" name="rate">
           <Input />
         </Form.Item>
       </Col>
-      <Col span={1}>
+      <Col span={2}>
         <Form.Item label="HSN" name="hsn">
           <Input />
         </Form.Item>
