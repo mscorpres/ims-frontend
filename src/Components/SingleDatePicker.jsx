@@ -64,13 +64,14 @@ export default function SingleDatePicker({
       size={size ?? "default"}
       picker={pickerType}
       style={{ width: "100%", height: "100%" }}
-      format={format && !pickerType && format}
+      format={format && !pickerType ? format : undefined}
       value={
         daysAgo
           ? dayjs().subtract(daysAgo, "d")
-          : value && !pickerType
-          ? dayjs(value, format ?? format)
-          : dayjs(value)
+          : // : value && dayjs(value, format)
+          value && !pickerType
+          ? value && dayjs(value, format)
+          : value && dayjs(value)
       }
       onChange={onChange}
       placeholder={placeholder && placeholder}

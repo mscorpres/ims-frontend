@@ -1,4 +1,4 @@
-import { Button, Col, Row, Space, Typography } from "antd";
+import { Button, Col, Row, Space, Typography, Form } from "antd";
 import React, { useState } from "react";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyDataTable from "../../../Components/MyDataTable";
@@ -13,17 +13,20 @@ import MyButton from "../../../Components/MyButton";
 
 function R18() {
   const [location, setLocation] = useState("RM");
-  const [date, setDate] = useState("");
+  // const [date, setDate] = useState("");
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [buttonEnabled, setButtonEnabled] = useState(true);
   const [reportStarted, setReportStarted] = useState(false);
 
+  const [form] = Form.useForm();
   const getRows = async () => {
+    const values = await form.validateFields();
+    console.log("thesea re th values", values);
     const finalObj = {
-      for_location: location,
-      date: date,
+      for_location: values.location,
+      date: values.date,
     };
 
     setFetchLoading(true);
@@ -95,10 +98,10 @@ function R18() {
   const generateHandler = async () => {
     try {
       setButtonEnabled(false);
-
+      const values = await form.validateFields();
       const finalObj = {
-        for_location: location,
-        date: date,
+        for_location: values.location,
+        date: values.date,
       };
 
       setTimeout(() => {
@@ -111,6 +114,7 @@ function R18() {
       }
     } catch (error) {}
   };
+
   const handleDownloadCSV = () => {
     downloadCSVCustomColumns(rows, "test");
     // let obj = {}
@@ -123,24 +127,33 @@ function R18() {
     <Row style={{ height: "90%", padding: "0px 10px" }}>
       <Col span={24}>
         <Row justify="space-between">
-          <Space>
-            <div style={{ width: 150 }}>
-              <MySelect
-                value={location}
-                onChange={setLocation}
-                options={locationOptions}
-              />
-            </div>
-            <SingleDatePicker setDate={setDate} />
-            <MyButton
-              variant="search"
-              loading={fetchLoading}
-              onClick={getRows}
-              type="primary"
-            >
-              Fetch
-            </MyButton>
-          </Space>
+          <Form form={form}>
+            <Space>
+              <div style={{ width: 150 }}>
+                <Form.Item name="location">
+                  <MySelect
+                    value={location}
+                    onChange={setLocation}
+                    options={locationOptions}
+                  />
+                </Form.Item>
+              </div>
+              <Form.Item name="date">
+                <SingleDatePicker
+                  // pickerType="date"
+                  setDate={(value) => form.setFieldValue("date", value)}
+                />
+              </Form.Item>
+              <MyButton
+                variant="search"
+                loading={fetchLoading}
+                onClick={getRows}
+                type="primary"
+              >
+                Fetch
+              </MyButton>
+            </Space>
+          </Form>
           <Space>
             <Button
               disabled={!buttonEnabled}
