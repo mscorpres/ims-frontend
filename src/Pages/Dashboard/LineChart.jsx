@@ -32,10 +32,14 @@ const LineChart = ({ data }) => {
   }, [data]);
 
   return (
-    <Card  style={{ width: "450px", height: "350px" }}>
-      <Typography.Text>Analysis</Typography.Text>
-      <div style={{ width: "400px", height: "300px" }}>
-        <canvas ref={chartRef} width="400" height="300"></canvas>
+    <Card
+      size="small"
+      style={{ width: "600px", height: "350px" }}
+      title={"Analysis"}
+    >
+      {/* <Typography.Text>Analysis</Typography.Text> */}
+      <div style={{ width: "550px", height: "300px" }}>
+        <canvas ref={chartRef} width="700px" height="800px"></canvas>
       </div>
     </Card>
   );
