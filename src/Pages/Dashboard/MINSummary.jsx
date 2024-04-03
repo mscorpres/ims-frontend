@@ -1,6 +1,5 @@
 import { Card, Col, Flex, Row, Skeleton, Typography } from "antd";
 import SummarySection from "./SummarySection";
-import { Pie } from "@ant-design/plots";
 import MyDatePicker from "../../Components/MyDatePicker";
 import MyButton from "../../Components/MyButton";
 

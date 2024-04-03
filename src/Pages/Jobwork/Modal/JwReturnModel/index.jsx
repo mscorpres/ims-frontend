@@ -50,7 +50,7 @@ const JwReturnModel = ({ show, close }) => {
           text: row.text,
         };
       });
-      arr = [{ text: "NO", value: "0" }, ...arr];
+      arr = [{ text: "NO", value: 0 }, ...arr];
       setAutoConsumptionOption(arr);
     }
   };
@@ -109,7 +109,7 @@ const JwReturnModel = ({ show, close }) => {
       component: selectedRows.map((row) => row.component.value),
       qty: selectedRows.map((row) => row.qty),
       in_location: selectedRows.map((row) => row.location?.value ?? "--"),
-      out_location: selectedRows.map((row) => row.autoCons?.value ?? "--"),
+      out_location: selectedRows.map((row) => row.autoCons?.value ?? 0),
       rate: selectedRows.map((row) => row.rate),
       invoice: selectedRows.map((row) => row.invoiceId ?? ""),
       remark: selectedRows.map((row) => row.remark ?? "--"),
@@ -164,7 +164,10 @@ const JwReturnModel = ({ show, close }) => {
       width="100%"
       title="Vendor Name"
       placement="right"
-      onClose={close}
+      onClose={() => {
+        close();
+        setSelectedRows([]);
+      }}
       destroyOnClose={true}
       open={show}
       bodyStyle={{

@@ -6,7 +6,6 @@ import { v4 } from "uuid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { cosineSimilarity } from "@antv/algorithm";
 
 function R21() {
   const [columns, setColumns] = useState([]);

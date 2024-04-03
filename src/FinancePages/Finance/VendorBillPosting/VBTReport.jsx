@@ -19,7 +19,6 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { useNavigate, Link } from "react-router-dom";
 // import EditVBTReport from "./EditVbtRecord/EditVBTReport";
-import { call } from "@antv/x6/lib/util/function/function";
 import { CheckOutlined } from "@ant-design/icons";
 import DeleteVbt from "./DeleteVbt";
 import CreateDebitNote from "../DebitNote/Create";
