@@ -549,17 +549,6 @@ const CreateScrapeChallan = () => {
                               challanForm.setFieldValue("insertDate", value)
                             }
                           />
-
-                          {/* <InputMask
-                      // name="due_date[]"
-                      // value={vendorData?.invoice_date}
-                      // onChange={(e) =>
-                      //   vendorInputHandler("invoice_date", e.target.value)
-                      // }
-                      className="input-date"
-                      mask="99-99-9999"
-                      placeholder="__-__-____"
-                    /> */}
                         </Form.Item>
                       )}
                     </>
@@ -681,8 +670,6 @@ const CreateScrapeChallan = () => {
         </Row>
       </Form>
       <NavFooter
-        // disabled={!validForSubmit()}
-        // loading={loading === "submit"}
         type="primary"
         resetFunction={() => {
           challanForm.resetFields();

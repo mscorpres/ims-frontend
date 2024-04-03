@@ -119,6 +119,7 @@ const getWorkOrderShipment = async (wise, searchInput) => {
     wise,
     data: searchInput,
   });
+  //shipment added
   if (data) {
     if (data.code === 200) {
       const arr = data.data.map((row, index) => ({

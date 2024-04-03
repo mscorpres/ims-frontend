@@ -326,7 +326,6 @@ const WoShipment = () => {
     }
   };
   const close = () => {
-    // console.log("setShowCreateChallanModal", showCreateChallanModal);
     setShowCreateChallanModal(false);
   };
   //
@@ -335,7 +334,6 @@ const WoShipment = () => {
       setSearchInput("");
     }
   }, [wise]);
-  // console.log("here in shipment");
   return (
     <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
       {loading === "fetch" && <Loading />}
@@ -343,8 +341,6 @@ const WoShipment = () => {
         title={`${viewRtnChallan?.shipmentId}`}
         // right
         placement="right"
-        // centered
-        // confirmLoading={submitLoading}
         open={viewRtnChallan?.shipmentId}
         onClose={() => setViewRtnChallan(false)}
         width={1050}

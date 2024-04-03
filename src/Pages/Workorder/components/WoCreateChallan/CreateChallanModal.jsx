@@ -303,11 +303,8 @@ const CreateChallanModal = ({
   // };
 
   const updateDeliveryChallan = async () => {
-    // console.log(data.productId);
     try {
       const values = await challanForm.validateFields();
-      // console.log("values--------", values);
-      // return;
       var bid;
       var did;
       {
@@ -365,7 +362,6 @@ const CreateChallanModal = ({
 
   const updateRmChallan = async () => {
     try {
-      // console.log("update function woring");
       const values = await challanForm.validateFields();
       var bid;
       var did;

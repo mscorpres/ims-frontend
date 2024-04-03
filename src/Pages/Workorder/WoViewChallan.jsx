@@ -68,7 +68,6 @@ const WoViewChallan = () => {
 
   const printwoChallan = async (row) => {
     setLoading("fetch");
-    // console.log("challamTypw", challantype);
     if (challantype === "RM Challan") {
       let payload = {
         challan_id: row.challan_id,
@@ -85,7 +84,6 @@ const WoViewChallan = () => {
           ref_id: "--",
         }
       );
-      console.log("console.log(response);", response.data.data.buffer.data);
       printFunction(response.data.data.buffer.data);
       setLoading(false);
     } else {
@@ -93,7 +91,6 @@ const WoViewChallan = () => {
         challan_id: row.challan_id,
         ref_id: "--",
       });
-      console.log("console.log(response);", response.data.data.buffer.data);
       printFunction(response.data.data.buffer.data);
       setLoading(false);
     }
@@ -134,7 +131,6 @@ const WoViewChallan = () => {
   };
 
   const cancelwochallan = async (f) => {
-    console.log("cid, woid", f);
     try {
       setLoading("select" / "fetch");
       console.log(challanoptions);
@@ -169,7 +165,6 @@ const WoViewChallan = () => {
   };
   useEffect(() => {
     if (scrapeChallan) {
-      console.log("scrape cjalla", scrapeChallan);
       navigate(`/wocreatescrapechallan?challan=${scrapeChallan}`);
     }
   }, [scrapeChallan]);
@@ -223,7 +218,7 @@ const WoViewChallan = () => {
             />,
             <GridActionsCellItem
               showInMenu
-              // disabled={loading}
+              // disabled={loading
               onClick={() => {
                 setDetailData(row);
                 showSubmitConfirmationModal(row);
@@ -815,22 +810,7 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.shippingaddress} />,
   },
 
-  // {
-  //   headerName: "Product",
-  //   field: "product",
-  //   minWidth: 250,
-  //   flex: 1,
-  // },
-  // {
-  //   headerName: "SKU",
-  //   field: "sku",
-  //   width: 150,
-  // },
-  // {
-  //   headerName: "Qty",
-  //   field: "requiredQty",
-  //   width: 150,
-  // },
+ 
 ];
 
 const challanoptions = [
