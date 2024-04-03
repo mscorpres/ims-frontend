@@ -50,7 +50,7 @@ const JwReturnModel = ({ show, close }) => {
           text: row.text,
         };
       });
-      arr = [{ text: "NO", value: 0 }, ...arr];
+      arr = [{ text: "NO", value: "0" }, ...arr];
       setAutoConsumptionOption(arr);
     }
   };
