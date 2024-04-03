@@ -45,7 +45,7 @@ const WoShipment = () => {
   const [rtData, setRtData] = useState([]);
   const [challantype, setchallantype] = useState(challanoptions[0].value);
   const [ModalForm] = Form.useForm();
-  const showSubmitConfirmationModal = (f) => {
+  const showSubmitConfirmationModal = (f, type) => {
     // submit confirm modal
     Modal.confirm({
       title: "Do you Want to Cancel the Challan?",
@@ -65,7 +65,7 @@ const WoShipment = () => {
       okText: "Yes",
       cancelText: "No",
       onOk: async () => {
-        await cancelwochallan(f);
+        await cancelwochallan(f, type);
       },
     });
   };
@@ -112,7 +112,7 @@ const WoShipment = () => {
   const clearForm = () => {
     ModalForm.resetFields();
   };
-  const cancelwochallan = async (row, cancelRemark) => {
+  const cancelwochallan = async (row, type) => {
     const values = await ModalForm.validateFields();
     // console.log("rowwo", cancelRemark);
     // console.log("values", values);
@@ -121,8 +121,14 @@ const WoShipment = () => {
     let obj = { wo_id: wo, shipment_id: shipId, remark: values.remark };
     // console.log("remark", remark);
     // return;
-    const response = await imsAxios.post("/wo_challan/woShipmentCancel", obj);
-    // console.log("Repinse", response);
+    let link;
+    if (type === "return") {
+      link = "/wo_challan/woReturnShipmentCancel";
+    } else {
+      link = "/wo_challan/woShipmentCancel";
+    }
+    const response = await imsAxios.post(link, obj);
+    console.log("Repinse=>", response);
     const { data } = response;
     if (data.code === 200) {
       toast.success(data.message);
@@ -201,6 +207,24 @@ const WoShipment = () => {
               }}
               label="View Return"
             />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                setShowCreateChallanModal(true);
+                setEditShipment("editReturn");
+              }}
+              label="Edit Return"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              onClick={() => {
+                setDetailData(row);
+                showSubmitConfirmationModal(row, "return");
+              }}
+              label="Cancel"
+            />,
           ]
         : [
             <GridActionsCellItem
@@ -217,7 +241,7 @@ const WoShipment = () => {
               showInMenu
               onClick={() => {
                 setDetailData(row);
-                showSubmitConfirmationModal(row);
+                showSubmitConfirmationModal(row, "Shipment");
               }}
               label="Cancel Shipment"
             />,
@@ -301,13 +325,15 @@ const WoShipment = () => {
       setLoading(false);
     }
   };
-
+  const close = () => {
+    setShowCreateChallanModal(false);
+  };
+  //
   useEffect(() => {
     if (wise !== wiseOptions[1].value) {
       setSearchInput("");
     }
   }, [wise]);
-
   return (
     <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
       {loading === "fetch" && <Loading />}
@@ -315,8 +341,6 @@ const WoShipment = () => {
         title={`${viewRtnChallan?.shipmentId}`}
         // right
         placement="right"
-        // centered
-        // confirmLoading={submitLoading}
         open={viewRtnChallan?.shipmentId}
         onClose={() => setViewRtnChallan(false)}
         width={1050}
@@ -427,7 +451,8 @@ const WoShipment = () => {
           setEditShipment={setEditShipment}
           show={showCreateChallanModal}
           data={detaildata}
-          close={() => setShowCreateChallanModal(false)}
+          setDetailData={setDetailData}
+          close={close}
         />
       )}
     </div>
@@ -478,6 +503,15 @@ const columns = [
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.woTransaction_Id} copy={true} />
+    ),
+  },
+  {
+    headerName: "Shipment Id",
+    field: "woshipmentId",
+    minWidth: 150,
+    flex: 1,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.woshipmentId} copy={true} />
     ),
   },
   {

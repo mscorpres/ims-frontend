@@ -77,6 +77,7 @@ const WoCreateChallan = () => {
     }
   }, [wise]);
 
+  //
   return (
     <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
       {loading === "fetch" && <Loading />}
@@ -152,6 +153,7 @@ const WoCreateChallan = () => {
         challanForm={challanForm}
         setRtnChallan={setRtnChallan}
         rtnchallan={rtnchallan}
+        setDetailData={setDetailData}
       />
     </div>
   );
