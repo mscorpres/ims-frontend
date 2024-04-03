@@ -1,4 +1,4 @@
-import { Card, Col, List, Row, Steps, Typography } from "antd";
+import { Card, Col, Flex, List, Row, Select, Steps, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { imsAxios } from "../../axiosInterceptor";
 import SummarySection from "./SummarySection";
@@ -10,11 +10,16 @@ import "./index.css";
 import CircleNumber from "./CircleNumber";
 import { width } from "@mui/system";
 import { Timeline } from "@mui/icons-material";
+import AreaChart from "./AreaChart";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
+  const [areaChartData, setAreaChartData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
   const [masterData, setMasterData] = useState("");
+  const [domesticPOData, setDomesticPoData] = useState([]);
+  const [totalPOData, setTotalPoData] = useState([]);
+  const [importPOData, setImportPoData] = useState([]);
   const [transactionSummary, setTransactionSummary] = useState([
     {
       title: "Rejection",
@@ -144,7 +149,8 @@ function ProcurementDashboard() {
     if (response.success) {
       let arr = response?.data?.topPart;
       setMasterData(response?.data);
-      // console.log("arr", arr);
+      setAreaChartData(response?.data);
+      console.log("arr", arr);
       chartData = {
         labels: arr.map((r) => r?.partCode),
         values: arr.map((r) => r?.total_count),
@@ -159,30 +165,67 @@ function ProcurementDashboard() {
     // console.log("chartData", chartData);
     // console.log("chartData", barChartData);
   };
+  const getPoDetails = async () => {
+    const response = await imsAxios.get("/dashboard/po_trends");
+    console.log("responsesss->", response);
+    if (response.success === true) {
+      const { data } = response;
+      const totalPoValues = [];
+      const domesticPoValues = [];
+      const importPoValues = [];
+
+      data.forEach((item) => {
+        const values = Object.values(item)[0];
+        totalPoValues.push(values.total_po);
+        domesticPoValues.push(values.domestic_po);
+        importPoValues.push(values.import_po);
+      });
+
+      // console.log("Total PO Values:", totalPoValues);
+      setTotalPoData(totalPoValues);
+      setDomesticPoData(domesticPoValues);
+      setImportPoData(importPoValues);
+      // console.log("Domestic PO Values:", domesticPoValues);
+      // console.log("Import PO Values:", importPoValues);
+    }
+  };
   //  = {
   //   labels: ["P0002", "P0011", "P0019", "P0014", "P0018", "P0010"],
   //   values: [12, 19, 3, 5, 2, 3], // Example data values
   // };
   const lineData = {
-    labels: ["January", "February", "March", "April", "May", "June"],
+    labels: [
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+      "January",
+      "February",
+      "March",
+    ],
     datasets: [
       {
         label: "Total",
-        data: [65, 59, 80, 81, 56, 55],
+        data: totalPOData,
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         borderWidth: 2,
       },
       {
         label: "Domestic",
-        data: [45, 89, 70, 91, 66, 75],
+        data: domesticPOData,
         borderColor: "rgba(255, 99, 132, 1)",
         backgroundColor: "rgba(255, 99, 132, 0.2)",
         borderWidth: 2,
       },
       {
-        label: "Income",
-        data: [35, 69, 60, 71, 46, 65],
+        label: "Import",
+        data: importPOData,
         borderColor: "rgba(255, 205, 86, 1)",
         backgroundColor: "rgba(255, 205, 86, 0.2)",
         borderWidth: 2,
@@ -195,128 +238,163 @@ function ProcurementDashboard() {
   };
   useEffect(() => {
     getPartNumDashboard();
+    getPoDetails();
   }, []);
 
   return (
-    <div style={{ height: "50vh" }}>
+    <div style={{ height: "90%" }}>
+      {/* <div>
+        
+      </div> */}
       <Card
         style={{
           background: "#e3efea",
           //   background: "#F5F5F5",
-          height: "93vh",
-          width: " 93vw",
+          height: "80vh",
+          // width: " 93vw",
           margin: "1em 2em 1em 2em",
+          overflowY: "scroll",
         }}
       >
-        <Row>
-          {" "}
-          {/* <SummarySection
-            title="Transactions Summary"
-            summary={transactionSummary}
-            //   loading={loading["transactions"]}
-          /> */}
-          {/* <PieChart data={pieData} /> */}
-          <Card style={{ width: "30vw" }}>
-            {" "}
-            <Row gutter={24}>
-              <Col span={8}>
-                <CircleNumber value={840} heading={"Total Vendors"} />
-              </Col>
-              {/* <Col span={4}>
-                <CircleNumber value={12} heading={"GST Verified"} />
-              </Col>
-              <Col span={4}>
-                <CircleNumber value={12} heading={"Total Vendors"} />
-              </Col> */}
-              <Col span={8}>
-                <CircleNumber
-                  value={masterData?.totalComponent}
-                  heading={"Total Component"}
-                />
-              </Col>
-              <Col span={8}>
-                <CircleNumber
-                  value={masterData?.totalProject}
-                  heading={"Total Project"}
-                />
-              </Col>
-            </Row>
-          </Card>
-          <Card style={{ width: "62rem", marginLeft: "2em" }}>
-            <Steps
-              // current={1}
-              items={[
-                {
-                  title: "Create Order",
-                  // description,
-                  description: "0 Days",
-                },
-                {
-                  title: "Approval",
-                  // description,
-                  description: "2 Days",
-                },
-                {
-                  title: "MIN",
-                  // description,
-                  description: "2 Days",
-                },
-                {
-                  title: "Bill Booking",
-                  description: "2 Days",
-                  // description,
-                },
-                {
-                  title: "Payment",
-                  // description,
-                  description: "2 Days",
-                },
-              ]}
-            />
-          </Card>
-        </Row>
-        <Row style={{ marginTop: "2em" }}>
-          <Col span={24}>
-            <Row gutter={[2, 2]}>
-              <Col span={10} style={{ height: "10vh" }}>
-                <div style={{ height: "22rem", width: " 27rem" }}>
-                  <BarChart data={barChartData} />
+        <Row justify="space-between" gutter={[10, 0]}>
+          <Col span={16} style={{ padding: 0 }}>
+            <Flex
+              vertical
+              gap={8}
+              style={{ height: "100%" }}
+              // justify="end"
+            >
+              <Flex justify="end">
+                <div style={{ flex: 1 }}>{/* left side content */}</div>
+
+                <div style={{ flex: 1 }}>
+                  <Card>
+                    {" "}
+                    <Row gutter={[10, 10]}>
+                      <Col span={24}>
+                        <Row justify="end">
+                          {" "}
+                          <Col span={8}>
+                            <CircleNumber
+                              value={840}
+                              heading={"Total Vendors"}
+                            />
+                          </Col>
+                          <Col span={8}>
+                            <CircleNumber
+                              value={masterData?.totalComponent}
+                              heading={"Total Component"}
+                            />
+                          </Col>
+                          <Col span={8}>
+                            <CircleNumber
+                              value={masterData?.totalProject}
+                              heading={"Total Project"}
+                            />
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+                  </Card>
                 </div>
-              </Col>
+              </Flex>
+              <Flex style={{ flex: 1 }}>
+                <Card
+                  style={{ flex: 1 }}
+                  bodyStyle={{ flex: 1, height: "100%" }}
+                >
+                  <Flex align="center" style={{ flex: 1, height: "100%" }}>
+                    <Steps
+                      // current={1}
+                      items={[
+                        {
+                          title: "Create Order",
+                          // description,
+                          description: "0 Days",
+                        },
+                        {
+                          title: "Approval",
+                          // description,
+                          description: "2 Days",
+                        },
+                        {
+                          title: "MIN",
+                          // description,
+                          description: "2 Days",
+                        },
+                        {
+                          title: "Bill Booking",
+                          description: "2 Days",
+                          // description,
+                        },
+                        {
+                          title: "Payment",
+                          // description,
+                          description: "2 Days",
+                        },
+                      ]}
+                    />
+                  </Flex>
+                </Card>
+              </Flex>
+            </Flex>
+          </Col>
+          <Col span={8}>
+            <AreaChart data={areaChartData} />
+          </Col>
+        </Row>
+        <Row style={{ marginTop: 10 }}>
+          <Col span={24}>
+            <Row gutter={[80, 10]}>
               <Col
                 span={10}
-                style={{
-                  height: "10vh",
-                  marginLeft: "-7rem",
-                  marginRight: "-5rem",
-                }}
+                style={
+                  {
+                    // height: "10vh",
+                    // marginLeft: "-11rem",
+                    // marginRight: "-5rem",
+                  }
+                }
               >
                 <LineChart data={lineData} />
               </Col>
-              <Card
-                style={{ width: "26vw", height: "50vh" }}
-                title={"Top Vendors"}
-              >
-                {" "}
-                {/* <BarChart data={chartData} /> */}
-                {/* <Card size="small"> */}
-                <List
-                  dataSource={vendorData}
-                  renderItem={(item) => (
-                    <>
-                      <List.Item key={vendorData.name}>
-                        <StarTwoTone
-                          style={{ marginRight: "1em" }}
-                          twoToneColor="#ffd700"
-                        />
-                        <List.Item.Meta title={item.name} />
-                        <div>{item.venCode}</div>
-                      </List.Item>
-                    </>
-                  )}
-                />
-                {/* </Card> */}
-              </Card>
+              <Col span={7} style={{ height: "10vh" }}>
+                {/* <div style={{ height: "20rem", width: " 27rem" }}> */}
+                <BarChart data={barChartData} />
+                {/* </div> */}
+              </Col>
+
+              <Col span={7}>
+                <Card
+                  // style={{ width: "26vw", height: "50vh", marginRight: "4em" }}
+                  title={"Top Vendors"}
+                >
+                  {" "}
+                  {/* <BarChart data={chartData} /> */}
+                  {/* <Card size="small"> */}
+                  <List
+                    dataSource={vendorData}
+                    renderItem={(item) => (
+                      <>
+                        <List.Item key={vendorData.name}>
+                          <StarTwoTone
+                            style={{ marginRight: "1em" }}
+                            twoToneColor="#ffd700"
+                          />
+                          <List.Item.Meta title={item.name} />
+                          <div>{item.venCode}</div>
+                        </List.Item>
+                      </>
+                    )}
+                  />
+                  {/* </Card> */}
+                </Card>
+              </Col>
+              {/* <Col span={10} style={{ height: "10vh" }}>
+                <div style={{ height: "22rem", width: " 27rem" }}>
+                  <BarChart data={barChartData} />
+                </div>
+              </Col> */}
             </Row>
           </Col>
         </Row>
