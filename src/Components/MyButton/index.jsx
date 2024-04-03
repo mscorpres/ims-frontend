@@ -11,6 +11,7 @@ import {
   EyeOutlined,
   UnorderedListOutlined,
   SearchOutlined,
+  DeleteFilled,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {
@@ -127,6 +128,17 @@ const MyButton = (props) => {
         icon={<DownloadOutlined />}
       >
         {props.text ?? "Download"}
+      </Button>
+    );
+  }
+  if (props.variant === "delete") {
+    return (
+      <Button
+        {...props}
+        type={props.type ?? "primary"}
+        icon={<DeleteFilled />}
+      >
+        {props.text ?? "Delete"}
       </Button>
     );
   }
