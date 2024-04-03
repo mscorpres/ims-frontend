@@ -277,6 +277,6 @@ const initialValues = {
   value: 0,
   invoice: "",
   location: undefined,
-  autoCons: 0,
+  autoCons: { label: "NO", value: "0" },
   remarks: "",
 };
