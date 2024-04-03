@@ -240,6 +240,9 @@ import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
+import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
+import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
+import Depreciation from "../pages/fixeassetmodule/Depreciation";
 
 const Routes = [
   {
@@ -1261,13 +1264,12 @@ const Routes = [
     path: "/sales/order/register",
     main: () => <SalesORderRegister />,
   },
-  // 
+  //
   {
     path: "/sales/order/shipments",
     main: () => <ShipmentsList />,
   },
 
-  
   {
     path: "/sales/order/challan",
     main: () => <Challan />,
@@ -1309,6 +1311,18 @@ const Routes = [
   {
     path: "/controlPanel/allUsers",
     main: () => <AllUsers />,
+  },
+  {
+    path: "/assets/create",
+    main: () => <CreateAsset />,
+  },
+  {
+    path: "/assets/view",
+    main: () => <ViewAsset />,
+  },
+  {
+    path: "/assets/depreciation",
+    main: () => <Depreciation />,
   },
 
   ///login

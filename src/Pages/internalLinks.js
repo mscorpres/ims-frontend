@@ -1121,5 +1121,19 @@ const links = [
       routePath: "/controlPanel/registeredUsers",
     },
   ],
+  [
+    {
+      routeName: "Create Asset",
+      routePath: "/assets/create",
+    },
+    {
+      routeName: "View Asset",
+      routePath: "/assets/view",
+    },
+    {
+      routeName: "Depreciation",
+      routePath: "/assets/depreciation",
+    },
+  ],
 ];
 export default links;
