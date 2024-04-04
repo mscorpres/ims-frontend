@@ -240,9 +240,9 @@ import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
-import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
-import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
-import Depreciation from "../pages/fixeassetmodule/Depreciation";
+// import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
+// import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
+// import Depreciation from "../pages/fixeassetmodule/Depreciation";
 
 const Routes = [
   {
