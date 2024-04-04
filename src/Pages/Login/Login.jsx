@@ -347,9 +347,9 @@ const Login = () => {
                             size="large"
                           />
                         </Form.Item> */}
-                        <Link onClick={() => setForgotPassword("1")}>
+                        {/* <Link onClick={() => setForgotPassword("1")}>
                           Forgot Password
-                        </Link>
+                        </Link> */}
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
                             loading={loading("submit")}
