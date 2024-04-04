@@ -1,4 +1,13 @@
-import { Button, Col, Descriptions, Divider, Form, Input, Row } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Divider,
+  Form,
+  Input,
+  Row,
+} from "antd";
 import { useState } from "react";
 import CreateSubmitConfirmModal from "./CreateSubmitConfirmModal";
 import { imsAxios } from "../../../axiosInterceptor";
@@ -48,10 +57,11 @@ export default function NewProjectForm() {
         loading={loading === "submit"}
         action="Create"
       />
+
       <Row gutter={10}>
         <Col span={22}>
           <Row gutter={8}>
-            <Col span={8}>
+            {/* <Col span={24}>
               <Descriptions
                 size="small"
                 title="CPM ID"
@@ -65,8 +75,8 @@ export default function NewProjectForm() {
                   Provide CPM Project ID
                 </Descriptions.Item>
               </Descriptions>
-            </Col>
-            <Col span={8}>
+            </Col> */}
+            <Col span={24}>
               <Form.Item
                 rules={[
                   {
@@ -87,7 +97,7 @@ export default function NewProjectForm() {
               /> */}
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={24}>
               <Form.Item
                 rules={[
                   {
