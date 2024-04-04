@@ -844,6 +844,7 @@ const CategoryModal = ({
             label: row.text,
             name: row.id,
             type: row.inp_type,
+            hasValue: row.hasValue,
           }));
           setFields(arr);
         } else {
@@ -878,7 +879,7 @@ const CategoryModal = ({
             },
           ]);
         }
-        // console.log("fieldsss", fieldSelectOptions);
+        console.log("fieldsss is here", fieldSelectOptions);
       });
     } catch (error) {}
     setLoading(false);
@@ -1018,7 +1019,10 @@ const CategoryModal = ({
       //   values.current_SI_Unit.label.split(" ")
       // );
       let siUnit = values.current_SI_Unit.label.split(" ")[0];
+      let siVal = values.current_SI_UnitText;
+      let fqVal = values.frequencyText;
       console.log("siUnit", siUnit);
+      console.log("siVal", siVal);
       let compName =
         values.mounting_style.label +
         "-" +
@@ -1026,8 +1030,10 @@ const CategoryModal = ({
         "-" +
         compCode +
         "-" +
+        fqVal +
         values.frequency.label +
         "-" +
+        siVal +
         siUnit;
 
       // console.log("compName", compCode);
@@ -1041,7 +1047,7 @@ const CategoryModal = ({
         "(" +
         values.package_size.key +
         ")" +
-        values.power_rating.key +
+        values.power_rating?.key +
         values.tolerance.key;
       // console.log("filledFields", filledFields);
 
@@ -1162,6 +1168,7 @@ const CategoryModal = ({
   }, [value]);
 
   const submitHandler = async (payload) => {
+ 
     try {
       setUniqueId(uniqueId);
 
@@ -1177,6 +1184,7 @@ const CategoryModal = ({
     }
   };
   const sortedFields = [...fields].sort((a, b) => {
+    console.log("ff", fields);
     if (a.type === b.type) {
       return a.label.localeCompare(b.label);
     }
@@ -1291,6 +1299,15 @@ const CategoryModal = ({
                     style={{ textTransform: "capitalize" }}
                     name={row.label}
                     label={row.label.replaceAll("_", " ")}
+                  >
+                    <Input />
+                  </Form.Item>
+                )}
+                {row.hasValue === "true" && (
+                  <Form.Item
+                    style={{ textTransform: "capitalize" }}
+                    name={row.label + "Text"}
+                    label={row.label.replaceAll("_", " ") + " " + "Value"}
                   >
                     <Input />
                   </Form.Item>
