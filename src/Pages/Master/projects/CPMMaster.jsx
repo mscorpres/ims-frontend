@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Button,
+  Card,
   Col,
   Descriptions,
   Divider,
@@ -82,22 +83,29 @@ function CPMMaster() {
     getAllDetailFun();
   }, []);
   return (
-    <Row style={{ height: "90%", padding: 10 }}>
-      <Col span={12}>
-        <Typography.Title style={{ marginBottom: 30, marginTop: 10 }} level={4}>
-          {editProject ? "Edit Project" : "Add New Project"}
-        </Typography.Title>
-        {editProject ? (
-          <EditProjectForm
-            editProject={editProject}
-            setEditProject={setEditProject}
-            getAllDetailFun={getAllDetailFun}
-          />
-        ) : (
-          <NewProjectForm />
-        )}
+    <Row gutter={10} style={{ height: "90%", padding: 10 }}>
+      <Col span={6}>
+        <Card
+          size="small"
+          style={{ marginTop: "8%" }}
+          title={editProject ? "Edit Project" : "Add New Project"}
+        >
+          <Typography.Title
+            style={{ marginBottom: 30, marginTop: 10 }}
+            level={4}
+          ></Typography.Title>
+          {editProject ? (
+            <EditProjectForm
+              editProject={editProject}
+              setEditProject={setEditProject}
+              getAllDetailFun={getAllDetailFun}
+            />
+          ) : (
+            <NewProjectForm />
+          )}
+        </Card>
       </Col>
-      <Col style={{ height: "95%" }} span={12}>
+      <Col style={{ height: "95%" }} span={18}>
         <Row justify="end" style={{ margin: "5x 0" }}>
           <CommonIcons
             disabled={rows.length === 0}
