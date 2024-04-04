@@ -4,17 +4,17 @@ import { Card, Flex } from "antd";
 
 const AreaChart = ({ data }) => {
   const chartRef = useRef(null);
-
+  console.log("data", data);
   useEffect(() => {
     const ctx = chartRef.current.getContext("2d");
 
     // Define data for the chart
-    const data = {
-      labels: ["Total Vendors", "Total Component", "Total Project"],
+    data = {
+      labels: ["Pending PO", "Overage PO"],
       datasets: [
         {
           label: "overall",
-          data: [840, 2960, 78],
+          data: data,
           backgroundColor: [
             "rgb(255, 99, 132)",
             "rgb(75, 192, 192)",
@@ -43,7 +43,7 @@ const AreaChart = ({ data }) => {
 
     // Clean up function to destroy the chart
     return () => myChart.destroy();
-  }, []);
+  }, [data]);
 
   return (
     <Card

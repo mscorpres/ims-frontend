@@ -149,7 +149,7 @@ function ProcurementDashboard() {
     if (response.success) {
       let arr = response?.data?.topPart;
       setMasterData(response?.data);
-      setAreaChartData(response?.data);
+      // setAreaChartData(response?.data);
       console.log("arr", arr);
       chartData = {
         labels: arr.map((r) => r?.partCode),
@@ -165,9 +165,18 @@ function ProcurementDashboard() {
     // console.log("chartData", chartData);
     // console.log("chartData", barChartData);
   };
+  const getPendingPO = async () => {
+    const response = await imsAxios.get("/dashboard/po_pending_counts");
+    console.log("responsesss->", response);
+    const { data } = response;
+    if (response.success) {
+      let b = Object.values(data);
+      // console.log("b", b);
+      setAreaChartData(b);
+    }
+  };
   const getPoDetails = async () => {
     const response = await imsAxios.get("/dashboard/po_trends");
-    console.log("responsesss->", response);
     if (response.success === true) {
       const { data } = response;
       const totalPoValues = [];
@@ -239,6 +248,7 @@ function ProcurementDashboard() {
   useEffect(() => {
     getPartNumDashboard();
     getPoDetails();
+    getPendingPO();
   }, []);
 
   return (
