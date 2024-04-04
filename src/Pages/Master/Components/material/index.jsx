@@ -1168,7 +1168,6 @@ const CategoryModal = ({
   }, [value]);
 
   const submitHandler = async (payload) => {
- 
     try {
       setUniqueId(uniqueId);
 
@@ -1216,7 +1215,7 @@ const CategoryModal = ({
       title="Assign Attributes"
       open={show}
       onOk={submitHandler}
-      width={800}
+      width={1050}
       okText="Continue"
       cancelText={stage === 0 ? "Cancel" : "Back"}
       confirmLoading={loading === "submit"}
@@ -1269,49 +1268,43 @@ const CategoryModal = ({
       {loading === "fetch" && <Loading />}
       {stage === 0 && (
         <Form form={form} layout="vertical" style={{ marginTop: 10 }}>
-          <Row gutter={6}>
+          <Row gutter={10}>
             {sortedFields.map((row) => (
-              <Col span={8} key={row.label}>
-                {" "}
-                {/* Ensure to provide a unique key for each element */}
-                {row.type === "select" ? (
-                  <Form.Item
-                    style={{ textTransform: "capitalize" }}
-                    name={row.label}
-                    label={row.label.replaceAll("_", " ")}
-                  >
-                    <MySelect
-                      style={{ textTransform: "none" }}
-                      labelInValue
-                      // disabled={row.label === "multiplier"}
-                      options={
-                        fieldSelectOptions.find(
-                          (field) => field.name === row.name
-                        )?.options || []
+              <Col span={8}>
+                <Flex>
+                  {row.hasValue === "true" && (
+                    <Form.Item
+                      style={{ textTransform: "capitalize", flex: 1 }}
+                      name={row.label + "Text"}
+                      label={
+                        row.label === "frequency"
+                          ? "Freq. Value"
+                          : "SI Unit Value"
                       }
-                    />
-                  </Form.Item>
-                ) : (
-                  ""
-                )}
-                {row.type === "text" && (
+                    >
+                      <Input />
+                    </Form.Item>
+                  )}
                   <Form.Item
-                    style={{ textTransform: "capitalize" }}
+                    style={{ textTransform: "capitalize", flex: 1.5 }}
                     name={row.label}
                     label={row.label.replaceAll("_", " ")}
                   >
-                    <Input />
+                    {row.type === "select" && (
+                      <MySelect
+                        style={{ textTransform: "none" }}
+                        labelInValue
+                        // disabled={row.label === "multiplier"}
+                        options={
+                          fieldSelectOptions.find(
+                            (field) => field.name === row.name
+                          )?.options || []
+                        }
+                      />
+                    )}
+                    {row.type === "text" && <Input />}
                   </Form.Item>
-                )}
-                {row.hasValue === "true" && (
-                  <Form.Item
-                    style={{ textTransform: "capitalize" }}
-                    name={row.label + "Text"}
-                    label={row.label.replaceAll("_", " ") + " " + "Value"}
-                  >
-                    <Input />
-                  </Form.Item>
-                )}
+                </Flex>
               </Col>
             ))}
           </Row>
