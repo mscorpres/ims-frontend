@@ -15,6 +15,7 @@ import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
+import SingleDatePicker from "../../../Components/SingleDatePicker";
 
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
@@ -24,8 +25,11 @@ const AddVendor = () => {
   const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
+  const [effective, setEffective] = useState("");
   // const [msmeStat, setMsmeStat] = useState("");
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
+  const einvoice = Form.useWatch("applicability", addVendorForm);
+  console.log("okkk", einvoice);
   // setMsmeStat(msmsStatus);
   const [searchTerm, setSearchTerm] = useState("");
   const getFetchState = async (e) => {
@@ -116,6 +120,10 @@ const AddVendor = () => {
   // }, [msmsStatus]);
 
   const msmeOptions = [
+    { text: "Yes", value: "Y" },
+    { text: "No", value: "N" },
+  ];
+  const accOptions = [
     { text: "Yes", value: "Y" },
     { text: "No", value: "N" },
   ];
@@ -223,11 +231,6 @@ const AddVendor = () => {
 
             <Row gutter={16}>
               <Col span={6}>
-                <Form.Item label="GST Number" name="gstin" rules={rules.gstin}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
                 <Form.Item label="Email" name="email">
                   <Input />
                 </Form.Item>
@@ -242,8 +245,95 @@ const AddVendor = () => {
                   <Input />
                 </Form.Item>
               </Col>
-              <Col span={4}>
-                <Form.Item label="MSME Status" name="msmeStatus">
+              <Col span={24}>
+                <Row gutter={16}>
+                  <Col span={4}>
+                    <Form.Item
+                      label="MSME Status"
+                      name="msmeStatus"
+                      rules={rules.status}
+                    >
+                      <MySelect
+                        options={msmeOptions}
+                        // value={msmeStat}
+                        // onChange={(value) => changeMSmeStatus(value)}
+                      />
+                    </Form.Item>
+                  </Col>
+                  {msmeStat === "Y" && (
+                    <>
+                      <Col span={5}>
+                        <Form.Item
+                          label="MSME Year"
+                          name="year"
+                          rules={rules.year}
+                        >
+                          <MySelect options={msmeYearOptions} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={5}>
+                        <Form.Item
+                          label="MSME Number"
+                          name="msmeId"
+                          rules={rules.msmeId}
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={5}>
+                        <Form.Item
+                          label="MSME Type"
+                          name="type"
+                          rules={rules.type}
+                        >
+                          <MySelect options={msmeTypeOptions} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={5}>
+                        <Form.Item
+                          label="MSME Activity"
+                          name="activity"
+                          rules={rules.activity}
+                        >
+                          <MySelect options={msmeActivityOptions} />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  )}
+                </Row>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Divider />
+        <Row gutter={16}>
+          <Col span={4}>
+            <Descriptions
+              size="small"
+              title={<p style={{ fontSize: "0.8rem" }}>GST Details</p>}
+            >
+              <Descriptions.Item
+                contentStyle={{
+                  fontSize: window.innerWidth < 1600 && "0.7rem",
+                }}
+              >
+                Provide GSt Details
+              </Descriptions.Item>
+            </Descriptions>
+          </Col>
+          <Col span={12}>
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item label="GST Number" name="gstin" rules={rules.gstin}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item
+                  label="E-Invoice Applicability"
+                  name="applicability"
+                  rules={rules.applicability}
+                >
                   <MySelect
                     options={msmeOptions}
                     // value={msmeStat}
@@ -251,37 +341,17 @@ const AddVendor = () => {
                   />
                 </Form.Item>
               </Col>
-              {msmeStat === "Y" && (
-                <>
-                  <Col span={4}>
-                    <Form.Item label="MSME Year" name="year" rules={rules.year}>
-                      <MySelect options={msmeYearOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={4}>
-                    <Form.Item
-                      label="MSME Number"
-                      name="msmeId"
-                      rules={rules.msmeId}
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={4}>
-                    <Form.Item label="MSME Type" name="type" rules={rules.type}>
-                      <MySelect options={msmeTypeOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={4}>
-                    <Form.Item
-                      label="MSME Activity"
-                      name="activity"
-                      rules={rules.activity}
-                    >
-                      <MySelect options={msmeActivityOptions} />
-                    </Form.Item>
-                  </Col>
-                </>
+              {einvoice === "Y" && (
+                <Col span={8}>
+                  {" "}
+                  <Form.Item
+                    label="Date of Applicability"
+                    name="dobApplicabilty"
+                    rules={rules.dobApplicabilty}
+                  >
+                    <SingleDatePicker size="default" setDate={setEffective} />
+                  </Form.Item>
+                </Col>
               )}
             </Row>
           </Col>
@@ -442,6 +512,12 @@ const rules = {
       message: "Please provide the MSME Id",
     },
   ],
+  status: [
+    {
+      required: true,
+      message: "Please provide the MSME status",
+    },
+  ],
   type: [
     {
       required: true,
@@ -506,6 +582,18 @@ const rules = {
     {
       required: true,
       message: "Please provide the payment Terms.",
+    },
+  ],
+  dobApplicabilty: [
+    {
+      required: true,
+      message: "Please provide the date of applicabilty.",
+    },
+  ],
+  applicability: [
+    {
+      required: true,
+      message: "Please provide the applicabilty Status.",
     },
   ],
 };
