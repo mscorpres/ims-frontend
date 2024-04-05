@@ -61,7 +61,7 @@ export default function MyDatePicker({
           dayjs().startOf("month").subtract(1, "month"),
           dayjs().startOf("month").subtract(1, "d"),
         ],
-        "Last 3 Months": [
+        "Last 90 Days": [
           dayjs().subtract(89, "d"),
           dayjs(),
           // dayjs().endOf("month").subtract(1, "month"),
