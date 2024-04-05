@@ -35,6 +35,8 @@ function Location() {
   const [disableLocationForm] = Form.useForm();
   const [maploc] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [viewData, setViewData] = useState(false);
+  const [locDetails, setLocDetials] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [mapCostCenterModal, setMapCostCenerModal] = useState(false);
   const location = Form.useWatch("location", disableLocationForm);
@@ -62,7 +64,7 @@ function Location() {
     });
     // console.log("arr", arr);
     setLocationData(arr);
-    console.log("final arr", arr);
+    // console.log("final arr", arr);
     // setLocationData(a);
     setTreeData(data.data);
   };
@@ -284,6 +286,15 @@ function Location() {
           }}
           label="Map Cost Center"
         />,
+        <GridActionsCellItem
+          showInMenu
+          // disabled={loading}
+          onClick={() => {
+            // mapCC(row);
+            setViewData(row);
+          }}
+          label="View Details"
+        />,
       ],
     },
 
@@ -315,6 +326,81 @@ function Location() {
       ),
     },
   ];
+  const locColoums = [
+    {
+      field: "id",
+      headerName: "#",
+      width: 50,
+    },
+    {
+      field: "loc_name",
+      headerName: "Locations Name",
+      width: 150,
+    },
+    {
+      field: "parentLocation",
+      headerName: "Parent Location",
+      width: 150,
+    },
+    {
+      field: "loc_type",
+      headerName: "Location Type",
+      width: 150,
+    },
+    {
+      field: "loc_for",
+      headerName: "Location For",
+      width: 150,
+    },
+    {
+      field: "loc_address",
+      headerName: "Location Address",
+      width: 150,
+    },
+    {
+      field: "assigned_to",
+      headerName: "Assigned To",
+      width: 150,
+    },
+    {
+      field: "insert_date",
+      headerName: "Insert Date",
+      width: 150,
+    },
+    {
+      field: "insert_by",
+      headerName: "Insert By",
+      width: 150,
+    },
+  ];
+  const getLoactionDetails = async (row) => {
+    console.log("viewData", row);
+    const response = await imsAxios.post("/location/fetch_location_details", {
+      location_key: row.label,
+    });
+    console.log("response", response);
+    if (response.success) {
+      let { data } = response;
+      let id = 0;
+      let obj = {
+        ...data,
+        id: id + 1,
+      };
+      // let extractedData = [];
+      // extractedData = extractedData.push([data]);
+      // console.log("data", data);
+      // arr = extractedData.map((r, id) => {
+      //   return { id: id + 1, ...r };
+      // });
+      console.log("obj", obj);
+      setLocDetials([obj]);
+    }
+  };
+  useEffect(() => {
+    if (viewData) {
+      getLoactionDetails(viewData);
+    }
+  }, [viewData]);
 
   const mapCC = async (row) => {
     console.log("row", row);
@@ -630,9 +716,28 @@ function Location() {
           > */}
           {treeLoading && <Loading />}
           {/* <Tree showLine={true} treeData={treeData} /> */}
-          <div style={{ height: "95%" }}>
+          <Card style={{ height: "100%" }} bodyStyle={{ height: "100%" }}>
+            {viewData ? (
+              <>
+                <MyButton
+                  variant="back"
+                  style={{ marginBottom: "5px", marginTop: "1px" }}
+                  onClick={() => setViewData(false)}
+                ></MyButton>
+                <div style={{ height: "95%" }}>
+                  <MyDataTable columns={locColoums} data={locDetails} />
+                </div>
+              </>
+            ) : (
+              <div style={{ height: "95%" }}>
+                <MyDataTable columns={coloums} data={locationData} />
+              </div>
+            )}
+          </Card>
+
+          {/* <div style={{ height: "95%" }}>
             <MyDataTable columns={coloums} data={locationData} />
-          </div>
+          </div> */}
           {/* </Card> */}
         </Col>
       </Row>

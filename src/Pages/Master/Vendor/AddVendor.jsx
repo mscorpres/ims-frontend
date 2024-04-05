@@ -55,7 +55,7 @@ const AddVendor = () => {
     // formData.append("uploadfile", files[0]);
     // console.log("formData", formData);
     setLoading("submit");
-    // return;
+    return;
     const response = await imsAxios.post("/vendor/addVendor", formData);
     setLoading(false);
     const { data } = response;
@@ -73,7 +73,8 @@ const AddVendor = () => {
 
   const validateHandler = async () => {
     const values = await addVendorForm.validateFields();
-    // console.log("values", values);
+    console.log("values", values);
+    // if
     let obj = {
       vendor: {
         vendorname: values.vendorName,
@@ -100,6 +101,8 @@ const AddVendor = () => {
         mobile: values.mobile,
         email: values.email == "" && "--",
         gstin: values.gstin.toUpperCase(),
+        eInvoice: "Y",
+        dateOfApplicability: effective,
       },
     };
     // console.log("obj", obj);
@@ -349,7 +352,13 @@ const AddVendor = () => {
                     name="dobApplicabilty"
                     rules={rules.dobApplicabilty}
                   >
-                    <SingleDatePicker size="default" setDate={setEffective} />
+                    <SingleDatePicker
+                      size="default"
+                      // setDate={setEffective}
+                      setDate={(value) =>
+                        addVendorForm.setFieldValue("dobApplicabilty", value)
+                      }
+                    />
                   </Form.Item>
                 </Col>
               )}
@@ -590,7 +599,7 @@ const rules = {
       message: "Please provide the date of applicabilty.",
     },
   ],
-  applicability: [
+  dobApplicable: [
     {
       required: true,
       message: "Please provide the applicabilty Status.",
