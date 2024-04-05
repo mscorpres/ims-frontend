@@ -87,21 +87,35 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     // });
   };
   const submitHandler = async () => {
+    let obj;
     const values = await updateVendorForm.validateFields();
-    let obj = {
-      vendorcode: editVendor?.vendor_code,
-      vendorname: values?.vendor_name,
-      panno: values?.vendor_pan,
-      cinno: values?.vendor_cin,
-      tally_tds: values.vendor_tds,
-      vendor_loc: values.vendor_loc,
-      term_days: values.vendor_term_days,
-      msme_status: values.vendor_msme_status,
-      msme_year: rows.map((r) => r.vendor_msme_year),
-      msme_id: values.vendor_msme_id,
-      msme_type: rows.map((r) => r.vendor_msme_type),
-      msme_activity: rows.map((r) => r.vendor_msme_activity),
-    };
+    if (values.msme_status === "Y") {
+      obj = {
+        vendorcode: editVendor?.vendor_code,
+        vendorname: values?.vendor_name,
+        panno: values?.vendor_pan,
+        cinno: values?.vendor_cin,
+        tally_tds: values.vendor_tds,
+        vendor_loc: values.vendor_loc,
+        term_days: values.vendor_term_days,
+        msme_status: values.vendor_msme_status,
+        msme_year: rows.map((r) => r.vendor_msme_year),
+        msme_id: values.vendor_msme_id,
+        msme_type: rows.map((r) => r.vendor_msme_type),
+        msme_activity: rows.map((r) => r.vendor_msme_activity),
+      };
+    } else {
+      obj = {
+        vendorcode: editVendor?.vendor_code,
+        vendorname: values?.vendor_name,
+        panno: values?.vendor_pan,
+        cinno: values?.vendor_cin,
+        tally_tds: values.vendor_tds,
+        vendor_loc: values.vendor_loc,
+        term_days: values.vendor_term_days,
+        msme_status: "N",
+      };
+    }
     const formData = new FormData();
     formData.append("uploadfile", files[0] ?? []);
     formData.append("vendor", JSON.stringify(obj));
@@ -162,8 +176,8 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     { text: "No", value: "N" },
   ];
   const msmeYearOptions = [
-    { text: "2023 -2024", value: "2023 -2024" },
-    { text: "2024 -2025", value: "2024 -2025" },
+    { text: "2023-2024", value: "2023-2024" },
+    { text: "2024-2025", value: "2024-2025" },
   ];
   const msmeTypeOptions = [
     { text: "Micro", value: "Micro" },
@@ -192,6 +206,13 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       setRows(rows);
     }
   }, [rows]);
+  useEffect(() => {
+    if (msmeStat == "N") {
+      updateVendorForm.setFieldValue("vendor_msme_id", "--");
+    } else {
+      updateVendorForm.setFieldValue("vendor_msme_id", "");
+    }
+  }, [msmeStat]);
 
   const saveMSMEEntry = async () => {
     setEditMSME(false);

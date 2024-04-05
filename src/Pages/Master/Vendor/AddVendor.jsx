@@ -120,8 +120,8 @@ const AddVendor = () => {
     { text: "No", value: "N" },
   ];
   const msmeYearOptions = [
-    { text: "2023 - 2024", value: "2023 - 2024" },
-    { text: "2024 - 2025", value: "2024 - 2025" },
+    { text: "2023-2024", value: "2023-2024" },
+    { text: "2024-2025", value: "2024-2025" },
   ];
   const msmeTypeOptions = [
     { text: "Micro", value: "Micro" },
@@ -254,23 +254,27 @@ const AddVendor = () => {
               {msmeStat === "Y" && (
                 <>
                   <Col span={4}>
-                    <Form.Item label="Year" name="year" rules={rules.year}>
+                    <Form.Item label="MSME Year" name="year" rules={rules.year}>
                       <MySelect options={msmeYearOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item label="Id" name="msmeId" rules={rules.msmeId}>
+                    <Form.Item
+                      label="MSME Number"
+                      name="msmeId"
+                      rules={rules.msmeId}
+                    >
                       <Input />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
-                    <Form.Item label="Type" name="type" rules={rules.type}>
+                    <Form.Item label="MSME Type" name="type" rules={rules.type}>
                       <MySelect options={msmeTypeOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={4}>
                     <Form.Item
-                      label="Activity"
+                      label="MSME Activity"
                       name="activity"
                       rules={rules.activity}
                     >
