@@ -116,7 +116,7 @@ function R18() {
   };
 
   const handleDownloadCSV = () => {
-    downloadCSVCustomColumns(rows, "test");
+    downloadCSVCustomColumns(rows, "R18");
     // let obj = {}
     // let arr = columnsName.map(row => {
     //   obj[row] =
