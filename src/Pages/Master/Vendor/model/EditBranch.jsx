@@ -89,6 +89,9 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const submitHandler = async () => {
     let obj;
     const values = await updateVendorForm.validateFields();
+    console.log("values", values);
+    console.log("rows", rows);
+    // return
     if (values.vendor_msme_status === "Y") {
       obj = {
         vendorcode: editVendor?.vendor_code,
@@ -114,9 +117,11 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         vendor_loc: values.vendor_loc,
         term_days: values.vendor_term_days,
         msme_status: "N",
+        msme_id: "--",
       };
     }
     console.log("obj", obj);
+    // return;
     const formData = new FormData();
     formData.append("uploadfile", files[0] ?? []);
     formData.append("vendor", JSON.stringify(obj));
@@ -211,7 +216,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     if (msmeStat == "N") {
       updateVendorForm.setFieldValue("vendor_msme_id", "--");
     } else {
-      updateVendorForm.setFieldValue("vendor_msme_id", "");
     }
   }, [msmeStat]);
 
