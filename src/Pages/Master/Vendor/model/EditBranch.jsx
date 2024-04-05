@@ -372,7 +372,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                     </Form.Item>
                   </Col>{" "}
                   <Col span={8}>
-                    <Form.Item label="Id" name="vendor_msme_id">
+                    <Form.Item label="MSME Id" name="vendor_msme_id">
                       <Input />
                     </Form.Item>
                   </Col>
@@ -603,7 +603,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
             {" "}
             <Col span={8}>
               <Form.Item
-                label="Year"
+                label="MSME Year"
                 name="vendor_msme_year"
                 rules={[
                   {
@@ -622,7 +622,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
             </Col> */}
             <Col span={8}>
               <Form.Item
-                label="Type"
+                label="MSME Type"
                 name="vendor_msme_type"
                 rules={[
                   {
@@ -636,7 +636,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
             </Col>
             <Col span={8}>
               <Form.Item
-                label="Activity"
+                label="MSME Activity"
                 name="vendor_msme_activity"
                 rules={[
                   {
