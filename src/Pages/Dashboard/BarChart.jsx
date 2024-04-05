@@ -28,9 +28,10 @@ const BarChart = ({ data }) => {
         },
         options: {
           scales: {
-            y: {
-              beginAtZero: true,
-            },
+            y: [75, 192, 192, 1],
+            //  {
+            //   suggestedMin: 50000,
+            // },
           },
         },
       });
@@ -49,7 +50,7 @@ const BarChart = ({ data }) => {
       title={"Part Analysis"}
     >
       {/* <Typography.Text>Part Analysis</Typography.Text> */}
-      <div style={{ width: "350px", height: "600px" }}>
+      <div style={{ width: "350px", height: "330px" }}>
         {" "}
         <canvas ref={chartRef} width="200" height="150"></canvas>
       </div>

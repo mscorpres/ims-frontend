@@ -72,7 +72,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
           vendor_msme_year: r.year,
           vendor_msme_type: r.type,
           vendor_msme_activity: r.activity,
-          id: id + 1,
+          id: v4(),
         };
       }
       // return;
@@ -85,24 +85,37 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     //     b: a.activity,
     //   };
     // });
-    // console.log("b", b);
   };
   const submitHandler = async () => {
+    let obj;
     const values = await updateVendorForm.validateFields();
-    let obj = {
-      vendorcode: editVendor?.vendor_code,
-      vendorname: values?.vendor_name,
-      panno: values?.vendor_pan,
-      cinno: values?.vendor_cin,
-      tally_tds: values.vendor_tds,
-      vendor_loc: values.vendor_loc,
-      term_days: values.vendor_term_days,
-      msme_status: values.vendor_msme_status,
-      msme_year: values.vendor_msme_year,
-      msme_id: values.vendor_msme_id,
-      msme_type: values.vendor_msme_type,
-      msme_activity: values.vendor_msme_activity,
-    };
+    if (values.msme_status === "Y") {
+      obj = {
+        vendorcode: editVendor?.vendor_code,
+        vendorname: values?.vendor_name,
+        panno: values?.vendor_pan,
+        cinno: values?.vendor_cin,
+        tally_tds: values.vendor_tds,
+        vendor_loc: values.vendor_loc,
+        term_days: values.vendor_term_days,
+        msme_status: values.vendor_msme_status,
+        msme_year: rows.map((r) => r.vendor_msme_year),
+        msme_id: values.vendor_msme_id,
+        msme_type: rows.map((r) => r.vendor_msme_type),
+        msme_activity: rows.map((r) => r.vendor_msme_activity),
+      };
+    } else {
+      obj = {
+        vendorcode: editVendor?.vendor_code,
+        vendorname: values?.vendor_name,
+        panno: values?.vendor_pan,
+        cinno: values?.vendor_cin,
+        tally_tds: values.vendor_tds,
+        vendor_loc: values.vendor_loc,
+        term_days: values.vendor_term_days,
+        msme_status: "N",
+      };
+    }
     const formData = new FormData();
     formData.append("uploadfile", files[0] ?? []);
     formData.append("vendor", JSON.stringify(obj));
@@ -163,8 +176,8 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     { text: "No", value: "N" },
   ];
   const msmeYearOptions = [
-    { text: "2023 -2024", value: "2023 -2024" },
-    { text: "2024 -2025", value: "2024 -2025" },
+    { text: "2023-2024", value: "2023-2024" },
+    { text: "2024-2025", value: "2024-2025" },
   ];
   const msmeTypeOptions = [
     { text: "Micro", value: "Micro" },
@@ -176,41 +189,69 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     { text: "Service", value: "Service" },
     { text: "Trading", value: "Trading" },
   ];
-  // console.log("isMSMEEdited", isMSMEEdited);
+  // console.//console.log("isMSMEEdited", isMSMEEdited);
 
   const deleteRow = (id) => {
-    console.log("aaaaaaaaaa", id);
+    // console.//console.log("aaaaaaaaaa", id);
     let newrows = rows.filter((a) => a.id !== id);
     setIsMSMEEdited(newrows);
+    setRows(newrows);
   };
+  const close = () => {
+    setEditMSME(false);
+    updateMSMEForm.resetFields();
+  };
+  useEffect(() => {
+    if (rows) {
+      setRows(rows);
+    }
+  }, [rows]);
+  useEffect(() => {
+    if (msmeStat == "N") {
+      updateVendorForm.setFieldValue("vendor_msme_id", "--");
+    } else {
+      updateVendorForm.setFieldValue("vendor_msme_id", "");
+    }
+  }, [msmeStat]);
+
   const saveMSMEEntry = async () => {
     setEditMSME(false);
     const values = await updateMSMEForm.validateFields();
-
-    let a = [];
-    if (rows.length > 0) {
-      let val;
-      // rows?.map((a, id) => {
-      val = {
-        id: v4(),
-        vendor_msme_year: values.vendor_msme_year,
-        vendor_msme_type: values.vendor_msme_type,
-        vendor_msme_activity: values.vendor_msme_activity,
-      };
-      // });
-      // if (a.vendor_msme_year == values.vendor_msme_year) {
-      //   console.log(" rows.year", rows.year, a);
-      //   setIsMSMEEdited([val]);
-      // } else {
-      let value = [...rows, val];
-
-      let a = value.filter((b) => b.vendor_msme_year !== "--");
-      // let newData = value.filter((r) => r.vendor_msme_year !== "--");
-      setIsMSMEEdited(a);
-      // rows.push
-      setRows(a);
-      // }
+    let value;
+    let a;
+    let val;
+    val = {
+      id: v4(),
+      vendor_msme_year: values.vendor_msme_year,
+      vendor_msme_type: values.vendor_msme_type,
+      vendor_msme_activity: values.vendor_msme_activity,
+    };
+    const found = rows.find(
+      (row) => row.vendor_msme_year === val.vendor_msme_year
+    );
+    if (found) {
+      let removerow = rows.filter(
+        (r) => r.vendor_msme_year !== val.vendor_msme_year
+      );
+      value = [...removerow, val];
+    } else {
+      value = [...rows, val];
     }
+    // });
+    // if (a.vendor_msme_year == values.vendor_msme_year) {
+    //   console.//console.log(" rows.year", rows.year, a);
+    //   setIsMSMEEdited([val]);
+    // } else {
+
+    a = value.filter((b) => b.vendor_msme_year !== "--");
+    // let newData = value.filter((r) => r.vendor_msme_year !== "--");
+    setIsMSMEEdited(a);
+    // rows.push
+    setRows(a);
+    updateMSMEForm.resetFields();
+
+    // }
+    // }
   };
 
   return (
@@ -331,14 +372,15 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                     </Form.Item>
                   </Col>{" "}
                   <Col span={8}>
-                    <Form.Item label="Id" name="vendor_msme_id">
+                    <Form.Item label="MSME Id" name="vendor_msme_id">
                       <Input />
                     </Form.Item>
                   </Col>
                   <Row></Row>
                 </Row>
               </Col>
-              <Col span={24}>
+
+              <Col span={24} style={{ height: "10rem" }}>
                 <Flex vertical gap={10} align="center">
                   <MyButton
                     variant="add"
@@ -347,6 +389,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                     onClick={() => setEditMSME(true)}
                   ></MyButton>
                   {/* <Col span={24} gutter={[10, 10]}> */}
+                  <Divider />
                   <Flex
                     gap={[10, 10]}
                     style={{ width: "100%" }}
@@ -355,7 +398,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                     {/* {isMSMEEdited?.map((a) => ( */}
                     <>
                       {" "}
-                      <div style={{ width: 200 }}>
+                      <div style={{ width: 185 }}>
                         <Typography.Text strong>Year</Typography.Text>
                       </div>
                       <div style={{ width: 180 }}>
@@ -431,9 +474,14 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                       {/* ))} */}
                     </Flex>
                   ) : msmeStat == "Y" ? (
-                    <Flex gap={10} style={{ width: "100%" }}>
+                    <Flex
+                      gap={10}
+                      style={{ width: "100%" }}
+                      justify="center"
+                      vertical
+                    >
                       {rows.map((a) => (
-                        <>
+                        <Flex>
                           {" "}
                           <div style={{ width: 40 }}></div>
                           <div style={{ width: 200 }}>
@@ -445,7 +493,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                               {a.vendor_msme_year}
                             </Typography.Text>
                           </div>
-                          <div style={{ width: 200 }}>
+                          <div style={{ width: 180 }}>
                             {" "}
                             <Typography.Text
                               type="secondary"
@@ -489,7 +537,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                               type="secondary"
                               onClick={addRows}
                             ></MyButton> */}
-                        </>
+                        </Flex>
                       ))}
                     </Flex>
                   ) : (
@@ -526,7 +574,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
             <Divider />
             <Col>
               <Space>
-                <Button key="back" onClick={() => setEditVendor(false)}>
+                <Button key="back" onClick={close}>
                   Back
                 </Button>
 
@@ -554,7 +602,16 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
           <Row gutter={[10, 10]}>
             {" "}
             <Col span={8}>
-              <Form.Item label="Year" name="vendor_msme_year">
+              <Form.Item
+                label="MSME Year"
+                name="vendor_msme_year"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the Year",
+                  },
+                ]}
+              >
                 <MySelect options={msmeYearOptions} />
               </Form.Item>
             </Col>
@@ -564,12 +621,30 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
               </Form.Item>
             </Col> */}
             <Col span={8}>
-              <Form.Item label="Type" name="vendor_msme_type">
+              <Form.Item
+                label="MSME Type"
+                name="vendor_msme_type"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the Type",
+                  },
+                ]}
+              >
                 <MySelect options={msmeTypeOptions} />
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="Activity" name="vendor_msme_activity">
+              <Form.Item
+                label="MSME Activity"
+                name="vendor_msme_activity"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select the Activity",
+                  },
+                ]}
+              >
                 <MySelect options={msmeActivityOptions} />
               </Form.Item>
             </Col>

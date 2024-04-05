@@ -15,6 +15,7 @@ function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
   const [areaChartData, setAreaChartData] = useState([]);
+  const [areaChartLabel, setAreaChartLabel] = useState([]);
   const [vendorData, setVendorData] = useState([]);
   const [masterData, setMasterData] = useState("");
   const [domesticPOData, setDomesticPoData] = useState([]);
@@ -149,7 +150,7 @@ function ProcurementDashboard() {
     if (response.success) {
       let arr = response?.data?.topPart;
       setMasterData(response?.data);
-      setAreaChartData(response?.data);
+      // setAreaChartData(response?.data);
       console.log("arr", arr);
       chartData = {
         labels: arr.map((r) => r?.partCode),
@@ -165,9 +166,20 @@ function ProcurementDashboard() {
     // console.log("chartData", chartData);
     // console.log("chartData", barChartData);
   };
+  const getPendingPO = async () => {
+    const response = await imsAxios.get("/dashboard/po_pending_counts");
+    console.log("responsesss->", response);
+    const { data } = response;
+    if (response.success) {
+      let b = Object.values(data);
+      let labels = Object.keys(data);
+      console.log("b", labels);
+      setAreaChartData(b);
+      setAreaChartLabel(labels);
+    }
+  };
   const getPoDetails = async () => {
     const response = await imsAxios.get("/dashboard/po_trends");
-    console.log("responsesss->", response);
     if (response.success === true) {
       const { data } = response;
       const totalPoValues = [];
@@ -239,6 +251,7 @@ function ProcurementDashboard() {
   useEffect(() => {
     getPartNumDashboard();
     getPoDetails();
+    getPendingPO();
   }, []);
 
   return (
@@ -340,7 +353,7 @@ function ProcurementDashboard() {
             </Flex>
           </Col>
           <Col span={8}>
-            <AreaChart data={areaChartData} />
+            <AreaChart data={areaChartData} label={areaChartLabel} />
           </Col>
         </Row>
         <Row style={{ marginTop: 10 }}>
@@ -381,8 +394,10 @@ function ProcurementDashboard() {
                             style={{ marginRight: "1em" }}
                             twoToneColor="#ffd700"
                           />
-                          <List.Item.Meta title={item.name} />
-                          <div>{item.venCode}</div>
+                          <List.Item.Meta
+                            title={item.name + " " + "(" + item.venCode + ")"}
+                          />
+                          <div>{item.total_po}</div>
                         </List.Item>
                       </>
                     )}

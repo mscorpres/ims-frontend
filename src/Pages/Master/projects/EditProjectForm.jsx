@@ -89,7 +89,7 @@ export default function EditProjectForm({
       <Row gutter={10}>
         <Col span={22}>
           <Row gutter={8}>
-            <Col span={8}>
+            {/* <Col span={24}>
               <Descriptions
                 size="small"
                 title="CPM ID"
@@ -103,8 +103,8 @@ export default function EditProjectForm({
                   Provide CPM Project ID
                 </Descriptions.Item>
               </Descriptions>
-            </Col>
-            <Col span={8}>
+            </Col> */}
+            <Col span={24}>
               <Form.Item
                 rules={[
                   {
@@ -128,7 +128,7 @@ export default function EditProjectForm({
               /> */}
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={24}>
               <Form.Item
                 rules={[
                   {

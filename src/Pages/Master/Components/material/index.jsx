@@ -844,6 +844,7 @@ const CategoryModal = ({
             label: row.text,
             name: row.id,
             type: row.inp_type,
+            hasValue: row.hasValue,
           }));
           setFields(arr);
         } else {
@@ -878,7 +879,7 @@ const CategoryModal = ({
             },
           ]);
         }
-        // console.log("fieldsss", fieldSelectOptions);
+        console.log("fieldsss is here", fieldSelectOptions);
       });
     } catch (error) {}
     setLoading(false);
@@ -1018,7 +1019,10 @@ const CategoryModal = ({
       //   values.current_SI_Unit.label.split(" ")
       // );
       let siUnit = values.current_SI_Unit.label.split(" ")[0];
+      let siVal = values.current_SI_UnitText;
+      let fqVal = values.frequencyText;
       console.log("siUnit", siUnit);
+      console.log("siVal", siVal);
       let compName =
         values.mounting_style.label +
         "-" +
@@ -1026,8 +1030,10 @@ const CategoryModal = ({
         "-" +
         compCode +
         "-" +
+        fqVal +
         values.frequency.label +
         "-" +
+        siVal +
         siUnit;
 
       // console.log("compName", compCode);
@@ -1041,7 +1047,7 @@ const CategoryModal = ({
         "(" +
         values.package_size.key +
         ")" +
-        values.power_rating.key +
+        values.power_rating?.key +
         values.tolerance.key;
       // console.log("filledFields", filledFields);
 
@@ -1177,6 +1183,7 @@ const CategoryModal = ({
     }
   };
   const sortedFields = [...fields].sort((a, b) => {
+    console.log("ff", fields);
     if (a.type === b.type) {
       return a.label.localeCompare(b.label);
     }
@@ -1208,7 +1215,7 @@ const CategoryModal = ({
       title="Assign Attributes"
       open={show}
       onOk={submitHandler}
-      width={800}
+      width={1050}
       okText="Continue"
       cancelText={stage === 0 ? "Cancel" : "Back"}
       confirmLoading={loading === "submit"}
@@ -1261,40 +1268,43 @@ const CategoryModal = ({
       {loading === "fetch" && <Loading />}
       {stage === 0 && (
         <Form form={form} layout="vertical" style={{ marginTop: 10 }}>
-          <Row gutter={6}>
+          <Row gutter={10}>
             {sortedFields.map((row) => (
-              <Col span={8} key={row.label}>
-                {" "}
-                {/* Ensure to provide a unique key for each element */}
-                {row.type === "select" ? (
-                  <Form.Item
-                    style={{ textTransform: "capitalize" }}
-                    name={row.label}
-                    label={row.label.replaceAll("_", " ")}
-                  >
-                    <MySelect
-                      style={{ textTransform: "none" }}
-                      labelInValue
-                      // disabled={row.label === "multiplier"}
-                      options={
-                        fieldSelectOptions.find(
-                          (field) => field.name === row.name
-                        )?.options || []
+              <Col span={8}>
+                <Flex>
+                  {row.hasValue === "true" && (
+                    <Form.Item
+                      style={{ textTransform: "capitalize", flex: 1 }}
+                      name={row.label + "Text"}
+                      label={
+                        row.label === "frequency"
+                          ? "Freq. Value"
+                          : "SI Unit Value"
                       }
-                    />
-                  </Form.Item>
-                ) : (
-                  ""
-                )}
-                {row.type === "text" && (
+                    >
+                      <Input />
+                    </Form.Item>
+                  )}
                   <Form.Item
-                    style={{ textTransform: "capitalize" }}
+                    style={{ textTransform: "capitalize", flex: 1.5 }}
                     name={row.label}
                     label={row.label.replaceAll("_", " ")}
                   >
-                    <Input />
+                    {row.type === "select" && (
+                      <MySelect
+                        style={{ textTransform: "none" }}
+                        labelInValue
+                        // disabled={row.label === "multiplier"}
+                        options={
+                          fieldSelectOptions.find(
+                            (field) => field.name === row.name
+                          )?.options || []
+                        }
+                      />
+                    )}
+                    {row.type === "text" && <Input />}
                   </Form.Item>
-                )}
+                </Flex>
               </Col>
             ))}
           </Row>
