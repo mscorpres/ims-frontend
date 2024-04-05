@@ -11,6 +11,8 @@ import {
   EyeOutlined,
   UnorderedListOutlined,
   SearchOutlined,
+  DeleteFilled,
+  SaveOutlined,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {
@@ -130,6 +132,13 @@ const MyButton = (props) => {
       </Button>
     );
   }
+  if (props.variant === "delete") {
+    return (
+      <Button {...props} type={props.type ?? "primary"} icon={<DeleteFilled />}>
+        {props.text ?? "Delete"}
+      </Button>
+    );
+  }
   if (props.variant === "upload") {
     return (
       <Button
@@ -144,7 +153,7 @@ const MyButton = (props) => {
   if (props.variant === "save") {
     return (
       <Button {...props} type={props.type ?? "primary"} icon={<SaveOutlined />}>
-        {props.text ?? "Upload File"}
+        {props.text ?? "Save"}
       </Button>
     );
   }
