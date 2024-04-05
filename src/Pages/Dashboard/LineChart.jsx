@@ -39,7 +39,7 @@ const LineChart = ({ data }) => {
     >
       {/* <Typography.Text>Analysis</Typography.Text> */}
       <div style={{ width: "550px", height: "300px" }}>
-        <canvas ref={chartRef} width="700px" height="800px"></canvas>
+        <canvas ref={chartRef} width="700px" height="330px"></canvas>
       </div>
     </Card>
   );

@@ -15,6 +15,7 @@ function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
   const [areaChartData, setAreaChartData] = useState([]);
+  const [areaChartLabel, setAreaChartLabel] = useState([]);
   const [vendorData, setVendorData] = useState([]);
   const [masterData, setMasterData] = useState("");
   const [domesticPOData, setDomesticPoData] = useState([]);
@@ -171,8 +172,10 @@ function ProcurementDashboard() {
     const { data } = response;
     if (response.success) {
       let b = Object.values(data);
-      // console.log("b", b);
+      let labels = Object.keys(data);
+      console.log("b", labels);
       setAreaChartData(b);
+      setAreaChartLabel(labels);
     }
   };
   const getPoDetails = async () => {
@@ -350,7 +353,7 @@ function ProcurementDashboard() {
             </Flex>
           </Col>
           <Col span={8}>
-            <AreaChart data={areaChartData} />
+            <AreaChart data={areaChartData} label={areaChartLabel} />
           </Col>
         </Row>
         <Row style={{ marginTop: 10 }}>
@@ -391,8 +394,10 @@ function ProcurementDashboard() {
                             style={{ marginRight: "1em" }}
                             twoToneColor="#ffd700"
                           />
-                          <List.Item.Meta title={item.name} />
-                          <div>{item.venCode}</div>
+                          <List.Item.Meta
+                            title={item.name + " " + "(" + item.venCode + ")"}
+                          />
+                          <div>{item.total_po}</div>
                         </List.Item>
                       </>
                     )}
