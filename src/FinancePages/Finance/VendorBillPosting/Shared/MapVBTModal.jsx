@@ -1,4 +1,4 @@
-import { Button, Drawer, Space, Divider } from "antd";
+import { Button, Drawer, Space, Divider, Row } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -6,6 +6,7 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import Loading from "../../../../Components/Loading";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
+import MyButton from "../../../../Components/MyButton";
 
 export default function MapVBTModal({ mapVBT, setMapVBT }) {
   const [selectedVBT, setSelectedVBT] = useState();
@@ -140,7 +141,7 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
 
   return (
     <Drawer
-      title="Map VBT"
+      title="Map VBT With Ledgers"
       width="35vw"
       open={mapVBT}
       onClose={() => {
@@ -173,11 +174,18 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
           />
         </div>
       </div>
-      <Space>
-        <Button loading={loading} type="primary" onClick={submitFunction}>
+      <Row justify="end">
+        <MyButton
+          loading={loading}
+          // type="primary"
+          variant="save"
+          onClick={submitFunction}
+          type="primary"
+          text=""
+        >
           Submit
-        </Button>
-      </Space>
+        </MyButton>
+      </Row>
       <Divider />
       <Space direction="vertical">
         <div className="vbt-map-form">
@@ -196,14 +204,18 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
             />
           </div>
         </div>
-        <Button
+      </Space>
+      <Row justify="end">
+        <MyButton
           loading={gstSubmitLoading}
           type="primary"
+          variant="save"
           onClick={submitGSTGlFunction}
+          text=""
         >
           Submit
-        </Button>
-      </Space>
+        </MyButton>
+      </Row>
     </Drawer>
   );
 }
