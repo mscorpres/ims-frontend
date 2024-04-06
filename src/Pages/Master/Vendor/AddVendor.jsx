@@ -55,7 +55,7 @@ const AddVendor = () => {
     // formData.append("uploadfile", files[0]);
     // console.log("formData", formData);
     setLoading("submit");
-    return;
+    // return;
     const response = await imsAxios.post("/vendor/addVendor", formData);
     setLoading(false);
     const { data } = response;
@@ -101,11 +101,12 @@ const AddVendor = () => {
         mobile: values.mobile,
         email: values.email == "" && "--",
         gstin: values.gstin.toUpperCase(),
-        eInvoice: "Y",
-        dateOfApplicability: effective,
+        eInvoice: values.applicability,
+        dateOfApplicability:
+          values.applicability === "Y" ? values.dobApplicabilty : "--",
       },
     };
-    // console.log("obj", obj);
+    console.log("obj", obj);
     setShowSubmitConfirmModal(obj);
   };
 
