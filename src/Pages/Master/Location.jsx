@@ -338,7 +338,7 @@ function Location() {
       width: 150,
     },
     {
-      field: "parentLocation",
+      field: "parent_loc_name",
       headerName: "Parent Location",
       width: 150,
     },
