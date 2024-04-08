@@ -374,6 +374,9 @@ function Location() {
     },
   ];
   const getLoactionDetails = async (row) => {
+    setLocDetials("");
+    setLoading(true);
+
     console.log("viewData", row);
     const response = await imsAxios.post("/location/fetch_location_details", {
       location_key: row.label,
@@ -394,7 +397,9 @@ function Location() {
       // });
       console.log("obj", obj);
       setLocDetials([obj]);
+      setLoading(false);
     }
+    setLoading(false);
   };
   useEffect(() => {
     if (viewData) {
@@ -730,7 +735,11 @@ function Location() {
               </>
             ) : (
               <div style={{ height: "95%" }}>
-                <MyDataTable columns={coloums} data={locationData} />
+                <MyDataTable
+                  columns={coloums}
+                  data={locationData}
+                  loading={loading}
+                />
               </div>
             )}
           </Card>
