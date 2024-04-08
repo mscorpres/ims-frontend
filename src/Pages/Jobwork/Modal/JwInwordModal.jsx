@@ -206,6 +206,18 @@ export default function JwInwordModal({
           }
         })
       );
+    } else if (name == "irn") {
+      setMainData((a) =>
+        a.map((aa) => {
+          if (aa.id == id) {
+            {
+              return { ...aa, irn: value };
+            }
+          } else {
+            return aa;
+          }
+        })
+      );
     }
   };
 
@@ -298,13 +310,25 @@ export default function JwInwordModal({
       ),
     },
     {
+      field: "irn",
+      headerName: "IRN ID",
+      width: 220,
+      renderCell: ({ row }) => (
+        <Input
+          //  value={row.orderqty}
+          placeholder="IRN Number"
+          onChange={(e) => inputHandler("irn", row.id, e.target.value)}
+        />
+      ),
+    },
+    {
       field: "remark",
       headerName: "Remark",
       width: 220,
       renderCell: ({ row }) => (
         <Input
           //  value={row.orderqty}
-          placeholder="remark"
+          placeholder="Remark"
           onChange={(e) => inputHandler("remark", row.id, e.target.value)}
         />
       ),
@@ -450,6 +474,7 @@ export default function JwInwordModal({
       invoice: mainData[0].invoice,
       location: mainData[0].location,
       remark: mainData[0].remark,
+      irn: mainData[0].irn,
       ewaybill: eWayBill,
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
