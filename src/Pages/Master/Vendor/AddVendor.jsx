@@ -90,6 +90,9 @@ const AddVendor = () => {
         msme_id: values.msmeId,
         msme_type: values.type,
         msme_activity: values.activity,
+        eInvoice: values.applicability,
+        dateOfApplicability:
+          values.applicability === "Y" ? values.dobApplicabilty : "--",
       },
       branch: {
         branch: values.branch,
@@ -101,12 +104,9 @@ const AddVendor = () => {
         mobile: values.mobile,
         email: values.email == "" && "--",
         gstin: values.gstin.toUpperCase(),
-        eInvoice: values.applicability,
-        dateOfApplicability:
-          values.applicability === "Y" ? values.dobApplicabilty : "--",
       },
     };
-    console.log("obj", obj);
+    // console.log("obj", obj);
     setShowSubmitConfirmModal(obj);
   };
 
