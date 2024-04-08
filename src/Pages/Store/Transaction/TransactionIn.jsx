@@ -1,29 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-
-import {
-  Button,
-  Col,
-  DatePicker,
-  Input,
-  Popover,
-  Row,
-  Select,
-  Space,
-} from "antd";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import { Input, Row, Space } from "antd";
 import MyDataTable from "../../../Components/MyDataTable";
 import { v4 } from "uuid";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import socket from "../../../Components/socket";
-import { useSelector, useDispatch } from "react-redux/es/exports";
+import { useSelector } from "react-redux/es/exports";
 import { imsAxios } from "../../../axiosInterceptor";
 import MySelect from "../../../Components/MySelect";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { DownloadOutlined } from "@ant-design/icons";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyButton from "../../../Components/MyButton";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import useApi from "../../../hooks/useApi";
+import { downloadAttachement } from "../../../api/store/material-in";
 
 const TransactionIn = () => {
   const [wise, setWise] = useState("M");
@@ -32,6 +23,7 @@ const TransactionIn = () => {
   const [loading, setLoading] = useState(false);
 
   const { user } = useSelector((state) => state.login);
+  const { executeFun, loading: loading1 } = useApi();
   const wiseOptions = [
     { text: "Date Wise", value: "M" },
     { text: "PO Wise", value: "P" },
@@ -58,7 +50,32 @@ const TransactionIn = () => {
       }
     }
   };
+
+  const handleDownloadAttachement = async (transactionId) => {
+    const response = await executeFun(
+      () => downloadAttachement(transactionId),
+      "download"
+    );
+    if (response.success) {
+      window.open(response.data.url, "_blank", "noreferrer");
+    }
+  };
   const columns = [
+    {
+      headerName: "",
+      type: "actions",
+      width: 30,
+      getActions: ({ row }) => [
+        // Upload DOC Icon
+        <GridActionsCellItem
+          showInMenu
+          onClick={() => handleDownloadAttachement(row.TRANSACTION)}
+          // disabled={disabled}
+          label="Download Attachement"
+          // disabled={row.approval_status == "C"}
+        />,
+      ],
+    },
     { headerName: "Sr. No", field: "index", width: 80 },
     {
       headerName: "Date",
@@ -168,7 +185,7 @@ const TransactionIn = () => {
       </Row>
       <div style={{ height: "95%", paddingTop: 5 }}>
         <MyDataTable
-          loading={loading === "fetch"}
+          loading={loading === "fetch" || loading1("download")}
           rows={rows}
           columns={columns}
         />
