@@ -17,6 +17,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
+import SingleDatePicker from "../../../Components/SingleDatePicker";
 
 const AddVendorSideBar = ({ setOpen, open }) => {
   const [addVendor, setAddVendor] = useState({
@@ -43,6 +44,7 @@ const AddVendorSideBar = ({ setOpen, open }) => {
   const [files, setFiles] = useState([]);
 
   const [addVendorForm] = Form.useForm();
+  const einvoice = Form.useWatch("applicability", addVendorForm);
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
 
   const inputHandler = (name, value) => {
@@ -87,6 +89,9 @@ const AddVendorSideBar = ({ setOpen, open }) => {
         msme_id: values.msmeId,
         msme_type: values.type,
         msme_activity: values.activity,
+        eInvoice: values.applicability,
+        dateOfApplicability:
+          values.applicability === "Y" ? values.dobApplicabilty : "--",
       },
       branch: {
         branch: values.branchname,
@@ -97,7 +102,7 @@ const AddVendorSideBar = ({ setOpen, open }) => {
         fax: values.fax == "" && "--",
         mobile: values.mobile,
         email: values.email == "" && "--",
-        gstin: values.gst,
+        gstin: values.gst.toUpperCase(),
       },
     };
     console.log("obj", obj);
@@ -353,6 +358,51 @@ const AddVendorSideBar = ({ setOpen, open }) => {
                 {/* </Row> */}
               </>
             )}
+            <Col span={24}>
+              <Row gutter={24}>
+                <Col span={8}>
+                  <Form.Item
+                    label="E-Invoice Applicability"
+                    name="applicability"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please provide the applicability.",
+                      },
+                    ]}
+                  >
+                    <MySelect
+                      options={msmeOptions}
+                      // value={msmeStat}
+                      // onChange={(value) => changeMSmeStatus(value)}
+                    />
+                  </Form.Item>
+                </Col>
+                {einvoice === "Y" && (
+                  <Col span={8}>
+                    {" "}
+                    <Form.Item
+                      label="Date of Applicability"
+                      name="dobApplicabilty"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please provide the applicabilty Status.",
+                        },
+                      ]}
+                    >
+                      <SingleDatePicker
+                        size="default"
+                        // setDate={setEffective}
+                        setDate={(value) =>
+                          addVendorForm.setFieldValue("dobApplicabilty", value)
+                        }
+                      />
+                    </Form.Item>
+                  </Col>
+                )}
+              </Row>
+            </Col>
           </Row>
           <Divider orientation="center">Branch Details</Divider>
           <Row gutter={16}>
