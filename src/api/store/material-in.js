@@ -58,3 +58,11 @@ export const materialInWithoutPo = async (values, fileName) => {
 
   return response;
 };
+
+export const downloadAttachement = async (transactionId) => {
+  const response = await imsAxios.post("/printDoc/download", {
+    transaction: transactionId,
+  });
+
+  return response;
+};
