@@ -52,6 +52,7 @@ export default function MaterialInWithPO({}) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [materialInward, setMaterialInward] = useState(null);
   const [selectLoading, setSelectLoading] = useState(false);
+  const [irnNum, setIrnNum] = useState("");
   const [searchData, setSearchData] = useState({
     vendor: "",
     poNumber: "",
@@ -139,6 +140,7 @@ export default function MaterialInWithPO({}) {
             remark: [...componentData.remark, row.orderremark],
             location: [...componentData.location, row.location.value],
             out_location: [...componentData.out_location, row.autoConsumption],
+            irn: irnNum,
           };
         });
         if (
@@ -246,6 +248,7 @@ export default function MaterialInWithPO({}) {
               };
             }),
           });
+          setIrnNum("");
         } else {
           toast.error(data.message.msg);
         }
@@ -1060,6 +1063,30 @@ export default function MaterialInWithPO({}) {
                           {poData?.headers?.gstin}
                         </Typography.Text>
                       )}
+                      <span display="flex">
+                        <Row>
+                          <Col span={6}>
+                            <Typography.Title
+                              style={{
+                                marginTop: "4px",
+                                fontSize:
+                                  window.innerWidth < 1600
+                                    ? "0.85rem"
+                                    : "0.95rem",
+                              }}
+                              level={5}
+                            >
+                              IRN ID
+                            </Typography.Title>
+                          </Col>
+                          <Col span={18}>
+                            <Input
+                              placeholder="Please enter IRN Number"
+                              onChange={(e) => setIrnNum(e.target.value)}
+                            />
+                          </Col>
+                        </Row>
+                      </span>
                       <Skeleton
                         paragraph={false}
                         style={{ width: "100%" }}
@@ -1163,6 +1190,7 @@ export default function MaterialInWithPO({}) {
                   </Row>
                 </Card>
               </Row>
+
               {/* tax details */}
               <Col span={24} style={{ width: "100%", height: "50%" }}>
                 <Card
