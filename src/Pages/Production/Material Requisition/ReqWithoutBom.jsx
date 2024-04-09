@@ -489,14 +489,14 @@ export default function ReqWithoutBom() {
           <Row justify="end">
             <Space>
               <Button onClick={showResetConfirm}>Reset</Button>
-              <MyButton
+              <Button
                 variant="search"
                 loading={loading === "submitting"}
                 type="primary"
                 onClick={showSubmitConfirm}
               >
                 Submit
-              </MyButton>
+              </Button>
             </Space>
           </Row>
         </Card>
