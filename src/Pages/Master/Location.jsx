@@ -231,7 +231,7 @@ function Location() {
   };
   const maplocValidateHandler = async () => {
     setMapCostCenerModal(false);
-    console.log("row -", mapCostCenterModal);
+    // console.log("row -", mapCostCenterModal);
     const values = await maploc.validateFields();
     const payload = {
       location: mapCostCenterModal.label,
@@ -408,7 +408,7 @@ function Location() {
   }, [viewData]);
 
   const mapCC = async (row) => {
-    console.log("row", row);
+    // console.log("row", row);
     Modal.confirm({
       title: `Please map the cost center to ${row.name}`,
       // icon: <ExclamationCircleFilled />,
