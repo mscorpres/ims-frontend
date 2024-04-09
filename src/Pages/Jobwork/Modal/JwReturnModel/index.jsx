@@ -64,7 +64,7 @@ const JwReturnModel = ({ show, close }) => {
       const headerValues = data.header;
       let headerArr = [];
       const headerObj = {
-        "created By": headerValues.created_by,
+        "Created By": headerValues.created_by,
         "Jobwork Id": headerValues.jobwork_id,
         Status: headerValues.jw_status,
         "Ordered Qty": headerValues.ordered_qty,

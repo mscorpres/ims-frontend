@@ -35,6 +35,7 @@ export const materialInWithoutPo = async (values, fileName) => {
     ewaybill: values.ewaybill ?? "--",
     cost_center: values.costCenter,
     project_id: values.projectID,
+    irn: values.irn,
 
     component: values.components.map((row) => row.component.value),
     qty: values.components.map((row) => row.qty),

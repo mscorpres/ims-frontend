@@ -742,13 +742,6 @@ export default function MaterialInWithoutPO() {
                         <Input size="default" disabled />
                       </Form.Item>
                     </Col>
-                    {vendorType === "j01" && (
-                      <Col span={24}>
-                        <Form.Item name="ewaybill" label="E-Way Bill Number">
-                          <Input size="default" />
-                        </Form.Item>
-                      </Col>
-                    )}
                     <Col span={12}>
                       <Form.Item label="Cost Center" name="costCenter">
                         <MyAsyncSelect
@@ -757,6 +750,27 @@ export default function MaterialInWithoutPO() {
                           optionsState={asyncOptions}
                           loadOptions={handleFetchCostCenterOptions}
                         />
+                      </Form.Item>
+                    </Col>{" "}
+                    {vendorType === "j01" && (
+                      <Col span={24}>
+                        <Form.Item name="ewaybill" label="E-Way Bill Number">
+                          <Input size="default" />
+                        </Form.Item>
+                      </Col>
+                    )}
+                    <Col span={24} style={{ marginBottom: -10 }}>
+                      <Form.Item
+                        name="irn"
+                        label="IRN ID"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please Enter IRN Number!",
+                          },
+                        ]}
+                      >
+                        <Input size="default" />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -771,7 +785,6 @@ export default function MaterialInWithoutPO() {
                         />
                       </Form.Item>
                     </Col>
-
                     <Col span={12}>
                       <Form.Item label="Project Name" name="projectName">
                         <Input size="default" disabled />

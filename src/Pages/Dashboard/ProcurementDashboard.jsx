@@ -178,6 +178,19 @@ function ProcurementDashboard() {
       setAreaChartLabel(labels);
     }
   };
+  const vendorRegistered = async () => {
+    const response = await imsAxios.get("/dashboard/vendorData");
+    console.log("responsesss->", response);
+    const { data } = response;
+    if (response.success) {
+      console.log("data", data);
+      // let b = Object.values(data);
+      // let labels = Object.keys(data);
+      // console.log("b", labels);
+      // setAreaChartData(b);
+      // setAreaChartLabel(labels);
+    }
+  };
   const getPoDetails = async () => {
     const response = await imsAxios.get("/dashboard/po_trends");
     if (response.success === true) {
@@ -252,6 +265,7 @@ function ProcurementDashboard() {
     getPartNumDashboard();
     getPoDetails();
     getPendingPO();
+    vendorRegistered();
   }, []);
 
   return (
