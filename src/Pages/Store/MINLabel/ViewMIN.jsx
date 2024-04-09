@@ -109,6 +109,7 @@ export default function ViewMIN() {
         <GridActionsCellItem
           showInMenu
           // icon={<PrinterFilled className="view-icon" />}
+          disabled={row.consumptionStatus == false}
           onClick={() => getConsumptionList(row.transaction)}
           label="Consumption List"
         />,
