@@ -16,10 +16,10 @@ function RadiusChart({ data, labels }) {
       chartInstance = new Chart(ctx, {
         type: "radar", // Set type to 'doughnut'
         data: {
-          labels: ["total_vendors", "WithOutGst", "withGST"],
+          labels: ["Total Vendors", "Without GST", "With GST"],
           datasets: [
             {
-              label: "radar",
+              label: "vendors",
               data: [1156, 1118, 38],
               backgroundColor: [
                 "rgba(255, 99, 132, 0.2)",
@@ -56,9 +56,9 @@ function RadiusChart({ data, labels }) {
   }, [data]);
 
   return (
-    <Card style={{ width: "300px", height: "250px" }}>
-      <div style={{ width: "250px", height: "350px" }}>
-        <canvas ref={chartRef} width="300px" height="350px"></canvas>
+    <Card style={{ width: "350px", height: "250px" }}>
+      <div style={{ width: "250px", height: "450px" }}>
+        <canvas ref={chartRef} width="400px" height="450px"></canvas>
       </div>
     </Card>
   );

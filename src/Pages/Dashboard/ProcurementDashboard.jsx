@@ -1,4 +1,14 @@
-import { Card, Col, Flex, List, Row, Select, Steps, Typography } from "antd";
+import {
+  Card,
+  Col,
+  Flex,
+  Input,
+  List,
+  Row,
+  Select,
+  Steps,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { imsAxios } from "../../axiosInterceptor";
 import SummarySection from "./SummarySection";
@@ -12,6 +22,7 @@ import { width } from "@mui/system";
 import { Timeline } from "@mui/icons-material";
 import AreaChart from "./AreaChart";
 import RadiusChart from "./RadiusChart";
+import MyDatePicker from "../../Components/MyDatePicker";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
@@ -24,6 +35,7 @@ function ProcurementDashboard() {
   const [importPOData, setImportPoData] = useState([]);
   const [gstGraphLables, setGstGraphLables] = useState([]);
   const [gstGraphData, setGstGraphData] = useState([]);
+  const [dateRange, setDateRange] = useState("");
   const [transactionSummary, setTransactionSummary] = useState([
     {
       title: "Rejection",
@@ -309,6 +321,28 @@ function ProcurementDashboard() {
                   </Row>
                 </div> */}
                 <div style={{ flex: 1 }}>
+                  {/* <MyDatePicker setDateRange={setDateRange} />{" "} */}
+                  <span style={{ display: "flex" }}>
+                    <Col span={8}>
+                      <Input
+                        placeholder="Filled"
+                        variant="filled"
+                        value="Financial Year  2023 - 2024 "
+                        style={{
+                          borderBottomWidth: "medium",
+                          borderRadius: "3%",
+                          marginBottom: " 2.5rem",
+                        }}
+                        disabled
+                      ></Input>
+                    </Col>
+                    {/* <Input
+                      placeholder="Filled"
+                      variant="filled"
+                      value="2023- 2024"
+                      disabled
+                    ></Input> */}
+                  </span>
                   <Card>
                     {" "}
                     <Row gutter={[10, 10]}>
