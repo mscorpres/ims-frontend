@@ -14,7 +14,7 @@ export const removeHtml = (value) => {
 };
 
 export const getInt = (value, decimal) => {
-  return +Number(value ?? "0").toFixed(decimal ?? 3);
+  return +Number(value ?? "0").toFixed(decimal ?? 4);
 };
 
 export const convertDate = (date, format = "DD-MM-YYYY") => {
