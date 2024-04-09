@@ -154,7 +154,7 @@ const POAnalysis = () => {
       />,
       <GridActionsCellItem
         showInMenu
-        // disabled={row.recipeStatus !== "PENDING"}
+        disabled={row.recipeStatus !== "PENDING"}
         label="Edit"
         onClick={() => setUpdateModalInfo({ selType: wise.value, row })}
       />,
