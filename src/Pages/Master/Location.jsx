@@ -377,11 +377,11 @@ function Location() {
     setLocDetials("");
     setLoading(true);
 
-    console.log("viewData", row);
+    // console.log("viewData", row);
     const response = await imsAxios.post("/location/fetch_location_details", {
       location_key: row.label,
     });
-    console.log("response", response);
+    // console.log("response", response);
     if (response.success) {
       let { data } = response;
       let id = 0;
@@ -395,7 +395,7 @@ function Location() {
       // arr = extractedData.map((r, id) => {
       //   return { id: id + 1, ...r };
       // });
-      console.log("obj", obj);
+      // console.log("obj", obj);
       setLocDetials([obj]);
       setLoading(false);
     }
