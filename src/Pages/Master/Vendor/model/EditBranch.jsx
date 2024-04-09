@@ -23,6 +23,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyButton from "../../../../Components/MyButton";
 import { v4 } from "uuid";
+import SingleDatePicker from "../../../../Components/SingleDatePicker";
 
 const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -40,6 +41,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [isMSMEEdited, setIsMSMEEdited] = useState([]);
   const [msmeRow, setMsmeRows] = useState([]);
   const [add, isAdd] = useState(false);
+  const einvoice = Form.useWatch("applicability", updateVendorForm);
   let msmeStat = "";
   msmeStat = Form.useWatch("vendor_msme_status", updateVendorForm);
   const getDetails = async () => {
@@ -106,6 +108,9 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         msme_id: values.vendor_msme_id,
         msme_type: rows.map((r) => r.vendor_msme_type),
         msme_activity: rows.map((r) => r.vendor_msme_activity),
+        eInvoice: values.applicability,
+        dateOfApplicability:
+          values.applicability === "Y" ? values.dobApplicabilty : "--",
       };
     } else {
       obj = {
@@ -118,10 +123,12 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         term_days: values.vendor_term_days,
         msme_status: "N",
         msme_id: "--",
+        eInvoice: values.applicability,
+        dateOfApplicability:
+          values.applicability === "Y" ? values.dobApplicabilty : "--",
       };
     }
     console.log("obj", obj);
-    // return;
     const formData = new FormData();
     formData.append("uploadfile", files[0] ?? []);
     formData.append("vendor", JSON.stringify(obj));
@@ -342,7 +349,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                   </Col>
                 </Row>
               </Col>
-
               <Col span={24}>
                 <Form.Item label="Vendor TDS" name="vendor_tds">
                   <MySelect
@@ -365,6 +371,39 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                   />
                 </Form.Item>
               </Col>
+              <Col span={8}>
+                <Form.Item
+                  style={{ padding: "3px" }}
+                  label="E-Invoice Applicability"
+                  name="applicability"
+                  // rules={rules.applicability}
+                >
+                  <MySelect
+                    options={msmeOptions}
+                    // value={msmeStat}
+                    // onChange={(value) => changeMSmeStatus(value)}
+                  />
+                </Form.Item>
+              </Col>{" "}
+              {einvoice === "Y" && (
+                <Col span={8}>
+                  {" "}
+                  <Form.Item
+                    style={{ padding: "3px" }}
+                    label="Date of Applicability"
+                    name="dobApplicabilty"
+                    // rules={rules.dobApplicabilty}
+                  >
+                    <SingleDatePicker
+                      size="default"
+                      // setDate={setEffective}
+                      setDate={(value) =>
+                        updateVendorForm.setFieldValue("dobApplicabilty", value)
+                      }
+                    />
+                  </Form.Item>
+                </Col>
+              )}
               <Col span={24}>
                 <Row gutter={[10, 10]}>
                   <Col span={8}>
@@ -384,7 +423,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                   <Row></Row>
                 </Row>
               </Col>
-
               <Col span={24} style={{ height: "10rem" }}>
                 <Flex vertical gap={10} align="center">
                   <MyButton
