@@ -93,11 +93,14 @@ function CreateShipment({
     let response;
     if (updateShipmentRow) {
       response = await executeFun(
-        () => updateShipment(values, open, updateShipmentRow),
+        () => updateShipment(values, open, updateShipmentRow,details),
         "submit"
       );
     } else {
-      response = await executeFun(() => createShipment(values, open), "submit");
+      response = await executeFun(
+        () => createShipment(values, open, details),
+        "submit"
+      );
     }
     // return;    console.log("this is the handle submit respnse", response);
     if (response.success) {
@@ -243,11 +246,11 @@ function CreateShipment({
           address: billing_info.billaddress,
         },
         shipping_info: {
-          pan: response.data.header.client.pan,
+          pan: shipping_info?.ship_pan,
           gst: shipping_info.gst,
           cin: "--",
           address: shipping_address,
-          shippingID: shipping_info.ship_id,
+          shippingID: shipping_info?.ship_id,
         },
         shipping_address: shipping_address,
       };
@@ -356,12 +359,12 @@ function CreateShipment({
   //     handleFetchClientBranchDetails("client", clientbranch.value);
   //   }
   // }, [clientbranch]);
-  useEffect(() => {
-    if (shippingId) {
-      console.log("shippingId", shippingId);
-      handleFetchClientBranchDetails("client", shippingId);
-    }
-  }, [shippingId]);
+  // useEffect(() => {
+  //   if (shippingId) {
+  //     console.log("shippingId", shippingId);
+  //     handleFetchClientBranchDetails("client", shippingId);
+  //   }
+  // }, [shippingId]);
   return (
     <Drawer
       onClose={hide}

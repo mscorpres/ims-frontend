@@ -34,13 +34,13 @@ const ShipmentInfo = ({
         <Form.Item name="otherRef" label="Other References">
           <Input />
         </Form.Item>
-        <Form.Item name="billingId" label="Billing Id">
+        <Form.Item name="billingId" label="Billing Name">
           <MySelect options={billingOptions} />
         </Form.Item>
         <Form.Item name="billingAddress" label="Billing Address">
           <Input.TextArea rows={3} />
         </Form.Item>
-        <Form.Item name="shippingId" label="Shipping Id">
+        <Form.Item name="shippingId" label="Shipping Name">
           <MySelect options={shippingOptions} />
         </Form.Item>
         <Form.Item name="shippingAddress" label="Shipping Address">

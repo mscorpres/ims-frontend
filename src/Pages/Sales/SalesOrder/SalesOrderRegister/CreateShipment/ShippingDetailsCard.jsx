@@ -1,10 +1,9 @@
 import React from "react";
 import { Card, Typography, Row, Col } from "antd";
 
-
 const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
   return (
-    <Card size="small" title="Shipping Details (as per the sales order)">
+    <Card size="small" title="Shipping Details(as per the sales order)">
       {updateShipmentRow ? (
         <>
           <Row gutter={[0, 6]}>
@@ -30,13 +29,11 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
                   <Typography.Text>
                     {details.shipping_info?.pan}
                   </Typography.Text>
-
                 </Col>
               </Row>
             </Col>
 
             <Col span={24}>
-
               <Row>
                 <Col span={24}>
                   <Typography.Text strong>Shipping GST Number</Typography.Text>
@@ -65,7 +62,6 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
         </>
       ) : (
         <>
-          
           <Row gutter={[0, 6]}>
             <Col span={24}>
               <Row>

@@ -36,6 +36,7 @@ import {
   getProjectDetails,
   getProjectOptions,
   getUsersOptions,
+  getVendorBranchOptions,
 } from "../../../api/general";
 import {
   createOrder,
@@ -43,9 +44,11 @@ import {
   updateOrder,
 } from "../../../api/sales/salesOrder";
 import { toast } from "react-toastify";
+import ClientBranchAdd from "../../../FinancePages/Clients/modal/ClientBranchAdd";
 
 const SalesOrderForm = () => {
   const [successData, setSuccessData] = useState(false);
+  const [showBranchModal, setShowBranchModal] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
   const [selectLoading, setSelectLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -54,6 +57,7 @@ const SalesOrderForm = () => {
   const [billToOptions, setBillTopOptions] = useState([]);
   const [projectDesc, setProjectDesc] = useState([]);
   const [totalValues, setTotalValues] = useState([]);
+  const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [rowCount, setRowCount] = useState([
     {
@@ -332,6 +336,9 @@ const SalesOrderForm = () => {
         shipping_id: values.shipaddressid,
         terms_condition: values.termscondition,
         quotation_detail: values.quotationdetail,
+        customer_gstin: values.gstin,
+        shipping_pan: values.shipPan,
+        shipping_gstin: values.shipGST,
       },
       materials: {
         items: rowCount.map((component) => component.component.value),
@@ -428,11 +435,11 @@ const SalesOrderForm = () => {
     }
   }, [billaddressid]);
 
-  useEffect(() => {
-    if (shipaddressid) {
-      handleFetchClientBranchDetails("shipaddressid", shipaddressid);
-    }
-  }, [shipaddressid]);
+  // useEffect(() => {
+  //   if (shipaddressid) {
+  //     handleFetchClientBranchDetails("shipaddressid", shipaddressid);
+  //   }
+  // }, [shipaddressid]);
 
   return (
     <div
@@ -591,7 +598,35 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="clientbranch"
                             rules={rules.clientbranch}
-                            label=" Client Branch"
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Client Branch
+                                <span
+                                  onClick={() => {
+                                    client
+                                      ? setShowBranchModal({
+                                          name: client?.label,
+                                          code: client?.key,
+                                        })
+                                      : toast.error(
+                                          "Please Select a Client first"
+                                        );
+                                  }}
+                                  style={{ color: "#1890FF" }}
+                                >
+                                  Add Branch
+                                </span>
+                              </div>
+                            }
                           >
                             <MySelect
                               options={clientBranchOptions}
@@ -602,7 +637,7 @@ const SalesOrderForm = () => {
                         {/* gstin */}
                         <Col span={6}>
                           <Form.Item name="gstin" label="GSTIN">
-                            <Input size="default" disabled />
+                            <Input size="default" />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -678,6 +713,12 @@ const SalesOrderForm = () => {
                         {/* po due date*/}
                         <Col span={6}>
                           <Form.Item
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select Due Date ",
+                              },
+                            ]}
                             label="Due Date (in days)"
                             name="paymenttermsday"
                           >
@@ -808,7 +849,7 @@ const SalesOrderForm = () => {
                         <Col span={6}>
                           <Form.Item
                             name="billaddressid"
-                            label="Billing Id"
+                            label="Billing Name"
                             rules={rules.billaddressid}
                           >
                             <MySelect options={billToOptions} />
@@ -879,13 +920,14 @@ const SalesOrderForm = () => {
                         <Col span={6}>
                           <Form.Item
                             name="shipaddressid"
-                            label="Shipping Id"
+                            label="Shipping Name"
                             rules={rules.shipaddressid}
                           >
-                            <MySelect
+                            {/* <MySelect
                               // options={shipToOptions}
                               options={clientBranchOptions}
-                            />
+                            /> */}
+                            <Input />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
@@ -973,6 +1015,10 @@ const SalesOrderForm = () => {
           </Form>
         </div>
       )}
+      <ClientBranchAdd
+        setBranchAddOpen={setShowBranchModal}
+        branchAddOpen={showBranchModal}
+      />
       {successData && (
         <SuccessPage
           resetFunction={resetFunction}
