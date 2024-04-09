@@ -297,6 +297,17 @@ function ProcurementDashboard() {
               // justify="end"
             >
               <Flex justify="end">
+                {/* <div style={{ flex: 1 }}>
+                  {" "}
+                  <Row>
+                    <Col span={8}>
+                      <RadiusChart
+                        data={gstGraphData}
+                        labels={gstGraphLables}
+                      />
+                    </Col>
+                  </Row>
+                </div> */}
                 <div style={{ flex: 1 }}>
                   <Card>
                     {" "}
@@ -326,10 +337,10 @@ function ProcurementDashboard() {
                       </Col>
                     </Row>
                   </Card>
-                </div>
-                <div style={{ flex: 1 }}>
+                </div>{" "}
+                <div style={{ flex: 0.5 }}>
                   {" "}
-                  <Row justify="end">
+                  <Row>
                     <Col span={8}>
                       <RadiusChart
                         data={gstGraphData}
