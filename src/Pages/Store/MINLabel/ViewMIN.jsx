@@ -94,13 +94,23 @@ export default function ViewMIN() {
       width: 90,
       getActions: ({ row }) => [
         <GridActionsCellItem
-          icon={<CloudDownloadOutlined className="view-icon" />}
-          onClick={() => downloadMin(row.transaction)}
+          showInMenu
+          // icon={<CloudDownloadOutlined className="view-icon" />}
+          onClick={() => downloadMin(row.print_id)}
           disabled={row.invoiceStatus == false}
+          label="Download Attachement"
         />,
         <GridActionsCellItem
-          icon={<PrinterFilled className="view-icon" />}
+          showInMenu
+          // icon={<PrinterFilled className="view-icon" />}
           onClick={() => printFun(row.print_id)}
+          label="Print Attachement"
+        />,
+        <GridActionsCellItem
+          showInMenu
+          // icon={<PrinterFilled className="view-icon" />}
+          onClick={() => getConsumptionList(row.transaction)}
+          label="Consumption List"
         />,
       ],
     },
@@ -319,6 +329,20 @@ export default function ViewMIN() {
     },
   ];
   const downloadMin = async (minId) => {
+    // downlaod for single min
+    const filename = minId;
+    setLoading(true);
+    const { data } = await imsAxios.post("minPrint/printSingleMin", {
+      transaction: minId,
+    });
+    if (data.code == 200) {
+      downloadFunction(data.data.buffer.data, filename);
+      setLoading(false);
+    } else {
+      toast.error(data.message.msg);
+    }
+  };
+  const getConsumptionList = async () => {
     const response = await imsAxios.post("/jobwork/getjwsfinwardConsumption", {
       minTxn: minId,
     });
@@ -337,18 +361,6 @@ export default function ViewMIN() {
     }
     // }
     return;
-    // downlaod for single min
-    const filename = minId;
-    setLoading(true);
-    const { data } = await imsAxios.post("minPrint/printSingleMin", {
-      transaction: minId,
-    });
-    if (data.code == 200) {
-      downloadFunction(data.data.buffer.data, filename);
-      setLoading(false);
-    } else {
-      toast.error(data.message.msg);
-    }
   };
   useEffect(() => {
     console.log(printLabelInfo);
