@@ -94,12 +94,13 @@ export default function ViewMIN() {
       width: 90,
       getActions: ({ row }) => [
         <GridActionsCellItem
-          icon={<PrinterFilled className="view-icon" />}
-          onClick={() => printFun(row.print_id)}
+          icon={<CloudDownloadOutlined className="view-icon" />}
+          onClick={() => downloadMin(row.transaction)}
+          disabled={row.invoiceStatus == false}
         />,
         <GridActionsCellItem
-          icon={<CloudDownloadOutlined className="view-icon" />}
-          onClick={() => downloadMin(row.print_id)}
+          icon={<PrinterFilled className="view-icon" />}
+          onClick={() => printFun(row.print_id)}
         />,
       ],
     },
@@ -280,7 +281,63 @@ export default function ViewMIN() {
       toast.error(data.message.msg);
     }
   };
+  const col = [
+    {
+      headerName: "MIN Date / Time",
+      field: "date",
+      width: 150,
+    },
+    {
+      headerName: "MIN by",
+      field: "by",
+      width: 150,
+    },
+    {
+      headerName: "Part Name",
+      field: "partName",
+      width: 150,
+    },
+    {
+      headerName: "Part Code",
+      field: "partCode",
+      width: 150,
+    },
+    {
+      headerName: "Cat PartCode",
+      field: "catPartCodeate",
+      width: 150,
+    },
+    {
+      headerName: "Qty",
+      field: "qty",
+      width: 150,
+    },
+    {
+      headerName: "UoM",
+      field: "uom",
+      width: 150,
+    },
+  ];
   const downloadMin = async (minId) => {
+    const response = await imsAxios.post("/jobwork/getjwsfinwardConsumption", {
+      minTxn: minId,
+    });
+    // console.log("repose", response);
+    if (response.success) {
+      const { data } = response;
+      let arr = data.map((r, id) => {
+        return {
+          ...r,
+          id: id + 1,
+        };
+      });
+      downloadCSV(arr, col, "MIN Consumption List");
+    } else {
+      toast.error(response.message);
+    }
+    // }
+    return;
+    // downlaod for single min
     const filename = minId;
     setLoading(true);
     const { data } = await imsAxios.post("minPrint/printSingleMin", {

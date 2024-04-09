@@ -72,7 +72,7 @@ const TransactionIn = () => {
         <GridActionsCellItem
           showInMenu
           onClick={() => handleDownloadAttachement(row.TRANSACTION)}
-          // disabled={disabled}
+          disabled={row.invoiceStatus == false}
           label="Download Attachement"
           // disabled={row.approval_status == "C"}
         />,
