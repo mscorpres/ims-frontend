@@ -11,6 +11,7 @@ import CircleNumber from "./CircleNumber";
 import { width } from "@mui/system";
 import { Timeline } from "@mui/icons-material";
 import AreaChart from "./AreaChart";
+import RadiusChart from "./RadiusChart";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
@@ -21,6 +22,8 @@ function ProcurementDashboard() {
   const [domesticPOData, setDomesticPoData] = useState([]);
   const [totalPOData, setTotalPoData] = useState([]);
   const [importPOData, setImportPoData] = useState([]);
+  const [gstGraphLables, setGstGraphLables] = useState([]);
+  const [gstGraphData, setGstGraphData] = useState([]);
   const [transactionSummary, setTransactionSummary] = useState([
     {
       title: "Rejection",
@@ -184,8 +187,10 @@ function ProcurementDashboard() {
     const { data } = response;
     if (response.success) {
       console.log("data", data);
-      // let b = Object.values(data);
-      // let labels = Object.keys(data);
+      let b = Object.values(data);
+      let labels = Object.keys(data);
+      setGstGraphData(b);
+      setGstGraphLables(labels);
       // console.log("b", labels);
       // setAreaChartData(b);
       // setAreaChartLabel(labels);
@@ -292,8 +297,17 @@ function ProcurementDashboard() {
               // justify="end"
             >
               <Flex justify="end">
-                <div style={{ flex: 1 }}>{/* left side content */}</div>
-
+                {/* <div style={{ flex: 1 }}>
+                  {" "}
+                  <Row>
+                    <Col span={8}>
+                      <RadiusChart
+                        data={gstGraphData}
+                        labels={gstGraphLables}
+                      />
+                    </Col>
+                  </Row>
+                </div> */}
                 <div style={{ flex: 1 }}>
                   <Card>
                     {" "}
@@ -323,6 +337,17 @@ function ProcurementDashboard() {
                       </Col>
                     </Row>
                   </Card>
+                </div>{" "}
+                <div style={{ flex: 0.5 }}>
+                  {" "}
+                  <Row>
+                    <Col span={8}>
+                      <RadiusChart
+                        data={gstGraphData}
+                        labels={gstGraphLables}
+                      />
+                    </Col>
+                  </Row>
                 </div>
               </Flex>
               <Flex style={{ flex: 1 }}>
