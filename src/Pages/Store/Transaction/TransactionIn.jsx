@@ -15,6 +15,7 @@ import MyButton from "../../../Components/MyButton";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../hooks/useApi";
 import { downloadAttachement } from "../../../api/store/material-in";
+import { downloadFromLink } from "../../../Components/printFunction";
 
 const TransactionIn = () => {
   const [wise, setWise] = useState("M");
@@ -57,7 +58,8 @@ const TransactionIn = () => {
       "download"
     );
     if (response.success) {
-      window.open(response.data.url, "_blank", "noreferrer");
+      downloadFromLink(response.data.url);
+      // window.open(response.data.url, "_blank", "noreferrer");
     }
   };
   const columns = [
