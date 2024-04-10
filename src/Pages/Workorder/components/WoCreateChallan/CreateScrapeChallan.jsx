@@ -291,18 +291,18 @@ const CreateScrapeChallan = () => {
     setLoading(true);
     const values = await challanForm.validateFields();
     const remarkvalue = await ModalForm.validateFields();
-    console.log("value", values);
-    console.log("remarkvalue", remarkvalue);
+    // console.log("value", values);
+    // console.log("remarkvalue", remarkvalue);
 
     let payload = {
       header: {
         billingaddr: values.billingaddress,
-        billingid: values.billingid,
+        billingid: values.billingid.value,
         client_id: values.clientname.value,
         client_addr_id: values.clientbranch,
         clientaddr: values.address,
         dispatchaddr: values.shippingaddress,
-        dispatchid: values.dispatchid,
+        dispatchid: values.dispatchid.value,
 
         eway_no: values.nature,
         ship_doc: values.pd,
@@ -320,8 +320,8 @@ const CreateScrapeChallan = () => {
         comp_remark: values.components.map((r) => r.remarks),
       },
     };
-    console.log("payload", payload);
-    console.log("addressid", values);
+    // console.log("payload", payload);
+    // console.log("addressid", values);
     let response;
     let editPayload = {
       challan_id: challanId,
@@ -378,6 +378,8 @@ const CreateScrapeChallan = () => {
     if (response.success) {
       setLoading(true);
       challanForm.resetFields();
+    } else {
+      toast.error(response.data.error);
     }
     setLoading(true);
   };
