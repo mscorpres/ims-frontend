@@ -1064,8 +1064,8 @@ export default function MaterialInWithPO({}) {
                         </Typography.Text>
                       )}
                       <span display="flex">
-                        <Row>
-                          <Col span={6}>
+                        <Row gutter={[0, 0]}>
+                          <Col span={10}>
                             <Typography.Title
                               style={{
                                 marginTop: "4px",
@@ -1076,12 +1076,12 @@ export default function MaterialInWithPO({}) {
                               }}
                               level={5}
                             >
-                              IRN ID
+                              Acknowledgment Number
                             </Typography.Title>
                           </Col>
-                          <Col span={18}>
+                          <Col span={14}>
                             <Input
-                              placeholder="Please enter IRN Number"
+                              placeholder="Please enter Acknowledgment Number"
                               onChange={(e) => setIrnNum(e.target.value)}
                             />
                           </Col>

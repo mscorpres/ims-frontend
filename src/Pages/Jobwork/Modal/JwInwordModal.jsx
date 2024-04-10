@@ -295,12 +295,12 @@ export default function JwInwordModal({
     },
     {
       field: "irn",
-      headerName: "IRN ID",
+      headerName: "Acknowledgment Number",
       width: 220,
       renderCell: ({ row }) => (
         <Input
           //  value={row.orderqty}
-          placeholder="IRN Number"
+          placeholder="Acknowledgment Number"
           onChange={(e) => inputHandler("irn", row.id, e.target.value)}
         />
       ),
