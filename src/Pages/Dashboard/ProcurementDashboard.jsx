@@ -35,6 +35,7 @@ function ProcurementDashboard() {
   const [importPOData, setImportPoData] = useState([]);
   const [gstGraphLables, setGstGraphLables] = useState([]);
   const [gstGraphData, setGstGraphData] = useState([]);
+  const [totVendors, setTotVendors] = useState("");
   const [dateRange, setDateRange] = useState("");
   const [transactionSummary, setTransactionSummary] = useState([
     {
@@ -161,12 +162,10 @@ function ProcurementDashboard() {
   var chartData;
   const getPartNumDashboard = async () => {
     const response = await imsAxios.get("/dashboard/commonData");
-    console.log("responsesss->", response);
     if (response.success) {
       let arr = response?.data?.topPart;
       setMasterData(response?.data);
-      // setAreaChartData(response?.data);
-      console.log("arr", arr);
+      // setAreaChartData(response?.data);d
       chartData = {
         labels: arr.map((r) => r?.partCode),
         values: arr.map((r) => r?.total_count),
@@ -183,7 +182,6 @@ function ProcurementDashboard() {
   };
   const getPendingPO = async () => {
     const response = await imsAxios.get("/dashboard/po_pending_counts");
-    console.log("responsesss->", response);
     const { data } = response;
     if (response.success) {
       let b = Object.values(data);
@@ -195,14 +193,17 @@ function ProcurementDashboard() {
   };
   const vendorRegistered = async () => {
     const response = await imsAxios.get("/dashboard/vendorData");
-    console.log("responsesss->", response);
     const { data } = response;
     if (response.success) {
-      console.log("data", data);
       let b = Object.values(data);
       let labels = Object.keys(data);
       setGstGraphData(b);
       setGstGraphLables(labels);
+      console.log(
+        "(response?.data?.totalVendors)",
+        response?.data?.totalVendors
+      );
+      setTotVendors(response?.data?.totalVendors);
       // console.log("b", labels);
       // setAreaChartData(b);
       // setAreaChartLabel(labels);
@@ -351,7 +352,7 @@ function ProcurementDashboard() {
                           {" "}
                           <Col span={8}>
                             <CircleNumber
-                              value={840}
+                              value={totVendors}
                               heading={"Total Vendors"}
                             />
                           </Col>
@@ -377,7 +378,7 @@ function ProcurementDashboard() {
                   <Row>
                     <Col span={8}>
                       <RadiusChart
-                        data={gstGraphData}
+                        datas={gstGraphData}
                         labels={gstGraphLables}
                       />
                     </Col>

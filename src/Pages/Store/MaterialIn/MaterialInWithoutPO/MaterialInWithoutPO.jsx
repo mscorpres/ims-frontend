@@ -760,7 +760,7 @@ export default function MaterialInWithoutPO() {
                       </Col>
                     )}
                     <Col span={24} style={{ marginBottom: -10 }}>
-                      <Form.Item name="irn" label="IRN ID">
+                      <Form.Item name="irn" label="Acknowledgment Number">
                         <Input size="default" />
                       </Form.Item>
                     </Col>

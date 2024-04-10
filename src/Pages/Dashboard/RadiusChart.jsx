@@ -2,10 +2,9 @@ import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
 import { Card } from "antd";
 
-function RadiusChart({ data, labels }) {
+function RadiusChart({ datas, labels }) {
   const chartRef = useRef(null);
   let chartInstance = null;
-  console.log("data, labels", data, labels);
 
   useEffect(() => {
     if (chartRef && chartRef.current) {
@@ -16,11 +15,11 @@ function RadiusChart({ data, labels }) {
       chartInstance = new Chart(ctx, {
         type: "radar", // Set type to 'doughnut'
         data: {
-          labels: ["Total Vendors", "Without GST", "With GST"],
+          labels: labels,
           datasets: [
             {
               label: "vendors",
-              data: [1156, 1118, 38],
+              data: datas,
               backgroundColor: [
                 "rgba(255, 99, 132, 0.2)",
                 "rgba(54, 162, 235, 0.2)",
@@ -53,7 +52,7 @@ function RadiusChart({ data, labels }) {
         chartInstance.destroy();
       }
     };
-  }, [data]);
+  }, [datas]);
 
   return (
     <Card style={{ width: "350px", height: "250px" }}>
