@@ -5,6 +5,7 @@ import {
   useNavigate,
   useLocation,
   Link,
+  useSearchParams,
 } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
 import Rout from "./Routes/Routes";
@@ -49,12 +50,15 @@ import internalLinks from "./Pages/internalLinks";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
+import useApi from "./hooks/useApi.js";
+import { getDetails, verifyToken } from "./api/auth.js";
+import useUser from "./hooks/useUser.js";
 
 const App = () => {
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
-
+  const { setUser } = useUser();
   const filteredRoutes = Rout.filter((route) => {
     // Include the route if it doesn't have a "dept" property or if showlegal is true
     return !route.dept || user?.showlegal;
@@ -80,6 +84,8 @@ const App = () => {
   const [hisList, setHisList] = useState([]);
   const [showHisList, setShowHisList] = useState([]);
   const notificationsRef = useRef();
+  const [queryParams] = useSearchParams();
+  const { executeFun, loading: loading1 } = useApi();
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -171,6 +177,26 @@ const App = () => {
     setSearchHis(modOpt);
     setModulesOptions(modOpt);
   };
+
+  const handleVerifyToken = async (token) => {
+    const response = await executeFun(
+      () => verifyToken(token),
+      "authenticating"
+    );
+    console.log("this is the valid response", response);
+    if (response.success) {
+      setUser({ token: token });
+      imsAxios.defaults.headers["x-csrf-token"] = token;
+      const detailsResponse = await executeFun(
+        () => getDetails(),
+        "authenticating"
+      );
+      if (detailsResponse.success) {
+        setUser({ ...detailsResponse.data, token });
+      }
+      console.log("getDetails response", detailsResponse);
+    }
+  };
   useEffect(() => {
     if (modulesOptions?.length === 0) {
       setModulesOptions(showHisList);
@@ -179,7 +205,8 @@ const App = () => {
   // notifications recieve handlers
   useEffect(() => {
     const otherData = JSON.parse(localStorage.getItem("otherData"));
-
+    const paramsToken = queryParams.get("authToken")?.replaceAll(" ", "+");
+    console.log("this is the query params", queryParams.get("authToken"));
     if (Notification.permission == "default") {
       Notification.requestPermission();
     }
@@ -188,7 +215,10 @@ const App = () => {
         setShowSideBar(false);
       }
     });
-    if (!user) {
+    if (paramsToken) {
+      handleVerifyToken(paramsToken);
+    }
+    if (!user && !paramsToken) {
       navigate("/login");
     }
     if (user) {
@@ -616,6 +646,22 @@ const App = () => {
     { label: "Session 23-24", value: "23-24" },
     { label: "Session 24-25", value: "24-25" },
   ];
+  if (loading1("authenticating")) {
+    return (
+      <div
+        style={{
+          height: "90vh",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        Authenticating....
+      </div>
+    );
+  }
+
   return (
     <div id="development_status">
       <div>

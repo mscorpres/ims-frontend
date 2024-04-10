@@ -27,22 +27,10 @@ import useApi from "../../../hooks/useApi";
 import NavFooter from "../../../Components/NavFooter";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { AiOutlineMinusSquare } from "react-icons/ai";
-import {
-  uploadMinInvoice,
-  validateInvoice,
-  validateInvoiceforSFG,
-} from "../../../api/store/material-in";
-import { Save } from "@mui/icons-material";
+import { uploadMinInvoice } from "../../../api/store/material-in";
 import SuccessPage from "../../Store/MaterialIn/SuccessPage";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-export default function JwInwordModal({
-  editModal,
-  setEditModal,
-  fetchDatewise,
-  fetchJWwise,
-  fetchSKUwise,
-  fetchVendorwise,
-}) {
+export default function JwInwordModal({ editModal, setEditModal }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locValue, setLocValue] = useState([]);
   const [header, setHeaderData] = useState([]);
@@ -59,7 +47,7 @@ export default function JwInwordModal({
 
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [modalForm] = Form.useForm();
-  // console.log(mainData);
+
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
     setModalLoad("fetch", true);
@@ -71,6 +59,7 @@ export default function JwInwordModal({
       }
     );
     if (data.code == 200) {
+      getLocation(data.header.cost_center);
       let arr = data.data.map((row, index) => {
         return {
           ...row,
@@ -100,8 +89,10 @@ export default function JwInwordModal({
       setAsyncOptions(arr);
     }
   };
-  const getLocation = async (e) => {
-    const { data } = await imsAxios.get("/backend/jw_sf_inward_location");
+  const getLocation = async (costCenter) => {
+    const { data } = await imsAxios.post("/backend/jw_sf_inward_location", {
+      cost_center: costCenter,
+    });
     let arr = [];
     arr = data.data.map((d) => {
       return { label: d.text, value: d.id };
@@ -225,6 +216,7 @@ export default function JwInwordModal({
     arr = arr.filter((row) => row.id != id);
     setBomList(arr);
   };
+
   const columns = [
     {
       field: "componentname",
@@ -431,7 +423,7 @@ export default function JwInwordModal({
   ];
   const prev = async () => {
     getFetchData();
-    getLocation();
+    // getLocation();
     setEWayBill("");
     setShowBomList(false);
     setBomList([]);
@@ -636,7 +628,7 @@ export default function JwInwordModal({
   useEffect(() => {
     if (editModal) {
       getFetchData();
-      getLocation();
+      // getLocation();
       setEWayBill("");
       setShowBomList(false);
       setBomList([]);
