@@ -90,7 +90,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     }
   };
   const getLocation = async (costCenter) => {
-    const { data } = await imsAxios.post("/backend/jw_sf_inward_location", {
+    const { data } = await imsAxios.get("/backend/jw_sf_inward_location", {
       cost_center: costCenter,
     });
     let arr = [];
@@ -386,14 +386,14 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       width: 120,
       renderCell: ({ row }) => <Input value={row.rqdQty} />,
     },
-    {
-      field: "pendingWithjobwork",
-      headerName: "Pending with Jw",
-      width: 120,
-      renderCell: ({ row }) => (
-        <Typography.Text>{row.pendingWithjobwork}</Typography.Text>
-      ),
-    },
+    // {
+    //   field: "pendingWithjobwork",
+    //   headerName: "Pending with Jw",
+    //   width: 120,
+    //   renderCell: ({ row }) => (
+    //     <Typography.Text>{row.pendingWithjobwork}</Typography.Text>
+    //   ),
+    // },
     {
       field: "uom",
       headerName: "Uom",
@@ -534,7 +534,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           id: id + 1,
           bomQty: r.bom_qty,
           partName: r.part_name,
-          catPartName: r.cat_part_no,
+          catPartName: r.catPartName,
           partNo: r.part_no,
           pendingStock: r.pendingStock,
           rqdQty: r.rqd_qty,
