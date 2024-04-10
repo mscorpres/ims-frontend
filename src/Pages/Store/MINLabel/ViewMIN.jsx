@@ -343,7 +343,7 @@ export default function ViewMIN() {
       toast.error(data.message.msg);
     }
   };
-  const getConsumptionList = async () => {
+  const getConsumptionList = async (minId) => {
     const response = await imsAxios.post("/jobwork/getjwsfinwardConsumption", {
       minTxn: minId,
     });
