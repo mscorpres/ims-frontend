@@ -209,6 +209,20 @@ function ProcurementDashboard() {
       // setAreaChartLabel(labels);
     }
   };
+  let labels = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const getPoDetails = async () => {
     const response = await imsAxios.get("/dashboard/po_trends");
     if (response.success === true) {
@@ -236,45 +250,32 @@ function ProcurementDashboard() {
   //   labels: ["P0002", "P0011", "P0019", "P0014", "P0018", "P0010"],
   //   values: [12, 19, 3, 5, 2, 3], // Example data values
   // };
-  const lineData = {
-    labels: [
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-      "January",
-      "February",
-      "March",
-    ],
-    datasets: [
-      {
-        label: "Total",
-        data: totalPOData,
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderWidth: 2,
-      },
-      {
-        label: "Domestic",
-        data: domesticPOData,
-        borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-        borderWidth: 2,
-      },
-      {
-        label: "Import",
-        data: importPOData,
-        borderColor: "rgba(255, 205, 86, 1)",
-        backgroundColor: "rgba(255, 205, 86, 0.2)",
-        borderWidth: 2,
-      },
-    ],
-  };
+  // const lineData = {
+
+  //   datasets: [
+  //     {
+  //       label: "Total",
+  //       data: totalPOData,
+  //       borderColor: "rgba(75, 192, 192, 1)",
+  //       backgroundColor: "rgba(75, 192, 192, 0.2)",
+  //       borderWidth: 2,
+  //     },
+  //     {
+  //       label: "Domestic",
+  //       data: domesticPOData,
+  //       borderColor: "rgba(255, 99, 132, 1)",
+  //       backgroundColor: "rgba(255, 99, 132, 0.2)",
+  //       borderWidth: 2,
+  //     },
+  //     {
+  //       label: "Import",
+  //       data: importPOData,
+  //       borderColor: "rgba(255, 205, 86, 1)",
+  //       backgroundColor: "rgba(255, 205, 86, 0.2)",
+  //       borderWidth: 2,
+  //     },
+  //   ],
+  // };
   const pieData = {
     labels: ["Purple", "Blue", "Yellow", "Green", "Purple"],
     values: [804, 16, 0, 0, 0],
@@ -443,7 +444,12 @@ function ProcurementDashboard() {
                   }
                 }
               >
-                <LineChart data={lineData} />
+                <LineChart
+                  labels={labels}
+                  importPOData={importPOData}
+                  domesticPOData={domesticPOData}
+                  totalPOData={totalPOData}
+                />
               </Col>
               <Col span={7} style={{ height: "10vh" }}>
                 {/* <div style={{ height: "20rem", width: " 27rem" }}> */}
