@@ -123,10 +123,8 @@ const CreateScrapeChallan = () => {
     }
   };
   const handlebilladress = (e) => {
-    console.log("clientData", clientData);
     clientData.branchList.map((item) => {
-      if (item.id === e) {
-        console.log("item", item);
+      if (item.id === e.value || item.id === e) {
         // challanForm.setFieldValue("billPan", clientData.client.pan_no);
         // challanForm.setFieldValue("billGST", item.gst);
         challanForm.setFieldValue("billingaddress", item.address);
@@ -154,11 +152,10 @@ const CreateScrapeChallan = () => {
     }
   };
   const handleaddress = (e) => {
-    console.log(e);
     // setaddid(true);
     console.log("addOptions ->", addOptions);
     addOptions.map((item) => {
-      if (item.value === e) {
+      if (item.value === e.value || item.value === e) {
         challanForm.setFieldValue("shippingaddress", item.address);
       }
     });
