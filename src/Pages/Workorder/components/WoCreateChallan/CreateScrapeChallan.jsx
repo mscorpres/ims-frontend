@@ -749,7 +749,7 @@ const columns = ({
         onChange={(value) => {
           handleFetchComponentDetails(row, index, value);
 
-          handleFetchPreviousRate(value, index);
+          // handleFetchPreviousRate(value, index);
         }}
       />
     ),
