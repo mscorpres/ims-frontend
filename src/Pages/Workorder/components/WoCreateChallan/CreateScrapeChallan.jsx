@@ -350,7 +350,7 @@ const CreateScrapeChallan = () => {
     };
     console.log("editPayload", editPayload);
     // navigate("/woviewchallan");
-    return;
+    // return;
     if (editScrapeChallan === "edit") {
       // console.log("her");
       response = await imsAxios.post(
