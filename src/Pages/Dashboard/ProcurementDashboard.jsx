@@ -377,7 +377,7 @@ function ProcurementDashboard() {
                   <Row>
                     <Col span={8}>
                       <RadiusChart
-                        data={gstGraphData}
+                        datas={gstGraphData}
                         labels={gstGraphLables}
                       />
                     </Col>
