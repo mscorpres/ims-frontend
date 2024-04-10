@@ -9,6 +9,8 @@ import {
   Divider,
   Modal,
   InputNumber,
+  Button,
+  Typography,
 } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
@@ -16,6 +18,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
+import SingleProduct from "./SingleProduct";
 
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
@@ -30,6 +33,10 @@ const AddVendor = () => {
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
   const einvoice = Form.useWatch("applicability", addVendorForm);
   console.log("okkk", einvoice);
+  const components = Form.useWatch("components", {
+    form: addVendorForm,
+    preserve: true,
+  });
   // setMsmeStat(msmsStatus);
   const [searchTerm, setSearchTerm] = useState("");
   const getFetchState = async (e) => {
@@ -52,10 +59,12 @@ const AddVendor = () => {
     const formData = new FormData();
     formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
     formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
-    // formData.append("uploadfile", files[0]);
-    // console.log("formData", formData);
+    formData.append("uploadfile", files);
+    console.log("formData", formData);
+    console.log("files", files);
     setLoading("submit");
-    // return;
+    setShowSubmitConfirmModal(false);
+    return;
     const response = await imsAxios.post("/vendor/addVendor", formData);
     setLoading(false);
     const { data } = response;
@@ -456,18 +465,51 @@ const AddVendor = () => {
             </Descriptions>
           </Col>
           <Col span={20}>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Form.Item label="Vendor Document" name="file">
-                  <Row className="material-in-upload">
-                    <UploadDocs
-                      size="large"
-                      // disable={poData?.materials?.length == 0}
-                      setFiles={setFiles}
-                      files={files}
-                    />
-                  </Row>
-                </Form.Item>
+            <Row gutter={[10, 10]}>
+              <Col span={24}>
+                <div
+                  className="remove-table-footer"
+                  style={{ height: "50%", opacity: loading ? 0.5 : 1 }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <Col
+                      span={24}
+                      style={{
+                        height: "90%",
+                        overflowX: "hidden",
+                        overflowY: "auto",
+                      }}
+                    >
+                      <Form.List name="components">
+                        {(fields, { add, remove }) => (
+                          <>
+                            <Col>
+                              {fields.map((field, index) => (
+                                <Form.Item noStyle>
+                                  <SingleProduct
+                                    fields={fields}
+                                    field={field}
+                                    index={index}
+                                    add={add}
+                                    form={addVendorForm}
+                                    remove={remove}
+                                    setFiles={setFiles}
+                                    files={files}
+                                  />
+                                </Form.Item>
+                              ))}
+                              <Row justify="center">
+                                <Typography.Text type="secondary">
+                                  ----End of the List----
+                                </Typography.Text>
+                              </Row>
+                            </Col>
+                          </>
+                        )}
+                      </Form.List>
+                    </Col>
+                  </div>
+                </div>
               </Col>
             </Row>
           </Col>
@@ -495,6 +537,7 @@ const initialValues = {
   pincode: "",
   address: "",
   msmeStatus: "N",
+  components: [{}],
 };
 
 const rules = {
