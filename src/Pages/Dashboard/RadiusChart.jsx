@@ -5,7 +5,6 @@ import { Card } from "antd";
 function RadiusChart({ datas, labels }) {
   const chartRef = useRef(null);
   let chartInstance = null;
-  console.log("data, labels", datas, labels);
 
   useEffect(() => {
     if (chartRef && chartRef.current) {

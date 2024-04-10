@@ -35,7 +35,7 @@ const LineChart = ({ data }) => {
     <Card
       size="small"
       style={{ width: "600px", height: "350px" }}
-      title={"Analysis"}
+      title={"Procurement Orders Analysis"}
     >
       {/* <Typography.Text>Analysis</Typography.Text> */}
       <div style={{ width: "550px", height: "300px" }}>
