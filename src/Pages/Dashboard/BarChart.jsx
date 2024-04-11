@@ -18,9 +18,9 @@ const BarChart = ({ data }) => {
           labels: data?.labels,
           datasets: [
             {
-              label: "Bar Chart",
+              label: "Values in Crores",
               data: data?.values,
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              backgroundColor: "rgb(235 152 96 / 20%)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
             },

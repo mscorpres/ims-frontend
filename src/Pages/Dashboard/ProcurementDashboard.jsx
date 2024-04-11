@@ -168,7 +168,7 @@ function ProcurementDashboard() {
       // setAreaChartData(response?.data);d
       chartData = {
         labels: arr.map((r) => r?.partCode),
-        values: arr.map((r) => r?.total_count),
+        values: arr.map((r) => r?.total_count / 10000000),
       };
       setVendorData(response?.data?.topPo);
 
@@ -210,9 +210,6 @@ function ProcurementDashboard() {
     }
   };
   let labels = [
-    "Jan",
-    "Feb",
-    "Mar",
     "Apr",
     "May",
     "Jun",
@@ -222,6 +219,9 @@ function ProcurementDashboard() {
     "Oct",
     "Nov",
     "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
   ];
   const getPoDetails = async () => {
     const response = await imsAxios.get("/dashboard/po_trends");
