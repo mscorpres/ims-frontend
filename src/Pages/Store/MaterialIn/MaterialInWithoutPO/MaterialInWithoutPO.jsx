@@ -13,6 +13,7 @@ import {
   Flex,
   Typography,
   Upload,
+  Checkbox,
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import Loading from "../../../../Components/Loading";
@@ -64,7 +65,7 @@ const defaultValues = {
     },
   ],
 };
-// to trigger deployement
+
 const vendorDetailsOptions = [
   { text: "JWI (Job Work In)", value: "j01" },
   { text: "Vendor", value: "v01" },
@@ -76,6 +77,7 @@ export default function MaterialInWithoutPO() {
   const [showAddVendorModal, setShowAddVendorModal] = useState(false);
   const [showBranchModal, setShowBranchModal] = useState(null);
   const [autoConsumptionOptions, setAutoConsumptionOption] = useState([]);
+  const [isScan, setIsScan] = useState(false);
 
   const [totalValues, setTotalValues] = useState([
     { label: "cgst", sign: "+", values: [] },
@@ -87,7 +89,7 @@ export default function MaterialInWithoutPO() {
   const [locationOptions, setLocationOptions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-
+  const [isApplicable, setIsApplicable] = useState(false);
   const [vendorBranchOptions, setVendorBranchOptions] = useState([]);
 
   const [selectLoading, setSelectLoading] = useState(false);
@@ -308,8 +310,8 @@ export default function MaterialInWithoutPO() {
     if (response.success) {
       arr = convertSelectOptions(response.data.data);
     }
-
     form.setFieldValue("vendorBranch", arr[0]?.value);
+
     setVendorBranchOptions(arr);
     return arr;
   };
@@ -322,6 +324,8 @@ export default function MaterialInWithoutPO() {
     );
 
     if (response.success) {
+      // console.log("response =>", response?.data?.data.einvoice_status);
+      setIsApplicable(response.data.data.einvoice_status);
       form.setFieldValue("gstin", response.data.data.gstid);
       form.setFieldValue("vendorAddress", response.data.data.address);
     }
@@ -555,6 +559,13 @@ export default function MaterialInWithoutPO() {
     { headerName: "Location", field: "location", flex: 1 },
   ];
   useEffect(() => {
+    console.log("isScan", isScan);
+    if (isScan == true) {
+      form.setFieldValue("QR", isScan);
+    }
+  }, [isScan]);
+
+  useEffect(() => {
     getAutoComnsumptionOptions();
     getCurrencies();
     getLocation();
@@ -759,11 +770,28 @@ export default function MaterialInWithoutPO() {
                         </Form.Item>
                       </Col>
                     )}
-                    <Col span={24} style={{ marginBottom: -10 }}>
-                      <Form.Item name="irn" label="IRN ID">
-                        <Input size="default" />
-                      </Form.Item>
-                    </Col>
+                    {isApplicable == "Y" && (
+                      <>
+                        <Col span={24}>
+                          <Form.Item name="QR">
+                            <Checkbox
+                              checked={isScan}
+                              onChange={(e) => setIsScan(e.target.checked)}
+                            ></Checkbox>
+                            <Typography.Text
+                              style={{ fontSize: 11, marginLeft: "4px" }}
+                            >
+                              Scan with QR
+                            </Typography.Text>
+                          </Form.Item>
+                        </Col>
+                        <Col span={24} style={{ marginBottom: -10 }}>
+                          <Form.Item name="irn" label="Acknowledgment Number">
+                            <Input size="default" disabled={isScan} />
+                          </Form.Item>
+                        </Col>
+                      </>
+                    )}
                     <Col span={12}>
                       {" "}
                       <Form.Item label="Project ID" name="projectID">
