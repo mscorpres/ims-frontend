@@ -465,7 +465,7 @@ const AddVendor = () => {
             </Descriptions>
           </Col>
           <Col span={20}>
-            <Row gutter={[10, 10]}>
+            <Row gutter={16}>
               <Col span={24}>
                 <div
                   className="remove-table-footer"

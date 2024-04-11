@@ -26,7 +26,6 @@ export default function SingleProduct({
   };
   let a = normFile;
   console.log("norma", a);
-
   return (
     <Row
       style={{
@@ -52,6 +51,7 @@ export default function SingleProduct({
           getValueFromEvent={normFile}
         >
           <UploadDocs setFiles={setFiles} files={files} />
+
         </Form.Item>
       </Col>
       <Col span={12}>
