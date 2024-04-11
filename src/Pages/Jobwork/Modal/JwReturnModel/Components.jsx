@@ -73,18 +73,27 @@ const Components = ({
           {/* </Form> */}
         </Card>
       </div>
-      <Flex style={{ flex: 1 }}>
+      <Flex style={{ flex: 1, height: "100%" }}>
         <Card
           size="small"
           style={{ flex: 1 }}
           bodyStyle={{
             height: "100%",
-            width: "100%",
-            overflow: "hidden",
+            // width: "100%",
+            overflow: "scroll",
           }}
         >
-          <div style={{ height: "100%", width: "100%", overflow: "hidden" }}>
-            <Row gutter={[0, 6]} style={{ height: "100%", overflow: "hidden" }}>
+          <div
+            style={{
+              height: "70%",
+              overflowY: "scroll",
+              maxHeight: "70%",
+            }}
+          >
+            <Row
+              gutter={[0, 6]}
+              // style={{ height: "100%" }}
+            >
               <Col span={24}>
                 <Row>
                   <Col span={1}></Col>
@@ -120,7 +129,13 @@ const Components = ({
                   </Col>
                 </Row>
               </Col>
-              <Col span={24} style={{ overflowY: "auto", height: "95%" }}>
+              <Col
+                span={24}
+                style={{
+                  overflowY: "scroll",
+                  maxHeight: "20%",
+                }}
+              >
                 <Row>
                   {selectedRows.map((row, index) => (
                     <Col span={24}>
