@@ -75,10 +75,10 @@ const Components = ({
         <Card
           size="small"
           style={{ height: "100%", paddingBottom: 10 }}
-          bodyStyle={{ height: "100%", overflow: "hidden" }}
+          bodyStyle={{ height: "100%" }}
         >
           <div style={{ height: "100%", overflow: "hidden" }}>
-            <Row gutter={[0, 6]} style={{ height: "100%", overflow: "hidden" }}>
+            <Row gutter={[0, 6]} style={{ height: "100%" }}>
               <Col span={24}>
                 <Row>
                   <Col span={1}></Col>
@@ -114,8 +114,17 @@ const Components = ({
                   </Col>
                 </Row>
               </Col>
-              <Col span={24} style={{ overflowY: "auto", height: "95%" }}>
-                <Row>
+              <Col
+                span={24}
+                style={{
+                  overflowY: "auto",
+                  height: "85%",
+                  bodyStyle: "100%",
+                  marginBottom: "10px",
+                  // backgroundColor: "red",
+                }}
+              >
+                <Row bodyStyle="100%">
                   {selectedRows.map((row, index) => (
                     <Col span={24}>
                       <Row align="middle">
