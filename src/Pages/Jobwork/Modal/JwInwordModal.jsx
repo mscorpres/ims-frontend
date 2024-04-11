@@ -912,7 +912,7 @@ const successColumns = [
   { headerName: "SFG Quantity", field: "poQuantity", flex: 1 },
   { headerName: "In Quantity", field: "inQuantity", flex: 1 },
   { headerName: "Invoice Number", field: "invoiceNumber", flex: 1 },
-  { headerName: "Pending With Jobwork", field: "pendingWithjobwork", flex: 1 },
+  // { headerName: "Pending With Jobwork", field: "pendingWithjobwork", flex: 1 },
   // { headerName: "Invoice Date", field: "invoiceDate", flex: 1 },
   // { headerName: "Location", field: "location", flex: 1 },
 ];
