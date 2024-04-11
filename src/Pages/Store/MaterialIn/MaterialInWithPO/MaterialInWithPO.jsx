@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Input,
   Modal,
@@ -76,6 +77,7 @@ export default function MaterialInWithPO({}) {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [locationOptions, setLocationOptions] = useState([]);
   const [codeCostCenter, setCodeCostCenter] = useState("");
+  const [isScan, setIsScan] = useState(false);
   let costCode;
   const { executeFun, loading: loading1 } = useApi();
   const validateData = async () => {
@@ -141,6 +143,7 @@ export default function MaterialInWithPO({}) {
             location: [...componentData.location, row.location.value],
             out_location: [...componentData.out_location, row.autoConsumption],
             irn: irnNum,
+            qrScan: isScan == true ? "Y" : "N",
           };
         });
         if (
@@ -195,7 +198,7 @@ export default function MaterialInWithPO({}) {
             // icon: <ExclamationCircleFilled />,
             content: <Row>{data.invoicesFound.map((inv) => `${inv}, `)}</Row>,
             onOk() {
-              submitMIN(values);
+              submitMIN(values, isScan);
             },
           });
         } else {
@@ -209,7 +212,9 @@ export default function MaterialInWithPO({}) {
       setSubmitLoading(false);
     }
   };
-  const submitMIN = async (values) => {
+  const submitMIN = async (values, isScan) => {
+    console.log("isScan", isScan);
+    // return;
     if (values.formData) {
       setSubmitLoading(true);
       const { data: fileData } = await imsAxios.post(
@@ -1063,12 +1068,29 @@ export default function MaterialInWithPO({}) {
                           {poData?.headers?.gstin}
                         </Typography.Text>
                       )}
+                      <Col span={24}>
+                        {/* <Form.Item name="QR"> */}
+                        <Checkbox
+                          checked={isScan}
+                          onChange={(e) => setIsScan(e.target.checked)}
+                        ></Checkbox>
+                        <Typography.Text
+                          style={{
+                            fontSize: 11,
+                            marginLeft: "4px",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          Scan with QR Code
+                        </Typography.Text>
+                        {/* </Form.Item> */}
+                      </Col>
                       <span display="flex">
                         <Row gutter={[0, 0]}>
                           <Col span={10}>
                             <Typography.Title
                               style={{
-                                marginTop: "4px",
+                                marginTop: "5px",
                                 fontSize:
                                   window.innerWidth < 1600
                                     ? "0.85rem"
@@ -1081,6 +1103,9 @@ export default function MaterialInWithPO({}) {
                           </Col>
                           <Col span={14}>
                             <Input
+                              style={{
+                                marginTop: "5px",
+                              }}
                               placeholder="Please enter Acknowledgment Number"
                               onChange={(e) => setIrnNum(e.target.value)}
                             />

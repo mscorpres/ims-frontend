@@ -14,6 +14,7 @@ import {
   Typography,
   Upload,
   Modal,
+  Checkbox,
 } from "antd";
 import { CloseCircleFilled, InboxOutlined } from "@ant-design/icons";
 import { v4 } from "uuid";
@@ -44,8 +45,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const [conrem, setConRem] = useState("");
   const [loading, setLoading] = useState(false);
   const [attachment, setAttachment] = useState("");
-
+  const [irnNo, setIrnNo] = useState("");
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
+  const [isApplicable, setIsApplicable] = useState(false);
+  const [isScan, setIsScan] = useState(false);
   const [modalForm] = Form.useForm();
 
   const { executeFun, loading: loading1 } = useApi();
@@ -59,6 +62,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       }
     );
     if (data.code == 200) {
+      console.log("data-------------------------", data.header.einvoice_status);
       getLocation(data.header.cost_center);
       let arr = data.data.map((row, index) => {
         return {
@@ -68,6 +72,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           component: { label: row.componentname, value: row.componentKey },
         };
       });
+      setIsApplicable(data.header.einvoice_status);
       setMainData(arr);
       setHeaderData(data.header);
       setModalLoad("fetch", false);
@@ -238,7 +243,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     {
       field: "orderqty",
       headerName: "Quantity",
-      width: 220,
+      width: 180,
       renderCell: ({ row }) => (
         <Input
           suffix={row.unitsname}
@@ -251,7 +256,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     {
       field: "rate",
       headerName: "Rate",
-      width: 220,
+      width: 180,
       renderCell: ({ row }) => (
         <Input
           //  value={row.orderqty}
@@ -285,18 +290,18 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         />
       ),
     },
-    {
-      field: "irn",
-      headerName: "Acknowledgment Number",
-      width: 220,
-      renderCell: ({ row }) => (
-        <Input
-          //  value={row.orderqty}
-          placeholder="Acknowledgment Number"
-          onChange={(e) => inputHandler("irn", row.id, e.target.value)}
-        />
-      ),
-    },
+    // {
+    //   field: "irn",
+    //   headerName: "Acknowledgment Number",
+    //   width: 220,
+    //   renderCell: ({ row }) => (
+    //     <Input
+    //       //  value={row.orderqty}
+    //       placeholder="Acknowledgment Number"
+    //       onChange={(e) => inputHandler("irn", row.id, e.target.value)}
+    //     />
+    //   ),
+    // },
     {
       field: "remark",
       headerName: "Remark",
@@ -433,22 +438,24 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     setModalUploadLoad(true);
     console.log("bomList", bomList);
     console.log("conrem", conrem);
+    console.log("isScan", isScan);
     let payload = {
+      attachment: fetchAttachment,
       companybranch: "BRMSC012",
-      jobwork_trans_id: mainData[0].jobwork_id,
-      product: row.sku_code,
       component: mainData[0].component.value ?? mainData[0].component,
-      qty: mainData[0].orderqty,
-      rate: mainData[0].rate,
-      invoice: mainData[0].invoice,
-      location: mainData[0].location,
-      remark: mainData[0].remark,
-      irn: mainData[0].irn,
-      ewaybill: eWayBill,
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
       consRemark: bomList.map((r) => r.conRemark),
-      attachment: fetchAttachment,
+      ewaybill: eWayBill,
+      invoice: mainData[0].invoice,
+      irn: irnNo,
+      jobwork_trans_id: mainData[0].jobwork_id,
+      location: mainData[0].location,
+      product: row.sku_code,
+      qty: mainData[0].orderqty,
+      rate: mainData[0].rate,
+      remark: mainData[0].remark,
+      qrScan: isScan == true ? "Y" : "N",
     };
     console.log("payload", payload);
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
@@ -736,12 +743,17 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                     Job Worker: {header?.vendor_name}
                   </Col>
                   <Col
-                    span={6}
-                    style={{ fontSize: "12px", fontWeight: "bolder" }}
+                    span={8}
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: "bolder",
+                      marginTop: "20px",
+                    }}
                   >
                     <Form size="small">
-                      <Form.Item label="E-Way Bill Bo.">
+                      <Form.Item label="E-Way Bill No.">
                         <Input
+                          style={{ width: "15rem" }}
                           size="small"
                           value={eWayBill}
                           onChange={(e) => setEWayBill(e.target.value)}
@@ -749,6 +761,52 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                       </Form.Item>
                     </Form>
                   </Col>
+                  {isApplicable == "Y" && (
+                    <Col
+                      span={6}
+                      style={{ display: "flex", paddingLeft: "-2px" }}
+                    >
+                      <span>
+                        <Col span={24}>
+                          <Checkbox
+                            checked={isScan}
+                            onChange={(e) => setIsScan(e.target.checked)}
+                          />
+                          <Typography.Text
+                            style={{
+                              fontSize: 11,
+                              marginLeft: "4px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {" "}
+                            Scan with QR Code
+                          </Typography.Text>
+                        </Col>{" "}
+                        <Col
+                          span={24}
+                          style={{
+                            marginTop: "5px",
+                            fontSize: "12px",
+                            fontWeight: "bolder",
+                            // marginLeft: "8rem",
+                          }}
+                        >
+                          <Form size="small">
+                            <Form.Item label="Acknowledgment Number">
+                              <Input
+                                size="small"
+                                style={{ width: "15rem" }}
+                                value={irnNo}
+                                onChange={(e) => setIrnNo(e.target.value)}
+                                disabled={isScan}
+                              />
+                            </Form.Item>
+                          </Form>
+                        </Col>
+                      </span>
+                    </Col>
+                  )}
                 </Row>
               </Card>
               <div style={{ height: "50%", marginTop: "5px" }}>
