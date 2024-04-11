@@ -500,7 +500,7 @@ const Qctest = () => {
                 // padding: "40px",
               }}
               bodyStyle={{ height: "10%" }}
-              title={"PCB SCAN DETAILS"}
+              title={"SCAN DETAILS"}
             >
               <div
                 style={{
