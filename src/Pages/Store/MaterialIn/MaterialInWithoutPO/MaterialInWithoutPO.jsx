@@ -161,7 +161,7 @@ export default function MaterialInWithoutPO() {
       console.log("response-------", response);
       if (response.success) {
         // const { data } = response.data;
-        if (response.data.code === 200) {
+        if (response.data.code == 200) {
           setShowSuccessPage({
             materialInId: response.data.data.txn,
             vendor: { vendorname: values.vendorName.label },
@@ -180,7 +180,8 @@ export default function MaterialInWithoutPO() {
           vendorResetFunction();
           materialResetFunction();
         } else {
-          toast.error(response.data.message);
+          // console.log("r/esponse.data.message", response.data.message);
+          toast.error(response.data.message.msg);
         }
       } else {
         toast.error(response.data.message);
