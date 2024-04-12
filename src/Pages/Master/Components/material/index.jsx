@@ -975,6 +975,7 @@ const CategoryModal = ({
         values.tolerance.label +
         "-" +
         values.voltage.label +
+        "V" +
         "-" +
         values.mounting_style.label +
         "-" +
