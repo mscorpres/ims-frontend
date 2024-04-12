@@ -916,7 +916,7 @@ const CategoryModal = ({
     } else if (value <= 999999 && value >= 1000) {
       componentVal = +Number(value / 1000).toFixed(1) + "K";
       // console.log("K", componentVal + "K");
-    } else if (value > 1000000) {
+    } else if (value >= 1000000) {
       componentVal = +Number(value / 1000000).toFixed(1) + "M";
       // console.log("M", componentVal + "M");
     }
