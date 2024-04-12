@@ -7,7 +7,9 @@ import {
   Input,
   InputNumber,
   Modal,
+  Radio,
   Row,
+  Switch,
   Tabs,
 } from "antd";
 import CreateCostModal from "./Create/CreateCostModal";
@@ -89,7 +91,7 @@ const SalesOrderForm = () => {
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
-
+  const [copyinfo, setCopyInfo] = useState("");
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const iscomponents = Form.useWatch("pocreatetype", form);
@@ -102,7 +104,13 @@ const SalesOrderForm = () => {
   // console.log("fetchQty", fetchQty, shipaddressid);
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
-
+  const toggleInputType = (checked) => {
+    setCopyInfo(checked);
+    // console.log(`switch to ${checked}`);
+  };
+  // const onChange = (checked) => {
+  //   console.log(`switch to ${checked}`);
+  // };
   const handleFetchClientOptions = async (search) => {
     const response = await executeFun(
       () => getClientsOptions(search),
@@ -440,6 +448,23 @@ const SalesOrderForm = () => {
   //     handleFetchClientBranchDetails("shipaddressid", shipaddressid);
   //   }
   // }, [shipaddressid]);
+  useEffect(() => {
+    if (copyinfo) {
+      let gst = form.getFieldValue("gstin");
+      let address = form.getFieldValue("clientaddress");
+
+      // console.log("gst", gst, client);
+      if (client) {
+        // form.setFieldValue("shipPan", details.panNo);
+        form.setFieldValue("shipGST", gst);
+        form.setFieldValue("shipaddress", address);
+        form.setFieldValue("shipaddressid", client.label);
+      } else {
+        toast.info("Please Fill in the client details.");
+        // setCopyInfo(false);
+      }
+    }
+  }, [copyinfo]);
 
   return (
     <div
@@ -679,7 +704,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="termscondition"
                             label=" Terms and Conditions"
-                            rules={rules.termscondition}
+                            // rules={rules.termscondition}
                           >
                             <Input size="default" />
                           </Form.Item>
@@ -689,12 +714,12 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="quotationdetail"
                             label="Quotation"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please provide a quotationdetail!",
-                              },
-                            ]}
+                            // rules={[
+                            //   {
+                            //     required: true,
+                            //     message: "Please provide a quotationdetail!",
+                            //   },
+                            // ]}
                           >
                             <Input size="default" name="quotationdetail" />
                           </Form.Item>
@@ -704,7 +729,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="paymentterms"
                             label=" Payment Terms"
-                            rules={rules.paymentterms}
+                            // rules={rules.paymentterms}
                           >
                             <Input size="default" />
                           </Form.Item>
@@ -713,12 +738,12 @@ const SalesOrderForm = () => {
                         {/* po due date*/}
                         <Col span={6}>
                           <Form.Item
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please select Due Date ",
-                              },
-                            ]}
+                            // rules={[
+                            //   {
+                            //     required: true,
+                            //     message: "Please select Due Date ",
+                            //   },
+                            // ]}
                             label="Due Date (in days)"
                             name="paymenttermsday"
                           >
@@ -737,7 +762,7 @@ const SalesOrderForm = () => {
                         <Col span={4}>
                           <Form.Item
                             name="pocostcenter"
-                            rules={rules.pocostcenter}
+                            // rules={rules.pocostcenter}
                             label={
                               <div
                                 style={{
@@ -772,7 +797,7 @@ const SalesOrderForm = () => {
                         <Col span={5}>
                           <Form.Item
                             name="project_name"
-                            rules={rules.project_name}
+                            // rules={rules.project_name}
                             label={
                               <div
                                 style={{
@@ -820,7 +845,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             label="Comments"
                             name="po_comment"
-                            rules={rules.po_comment}
+                            // rules={rules.po_comment}
                           >
                             <Input size="defautl" />
                           </Form.Item>
@@ -860,7 +885,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="billPan"
                             label="Pan No."
-                            rules={rules.billPan}
+                            // rules={rules.billPan}
                           >
                             <Input
                               size="default"
@@ -873,7 +898,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="billGST"
                             label="GSTIN / UIN"
-                            rules={rules.billGST}
+                            // rules={rules.billGST}
                           >
                             <Input
                               size="default"
@@ -910,7 +935,8 @@ const SalesOrderForm = () => {
                         >
                           Provide shipping information
                         </Descriptions.Item>
-                      </Descriptions>
+                      </Descriptions>{" "}
+                      <Switch defaultChecked onChange={toggleInputType} />
                     </Col>
 
                     <Col span={20}>
