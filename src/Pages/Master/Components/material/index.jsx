@@ -229,6 +229,7 @@ const Material = () => {
         attr_raw: atrrRes,
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     } else if (selectedCategory?.label === "Capacitor") {
       payload = {
@@ -249,6 +250,7 @@ const Material = () => {
         attr_raw: atrrCAP,
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     } else if (selectedCategory?.label === "Inductor") {
       payload = {
@@ -269,6 +271,7 @@ const Material = () => {
         attr_raw: "",
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     } else {
       payload = {
@@ -289,9 +292,9 @@ const Material = () => {
         attr_raw: "",
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     }
-    // console.log("payload", payload);
     // return;
 
     const response = await imsAxios.post(

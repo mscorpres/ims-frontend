@@ -9,6 +9,7 @@ import {
   Row,
   Space,
   Tooltip,
+  Typography,
 } from "antd";
 import {
   PrinterFilled,
@@ -45,11 +46,16 @@ export default function ViewMIN() {
   const [getPartLoading, setGetPartLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState();
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [totalValue, setTotalValue] = useState("");
   const [printLabelInfo, setPrintLabelInfo] = useState({
     copies_qty: [],
     part_code: [],
     transaction: "",
   });
+  const [printForm] = Form.useForm();
+
+  const qty = Form.useWatch("quantity", printForm);
+  const numofBox = Form.useWatch("noOfBoxes", printForm);
   const wiseOptions = [
     { text: "Date Wise", value: "datewise" },
     { text: "MIN Wise", value: "minwise" },
@@ -190,6 +196,7 @@ export default function ViewMIN() {
       const { data } = await imsAxios.post("/qrLabel/getComponents", {
         transaction: value,
       });
+      console.log(" data.data", data.data);
       setGetPartLoading(false);
       obj = {
         ...obj,
@@ -197,6 +204,7 @@ export default function ViewMIN() {
         part_code: data.data.map((row) => {
           return row.part_code;
         }),
+        pia_status: data.data[0].pia_status,
         copies_qty: data.data.map((row) => {
           return { id: row.part_code, qty: "" };
         }),
@@ -216,6 +224,7 @@ export default function ViewMIN() {
         }),
       };
     }
+    console.log("objjjjjj", obj);
     setPrintLabelInfo(obj);
   };
   const printLabels = async () => {
@@ -372,6 +381,12 @@ export default function ViewMIN() {
       setPrintLabelInfo,
     });
   }, [showPrintLabels]);
+  useEffect(() => {
+    if (qty || numofBox) {
+      let value = qty * numofBox;
+      setTotalValue(value);
+    }
+  }, [qty, numofBox]);
 
   return (
     <div style={{ height: "90%" }}>
@@ -496,24 +511,66 @@ export default function ViewMIN() {
               return (
                 <Form
                   // form={form}
-
+                  form={printForm}
                   layout="horizontal"
                   name="form_in_modal"
-                  style={{ paddingRight: 10 }}
-                  initialValues={{ modifier: "public" }}
+                  // style={{ paddingRight: 10 }}
+                  initialValues={initialValues}
                 >
-                  <Form.Item
-                    name="Quantity"
-                    label={`Quantity for ${partCode.id}`}
-                  >
-                    <Input
-                      type="textarea"
-                      value={printLabelInfo.copies_qty}
-                      onChange={(e) => {
-                        inputHandler("copies_qty", e.target.value, partCode.id);
-                      }}
-                    />
-                  </Form.Item>
+                  {/* NEw add if the pia status is recieved */}
+                  {printLabelInfo.pia_status == "Y" ? (
+                    <>
+                      <Form.Item name="quantity" label="Qty In Each Boxes">
+                        <Col span={24}>
+                          <Input type="textarea" value={qty} />
+                        </Col>
+                      </Form.Item>
+                      <Form.Item name="noOfBoxes" label="Number Of Boxes">
+                        <Col span={24}>
+                          <Input
+                            type="textarea"
+                            value={numofBox}
+                            // value={printLabelInfo.copies_qty}
+                            // onChange={(e) => {
+                            //   inputHandler("copies_qty", e.target.value, partCode.id);
+                            // }}
+                          />
+                        </Col>
+                      </Form.Item>
+                      <Col span={24}>
+                        <Form.Item
+                          name="Total"
+                          label="Total Quantity (Qty X Number of Boxes) "
+                        >
+                          <Input
+                            type="textarea"
+                            value={totalValue}
+                            // value={printLabelInfo.copies_qty}
+                            // onChange={(e) => {
+                            //   inputHandler("copies_qty", e.target.value, partCode.id);
+                            // }}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  ) : (
+                    <Form.Item
+                      name="Quantity"
+                      label={`Quantity for ${partCode.id}`}
+                    >
+                      <Input
+                        type="textarea"
+                        value={printLabelInfo.copies_qty}
+                        onChange={(e) => {
+                          inputHandler(
+                            "copies_qty",
+                            e.target.value,
+                            partCode.id
+                          );
+                        }}
+                      />
+                    </Form.Item>
+                  )}
                 </Form>
               );
             })}
@@ -538,3 +595,8 @@ export default function ViewMIN() {
     </div>
   );
 }
+const initialValues = {
+  quantity: "1",
+  noOfBoxes: "1",
+  modifier: "public",
+};
