@@ -927,15 +927,21 @@ const CategoryModal = ({
   const getComponentValueForName = (value) => {
     // console.log("value===========", value);
     let componentVal;
-    if (value <= 999) {
-      // console.log("R", value + "R");
-      componentVal = value + "R";
-    } else if (value <= 999999 && value >= 1000) {
-      componentVal = +Number(value / 1000).toFixed(1) + "K";
-      // console.log("K", componentVal + "K");
-    } else if (value > 1000000) {
-      componentVal = +Number(value / 1000000).toFixed(1) + "M";
-      // console.log("M", componentVal + "M");
+    let categorSnip = selectedCategory.label.toUpperCase();
+    let newSnip = categorSnip.substr(0, 3);
+    if (newSnip != "CAP") {
+      if (value <= 999) {
+        // console.log("R", value + "R");
+        componentVal = value + "R";
+      } else if (value <= 999999 && value >= 1000) {
+        componentVal = +Number(value / 1000).toFixed(1) + "K";
+        // console.log("K", componentVal + "K");
+      } else if (value > 1000000) {
+        componentVal = +Number(value / 1000000).toFixed(1) + "M";
+        // console.log("M", componentVal + "M");
+      }
+    } else {
+      componentVal = value;
     }
     setValForName(componentVal);
     // console.log("componentVal", componentVal);
@@ -963,7 +969,7 @@ const CategoryModal = ({
         values.package_size.key +
         "-" +
         compCode +
-        "-" +
+        // "-" +
         values.si_unit.label +
         "-" +
         values.tolerance.label +
@@ -1005,6 +1011,7 @@ const CategoryModal = ({
         values.tolerance.label +
         "-" +
         values.power_rating.label +
+        "W" +
         "-" +
         values.mounting_style.label +
         "-" +
