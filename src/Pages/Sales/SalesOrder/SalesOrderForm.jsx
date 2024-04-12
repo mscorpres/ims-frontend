@@ -8,6 +8,7 @@ import {
   InputNumber,
   Modal,
   Row,
+  Switch,
   Tabs,
 } from "antd";
 import CreateCostModal from "./Create/CreateCostModal";
@@ -36,6 +37,7 @@ import {
   getProjectDetails,
   getProjectOptions,
   getUsersOptions,
+  getVendorBranchOptions,
 } from "../../../api/general";
 import {
   createOrder,
@@ -43,9 +45,11 @@ import {
   updateOrder,
 } from "../../../api/sales/salesOrder";
 import { toast } from "react-toastify";
+import ClientBranchAdd from "../../../FinancePages/Clients/modal/ClientBranchAdd";
 
 const SalesOrderForm = () => {
   const [successData, setSuccessData] = useState(false);
+  const [showBranchModal, setShowBranchModal] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
   const [selectLoading, setSelectLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -54,6 +58,7 @@ const SalesOrderForm = () => {
   const [billToOptions, setBillTopOptions] = useState([]);
   const [projectDesc, setProjectDesc] = useState([]);
   const [totalValues, setTotalValues] = useState([]);
+  const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [rowCount, setRowCount] = useState([
     {
@@ -85,7 +90,7 @@ const SalesOrderForm = () => {
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
-
+  const [copyinfo, setCopyInfo] = useState("");
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const iscomponents = Form.useWatch("pocreatetype", form);
@@ -98,7 +103,13 @@ const SalesOrderForm = () => {
   // console.log("fetchQty", fetchQty, shipaddressid);
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
-
+  const toggleInputType = (checked) => {
+    setCopyInfo(checked);
+    // console.log(`switch to ${checked}`);
+  };
+  // const onChange = (checked) => {
+  //   console.log(`switch to ${checked}`);
+  // };
   const handleFetchClientOptions = async (search) => {
     const response = await executeFun(
       () => getClientsOptions(search),
@@ -332,6 +343,9 @@ const SalesOrderForm = () => {
         shipping_id: values.shipaddressid,
         terms_condition: values.termscondition,
         quotation_detail: values.quotationdetail,
+        customer_gstin: values.gstin,
+        shipping_pan: values.shipPan,
+        shipping_gstin: values.shipGST,
       },
       materials: {
         items: rowCount.map((component) => component.component.value),
@@ -360,6 +374,7 @@ const SalesOrderForm = () => {
         setActiveTab("1");
         form.resetFields();
       }
+      setConfirmSubmit(false);
     } else {
       const response = await executeFun(() => createOrder(payload), "submit");
       // console.log("response", response);
@@ -427,11 +442,28 @@ const SalesOrderForm = () => {
     }
   }, [billaddressid]);
 
+  // useEffect(() => {
+  //   if (shipaddressid) {
+  //     handleFetchClientBranchDetails("shipaddressid", shipaddressid);
+  //   }
+  // }, [shipaddressid]);
   useEffect(() => {
-    if (shipaddressid) {
-      handleFetchClientBranchDetails("shipaddressid", shipaddressid);
+    if (copyinfo) {
+      let gst = form.getFieldValue("gstin");
+      let address = form.getFieldValue("clientaddress");
+
+      // console.log("gst", gst, client);
+      if (client) {
+        // form.setFieldValue("shipPan", details.panNo);
+        form.setFieldValue("shipGST", gst);
+        form.setFieldValue("shipaddress", address);
+        form.setFieldValue("shipaddressid", client.label);
+      } else {
+        toast.info("Please Fill in the client details.");
+        // setCopyInfo(false);
+      }
     }
-  }, [shipaddressid]);
+  }, [copyinfo]);
 
   return (
     <div
@@ -590,7 +622,35 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="clientbranch"
                             rules={rules.clientbranch}
-                            label=" Client Branch"
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Client Branch
+                                <span
+                                  onClick={() => {
+                                    client
+                                      ? setShowBranchModal({
+                                          name: client?.label,
+                                          code: client?.key,
+                                        })
+                                      : toast.error(
+                                          "Please Select a Client first"
+                                        );
+                                  }}
+                                  style={{ color: "#1890FF" }}
+                                >
+                                  Add Branch
+                                </span>
+                              </div>
+                            }
                           >
                             <MySelect
                               options={clientBranchOptions}
@@ -601,7 +661,7 @@ const SalesOrderForm = () => {
                         {/* gstin */}
                         <Col span={6}>
                           <Form.Item name="gstin" label="GSTIN">
-                            <Input size="default" disabled />
+                            <Input size="default" />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -643,7 +703,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="termscondition"
                             label=" Terms and Conditions"
-                            rules={rules.termscondition}
+                            // rules={rules.termscondition}
                           >
                             <Input size="default" />
                           </Form.Item>
@@ -653,12 +713,12 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="quotationdetail"
                             label="Quotation"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Please provide a quotationdetail!",
-                              },
-                            ]}
+                            // rules={[
+                            //   {
+                            //     required: true,
+                            //     message: "Please provide a quotationdetail!",
+                            //   },
+                            // ]}
                           >
                             <Input size="default" name="quotationdetail" />
                           </Form.Item>
@@ -668,7 +728,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="paymentterms"
                             label=" Payment Terms"
-                            rules={rules.paymentterms}
+                            // rules={rules.paymentterms}
                           >
                             <Input size="default" />
                           </Form.Item>
@@ -677,6 +737,12 @@ const SalesOrderForm = () => {
                         {/* po due date*/}
                         <Col span={6}>
                           <Form.Item
+                            // rules={[
+                            //   {
+                            //     required: true,
+                            //     message: "Please select Due Date ",
+                            //   },
+                            // ]}
                             label="Due Date (in days)"
                             name="paymenttermsday"
                           >
@@ -695,7 +761,7 @@ const SalesOrderForm = () => {
                         <Col span={4}>
                           <Form.Item
                             name="pocostcenter"
-                            rules={rules.pocostcenter}
+                            // rules={rules.pocostcenter}
                             label={
                               <div
                                 style={{
@@ -730,7 +796,7 @@ const SalesOrderForm = () => {
                         <Col span={5}>
                           <Form.Item
                             name="project_name"
-                            rules={rules.project_name}
+                            // rules={rules.project_name}
                             label={
                               <div
                                 style={{
@@ -778,7 +844,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             label="Comments"
                             name="po_comment"
-                            rules={rules.po_comment}
+                            // rules={rules.po_comment}
                           >
                             <Input size="defautl" />
                           </Form.Item>
@@ -807,7 +873,7 @@ const SalesOrderForm = () => {
                         <Col span={6}>
                           <Form.Item
                             name="billaddressid"
-                            label="Billing Id"
+                            label="Billing Name"
                             rules={rules.billaddressid}
                           >
                             <MySelect options={billToOptions} />
@@ -868,7 +934,8 @@ const SalesOrderForm = () => {
                         >
                           Provide shipping information
                         </Descriptions.Item>
-                      </Descriptions>
+                      </Descriptions>{" "}
+                      <Switch disabled={!client} onChange={toggleInputType} />
                     </Col>
 
                     <Col span={20}>
@@ -878,13 +945,14 @@ const SalesOrderForm = () => {
                         <Col span={6}>
                           <Form.Item
                             name="shipaddressid"
-                            label="Shipping Id"
+                            label="Shipping Name"
                             rules={rules.shipaddressid}
                           >
-                            <MySelect
+                            {/* <MySelect
                               // options={shipToOptions}
                               options={clientBranchOptions}
-                            />
+                            /> */}
+                            <Input />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
@@ -892,7 +960,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             label="Pan No."
                             name="shipPan"
-                            rules={rules.shipPan}
+                            // rules={rules.shipPan}
                           >
                             <Input
                               size="default"
@@ -905,7 +973,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="shipGST"
                             label=" GSTIN / UIN"
-                            rules={rules.shipGST}
+                            // rules={rules.shipGST}
                           >
                             <Input
                               size="default"
@@ -957,6 +1025,7 @@ const SalesOrderForm = () => {
                     resetFunction={resetFunction}
                     submitHandler={validateSales}
                     //  setSelectLoading(false);
+                    submitLoading={loading("submit")}
                     selectLoading={selectLoading}
                     // submitLoading={submitLoading}
                     totalValues={totalValues}
@@ -971,6 +1040,10 @@ const SalesOrderForm = () => {
           </Form>
         </div>
       )}
+      <ClientBranchAdd
+        setBranchAddOpen={setShowBranchModal}
+        branchAddOpen={showBranchModal}
+      />
       {successData && (
         <SuccessPage
           resetFunction={resetFunction}

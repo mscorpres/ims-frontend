@@ -117,7 +117,7 @@ export const cancelChallanFromSo = async (singleRow, remark) => {
   return response;
 };
 
-export const createShipment = async (values, open) => {
+export const createShipment = async (values, open, details) => {
   const payload = {
     header: {
       bill_id: values.billingId,
@@ -128,6 +128,8 @@ export const createShipment = async (values, open) => {
       vehicle_no: values.vehicleNo,
       eway_no: values.eWayBillNo,
       other_ref: values.otherRef,
+      ship_pan: details.shipping.pan,
+      ship_gstin: details.shipping.gst,
     },
     material: {
       item: values.products.map((row) => row.productKey),
@@ -207,7 +209,12 @@ export const getChallanDetails = async (challanId) => {
   response.data = { components: arr, details: obj };
   return response;
 };
-export const updateShipment = async (values, open, updateShipmentRow) => {
+export const updateShipment = async (
+  values,
+  open,
+  updateShipmentRow,
+  details
+) => {
   let billId;
   if (values?.billingId?.id) {
     billId = values?.billingId?.id;
@@ -225,6 +232,8 @@ export const updateShipment = async (values, open, updateShipmentRow) => {
       eway_no: values.eWayBillNo,
       other_ref: values.otherRef,
       so_id: updateShipmentRow?.so_id,
+      ship_pan: details.shipping_info.pan,
+      ship_gstin: details.shipping_info.gst,
     },
     materials: {
       updaterow: values.products.map((row) => row.updaterow.toString()),

@@ -18,6 +18,8 @@ import FormTable2 from "../../../../../Components/FormTable2";
 import {
   createShipment,
   getOrderDetails,
+  getUpdateShipmentDetails,
+  updateShipment,
 } from "../../../../../api/sales/salesOrder";
 import Loading from "../../../../../Components/Loading";
 import ClientInfo from "./ClientInfo";
@@ -26,38 +28,93 @@ import ShippingDetailsCard from "./ShippingDetailsCard";
 import {
   getBillingAddressOptions,
   getShippingAddressOptions,
+  fetchLocations,
+  getBillingAddressDetails,
 } from "../../../../../api/general";
 import { convertSelectOptions } from "../../../../../utils/general";
-import { getClientBranches } from "../../../../../api/finance/clients";
+import {
+  getBranchDetails,
+  getClientBranches,
+} from "../../../../../api/finance/clients";
+import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
+import { toast } from "react-toastify";
 
-function CreateShipment({ open, hide }) {
+function CreateShipment({
+  open,
+  hide,
+  updateShipmentRow,
+  setUpdateShipmentRow,
+}) {
   const [gstType, setgstType] = useState([]);
   const [billingOptions, setBillingOptions] = useState([]);
   const [shippingOptions, setShippinOptions] = useState([]);
   const [locationlist, setlocationlist] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [minRows, setMinRows] = useState([]);
-  const [currencies, setCurrencies] = useState([]);
+
   const [details, setDetails] = useState({});
 
   const { executeFun, loading } = useApi();
   const [shipmentForm] = Form.useForm();
-  const calculation = () => {};
+
+  const billingId = Form.useWatch("billingId", shipmentForm);
+
+  const shippingId = Form.useWatch("shippingId", shipmentForm);
+  const calculation = (id, row) => {
+    const exchangeRate = row.exchangeRate ?? 1;
+    const qty = row.qty;
+    const rate = row.rate;
+    const inrValue =
+      +Number(qty) * +Number(rate) * +Number(exchangeRate).toFixed(2);
+    const foreignValue = +Number(qty) * +Number(rate);
+    const foreignValueCombined = `${row.currencySymbol ?? ""} ${foreignValue}`;
+    shipmentForm.setFieldValue(["products", id, "inrValue"], inrValue);
+
+    shipmentForm.setFieldValue(
+      ["products", id, "foreignValueCombined"],
+      foreignValueCombined
+    );
+  };
 
   const validateHandler = async () => {
     const values = await shipmentForm.validateFields();
 
     Modal.confirm({
-      title: "Are you sure you want to create this shipment?",
+      title: updateShipmentRow
+        ? "Are you sure you want to Update this shipment?"
+        : "Are you sure you want to create this shipment?",
+
       content: "Check all the values properly before proceeding",
-      okText: "Create",
+      okText: updateShipmentRow ? "Update" : "Create",
       onOk: () => handleSubmit(values),
     });
   };
 
   const handleSubmit = async (values) => {
-    console.log("these are the values", values);
-    const response = await executeFun(() => createShipment(values), "submit");
+    let response;
+    if (updateShipmentRow) {
+      response = await executeFun(
+        () => updateShipment(values, open, updateShipmentRow, details),
+        "submit"
+      );
+    } else {
+      response = await executeFun(
+        () => createShipment(values, open, details),
+        "submit"
+      );
+    }
+    // return;    console.log("this is the handle submit respnse", response);
+    if (response.success) {
+      shipmentForm.resetFields();
+      hide();
+      setDetails(null);
+    }
+
+    // console.log("response", response);
+    // if (response.success) {
+    //   toast.success(response.message);
+    // } else {
+    //   toast.error(response.message);
+    // }
   };
 
   const handleFetchDetails = async (orderId) => {
@@ -98,7 +155,11 @@ function CreateShipment({ open, hide }) {
           qty: material.orderqty,
           rate: material.rate,
           pickLocation: "",
+
+          exchangeRate: material.exchangerate,
           inrValue: material.exchangetaxablevalue,
+          currencySymbol: material.currency_symbol,
+
           foreignValueCombined:
             material.currency_symbol + " " + material.taxablevalue,
           foreignValue: material.taxablevalue,
@@ -111,6 +172,9 @@ function CreateShipment({ open, hide }) {
           remark: material.remark,
         })),
       };
+
+      // console.log(" =>", obj);
+
       handleFetchShippingOptions(detailsObj.clientCode);
       setDetails(detailsObj);
       shipmentForm.setFieldsValue(obj);
@@ -125,6 +189,16 @@ function CreateShipment({ open, hide }) {
     }
     setBillingOptions(arr);
   };
+  const getlocations = async (search) => {
+    const response = await executeFun(() => fetchLocations(search), "select");
+
+    let arr = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
+    }
+
+    setAsyncOptions(arr);
+  };
 
   const handleFetchShippingOptions = async (clientCode) => {
     const response = await executeFun(() => getClientBranches(clientCode));
@@ -137,17 +211,164 @@ function CreateShipment({ open, hide }) {
     }
     setShippinOptions(arr);
   };
+
   useEffect(() => {
-    if (open) {
+    if (open && !updateShipmentRow) {
       handleFetchDetails(open);
       handleFetchBillingOptions();
+      getlocations();
     }
   }, [open]);
 
+  const getShipmentForUpdate = async (id) => {
+    // console.log("id", id);
+    const response = await executeFun(() => getUpdateShipmentDetails(id));
+    // console.log("response", response);
+    if (response.success) {
+      const {
+        client,
+        billing_info,
+        shipping_info,
+        client_info,
+        client_address,
+        shipping_address,
+      } = response.data.header;
+      // console.log("client", client, billing_info, shipping_info);
+      const detailsObj = {
+        clientName: client.name,
+        clientCode: client.code,
+        clientBranch: client_info.label,
+        address: client_address,
+        billing_info: {
+          pan: billing_info.pan,
+          gst: billing_info.gst,
+          cin: billing_info.id,
+          address: billing_info.billaddress,
+        },
+        shipping_info: {
+          pan: shipping_info?.ship_pan,
+          gst: shipping_info.gst,
+          cin: "--",
+          address: shipping_address,
+          shippingID: shipping_info?.ship_id,
+        },
+        shipping_address: shipping_address,
+      };
+      const { header, material } = response.data;
+      const obj = {
+        eWayBillNo: header.eway_bill,
+        docNo: "",
+        vehicleNo: header.vehicle,
+        otherRef: header.other_ref,
+        billingId: header.billing_info,
+        billingAddress: header.billing_address,
+        shippingId: header.shipping_info.ship_id,
+        so_id: header.so_id,
+        so_shipment_id: header.so_shipment_id,
+        shippingAddress: header.shipping_address,
+        products: material.map((m) => ({
+          product: m.item_name,
+          productKey: m.item_key,
+          hsn: m.hsn_code,
+          qty: m.item_qty,
+          rate: m.item_rate,
+          inrValue:
+            +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),
+          pickLocation: m.item_pick_location.loc_key,
+
+          // foreignValueCombined: m.currency_symbol + " " + m.taxablevalue,
+          foreignValue:
+            +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),
+          pickLocation: m.item_pick_location.loc_key,
+          gstTypeLabel: m.item_gst_type,
+          cgst: m.cgst,
+          sgst: m.sgst,
+          igst: m.igst,
+          gstRate: m.item_gstrate,
+          dueDate: m.item_due_date,
+          remark: m.item_remarks,
+          updaterow: m.updateID,
+        })),
+      };
+      // console.log("obj", obj);
+
+      console.log("detailsObj", detailsObj);
+      handleFetchShippingOptions(detailsObj.clientCode);
+      setDetails(detailsObj);
+      shipmentForm.setFieldsValue(obj);
+    }
+  };
+  const removeHtml = (value) => {
+    return value.replace(/<[^>]*>/g, " ");
+  };
+  const getBillingAddress = async (billaddressid) => {
+    const response = await executeFun(
+      () => getBillingAddressDetails(billaddressid),
+      "fetch"
+    );
+
+    if (response.success) {
+      const { data } = response;
+      shipmentForm.setFieldValue("billPan", data.data.pan);
+      shipmentForm.setFieldValue("billGST", data.data.gstin);
+      let newStringaddress = removeHtml(data.data.address);
+      shipmentForm.setFieldValue("billingAddress", newStringaddress);
+    }
+  };
+  const handleFetchClientBranchDetails = async (locationType, branchId) => {
+    const response = await executeFun(
+      () => getBranchDetails(branchId),
+      `fetch`
+    );
+    if (response.success) {
+      const details = response.data[0];
+      console.log("details", details);
+      if (details) {
+        shipmentForm.setFieldValue("shippingAddress", details.address);
+        // shipmentForm.setFieldValue("shippingAddress", {
+        //   label: details.state.name,
+        //   value: details.state.code,
+        // });
+        // const address = removeHtml(details.address);
+        // if (locationType === "client") {
+        //   shipmentForm.setFieldValue("gstin", details.gst);
+        //   shipmentForm.setFieldValue("clientaddress", address);
+        // } else if (locationType === "shipaddressid") {
+        //   shipmentForm.setFieldValue("shipPan", details.panNo);
+        //   shipmentForm.setFieldValue("shipGST", details.gst);
+        //   shipmentForm.setFieldValue("shipaddress", address);
+        // }
+      }
+    }
+  };
+  useEffect(() => {
+    if (updateShipmentRow) {
+      console.log("update ->", updateShipmentRow);
+      getShipmentForUpdate(updateShipmentRow.shipment_id);
+      getlocations();
+      handleFetchBillingOptions();
+    }
+  }, [updateShipmentRow]);
+  useEffect(() => {
+    if (billingId) {
+      getBillingAddress(billingId);
+    }
+  }, [billingId]);
+  // useEffect(() => {
+  //   if (clientbranch?.value && client?.value) {
+  //     handleFetchClientBranchDetails("client", clientbranch.value);
+  //   }
+  // }, [clientbranch]);
+  // useEffect(() => {
+  //   if (shippingId) {
+  //     console.log("shippingId", shippingId);
+  //     handleFetchClientBranchDetails("client", shippingId);
+  //   }
+  // }, [shippingId]);
   return (
     <Drawer
       onClose={hide}
-      open={open}
+      open={updateShipmentRow ? updateShipmentRow : open}
       width="100vw"
       bodyStyle={{ overflow: "hidden", padding: 10 }}
       title={`Creating Shipment : ${open} `}
@@ -161,15 +382,26 @@ function CreateShipment({ open, hide }) {
               vertical
               style={{ overflow: "auto", height: "100%" }}
             >
-              <ShipmentInfo
-                form={shipmentForm}
-                validateHandler={validateHandler}
-                billingOptions={billingOptions}
-                shippingOptions={shippingOptions}
-              />
-              <ClientInfo details={details} />
-              <BillingInfo details={details} />
-              <ShippingDetailsCard details={details} />
+              {details && (
+                <>
+                  <ShipmentInfo
+                    form={shipmentForm}
+                    validateHandler={validateHandler}
+                    billingOptions={billingOptions}
+                    shippingOptions={shippingOptions}
+                    updateShipmentRow={updateShipmentRow}
+                  />
+                  <ClientInfo details={details} />
+                  <BillingInfo
+                    details={details}
+                    updateShipmentRow={updateShipmentRow}
+                  />
+                  <ShippingDetailsCard
+                    details={details}
+                    updateShipmentRow={updateShipmentRow}
+                  />
+                </>
+              )}
             </Flex>
           </Col>
           <Col span={18}>
@@ -183,9 +415,9 @@ function CreateShipment({ open, hide }) {
               locationlist={locationlist}
               asyncOptions={asyncOptions}
               setAsyncOptions={setAsyncOptions}
-              minRows={minRows}
               CommonIcons={CommonIcons}
-              currencies={currencies}
+              getlocations={getlocations}
+              loading={loading}
             />
           </Col>
         </Row>
@@ -196,13 +428,11 @@ function CreateShipment({ open, hide }) {
 const Product = ({
   form,
   calculation,
-  location,
-  gsttype,
-  setlocationlist,
-  getLocationList,
-  locationlist,
 
-  currencies,
+  setAsyncOptions,
+  asyncOptions,
+  getlocations,
+  loading,
 }) => {
   return (
     <Card style={{ height: "100%" }} bodyStyle={{ height: "95%" }}>
@@ -210,27 +440,40 @@ const Product = ({
         removableRows={true}
         nonRemovableColumns={1}
         columns={[
-          ...productItems(
-            location,
-            gsttype,
-            setlocationlist,
-            getLocationList,
-            locationlist,
-            currencies
-          ),
+          ...productItems(getlocations, setAsyncOptions, asyncOptions, loading),
         ]}
         listName="products"
-        watchKeys={["rate", "qty", "gstRate"]}
+        watchKeys={["rate", "qty", "gstRate", "exchangeRate", "currencySymbol"]}
         nonListWatchKeys={["gstType"]}
-        componentRequiredRef={["rate", "qty"]}
+        componentRequiredRef={["rate", "qty", "pickLocation"]}
         form={form}
         calculation={calculation}
-        // rules={listRules}
+        rules={{
+          pickLocation: [
+            {
+              required: true,
+              message: "Please select a pick location",
+            },
+          ],
+          rate: [
+            {
+              required: true,
+              message: "Please enter Rate",
+            },
+          ],
+          qty: [
+            {
+              required: true,
+              message: "Please enter Qty",
+            },
+          ],
+        }}
       />
     </Card>
   );
 };
-const productItems = (gstType, inputHandler, currencies) => [
+
+const productItems = (getlocations, setAsyncOptions, asyncOptions, loading) => [
   {
     headerName: "#",
     name: "",
@@ -289,6 +532,7 @@ const productItems = (gstType, inputHandler, currencies) => [
   //     width: 150,
   //     field: () => <Input disabled />,
   //   },
+
   {
     headerName: "Local Value",
     width: 150,
@@ -320,20 +564,6 @@ const productItems = (gstType, inputHandler, currencies) => [
   //     />
   //   ),
   // },
-  // {
-  //   headerName: "Pick up location",
-  //   name: "pickLocation",
-  //   width: 150,
-  //   field: (row) => (
-  //     <MySelect
-  //       // onBlur={() => setlocationlist([])}
-  //       options={locationlist}
-  //       // optionsState={locationlist}
-  //       // selectLoading={loading === "select"}
-  //     />
-  //   ),
-  //   // <MySelect options={location} />,
-  // },
 
   {
     headerName: "Due Date",
@@ -344,7 +574,7 @@ const productItems = (gstType, inputHandler, currencies) => [
         disabled={true}
         name="duedate"
         value={row.duedate}
-        onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
+        // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
         className="date-text-input"
         mask="99-99-9999"
         placeholder="__-__-____"
@@ -384,6 +614,21 @@ const productItems = (gstType, inputHandler, currencies) => [
     field: (row) => <Input disabled={true} />,
   },
   {
+    headerName: "Pick Location",
+
+    width: 120,
+
+    name: "pickLocation",
+    field: ({ row }) => (
+      <MyAsyncSelect
+        onBlur={() => setAsyncOptions([])}
+        loadOptions={getlocations}
+        optionsState={asyncOptions}
+        selectLoading={loading("select")}
+      />
+    ),
+  },
+  {
     headerName: "Item Description",
     name: "remark",
     width: 250,
@@ -391,7 +636,7 @@ const productItems = (gstType, inputHandler, currencies) => [
       <Input
         size="default"
         value={row.remark}
-        onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+        // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
         placeholder="Enter Remark"
       />
     ),
