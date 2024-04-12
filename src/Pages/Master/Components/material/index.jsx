@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Divider,
   Flex,
@@ -49,7 +50,7 @@ const Material = () => {
   const [typeOfComp, setTypeOfComp] = useState("");
   const [valFromName, setValForName] = useState("");
   const { executeFun, loading: loading1 } = useApi();
-
+  const [isEnabled, setIsEnabled] = useState(false);
   const [hsnForm] = Form.useForm();
   const [headerForm] = Form.useForm();
   const [attributeForm] = Form.useForm();
@@ -570,6 +571,22 @@ const Material = () => {
                         </Row>
                       </Col>
                     )}
+                    <Col span={24}>
+                      <Form.Item name="piaEnable">
+                        <Checkbox
+                          checked={isEnabled}
+                          onChange={(e) => setIsEnabled(e.target.checked)}
+                        />
+                        <Typography.Text
+                          style={{
+                            fontSize: "10px",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          Enable PIA
+                        </Typography.Text>
+                      </Form.Item>
+                    </Col>
                     <Col span={24}>
                       <Form.Item
                         label="Description"
