@@ -936,7 +936,7 @@ const SalesOrderForm = () => {
                           Provide shipping information
                         </Descriptions.Item>
                       </Descriptions>{" "}
-                      <Switch defaultChecked onChange={toggleInputType} />
+                      <Switch disabled={!client} onChange={toggleInputType} />
                     </Col>
 
                     <Col span={20}>
