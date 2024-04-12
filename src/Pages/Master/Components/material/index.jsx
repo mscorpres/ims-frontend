@@ -927,8 +927,8 @@ const CategoryModal = ({
   const getComponentValueForName = (value) => {
     // console.log("value===========", value);
     let componentVal;
-    let categorSnip = selectedCategory.label.toUpperCase();
-    let newSnip = categorSnip.substr(0, 3);
+    let categorSnip = selectedCategory?.label?.toUpperCase();
+    let newSnip = categorSnip?.substr(0, 3);
     if (newSnip != "CAP") {
       if (value <= 999) {
         // console.log("R", value + "R");
@@ -1207,7 +1207,7 @@ const CategoryModal = ({
     }
   };
   const sortedFields = [...fields].sort((a, b) => {
-    console.log("ff", fields);
+    // console.log("ff", fields);
     if (a.type === b.type) {
       return a.label.localeCompare(b.label);
     }
