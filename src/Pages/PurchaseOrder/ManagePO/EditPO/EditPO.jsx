@@ -222,7 +222,10 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         id: v4(),
         currency: row.currency,
         exchange_rate: row.exchangerate == "" ? 1 : row.exchangerate,
-        component: { label: row.component, value: row.componentKey },
+        component: {
+          label: row.component + row.part_no,
+          value: row.componentKey,
+        },
         qty: row.orderqty,
         rate: row.rate,
         duedate: row.duedate,
