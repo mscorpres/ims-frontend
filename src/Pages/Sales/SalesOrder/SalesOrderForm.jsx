@@ -885,7 +885,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="billPan"
                             label="Pan No."
-                            // rules={rules.billPan}
+                            rules={rules.billPan}
                           >
                             <Input
                               size="default"
@@ -898,7 +898,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="billGST"
                             label="GSTIN / UIN"
-                            // rules={rules.billGST}
+                            rules={rules.billGST}
                           >
                             <Input
                               size="default"
@@ -961,7 +961,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             label="Pan No."
                             name="shipPan"
-                            rules={rules.shipPan}
+                            // rules={rules.shipPan}
                           >
                             <Input
                               size="default"
@@ -974,7 +974,7 @@ const SalesOrderForm = () => {
                           <Form.Item
                             name="shipGST"
                             label=" GSTIN / UIN"
-                            rules={rules.shipGST}
+                            // rules={rules.shipGST}
                           >
                             <Input
                               size="default"
