@@ -54,8 +54,9 @@ function RegisteredUser() {
       "vendorSelect"
     );
     let arr = [];
+    // console.log("getVendorOptions", response);
     if (response.success) {
-      arr = response.data.data.map((row) => ({
+      arr = response.data.map((row) => ({
         value: row.id,
         text: row.text,
       }));
