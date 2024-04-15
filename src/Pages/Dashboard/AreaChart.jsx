@@ -3,6 +3,11 @@ import Chart from "chart.js/auto"; // Importing Chart.js
 import { Card, Flex } from "antd";
 
 const AreaChart = ({ data, label }) => {
+  let a = [
+    `${label[0]}:${data[0]}`,
+    `${label[1]}:${data[1]}`,
+    `${label[2]}:${data[2]}`,
+  ];
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -12,7 +17,7 @@ const AreaChart = ({ data, label }) => {
     const config = {
       type: "pie",
       data: {
-        labels: label,
+        labels: a,
         datasets: [
           {
             data: data,
@@ -35,11 +40,7 @@ const AreaChart = ({ data, label }) => {
   }, [data, label]);
 
   return (
-    <Card
-      size="small"
-      style={{ height: "350px" }}
-      //   title={"Part Analysis"}
-    >
+    <Card size="small" style={{ height: "360px" }} title={"PO Evaluation"}>
       <Flex justify="center" style={{ height: "300px" }}>
         {" "}
         <canvas ref={chartRef} width="200" height="150"></canvas>

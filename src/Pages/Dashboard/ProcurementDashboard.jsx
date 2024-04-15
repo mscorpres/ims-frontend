@@ -23,6 +23,7 @@ import { Timeline } from "@mui/icons-material";
 import AreaChart from "./AreaChart";
 import RadiusChart from "./RadiusChart";
 import MyDatePicker from "../../Components/MyDatePicker";
+import BubbleChart from "./bubbleChart";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
@@ -37,6 +38,10 @@ function ProcurementDashboard() {
   const [gstGraphData, setGstGraphData] = useState([]);
   const [totVendors, setTotVendors] = useState("");
   const [dateRange, setDateRange] = useState("");
+  const [chartlabels, setChartlabels] = useState([]);
+  const [totVen, setTotVen] = useState("");
+  const [totRegGST, setTotRegGST] = useState([]);
+  const [totNotRegGST, setTotNotRegGST] = useState([]);
   const [transactionSummary, setTransactionSummary] = useState([
     {
       title: "Rejection",
@@ -170,6 +175,7 @@ function ProcurementDashboard() {
         labels: arr.map((r) => r?.partCode),
         values: arr.map((r) => r?.total_count / 10000000),
       };
+
       setVendorData(response?.data?.topPo);
 
       // if (a.length > 0) {
@@ -186,29 +192,48 @@ function ProcurementDashboard() {
     if (response.success) {
       let b = Object.values(data);
       let labels = Object.keys(data);
-      console.log("b", labels);
+
       setAreaChartData(b);
       setAreaChartLabel(labels);
+      setChartlabels(response.data);
     }
   };
   const vendorRegistered = async () => {
     const response = await imsAxios.get("/dashboard/vendorData");
     const { data } = response;
+    // return;
     if (response.success) {
       let b = Object.values(data);
       let labels = Object.keys(data);
       setGstGraphData(b);
-      setGstGraphLables(labels);
-      console.log(
-        "(response?.data?.totalVendors)",
-        response?.data?.totalVendors
-      );
-      setTotVendors(response?.data?.totalVendors);
-      // console.log("b", labels);
-      // setAreaChartData(b);
-      // setAreaChartLabel(labels);
+      // setGstGraphLables(labels);
+      setGstGraphLables(["Total Vendors", "Registered", "Unregeistered"]);
+      setTotVendors(response.data.totalVendors);
+      // const { data } = response;
+      // const totalVendors = [];
+      // const registeredWithGST = [];
+      // const registeredWithoutGST = [];
+
+      // data.forEach((item) => {
+      //   const values = Object.values(item)[0];
+      //   totalVendors.push(values.totalVendors);
+      //   registeredWithGST.push(values.registeredWithGST);
+      //   registeredWithoutGST.push(values.registeredWithoutGST);
+      // });
+
+      // console.log("datas:", data);
+      // setTotVen(totalPoValues);
+      // setTotRegGST(registeredWithGST);
+      // setTotNotRegGST(registeredWithoutGST);
+      // console.log("Domestic PO Values:", domesticPoValues);
+      // console.log("Import PO Values:", importPoValues);
     }
+
+    // console.log("b", labels);
+    // setAreaChartData(b);
+    // setAreaChartLabel(labels);
   };
+
   let labels = [
     "Apr",
     "May",
@@ -246,36 +271,7 @@ function ProcurementDashboard() {
       // console.log("Import PO Values:", importPoValues);
     }
   };
-  //  = {
-  //   labels: ["P0002", "P0011", "P0019", "P0014", "P0018", "P0010"],
-  //   values: [12, 19, 3, 5, 2, 3], // Example data values
-  // };
-  // const lineData = {
 
-  //   datasets: [
-  //     {
-  //       label: "Total",
-  //       data: totalPOData,
-  //       borderColor: "rgba(75, 192, 192, 1)",
-  //       backgroundColor: "rgba(75, 192, 192, 0.2)",
-  //       borderWidth: 2,
-  //     },
-  //     {
-  //       label: "Domestic",
-  //       data: domesticPOData,
-  //       borderColor: "rgba(255, 99, 132, 1)",
-  //       backgroundColor: "rgba(255, 99, 132, 0.2)",
-  //       borderWidth: 2,
-  //     },
-  //     {
-  //       label: "Import",
-  //       data: importPOData,
-  //       borderColor: "rgba(255, 205, 86, 1)",
-  //       backgroundColor: "rgba(255, 205, 86, 0.2)",
-  //       borderWidth: 2,
-  //     },
-  //   ],
-  // };
   const pieData = {
     labels: ["Purple", "Blue", "Yellow", "Green", "Purple"],
     values: [804, 16, 0, 0, 0],
@@ -378,7 +374,11 @@ function ProcurementDashboard() {
                   {" "}
                   <Row>
                     <Col span={8}>
-                      <RadiusChart
+                      {/* <RadiusChart
+                        datas={gstGraphData}
+                        labels={gstGraphLables}
+                      /> */}
+                      <BubbleChart
                         datas={gstGraphData}
                         labels={gstGraphLables}
                       />
@@ -459,8 +459,9 @@ function ProcurementDashboard() {
 
               <Col span={7}>
                 <Card
+                  size="small"
                   // style={{ width: "26vw", height: "50vh", marginRight: "4em" }}
-                  title={"Top Vendors"}
+                  title={"Top Vendors (Value in Crores"}
                 >
                   {" "}
                   {/* <BarChart data={chartData} /> */}
@@ -477,7 +478,9 @@ function ProcurementDashboard() {
                           <List.Item.Meta
                             title={item.name + " " + "(" + item.venCode + ")"}
                           />
-                          <div>{item.total_po}</div>
+                          <div>
+                            {Number(item.total_po_value / 10000000).toFixed(2)}
+                          </div>
                         </List.Item>
                       </>
                     )}
