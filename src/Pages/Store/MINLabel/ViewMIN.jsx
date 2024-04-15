@@ -309,13 +309,13 @@ export default function ViewMIN() {
       field: "date",
       width: 150,
     },
+    // {
+    //   headerName: "MIN by",
+    //   field: "by",
+    //   width: 150,
+    // },
     {
-      headerName: "MIN by",
-      field: "by",
-      width: 150,
-    },
-    {
-      headerName: "Part Name",
+      headerName: "Components",
       field: "partName",
       width: 150,
     },
@@ -332,6 +332,16 @@ export default function ViewMIN() {
     {
       headerName: "Qty",
       field: "qty",
+      width: 150,
+    },
+    {
+      headerName: "Invoice Number",
+      field: "invNo",
+      width: 150,
+    },
+    {
+      headerName: "JW Id",
+      field: "jwID",
       width: 150,
     },
     {
