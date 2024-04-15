@@ -771,6 +771,18 @@ const links = [
 
       placeholder: "Cost Center Transaction Report",
     },
+    {
+      routeName: "R33",
+      routePath: "/r33",
+
+      placeholder: "MIS Date Wise Report",
+    },
+    {
+      routeName: "R34",
+      routePath: "/r34",
+
+      placeholder: "MIS DateRange Wise Report",
+    },
   ],
   // MIN label links
 

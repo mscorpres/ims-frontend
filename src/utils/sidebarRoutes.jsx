@@ -496,7 +496,7 @@ export const items = (user) => [
         //   // <AiOutlineMinus />
         // ),
         getItem(
-          <Link to="/r1">Reports R1 - R32 </Link>,
+          <Link to="/r1">Reports R1 - R34 </Link>,
 
           "B413"
           // <AiOutlineMinus />
@@ -613,13 +613,18 @@ export const items = (user) => [
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
 
         getItem(
-          <Link to="/r1">Reports R1 - R32</Link>,
+          <Link to="/r1">Reports R1 - R34</Link>,
 
           "C413"
           // <AiOutlineMinus />
         ),
       ]),
     ]),
+    getItem(
+      <Link to="/production/prodMis">Production MIS</Link>,
+      "C5",
+      <MdQueryStats />
+    ),
   ]),
   //Legal
   // user?.showlegal

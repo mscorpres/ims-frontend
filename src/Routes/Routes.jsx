@@ -240,6 +240,9 @@ import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
+import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
+import R33 from "../Pages/Reports/R/R33";
+import R34 from "../Pages/Reports/R/R34";
 // import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../pages/fixeassetmodule/Depreciation";
@@ -453,6 +456,10 @@ const Routes = [
   {
     path: "/q6",
     main: () => <Index />,
+  },
+  {
+    path: "/production/prodMis",
+    main: () => <ProductionMIS />,
   },
   // MES QCA
   {
@@ -682,6 +689,16 @@ const Routes = [
     path: "/r32",
 
     main: () => <R32 />,
+  },
+  {
+    path: "/r33",
+
+    main: () => <R33 />,
+  },
+  {
+    path: "/r34",
+
+    main: () => <R34 />,
   },
   {
     path: "/reqWithBom",
