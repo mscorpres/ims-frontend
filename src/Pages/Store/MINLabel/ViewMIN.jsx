@@ -2,6 +2,7 @@ import React from "react";
 import {
   Button,
   Col,
+  Divider,
   Drawer,
   Form,
   Input,
@@ -54,7 +55,7 @@ export default function ViewMIN() {
   });
   const [printForm] = Form.useForm();
 
-  const qty = Form.useWatch("quantity", printForm);
+  const qty = Form.useWatch("quant", printForm);
   const numofBox = Form.useWatch("noOfBoxes", printForm);
   const wiseOptions = [
     { text: "Date Wise", value: "datewise" },
@@ -260,6 +261,7 @@ export default function ViewMIN() {
         part_code: [],
         transaction: "",
       });
+      printForm.resetFields();
     } else {
       toast.error(data.message.msg);
     }
@@ -378,15 +380,21 @@ export default function ViewMIN() {
       copies_qty: [],
       part_code: [],
       transaction: "",
-      setPrintLabelInfo,
+      // setPrintLabelInfo,
     });
   }, [showPrintLabels]);
   useEffect(() => {
-    if (qty || numofBox) {
+    if (qty >= 0 || numofBox >= 0) {
       let value = qty * numofBox;
       setTotalValue(value);
     }
   }, [qty, numofBox]);
+  useEffect(() => {
+    if (totalValue) {
+      // setTotalValue(totalValue);
+      printForm.setFieldValue("Total", totalValue);
+    }
+  }, [totalValue]);
 
   return (
     <div style={{ height: "90%" }}>
@@ -520,7 +528,7 @@ export default function ViewMIN() {
                   {/* NEw add if the pia status is recieved */}
                   {printLabelInfo.pia_status == "Y" ? (
                     <>
-                      <Form.Item name="quantity" label="Qty In Each Boxes">
+                      <Form.Item name="quant" label="Qty In Each Boxes">
                         <Col span={24}>
                           <Input type="textarea" value={qty} />
                         </Col>
@@ -537,14 +545,32 @@ export default function ViewMIN() {
                           />
                         </Col>
                       </Form.Item>
+                      <Col span={24} style={{ marginBottom: "10px" }}>
+                        <Typography.Text
+                          style={{
+                            fontSize: 10,
+                            fontWeight: "bolder",
+                          }}
+                        >
+                          Suggested Total: {totalValue}
+                        </Typography.Text>
+                      </Col>
                       <Col span={24}>
                         <Form.Item
-                          name="Total"
+                          name="Quantity"
                           label="Total Quantity (Qty X Number of Boxes) "
                         >
                           <Input
                             type="textarea"
-                            value={totalValue}
+                            // value={totalValue}
+                            value={printLabelInfo.copies_qty}
+                            onChange={(e) => {
+                              inputHandler(
+                                "copies_qty",
+                                e.target.value,
+                                partCode.id
+                              );
+                            }}
                             // value={printLabelInfo.copies_qty}
                             // onChange={(e) => {
                             //   inputHandler("copies_qty", e.target.value, partCode.id);
@@ -552,6 +578,7 @@ export default function ViewMIN() {
                           />
                         </Form.Item>
                       </Col>
+                      <Divider />
                     </>
                   ) : (
                     <Form.Item
@@ -596,7 +623,7 @@ export default function ViewMIN() {
   );
 }
 const initialValues = {
-  quantity: "1",
+  quant: "1",
   noOfBoxes: "1",
   modifier: "public",
 };
