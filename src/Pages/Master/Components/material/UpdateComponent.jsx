@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Col,
   Descriptions,
   Divider,
@@ -45,6 +46,7 @@ export default function UpdateComponent() {
   const [altPartCodeForm] = Form.useForm();
   const [alternatePartModal, setAlternatePartModal] = useState(false);
 
+  const [isEnabled, setIsEnabled] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   console.log("categoryData", categoryData);
   useEffect(() => {
@@ -101,6 +103,7 @@ export default function UpdateComponent() {
             jobWork: value.jobwork_rate,
             qcStatus: value.qc_status,
             description: value.description,
+            piaStatus: value.pia_status == "Y" && setIsEnabled(true),
             taxType: value.tax_type,
             taxRate: value.gst_rate,
             brand: value.brand,
@@ -267,6 +270,7 @@ export default function UpdateComponent() {
       attr_category: attrCat,
       componentcategory: "--",
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
+      pia_status: isEnabled == true ? "Y" : "N",
     };
     // console.log("payload", payload);
 
@@ -533,13 +537,29 @@ export default function UpdateComponent() {
                       <Input />
                     </Form.Item>
                   </Col>
+                  <Col span={4}>
+                    <Form.Item name="piaStatus">
+                      <Checkbox
+                        checked={isEnabled}
+                        onChange={(e) => setIsEnabled(e.target.checked)}
+                      />
+                      <Typography.Text
+                        style={{
+                          fontSize: "14px",
+                          marginLeft: "4px",
+                        }}
+                      >
+                        Enable PIA
+                      </Typography.Text>
+                    </Form.Item>
+                  </Col>
                   <Col span={8}>
                     <Form.Item name="qcStatus" label="QC Status">
                       <MySelect options={qcStatusOptions} />
                     </Form.Item>
                   </Col>
 
-                  <Col span={16}>
+                  <Col span={12}>
                     <Form.Item name="description" label="Description">
                       <Input.TextArea />
                     </Form.Item>
@@ -687,6 +707,7 @@ const initialValues = {
   enableAlert: "",
   purchaseCost: "",
   otherCost: "",
+  piaStatus: "",
 };
 
 const isEnabledOptions = [
