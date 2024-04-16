@@ -32,6 +32,7 @@ export default function SingleProduct({
   asyncOptions,
   setDateRange,
   dateRange,
+  // format,
 }) {
   const component =
     Form.useWatch(["components", field.name, "component"], form) ?? 0;
@@ -42,6 +43,7 @@ export default function SingleProduct({
   const format = "HH:mm";
   return (
     <Row
+      //   span={20}
       style={{
         background: "#ececd529",
         padding: "5px 15px",
@@ -246,11 +248,11 @@ export default function SingleProduct({
               type="text"
               size="small"
             >
-              - Remove Department
+              - Remove Component
             </Button>
             {/* )} */}
             <Button size="small" type="link" onClick={() => add()}>
-              + Add Department
+              + Add Component
             </Button>
           </Flex>
         </Col>
