@@ -94,7 +94,7 @@ function R33() {
         </MyButton>
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-        <Card style={{ height: "90%", overflowY: "scroll" }}>
+        <Card style={{ height: "97%", overflowY: "scroll" }}>
           {" "}
           <TableRow>
             <TableCell sx={{ width: "20rem" }}>Department</TableCell>
@@ -217,33 +217,33 @@ const columnss = [
   {
     headerName: " Manpower",
     field: "manPower",
-    width: 150,
+    width: 110,
   },
 
   {
     headerName: "No Of Lines",
     field: "noOfLines",
-    width: 150,
+    width: 110,
   },
   {
     headerName: "Output",
     field: "output",
-    width: 150,
+    width: 110,
   },
   {
     headerName: " Shift Start",
     field: "shiftStart",
-    width: 150,
+    width: 140,
   },
   {
     headerName: "Shift End",
     field: "shiftEnd",
-    width: 150,
+    width: 140,
   },
   {
     headerName: "Over Time",
     field: "overTm",
-    width: 150,
+    width: 140,
   },
   {
     headerName: " Working Hours",
