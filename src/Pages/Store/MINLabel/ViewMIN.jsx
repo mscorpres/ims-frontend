@@ -197,7 +197,6 @@ export default function ViewMIN() {
       const { data } = await imsAxios.post("/qrLabel/getComponents", {
         transaction: value,
       });
-      console.log(" data.data", data.data);
       setGetPartLoading(false);
       obj = {
         ...obj,
@@ -225,7 +224,6 @@ export default function ViewMIN() {
         }),
       };
     }
-    console.log("objjjjjj", obj);
     setPrintLabelInfo(obj);
   };
   const printLabels = async () => {
@@ -261,7 +259,6 @@ export default function ViewMIN() {
         part_code: [],
         transaction: "",
       });
-      printForm.resetFields();
     } else {
       toast.error(data.message.msg);
     }
