@@ -630,6 +630,11 @@ export const items = (user) => [
         ),
       ]),
     ]),
+    getItem(
+      <Link to="/production/prodMis">Production MIS</Link>,
+      "D1",
+      <MdAccountBox />
+    ),
   ]),
   //Legal
   // user?.showlegal

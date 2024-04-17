@@ -238,6 +238,7 @@ import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/C
 import R32 from "../Pages/Reports/R/R32";
 import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList";
 import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan";
+import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
 const Routes = [
   {
     path: "/login",
@@ -443,6 +444,11 @@ const Routes = [
   {
     path: "/q6",
     main: () => <Index />,
+  },
+  // production MIS
+  {
+    path: "/production/prodMis",
+    main: () => <ProductionMIS />,
   },
   // MES QCA
   {
