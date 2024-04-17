@@ -232,14 +232,22 @@ import PendingPhysicalStock from "../Pages/Store/PhysicalStock/Pending";
 import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected";
 import EditSalesOrder from "../Pages/Sales/SalesOrder/edit";
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser";
+import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList";
+import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan";
+
+import R32 from "../Pages/Reports/R/R32";
 import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
-import R32 from "../Pages/Reports/R/R32";
-import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList";
-import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan";
+import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
+//
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
-import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments";
+import R33 from "../Pages/Reports/R/R33";
+import R34 from "../Pages/Reports/R/R34";
+// import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
+// import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
+// import Depreciation from "../pages/fixeassetmodule/Depreciation";
+
 const Routes = [
   {
     path: "/login",
@@ -252,6 +260,10 @@ const Routes = [
   {
     path: "/",
     main: () => <Dashboard />,
+  },
+  {
+    path: "/dashboardProcurement",
+    main: () => <ProcurementDashboard />,
   },
   {
     path: "/material",
@@ -348,10 +360,6 @@ const Routes = [
   //   path: "/material-transaction",
   //   main: () => <MaterialTransaction />,
   // },
-  {
-    path: "/uploaded-documents",
-    main: () => <ViewDocuments />,
-  },
   {
     path: "/transaction-In",
     main: () => <TransactionIn />,
@@ -678,10 +686,21 @@ const Routes = [
 
     main: () => <R31 />,
   },
+
   {
     path: "/r32",
 
     main: () => <R32 />,
+  },
+  {
+    path: "/r33",
+
+    main: () => <R33 />,
+  },
+  {
+    path: "/r34",
+
+    main: () => <R34 />,
   },
   {
     path: "/reqWithBom",
@@ -881,12 +900,12 @@ const Routes = [
   },
   //
   {
-    path: "/woviewchallan",
-    main: () => <WoViewChallan />,
-  },
-  {
     path: "/wocreatescrapechallan",
     main: () => <CreateScrapeChallan />,
+  },
+  {
+    path: "/woviewchallan",
+    main: () => <WoViewChallan />,
   },
   // {
   //   path: "/addClient",
@@ -1242,6 +1261,7 @@ const Routes = [
     path: "/tasks/user",
     main: () => <UserTasks />,
   },
+  //over here
   {
     path: routeConstants.finance.vendor.reco.create,
     main: () => <VendorReconcilation />,
@@ -1310,6 +1330,18 @@ const Routes = [
   {
     path: "/controlPanel/allUsers",
     main: () => <AllUsers />,
+  },
+  {
+    path: "/assets/create",
+    main: () => <CreateAsset />,
+  },
+  {
+    path: "/assets/view",
+    main: () => <ViewAsset />,
+  },
+  {
+    path: "/assets/depreciation",
+    main: () => <Depreciation />,
   },
 
   ///login
