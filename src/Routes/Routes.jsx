@@ -240,6 +240,7 @@ import Index from "../Pages/Query/ClosingStock/Index";
 import routeConstants from "./routeConstants";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan";
 import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
+//
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
 import R33 from "../Pages/Reports/R/R33";
 import R34 from "../Pages/Reports/R/R34";
@@ -457,6 +458,7 @@ const Routes = [
     path: "/q6",
     main: () => <Index />,
   },
+  // production MIS
   {
     path: "/production/prodMis",
     main: () => <ProductionMIS />,

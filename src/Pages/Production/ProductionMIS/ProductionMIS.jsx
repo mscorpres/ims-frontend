@@ -77,7 +77,6 @@ function ProductionMIS() {
   return (
     <>
       <Row span={24}>
-        {/* <Typography.Title>{Production MIS}</Typography.Title> */}
         <Card
           title={"Production MIS"}
           style={{ height: "100%", margin: "2em" }}
