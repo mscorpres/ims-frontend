@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Col,
   Descriptions,
   Divider,
@@ -9,6 +10,7 @@ import {
   Modal,
   Row,
   Space,
+  Tooltip,
   Typography,
 } from "antd";
 import React from "react";
@@ -36,6 +38,7 @@ export default function UpdateComponent() {
   const [uomOptions, setuomOptions] = useState([]);
   const [groupOptions, setgroupOptions] = useState([]);
   const [attr_raw, setUniqueIdData] = useState("");
+  const [tooldata, setTooldata] = useState({});
   const [categoryData, setCategoryData] = useState(null);
   const [showCategoryDetails, setShowCategoryDetails] = useState(false);
   const [fetchPartCode, setFetchPartCode] = useState("");
@@ -45,8 +48,9 @@ export default function UpdateComponent() {
   const [altPartCodeForm] = Form.useForm();
   const [alternatePartModal, setAlternatePartModal] = useState(false);
 
+  const [tooltipVisible, setTooltipVisible] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
-  console.log("categoryData", categoryData);
   useEffect(() => {
     // console.log("attr_raw", attr_raw);/
     if (attr_raw) {
@@ -72,7 +76,7 @@ export default function UpdateComponent() {
           const value = data.data[0];
           // console.log("data...............", value);
           let catType = value.attr_category;
-          console.log("data...............", catType);
+          // console.log("data...............", catType);
           if (value.attr_category === "R") {
             catType = "Resistor";
           } else if (value.attr_category === "C") {
@@ -101,6 +105,7 @@ export default function UpdateComponent() {
             jobWork: value.jobwork_rate,
             qcStatus: value.qc_status,
             description: value.description,
+            piaStatus: value.pia_status == "Y" && setIsEnabled(true),
             taxType: value.tax_type,
             taxRate: value.gst_rate,
             brand: value.brand,
@@ -126,6 +131,7 @@ export default function UpdateComponent() {
             },
             // componentcategory: value.attr_raw.matType,
             category: value.category,
+            toolLabel: value.attr_raw,
           };
           setCategoryData({
             // text: value.attr_category.text,
@@ -133,9 +139,8 @@ export default function UpdateComponent() {
             text: value.attr_code,
             value: value.attr_code,
           });
+          setTooldata(finalObj.toolLabel);
           componentForm.setFieldsValue(finalObj);
-          // console.log("finalObj");
-          // console.log("cate", categoryData);
 
           setFetchPartCode(finalObj);
           const objects = finalObj.alternate_part_codes.map((code, index) => ({
@@ -143,10 +148,7 @@ export default function UpdateComponent() {
             text: code,
             label: code,
           }));
-          // let obj = { components: objects };
-          // setPartOptions(objects);
           altPartCodeForm.setFieldValue("alternatePart", objects);
-          // console.log("partOptions", obj.components);
         } else {
           toast.error(data.message.msg);
         }
@@ -156,6 +158,41 @@ export default function UpdateComponent() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (tooldata) {
+      if (fetchPartCode.catType == "Resistor") {
+        componentForm.setFieldValue("mountingStyle", tooldata?.mountingStyle);
+        componentForm.setFieldValue(
+          "manufacturing_code",
+          tooldata?.manufacturing_code
+        );
+        componentForm.setFieldValue("multipler", tooldata?.multipler);
+        componentForm.setFieldValue("packageSize", tooldata?.packageSize);
+        componentForm.setFieldValue("powerRating", tooldata?.powerRating);
+        componentForm.setFieldValue("tolerance", tooldata?.tolerance);
+        componentForm.setFieldValue("value", tooldata?.value);
+      } else if (fetchPartCode.catType == "Capacitor") {
+        componentForm.setFieldValue(
+          "manufacturing_code",
+          tooldata?.manufacturing_code
+        );
+
+        componentForm.setFieldValue("mountingStyle", tooldata?.mountingStyle);
+        componentForm.setFieldValue("tolerance", tooldata?.tolerance);
+        componentForm.setFieldValue("siUnit", tooldata?.siUnit);
+        componentForm.setFieldValue(
+          "typeofCapacitor",
+          tooldata?.typeofCapacitor
+        );
+        componentForm.setFieldValue("tolerance", tooldata?.tolerance);
+        componentForm.setFieldValue("packageSize", tooldata?.packageSize);
+        componentForm.setFieldValue("value", tooldata?.value);
+        componentForm.setFieldValue("voltage", tooldata?.voltage);
+      }
+    } else {
+      setTooltipVisible(true);
+    }
+  }, [tooldata]);
 
   useEffect(() => {
     if (fetchPartCode) {
@@ -216,8 +253,8 @@ export default function UpdateComponent() {
   };
   const modalConfirmMaterial = async () => {
     const values = await componentForm.validateFields();
-    console.log("attr_raw", attr_raw);
-    console.log("catType", componentForm.getFieldValue("catType"));
+    // console.log("attr_raw", attr_raw);
+    // console.log("catType", componentForm.getFieldValue("catType"));
     let catTypeCategory = componentForm.getFieldValue("catType");
     let attrCat;
     if (catTypeCategory === "Resistor") {
@@ -267,6 +304,7 @@ export default function UpdateComponent() {
       attr_category: attrCat,
       componentcategory: "--",
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
+      pia_status: isEnabled == true ? "Y" : "N",
     };
     // console.log("payload", payload);
 
@@ -290,7 +328,7 @@ export default function UpdateComponent() {
   };
   const validateHandler = async () => {
     const values = await componentForm.validateFields();
-    console.log("attr_raw", attr_raw);
+    // console.log("attr_raw", attr_raw);
     const payload = {
       componentKey: componentKey,
       componentname: values.component,
@@ -368,7 +406,6 @@ export default function UpdateComponent() {
   };
 
   const submitHandler = async (payload) => {
-    console.log("inside rhos submit handler", payload);
     try {
       setLoading("submit");
       const response = await imsAxios.post(
@@ -504,16 +541,21 @@ export default function UpdateComponent() {
                   <Col span={8}>
                     <Form.Item label="Attribute Code">
                       <Row justify="space-between">
-                        {/* {categoryData && ( */}
-                        <Col>{categoryData?.text ?? "--"}</Col>
+                        {/* {categor yData && ( */}{" "}
+                        <Tooltip
+                          title={
+                            "Please save the details to enable this feature"
+                          }
+                        >
+                          <Col>{categoryData?.text ?? "--"}</Col>
+                        </Tooltip>
                         {/* )} */}
                         {/* {(!categoryData?.value ||
                           categoryData?.value === "--") && ( */}
-
                         <Col>
                           <Button
                             onClick={() => setShowCategoryDetails(categoryData)}
-                            disabled={categoryData?.value.length > 3}
+                            // disabled={categoryData?.value.length > 3}
                           >
                             Details
                           </Button>
@@ -527,10 +569,25 @@ export default function UpdateComponent() {
                       <MySelect options={isEnabledOptions} />
                     </Form.Item>
                   </Col>
-
                   <Col span={8}>
                     <Form.Item name="jobWork" label="Job Work">
                       <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <Form.Item name="piaStatus">
+                      <Checkbox
+                        checked={isEnabled}
+                        onChange={(e) => setIsEnabled(e.target.checked)}
+                      />
+                      <Typography.Text
+                        style={{
+                          fontSize: "14px",
+                          marginLeft: "4px",
+                        }}
+                      >
+                        Enable PIA
+                      </Typography.Text>
                     </Form.Item>
                   </Col>
                   <Col span={8}>
@@ -538,12 +595,123 @@ export default function UpdateComponent() {
                       <MySelect options={qcStatusOptions} />
                     </Form.Item>
                   </Col>
-
-                  <Col span={16}>
+                  <Col span={12}>
                     <Form.Item name="description" label="Description">
                       <Input.TextArea />
                     </Form.Item>
                   </Col>
+
+                  {fetchPartCode.catType == "Resistor" && (
+                    <>
+                      {" "}
+                      <Divider />
+                      <Col span={24}>
+                        <Typography.Title level={5}>
+                          Attribute Code Details
+                        </Typography.Title>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name="manufacturing_code"
+                          label="Manufacturing Code"
+                        >
+                          <Input
+                            disabled
+                            value={tooldata?.manufacturing_code}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="mountingStyle" label="Mounting Style">
+                          <Input disabled value={tooldata?.mountingStyle} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="multipler" label="Multipler">
+                          <Input disabled value={tooldata?.multipler} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="packageSize" label="Package Size">
+                          <Input disabled value={tooldata?.packageSize} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="powerRating" label="Power Rating">
+                          <Input disabled value={tooldata?.powerRating} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="value" label="Value">
+                          <Input disabled value={tooldata?.value} />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  )}
+                  {fetchPartCode.catType == "Capacitor" && (
+                    <>
+                      {" "}
+                      <Divider />
+                      <Col span={24}>
+                        <Typography.Title level={5}>
+                          Attribute Code Details
+                        </Typography.Title>
+                      </Col>{" "}
+                      <Col span={8}>
+                        <Form.Item
+                          name="manufacturing_code"
+                          label="Manufacturing Code"
+                        >
+                          <Input
+                            disabled
+                            value={
+                              tooldata?.manufacturing_code == 0
+                                ? "--"
+                                : tooldata?.manufacturing_code
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="mountingStyle" label="Mounting Style">
+                          <Input disabled value={tooldata?.mountingStyle} />
+                        </Form.Item>
+                      </Col>{" "}
+                      <Col span={8}>
+                        <Form.Item name="tolerance" label="Tolerance">
+                          <Input disabled value={tooldata?.tolerance} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="siUnit" label="SI Unit">
+                          <Input disabled value={tooldata?.siUnit} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name="typeofCapacitor"
+                          label="Type of Capacitor"
+                        >
+                          <Input disabled value={tooldata?.typeofCapacitor} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="packageSize" label="Package Size">
+                          <Input disabled value={tooldata?.packageSize} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="voltage" label="Voltage">
+                          <Input disabled value={tooldata?.voltage} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="value" label="Value">
+                          <Input disabled value={tooldata?.value} />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  )}
 
                   <Divider />
                   <Col span={24}>
@@ -566,7 +734,6 @@ export default function UpdateComponent() {
                       title="Advance Details"
                     ></Descriptions>
                   </Col>
-
                   <Col span={8}>
                     <Form.Item name="brand" label="Brand">
                       <Input />
@@ -626,13 +793,11 @@ export default function UpdateComponent() {
                       <Input />
                     </Form.Item>
                   </Col>
-
                   <Col span={8}>
                     <Form.Item name="enableAlert" label="Enable Alert">
                       <Input />
                     </Form.Item>
                   </Col>
-
                   <Col span={8}>
                     <Form.Item name="purchaseCost" label="Purchase Cost">
                       <Input />
@@ -687,6 +852,8 @@ const initialValues = {
   enableAlert: "",
   purchaseCost: "",
   otherCost: "",
+  piaStatus: "",
+  mountingStyle: "",
 };
 
 const isEnabledOptions = [
