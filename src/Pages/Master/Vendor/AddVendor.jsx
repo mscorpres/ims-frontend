@@ -64,7 +64,7 @@ const AddVendor = () => {
     console.log("files", files);
     setLoading("submit");
     setShowSubmitConfirmModal(false);
-    return;
+    // return;
     const response = await imsAxios.post("/vendor/addVendor", formData);
     setLoading(false);
     const { data } = response;

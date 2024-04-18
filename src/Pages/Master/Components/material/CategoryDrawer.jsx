@@ -139,7 +139,7 @@ export default function CategoryDrawer({
             typeofCapacitor: values.type_Of_capacitor.value,
             siUnit: values.si_unit.value,
             //manufacturing code
-            manufacturing_code: manfCode,
+            manufacturing_code: manfCode ?? "--",
           }
         : selectedCategory.label === "Resistor"
         ? {
@@ -150,7 +150,7 @@ export default function CategoryDrawer({
             powerRating: values.power_rating.value,
             value: values.value,
             //manufacturing code
-            manufacturing_code: manfCode,
+            manufacturing_code: manfCode ?? "--",
           }
         : "";
     let payload;
