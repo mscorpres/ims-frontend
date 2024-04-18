@@ -548,12 +548,16 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
           key: r.key,
+          piaStatus: r.pia_status,
         };
       });
       // console.log("arr,arr", arr);
       setBomList(arr);
       setLoading(false);
       setShowBomList(true);
+      if (arr[0]?.piaStatus == "Y") {
+        toast.info(`PIA Status is enabled for ${arr[0]?.partName} Part Code.`);
+      }
     }
 
     setLoading(false);

@@ -477,6 +477,7 @@ export default function MaterialInWithPO({}) {
 
     if (data.code == 200) {
       let obj = data.data;
+      console.log("obj", data?.data?.materials[0]?.pia_status);
       obj = {
         ...obj,
 
@@ -511,11 +512,15 @@ export default function MaterialInWithPO({}) {
         }),
       };
       costCode = obj.headers.cost_center_key;
-      // console.log("obj", costCode);
       setCodeCostCenter(costCode);
 
       setPoData(obj);
       setResetPoData(obj);
+      if (data.data.materials[0].pia_status == "Y") {
+        toast.info(
+          `PIA Status is enabled for ${data.data.materials[0].c_partno} Part Code.`
+        );
+      }
     } else {
       toast.error(data.message.msg);
       setPoData({ materials: [] });

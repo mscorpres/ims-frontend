@@ -196,6 +196,12 @@ export default function MaterialInWithoutPO() {
     );
     let arr = [];
     if (response.success) {
+      // console.log("Respomse", response);
+      if (response.data[0].piaStatus == "Y") {
+        toast.info(
+          `PIA Status is enabled for ${response.data[0].newPart} Part Code.`
+        );
+      }
       arr = convertSelectOptions(response.data);
     }
     setAsyncOptions(arr);
