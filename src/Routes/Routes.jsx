@@ -244,6 +244,8 @@ import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard";
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
 import R33 from "../Pages/Reports/R/R33";
 import R34 from "../Pages/Reports/R/R34";
+import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn";
+import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal";
 // import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../pages/fixeassetmodule/Depreciation";
@@ -375,6 +377,14 @@ const Routes = [
   {
     path: "/pendingFG",
     main: () => <PendingFG />,
+  },
+  {
+    path: "/createFgReturn",
+    main: () => <CreateFgReturn />,
+  },
+  {
+    path: "/pendingFgReturn",
+    main: () => <PendingReversal />,
   },
   {
     path: "/create-fgOut",
