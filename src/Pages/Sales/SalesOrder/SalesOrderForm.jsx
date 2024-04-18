@@ -669,7 +669,7 @@ const SalesOrderForm = () => {
                         <Col span={18}>
                           <Form.Item
                             name="clientaddress"
-                            label="Bill From Address"
+                            label="Billing Address"
                             rules={rules.vendoraddress}
                           >
                             <Input.TextArea
@@ -911,7 +911,7 @@ const SalesOrderForm = () => {
                         <Col span={18}>
                           <Form.Item
                             name="billaddress"
-                            label="Billing Address"
+                            label="Bill From Address"
                             rules={rules.billaddress}
                           >
                             <Input.TextArea
