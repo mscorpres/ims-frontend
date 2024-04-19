@@ -5,9 +5,14 @@ import MyDatePicker from "../../../../Components/MyDatePicker";
 import MyButton from "../../../../Components/MyButton";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MySelect from "../../../../Components/MySelect";
+import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import { AiFillEdit } from "react-icons/ai";
+import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 function PendingReversal() {
   const [dateRange, setDateRange] = useState("");
+  const [rows, setRows] = useState("");
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("datewise");
   const options = [
@@ -19,6 +24,16 @@ function PendingReversal() {
       wise: wise,
       data: wise == "datewise" ? dateRange : searchInput,
     });
+    if (response.success == true) {
+      let { data } = response;
+      let arr = data.map((e, id) => {
+        return {
+          ...e,
+          id: id + 1,
+        };
+      });
+      setRows(arr);
+    }
   };
   return (
     <div style={{ height: "95%" }}>
@@ -48,7 +63,7 @@ function PendingReversal() {
         <MyButton variant="search" onClick={getRows}></MyButton>
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-        <MyDataTable columns={columns} data={[]} />
+        <MyDataTable columns={columns} data={rows} />
       </div>
     </div>
   );
@@ -58,31 +73,88 @@ export default PendingReversal;
 const columns = [
   {
     headerName: "#",
-    field: "index",
+    field: "id",
     width: 30,
   },
   {
-    headerName: "Created by date",
-    field: "ladgerName",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.ladgerName} />,
-    width: 200,
+    headerName: "Actions",
+    button: true,
+    field: "action",
+    type: "actions",
+    width: 100,
+    // minWidth: "20%",
+    getActions: ({ row }) => [
+      <TableActions
+        showInMenu={true}
+        action="check"
+        onClick={() => {
+          // setExcecutePPR(row);
+        }}
+        label="Execute PPR"
+      />,
+    ],
+    // style: { backgroundColor: "transparent" },
   },
   {
     headerName: "SKU",
-    field: "ladgerName",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.ladgerName} />,
-    width: 200,
+    field: "product_sku",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.product_sku} />,
+    width: 100,
   },
   {
-    headerName: "Qty",
-    field: "ladgerName",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.ladgerName} />,
-    width: 200,
+    headerName: "Product",
+    field: "product_name",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.product_name} />,
+    width: 250,
   },
   {
     headerName: "BOM",
-    field: "ladgerName",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.ladgerName} />,
+    field: "bom_name",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.bom_name} />,
     width: 200,
+  },
+  {
+    headerName: "Inserted By",
+    field: "insert_by",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.insert_by} />,
+    width: 100,
+  },
+  {
+    headerName: "Insert Date",
+    field: "insert_dt",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.insert_dt} />,
+    width: 150,
+  },
+  {
+    headerName: "Location In",
+    field: "location_name",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.location_name} />,
+    width: 100,
+  },
+
+  {
+    headerName: "UoM",
+    field: "product_uom",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.product_uom} />,
+    width: 100,
+  },
+  {
+    headerName: "Qty",
+    field: "qty_return",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.qty_return} />,
+    width: 100,
+  },
+
+  {
+    headerName: "Status",
+    field: "fg_status",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.fg_status} />,
+    width: 100,
+  },
+  {
+    headerName: "Remark",
+    field: "remark",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.remark} />,
+    width: 250,
   },
 ];
