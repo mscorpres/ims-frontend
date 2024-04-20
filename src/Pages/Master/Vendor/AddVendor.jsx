@@ -11,6 +11,7 @@ import {
   InputNumber,
   Button,
   Typography,
+  
 } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
@@ -61,10 +62,10 @@ const AddVendor = () => {
     formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
     formData.append("uploadfile", files);
     console.log("formData", formData);
-    console.log("files", files);
+    console.log("files", addVendorForm.getFieldValue("components"));
     setLoading("submit");
     setShowSubmitConfirmModal(false);
-    // return;
+    return;
     const response = await imsAxios.post("/vendor/addVendor", formData);
     setLoading(false);
     const { data } = response;
@@ -450,7 +451,7 @@ const AddVendor = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={4}>
+          <Col span={4} style={{ height: "20rem", overflowY: "scroll" }}>
             <Descriptions
               size="small"
               title={<p style={{ fontSize: "0.8rem" }}>Upload Document</p>}
@@ -541,114 +542,114 @@ const initialValues = {
 };
 
 const rules = {
-  vendorName: [
-    {
-      required: true,
-      message: "Please select the Vendor Name",
-    },
-  ],
-  panno: [
-    {
-      required: true,
-      message: "Please provide the PAN number",
-    },
-  ],
-  year: [
-    {
-      required: true,
-      message: "Please provide the year",
-    },
-  ],
-  msmeId: [
-    {
-      required: true,
-      message: "Please provide the MSME Id",
-    },
-  ],
-  status: [
-    {
-      required: true,
-      message: "Please provide the MSME status",
-    },
-  ],
-  type: [
-    {
-      required: true,
-      message: "Please provide the MSME type.",
-    },
-  ],
-  gstin: [
-    {
-      required: true,
-      message: "Please provide the gstin.",
-    },
-  ],
-  msmeId: [
-    {
-      required: true,
-      message: "Please provide the MSME Id.",
-    },
-  ],
-  activity: [
-    {
-      required: true,
-      message: "Please provide the MSME Activity.",
-    },
-  ],
-  branch: [
-    {
-      required: true,
-      message: "Please provide the branchName.",
-    },
-  ],
-  state: [
-    {
-      required: true,
-      message: "Please provide the state.",
-    },
-  ],
-  mobile: [
-    {
-      required: true,
-      message: "Please provide the mobile.",
-    },
-  ],
-  city: [
-    {
-      required: true,
-      message: "Please provide the city.",
-    },
-  ],
-  pincode: [
-    {
-      required: true,
-      message: "Please provide the pin code.",
-    },
-  ],
-  address: [
-    {
-      required: true,
-      message: "Please provide the address.",
-    },
-  ],
-  paymentTerms: [
-    {
-      required: true,
-      message: "Please provide the payment Terms.",
-    },
-  ],
-  dobApplicabilty: [
-    {
-      required: true,
-      message: "Please provide the date of applicabilty.",
-    },
-  ],
-  dobApplicable: [
-    {
-      required: true,
-      message: "Please provide the applicabilty Status.",
-    },
-  ],
+  // vendorName: [
+  //   {
+  //     required: true,
+  //     message: "Please select the Vendor Name",
+  //   },
+  // ],
+  // panno: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the PAN number",
+  //   },
+  // ],
+  // year: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the year",
+  //   },
+  // ],
+  // msmeId: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME Id",
+  //   },
+  // ],
+  // status: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME status",
+  //   },
+  // ],
+  // type: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME type.",
+  //   },
+  // ],
+  // gstin: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the gstin.",
+  //   },
+  // ],
+  // msmeId: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME Id.",
+  //   },
+  // ],
+  // activity: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME Activity.",
+  //   },
+  // ],
+  // branch: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the branchName.",
+  //   },
+  // ],
+  // state: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the state.",
+  //   },
+  // ],
+  // mobile: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the mobile.",
+  //   },
+  // ],
+  // city: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the city.",
+  //   },
+  // ],
+  // pincode: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the pin code.",
+  //   },
+  // ],
+  // address: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the address.",
+  //   },
+  // ],
+  // paymentTerms: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the payment Terms.",
+  //   },
+  // ],
+  // dobApplicabilty: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the date of applicabilty.",
+  //   },
+  // ],
+  // dobApplicable: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the applicabilty Status.",
+  //   },
+  // ],
 };
 
 export default AddVendor;

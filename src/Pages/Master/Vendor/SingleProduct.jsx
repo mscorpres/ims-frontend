@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Row } from "antd";
+import { Button, Col, Form, Input, Row, Upload } from "antd";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 
 export default function SingleProduct({
@@ -24,8 +24,7 @@ export default function SingleProduct({
     }
     return e?.fileList;
   };
-  let a = normFile;
-  console.log("norma", a);
+  // console.log("norma", a);
   return (
     <Row
       style={{
@@ -33,6 +32,9 @@ export default function SingleProduct({
         padding: "5px 15px",
         borderRadius: 10,
         marginTop: 5,
+        maxHeight: "50%",
+        height: "50%",
+        overflowY: "scroll",
       }}
       gutter={[6, 10]}
       key={field.key}
@@ -45,6 +47,16 @@ export default function SingleProduct({
       </Col>
       <Col span={6}>
         <Form.Item
+          name={[field.name, "file"]}
+          label="Upload"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+        >
+          <Upload beforeUpload={() => false} name="logo">
+            <Button>Click to upload</Button>
+          </Upload>
+        </Form.Item>
+        {/* <Form.Item
           label="File"
           name={[field.name, "file"]}
           valuePropName="fileList"
@@ -52,7 +64,7 @@ export default function SingleProduct({
         >
           <UploadDocs setFiles={setFiles} files={files} />
 
-        </Form.Item>
+        </Form.Item> */}
       </Col>
       <Col span={12}>
         <Row justify="end" align="middle" style={{ height: "100%" }}>
@@ -63,11 +75,11 @@ export default function SingleProduct({
               type="text"
               size="small"
             >
-              - Remove Component
+              - Remove Document
             </Button>
           )}
           <Button size="small" type="link" onClick={() => add()}>
-            + Add Component
+            + Add Document
           </Button>
         </Row>
       </Col>

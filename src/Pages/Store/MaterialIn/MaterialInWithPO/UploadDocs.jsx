@@ -13,7 +13,7 @@ export default function UploadDocs({
   const props = {
     maxCount: 2,
     name: "name",
-    showUploadList: files.length > 0,
+    showUploadList: files?.length > 0,
     onRemove: (file) => {
       const index = files.indexOf(file);
       const newFileList = files.slice();

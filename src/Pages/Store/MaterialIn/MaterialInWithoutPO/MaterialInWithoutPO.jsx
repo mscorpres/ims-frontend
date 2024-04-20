@@ -44,6 +44,7 @@ import {
   uploadMinInvoice,
   validateInvoice,
 } from "../../../../api/store/material-in";
+import SingleProduct from "../../../Master/Vendor/SingleProduct";
 
 const defaultValues = {
   vendorType: "v01",
@@ -91,7 +92,7 @@ export default function MaterialInWithoutPO() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [isApplicable, setIsApplicable] = useState(false);
   const [vendorBranchOptions, setVendorBranchOptions] = useState([]);
-
+  const [uplaoaClicked, setUploadClicked] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -584,7 +585,7 @@ export default function MaterialInWithoutPO() {
   }, [costCenter]);
   useEffect(() => {
     let grandTotal = components?.map((row) =>
-      Number(row?.cgst + row?.sgst + row?.igst + row.value)
+      Number(row?.cgst + row?.sgst + row?.igst + row?.value)
     );
     let cgsttotal = components?.map((row) => Number(row?.cgst));
     let sgsttotal = components?.map((row) => Number(row?.sgst));
@@ -825,6 +826,10 @@ export default function MaterialInWithoutPO() {
                         />
                       </Form.Item>
                     </Col>
+                    <Button onClick={() => setUploadClicked(true)}>
+                      {" "}
+                      Upload Documents
+                    </Button>
                   </Row>
                 </Card>
                 <Card size="small">
@@ -908,44 +913,54 @@ export default function MaterialInWithoutPO() {
                 </Card>
               </Flex>
             </Col>
-            <Col style={{ height: "100%" }} span={18}>
-              <div style={{ height: "98%", border: "1px solid #EEEEEE" }}>
-                {pageLoading && <Loading />}
-                <FormTable2
-                  form={form}
-                  addableRow={true}
-                  removableRows={true}
-                  reverse={true}
-                  newRow={defaultValues.components[0]}
-                  listName="components"
-                  nonRemovableColumns={1}
-                  watchKeys={[
-                    "rate",
-                    "qty",
-                    "component",
-                    "gstRate",
-                    "gstType",
-                    "exchangeRate",
-                    "currency",
-                  ]}
-                  calculation={calculation}
-                  columns={columns({
-                    handleFetchComponentOptions,
-                    loading,
-                    asyncOptions,
-                    setAsyncOptions,
-                    locationOptions,
-                    autoConsumptionOptions,
-                    handleFetchComponentDetails,
-                    handleFetchPreviousRate,
-                    compareRates,
-                    form,
-                    currencies,
-                    setShowCurrenncy,
-                  })}
-                />
-              </div>
-            </Col>
+            <Modal
+              open={uplaoaClicked}
+              width={700}
+              title={"Upload Document"}
+              destroyOnClose={true}
+              // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
+            >
+              {" "}
+              <Card style={{ height: "20rem", overflowY: "scroll" }}>
+                <div style={{ flex: 1 }}>
+                  <Col
+                    span={24}
+                    style={{
+                      overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <Form.List name="components">
+                      {(fields, { add, remove }) => (
+                        <>
+                          <Col>
+                            {fields.map((field, index) => (
+                              <Form.Item noStyle>
+                                <SingleProduct
+                                  fields={fields}
+                                  field={field}
+                                  index={index}
+                                  add={add}
+                                  form={form}
+                                  remove={remove}
+                                  // setFiles={setFiles}
+                                  // files={files}
+                                />
+                              </Form.Item>
+                            ))}
+                            <Row justify="center">
+                              <Typography.Text type="secondary">
+                                ----End of the List----
+                              </Typography.Text>
+                            </Row>
+                          </Col>
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </div>
+              </Card>
+            </Modal>
           </Row>
         </Form>
       )}
