@@ -223,12 +223,12 @@ function CreateFgReturn() {
                   <Form.Item
                     name="location"
                     label="Location"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please provide the Location.",
-                      },
-                    ]}
+                    // rules={[
+                    //   {
+                    //     required: true,
+                    //     message: "Please provide the Location.",
+                    //   },
+                    // ]}
                   >
                     <MyAsyncSelect
                       disabled={selectedStatus != "okay"}

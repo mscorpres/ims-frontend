@@ -27,6 +27,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
   const [tableData, setTableData] = useState([]);
   const [headerData, setHeaderData] = useState({});
   const [locationOptions, setLocationOptions] = useState([]);
+  console.log("here in open draer", editPPR);
   const onChange = (newActiveKey) => {
     setActiveKey(newActiveKey);
   };
@@ -499,7 +500,9 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
   }, [tableData, headerData]);
   return (
     <Drawer
-      title={`Execute MIS: ${editPPR?.product_name?.length}`}
+      title={
+        editPPR?.product_name?.length && `Execute MIS: ${editPPR?.product_name}`
+      }
       width="100vw"
       onClose={() => setEditPPR(null)}
       open={editPPR}
