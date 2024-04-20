@@ -150,17 +150,17 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
         />
       ),
     },
-    {
-      headerName: "Rejected",
-      flex: 1,
-      field: "rejected",
-      renderCell: ({ row }) => (
-        <Input
-          value={row.rej}
-          onChange={(e) => compInputHandler("rej", e.target.value, row.id)}
-        />
-      ),
-    },
+    // {
+    //   headerName: "Rejected",
+    //   flex: 1,
+    //   field: "rejected",
+    //   renderCell: ({ row }) => (
+    //     <Input
+    //       value={row.rej}
+    //       onChange={(e) => compInputHandler("rej", e.target.value, row.id)}
+    //     />
+    //   ),
+    // },
     {
       headerName: "Remark",
       flex: 1,
@@ -505,7 +505,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
       }
       width="100vw"
       onClose={() => setEditPPR(null)}
-      open={editPPR}
+      open={editPPR?.product_name && editPPR}
     >
       <Skeleton active loading={pageLoading} />
       <Skeleton active loading={pageLoading} />
