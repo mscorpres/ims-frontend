@@ -24,6 +24,7 @@ import AreaChart from "./AreaChart";
 import RadiusChart from "./RadiusChart";
 import MyDatePicker from "../../Components/MyDatePicker";
 import BubbleChart from "./bubbleChart";
+import RePieChart from "./RePieChart";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
@@ -170,7 +171,7 @@ function ProcurementDashboard() {
     if (response.success) {
       let arr = response?.data?.topPart;
       setMasterData(response?.data);
-      // setAreaChartData(response?.data);d
+      // setAreaChartData(response?.data);
       chartData = {
         labels: arr.map((r) => r?.partCode),
         values: arr.map((r) => r?.total_count / 10000000),
@@ -192,8 +193,18 @@ function ProcurementDashboard() {
     if (response.success) {
       let b = Object.values(data);
       let labels = Object.keys(data);
-
-      setAreaChartData(b);
+      let arr = [];
+      for (let keys in data) {
+        let newK = data[keys];
+        console.log("newk", newK);
+        let obj = {
+          name: keys,
+          value: newK,
+        };
+        arr = [...arr, obj];
+      }
+      console.log("arr", arr);
+      setAreaChartData(arr);
       setAreaChartLabel(labels);
       setChartlabels(response.data);
     }
@@ -299,7 +310,7 @@ function ProcurementDashboard() {
         }}
       >
         <Row justify="space-between" gutter={[10, 0]}>
-          <Col span={16} style={{ padding: 0 }}>
+          <Col span={15} style={{ padding: 0 }}>
             <Flex
               vertical
               gap={8}
@@ -427,8 +438,9 @@ function ProcurementDashboard() {
               </Flex>
             </Flex>
           </Col>
-          <Col span={8}>
-            <AreaChart data={areaChartData} label={areaChartLabel} />
+          <Col span={9}>
+            <RePieChart data={areaChartData} />
+            {/* <AreaChart data={areaChartData} label={areaChartLabel} /> */}
           </Col>
         </Row>
         <Row style={{ marginTop: 10 }}>
