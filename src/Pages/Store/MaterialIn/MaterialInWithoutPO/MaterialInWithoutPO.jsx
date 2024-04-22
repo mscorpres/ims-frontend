@@ -44,6 +44,7 @@ import {
   uploadMinInvoice,
   validateInvoice,
 } from "../../../../api/store/material-in";
+import SingleProduct from "../../../Master/Vendor/SingleProduct";
 
 const defaultValues = {
   vendorType: "v01",
@@ -62,6 +63,11 @@ const defaultValues = {
       autoConsumption: 0,
       currency: "364907247",
       exchangeRate: 1,
+    },
+  ],
+  fileComponents: [
+    {
+      // file: "",
     },
   ],
 };
@@ -91,19 +97,20 @@ export default function MaterialInWithoutPO() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [isApplicable, setIsApplicable] = useState(false);
   const [vendorBranchOptions, setVendorBranchOptions] = useState([]);
-
+  const [uplaoaClicked, setUploadClicked] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showSuccessPage, setShowSuccessPage] = useState(false);
   const [form] = Form.useForm();
   const components = Form.useWatch("components", form);
+  const fileComponents = Form.useWatch("fileComponents", form);
   const { executeFun, loading } = useApi();
   const costCenter = Form.useWatch("costCenter", form);
   const vendor = Form.useWatch("vendorName", form);
   const vendorBranch = Form.useWatch("vendorBranch", form);
   const vendorType = Form.useWatch("vendorType", form);
-
+  // console.log("fileComponents", fileComponents);
   const handleSubmit = async () => {
     const values = await form.validateFields();
     Modal.confirm({
@@ -144,10 +151,15 @@ export default function MaterialInWithoutPO() {
   };
   const submitMIN = async () => {
     let fileName;
+    const formData = new FormData();
     console.log("submittinh min");
     const values = await form.validateFields();
+    // console.log("values", values);
+    values.fileComponents.map((comp) => {
+      formData.append("files", comp.file[0]?.originFileObj);
+    });
     const fileResponse = await executeFun(
-      () => uploadMinInvoice(values.invoice),
+      () => uploadMinInvoice(formData),
       "submit"
     );
     console.log("fileResponse-------", fileResponse);
@@ -161,7 +173,7 @@ export default function MaterialInWithoutPO() {
       console.log("response-------", response);
       if (response.success) {
         // const { data } = response.data;
-        if (response.data.code === 200) {
+        if (response.data.code == 200) {
           setShowSuccessPage({
             materialInId: response.data.data.txn,
             vendor: { vendorname: values.vendorName.label },
@@ -180,7 +192,8 @@ export default function MaterialInWithoutPO() {
           vendorResetFunction();
           materialResetFunction();
         } else {
-          toast.error(response.data.message);
+          // console.log("r/esponse.data.message", response.data.message);
+          toast.error(response.data.message.msg);
         }
       } else {
         toast.error(response.data.message);
@@ -195,6 +208,12 @@ export default function MaterialInWithoutPO() {
     );
     let arr = [];
     if (response.success) {
+      // console.log("Respomse", response);
+      if (response.data[0].piaStatus == "Y") {
+        toast.info(
+          `PIA Status is enabled for ${response.data[0].newPart} Part Code.`
+        );
+      }
       arr = convertSelectOptions(response.data);
     }
     setAsyncOptions(arr);
@@ -325,9 +344,9 @@ export default function MaterialInWithoutPO() {
 
     if (response.success) {
       // console.log("response =>", response?.data?.data.einvoice_status);
-      setIsApplicable(response.data.data.einvoice_status);
-      form.setFieldValue("gstin", response.data.data.gstid);
-      form.setFieldValue("vendorAddress", response.data.data.address);
+      setIsApplicable(response.data?.data?.einvoice_status);
+      form.setFieldValue("gstin", response?.data?.data?.gstid);
+      form.setFieldValue("vendorAddress", response?.data?.data.address);
     }
   };
   const handleFetchCostCenterOptions = async (search) => {
@@ -577,7 +596,7 @@ export default function MaterialInWithoutPO() {
   }, [costCenter]);
   useEffect(() => {
     let grandTotal = components?.map((row) =>
-      Number(row?.cgst + row?.sgst + row?.igst + row.value)
+      Number(row?.cgst + row?.sgst + row?.igst + row?.value)
     );
     let cgsttotal = components?.map((row) => Number(row?.cgst));
     let sgsttotal = components?.map((row) => Number(row?.sgst));
@@ -818,9 +837,13 @@ export default function MaterialInWithoutPO() {
                         />
                       </Form.Item>
                     </Col>
+                    <Button onClick={() => setUploadClicked(true)}>
+                      {" "}
+                      Upload Documents
+                    </Button>
                   </Row>
                 </Card>
-                <Card size="small">
+                {/* <Card size="small">
                   <Form.Item label="Invoice / Document">
                     <Form.Item
                       name="invoice"
@@ -846,7 +869,7 @@ export default function MaterialInWithoutPO() {
                       </Upload.Dragger>
                     </Form.Item>
                   </Form.Item>
-                </Card>
+                </Card> */}
                 <Card size="small">
                   <Row gutter={[0, 4]}>
                     {totalValues?.map((row) => (
@@ -939,6 +962,55 @@ export default function MaterialInWithoutPO() {
                 />
               </div>
             </Col>
+            <Modal
+              open={uplaoaClicked}
+              width={700}
+              title={"Upload Document"}
+              // destroyOnClose={true}
+              onOk={() => setUploadClicked(false)}
+              // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
+            >
+              {" "}
+              <Card style={{ height: "20rem", overflowY: "scroll" }}>
+                <div style={{ flex: 1 }}>
+                  <Col
+                    span={24}
+                    style={{
+                      overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <Form.List name="fileComponents">
+                      {(fields, { add, remove }) => (
+                        <>
+                          <Col>
+                            {fields.map((field, index) => (
+                              <Form.Item noStyle>
+                                <SingleProduct
+                                  fields={fields}
+                                  field={field}
+                                  index={index}
+                                  add={add}
+                                  form={form}
+                                  remove={remove}
+                                  // setFiles={setFiles}
+                                  // files={files}
+                                />
+                              </Form.Item>
+                            ))}
+                            <Row justify="center">
+                              <Typography.Text type="secondary">
+                                ----End of the List----
+                              </Typography.Text>
+                            </Row>
+                          </Col>
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </div>
+              </Card>
+            </Modal>
           </Row>
         </Form>
       )}

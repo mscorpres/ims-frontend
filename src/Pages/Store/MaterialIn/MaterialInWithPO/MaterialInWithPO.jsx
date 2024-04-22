@@ -14,6 +14,7 @@ import {
   Space,
   Tooltip,
   Typography,
+  Form,
 } from "antd";
 import {
   QuantityCell,
@@ -32,6 +33,7 @@ import {
   autoConsumptionCell,
   gstRate,
 } from "./TableCollumns";
+import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import CurrenceModal from "../CurrenceModal";
 import UploadDocs from "./UploadDocs";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
@@ -78,6 +80,9 @@ export default function MaterialInWithPO({}) {
   const [locationOptions, setLocationOptions] = useState([]);
   const [codeCostCenter, setCodeCostCenter] = useState("");
   const [isScan, setIsScan] = useState(false);
+  const [uplaoaClicked, setUploadClicked] = useState(false);
+  const [form] = Form.useForm();
+  const components = Form.useWatch("components", form);
   let costCode;
   const { executeFun, loading: loading1 } = useApi();
   const validateData = async () => {
@@ -117,9 +122,14 @@ export default function MaterialInWithPO({}) {
     };
     if (validation == true) {
       let formData = new FormData();
-      if (invoices.length) {
-        invoices.map((file) => {
-          formData.append("files", file);
+      let values = await form.validateFields();
+      let a = values.components;
+      // let a = values.components.map((comp) => {
+      //   formData.append("files", comp.file[0]?.originFileObj);
+      // });
+      if (a.length) {
+        values.components.map((comp) => {
+          formData.append("files", comp.file[0]?.originFileObj);
         });
         poData.materials.map((row) => {
           componentData = {
@@ -142,6 +152,7 @@ export default function MaterialInWithPO({}) {
             remark: [...componentData.remark, row.orderremark],
             location: [...componentData.location, row.location.value],
             out_location: [...componentData.out_location, row.autoConsumption],
+            documentName: values.components.map((r) => r.documentName),
             irn: irnNum,
             qrScan: isScan == true ? "Y" : "N",
           };
@@ -1276,16 +1287,62 @@ export default function MaterialInWithPO({}) {
                 </Card>
               </Col>
               <Col span={24} style={{ height: "10%" }}>
-                <Row className="material-in-upload">
-                  <UploadDocs
-                    disable={poData?.materials?.length == 0}
-                    setShowUploadDoc={setShowUploadDoc}
-                    showUploadDoc={showUploadDoc}
-                    setFiles={setInvoices}
-                    files={invoices}
-                  />
-                </Row>
+                <Button onClick={() => setUploadClicked(true)}>
+                  {" "}
+                  Upload Documents
+                </Button>
               </Col>
+              <Modal
+                open={uplaoaClicked}
+                layout="vertical"
+                width={700}
+                title={"Upload Document"}
+                // destroyOnClose={true}
+                onOk={() => setUploadClicked(false)}
+                // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
+              >
+                <Form initialValues={defaultValues} form={form}>
+                  <Card style={{ height: "20rem", overflowY: "scroll" }}>
+                    <div style={{ flex: 1 }}>
+                      <Col
+                        span={24}
+                        style={{
+                          overflowX: "hidden",
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Form.List name="components">
+                          {(fields, { add, remove }) => (
+                            <>
+                              <Col>
+                                {fields.map((field, index) => (
+                                  <Form.Item noStyle>
+                                    <SingleProduct
+                                      fields={fields}
+                                      field={field}
+                                      index={index}
+                                      add={add}
+                                      form={form}
+                                      remove={remove}
+                                      // setFiles={setFiles}
+                                      // files={files}
+                                    />
+                                  </Form.Item>
+                                ))}
+                                <Row justify="center">
+                                  <Typography.Text type="secondary">
+                                    ----End of the List----
+                                  </Typography.Text>
+                                </Row>
+                              </Col>
+                            </>
+                          )}
+                        </Form.List>
+                      </Col>
+                    </div>
+                  </Card>
+                </Form>{" "}
+              </Modal>
             </Row>
           </Col>
           <Col
@@ -1323,3 +1380,10 @@ export default function MaterialInWithPO({}) {
     </div>
   );
 }
+const defaultValues = {
+  components: [
+    {
+      // file: "",
+    },
+  ],
+};

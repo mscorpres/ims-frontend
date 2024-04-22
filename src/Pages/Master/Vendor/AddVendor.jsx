@@ -9,6 +9,8 @@ import {
   Divider,
   Modal,
   InputNumber,
+  Button,
+  Typography,
 } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
@@ -16,6 +18,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
+import SingleProduct from "./SingleProduct";
 
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
@@ -30,6 +33,10 @@ const AddVendor = () => {
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
   const einvoice = Form.useWatch("applicability", addVendorForm);
   console.log("okkk", einvoice);
+  const components = Form.useWatch("components", {
+    form: addVendorForm,
+    preserve: true,
+  });
   // setMsmeStat(msmsStatus);
   const [searchTerm, setSearchTerm] = useState("");
   const getFetchState = async (e) => {
@@ -49,14 +56,26 @@ const AddVendor = () => {
   };
 
   const submitHandler = async () => {
-    const formData = new FormData();
-    formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
-    formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
-    // formData.append("uploadfile", files[0]);
+    // const formData = new FormData();
+    // formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
+    // formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
+
+    // let uploadedFie = addVendorForm.getFieldValue("components");
+    // console.log("uploadedFie", uploadedFie);
+    // let a = uploadedFie?.map((r) => {
+    //   r.file[0].originFileObj;
+    // });
+    // console.log("a", a);
+    // formData.append("uploadfile", uploadedFie?.file?.originFileObj);
     // console.log("formData", formData);
+
     setLoading("submit");
+    setShowSubmitConfirmModal(false);
     // return;
-    const response = await imsAxios.post("/vendor/addVendor", formData);
+    const response = await imsAxios.post(
+      "/vendor/addVendor",
+      showSubmitConfirmModal
+    );
     setLoading(false);
     const { data } = response;
     if (data) {
@@ -72,8 +91,24 @@ const AddVendor = () => {
   };
 
   const validateHandler = async () => {
+    const formData = new FormData();
     const values = await addVendorForm.validateFields();
-    console.log("values", values);
+    console.log("files", values);
+
+    // let uploadedFie = addVendorForm.getFieldValue("components");
+    let uploadedFie = addVendorForm.getFieldValue("components");
+    // console.log("uploadedFie", uploadedFie);
+    // let a = uploadedFie?.map((r) => {
+    //   console.log("rrrrrrrrr", r);
+
+    //   formData.append("file", r.file[0].originFileObj);
+    // });
+    values.components.map((comp) => {
+      formData.append("file", comp.file[0]?.originFileObj);
+    });
+    // formData.append("file", values.components[0].file[0].originFileObj);
+    // console.log("a-----", uploadedFie[0].file[0].originFileObj);
+    // console.log("values", values);
     // if
     let obj = {
       vendor: {
@@ -93,6 +128,8 @@ const AddVendor = () => {
         eInvoice: values.applicability,
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
+        documentName: uploadedFie.map((r) => r.documentName),
+        // file: formData,
       },
       branch: {
         branch: values.branch,
@@ -106,8 +143,13 @@ const AddVendor = () => {
         gstin: values.gstin.toUpperCase(),
       },
     };
+    // console.log("this is the obj", obj);
+    formData.append("vendor", JSON.stringify(obj.vendor));
+    formData.append("branch", JSON.stringify(obj.branch));
+
+    // console.log("formData", formData);
     // console.log("obj", obj);
-    setShowSubmitConfirmModal(obj);
+    setShowSubmitConfirmModal(formData);
   };
 
   const reset = async () => {
@@ -165,7 +207,7 @@ const AddVendor = () => {
           title="Submit Confirm"
           open={showSubmitConfirmModal}
           onOk={submitHandler}
-          confirmLoading={loading === "submit"}
+          // confirmLoading={loading === "submit"}
           onCancel={() => setShowSubmitConfirmModal(false)}
         >
           <p>Are you sure you want to create this vendor?</p>
@@ -441,7 +483,7 @@ const AddVendor = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={4}>
+          <Col span={4} style={{ height: "20rem", overflowY: "scroll" }}>
             <Descriptions
               size="small"
               title={<p style={{ fontSize: "0.8rem" }}>Upload Document</p>}
@@ -457,17 +499,50 @@ const AddVendor = () => {
           </Col>
           <Col span={20}>
             <Row gutter={16}>
-              <Col span={6}>
-                <Form.Item label="Vendor Document" name="file">
-                  <Row className="material-in-upload">
-                    <UploadDocs
-                      size="large"
-                      // disable={poData?.materials?.length == 0}
-                      setFiles={setFiles}
-                      files={files}
-                    />
-                  </Row>
-                </Form.Item>
+              <Col span={24}>
+                {/* <div
+                  className="remove-table-footer"
+                  style={{ height: "50%", opacity: loading ? 0.5 : 1 }}
+                > */}
+                <div style={{ flex: 1 }}>
+                  <Col
+                    span={24}
+                    style={{
+                      height: "14rem",
+                      // overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <Form.List name="components">
+                      {(fields, { add, remove }) => (
+                        <>
+                          <Col>
+                            {fields.map((field, index) => (
+                              <Form.Item noStyle>
+                                <SingleProduct
+                                  fields={fields}
+                                  field={field}
+                                  index={index}
+                                  add={add}
+                                  form={addVendorForm}
+                                  remove={remove}
+                                  setFiles={setFiles}
+                                  files={files}
+                                />
+                              </Form.Item>
+                            ))}
+                            <Row justify="center">
+                              <Typography.Text type="secondary">
+                                ----End of the List----
+                              </Typography.Text>
+                            </Row>
+                          </Col>
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </div>
+                {/* </div> */}
               </Col>
             </Row>
           </Col>
@@ -495,123 +570,118 @@ const initialValues = {
   pincode: "",
   address: "",
   msmeStatus: "N",
+  components: [{}],
 };
 
 const rules = {
-  vendorName: [
-    {
-      required: true,
-      message: "Please select the Vendor Name",
-    },
-  ],
-  panno: [
-    {
-      required: true,
-      message: "Please provide the PAN number",
-    },
-  ],
-  year: [
-    {
-      required: true,
-      message: "Please provide the year",
-    },
-  ],
-  msmeId: [
-    {
-      required: true,
-      message: "Please provide the MSME Id",
-    },
-  ],
-  status: [
-    {
-      required: true,
-      message: "Please provide the MSME status",
-    },
-  ],
-  applicability: [
-    {
-      required: true,
-      message: "Please provide the applicability status",
-    },
-  ],
-  type: [
-    {
-      required: true,
-      message: "Please provide the MSME type.",
-    },
-  ],
-  gstin: [
-    {
-      required: true,
-      message: "Please provide the gstin.",
-    },
-  ],
-  msmeId: [
-    {
-      required: true,
-      message: "Please provide the MSME Id.",
-    },
-  ],
-  activity: [
-    {
-      required: true,
-      message: "Please provide the MSME Activity.",
-    },
-  ],
-  branch: [
-    {
-      required: true,
-      message: "Please provide the branchName.",
-    },
-  ],
-  state: [
-    {
-      required: true,
-      message: "Please provide the state.",
-    },
-  ],
-  mobile: [
-    {
-      required: true,
-      message: "Please provide the mobile.",
-    },
-  ],
-  city: [
-    {
-      required: true,
-      message: "Please provide the city.",
-    },
-  ],
-  pincode: [
-    {
-      required: true,
-      message: "Please provide the pin code.",
-    },
-  ],
-  address: [
-    {
-      required: true,
-      message: "Please provide the address.",
-    },
-  ],
-  paymentTerms: [
-    {
-      required: true,
-      message: "Please provide the payment Terms.",
-    },
-  ],
-  dobApplicabilty: [
-    {
-      required: true,
-      message: "Please provide the date of applicabilty.",
-    },
-  ],
-  dobApplicable: [
-    {
-      required: true,
-      message: "Please provide the applicabilty Status.",
-    },
-  ],
+  // vendorName: [
+  //   {
+  //     required: true,
+  //     message: "Please select the Vendor Name",
+  //   },
+  // ],
+  // panno: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the PAN number",
+  //   },
+  // ],
+  // year: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the year",
+  //   },
+  // ],
+  // msmeId: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME Id",
+  //   },
+  // ],
+  // status: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME status",
+  //   },
+  // ],
+  // type: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME type.",
+  //   },
+  // ],
+  // gstin: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the gstin.",
+  //   },
+  // ],
+  // msmeId: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME Id.",
+  //   },
+  // ],
+  // activity: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the MSME Activity.",
+  //   },
+  // ],
+  // branch: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the branchName.",
+  //   },
+  // ],
+  // state: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the state.",
+  //   },
+  // ],
+  // mobile: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the mobile.",
+  //   },
+  // ],
+  // city: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the city.",
+  //   },
+  // ],
+  // pincode: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the pin code.",
+  //   },
+  // ],
+  // address: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the address.",
+  //   },
+  // ],
+  // paymentTerms: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the payment Terms.",
+  //   },
+  // ],
+  // dobApplicabilty: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the date of applicabilty.",
+  //   },
+  // ],
+  // dobApplicable: [
+  //   {
+  //     required: true,
+  //     message: "Please provide the applicabilty Status.",
+  //   },
+  // ],
 };
 
 export default AddVendor;
