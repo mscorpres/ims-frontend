@@ -196,10 +196,10 @@ export default function ViewMIN() {
       obj = {
         ...obj,
         [name]: value,
-        part_code: data.data.map((row) => {
+        part_code: data.map((row) => {
           return row.part_code;
         }),
-        copies_qty: data.data.map((row) => {
+        copies_qty: data.map((row) => {
           return { id: row.part_code, qty: "" };
         }),
       };
