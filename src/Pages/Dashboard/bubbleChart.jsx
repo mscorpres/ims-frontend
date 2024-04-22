@@ -3,7 +3,7 @@ import Chart from "chart.js/auto"; // Importing Chart.js
 import { Card, Flex } from "antd";
 
 const LineChart = ({ datas, labels }) => {
-  console.log("labels", labels);
+  // console.log("labels", labels);
   const chartRef = useRef(null);
 
   useEffect(() => {

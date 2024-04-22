@@ -25,6 +25,7 @@ import RadiusChart from "./RadiusChart";
 import MyDatePicker from "../../Components/MyDatePicker";
 import BubbleChart from "./bubbleChart";
 import RePieChart from "./RePieChart";
+import RePieForPO from "./RePieForPO";
 function ProcurementDashboard() {
   const [summaryDate, setSummaryDate] = useState("");
   const [barChartData, setBarChartData] = useState([]);
@@ -33,6 +34,7 @@ function ProcurementDashboard() {
   const [vendorData, setVendorData] = useState([]);
   const [masterData, setMasterData] = useState("");
   const [domesticPOData, setDomesticPoData] = useState([]);
+  const [combinedPoData, setCombinedData] = useState([]);
   const [totalPOData, setTotalPoData] = useState([]);
   const [importPOData, setImportPoData] = useState([]);
   const [gstGraphLables, setGstGraphLables] = useState([]);
@@ -43,24 +45,7 @@ function ProcurementDashboard() {
   const [totVen, setTotVen] = useState("");
   const [totRegGST, setTotRegGST] = useState([]);
   const [totNotRegGST, setTotNotRegGST] = useState([]);
-  const [transactionSummary, setTransactionSummary] = useState([
-    {
-      title: "Rejection",
-      date: "",
-      value: "",
-    },
-    {
-      title: "MFG",
-      date: "",
-      value: "",
-    },
-    {
-      title: "Consumption",
-      date: "",
-      value: "",
-      // link: "/transaction-In",
-    },
-  ]);
+
   const gettingDateSummary = async (transactionType, date) => {
     try {
       let params =
@@ -196,7 +181,7 @@ function ProcurementDashboard() {
       let arr = [];
       for (let keys in data) {
         let newK = data[keys];
-        console.log("newk", newK);
+        // console.log("newk", newK);
         let obj = {
           name: keys,
           value: newK,
@@ -263,12 +248,15 @@ function ProcurementDashboard() {
     const response = await imsAxios.get("/dashboard/po_trends");
     if (response.success === true) {
       const { data } = response;
+      // console.log("respinse for pending po", response);
+      setCombinedData(response.data);
       const totalPoValues = [];
       const domesticPoValues = [];
       const importPoValues = [];
 
       data.forEach((item) => {
         const values = Object.values(item)[0];
+        // console.log("values", values);
         totalPoValues.push(values.total_po);
         domesticPoValues.push(values.domestic_po);
         importPoValues.push(values.import_po);
@@ -461,7 +449,9 @@ function ProcurementDashboard() {
                   importPOData={importPOData}
                   domesticPOData={domesticPOData}
                   totalPOData={totalPOData}
+                  combinedPoData={combinedPoData}
                 />
+                <RePieForPO combinedPoData={combinedPoData} />
               </Col>
               <Col span={7} style={{ height: "10vh" }}>
                 {/* <div style={{ height: "20rem", width: " 27rem" }}> */}
@@ -500,11 +490,11 @@ function ProcurementDashboard() {
                   {/* </Card> */}
                 </Card>
               </Col>
-              {/* <Col span={10} style={{ height: "10vh" }}>
+              <Col span={10} style={{ height: "10vh" }}>
                 <div style={{ height: "22rem", width: " 27rem" }}>
-                  <BarChart data={barChartData} />
+                  {/* <BarChart data={barChartData} /> */}
                 </div>
-              </Col> */}
+              </Col>
             </Row>
           </Col>
         </Row>

@@ -19,7 +19,7 @@ const data = [
 ];
 
 const RePieChart = ({ data }) => {
-  console.log("daata", data);
+  // console.log("daata", data);
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
   //   return;
   const renderCustomizedLabel = ({
