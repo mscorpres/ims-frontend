@@ -438,13 +438,17 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   };
 
   const saveFunction = async (fetchAttachment) => {
+    // let filedata = modalForm.getFieldValue("fileComponents");
+    let value = await modalForm.validateFields();
+    let filedata = value.fileComponents;
     setModalUploadLoad(true);
     console.log("bomList", bomList);
-    console.log("conrem", conrem);
+    console.log("values", value);
     console.log("isScan", isScan);
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
+      documentName: filedata.map((r) => r.documentName),
       component: mainData[0].component.value ?? mainData[0].component,
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
