@@ -596,6 +596,10 @@ const links = [
       routeName: "RM Issue Register",
       routePath: "/transaction-Out",
     },
+    {
+      routeName: "View Documents",
+      routePath: "/uploaded-documents",
+    },
   ],
   // reports r1-r14 links
   [

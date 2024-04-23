@@ -239,6 +239,7 @@ import R32 from "../Pages/Reports/R/R32";
 import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList";
 import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan";
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
+import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments";
 const Routes = [
   {
     path: "/login",
@@ -347,6 +348,10 @@ const Routes = [
   //   path: "/material-transaction",
   //   main: () => <MaterialTransaction />,
   // },
+  {
+    path: "/uploaded-documents",
+    main: () => <ViewDocuments />,
+  },
   {
     path: "/transaction-In",
     main: () => <TransactionIn />,
