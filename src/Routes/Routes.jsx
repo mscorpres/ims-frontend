@@ -246,6 +246,7 @@ import R33 from "../Pages/Reports/R/R33";
 import R34 from "../Pages/Reports/R/R34";
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal";
+import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments";
 // import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../pages/fixeassetmodule/Depreciation";
@@ -362,6 +363,10 @@ const Routes = [
   //   path: "/material-transaction",
   //   main: () => <MaterialTransaction />,
   // },
+  {
+    path: "/uploaded-documents",
+    main: () => <ViewDocuments />,
+  },
   {
     path: "/transaction-In",
     main: () => <TransactionIn />,

@@ -24,6 +24,16 @@ export const uploadMinInvoice = async (formData) => {
 
   return response;
 };
+export const uploadVendorDoc = async (formData) => {
+  // const formData = new FormData();
+  // formData.append("files", file);
+  const response = await imsAxios.post(
+    "/transaction/vendor-document",
+    formData
+  );
+
+  return response;
+};
 
 export const materialInWithoutPo = async (values, fileName) => {
   const payload = {
