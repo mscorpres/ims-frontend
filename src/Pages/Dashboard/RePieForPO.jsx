@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, Card, Col, Row, Typography } from "antd";
 import MySelect from "../../Components/MySelect";
 import MyButton from "../../Components/MyButton";
+import { Pie, PieChart, ResponsiveContainer } from "recharts";
 function RePieForPO({ combinedPoData }) {
   const searchChart = async () => {
     console.log("search", search);
@@ -31,7 +32,7 @@ function RePieForPO({ combinedPoData }) {
             dataKey="value"
             startAngle={180}
             endAngle={0}
-            data={data}
+            // data={data}
             cx="50%"
             cy="50%"
             outerRadius={80}
