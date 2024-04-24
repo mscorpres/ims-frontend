@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { v4 } from "uuid";
 import { Tree as AntdTree } from "antd";
 
@@ -22,6 +22,9 @@ export default function Tree({ subGroups }) {
     });
     setData(arr);
   };
+  useEffect(() => {
+    setData(subGroups)
+  },[subGroups])
   return (
     <div style={{ height: 100 }}>
       <AntdTree
