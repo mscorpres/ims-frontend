@@ -23,8 +23,8 @@ export default function Tree({ subGroups }) {
     setData(arr);
   };
   useEffect(() => {
-    setData(subGroups)
-  },[subGroups])
+    if (subGroups.length > 0) flatArray(subGroups);
+  }, []);
   return (
     <div style={{ height: 100 }}>
       <AntdTree
