@@ -4,6 +4,10 @@ import { Tree as AntdTree } from "antd";
 
 export default function Tree({ subGroups }) {
   const [data, setData] = useState([]);
+  useEffect(() => {
+    setData(subGroups ?? []);
+  }, [subGroups]);
+
   const flatArray = (array) => {
     let arr = [];
     array?.map((row) => {
