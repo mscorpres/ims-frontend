@@ -24,6 +24,7 @@ import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyButton from "../../../../Components/MyButton";
 import { v4 } from "uuid";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
+import SingleProduct from "../SingleProduct";
 
 const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -44,6 +45,10 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const einvoice = Form.useWatch("applicability", updateVendorForm);
   let msmeStat = "";
   msmeStat = Form.useWatch("vendor_msme_status", updateVendorForm);
+  const components = Form.useWatch("components", {
+    form: updateVendorForm,
+    preserve: true,
+  });
   const getDetails = async () => {
     setSkeletonLoading(true);
 
@@ -109,6 +114,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         msme_type: rows.map((r) => r.vendor_msme_type),
         msme_activity: rows.map((r) => r.vendor_msme_activity),
         eInvoice: values.applicability,
+        documentName: values.components.map((r) => r.documentName),
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
       };
@@ -124,13 +130,17 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         msme_status: "N",
         msme_id: "--",
         eInvoice: values.applicability,
+        documentName: values.components.map((r) => r.documentName),
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
       };
     }
     console.log("obj", obj);
     const formData = new FormData();
-    formData.append("uploadfile", files[0] ?? []);
+    // formData.append("uploadfile", files[0] ?? []);
+    values.components.map((comp) => {
+      formData.append("uploadfile", comp.file[0]?.originFileObj ?? []);
+    });
     formData.append("vendor", JSON.stringify(obj));
     // formData.append("vendorname", values?.vendor_name);
     // formData.append("panno", values?.vendor_pan);
@@ -138,6 +148,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     // formData.append("tally_tds", values?.vendor_tds);
     // formData.append("vendor_loc", values?.vendor_loc);
     setSubmitLoading(true);
+    // return;
     const { data } = await imsAxios.post("/vendor/updateVendor", formData);
     setSubmitLoading(false);
     if (data.code == 200) {
@@ -312,7 +323,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         {!skeletonLoading && (
           <Form
             form={updateVendorForm}
-            // initialValues={initialValues}
+            initialValues={initialValuesform}
             layout="vertical"
           >
             <Row>
@@ -590,7 +601,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                 </Flex>
               </Col>
               <Divider />
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Form.Item label="Vendor Document" name="file">
                   <Row className="material-in-upload">
                     <UploadDocs
@@ -600,6 +611,55 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                     />
                   </Row>
                 </Form.Item>
+              </Col> */}{" "}
+              <Col span={20}>
+                <Row gutter={16}>
+                  <Col span={24}>
+                    {/* <div
+                  className="remove-table-footer"
+                  style={{ height: "50%", opacity: loading ? 0.5 : 1 }}
+                > */}
+                    <div style={{ flex: 1 }}>
+                      <Col
+                        span={24}
+                        style={{
+                          height: "15rem",
+                          // overflowX: "hidden",
+                          overflowY: "auto",
+                        }}
+                      >
+                        <Form.List name="components">
+                          {(fields, { add, remove }) => (
+                            <>
+                              <Col>
+                                {fields.map((field, index) => (
+                                  <Form.Item noStyle>
+                                    <SingleProduct
+                                      fields={fields}
+                                      field={field}
+                                      index={index}
+                                      add={add}
+                                      form={updateVendorForm}
+                                      remove={remove}
+                                      setFiles={setFiles}
+                                      files={files}
+                                    />
+                                  </Form.Item>
+                                ))}
+                                <Row justify="center">
+                                  <Typography.Text type="secondary">
+                                    ----End of the List----
+                                  </Typography.Text>
+                                </Row>
+                              </Col>
+                            </>
+                          )}
+                        </Form.List>
+                      </Col>
+                    </div>
+                    {/* </div> */}
+                  </Col>
+                </Row>
               </Col>
               {/* </Space> */}
             </Row>
@@ -701,4 +761,8 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
 export default EditBranch;
 const initialValues = {
   vendor_msme_status: "N",
+  components: [{}],
+};
+const initialValuesform = {
+  components: [{}],
 };
