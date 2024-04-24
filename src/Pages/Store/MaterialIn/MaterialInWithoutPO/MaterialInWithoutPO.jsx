@@ -968,6 +968,7 @@ export default function MaterialInWithoutPO() {
               title={"Upload Document"}
               // destroyOnClose={true}
               onOk={() => setUploadClicked(false)}
+              onCancel={() => setUploadClicked(false)}
               // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
             >
               {" "}

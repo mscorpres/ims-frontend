@@ -1303,10 +1303,15 @@ export default function MaterialInWithPO({}) {
                 width={700}
                 title={"Upload Document"}
                 // destroyOnClose={true}
+                onCancel={() => setUploadClicked(false)}
                 onOk={() => setUploadClicked(false)}
                 // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
               >
-                <Form initialValues={defaultValues} form={form}>
+                <Form
+                  initialValues={defaultValues}
+                  form={form}
+                  layout="vertical"
+                >
                   <Card style={{ height: "20rem", overflowY: "scroll" }}>
                     <div style={{ flex: 1 }}>
                       <Col
