@@ -94,6 +94,8 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
         toast.error(data.message.msg);
         setEditPPR(null);
       }
+    } else {
+      toast.error(response.message);
     }
   };
   const columns = [
@@ -138,7 +140,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
       ),
     },
     {
-      headerName: "Actual Cons.",
+      headerName: "In Qty",
       flex: 1,
       field: "annuaCons",
       renderCell: ({ row }) => (
@@ -173,11 +175,19 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
       ),
     },
   ];
-  const getLocations = async () => {
-    const { data } = await imsAxios.get("/ppr/mfg_locations");
-    const arr = [];
-    data.data.map((a) => arr.push({ text: a.text, value: a.id }));
-    setLocationOptions(arr);
+  const getLocations = async (search) => {
+    // const { data } = await imsAxios.get("/ppr/mfg_locations");
+    // const arr = [];
+    // data.data.map((a) => arr.push({ text: a.text, value: a.id }));
+    // setLocationOptions(arr);
+    const { data } = await imsAxios.post("/backend/fetchLocation", {
+      searchTerm: search,
+    });
+    let locArr = [];
+    locArr = data.map((d) => {
+      return { text: d.text, value: d.id };
+    });
+    setLocationOptions(locArr);
   };
   const compInputHandler = async (name, value, id) => {
     let arr = tableData;
@@ -301,6 +311,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
       setTableData([]);
     } else if (editPPR);
     {
+
       getPPRData(editPPR);
       setTabsExist(["1", "P", "PCK", "O", "PCB"]);
     }
@@ -351,10 +362,13 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
                     </Col>
                   </Row>
                   <Row style={{ margin: "30px 0" }} gutter={16}>
-                    <Col span={6}>
-                      Mfg Location: <br />
-                      {headerData?.location}
-                    </Col>
+                    {headerData?.location && (
+                      <Col span={6}>
+                        Location: <br />
+                        {headerData?.location}
+                      </Col>
+                    )}
+
                     <Col span={6}>
                       Left Qty: <br />
                       {headerData?.left_qty}
@@ -402,13 +416,13 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
                                 fontSize: window.innerWidth < 1600 && "0.7rem",
                               }}
                             >
-                              MFG Qty
+                              Inward Qty
                             </div>
                           }
                           rules={[
                             {
                               required: true,
-                              message: "Enter MFG Qty",
+                              message: "Enter Inward Qty",
                             },
                           ]}
                         >
@@ -447,7 +461,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
                         >
                           <Input.TextArea
                             // disabled={true}
-                            value={headerData?.remark}
+                            // value={headerData?.remark}
                             style={{ resize: "none" }}
                             rows={4}
                           />

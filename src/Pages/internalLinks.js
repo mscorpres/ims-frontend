@@ -437,6 +437,14 @@ const links = [
     },
     { routeName: "VIEW FG OUT", routePath: "/view-fgOut" },
   ],
+  [
+    {
+      routeName: "Create FG Return",
+      routePath: "/createFgReturn",
+    },
+    { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
+    { routeName: "Completed FG Return", routePath: "/view-fgOut" },
+  ],
   // RM to RM transfer links
   [
     { routeName: "RM To RM", routePath: "/rm-to-rm" },
@@ -607,6 +615,10 @@ const links = [
     {
       routeName: "RM Issue Register",
       routePath: "/transaction-Out",
+    },
+    {
+      routeName: "View Documents",
+      routePath: "/uploaded-documents",
     },
   ],
   // reports r1-r14 links

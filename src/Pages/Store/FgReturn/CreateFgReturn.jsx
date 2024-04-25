@@ -66,6 +66,12 @@ function CreateFgReturn() {
     });
     setLocationList(locArr);
   };
+  const getLocations = async () => {
+    const { data } = await imsAxios.get("/ppr/mfg_locations");
+    const arr = [];
+    data.data.map((a) => arr.push({ text: a.text, value: a.id }));
+    setLocationList(arr);
+  };
   const resetFunction = () => {
     fgReturn.resetFields();
   };
@@ -77,7 +83,7 @@ function CreateFgReturn() {
       bom_id: values.bom?.key,
       qty_return: values.qty,
       location_in: values.location,
-      fg_status: values.status,
+      fg_status: values.status == "okay" ? "OK" : "NOT_OK",
       remark: values.remarks,
     };
 
@@ -98,7 +104,7 @@ function CreateFgReturn() {
   }, [sku]);
   useEffect(() => {
     if (selectedStatus) {
-      locationList();
+      getLocations();
     }
   }, [selectedStatus]);
 
@@ -232,7 +238,7 @@ function CreateFgReturn() {
                   >
                     <MyAsyncSelect
                       disabled={selectedStatus != "okay"}
-                      loadOptions={locationList}
+                      loadOptions={getLocations}
                       optionsState={locationlist}
                     />
                   </Form.Item>

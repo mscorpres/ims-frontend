@@ -20,10 +20,20 @@ export const validateInvoiceforSFG = async (values) => {
   return response;
 };
 
-export const uploadMinInvoice = async (file) => {
-  const formData = new FormData();
-  formData.append("files", file);
+export const uploadMinInvoice = async (formData) => {
+  // const formData = new FormData();
+  // formData.append("files", file);
   const response = await imsAxios.post("/transaction/upload-invoice", formData);
+
+  return response;
+};
+export const uploadVendorDoc = async (formData) => {
+  // const formData = new FormData();
+  // formData.append("files", file);
+  const response = await imsAxios.post(
+    "/transaction/vendor-document",
+    formData
+  );
 
   return response;
 };
@@ -41,7 +51,8 @@ export const materialInWithoutPo = async (values, fileName) => {
     irn: values.irn,
     qrScan: values.QR == true ? "Y" : "N",
 
-    component: values.components.map((row) => row.component.value),
+    documentName: values.fileComponents?.map((r) => r.documentName),
+    component: values?.components.map((row) => row.component?.value),
     qty: values.components.map((row) => row.qty),
     rate: values.components.map((row) => row.rate),
     currency: values.components.map((row) => row.currency),
@@ -58,7 +69,8 @@ export const materialInWithoutPo = async (values, fileName) => {
     location: values.components.map((row) => row.location.value),
     out_location: values.components.map((row) => row.autoConsumption),
   };
-
+  // console.log("payload",payload)
+  // return
   const response = await imsAxios.post("/transaction/min_transaction", payload);
 
   return response;

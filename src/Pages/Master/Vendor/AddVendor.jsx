@@ -11,7 +11,6 @@ import {
   InputNumber,
   Button,
   Typography,
-  
 } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
@@ -57,16 +56,26 @@ const AddVendor = () => {
   };
 
   const submitHandler = async () => {
-    const formData = new FormData();
-    formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
-    formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
-    formData.append("uploadfile", files);
-    console.log("formData", formData);
-    console.log("files", addVendorForm.getFieldValue("components"));
+    // const formData = new FormData();
+    // formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
+    // formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
+
+    // let uploadedFie = addVendorForm.getFieldValue("components");
+    // console.log("uploadedFie", uploadedFie);
+    // let a = uploadedFie?.map((r) => {
+    //   r.file[0].originFileObj;
+    // });
+    // console.log("a", a);
+    // formData.append("uploadfile", uploadedFie?.file?.originFileObj);
+    // console.log("formData", formData);
+
     setLoading("submit");
     setShowSubmitConfirmModal(false);
-    return;
-    const response = await imsAxios.post("/vendor/addVendor", formData);
+    // return;
+    const response = await imsAxios.post(
+      "/vendor/addVendor",
+      showSubmitConfirmModal
+    );
     setLoading(false);
     const { data } = response;
     if (data) {
@@ -82,8 +91,24 @@ const AddVendor = () => {
   };
 
   const validateHandler = async () => {
+    const formData = new FormData();
     const values = await addVendorForm.validateFields();
-    console.log("values", values);
+    console.log("files", values);
+
+    // let uploadedFie = addVendorForm.getFieldValue("components");
+    let uploadedFie = addVendorForm.getFieldValue("components");
+    // console.log("uploadedFie", uploadedFie);
+    // let a = uploadedFie?.map((r) => {
+    //   console.log("rrrrrrrrr", r);
+
+    //   formData.append("file", r.file[0].originFileObj);
+    // });
+    values.components.map((comp) => {
+      formData.append("file", comp.file[0]?.originFileObj);
+    });
+    // formData.append("file", values.components[0].file[0].originFileObj);
+    // console.log("a-----", uploadedFie[0].file[0].originFileObj);
+    // console.log("values", values);
     // if
     let obj = {
       vendor: {
@@ -103,6 +128,8 @@ const AddVendor = () => {
         eInvoice: values.applicability,
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
+        documentName: uploadedFie.map((r) => r.documentName),
+        // file: formData,
       },
       branch: {
         branch: values.branch,
@@ -116,8 +143,13 @@ const AddVendor = () => {
         gstin: values.gstin.toUpperCase(),
       },
     };
+    // console.log("this is the obj", obj);
+    formData.append("vendor", JSON.stringify(obj.vendor));
+    formData.append("branch", JSON.stringify(obj.branch));
+
+    // console.log("formData", formData);
     // console.log("obj", obj);
-    setShowSubmitConfirmModal(obj);
+    setShowSubmitConfirmModal(formData);
   };
 
   const reset = async () => {
@@ -175,7 +207,7 @@ const AddVendor = () => {
           title="Submit Confirm"
           open={showSubmitConfirmModal}
           onOk={submitHandler}
-          confirmLoading={loading === "submit"}
+          // confirmLoading={loading === "submit"}
           onCancel={() => setShowSubmitConfirmModal(false)}
         >
           <p>Are you sure you want to create this vendor?</p>
@@ -468,49 +500,49 @@ const AddVendor = () => {
           <Col span={20}>
             <Row gutter={16}>
               <Col span={24}>
-                <div
+                {/* <div
                   className="remove-table-footer"
                   style={{ height: "50%", opacity: loading ? 0.5 : 1 }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <Col
-                      span={24}
-                      style={{
-                        height: "90%",
-                        overflowX: "hidden",
-                        overflowY: "auto",
-                      }}
-                    >
-                      <Form.List name="components">
-                        {(fields, { add, remove }) => (
-                          <>
-                            <Col>
-                              {fields.map((field, index) => (
-                                <Form.Item noStyle>
-                                  <SingleProduct
-                                    fields={fields}
-                                    field={field}
-                                    index={index}
-                                    add={add}
-                                    form={addVendorForm}
-                                    remove={remove}
-                                    setFiles={setFiles}
-                                    files={files}
-                                  />
-                                </Form.Item>
-                              ))}
-                              <Row justify="center">
-                                <Typography.Text type="secondary">
-                                  ----End of the List----
-                                </Typography.Text>
-                              </Row>
-                            </Col>
-                          </>
-                        )}
-                      </Form.List>
-                    </Col>
-                  </div>
+                > */}
+                <div style={{ flex: 1 }}>
+                  <Col
+                    span={24}
+                    style={{
+                      height: "14rem",
+                      // overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <Form.List name="components">
+                      {(fields, { add, remove }) => (
+                        <>
+                          <Col>
+                            {fields.map((field, index) => (
+                              <Form.Item noStyle>
+                                <SingleProduct
+                                  fields={fields}
+                                  field={field}
+                                  index={index}
+                                  add={add}
+                                  form={addVendorForm}
+                                  remove={remove}
+                                  setFiles={setFiles}
+                                  files={files}
+                                />
+                              </Form.Item>
+                            ))}
+                            <Row justify="center">
+                              <Typography.Text type="secondary">
+                                ----End of the List----
+                              </Typography.Text>
+                            </Row>
+                          </Col>
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
                 </div>
+                {/* </div> */}
               </Col>
             </Row>
           </Col>

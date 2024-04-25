@@ -15,6 +15,7 @@ export default function SingleProduct({
   // optionState,
   // setOptionState,
 }) {
+  console.log("Upload event:");
   const component =
     Form.useWatch(["components", field.name, "component"], form) ?? 0;
   const normFile = (e) => {
@@ -24,7 +25,6 @@ export default function SingleProduct({
     }
     return e?.fileList;
   };
-  // console.log("norma", a);
   return (
     <Row
       style={{

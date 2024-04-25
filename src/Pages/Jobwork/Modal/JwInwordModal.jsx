@@ -31,6 +31,7 @@ import { AiOutlineMinusSquare } from "react-icons/ai";
 import { uploadMinInvoice } from "../../../api/store/material-in";
 import SuccessPage from "../../Store/MaterialIn/SuccessPage";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
+import SingleProduct from "../../Master/Vendor/SingleProduct";
 export default function JwInwordModal({ editModal, setEditModal }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locValue, setLocValue] = useState([]);
@@ -51,6 +52,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const [isScan, setIsScan] = useState(false);
   const [modalForm] = Form.useForm();
 
+  const fileComponents = Form.useWatch("fileComponents", modalForm);
+  const [uplaoaClicked, setUploadClicked] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
     setModalLoad("fetch", true);
@@ -435,13 +438,17 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   };
 
   const saveFunction = async (fetchAttachment) => {
+    // let filedata = modalForm.getFieldValue("fileComponents");
+    let value = await modalForm.validateFields();
+    let filedata = value.fileComponents;
     setModalUploadLoad(true);
     console.log("bomList", bomList);
-    console.log("conrem", conrem);
+    console.log("values", value);
     console.log("isScan", isScan);
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
+      documentName: filedata.map((r) => r.documentName),
       component: mainData[0].component.value ?? mainData[0].component,
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
@@ -562,66 +569,71 @@ export default function JwInwordModal({ editModal, setEditModal }) {
 
     setLoading(false);
   };
-  const addAttachmentModal = async () => {
-    // const values = await modalForm.validateFields();
-    Modal.confirm({
-      title: "Do you want to submit this JW SF Inward??",
-      content: (
-        <Form form={modalForm} layout="vertical">
-          <Form.Item
-            label="Invoice / Document"
-            rules={[
-              {
-                required: true,
-                message: "Please Select attachment!",
-              },
-            ]}
-          >
-            <Form.Item
-              name="invoice"
-              valuePropName="file"
-              getValueFromEvent={(e) => e?.file}
-              noStyle
-              rules={[
-                {
-                  required: true,
-                  message: "Please Select attachment!",
-                },
-              ]}
-            >
-              <Upload.Dragger
-                name="invoice"
-                beforeUpload={() => false}
-                // maxCount={1}
-                multiple={true}
-              >
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">
-                  Click or drag file to this area to upload
-                </p>
-                <p className="ant-upload-hint">
-                  Upload vendor invoice / Document.
-                </p>
-              </Upload.Dragger>
-            </Form.Item>
-          </Form.Item>
-        </Form>
-      ),
-      onOk: () => submitHandler(),
-      okText: "Submit",
-    });
-  };
+  // const addAttachmentModal = async () => {
+  //   // const values = await modalForm.validateFields();
+  //   Modal.confirm({
+  //     title: "Do you want to submit this JW SF Inward??",
+  //     content: (
+  //       <Form form={modalForm} layout="vertical">
+  //         <Form.Item
+  //           label="Invoice / Document"
+  //           rules={[
+  //             {
+  //               required: true,
+  //               message: "Please Select attachment!",
+  //             },
+  //           ]}
+  //         >
+  //           <Form.Item
+  //             name="invoice"
+  //             valuePropName="file"
+  //             getValueFromEvent={(e) => e?.file}
+  //             noStyle
+  //             rules={[
+  //               {
+  //                 required: true,
+  //                 message: "Please Select attachment!",
+  //               },
+  //             ]}
+  //           >
+  //             <Upload.Dragger
+  //               name="invoice"
+  //               beforeUpload={() => false}
+  //               // maxCount={1}
+  //               multiple={true}
+  //             >
+  //               <p className="ant-upload-drag-icon">
+  //                 <InboxOutlined />
+  //               </p>
+  //               <p className="ant-upload-text">
+  //                 Click or drag file to this area to upload
+  //               </p>
+  //               <p className="ant-upload-hint">
+  //                 Upload vendor invoice / Document.
+  //               </p>
+  //             </Upload.Dragger>
+  //           </Form.Item>
+  //         </Form.Item>
+  //       </Form>
+  //     ),
+  //     onOk: () => submitHandler(),
+  //     okText: "Submit",
+  //   });
+  // };
   const newMinFunction = () => {
     setMaterialInSuccess(false);
   };
   const submitHandler = async () => {
+    setUploadClicked(false);
+    const formData = new FormData();
     const values = await modalForm.validateFields();
     console.log("values", values);
     let fileName;
+    values.fileComponents.map((comp) => {
+      formData.append("files", comp.file[0]?.originFileObj);
+    });
     const fileResponse = await executeFun(
-      () => uploadMinInvoice(values.invoice),
+      () => uploadMinInvoice(formData),
       "submit"
     );
     console.log("fileResponse", fileResponse);
@@ -850,7 +862,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                         <Button
                           style={{ marginLeft: 4 }}
                           type="primary"
-                          onClick={addAttachmentModal}
+                          onClick={() => setUploadClicked(true)}
                         >
                           Save
                         </Button>
@@ -900,6 +912,63 @@ export default function JwInwordModal({ editModal, setEditModal }) {
               successColumns={successColumns}
             />
           )}
+          <Modal
+            open={uplaoaClicked}
+            width={700}
+            title={"Upload Document"}
+            // destroyOnClose={true}
+            onOk={() => submitHandler()}
+            // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
+          >
+            {" "}
+            <Form
+              style={{ height: "100%" }}
+              initialValues={defaultValues}
+              form={modalForm}
+              layout="vertical"
+            >
+              {" "}
+              <Card style={{ height: "20rem", overflowY: "scroll" }}>
+                <div style={{ flex: 1 }}>
+                  <Col
+                    span={24}
+                    style={{
+                      overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <Form.List name="fileComponents">
+                      {(fields, { add, remove }) => (
+                        <>
+                          <Col>
+                            {fields.map((field, index) => (
+                              <Form.Item noStyle>
+                                <SingleProduct
+                                  fields={fields}
+                                  field={field}
+                                  index={index}
+                                  add={add}
+                                  form={modalForm}
+                                  remove={remove}
+                                  // setFiles={setFiles}
+                                  // files={files}
+                                />
+                              </Form.Item>
+                            ))}
+                            <Row justify="center">
+                              <Typography.Text type="secondary">
+                                ----End of the List----
+                              </Typography.Text>
+                            </Row>
+                          </Col>
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </div>
+              </Card>
+            </Form>
+          </Modal>
         </>
       </Drawer>
     </Space>
@@ -920,3 +989,28 @@ const successColumns = [
   // { headerName: "Invoice Date", field: "invoiceDate", flex: 1 },
   // { headerName: "Location", field: "location", flex: 1 },
 ];
+const defaultValues = {
+  vendorType: "v01",
+  vendorName: "",
+  vendorBranch: "",
+  gstin: "",
+  vendorAddress: "",
+  ewaybill: "",
+  companybranch: "BRMSC012",
+  projectID: "",
+  costCenter: "",
+  components: [
+    {
+      gstType: "L",
+      location: "",
+      autoConsumption: 0,
+      currency: "364907247",
+      exchangeRate: 1,
+    },
+  ],
+  fileComponents: [
+    {
+      // file: "",
+    },
+  ],
+};

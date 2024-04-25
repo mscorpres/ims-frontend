@@ -11,17 +11,21 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { AiFillEdit } from "react-icons/ai";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import ExecutePPR from "./ExecutePPR";
+import { toast } from "react-toastify";
 function PendingReversal() {
   const [dateRange, setDateRange] = useState("");
   const [rows, setRows] = useState("");
   const [executePPR, setExecutePPR] = useState([]);
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("datewise");
+  const [loading, setLoading] = useState(false);
   const options = [
     { value: "datewise", text: "Date Wise" },
     { value: "skuwise", text: "SKU Wise" },
   ];
   const getRows = async () => {
+    setLoading(true);
+    true;
     let response = await imsAxios.post("/fg_return/fetchFG_returnlist", {
       wise: wise,
       data: wise == "datewise" ? dateRange : searchInput,
@@ -35,7 +39,12 @@ function PendingReversal() {
         };
       });
       setRows(arr);
+      setLoading(false);
+    } else {
+      toast.error(response.message);
     }
+    setLoading(false);
+    true;
   };
   const getExecuteDetails = async (row) => {
     // console.log("row", row);
@@ -163,7 +172,11 @@ function PendingReversal() {
             </Col>
           </>
         )}
-        <MyButton variant="search" onClick={getRows}></MyButton>
+        <MyButton
+          variant="search"
+          onClick={getRows}
+          loading={loading}
+        ></MyButton>
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
         <MyDataTable columns={columns} data={rows} />

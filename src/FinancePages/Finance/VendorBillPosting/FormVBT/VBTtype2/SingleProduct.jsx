@@ -52,6 +52,8 @@ export default function SingleComponent({
   setglState,
   glstate,
   lastRateArr,
+  paginate,
+  setPaginate,
 }) {
   var lastRateFoundObj;
   const [showLastRateWarning, setShowLastRateWarning] = useState({
@@ -202,7 +204,7 @@ export default function SingleComponent({
       addFreight = 0;
     }
     if (isCreate || totalInsurance) {
-      console.log("totalInsurance", totalInsurance);
+      // console.log("totalInsurance", totalInsurance);
       // console.log("inrowInsur", inrowInsur);
       if (inrowInsur === "inRowInsurance") {
         let newinsurance =
@@ -224,7 +226,7 @@ export default function SingleComponent({
     if (customDuty) {
       let sws = (customDuty * 10) / 100;
       sws = +Number(sws).toFixed(2);
-      console.log("sws_______", sws);
+      // console.log("sws_______", sws);
       // form.setFieldValue(["components", field.name, "sws"], sws);
       if (
         !form.isFieldTouched(["components", field.name, "sws"]) &&
@@ -269,7 +271,7 @@ export default function SingleComponent({
     const cgst = gstType === "L" ? +Number(taxAmount).toFixed(2) / 2 : 0;
     const sgst = gstType === "L" ? +Number(taxAmount).toFixed(2) / 2 : 0;
     const igst = gstType === "I" ? +Number(taxAmount).toFixed(2) : 0;
-    console.log("cgst", igst);
+    // console.log("cgst", igst);
     taxAmount =
       +Number(cgst).toFixed(2) +
       +Number(sgst).toFixed(2) +
@@ -483,7 +485,7 @@ export default function SingleComponent({
   ];
 
   const showRateWarning = () => {
-    console.log("this is the last date arr iin single, ", lastRateArr);
+    // console.log("this is the last date arr iin single, ", lastRateArr);
     const partCode = form.getFieldValue(["components", field.name, "partCode"]);
 
     lastRateFoundObj = lastRateArr?.find((row) => row.partCode === partCode);

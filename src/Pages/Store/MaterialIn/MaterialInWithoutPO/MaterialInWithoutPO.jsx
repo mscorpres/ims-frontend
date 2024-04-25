@@ -65,6 +65,11 @@ const defaultValues = {
       exchangeRate: 1,
     },
   ],
+  fileComponents: [
+    {
+      // file: "",
+    },
+  ],
 };
 
 const vendorDetailsOptions = [
@@ -99,12 +104,13 @@ export default function MaterialInWithoutPO() {
   const [showSuccessPage, setShowSuccessPage] = useState(false);
   const [form] = Form.useForm();
   const components = Form.useWatch("components", form);
+  const fileComponents = Form.useWatch("fileComponents", form);
   const { executeFun, loading } = useApi();
   const costCenter = Form.useWatch("costCenter", form);
   const vendor = Form.useWatch("vendorName", form);
   const vendorBranch = Form.useWatch("vendorBranch", form);
   const vendorType = Form.useWatch("vendorType", form);
-
+  // console.log("fileComponents", fileComponents);
   const handleSubmit = async () => {
     const values = await form.validateFields();
     Modal.confirm({
@@ -145,10 +151,15 @@ export default function MaterialInWithoutPO() {
   };
   const submitMIN = async () => {
     let fileName;
+    const formData = new FormData();
     console.log("submittinh min");
     const values = await form.validateFields();
+    // console.log("values", values);
+    values.fileComponents.map((comp) => {
+      formData.append("files", comp.file[0]?.originFileObj);
+    });
     const fileResponse = await executeFun(
-      () => uploadMinInvoice(values.invoice),
+      () => uploadMinInvoice(formData),
       "submit"
     );
     console.log("fileResponse-------", fileResponse);
@@ -333,9 +344,9 @@ export default function MaterialInWithoutPO() {
 
     if (response.success) {
       // console.log("response =>", response?.data?.data.einvoice_status);
-      setIsApplicable(response.data.data.einvoice_status);
-      form.setFieldValue("gstin", response.data.data.gstid);
-      form.setFieldValue("vendorAddress", response.data.data.address);
+      setIsApplicable(response.data?.data?.einvoice_status);
+      form.setFieldValue("gstin", response?.data?.data?.gstid);
+      form.setFieldValue("vendorAddress", response?.data?.data.address);
     }
   };
   const handleFetchCostCenterOptions = async (search) => {
@@ -832,7 +843,7 @@ export default function MaterialInWithoutPO() {
                     </Button>
                   </Row>
                 </Card>
-                <Card size="small">
+                {/* <Card size="small">
                   <Form.Item label="Invoice / Document">
                     <Form.Item
                       name="invoice"
@@ -858,7 +869,7 @@ export default function MaterialInWithoutPO() {
                       </Upload.Dragger>
                     </Form.Item>
                   </Form.Item>
-                </Card>
+                </Card> */}
                 <Card size="small">
                   <Row gutter={[0, 4]}>
                     {totalValues?.map((row) => (
@@ -913,11 +924,51 @@ export default function MaterialInWithoutPO() {
                 </Card>
               </Flex>
             </Col>
+            <Col style={{ height: "100%" }} span={18}>
+              <div style={{ height: "98%", border: "1px solid #EEEEEE" }}>
+                {pageLoading && <Loading />}
+                <FormTable2
+                  form={form}
+                  addableRow={true}
+                  removableRows={true}
+                  reverse={true}
+                  newRow={defaultValues.components[0]}
+                  listName="components"
+                  nonRemovableColumns={1}
+                  watchKeys={[
+                    "rate",
+                    "qty",
+                    "component",
+                    "gstRate",
+                    "gstType",
+                    "exchangeRate",
+                    "currency",
+                  ]}
+                  calculation={calculation}
+                  columns={columns({
+                    handleFetchComponentOptions,
+                    loading,
+                    asyncOptions,
+                    setAsyncOptions,
+                    locationOptions,
+                    autoConsumptionOptions,
+                    handleFetchComponentDetails,
+                    handleFetchPreviousRate,
+                    compareRates,
+                    form,
+                    currencies,
+                    setShowCurrenncy,
+                  })}
+                />
+              </div>
+            </Col>
             <Modal
               open={uplaoaClicked}
               width={700}
               title={"Upload Document"}
-              destroyOnClose={true}
+              // destroyOnClose={true}
+              onOk={() => setUploadClicked(false)}
+              onCancel={() => setUploadClicked(false)}
               // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
             >
               {" "}
@@ -930,7 +981,7 @@ export default function MaterialInWithoutPO() {
                       overflowY: "auto",
                     }}
                   >
-                    <Form.List name="components">
+                    <Form.List name="fileComponents">
                       {(fields, { add, remove }) => (
                         <>
                           <Col>

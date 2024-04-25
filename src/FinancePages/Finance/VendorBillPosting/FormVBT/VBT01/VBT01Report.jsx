@@ -334,16 +334,23 @@ function VBT01Report({
       const roundarr = values.components.map(
         (component) => component.venAmmount
       );
+      console.log("roundarr ->", roundarr);
+
       let a;
+      let val = roundarr[roundarr.length - 1];
+      val = +Number(val);
+      console.log("val", val);
       if (roundOffSign.toString() === "+") {
-        a = roundarr[roundarr.length - 1] + +Number(roundOffValue.toString());
+        a = val + +Number(roundOffValue.toString());
       } else if (roundOffSign.toString() === "-") {
-        a = roundarr[roundarr.length - 1] -= +Number(roundOffValue.toString());
+        a = val -= +Number(roundOffValue.toString());
       } else {
-        a = roundarr[roundarr.length - 1];
+        a = val;
       }
+      console.log("a", a);
       const modifiedArray =
         roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
+      console.log("modifiedArray", modifiedArray);
       // return;
       // const tdsCodes = values.components.filter(
       //   (component) =>

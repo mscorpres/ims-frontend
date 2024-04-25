@@ -100,6 +100,11 @@ const columnss = [
   },
 
   {
+    headerName: "SKU",
+    field: "sku",
+    width: 100,
+  },
+  {
     headerName: "UoM",
     field: "unit",
     width: 70,
@@ -110,11 +115,11 @@ const columnss = [
     width: 110,
   },
 
-  {
-    headerName: "No Of Lines",
-    field: "noOfLines",
-    width: 110,
-  },
+  // {
+  //   headerName: "No Of Lines",
+  //   field: "noOfLines",
+  //   width: 110,
+  // },
   {
     headerName: "Output",
     field: "output",
@@ -131,18 +136,24 @@ const columnss = [
     width: 140,
   },
   {
+    headerName: "Working Day",
+    field: "workDay",
+    width: 140,
+  },
+  {
+    headerName: "Working Hours",
+    field: "workHrs",
+    width: 140,
+  },
+  {
     headerName: "Over Time",
     field: "overTm",
     width: 140,
   },
-  {
-    headerName: " Working Hours",
-    field: "workHrs",
-    width: 150,
-  },
-  {
-    headerName: "Remarks.",
-    field: "remark",
-    width: 220,
-  },
+
+  // {
+  //   headerName: "Remarks.",
+  //   field: "remark",
+  //   width: 220,
+  // },
 ];

@@ -1,4 +1,14 @@
-import { Card, Col, Drawer, Form, Input, Modal, Row, Typography } from "antd";
+import {
+  Card,
+  Col,
+  Drawer,
+  Form,
+  Input,
+  Modal,
+  Pagination,
+  Row,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { imsAxios } from "../../../../../axiosInterceptor";
 import { useEffect } from "react";
@@ -42,6 +52,12 @@ function VBT02Report({
   const [editApiUrl, setEditApiUrl] = useState("");
   const [isCreate, setIsCreate] = useState(false);
   const [glstate, setglState] = useState([]);
+  const [paginate, setPaginate] = useState([]);
+  const [totalPage, setTotalPage] = useState();
+  const [current, setCurrent] = useState(0);
+  const [currArr, setCurrArr] = useState([]);
+  const [newArr, setNewArr] = useState([]);
+  const [isAnother, setIsAnother] = useState("");
   const components = Form.useWatch("components", {
     form: Vbt01,
     preserve: true,
@@ -51,6 +67,9 @@ function VBT02Report({
   const resetForm = () => {
     Vbt01.resetFields();
   };
+
+  var chunk;
+  var result;
   const getApiUrl = (vbtCode) => {
     return vbtCode.split("/")[0].toLowerCase();
   };
@@ -142,7 +161,15 @@ function VBT02Report({
 
   const submitFunction = async () => {
     const values = await Vbt01.validateFields();
-
+    console.log("valuesss", values);
+    if (isAnother) {
+      let createdEntry = Vbt01.getFieldValue("components");
+      paginate[current - 1] = createdEntry;
+      setNewArr(paginate);
+      const creatingComp = Array.prototype.concat(...newArr);
+      console.log("creatingComp", creatingComp);
+      values.components = creatingComp;
+    }
     if (isCreate) {
       const roundarr = values.components.map(
         (component) => component.venAmmount
@@ -248,7 +275,6 @@ function VBT02Report({
         round_type: roundOffSign.toString(),
         round_value: roundOffValue.toString(),
       };
-      // console.log("finalData", finalData);
       addVbt(finalData);
     } else {
       const roundarr = values.components.map(
@@ -422,6 +448,53 @@ function VBT02Report({
       },
     });
   };
+  const changeToNextPage = () => {
+    // setLoading(true);
+    console.log("current", current);
+    let createdEntry = Vbt01.getFieldValue("components");
+    console.log("createdEntry", createdEntry);
+
+    let id;
+    // let newArray = [];
+    if (current < totalPage) {
+      id = current + 1;
+      setCurrent(id);
+      Vbt01.setFieldValue("components", paginate[id - 1]);
+      setCurrArr(paginate[id - 1]);
+
+      paginate[current - 1] = createdEntry;
+      console.log("paginate in func", paginate);
+
+      let newArray = [...newArr];
+      setNewArr(paginate);
+      console.log("newArray", newArray);
+      console.log("id", id);
+      setLoading(false);
+    }
+  };
+  const changeToBackPage = () => {
+    // setLoading(true);
+    let id;
+    let createdEntry = Vbt01.getFieldValue("components");
+    console.log("createdEntry in back", createdEntry);
+    if (current - 1 > 0) {
+      id = current - 1;
+      setCurrent(id);
+      Vbt01.setFieldValue("components", paginate[id - 1]);
+      setCurrArr(paginate[id - 1]);
+      paginate[current - 1] = createdEntry;
+    }
+    setNewArr(paginate);
+    console.log("id", id);
+    setLoading(false);
+  };
+  useEffect(() => {
+    const partCodeArr = currArr.map((row) => row.c_part_no);
+    if (currArr && currArr[0]?.ven_code) {
+      getLastPrice(currArr[0]?.ven_code, partCodeArr);
+    }
+  }, [currArr]);
+
   //edit vbt fn
   const getEditVbtDetails = async (vbtCode) => {
     setLoading(true);
@@ -438,7 +511,7 @@ function VBT02Report({
         Value: data[0]?.tds?.tdsGlKey,
       };
 
-      const arr = data.map((row) => ({
+      let arr = data.map((row) => ({
         ...row,
 
         tdsAssValue: row.tdsAssValue,
@@ -479,12 +552,40 @@ function VBT02Report({
         gstAssValue: row?.gstAssValue,
         glCodeValue: row?.purchase_gl.value,
       }));
-
+      ///
+      // let newarr = arr.slice([10]);
+      console.log("arr", arr);
+      // arr = newarr;
+      if (arr.length > 25) {
+        setIsAnother(true);
+        console.log("Arr", arr.length);
+        chunk = arr.length / 25;
+        chunk = Math.ceil(chunk);
+        setTotalPage(chunk);
+        console.log("chunk", chunk);
+        result = divideArray(arr, chunk);
+        // console.log("result", chunk);
+        setPaginate(result);
+        setCurrArr(result[0]);
+        Vbt01.setFieldValue("components", result[0]);
+        setEditVBTCode(result[0]);
+        setVbtComponent(result[0]);
+        setCurrent(1);
+      } else {
+        // chunk = arr.length;
+        setTotalPage(1);
+        result = arr;
+        // console.log("result", result);
+        Vbt01.setFieldValue("components", result);
+        setEditVBTCode(arr);
+        setVbtComponent(arr);
+      }
       // setEditingVBT(arr);
-      setEditVBTCode(arr);
-      setVbtComponent(arr);
-      Vbt01.setFieldValue("components", arr);
+      // setEditVBTCode(arr);
+      // setVbtComponent(arr);
+      // Vbt01.setFieldValue("components", arr);
       // getTdsOptions(response.data[0]?.minId);
+      setCurrent(1);
       setLoading(false);
     }
   };
@@ -514,7 +615,7 @@ function VBT02Report({
     const { data } = response;
     if (data.code === 200) {
       setVbtComponent(data);
-      const arr = data.data.map((row) => ({
+      let arr = data.data.map((row) => ({
         ...row,
         minId: row.min_id,
         // poNumber: row.poNumber,
@@ -585,23 +686,48 @@ function VBT02Report({
       }));
       getGl();
       getCurrencies();
+
+      ///
+      // let newarr = arr.slice([130]);
+      // console.log("newArr", newarr);
+      // arr = newarr;
+      ////
+      // if arr lenght is greater than 25
+      if (arr.length > 25) {
+        setIsAnother(true);
+        console.log("Arr", arr.length);
+        chunk = arr.length / 25;
+        chunk = Math.ceil(chunk);
+        setTotalPage(chunk);
+        console.log("chunk", chunk);
+        result = divideArray(arr, chunk);
+        // console.log("result", paginate.length);
+        setPaginate(result);
+        setCurrArr(result[0]);
+        Vbt01.setFieldValue("components", result[0]);
+      } else {
+        // chunk = arr.length;
+        setTotalPage(1);
+        result = arr;
+        // console.log("result", result);
+        Vbt01.setFieldValue("components", result);
+      }
+      setPaginate(result);
       // getTdsOptions(minIdArr[0]);
-      Vbt01.setFieldValue("components", arr);
+      setCurrArr(arr);
+
       Vbt01.setFieldValue("portCode", "INDEL4");
       Vbt01.setFieldValue("gst", "999999999999999");
       Vbt01.setFieldValue("totalFreight", 0);
       Vbt01.setFieldValue("totalMisc", 0);
+      setCurrent(1);
+
       // Vbt01.setFieldValue("portCode", "INDEL4");
       Vbt01.setFieldValue("portName", "Delhi Air Cargo");
       Vbt01.setFieldValue("cha", "LINKERS INDIA LOGISTICS PV");
-      const partCodeArr = arr.map((row) => row.c_part_no);
-      if (arr[0]?.ven_code) {
-        getLastPrice(arr[0]?.ven_code, partCodeArr);
-      }
-      // if (isEditVBT) {
-      //   const arr = data.data;
-      //   setEditingVBT([...arr]);
-      //   editExistingVbt(vbtKey);
+      // const partCodeArr = arr.map((row) => row.c_part_no);
+      // if (arr[0]?.ven_code) {
+      //   getLastPrice(arr[0]?.ven_code, partCodeArr);
       // }
     } else {
       toast.error(data.message.msg);
@@ -609,6 +735,30 @@ function VBT02Report({
     }
     // setLoading(false);
   };
+  useEffect(() => {
+    if (totalPage) {
+      setTotalPage(totalPage);
+    }
+  }, [totalPage]);
+
+  console.log("totalPage", totalPage);
+  function divideArray(arr, numSubarrays) {
+    // Calculate the size of each subarray
+    const subarraySize = Math.floor(arr.length / numSubarrays);
+
+    // Initialize an empty array to store subarrays
+    const subarrays = [];
+
+    // Iterate through the array and divide it into subarrays
+    let startIndex = 0;
+    for (let i = 0; i < numSubarrays; i++) {
+      const endIndex = startIndex + subarraySize;
+      subarrays.push(arr.slice(startIndex, endIndex));
+      startIndex = endIndex;
+    }
+
+    return subarrays;
+  }
   const getLastPrice = async (venCode, partArr) => {
     const response = await imsAxios.post(
       // `/tally/vbt/lastOptions?vendorCode=${venCode}&partCode=${partCode}`
@@ -791,6 +941,8 @@ function VBT02Report({
               allRowSws={allRowSws}
               editVBTCode={editVBTCode}
               glstate={glstate}
+              paginate={paginate}
+              setPaginate={setPaginate}
             />
           </Col>
 
@@ -802,6 +954,7 @@ function VBT02Report({
               overflowY: "auto",
             }}
           >
+            {`Page ${current} of ${totalPage}`}
             <Form.List name="components">
               {(fields, { add, remove }) => (
                 <>
@@ -847,6 +1000,8 @@ function VBT02Report({
                           getGstGlOptions={getGstGlOptions}
                           glstate={glstate}
                           lastRateArr={lastRateArr}
+                          paginate={paginate}
+                          setPaginate={setPaginate}
                         />
                       </Form.Item>
                     ))}
@@ -862,14 +1017,37 @@ function VBT02Report({
           </Col>
         </Row>
       </Form>
-      <NavFooter
+
+      {current < totalPage ? (
+        <NavFooter
+          nextLabel="Next"
+          backLabel="Back"
+          submitFunction={() => {
+            changeToNextPage();
+          }}
+          resetFunction={backFunction}
+          backFunction={() => changeToBackPage()}
+          loading={loading}
+        />
+      ) : (
+        <NavFooter
+          nextLabel="Submit"
+          submitFunction={() => {
+            showCofirmModal();
+          }}
+          resetFunction={backFunction}
+          backFunction={() => changeToBackPage()}
+          loading={loading}
+        />
+      )}
+      {/* <NavFooter
         nextLabel="Submit"
         submitFunction={() => {
           showCofirmModal();
         }}
         resetFunction={backFunction}
         loading={loading}
-      />
+      /> */}
     </Drawer>
   );
 }
