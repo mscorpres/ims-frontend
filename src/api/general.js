@@ -160,3 +160,16 @@ export const getComponentDetail = async (componentKey, vendorCode) => {
 
   return response;
 };
+
+export const getMINOptions = async (search) => {
+  const response = await imsAxios.post("/qrLabel/getMinsTransaction", {
+    searchTerm: search,
+  });
+
+  let arr = [];
+  if (response.data.code === 200) {
+    arr = convertSelectOptions(response.data.data);
+  }
+  response.data = arr;
+  return response;
+};
