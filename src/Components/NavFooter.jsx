@@ -42,17 +42,7 @@ export default function NavFooter({
             Upload Docs
           </Button>
         )}
-        {backFunction && (
-          <Button
-            size="default"
-            type="default"
-            disabled={disabled?.back || loading}
-            id="next_btn"
-            onClick={backFunction}
-          >
-            {backLabel ? backLabel : "Back"}
-          </Button>
-        )}
+
         {resetFunction && (
           <Button
             size="default"
@@ -62,6 +52,17 @@ export default function NavFooter({
             id="reset_po"
           >
             Reset
+          </Button>
+        )}
+        {backFunction && (
+          <Button
+            size="default"
+            type="default"
+            disabled={disabled?.back || loading}
+            id="next_btn"
+            onClick={backFunction}
+          >
+            {backLabel ? backLabel : "Back"}
           </Button>
         )}
         {(submitFunction || submitButton) && (
