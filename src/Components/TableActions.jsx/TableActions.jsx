@@ -150,7 +150,7 @@ export function CommonIcons({
       return (
         <Button
           size={size ?? "default"}
-          type="primary"
+          type={type ?? "primary"}
           onClick={onClick}
           shape="circle"
           icon={<PrinterFilled />}
