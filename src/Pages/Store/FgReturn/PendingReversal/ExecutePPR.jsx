@@ -94,6 +94,8 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
         toast.error(data.message.msg);
         setEditPPR(null);
       }
+    } else {
+      toast.error(response.message);
     }
   };
   const columns = [
@@ -309,6 +311,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
       setTableData([]);
     } else if (editPPR);
     {
+
       getPPRData(editPPR);
       setTabsExist(["1", "P", "PCK", "O", "PCB"]);
     }
@@ -458,7 +461,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
                         >
                           <Input.TextArea
                             // disabled={true}
-                            value={headerData?.remark}
+                            // value={headerData?.remark}
                             style={{ resize: "none" }}
                             rows={4}
                           />
