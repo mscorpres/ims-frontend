@@ -155,7 +155,8 @@ const Q3 = () => {
                           <Skeleton.Input size="small" block active />
                         )}
                       </Col>
-                    </Row>
+                    </Row>{" "}
+                    <Divider style={{ marginTop: 5, marginBottom: 5 }} />
                     <Row>
                       <Col span={24}>
                         <Typography.Text style={{ fontSize: "0.8rem" }} strong>
