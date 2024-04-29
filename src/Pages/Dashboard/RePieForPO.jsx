@@ -6,10 +6,10 @@ import MyButton from "../../Components/MyButton";
 import { Pie, PieChart, ResponsiveContainer } from "recharts";
 function RePieForPO({ combinedPoData }) {
   const searchChart = async () => {
-    console.log("search", search);
+    // console.log("search", search);
     console.log("combinedPoData", combinedPoData);
-    a = Number(search?.value);
-    console.log("a", a);
+    // a = Number(search?.value);
+    // console.log("a", a);
     const valuesOfSearchKeys = combinedPoData
       .map((item) => item[a])
       .filter((value) => value !== undefined);

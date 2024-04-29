@@ -13,33 +13,35 @@ const LineChart = ({
 }) => {
   let a;
   const [search, setSearch] = useState("");
+  const [extractedData, setExtractedData] = useState("");
+  const [monthLabel, setMonthLabel] = useState("");
   const chartRef = useRef(null);
   let chartInstance = null;
   useEffect(() => {
     const ctx = chartRef.current.getContext("2d");
-
+    console.log("extractedData", extractedData);
     const config = {
       type: "bar",
       data: {
-        labels: labels,
+        labels: monthLabel,
         datasets: [
           {
             label: "Total",
-            data: totalPOData,
+            data: extractedData[0]?.total_po,
             borderColor: "rgba(75, 192, 192, 1)",
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             borderWidth: 2,
           },
           {
             label: "Domestic",
-            data: domesticPOData,
+            data: extractedData[0]?.domestic_po,
             borderColor: "rgba(255, 99, 132, 1)",
             backgroundColor: "rgba(255, 99, 132, 0.2)",
             borderWidth: 2,
           },
           {
             label: "Import",
-            data: importPOData,
+            data: extractedData[0]?.import_po,
             borderColor: "rgba(255, 205, 86, 1)",
             backgroundColor: "rgba(255, 205, 86, 0.2)",
             borderWidth: 2,
@@ -60,7 +62,7 @@ const LineChart = ({
 
     // Clean up function to destroy the chart
     return () => myChart.destroy();
-  }, [totalPOData, domesticPOData, importPOData]);
+  }, [totalPOData, domesticPOData, importPOData, extractedData, monthLabel]);
   const searchChart = async () => {
     console.log("search", search);
     console.log("combinedPoData", combinedPoData);
@@ -70,8 +72,9 @@ const LineChart = ({
       .map((item) => item[a])
       .filter((value) => value !== undefined);
 
-
     console.log("valuesOfSearchKeys", valuesOfSearchKeys);
+    setExtractedData(valuesOfSearchKeys);
+    setMonthLabel(search.label);
   };
 
   return (
