@@ -34,7 +34,6 @@ const LabelDrawer = ({
   const selectedMIN = Form.useWatch("minId", form);
 
   const handleFetchComponents = async (minId) => {
-    console.log("this is working");
     const response = await executeFun(() => getMINComponents(minId), "fetch");
     if (response.data[0].piaStatus === "Y") {
       setPiaEnabled(true);
@@ -85,7 +84,6 @@ const LabelDrawer = ({
   };
   useEffect(() => {
     if (preSelected) {
-      console.log("this is the pre selected", preSelected);
       form.setFieldValue("minId", preSelected);
     }
   }, [preSelected]);
