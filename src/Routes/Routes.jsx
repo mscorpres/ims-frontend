@@ -247,6 +247,7 @@ import R34 from "../Pages/Reports/R/R34";
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal";
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments";
+import CompletedFgReturn from "../pages/Store/FgReturn/CompletedReversal";
 // import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../pages/fixeassetmodule/Depreciation";
@@ -390,6 +391,10 @@ const Routes = [
   {
     path: "/pendingFgReturn",
     main: () => <PendingReversal />,
+  },
+  {
+    path: "/completedFgReturn",
+    main: () => <CompletedFgReturn />,
   },
   {
     path: "/create-fgOut",
