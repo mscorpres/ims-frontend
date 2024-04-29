@@ -18,7 +18,7 @@ import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general";
 import MyButton from "../../../Components/MyButton";
 const { TextArea } = Input;

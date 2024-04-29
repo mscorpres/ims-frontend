@@ -25,7 +25,7 @@ import { Button, Card, Col, Modal, Row, Typography } from "antd";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 export default function AddComponents({
   rowCount,
   setRowCount,

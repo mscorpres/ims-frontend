@@ -18,7 +18,7 @@ import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import { getComponentOptions } from "../../api/general";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 const initialSummaryData = [
   { title: "Component", description: "--" },

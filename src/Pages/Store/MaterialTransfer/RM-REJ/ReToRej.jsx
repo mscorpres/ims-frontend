@@ -5,7 +5,7 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../../axiosInterceptor";
 import NavFooter from "../../../../Components/NavFooter";
 import { getComponentOptions } from "../../../../api/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 const { TextArea } = Input;
 
 function ReToRej() {

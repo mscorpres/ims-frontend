@@ -14,7 +14,7 @@ import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MySelect from "../../../../Components/MySelect";
 import { getComponentOptions } from "../../../../api/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 export default function AddDCComponents({
   newGatePass,
   setActiveTab,

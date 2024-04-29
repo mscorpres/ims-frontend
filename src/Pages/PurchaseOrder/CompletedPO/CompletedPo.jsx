@@ -15,7 +15,7 @@ import TableActions, {
 } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general";
 import { getVendorOptions } from "../../../api/general";
 import MyButton from "../../../Components/MyButton";

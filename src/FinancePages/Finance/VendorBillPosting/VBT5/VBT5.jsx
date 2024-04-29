@@ -13,7 +13,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Button, Input, Row, Space } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
 // import ConfirmModal from "../Shared/ConfirmModal";
@@ -108,17 +108,17 @@ export default function VBT5() {
     setAsyncOptions(arr);
   };
   const getVBTDetail = async (minId) => {
-    setLoading(true);
-    const { data } = await imsAxios.post("/tally/vbt01/fetch_minData", {
-      min_id: minId,
-    });
-    if (data.code === 200) {
-      setEditingVBT(data.data);
-    } else {
-      toast.error(data.message.msg);
-      setEditingVBT(null);
-    }
-    setLoading(false);
+    // setLoading(true);
+    // const { data } = await imsAxios.post("/tally/vbt01/fetch_minData", {
+    //   min_id: minId,
+    // });
+    // if (data.code === 200) {
+    //   setEditingVBT(data.data);
+    // } else {
+    //   toast.error(data.message.msg);
+    //   setEditingVBT(null);
+    // }
+    // setLoading(false);
   };
   // const checkInvoice = async (checkInvoiceId, arr) => {
   //   // console.log("invoice in checkInvoice", checkInvoiceId);

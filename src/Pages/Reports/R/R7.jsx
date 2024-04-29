@@ -13,7 +13,7 @@ import MySelect from "../../../Components/MySelect";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 
 const R7 = () => {

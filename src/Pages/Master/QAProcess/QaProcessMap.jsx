@@ -9,7 +9,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { InboxOutlined } from "@ant-design/icons";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getProductsOptions } from "../../../api/general";
 import Loading from "../../../Components/Loading";
 

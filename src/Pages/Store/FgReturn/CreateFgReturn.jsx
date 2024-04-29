@@ -2,7 +2,7 @@ import { Col, Descriptions, Divider, Form, Input, Row } from "antd";
 import React, { useEffect, useState } from "react";
 import NavFooter from "../../../Components/NavFooter";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getProductsOptions } from "../../../api/general";
 import { imsAxios } from "../../../axiosInterceptor";
 import MySelect from "../../../Components/MySelect";

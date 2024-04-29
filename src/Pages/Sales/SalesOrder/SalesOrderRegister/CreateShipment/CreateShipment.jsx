@@ -10,7 +10,7 @@ import {
   Modal,
 } from "antd";
 import { useEffect, useState } from "react";
-import useApi from "../../../../../hooks/useApi";
+import useApi from "../../../../../hooks/useApi.ts";
 import ShipmentInfo from "./ShipmentInfo";
 import { CommonIcons } from "../../../../../Components/TableActions.jsx/TableActions";
 import InputMask from "react-input-mask";
@@ -93,7 +93,7 @@ function CreateShipment({
     let response;
     if (updateShipmentRow) {
       response = await executeFun(
-        () => updateShipment(values, open, updateShipmentRow,details),
+        () => updateShipment(values, open, updateShipmentRow, details),
         "submit"
       );
     } else {

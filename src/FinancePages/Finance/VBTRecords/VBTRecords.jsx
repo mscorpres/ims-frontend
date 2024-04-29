@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import socket from "../../../Components/socket";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 function VBTRecords() {
   const [wise, setWise] = useState("datewise");
   const [rows, setRows] = useState([]);

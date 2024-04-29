@@ -13,7 +13,7 @@ import { Button, Modal } from "antd";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { getComponentOptions } from "../../../../api/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 export default function EditDCComponents({
   newGatePass,
   setActiveTab,

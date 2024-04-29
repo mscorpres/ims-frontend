@@ -10,7 +10,7 @@ import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyButton from "../../../../Components/MyButton";
 import { downloadServiceMaster } from "../../../../api/master/component";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 function Services() {
   const [loading, setLoading] = useState(false);

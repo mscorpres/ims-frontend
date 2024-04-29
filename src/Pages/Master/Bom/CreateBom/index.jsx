@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { useEffect } from "react";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../../api/general";
 const CreateBom = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);

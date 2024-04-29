@@ -21,7 +21,7 @@ import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 export default function CreateDC() {
   const [newGatePass, setNewGatePass] = useState({

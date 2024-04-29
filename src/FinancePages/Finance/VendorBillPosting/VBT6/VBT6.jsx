@@ -14,7 +14,7 @@ import { Button, Input, Row, Space } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
 import ConfirmModal from "../Shared/ConfirmModal";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
 export default function VBT1() {

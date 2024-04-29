@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { getComponentOptions } from "../../../api/general";
 
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 export default function AddEmergingComponent({
   addingEmergingPart,
   setAddingEmergingPart,
@@ -18,7 +18,7 @@ export default function AddEmergingComponent({
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
-  
+
   const getComponentsOption = async (searchTerm) => {
     // setLoading("select");
     // const response = await imsAxios.post("/backend/getComponentByNameAndNo", {

@@ -24,7 +24,7 @@ import { Button, Card, Col, Modal, Row, Typography } from "antd";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
 import CurrenceModal from "./CurrenceModal";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import {
   getComponentOptions,
   getProductsOptions,
@@ -423,7 +423,7 @@ export default function AddComponents({
         () => getProductsOptions(searchInput),
         "select"
       );
-      setAsyncOptions(response.data)
+      setAsyncOptions(response.data);
     } else {
       const response = await executeFun(
         () => getComponentOptions(searchInput),

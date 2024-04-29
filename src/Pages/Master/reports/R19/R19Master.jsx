@@ -19,7 +19,7 @@ import VerifiedFilePreview from "./VerifiedFilePreview";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
 import { getComponentOptions } from "../../../../api/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
 function R19Master() {
   const [rows, setRows] = useState([]);

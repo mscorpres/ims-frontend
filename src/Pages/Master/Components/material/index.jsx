@@ -28,7 +28,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { downloadComponentMaster } from "../../../../api/master/component";
 import { downloadFromLink } from "../../../../Components/printFunction";
 

@@ -13,7 +13,7 @@ import SummaryCard from "../../../Components/SummaryCard";
 import { imsAxios } from "../../../axiosInterceptor";
 import Loading from "../../../Components/Loading";
 import dayjs from "dayjs";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getProjectOptions } from "../../../api/general";
 
 export default function BankPayment() {

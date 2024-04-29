@@ -7,7 +7,7 @@ import MyDataTable from "../../../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { downloadAttachement } from "../../../../api/store/material-in";
 import { downloadFromLink } from "../../../../utils/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 function ViewDocuments() {
   const [minId, setMinId] = useState("");

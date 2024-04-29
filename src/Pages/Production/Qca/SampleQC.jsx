@@ -11,7 +11,7 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import { imsAxios } from "../../../axiosInterceptor";
 import FormTable from "../../../Components/FormTable";
 import Loading from "../../../Components/Loading";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions, getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import MyButton from "../../../Components/MyButton";

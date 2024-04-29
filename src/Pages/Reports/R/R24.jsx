@@ -20,7 +20,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 const R24 = () => {
   const { user: stateUser } = useSelector((state) => state.login);

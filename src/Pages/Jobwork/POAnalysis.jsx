@@ -30,7 +30,7 @@ import socket from "../../Components/socket";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
 import MyButton from "../../Components/MyButton";

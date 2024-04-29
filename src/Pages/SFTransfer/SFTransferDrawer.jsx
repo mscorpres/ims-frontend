@@ -10,7 +10,7 @@ import { v4 } from "uuid";
 import axios from "axios";
 import MySelect from "../../Components/MySelect";
 import { toast } from "react-toastify";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { getCostCentresOptions, getProjectOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
 

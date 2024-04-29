@@ -13,7 +13,7 @@ import MyDataTable from "../../../../Components/MyDataTable";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { getComponentOptions } from "../../../../api/general";
 
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 function UpdateJW() {
   const [updateData, setUpdateData] = useState({

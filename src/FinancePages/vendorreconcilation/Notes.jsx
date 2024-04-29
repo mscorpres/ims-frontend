@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Row, Col, Divider, Form, Input, Typography, Button, Flex } from "antd";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import Loading from "../../Components/Loading";
 import { addNote } from "../../api/finance/vendor-reco";
 

@@ -14,7 +14,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Button, Input, Row, Space } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
 

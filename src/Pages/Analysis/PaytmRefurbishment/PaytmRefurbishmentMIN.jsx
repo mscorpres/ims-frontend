@@ -19,7 +19,7 @@ import SubmitConfirmModal from "./SubmitConfirmModal";
 import errorToast from "../../../Components/errorToast";
 import ResetConfirmModal from "./ResetConfirmModal copy";
 import { getProductsOptions, getVendorOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general";
 
 function PaytmRefurbishmentMIN() {

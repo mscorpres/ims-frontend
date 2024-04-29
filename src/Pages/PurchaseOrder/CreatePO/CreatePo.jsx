@@ -25,7 +25,7 @@ import Loading from "../../../Components/Loading";
 import SuccessPage from "./SuccessPage";
 import { imsAxios } from "../../../axiosInterceptor";
 import AddProjectModal from "./AddProjectModal";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import {
   getCostCentresOptions,
   getProjectOptions,

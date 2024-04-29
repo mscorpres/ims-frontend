@@ -12,7 +12,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general";
 
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 export default function CreateGP() {
   const [rows, setRows] = useState([
     { id: v4(), item: "", qty: 0, uom: "", remark: "" },

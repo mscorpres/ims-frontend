@@ -78,10 +78,7 @@ export const getProjectOptions = async (search) => {
   });
 
   let arr = [];
-  if (response.success) arr = convertSelectOptions(response.data);
-  if (response.data.length) {
-    arr = convertSelectOptions(response.data);
-  }
+  arr = convertSelectOptions(response.data ?? []);
   response.data = arr;
   return response;
 };

@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { useSelector } from "react-redux";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 const { paragraph } = Typography;
 
 const { TextArea } = Input;

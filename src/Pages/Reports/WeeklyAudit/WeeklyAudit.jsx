@@ -23,7 +23,7 @@ import MyDatePicker from "../../../Components/MyDatePicker";
 import { v4 } from "uuid";
 import socket from "../../../Components/socket";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general";
 import MyButton from "../../../Components/MyButton";
 const WeeklyAudit = () => {
