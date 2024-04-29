@@ -41,7 +41,7 @@ export const getUOMList = async () => {
 export const createUOM = async (values: UOMType) => {
   const payload = {
     uom: values.name,
-    description: values.details,
+    description: values.description,
   };
 
   const response = await imsAxios.post("/uom/insert", payload);
