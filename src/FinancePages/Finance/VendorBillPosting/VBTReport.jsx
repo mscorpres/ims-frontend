@@ -198,7 +198,7 @@ export default function VBTReport() {
         />,
         <GridActionsCellItem
           showInMenu
-          disabled={loading}
+          disabled={row.vbt_code.split("/")[0] == "VBT03"}
           onClick={() => {
             setEditVbtDrawer(row.vbt_code);
           }}
