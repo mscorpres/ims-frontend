@@ -247,7 +247,7 @@ import R34 from "../Pages/Reports/R/R34.jsx";
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
-import CompletedFgReturn from "../pages/Store/FgReturn/CompletedReversal/index.js";
+import CompletedFgReturn from "../pages/Store/FgReturn/CompletedReversal";
 
 // import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
