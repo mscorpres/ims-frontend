@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -10,9 +11,8 @@ import {
   Row,
   Typography,
 } from "antd";
-import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getMINComponents, printLabels } from "../../../api/store/material-in";
 import Loading from "../../../Components/Loading";
 import MyButton from "../../../Components/MyButton";
@@ -34,13 +34,26 @@ const LabelDrawer = ({
   const selectedMIN = Form.useWatch("minId", form);
 
   const handleFetchComponents = async (minId) => {
+    console.log("this is working");
     const response = await executeFun(() => getMINComponents(minId), "fetch");
     if (response.data[0].piaStatus === "Y") {
       setPiaEnabled(true);
     } else {
       setPiaEnabled(false);
     }
-    form.setFieldValue("components", response.data);
+
+    // form.setFieldValue("components", response.data);
+    // form.setFieldValue("minId", {
+    //   label: minId,
+    //   value: minId,
+    // });
+    form.setFieldsValue({
+      components: response.data,
+      minId: {
+        label: minId,
+        value: minId,
+      },
+    });
   };
 
   const handlePrintLabels = async () => {
@@ -51,6 +64,7 @@ const LabelDrawer = ({
       components: values.components.map((row) => ({
         minQty: row.qty,
         partCode: row.partCode,
+        componentKey: row.componentKey,
         // in case of pia
         boxes:
           row.piaStatus !== "N"
@@ -64,14 +78,14 @@ const LabelDrawer = ({
       })),
     };
 
-    console.log(values);
-    console.log(boxes);
-    console.log("obj is ", obj);
-
     const response = await executeFun(() => printLabels(obj), "submit");
+    if (response.success) {
+      hide();
+    }
   };
   useEffect(() => {
     if (preSelected) {
+      console.log("this is the pre selected", preSelected);
       form.setFieldValue("minId", preSelected);
     }
   }, [preSelected]);
@@ -85,7 +99,7 @@ const LabelDrawer = ({
   useEffect(() => {
     if (!open) {
       setBoxes([]);
-      form.setFieldValue("minId", undefined);
+      // form.setFieldValue("minId", undefined);
       form.setFieldValue("components", []);
       setPiaEnabled(false);
     }
@@ -95,7 +109,6 @@ const LabelDrawer = ({
       open={open}
       onClose={hide}
       title="Print / Download Labels"
-      x
       width={500}
     >
       {loading("fetch") && <Loading />}
@@ -105,24 +118,28 @@ const LabelDrawer = ({
         setBoxes={setBoxes}
       />
       <Form form={form} layout="vertical">
-        <Form.Item name="minId" label="Select MIN">
-          <Flex gap={5}>
-            <MyAsyncSelect
-              labelInValue={true}
-              loadOptions={(search) =>
-                handleFetchMINOptions(search, setAsyncOptions)
-              }
-              onBlur={() => setAsyncOptions([])}
-              selectLoading={selectLoading}
-              optionsState={asyncOptions}
-            />
+        <Flex gap={5} align="center">
+          <div style={{ width: "100%" }}>
+            <Form.Item name="minId" label="Select MIN">
+              <MyAsyncSelect
+                labelInValue={true}
+                loadOptions={(search) =>
+                  handleFetchMINOptions(search, setAsyncOptions)
+                }
+                onBlur={() => setAsyncOptions([])}
+                selectLoading={selectLoading}
+                optionsState={asyncOptions}
+              />
+            </Form.Item>
+          </div>
+          <div style={{ marginTop: 5 }}>
             <MyButton
               loading={loading("submit")}
               onClick={handlePrintLabels}
               variant="print"
             />
-          </Flex>
-        </Form.Item>
+          </div>
+        </Flex>
 
         <Form.List name="components">
           {(fields) => (
