@@ -92,7 +92,7 @@ const LabelDrawer = ({
   useEffect(() => {
     if (!open) {
       setBoxes([]);
-      // form.setFieldValue("minId", undefined);
+      form.setFieldValue("minId", undefined);
       form.setFieldValue("components", []);
       setPiaEnabled(false);
     }
