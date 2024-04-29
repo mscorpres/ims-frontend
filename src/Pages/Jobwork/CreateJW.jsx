@@ -29,7 +29,7 @@ import {
   getVendorOptions,
 } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 
 // vendor type options
 const vendorTypeOptions = [

@@ -38,7 +38,7 @@ import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
 import NavFooter from "../../../Components/NavFooter";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import MyButton from "../../../Components/MyButton";

@@ -17,7 +17,7 @@ import printFunction, {
   downloadFunction,
 } from "../../../../Components/printFunction";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../utils/general";
 import { getVendorOptions } from "../../../../api/general";
 import MyButton from "../../../../Components/MyButton";

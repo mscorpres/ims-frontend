@@ -24,7 +24,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import FormTable from "../../../Components/FormTable";
 import useLoading from "../../../hooks/useLoading";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import NavFooter from "../../../Components/NavFooter";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { AiOutlineMinusSquare } from "react-icons/ai";

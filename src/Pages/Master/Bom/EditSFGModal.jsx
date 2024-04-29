@@ -21,7 +21,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import ViewEmergingComponent from "./ViewEmergingComponent";
 import AddEmergingComponent from "./AddEmergingComponent";
 import FormTable from "../../../Components/FormTable";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general";
 
 const EditSFGModal = ({ sfgEditModal, setSfgEditModal }) => {

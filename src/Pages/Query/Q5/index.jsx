@@ -19,7 +19,7 @@ import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { GridExpandMoreIcon } from "@mui/x-data-grid";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import NoData from "../../../NoData";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import SingleDatePicker from "../../../Components/SingleDatePicker";

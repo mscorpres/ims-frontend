@@ -7,7 +7,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getProjectOptions } from "../../../api/general";
 import MyButton from "../../../Components/MyButton";
 

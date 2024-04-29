@@ -19,7 +19,7 @@ import {
   Typography,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
 
 const Login = () => {

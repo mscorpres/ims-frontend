@@ -29,7 +29,7 @@ import printFunction, {
   downloadFunction,
   downloadExcel,
 } from "../../../Components/printFunction";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general";
 function R20() {
   const [rows, setRows] = useState([]);

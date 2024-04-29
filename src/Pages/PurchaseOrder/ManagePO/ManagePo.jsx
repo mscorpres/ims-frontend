@@ -20,7 +20,7 @@ import TableActions, {
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import MyButton from "../../../Components/MyButton";

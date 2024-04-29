@@ -19,7 +19,7 @@ import { useSelector } from "react-redux";
 import { responseImmutable } from "@rc-component/context/lib/Immutable";
 import { convertSelectOptions } from "../../../../utils/general";
 import { getVendorOptions } from "../../../../api/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 export default function VBT1() {
   const [wise, setWise] = useState("min_wise");
@@ -110,23 +110,23 @@ export default function VBT1() {
     setAsyncOptions(arr);
   };
   const getVBTDetail = async (minId, vbtKey) => {
-    setLoading(true);
-    console.log("minid", minId);
-    const { data } = await imsAxios.post("/tally/vbt01/fetch_minData", {
-      min_id: minId,
-    });
-    if (data.code === 200) {
-      setEditingVBT(data.data);
-      // if (isEditVBT) {
-      //   const arr = data.data;
-      //   setEditingVBT([...arr]);
-      //   editExistingVbt(vbtKey);
-      // }
-    } else {
-      toast.error(data.message.msg);
-      setEditingVBT(null);
-    }
-    setLoading(false);
+    // setLoading(true);
+    // console.log("minid", minId);
+    // const { data } = await imsAxios.post("/tally/vbt01/fetch_minData", {
+    //   min_id: minId,
+    // });
+    // if (data.code === 200) {
+    //   setEditingVBT(data.data);
+    //   // if (isEditVBT) {
+    //   //   const arr = data.data;
+    //   //   setEditingVBT([...arr]);
+    //   //   editExistingVbt(vbtKey);
+    //   // }
+    // } else {
+    //   toast.error(data.message.msg);
+    //   setEditingVBT(null);
+    // }
+    // setLoading(false);
   };
   // console.log("seteditingvBt", editingVBT);
   // const { editVBT } = useSelector((state) => state.login);

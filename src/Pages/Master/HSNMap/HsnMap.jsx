@@ -9,7 +9,7 @@ import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general";
 
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 const HsnMap = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);

@@ -24,7 +24,7 @@ import { setCurrentLinks } from "../../../Features/loginSlice/loginSlice.js";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { useLocation, useParams } from "react-router-dom";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getLedgerReport } from "../../../api/finance/reports.js";
 import MyButton from "../../../Components/MyButton/index.jsx";
 import { getLedgerOptions } from "../../../api/ledger";

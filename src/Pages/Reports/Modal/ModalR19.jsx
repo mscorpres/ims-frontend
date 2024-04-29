@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 
 function ModalR19({ modalOpen, setModalOpen, allData, fetchData }) {
   const [allSelectedValue, setAllSelectedValue] = useState([]);

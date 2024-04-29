@@ -21,7 +21,7 @@ import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 const PartCodeConversionReport = () => {
   const wiseOptions = [

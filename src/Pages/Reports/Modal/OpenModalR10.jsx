@@ -10,7 +10,7 @@ import waiting from "../../../animation/waiting.json";
 import makeAnimated from "react-select/animated";
 import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 // import MultiSelect from "react-multiple-select-dropdown-lite";
 // import "react-multiple-select-dropdown-lite/dist/index.css";
 

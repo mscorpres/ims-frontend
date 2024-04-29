@@ -26,7 +26,7 @@ import AddBranch from "../../../Master/Vendor/model/AddBranch";
 import SuccessPage from "../SuccessPage";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import {
   getComponentDetail,
   getComponentOptions,

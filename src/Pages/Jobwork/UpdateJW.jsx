@@ -22,7 +22,7 @@ import { validateTable } from "../../Components/FormTable3";
 import { toast } from "react-toastify";
 import useLoading from "../../hooks/useLoading";
 import { getComponentOptions } from "../../api/general";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 
 const UpdateJW = () => {
   const [jwUpdateForm] = Form.useForm();

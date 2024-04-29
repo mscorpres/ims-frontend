@@ -10,7 +10,7 @@ import {
   Modal,
 } from "antd";
 import { useEffect, useState } from "react";
-import useApi from "../../../../../hooks/useApi";
+import useApi from "../../../../../hooks/useApi.ts";
 import ShipmentInfo from "./ShipmentInfo";
 import { CommonIcons } from "../../../../../Components/TableActions.jsx/TableActions";
 import InputMask from "react-input-mask";

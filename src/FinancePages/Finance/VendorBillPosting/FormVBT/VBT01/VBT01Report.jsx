@@ -231,12 +231,12 @@ function VBT01Report({
     let link;
     if (editVbtDrawer) {
       let apiLink = getApiUrl(editVbtDrawer);
-      link = `/tally/${apiLink}/fetch_minData`;
+      link = `/tally/${apiLink}/fetch_multi_min_data`;
     } else {
-      link = `/tally/${apiUrl}/fetch_minData`;
+      link = `/tally/${apiUrl}/fetch_multi_min_data`;
     }
     const response = await imsAxios.post(link, {
-      min_id: minId,
+      mins: [minId],
     });
     const { data } = response;
     data.data[0].ven_tds.push({

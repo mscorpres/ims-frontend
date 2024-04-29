@@ -11,7 +11,7 @@ import {
   Divider,
 } from "antd";
 import { useEffect, useState } from "react";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { getVendorOptions } from "../../api/general";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDatePicker from "../../Components/MyDatePicker";

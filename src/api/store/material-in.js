@@ -1,4 +1,7 @@
 import { imsAxios } from "../../axiosInterceptor";
+import printFunction, {
+  downloadFunction,
+} from "../../Components/printFunction";
 
 export const validateInvoice = async (values) => {
   const invoices = values.components.map((row) => row.invoiceId);
@@ -78,5 +81,103 @@ export const downloadAttachement = async (transactionId) => {
     transaction: transactionId,
   });
 
+  return response;
+};
+
+export const getMINLabelRows = async (wise, value) => {
+  const response = await imsAxios.post("/transaction/getMinTransactionByDate", {
+    data: value,
+    wise,
+  });
+
+  let arr = [];
+  if (response.data.code === 200) {
+    arr = response.data.data.data.map((row, index) => ({
+      id: index + 1,
+      createdDate: row.datetime,
+      invoice: row.invoice,
+      vendor: row.vendorname,
+      partCode: row.partcode,
+      qty: row.inqty,
+      location: row.location,
+      createdBy: row.inby,
+      consumptionStatus: row.consumptionStatus,
+      invoiceStatus: row.invoiceStatus,
+      minId: row.transaction,
+    }));
+  }
+  response.data = arr;
+
+  return response;
+};
+
+export const printMIN = async (minId, action) => {
+  const response = await imsAxios.post("minPrint/printSingleMin", {
+    transaction: minId,
+  });
+
+  if (response.data.code === 200) {
+    if (!action) {
+      printFunction(response.data.data.buffer.data);
+    } else if (action === "download") {
+      downloadFunction(response.data.data.buffer.data, minId);
+    }
+  }
+
+  return response;
+};
+
+export const downloadConsumptionList = async (minId, columns) => {
+  const response = await imsAxios.post("/jobwork/getjwsfinwardConsumption", {
+    minTxn: minId,
+  });
+
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row, index) => ({
+      id: index + 1,
+      createdBy: row.by,
+      component: row.partName,
+      partCode: row.partCode,
+      catPartCode: row.catPartCode,
+      qty: row.qty,
+      uom: row.uom,
+    }));
+
+    response.data = arr;
+    downloadCSV(arr, col, "MIN Consumption List");
+  }
+};
+
+export const getMINComponents = async (minId) => {
+  const response = await imsAxios.post("/qrLabel/getComponents", {
+    transaction: minId,
+  });
+  let arr = [];
+
+  if (response.success) {
+    arr = response.data.map((row) => ({
+      qty: row.min_qty,
+      partCode: row.part_code,
+      component: row.part_name,
+      piaStatus: row.pia_status,
+      componentKey: row.componentKey,
+    }));
+  }
+
+  response.data = arr;
+
+  return response;
+};
+
+export const printLabels = async (values) => {
+  console.log("these are the values", values);
+  const url = values.components[0].boxes
+    ? "/minBoxLablePrint/generateBoxLable"
+    : "/qrLabel/generateQR";
+  const response = await imsAxios.post(url, values);
+  if (response.success) {
+    printFunction(response.data.buffer.data);
+  }
   return response;
 };

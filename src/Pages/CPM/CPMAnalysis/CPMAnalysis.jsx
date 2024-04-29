@@ -8,7 +8,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
 import { InfoCircleFilled } from "@ant-design/icons";
 import { getProjectOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 
 export default function CPMAnalysis() {

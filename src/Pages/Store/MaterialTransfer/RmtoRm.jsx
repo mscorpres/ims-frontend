@@ -7,8 +7,7 @@ import "./Modal/style.css";
 import { imsAxios } from "../../../axiosInterceptor";
 import NavFooter from "../../../Components/NavFooter";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
-import Card from "antd/es/card/Card";
+import useApi from "../../../hooks/useApi.ts";
 const { TextArea } = Input;
 
 function RmtoRm() {
@@ -181,41 +180,39 @@ function RmtoRm() {
       {/* <InternalNav links={Main} /> */}
       <Row gutter={10} style={{ padding: "10px", height: "79vh" }}>
         <Col span={6}>
-          <Card>
-            <Row gutter={10} style={{ margin: "5px" }}>
-              <Col span={24} style={{ marginBottom: "10px", width: "100%" }}>
-                <span>PICK LOCATION</span>
-              </Col>
-              <Col span={24}>
-                <Select
-                  placeholder="Please Select Location"
-                  style={{ width: "100%" }}
-                  options={locData}
-                  value={allData.locationFrom}
-                  onChange={(e) =>
-                    setAllData((allData) => {
-                      return { ...allData, locationFrom: e };
-                    })
-                  }
-                />
-              </Col>
-              <Col span={24} style={{ marginTop: "10px" }}>
-                <TextArea rows={2} disabled value={branchName} />
-              </Col>
-              <Col span={24} style={{ marginTop: "10px" }}>
-                <TextArea
-                  rows={2}
-                  value={allData.comment}
-                  placeholder="Comment Optional"
-                  onChange={(e) =>
-                    setAllData((allData) => {
-                      return { ...allData, comment: e.target.value };
-                    })
-                  }
-                />
-              </Col>
-            </Row>
-          </Card>
+          <Row gutter={10} style={{ margin: "5px" }}>
+            <Col span={24} style={{ marginBottom: "10px", width: "100%" }}>
+              <span>PICK LOCATION</span>
+            </Col>
+            <Col span={24}>
+              <Select
+                placeholder="Please Select Location"
+                style={{ width: "100%" }}
+                options={locData}
+                value={allData.locationFrom}
+                onChange={(e) =>
+                  setAllData((allData) => {
+                    return { ...allData, locationFrom: e };
+                  })
+                }
+              />
+            </Col>
+            <Col span={24} style={{ marginTop: "10px" }}>
+              <TextArea rows={2} disabled value={branchName} />
+            </Col>
+            <Col span={24} style={{ marginTop: "10px" }}>
+              <TextArea
+                rows={2}
+                value={allData.comment}
+                placeholder="Comment Optional"
+                onChange={(e) =>
+                  setAllData((allData) => {
+                    return { ...allData, comment: e.target.value };
+                  })
+                }
+              />
+            </Col>
+          </Row>
         </Col>
 
         <Col span={18}>

@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import Loading from "../../Components/Loading";
 import { imsAxios } from "../../axiosInterceptor";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { getCostCentresOptions } from "../../api/general";
 import MyDataTable from "../gstreco/myDataTable";
 import TableActions from "../../Components/TableActions.jsx/TableActions";

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { Col, Divider, Flex, Form, Input, Modal, Row, Typography } from "antd";
 import {
   getPhysicalStockWithStatus,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Drawer, Row, Col, Flex } from "antd";
-import useApi from "../../../../../hooks/useApi";
+import useApi from "../../../../../hooks/useApi.ts";
 import { fetchShipmentDetails } from "../../../../../api/sales/salesOrder";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../../../Components/MyDataTable";
@@ -25,7 +25,6 @@ const ShipmentDetails = ({ open, hide }) => {
     }
   }, [open]);
 
-  
   const clientDetails = {
     clientName: open?.client,
     address: open?.clientAddress,

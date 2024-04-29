@@ -10,7 +10,7 @@ import { Button, Modal, Row, Col, Input } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 
 const { RangePicker } = DatePicker;
 

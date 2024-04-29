@@ -1,5 +1,5 @@
 import { Drawer, Row, Col, Form, Button } from "antd";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import {
   getComponentOptions,
   updateAlternatePartCode,

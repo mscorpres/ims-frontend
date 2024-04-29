@@ -13,7 +13,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyButton from "../../../Components/MyButton";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { downloadAttachement } from "../../../api/store/material-in";
 import { downloadFromLink } from "../../../utils/general";
 const TransactionIn = () => {

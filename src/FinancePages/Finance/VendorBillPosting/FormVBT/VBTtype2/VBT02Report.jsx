@@ -87,35 +87,35 @@ function VBT02Report({
     setCurrencies(arr);
   };
 
-  const getTdsOptions = async (minId) => {
-    const response = await imsAxios.post(`/tally/${apiUrl}/fetch_minData`, {
-      min_id: minId,
-    });
-    const { data } = response;
-    data.data[0].ven_tds.push({
-      ladger_name: "--",
-      ledger_key: "--",
-      tds_code: "--",
-      tds_key: "--",
-      tds_name: "--",
-      tds_gl_code: "--",
-      tds_percent: "0",
-    });
-    if (data.code === 200) {
-      let arr = data.data;
-      setAllTdsOptions(arr[0].ven_tds);
+  // const getTdsOptions = async (minId) => {
+  //   const response = await imsAxios.post(`/tally/${apiUrl}/fetch_minData`, {
+  //     min_id: minId,
+  //   });
+  //   const { data } = response;
+  //   data.data[0].ven_tds.push({
+  //     ladger_name: "--",
+  //     ledger_key: "--",
+  //     tds_code: "--",
+  //     tds_key: "--",
+  //     tds_name: "--",
+  //     tds_gl_code: "--",
+  //     tds_percent: "0",
+  //   });
+  //   if (data.code === 200) {
+  //     let arr = data.data;
+  //     setAllTdsOptions(arr[0].ven_tds);
 
-      let tdsC = arr[0].ven_tds.map((r) => {
-        return {
-          text: r.tds_name,
-          value: r.tds_key,
-        };
-      });
-      setTdsArray(tdsC);
-    } else {
-      toast.error(data.message.msg);
-    }
-  };
+  //     let tdsC = arr[0].ven_tds.map((r) => {
+  //       return {
+  //         text: r.tds_name,
+  //         value: r.tds_key,
+  //       };
+  //     });
+  //     setTdsArray(tdsC);
+  //   } else {
+  //     toast.error(data.message.msg);
+  //   }
+  // };
   const getGl = async () => {
     let link;
     if (editVbtDrawer) {

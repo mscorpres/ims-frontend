@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Drawer, Row, Col, Flex, Typography, Card } from "antd";
 import MyDataTable from "../../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
-import useApi from "../../../../../hooks/useApi";
+import useApi from "../../../../../hooks/useApi.ts";
 import { getChallanDetails } from "../../../../../api/sales/salesOrder";
 import ClientInfo from "../CreateShipment/ClientInfo";
 import Loading from "../../../../../Components/Loading";
