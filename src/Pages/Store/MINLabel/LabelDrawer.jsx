@@ -41,11 +41,6 @@ const LabelDrawer = ({
       setPiaEnabled(false);
     }
 
-    // form.setFieldValue("components", response.data);
-    // form.setFieldValue("minId", {
-    //   label: minId,
-    //   value: minId,
-    // });
     form.setFieldsValue({
       components: response.data,
       minId: {
@@ -215,7 +210,7 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
 
     for (let i = 0; i < boxCount; i++) {
       let newBox = {
-        label: `Box${i + 1}`,
+        label: "B" + `${i + 1}`.padStart(3, "0"),
       };
       if (i === boxCount - 1) {
         newBox = {
