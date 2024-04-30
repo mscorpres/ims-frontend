@@ -29,7 +29,7 @@ import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import useApi from "../../../../hooks/useApi.ts";
 import { downloadComponentMaster } from "../../../../api/master/component";
-import { downloadFromLink } from "../../../../Components/printFunction";
+import { getUOMList } from "../../../../api/master/uom.ts";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
@@ -127,26 +127,28 @@ const Material = () => {
   };
 
   const getUomOptions = async () => {
-    try {
-      setLoading("fetch");
-      const response = await imsAxios.post("uom/uomSelect2");
-      const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          const arr = data.data.map((row) => ({
-            text: row.text,
-            value: row.id,
-          }));
+    const response = await executeFun(() => getUOMList(), "fetcj");
+    setUomOptions(response.data);
+    // try {
+    //   setLoading("fetch");
+    //   const response = await imsAxios.post("uom/uomSelect2");
+    //   const { data } = response;
+    //   if (data) {
+    //     if (data.code === 200) {
+    //       const arr = data.data.map((row) => ({
+    //         text: row.text,
+    //         value: row.id,
+    //       }));
 
-          setUomOptions(arr);
-        } else {
-          toast.error(data.message.msg);
-        }
-      }
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    //       setUomOptions(arr);
+    //     } else {
+    //       toast.error(data.message.msg);
+    //     }
+    //   }
+    // } catch (error) {
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const getHsnOptions = async (search) => {
