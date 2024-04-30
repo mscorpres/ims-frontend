@@ -309,9 +309,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
     if (!editPPR) {
       setHeaderData({});
       setTableData([]);
-    } else if (editPPR);
-    {
-
+    } else if (editPPR && !Array.isArray(editPPR)) {
       getPPRData(editPPR);
       setTabsExist(["1", "P", "PCK", "O", "PCB"]);
     }

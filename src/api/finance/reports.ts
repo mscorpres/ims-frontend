@@ -39,3 +39,10 @@ export const getLedgerReport = async (vendorCode, dateRange) => {
 
   return response.data;
 };
+export const getTrialBalance = async (date: string) => {
+  const response = await imsAxios.post("/tally/reports/trialBalanceReport", {
+    date,
+  });
+
+  return response;
+};
