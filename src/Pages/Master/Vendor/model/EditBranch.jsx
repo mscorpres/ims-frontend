@@ -138,9 +138,12 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     console.log("obj", obj);
     const formData = new FormData();
     // formData.append("uploadfile", files[0] ?? []);
-    values.components.map((comp) => {
-      formData.append("uploadfile", comp.file[0]?.originFileObj ?? []);
-    });
+    if(values.components?.length > 0) {
+
+      values.components?.map((comp) => {
+        formData.append("uploadfile", comp.file[0]?.originFileObj ?? []);
+      });
+    }
     formData.append("vendor", JSON.stringify(obj));
     // formData.append("vendorname", values?.vendor_name);
     // formData.append("panno", values?.vendor_pan);
