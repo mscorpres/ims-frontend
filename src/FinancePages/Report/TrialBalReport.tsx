@@ -73,10 +73,10 @@ function TrialBalReport() {
         credit: getSum(finalArr, "credit"),
       },
     ];
-    setAllData(finalArr);
+
+    applyScaling(currentScaling, currentExchangeRate, finalArr);
   };
 
-  console.log("this is the flat array", allData);
   const handleDownloadCSV = () => {
     let csvData = [];
     csvData = allData.map((row) => {
@@ -115,15 +115,18 @@ function TrialBalReport() {
   };
   const convertToNumber = (debitString) => {
     const cleanedDebit = parseFloat(
-      typeof debitString === "string" ? debitString.replace(/,/g, "") : 0
+      typeof debitString === "string"
+        ? debitString.replace(/,/g, "")
+        : debitString
+        ? debitString
+        : 0
     );
 
     const debitNumber = cleanedDebit === 0 ? 0 : cleanedDebit || 0;
 
     return +Number(debitNumber).toFixed(2);
   };
-  const applyScaling = (scaling, exchangeRate) => {
-    console.log("selected scaling", scaling);
+  const applyScaling = (scaling, exchangeRate, rows) => {
     let amount = 1;
     let suffix = "";
     switch (scaling) {
@@ -145,7 +148,7 @@ function TrialBalReport() {
     }
     setCurrentPrefix(suffix);
     setAllData((curr) => {
-      let arr: any[] = curr;
+      let arr: any[] = rows ?? curr;
       arr = arr.map((row: any) => {
         if (
           row.type === "Sub Group" ||
@@ -155,30 +158,38 @@ function TrialBalReport() {
           return {
             ...row,
             credit: row.originalCredit
-              ? +Number(+Number(convertToNumber(row.originalCredit)) / amount)
+              ? +Number(
+                  +Number(convertToNumber(row.originalCredit) / exchangeRate) /
+                    amount
+                )
                   .toFixed(2)
                   ?.toLocaleString("en-IN")
               : 0,
             suffix: suffix,
             debit: row.originalDebit
-              ? +Number(+Number(convertToNumber(row.originalDebit)))
+              ? +Number(
+                  +Number(convertToNumber(row.originalDebit) / exchangeRate) /
+                    amount
+                )
                   .toFixed(2)
-                  ?.toString()
-                  .toLocaleString("en-IN")
+                  ?.toLocaleString("en-IN")
               : 0,
           };
         } else if (row.type === "Ledger") {
-          console.log("debut is", Number(row.originalDebit));
+          console.log("debut is", Number(row.originalDebit) / exchangeRate);
           return {
             ...row,
 
             credit: Number(
-              +Number(convertToNumber(row.originalCredit)) / amount
+              +Number(convertToNumber(row.originalCredit) / exchangeRate) /
+                amount
             )
               .toFixed(2)
               ?.toLocaleString("en-IN"),
             suffix: suffix,
-            debit: Number(convertToNumber(row.originalDebit) / amount)
+            debit: Number(
+              convertToNumber(row.originalDebit / exchangeRate) / amount
+            )
               .toFixed(2)
               ?.toLocaleString("en-IN"),
           };
@@ -258,21 +269,19 @@ function TrialBalReport() {
   useEffect(() => {
     if (currentCurrency === "foreign") {
       setShowCurrencyModal(true);
+    } else {
+      setCurrentExchangeRate(1);
     }
   }, [currentCurrency]);
 
   useEffect(() => {
     applyScaling(currentScaling, currentExchangeRate);
   }, [currentScaling, currentExchangeRate]);
-  //   allData.map((a) => console.log(a.label));
+
   console.log("current exchange rate", +currentExchangeRate);
   return (
     <div
       style={{
-        //   position: "relative",
-        //   width: "100%",
-        //   height: "90%",
-        //   padding: "0 10px",
         overflow: "hidden",
       }}
     >
@@ -280,6 +289,8 @@ function TrialBalReport() {
         show={showCurrencyModal}
         hide={() => setShowCurrencyModal(false)}
         setCurrentExchangeRate={setCurrentExchangeRate}
+        setCurrnetCurrency={setCurrnetCurrency}
+        currentExchangeRate={currentExchangeRate}
       />
       <Row justify="space-between" style={{ padding: "5px", width: "100%" }}>
         <Col>
@@ -441,19 +452,37 @@ function TrialBalReport() {
 
 export default TrialBalReport;
 
-const CurrencyModal = ({ show, hide, setCurrentExchangeRate }) => {
+const CurrencyModal = ({
+  show,
+  hide,
+  setCurrentExchangeRate,
+  currentExchangeRate,
+  setCurrnetCurrency,
+}) => {
   const [form] = Form.useForm();
 
   const handleUpdateRate = () => {
     const rate = form.getFieldValue("rate");
     setCurrentExchangeRate(rate);
+    if (rate === "") {
+      setCurrnetCurrency("inr");
+    }
+    hide();
+  };
+
+  const handleHide = () => {
+    const rate = form.getFieldValue("rate");
+    console.log("this is rate", rate);
+    if (rate === "" || rate === undefined || currentExchangeRate === 1) {
+      setCurrnetCurrency("inr");
+    }
     hide();
   };
   return (
     <Modal
       width={300}
       open={show}
-      onCancel={hide}
+      onCancel={handleHide}
       title="Currency Rate"
       okText="Apply"
       onOk={handleUpdateRate}
@@ -461,7 +490,11 @@ const CurrencyModal = ({ show, hide, setCurrentExchangeRate }) => {
       <Row justify="center">
         <Col span={24}>
           <Form form={form} layout="vertical">
-            <Form.Item name="rate" label="Exchange Rate">
+            <Form.Item
+              name="rate"
+              label="Exchange Rate"
+              rules={exchangeRateRules.exchangeRate}
+            >
               <Input type="number" />
             </Form.Item>
           </Form>
@@ -469,4 +502,13 @@ const CurrencyModal = ({ show, hide, setCurrentExchangeRate }) => {
       </Row>
     </Modal>
   );
+};
+
+const exchangeRateRules = {
+  exchangeRate: [
+    {
+      required: true,
+      message: "Exchange Rate is required",
+    },
+  ],
 };
