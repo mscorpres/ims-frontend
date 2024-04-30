@@ -7,7 +7,6 @@ import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { getClosingStockForQuery6 } from "../../../api/general";
 import { toast } from "react-toastify";
 import MyButton from "../../../Components/MyButton";
 

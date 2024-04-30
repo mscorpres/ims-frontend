@@ -14,11 +14,13 @@ import { imsAxios } from "../../../axiosInterceptor";
 import AddPhoto from "./AddPhoto";
 import { Link } from "react-router-dom";
 import { GridActionsCellItem } from "@mui/x-data-grid";
+import useApi from "../../../hooks/useApi";
+import { getUOMList } from "../../../api/master/uom";
 
 const Material = () => {
   const [material, setMaterial] = useState({
     partno: "",
-    new_partno:"",
+    new_partno: "",
     unit: "",
     comp: "",
     shortnotes: "",
@@ -46,6 +48,8 @@ const Material = () => {
   const [selectLoading, setSelectLoading] = useState(false);
   const [materialModal, setMaterialModal] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  console.log("right page");
+  const { executeFun } = useApi();
 
   const allComponent = async () => {
     setLoading(true);
@@ -91,10 +95,13 @@ const Material = () => {
   };
 
   const fetchUOM = async () => {
-    const { data } = await imsAxios.post("/uom/uomSelect2");
-    let a = [];
-    data?.data?.map((x) => a.push({ text: x.text, value: x.id }));
-    setUom(a);
+    const response = await executeFun(() => getUOMList(), "fetch");
+    console.log("uom response", response);
+    setUom(response.data);
+    // const { data } = await imsAxios.post("/uom/uomSelect2");
+    // let a = [];
+    // data?.data?.map((x) => a.push({ text: x.text, value: x.id }));
+    // setUom(a);
   };
 
   const fetchSelectGropu = async (e) => {
@@ -328,7 +335,7 @@ const Material = () => {
 
   useEffect(() => {
     allComponent();
-    fetchUOM();
+
     fetchSelectGropu();
     if (searchInput.length > 1) {
       let arr = component.filter(
@@ -338,6 +345,10 @@ const Material = () => {
       setSearchResult(arr);
     }
   }, [searchInput]);
+  useEffect(() => {
+    console.log("fetching uom ");
+    fetchUOM();
+  }, []);
 
   return (
     <div style={{ height: "90%" }}>

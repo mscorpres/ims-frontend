@@ -91,7 +91,7 @@ export { default as PoApproval } from "./PurchaseOrder/ManagePO/PoApproval/PoApp
 export { default as SKUCosting } from "./SKUCosting/SKUCosting";
 
 export { default as SkuQuery } from "./Query/Sku Query/SkuQuery";
-export { default as Q4 } from "./Query/Ledger query/Q4";
+export { default as Q4 } from "./Query/Ledger query/LedgerQuery";
 export { default as QueryQ5 } from "./Query/Q5";
 
 export { default as Messenger } from "./Messenger/Messenger";
