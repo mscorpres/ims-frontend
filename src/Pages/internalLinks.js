@@ -443,7 +443,7 @@ const links = [
       routePath: "/createFgReturn",
     },
     { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
-    { routeName: "Completed FG Return", routePath: "/view-fgOut" },
+    { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
   ],
   // RM to RM transfer links
   [

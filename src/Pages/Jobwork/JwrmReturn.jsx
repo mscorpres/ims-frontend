@@ -11,7 +11,7 @@ import { imsAxios } from "../../axiosInterceptor";
 import useLoading from "../../hooks/useLoading";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 
 const JwrmReturn = () => {

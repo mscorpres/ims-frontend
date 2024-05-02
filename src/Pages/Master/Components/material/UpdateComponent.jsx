@@ -26,7 +26,7 @@ import Loading from "../../../../Components/Loading";
 import { Link } from "react-router-dom";
 import CategoryDrawer from "./CategoryDrawer";
 
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";

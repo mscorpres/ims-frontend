@@ -24,7 +24,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
 import { getComponentOptions } from "../../../api/general";
 
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {
   const [fetchData, setFetchData] = useState([]);
   const [secondData, setSecondData] = useState([]);

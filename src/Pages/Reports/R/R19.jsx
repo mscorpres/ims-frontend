@@ -9,7 +9,7 @@ import { CaretRightOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import ModalR19 from "../Modal/ModalR19";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions, getProductsOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 
 function R19() {

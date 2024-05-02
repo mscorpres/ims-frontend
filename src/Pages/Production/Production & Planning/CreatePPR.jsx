@@ -18,7 +18,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import Loading from "../../../Components/Loading";
 import AddProjectModal from "./AddProjectModal";
 import { getProductsOptions, getProjectOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 
 const { TextArea } = Input;
 

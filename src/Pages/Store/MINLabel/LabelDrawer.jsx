@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -10,9 +11,8 @@ import {
   Row,
   Typography,
 } from "antd";
-import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getMINComponents, printLabels } from "../../../api/store/material-in";
 import Loading from "../../../Components/Loading";
 import MyButton from "../../../Components/MyButton";
@@ -29,6 +29,8 @@ const LabelDrawer = ({
   const [boxes, setBoxes] = useState([]);
   const [piaEnabled, setPiaEnabled] = useState(false);
   const [showEditBoxModal, setShowEditBoxModal] = useState(false);
+  const [alreadyPrinted, setAlreadyPrinted] = useState(false);
+
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const selectedMIN = Form.useWatch("minId", form);
@@ -40,7 +42,22 @@ const LabelDrawer = ({
     } else {
       setPiaEnabled(false);
     }
-    form.setFieldValue("components", response.data);
+
+    if (response.data[0].alreadyPrinted) {
+      setBoxes(response.data[0].boxes);
+      setAlreadyPrinted(true);
+    }
+    form.setFieldsValue({
+      components: response.data.map((row) => ({
+        ...row,
+        boxCount: row.alreadyPrinted ? row.boxes.length : undefined,
+        alreadyPrinted: row.alreadyPrinted,
+      })),
+      minId: {
+        label: minId,
+        value: minId,
+      },
+    });
   };
 
   const handlePrintLabels = async () => {
@@ -51,6 +68,7 @@ const LabelDrawer = ({
       components: values.components.map((row) => ({
         minQty: row.qty,
         partCode: row.partCode,
+        componentKey: row.componentKey,
         // in case of pia
         boxes:
           row.piaStatus !== "N"
@@ -64,11 +82,10 @@ const LabelDrawer = ({
       })),
     };
 
-    console.log(values);
-    console.log(boxes);
-    console.log("obj is ", obj);
-
     const response = await executeFun(() => printLabels(obj), "submit");
+    if (response.success) {
+      hide();
+    }
   };
   useEffect(() => {
     if (preSelected) {
@@ -95,7 +112,6 @@ const LabelDrawer = ({
       open={open}
       onClose={hide}
       title="Print / Download Labels"
-      x
       width={500}
     >
       {loading("fetch") && <Loading />}
@@ -105,24 +121,28 @@ const LabelDrawer = ({
         setBoxes={setBoxes}
       />
       <Form form={form} layout="vertical">
-        <Form.Item name="minId" label="Select MIN">
-          <Flex gap={5}>
-            <MyAsyncSelect
-              labelInValue={true}
-              loadOptions={(search) =>
-                handleFetchMINOptions(search, setAsyncOptions)
-              }
-              onBlur={() => setAsyncOptions([])}
-              selectLoading={selectLoading}
-              optionsState={asyncOptions}
-            />
+        <Flex gap={5} align="center">
+          <div style={{ width: "100%" }}>
+            <Form.Item name="minId" label="Select MIN">
+              <MyAsyncSelect
+                labelInValue={true}
+                loadOptions={(search) =>
+                  handleFetchMINOptions(search, setAsyncOptions)
+                }
+                onBlur={() => setAsyncOptions([])}
+                selectLoading={selectLoading}
+                optionsState={asyncOptions}
+              />
+            </Form.Item>
+          </div>
+          <div style={{ marginTop: 5 }}>
             <MyButton
               loading={loading("submit")}
               onClick={handlePrintLabels}
               variant="print"
             />
-          </Flex>
-        </Form.Item>
+          </div>
+        </Flex>
 
         <Form.List name="components">
           {(fields) => (
@@ -168,6 +188,7 @@ const LabelDrawer = ({
                     <Flex gap={5}>
                       <Typography.Text>Qty: {row.qty}</Typography.Text>
                       <TableActions
+                        disabled={alreadyPrinted}
                         onClick={() =>
                           setShowEditBoxModal({ ...row, index: index })
                         }
@@ -193,6 +214,11 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
   const minQty = Form.useWatch(["components", field.key, "qty"], form);
   const boxCount = Form.useWatch(["components", field.key, "boxCount"], form);
 
+  const alreadyPrinted = Form.useWatch(
+    ["components", field.key, "alreadyPrinted"],
+    form
+  );
+
   const calculateBoxCount = () => {
     setBoxes([]);
     let calculated = +Number(minQty) / +Number(boxCount);
@@ -200,7 +226,7 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
 
     for (let i = 0; i < boxCount; i++) {
       let newBox = {
-        label: `Box${i + 1}`,
+        label: "B" + `${i + 1}`.padStart(3, "0"),
       };
       if (i === boxCount - 1) {
         newBox = {
@@ -241,7 +267,7 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
         {piaStatus === "Y" && (
           <Col span={8}>
             <Form.Item name={[field.key, "boxCount"]} label="Box Count">
-              <Input />
+              <Input disabled={alreadyPrinted} />
             </Form.Item>
           </Col>
         )}
@@ -256,7 +282,9 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
       </Row>
       {piaStatus === "Y" && (
         <Flex justify="end">
-          <Button onClick={calculateBoxCount}>Calculate</Button>
+          <Button disabled={alreadyPrinted} onClick={calculateBoxCount}>
+            Calculate
+          </Button>
         </Flex>
       )}
     </Card>

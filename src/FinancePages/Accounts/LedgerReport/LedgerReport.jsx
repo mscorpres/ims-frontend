@@ -23,9 +23,9 @@ import { useEffect } from "react";
 import { setCurrentLinks } from "../../../Features/loginSlice/loginSlice.js";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { useLocation, useParams } from "react-router-dom";
-import useApi from "../../../hooks/useApi";
-import { getLedgerReport } from "../../../api/finance/reports.js";
+import { useParams } from "react-router-dom";
+import useApi from "../../../hooks/useApi.ts";
+import { getLedgerReport } from "../../../api/finance/reports";
 import MyButton from "../../../Components/MyButton/index.jsx";
 import { getLedgerOptions } from "../../../api/ledger";
 import { getRecoReport } from "../../../api/finance/vendor-reco";
@@ -33,37 +33,33 @@ import Loading from "../../../Components/Loading.jsx";
 
 export default function LedgerReport() {
   const [asyncOptions, setAsyncOptions] = useState([]);
-
-  const [selectLoading, setSelectLoading] = useState(false);
   const [rows, setRows] = useState({ rows: [] });
   const [summary, setSummary] = useState({});
-
-  const [loading, setLoading] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false);
   const [recoRows, setRecoRows] = useState([]);
 
   const [filterForm] = Form.useForm();
   const dispatch = useDispatch();
   const params = useParams();
-  const { executeFun, loading: loading1 } = useApi();
+  const { executeFun, loading } = useApi();
   const { Title, Link, Text } = Typography;
-  // const getLedgerOptions = async (searchInput) => {
-  //   setSelectLoading(true);
-  //   const { data } = await imsAxios.post("/tally/ledger/ledger_options", {
-  //     search: searchInput,
-  //   });
-  //   setSelectLoading(false);
-  //   if (data.code === 200) {
-  //     let arr = [];
-  //     arr = data.data.map((d) => {
-  //       return {
-  //         text: d.text,
-  //         value: d.id,
-  //       };
-  //     });
-  //     setAsyncOptions(arr);
-  //   }
-  // };
+
+  const getLedgerOptions = async (searchInput) => {
+    setSelectLoading(true);
+    const { data } = await imsAxios.post("/tally/ledger/ledger_options", {
+      search: searchInput,
+    });
+    setSelectLoading(false);
+    if (data.code === 200) {
+      let arr = [];
+      arr = data.data.map((d) => {
+        return {
+          text: d.text,
+          value: d.id,
+        };
+      });
+      setAsyncOptions(arr);
+    }
+  };
   const handleFetchLedgerReport = async () => {
     const values = await filterForm.validateFields();
     const response = await executeFun(
@@ -220,7 +216,7 @@ export default function LedgerReport() {
               <Form.Item name="vendor" label="Ledger" rules={rules.vendor}>
                 <MyAsyncSelect
                   onBlur={() => setAsyncOptions([])}
-                  selectLoading={loading1("select")}
+                  selectLoading={loading("select")}
                   placeholder="Select Ledger"
                   labelInValue
                   loadOptions={handleFetchLedgerOptions}

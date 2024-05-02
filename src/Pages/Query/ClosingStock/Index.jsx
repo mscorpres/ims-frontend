@@ -2,7 +2,7 @@ import { Button, Col, DatePicker, Row, Space } from "antd";
 import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { getClosingStockForQuery6 } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../gstreco/myDataTable";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";

@@ -50,7 +50,7 @@ import internalLinks from "./Pages/internalLinks";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
-import useApi from "./hooks/useApi.js";
+import useApi from "./hooks/useApi.ts";
 import { getDetails, verifyToken } from "./api/auth.js";
 import useUser from "./hooks/useUser.js";
 

@@ -20,7 +20,7 @@ import PoApprovalModel from "./PoApprovalModel";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { getProjectOptions, getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
 
 export default function PoApproval() {

@@ -16,7 +16,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import errorToast from "../../../Components/errorToast";
 import { imsAxios } from "../../../axiosInterceptor";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 

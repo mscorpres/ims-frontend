@@ -20,16 +20,16 @@ imsAxios.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log("this is the error response", error);
-    console.log(
-      "this is the type of response data",
-      typeof error.response?.data
-    );
     if (typeof error.response?.data === "object") {
-      toast.error(
-        error.response.data?.message?.msg ??
-          "Error while connecting to backend."
-      );
+      if (error?.response.data.success !== undefined) {
+        console.log("this is the error response", error);
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(
+          error.response.data?.message?.msg ??
+            "Error while connecting to backend."
+        );
+      }
       return error.response.data;
     }
 

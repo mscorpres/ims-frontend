@@ -20,7 +20,7 @@ import NavFooter from "../../../../Components/NavFooter";
 import Loading from "../../../../Components/Loading";
 import TextArea from "antd/es/input/TextArea";
 import ReqdComponentModal from "./ReqdComponentModal";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { getProductsOptions, getProjectOptions } from "../../../../api/general";
 
 const EditPPR = ({ editPPR, setEditPPR }) => {

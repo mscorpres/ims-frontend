@@ -24,7 +24,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import NavFooter from "../../../Components/NavFooter";
 import SuccessPage from "./Create/SuccessPage";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import {
   getBranchDetails,
   getClientBranches,

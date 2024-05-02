@@ -21,7 +21,7 @@ import { v4 } from "uuid";
 import Loading from "../../../Components/Loading";
 import { set } from "lodash";
 import { getComponentOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 
 const R25 = () => {

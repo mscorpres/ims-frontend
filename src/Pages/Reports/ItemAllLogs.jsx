@@ -11,7 +11,7 @@ import { downloadCSV } from "../../Components/exportToCSV";
 import MyDatePicker from "../../Components/MyDatePicker";
 import { FileImageOutlined } from "@ant-design/icons";
 import ComponentImages from "../Master/Components/material/ComponentImages";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { getComponentOptions } from "../../api/general";
 import MyButton from "../../Components/MyButton";
 export default function ItemAllLogs() {

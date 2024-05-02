@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Row, Col, Card, Space, Flex } from "antd";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 import MyDataTable from "../../Components/MyDataTable";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";

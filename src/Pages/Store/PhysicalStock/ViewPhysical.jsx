@@ -12,7 +12,7 @@ import {
   Typography,
 } from "antd";
 import MySelect from "../../../Components/MySelect";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";

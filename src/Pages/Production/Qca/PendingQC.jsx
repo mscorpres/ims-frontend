@@ -17,7 +17,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions, getVendorOptions } from "../../../api/general";
 import { convertSelectOptions } from "../../../utils/general";
 import MyButton from "../../../Components/MyButton";

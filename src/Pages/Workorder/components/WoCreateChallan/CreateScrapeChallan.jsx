@@ -37,7 +37,7 @@ import {
   getComponentOptions,
   getProductsOptions,
 } from "../../../../api/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../utils/general";
 import { useNavigate, useSearchParams } from "react-router-dom";
 

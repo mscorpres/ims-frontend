@@ -161,6 +161,9 @@ export const getMINComponents = async (minId) => {
       partCode: row.part_code,
       component: row.part_name,
       piaStatus: row.pia_status,
+      componentKey: row.component_key,
+      alreadyPrinted: row.allReadyPrinted,
+      boxes: row.boxes,
     }));
   }
 
@@ -170,7 +173,12 @@ export const getMINComponents = async (minId) => {
 };
 
 export const printLabels = async (values) => {
-  const response = await imsAxios.post("/qrLabel/generateQR", values);
-
+  const url = values.components[0].boxes
+    ? "/minBoxLablePrint/generateBoxLable"
+    : "/qrLabel/generateQR";
+  const response = await imsAxios.post(url, values);
+  if (response.success) {
+    printFunction(response.data.buffer.data);
+  }
   return response;
 };

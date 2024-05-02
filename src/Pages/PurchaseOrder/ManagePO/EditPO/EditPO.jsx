@@ -25,7 +25,7 @@ import {
   getVendorOptions,
 } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 export default function EditPO({ updatePoId, setUpdatePoId }) {
   const [purchaseOrder, setPurchaseOrder] = useState(null);

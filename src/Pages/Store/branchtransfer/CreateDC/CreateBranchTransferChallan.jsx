@@ -22,7 +22,7 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import { getVendorOptions } from "../../../../api/general";
 import { convertSelectOptions } from "../../../../utils/general";
-import useApi from "../../../../hooks/useApi";
+import useApi from "../../../../hooks/useApi.ts";
 
 export default function CreateBranchTransferChallan() {
   const [newGatePass, setNewGatePass] = useState({

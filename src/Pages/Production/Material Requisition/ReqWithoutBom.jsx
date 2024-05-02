@@ -22,7 +22,7 @@ import Loading from "../../../Components/Loading";
 
 import { getComponentOptions } from "../../../api/general";
 
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 export default function ReqWithoutBom() {
   const [asyncOptions, setAsyncOptions] = useState([]);

@@ -9,7 +9,7 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import JwInwordModal from "./Modal/JwInwordModal";
 import { imsAxios } from "../../axiosInterceptor";
 import useLoading from "../../hooks/useLoading";
-import useApi from "../../hooks/useApi";
+import useApi from "../../hooks/useApi.ts";
 import { getVendorOptions } from "../../api/general";
 import { convertSelectOptions } from "../../utils/general";
 import MyButton from "../../Components/MyButton";

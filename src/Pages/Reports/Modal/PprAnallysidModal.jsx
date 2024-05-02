@@ -16,7 +16,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import moment from "moment";
 import axios from "axios";
 import MyDatePicker from "../../../Components/MyDatePicker";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { getProductsOptions } from "../../../api/general";
 const { Footer } = Layout;
 const { RangePicker } = DatePicker;

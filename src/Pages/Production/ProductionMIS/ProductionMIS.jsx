@@ -4,7 +4,7 @@ import SingleProduct from "./SingleProduct";
 import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general";
-import useApi from "../../../hooks/useApi";
+import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
