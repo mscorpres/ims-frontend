@@ -789,12 +789,12 @@ const links = [
 
       placeholder: "MIS Date Wise Report",
     },
-    {
-      routeName: "R34",
-      routePath: "/r34",
+    // {
+    //   routeName: "R34",
+    //   routePath: "/r34",
 
-      placeholder: "MIS DateRange Wise Report",
-    },
+    //   placeholder: "MIS DateRange Wise Report",
+    // },
   ],
   // MIN label links
 
