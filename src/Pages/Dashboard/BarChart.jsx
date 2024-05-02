@@ -18,7 +18,7 @@ const BarChart = ({ data }) => {
           labels: data?.labels,
           datasets: [
             {
-              label: "Values in Crores",
+              label: "Values in (inclusive of GST)",
               data: data?.values,
               backgroundColor: "rgb(235 152 96 / 20%)",
               borderColor: "rgba(75, 192, 192, 1)",

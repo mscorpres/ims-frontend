@@ -159,7 +159,7 @@ function ProcurementDashboard() {
       // setAreaChartData(response?.data);
       chartData = {
         labels: arr.map((r) => r?.partCode),
-        values: arr.map((r) => r?.total_count / 10000000),
+        values: arr.map((r) => r?.total_value / 10000000),
       };
 
       setVendorData(response?.data?.topPo);
