@@ -37,7 +37,7 @@ const RequestedLedgers = ({ vendor, refId, modalOpen }) => {
       () => getRequestedLedgerMails(refId),
       "fetch"
     );
-    setRows(response.data);
+    setRows(response.data ?? []);
   };
 
   const handleUploadAttachment = async () => {
