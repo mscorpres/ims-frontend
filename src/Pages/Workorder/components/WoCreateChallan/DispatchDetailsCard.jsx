@@ -63,14 +63,14 @@ const DispatchDetailsCard = ({
           <Form.Item
             name="dispatchfrompincode"
             label="Shipping Pin"
-            rules={[{ required: true }]}
+            // rules={[{ required: true }]}
           >
             <Input disabled />
           </Form.Item>
           <Form.Item
             name="dispatchfromgst"
             label="Shipping GST"
-            rules={[{ required: true }]}
+            // rules={[{ required: true }]}
           >
             <Input disabled />
           </Form.Item>
