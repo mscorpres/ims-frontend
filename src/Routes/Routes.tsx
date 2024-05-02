@@ -242,7 +242,7 @@ import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/C
 import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
 //
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS.jsx";
-import R33 from "../Pages/Reports/R/R33.jsx";
+import R33 from "../Pages/Reports/R/R33.tsx";
 import R34 from "../Pages/Reports/R/R34.jsx";
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
