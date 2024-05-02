@@ -239,7 +239,7 @@ import R32 from "../Pages/Reports/R/R32.jsx";
 import Index from "../Pages/Query/ClosingStock/Index.jsx";
 import routeConstants from "./routeConstants.js";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan.jsx";
-import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
+// import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
 //
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS.jsx";
 import R33 from "../Pages/Reports/R/R33.tsx";
@@ -266,10 +266,10 @@ const Routes = [
     path: "/",
     main: () => <Dashboard />,
   },
-  {
-    path: "/dashboardProcurement",
-    main: () => <ProcurementDashboard />,
-  },
+  // {
+  //   path: "/dashboardProcurement",
+  //   main: () => <ProcurementDashboard />,
+  // },
   {
     path: "/material",
     main: () => <Material />,
