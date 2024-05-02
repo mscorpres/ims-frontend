@@ -161,7 +161,9 @@ export const getMINComponents = async (minId) => {
       partCode: row.part_code,
       component: row.part_name,
       piaStatus: row.pia_status,
-      componentKey: row.componentKey,
+      componentKey: row.component_key,
+      alreadyPrinted: row.allReadyPrinted,
+      boxes: row.boxes,
     }));
   }
 
@@ -171,7 +173,6 @@ export const getMINComponents = async (minId) => {
 };
 
 export const printLabels = async (values) => {
-  console.log("these are the values", values);
   const url = values.components[0].boxes
     ? "/minBoxLablePrint/generateBoxLable"
     : "/qrLabel/generateQR";

@@ -29,6 +29,8 @@ const LabelDrawer = ({
   const [boxes, setBoxes] = useState([]);
   const [piaEnabled, setPiaEnabled] = useState(false);
   const [showEditBoxModal, setShowEditBoxModal] = useState(false);
+  const [alreadyPrinted, setAlreadyPrinted] = useState(false);
+
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const selectedMIN = Form.useWatch("minId", form);
@@ -41,8 +43,16 @@ const LabelDrawer = ({
       setPiaEnabled(false);
     }
 
+    if (response.data[0].alreadyPrinted) {
+      setBoxes(response.data[0].boxes);
+      setAlreadyPrinted(true);
+    }
     form.setFieldsValue({
-      components: response.data,
+      components: response.data.map((row) => ({
+        ...row,
+        boxCount: row.alreadyPrinted ? row.boxes.length : undefined,
+        alreadyPrinted: row.alreadyPrinted,
+      })),
       minId: {
         label: minId,
         value: minId,
@@ -178,6 +188,7 @@ const LabelDrawer = ({
                     <Flex gap={5}>
                       <Typography.Text>Qty: {row.qty}</Typography.Text>
                       <TableActions
+                        disabled={alreadyPrinted}
                         onClick={() =>
                           setShowEditBoxModal({ ...row, index: index })
                         }
@@ -202,6 +213,11 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
   const partCode = Form.useWatch(["components", field.key, "partCode"], form);
   const minQty = Form.useWatch(["components", field.key, "qty"], form);
   const boxCount = Form.useWatch(["components", field.key, "boxCount"], form);
+
+  const alreadyPrinted = Form.useWatch(
+    ["components", field.key, "alreadyPrinted"],
+    form
+  );
 
   const calculateBoxCount = () => {
     setBoxes([]);
@@ -251,7 +267,7 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
         {piaStatus === "Y" && (
           <Col span={8}>
             <Form.Item name={[field.key, "boxCount"]} label="Box Count">
-              <Input />
+              <Input disabled={alreadyPrinted} />
             </Form.Item>
           </Col>
         )}
@@ -266,7 +282,9 @@ const SingleCompoent = ({ field, form, setBoxes }) => {
       </Row>
       {piaStatus === "Y" && (
         <Flex justify="end">
-          <Button onClick={calculateBoxCount}>Calculate</Button>
+          <Button disabled={alreadyPrinted} onClick={calculateBoxCount}>
+            Calculate
+          </Button>
         </Flex>
       )}
     </Card>
