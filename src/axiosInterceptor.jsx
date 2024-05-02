@@ -37,12 +37,12 @@ imsAxios.interceptors.response.use(
     //   toast.error("Some Internal error occured");
     // } else {
 
-    if (error.response.data?.message) {
-      toast.error(
-        error.response.data?.message?.msg ??
-          "Error while connecting to backend."
-      );
-    }
+    // if (error.response.data?.message) {
+    //   toast.error(
+    //     error.response.data?.message?.msg ??
+    //       "Error while connecting to backend."
+    //   );
+    // }
     if (!error.response.data?.message) {
       toast.error(error.response?.data);
     }
