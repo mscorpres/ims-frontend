@@ -40,7 +40,7 @@ const CompletedFgReturn = () => {
               />
             </Form.Item>
           </Form>
-          <Row justify="end">
+          <Row justify="center">
             <Space>
               <CommonIcons onClick={handleDownload} action="downloadButton" />
               <MyButton
