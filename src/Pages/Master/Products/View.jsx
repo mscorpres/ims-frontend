@@ -1,48 +1,43 @@
-import { useEffect, useState } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../Components/MyDataTable";
 import TableActions from "../../../Components/TableActions.jsx/TableActions";
 
 function View({
   rows,
-  tableLoading,
+  loading,
   setEditingProduct,
   setUpdatingImage,
   productType,
   setShowImages,
 }) {
   const columns = [
-    { headerName: "Sr. No.", field: "index", width: 60 },
+    { headerName: "#", field: "id", width: 30 },
     {
       headerName: "Product Name",
-      field: "p_name",
+      field: "name",
       flex: 1,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.p_name} />
-      ),
+      renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
     },
     {
       headerName: "SKU",
-      field: "p_sku",
-      width: 200,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.p_sku} copy={true} />
-      ),
+      field: "sku",
+      width: 100,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
     },
     {
       headerName: "Unit",
-      field: "units_name",
-      flex: 1,
+      field: "uom",
+      width: 80,
     },
     {
-      headerName: "Product Category",
-      field: "product_category",
-      flex: 1,
+      headerName: "Category",
+      field: "category",
+      width: 100,
       renderCell: ({ row }) => (
         <>
-          {row?.product_category == ""
+          {row?.category == ""
             ? "--"
-            : row?.product_category == "services"
+            : row?.category == "services"
             ? "Services"
             : "Goods"}
         </>
@@ -55,14 +50,14 @@ function View({
       getActions: ({ row }) => [
         <TableActions
           action="edit"
-          onClick={() => setEditingProduct(row.product_key)}
+          onClick={() => setEditingProduct(row.productKey)}
         />,
         <TableActions
           action="view"
           onClick={() =>
             setShowImages({
-              partNumber: row.product_key,
-              partCode: row.p_name,
+              partNumber: row.productKey,
+              partCode: row.product,
             })
           }
         />,
@@ -71,8 +66,8 @@ function View({
           action="upload"
           onClick={() =>
             setUpdatingImage({
-              key: row.product_key,
-              label: row.p_name,
+              key: row.productKey,
+              label: row.name,
             })
           }
         />,
@@ -82,11 +77,7 @@ function View({
 
   return (
     <div style={{ height: "100%" }}>
-      <MyDataTable
-        loading={tableLoading}
-        data={rows}
-        columns={columns}
-      />
+      <MyDataTable loading={loading} data={rows} columns={columns} />
     </div>
   );
 }
