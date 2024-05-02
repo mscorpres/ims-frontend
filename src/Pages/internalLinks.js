@@ -4,6 +4,18 @@ const links = [
   // purchase order links
   [
     {
+      routeName: "Home",
+      routePath: "/",
+      key: 0,
+    },
+    {
+      routeName: "Procurement",
+      routePath: "/dashboardProcurement",
+      key: 0,
+    },
+  ],
+  [
+    {
       routeName: "Create PO",
       routePath: "/create-po",
       key: 0,
@@ -425,6 +437,14 @@ const links = [
     },
     { routeName: "VIEW FG OUT", routePath: "/view-fgOut" },
   ],
+  [
+    {
+      routeName: "Create FG Return",
+      routePath: "/createFgReturn",
+    },
+    { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
+    { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
+  ],
   // RM to RM transfer links
   [
     { routeName: "RM To RM", routePath: "/rm-to-rm" },
@@ -756,12 +776,25 @@ const links = [
 
       placeholder: "Vendor RM Consumption Report",
     },
+
     {
       routeName: "R32",
       routePath: "/r32",
 
       placeholder: "Cost Center Transaction Report",
     },
+    {
+      routeName: "R33",
+      routePath: "/r33",
+
+      placeholder: "MIS Date Wise Report",
+    },
+    // {
+    //   routeName: "R34",
+    //   routePath: "/r34",
+
+    //   placeholder: "MIS DateRange Wise Report",
+    // },
   ],
   // MIN label links
 
@@ -1028,7 +1061,6 @@ const links = [
       routeName: "Sales Order Register",
       routePath: "/sales/order/register",
     },
-
     {
       routeName: "Shipment",
       routePath: "/sales/order/shipments",
@@ -1111,6 +1143,20 @@ const links = [
     {
       routeName: "Registered Users",
       routePath: "/controlPanel/registeredUsers",
+    },
+  ],
+  [
+    {
+      routeName: "Create Asset",
+      routePath: "/assets/create",
+    },
+    {
+      routeName: "View Asset",
+      routePath: "/assets/view",
+    },
+    {
+      routeName: "Depreciation",
+      routePath: "/assets/depreciation",
     },
   ],
 ];
