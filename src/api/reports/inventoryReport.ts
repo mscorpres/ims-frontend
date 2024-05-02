@@ -17,8 +17,11 @@ interface GetR33Type {
   workHrs: string;
   remark: string;
 }
-export const getR33 = async (date: string) => {
-  const response: ResponseType = await imsAxios.post("report33/", { date });
+export const getR33 = async (date: string, wise: string) => {
+  const response: ResponseType = await imsAxios.post("report33/", {
+    date,
+    type: wise,
+  });
   let arr = [];
   if (response.success) {
     arr = response.data.map(
