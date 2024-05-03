@@ -249,9 +249,9 @@ import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReve
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
 
-// import CreateAsset from "../pages/fixeassetmodule/CreateAsset/CreateAsset";
-// import ViewAsset from "../pages/fixeassetmodule/ViewAsset";
-// import Depreciation from "../pages/fixeassetmodule/Depreciation";
+// import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
+// import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
+// import Depreciation from "../Pages/fixeassetmodule/Depreciation";
 
 const Routes = [
   {

@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
-import { Card, Col, Form, Input, Row } from "antd";
+import React, { useEffect, useState } from "react";
+import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
 import View from "./View";
-import Add from "./Add";
-import { toast } from "react-toastify";
-import { imsAxios } from "../../../axiosInterceptor";
-import Edit from "./Edit";
-import AddPhoto from "./AddPhoto";
+
 import ComponentImages from "./ComponentImages";
 import useApi from "../../../hooks/useApi";
 import { getUOMList } from "../../../api/master/uom";
+import { getProductsList } from "../../../api/master/products";
+import { ResponseType } from "../../../types/general";
+import Add from "./Add";
+import Edit from "./Edit";
+import AddPhoto from "./AddPhoto";
 
 const Product = () => {
-  const [productType, setProductType] = useState("");
+  const [productType, setProductType] = useState<"fg" | "sfg">();
   const [formLoading, setFormLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
   const [uomOptions, setUomOptions] = useState([]);
@@ -20,7 +21,7 @@ const Product = () => {
   const [editingProduct, setEditingProduct] = useState(false);
   const [updatingImage, setUpdatingImage] = useState(false);
   const [showImages, setShowImages] = useState(false);
-  const { executeFun } = useApi();
+  const { executeFun, loading } = useApi();
 
   const { pathname } = useLocation();
 
@@ -28,23 +29,13 @@ const Product = () => {
     const { data } = await executeFun(() => getUOMList(), "fetch");
     setUomOptions(data);
   };
-  const getProductRows = async (type) => {
-    let link = "";
-    if (pathname.includes("sfg")) {
-      link = "/products/semiProducts";
-    } else {
-      link = "/products";
-    }
-    setTableLoading(true);
-    const { data } = await imsAxios.get(link);
-    setTableLoading(false);
-    if (data.code === 200) {
-      let arr = data.data.map((row, index) => ({
-        ...row,
-        index: index + 1,
-        id: index,
-      }));
-      setRows(arr);
+  const getProductRows = async (productType: "fg" | "sfg" | undefined) => {
+    if (productType) {
+      const response: ResponseType = await executeFun(
+        () => getProductsList(productType),
+        "fetch"
+      );
+      setRows(response.data);
     }
   };
   useEffect(() => {
@@ -61,7 +52,11 @@ const Product = () => {
     getProductRows(productType);
   }, [productType]);
   return (
-    <Row gutter={6} style={{ height: "90%", padding: "0px 5px" }}>
+    <Row
+      gutter={6}
+      justify="center"
+      style={{ height: "90%", padding: "0px 5px" }}
+    >
       <ComponentImages showImages={showImages} setShowImages={setShowImages} />
       <Edit
         editingProduct={editingProduct}
@@ -75,18 +70,17 @@ const Product = () => {
         setUpdatingImage={setUpdatingImage}
         getProductRows={getProductRows}
       />
-      <Col span={6}>
+      <Col sm={8} xl={6} xxl={4}>
         <Add
-          formLoading={formLoading}
           uomOptions={uomOptions}
           getProductRows={getProductRows}
           productType={productType}
         />
       </Col>
-      <Col span={18}>
+      <Col span={10}>
         <View
           rows={rows}
-          tableLoading={tableLoading}
+          loading={loading("fetch")}
           editingProduct={editingProduct}
           setEditingProduct={setEditingProduct}
           setUpdatingImage={setUpdatingImage}

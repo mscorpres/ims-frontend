@@ -92,7 +92,7 @@ const columns = [
     renderCell: ({ row }: { row: R34Type }) => (
       <ToolTipEllipses text={row.sku} copy={true} />
     ),
-    width: 80,
+    width: 100,
   },
   {
     headerName: "Product",
@@ -100,7 +100,8 @@ const columns = [
     renderCell: ({ row }: { row: R34Type }) => (
       <ToolTipEllipses text={row.product} />
     ),
-    width: 150,
+    minWidth: 150,
+    flex: 1,
   },
   {
     headerName: "UoM",
@@ -134,12 +135,12 @@ const columns = [
     field: "workHours",
     width: 150,
   },
-  {
-    headerName: "Remarks.",
-    field: "remarks",
-    renderCell: ({ row }: { row: R34Type }) => (
-      <ToolTipEllipses text={row.remarks} />
-    ),
-    width: 220,
-  },
+  // {
+  //   headerName: "Remarks.",
+  //   field: "remarks",
+  //   renderCell: ({ row }: { row: R34Type }) => (
+  //     <ToolTipEllipses text={row.remarks} />
+  //   ),
+  //   width: 220,
+  // },
 ];

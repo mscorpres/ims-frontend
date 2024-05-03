@@ -17,11 +17,12 @@ function CreateFgReturn() {
   const sku = Form.useWatch("sku", fgReturn);
   const selectedStatus = Form.useWatch("status", fgReturn);
   const statusOptions = [
-    { text: "Okay (can be reused)", value: "okay" },
-    { text: "Not Okay (damaged)", value: "notOkay" },
+    { text: "Okay (Re-usable)", value: "OK" },
+    { text: "NG (damaged)", value: "NG" },
   ];
 
   const { executeFun, loading1 } = useApi();
+
   const getOption = async (searchInput) => {
     setAsyncOptions([]);
     const response = await executeFun(
@@ -83,7 +84,7 @@ function CreateFgReturn() {
       bom_id: values.bom?.key,
       qty_return: values.qty,
       location_in: values.location,
-      fg_status: values.status == "okay" ? "OK" : "NOT_OK",
+      fg_status: values.status,
       remark: values.remarks,
     };
 

@@ -20,8 +20,7 @@ export default function ComponentImages({ showImages, setShowImages }) {
   const [skeletonLoading, setSkeletonLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [images, setImages] = useState([]);
-  console.log(showImages);
-  const [ellipsis, setEllipsis] = useState(true);
+
   const getImages = async () => {
     setSkeletonLoading(true);
     const { data } = await imsAxios.post("/products/fetchImageProduct", {
@@ -67,6 +66,13 @@ export default function ComponentImages({ showImages, setShowImages }) {
       <Skeleton active loading={skeletonLoading} />
       <Skeleton active loading={skeletonLoading} />
       <Skeleton active loading={skeletonLoading} />
+      {!skeletonLoading && images.length === 0 && (
+        <Row justify="center" style={{ paddingTop: 200 }}>
+          <Typography.Text strong type="secondary">
+            No images found
+          </Typography.Text>
+        </Row>
+      )}
       <Row gutter={[8, 8]}>
         {!skeletonLoading && (
           <Image.PreviewGroup>
