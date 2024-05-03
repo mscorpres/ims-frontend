@@ -239,7 +239,7 @@ import R32 from "../Pages/Reports/R/R32.jsx";
 import Index from "../Pages/Query/ClosingStock/Index.jsx";
 import routeConstants from "./routeConstants.js";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan.jsx";
-import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
+// import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
 //
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS.jsx";
 import R33 from "../Pages/Reports/R/R33.tsx";
@@ -248,7 +248,7 @@ import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
-import R34 from "@/Pages/Reports/R/R34/index.js";
+// import R34 from "@/Pages/Reports/R/R34/index.js";
 
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
@@ -267,10 +267,10 @@ const Routes = [
     path: "/",
     main: () => <Dashboard />,
   },
-  {
-    path: "/dashboardProcurement",
-    main: () => <ProcurementDashboard />,
-  },
+  // {
+  //   path: "/dashboardProcurement",
+  //   main: () => <ProcurementDashboard />,
+  // },
   {
     path: "/material",
     main: () => <Material />,
@@ -719,11 +719,11 @@ const Routes = [
 
     main: () => <R33 />,
   },
-  {
-    path: "/r34",
+  // {
+  //   path: "/r34",
 
-    main: () => <R34 />,
-  },
+  //   main: () => <R34 />,
+  // },
   {
     path: "/reqWithBom",
     main: () => <ReqWithBom />,

@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import useApi from "../../../../hooks/useApi";
 import { getProductsOptions } from "../../../../api/general.ts";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import { getPendingReturns } from "../../../../api/store/fgReturn";
+import { getPendingReturns } from "../../../../api/store/fgReturn.ts";
 
 const wiseOptions = [
   { value: "datewise", text: "Date Wise" },

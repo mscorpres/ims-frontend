@@ -381,6 +381,18 @@ export const items = (user) => [
           // <AiOutlineMinus />
         ),
       ]),
+      getItem("FG(s) Return", "B38", <MdDashboard />, [
+        getItem(
+          <Link to="/createFgReturn">Create FG Return</Link>,
+          "B381"
+          // <AiOutlineMinus />
+        ),
+        getItem(
+          <Link to="/pendingFgReturn">Pending Reversals</Link>,
+          "B382"
+          // <AiOutlineMinus />
+        ),
+      ]),
       getItem("Material Transfer", "B36", <MdDashboard />, [
         getItem(
           <Link to="/rm-to-rm">RM To RM</Link>,
