@@ -7,7 +7,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { useSelector } from "react-redux";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 const { paragraph } = Typography;
 

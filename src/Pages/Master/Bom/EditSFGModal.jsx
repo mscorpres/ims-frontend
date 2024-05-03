@@ -22,7 +22,7 @@ import ViewEmergingComponent from "./ViewEmergingComponent";
 import AddEmergingComponent from "./AddEmergingComponent";
 import FormTable from "../../../Components/FormTable";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 
 const EditSFGModal = ({ sfgEditModal, setSfgEditModal }) => {
   const [fetchData, setFetchData] = useState([]);

@@ -15,8 +15,8 @@ import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
 import ConfirmModal from "../Shared/ConfirmModal";
 import useApi from "../../../../hooks/useApi.ts";
-import { getVendorOptions } from "../../../../api/general";
-import { convertSelectOptions } from "../../../../utils/general";
+import { getVendorOptions } from "../../../../api/general.ts";
+import { convertSelectOptions } from "../../../../utils/general.ts";
 export default function VBT1() {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("MIN/23-24/");

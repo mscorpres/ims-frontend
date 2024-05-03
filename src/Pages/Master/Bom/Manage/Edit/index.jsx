@@ -14,10 +14,10 @@ import { v4 } from "uuid";
 import {
   getComponentOptions,
   getVendorOptions,
-} from "../../../../../api/general";
+} from "../../../../../api/general.ts";
 
 import useApi from "../../../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../../../utils/general";
+import { convertSelectOptions } from "../../../../../utils/general.ts";
 const EditModal = ({ show, close, bomType }) => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);

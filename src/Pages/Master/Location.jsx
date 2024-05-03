@@ -18,11 +18,11 @@ import { v4 } from "uuid";
 import Loading from "../../Components/Loading";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
-import { getCostCentresOptions } from "../../api/general";
+import { getCostCentresOptions } from "../../api/general.ts";
 import MyDataTable from "../gstreco/myDataTable";
 import TableActions from "../../Components/TableActions.jsx/TableActions";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { convertSelectOptions } from "../../utils/general";
+import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
 
 function Location() {

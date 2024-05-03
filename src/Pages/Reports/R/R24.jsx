@@ -19,7 +19,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 const R24 = () => {

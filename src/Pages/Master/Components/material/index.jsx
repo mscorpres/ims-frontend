@@ -29,7 +29,7 @@ import { Link } from "react-router-dom";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import useApi from "../../../../hooks/useApi.ts";
-import { downloadComponentMaster } from "../../../../api/master/component";
+import { downloadComponentMaster } from "../../../../api/master/component.ts";
 import { downloadFromLink } from "../../../../Components/printFunction";
 
 const Material = () => {

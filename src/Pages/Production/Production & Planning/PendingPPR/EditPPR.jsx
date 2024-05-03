@@ -21,7 +21,10 @@ import Loading from "../../../../Components/Loading";
 import TextArea from "antd/es/input/TextArea";
 import ReqdComponentModal from "./ReqdComponentModal";
 import useApi from "../../../../hooks/useApi.ts";
-import { getProductsOptions, getProjectOptions } from "../../../../api/general";
+import {
+  getProductsOptions,
+  getProjectOptions,
+} from "../../../../api/general.ts";
 
 const EditPPR = ({ editPPR, setEditPPR }) => {
   const [loading, setLoading] = useState(false);

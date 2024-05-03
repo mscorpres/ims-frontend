@@ -4,7 +4,7 @@ import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import useApi from "../../../hooks/useApi.ts";
-import { getMINOptions } from "../../../api/general";
+import { getMINOptions } from "../../../api/general.ts";
 import {
   downloadConsumptionList,
   getMINLabelRows,

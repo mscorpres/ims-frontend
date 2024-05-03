@@ -1,5 +1,5 @@
 import { imsAxios } from "../axiosInterceptor";
-import { convertSelectOptions } from "../utils/general";
+import { convertSelectOptions } from "../utils/general.ts";
 
 export const getLedgerReport = async (payload) => {
   try {

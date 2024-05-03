@@ -21,8 +21,8 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../hooks/useApi.ts";
-import { getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 const ManagePO = () => {

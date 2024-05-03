@@ -7,7 +7,7 @@ import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
 import { InfoCircleFilled } from "@ant-design/icons";
-import { getProjectOptions } from "../../../api/general";
+import { getProjectOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 

@@ -9,7 +9,7 @@ import MySelect from "../../../../Components/MySelect";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyButton from "../../../../Components/MyButton";
-import { downloadServiceMaster } from "../../../../api/master/component";
+import { downloadServiceMaster } from "../../../../api/master/component.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
 function Services() {

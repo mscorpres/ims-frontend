@@ -18,8 +18,8 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions, getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 function PendingQC() {
   const [wise, setWise] = useState("datewise");

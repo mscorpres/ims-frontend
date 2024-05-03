@@ -30,7 +30,7 @@ import printFunction, {
   downloadExcel,
 } from "../../../Components/printFunction";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 function R20() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);

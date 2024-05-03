@@ -12,7 +12,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import Loading from "../../../Components/Loading";
 import { imsAxios } from "../../../axiosInterceptor";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 const R10 = () => {
   const { user } = useSelector((state) => state.login);

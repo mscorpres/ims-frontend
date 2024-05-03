@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 import { EditFilled, DeleteFilled } from "@ant-design/icons";
 import MyButton from "../../../Components/MyButton";
 import Loading from "../../../Components/Loading";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 const PartCodeConversion = () => {
   const [loading, setLoading] = useState(false);

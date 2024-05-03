@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 
 function ModalR19({ modalOpen, setModalOpen, allData, fetchData }) {

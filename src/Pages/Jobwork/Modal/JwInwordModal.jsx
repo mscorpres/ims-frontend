@@ -23,7 +23,7 @@ import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import FormTable from "../../../Components/FormTable";
 import useLoading from "../../../hooks/useLoading";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import NavFooter from "../../../Components/NavFooter";
 import { GridActionsCellItem } from "@mui/x-data-grid";

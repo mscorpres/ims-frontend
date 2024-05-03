@@ -6,7 +6,7 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { downloadAttachement } from "../../../../api/store/material-in";
-import { downloadFromLink } from "../../../../utils/general";
+import { downloadFromLink } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
 function ViewDocuments() {

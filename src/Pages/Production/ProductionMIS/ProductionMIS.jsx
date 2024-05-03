@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import SingleProduct from "./SingleProduct";
 import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
-import { getProductsOptions } from "../../../api/general";
+import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../utils/general";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 function ProductionMIS() {

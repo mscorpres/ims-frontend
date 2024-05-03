@@ -17,8 +17,8 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import ConfirmModal from "../Shared/ConfirmModal";
 import { useSelector } from "react-redux";
 import { responseImmutable } from "@rc-component/context/lib/Immutable";
-import { convertSelectOptions } from "../../../../utils/general";
-import { getVendorOptions } from "../../../../api/general";
+import { convertSelectOptions } from "../../../../utils/general.ts";
+import { getVendorOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
 export default function VBT1() {

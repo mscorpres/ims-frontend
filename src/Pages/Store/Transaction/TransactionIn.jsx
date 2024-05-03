@@ -15,7 +15,7 @@ import MyButton from "../../../Components/MyButton";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../hooks/useApi.ts";
 import { downloadAttachement } from "../../../api/store/material-in";
-import { downloadFromLink } from "../../../utils/general";
+import { downloadFromLink } from "../../../utils/general.ts";
 const TransactionIn = () => {
   const [wise, setWise] = useState("M");
   const [searchInput, setSearchInput] = useState("");

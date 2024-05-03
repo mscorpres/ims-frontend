@@ -35,8 +35,8 @@ import {
   getVendorBranchDetails,
   getVendorBranchOptions,
   getVendorOptions,
-} from "../../../../api/general";
-import { convertSelectOptions, getInt } from "../../../../utils/general";
+} from "../../../../api/general.ts";
+import { convertSelectOptions, getInt } from "../../../../utils/general.ts";
 import FormTable2 from "../../../../Components/FormTable2";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
 import {

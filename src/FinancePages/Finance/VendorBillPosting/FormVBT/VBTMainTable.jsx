@@ -19,8 +19,8 @@ import { responseImmutable } from "@rc-component/context/lib/Immutable";
 import VBT01Report from "./VBT01/VBT01Report";
 import VBT02Report from "./VBTtype2/VBT02Report";
 import useApi from "../../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../../utils/general";
-import { getVendorOptions } from "../../../../api/general";
+import { convertSelectOptions } from "../../../../utils/general.ts";
+import { getVendorOptions } from "../../../../api/general.ts";
 import MyButton from "../../../../Components/MyButton";
 
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {

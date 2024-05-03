@@ -9,7 +9,7 @@ import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { useEffect } from "react";
 import useApi from "../../../../hooks/useApi.ts";
-import { getComponentOptions } from "../../../../api/general";
+import { getComponentOptions } from "../../../../api/general.ts";
 const CreateBom = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [loading, setLoading] = useState(false);

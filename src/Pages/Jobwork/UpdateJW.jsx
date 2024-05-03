@@ -21,7 +21,7 @@ import FormTable3 from "../../Components/FormTable3";
 import { validateTable } from "../../Components/FormTable3";
 import { toast } from "react-toastify";
 import useLoading from "../../hooks/useLoading";
-import { getComponentOptions } from "../../api/general";
+import { getComponentOptions } from "../../api/general.ts";
 import useApi from "../../hooks/useApi.ts";
 
 const UpdateJW = () => {

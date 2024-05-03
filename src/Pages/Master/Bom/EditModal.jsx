@@ -22,7 +22,7 @@ import ViewEmergingComponent from "./ViewEmergingComponent";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 
 import useApi from "../../../hooks/useApi.ts";
 const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {

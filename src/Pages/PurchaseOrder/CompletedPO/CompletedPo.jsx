@@ -16,8 +16,8 @@ import TableActions, {
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../utils/general";
-import { getVendorOptions } from "../../../api/general";
+import { convertSelectOptions } from "../../../utils/general.ts";
+import { getVendorOptions } from "../../../api/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 const CompletedPo = () => {

@@ -12,7 +12,7 @@ import MyDatePicker from "../../Components/MyDatePicker";
 import { FileImageOutlined } from "@ant-design/icons";
 import ComponentImages from "../Master/Components/material/ComponentImages";
 import useApi from "../../hooks/useApi.ts";
-import { getComponentOptions } from "../../api/general";
+import { getComponentOptions } from "../../api/general.ts";
 import MyButton from "../../Components/MyButton";
 export default function ItemAllLogs() {
   const [loading, setLoading] = useState(false);

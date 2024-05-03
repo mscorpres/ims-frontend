@@ -30,8 +30,8 @@ import {
   getShippingAddressOptions,
   fetchLocations,
   getBillingAddressDetails,
-} from "../../../../../api/general";
-import { convertSelectOptions } from "../../../../../utils/general";
+} from "../../../../../api/general.ts";
+import { convertSelectOptions } from "../../../../../utils/general.ts";
 import {
   getBranchDetails,
   getClientBranches,

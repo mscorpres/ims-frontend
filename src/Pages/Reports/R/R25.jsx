@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import Loading from "../../../Components/Loading";
 import { set } from "lodash";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 

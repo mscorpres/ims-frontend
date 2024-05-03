@@ -12,7 +12,7 @@ import ChallanDetails from "./ChallanDetails";
 import MySelect from "../../../../../Components/MySelect";
 import MyButton from "../../../../../Components/MyButton";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
-import { convertSelectOptions } from "../../../../../utils/general";
+import { convertSelectOptions } from "../../../../../utils/general.ts";
 import { getClientsOptions } from "../../../../../api/finance/clients";
 
 const wiseOptions = [

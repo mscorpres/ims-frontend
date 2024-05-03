@@ -19,8 +19,8 @@ import { toast } from "react-toastify";
 import MyDataTable from "../../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
-import { convertSelectOptions } from "../../../../utils/general";
-import { getVendorOptions } from "../../../../api/general";
+import { convertSelectOptions } from "../../../../utils/general.ts";
+import { getVendorOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
 

@@ -10,7 +10,7 @@ import NavFooter from "../../../Components/NavFooter";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { InboxOutlined } from "@ant-design/icons";
 import useApi from "../../../hooks/useApi.ts";
-import { getProductsOptions } from "../../../api/general";
+import { getProductsOptions } from "../../../api/general.ts";
 import Loading from "../../../Components/Loading";
 
 const QaProcessMap = () => {

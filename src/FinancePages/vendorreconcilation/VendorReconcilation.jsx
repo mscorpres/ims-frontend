@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import useApi from "../../hooks/useApi.ts";
-import { getVendorOptions } from "../../api/general";
+import { getVendorOptions } from "../../api/general.ts";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDatePicker from "../../Components/MyDatePicker";
 import { getLedgerReport } from "../../api/ledger";
@@ -37,7 +37,7 @@ import { useSelector } from "react-redux/es/exports";
 import {
   // convertDateRangeValue,
   convertSelectOptions,
-} from "../../utils/general";
+} from "../../utils/general.ts";
 import { useSearchParams } from "react-router-dom";
 import Ledgers from "./ledgers";
 import { createDraft } from "../../api/finance/vendor-reco";

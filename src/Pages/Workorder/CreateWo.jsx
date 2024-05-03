@@ -23,8 +23,8 @@ import CreateCostModal from "../PurchaseOrder/CreatePO/CreateCostModal";
 import AddProjectModal from "../PurchaseOrder/CreatePO/AddProjectModal";
 import Loading from "../../Components/Loading";
 import useApi from "../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../utils/general";
-import { getCostCentresOptions, getProjectOptions } from "../../api/general";
+import { convertSelectOptions } from "../../utils/general.ts";
+import { getCostCentresOptions, getProjectOptions } from "../../api/general.ts";
 
 // vendor type options
 

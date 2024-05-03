@@ -11,8 +11,8 @@ import axios from "axios";
 import MySelect from "../../Components/MySelect";
 import { toast } from "react-toastify";
 import useApi from "../../hooks/useApi.ts";
-import { getCostCentresOptions, getProjectOptions } from "../../api/general";
-import { convertSelectOptions } from "../../utils/general";
+import { getCostCentresOptions, getProjectOptions } from "../../api/general.ts";
+import { convertSelectOptions } from "../../utils/general.ts";
 
 function SFTransferDrawer({
   sfTransferModal,

@@ -20,7 +20,7 @@ import FormTable from "../../../Components/FormTable";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import Loading from "../../../Components/Loading";
 
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
