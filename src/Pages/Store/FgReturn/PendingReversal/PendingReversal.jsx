@@ -67,24 +67,25 @@ function PendingReversal() {
     //   });
     //   setRows(arr);
     //   // setLoading(false);
-    // } else {
+    // } else {getExecuteDetails
+
     //   toast.error(response.message);
     // }
     // // setLoading(false);
     // true;
   };
   const getExecuteDetails = async (row) => {
-    // console.log("row", row);
-    // // return;
-    // const response = await imsAxios.post("/fg_return/fetchComponentDetails", {
-    //   product_id: row.product_id,
-    //   fg_return_txn: row.fg_return_txn_id,
-    // });
-    // console.log("response", response);
-    // if (response.success) {
-    //   let { data } = response;
-    setExecutePPR(row);
-    // }
+    console.log("row", row);
+    // return;
+    const response = await imsAxios.post("/fg_return/fetchComponentDetails", {
+      product_id: row.productKey,
+      fg_return_txn: row.transactionId,
+    });
+    console.log("response", response);
+    if (response.success) {
+      let { data } = response;
+      setExecutePPR(row);
+    }
   };
 
   const actionColumns = [
@@ -111,6 +112,11 @@ function PendingReversal() {
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
+      <ExecutePPR
+        getRows={getRows}
+        editPPR={executePPR}
+        setEditPPR={setExecutePPR}
+      />
       <Col sm={6} xxl={4}>
         <Card size="small">
           <Form form={form} layout="vertical" initialValues={initialValues}>

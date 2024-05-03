@@ -61,20 +61,22 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
     console.log("row", editPPR);
     // return;
     const response = await imsAxios.post("/fg_return/fetchComponentDetails", {
-      product_id: editPPR?.product_id,
-      fg_return_txn: editPPR?.fg_return_txn_id,
+      product_id: editPPR?.productKey,
+      fg_return_txn: editPPR?.transactionId,
     });
+    setPageLoading(false);
+
     console.log("response", response);
     if (response.success) {
       let { data } = response;
-      setPageLoading(false);
+
       let arr1 = {
         ...data.header_data,
         location: "",
         mfgQty: 1,
         myComment: "",
-        fg_return_txn: editPPR.fg_return_txn_id,
-        product_id: editPPR.product_id,
+        fg_return_txn: editPPR.transactionId,
+        product_id: editPPR.productKey,
       };
       console.log("arr1----", arr1);
       setHeaderData(arr1);
@@ -513,11 +515,12 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
   return (
     <Drawer
       title={
-        editPPR?.product_name?.length && `Execute MIS: ${editPPR?.product_name}`
+        editPPR?.transactionId?.length &&
+        `Execute MIS: ${editPPR?.transactionId}`
       }
       width="100vw"
       onClose={() => setEditPPR(null)}
-      open={editPPR?.product_name && editPPR}
+      open={editPPR?.transactionId && editPPR}
     >
       <Skeleton active loading={pageLoading} />
       <Skeleton active loading={pageLoading} />
