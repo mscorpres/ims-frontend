@@ -1,26 +1,28 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
-import View from "@/pages/Master/Products/View.tsx";
-import Edit from "@/pages/Master/Products/Edit.tsx";
+import View from "./View";
 
-import Add from "@/pages/Master/Products/Add.tsx";
-import AddPhoto from "@/pages/Master/Products/AddPhoto.tsx";
-import ComponentImages from "@/pages/Master/Products/ComponentImages.tsx";
-import useApi from "@/hooks/useApi";
-import { getUOMList } from "@/api/master/uom";
-import { getProductsList } from "@/api/master/products";
-import { ResponseType } from "@/types/general";
+import ComponentImages from "./ComponentImages";
+import useApi from "../../../hooks/useApi";
+import { getUOMList } from "../../../api/master/uom";
+import { getProductsList } from "../../../api/master/products";
+import { ResponseType } from "../../../types/general";
+import Add from "./Add";
+import Edit from "./Edit";
+import AddPhoto from "./AddPhoto";
 
 const Product = () => {
   const [productType, setProductType] = useState<"fg" | "sfg">();
+  const [formLoading, setFormLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
   const [uomOptions, setUomOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [editingProduct, setEditingProduct] = useState(false);
   const [updatingImage, setUpdatingImage] = useState(false);
   const [showImages, setShowImages] = useState(false);
-
   const { executeFun, loading } = useApi();
+
   const { pathname } = useLocation();
 
   const getUomOptions = async () => {
