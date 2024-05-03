@@ -20,6 +20,8 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import NavFooter from "../../../../../Components/NavFooter";
 import validateResponse from "../../../../../Components/validateResponse";
+import { v4 } from "uuid";
+
 function VBT02Report({
   editingVBT,
   setEditingVBT,
@@ -58,10 +60,23 @@ function VBT02Report({
   const [currArr, setCurrArr] = useState([]);
   const [newArr, setNewArr] = useState([]);
   const [isAnother, setIsAnother] = useState("");
+  const [singleArr, setSingleArr] = useState([]);
+  const [mainArrVenAm, setNewArrVenAm] = useState([]);
+  const [mAVenAmValue, setMAVenAmValue] = useState("");
+  const [mAfreightValue, setMAFreightValue] = useState("");
+  const [headerCal, setHeaderCal] = useState([]);
+  const [mainArrs, setmainArrs] = useState([]);
+  const [mainUpdated, setMainUpdated] = useState(1);
+
   const components = Form.useWatch("components", {
     form: Vbt01,
     preserve: true,
   });
+
+  // const mainArrs = Form.useWatch("mainArrs", {
+  //   form: Vbt01,
+  //   preserve: true,
+  // });
 
   const [lastRateArr, setLastRateArr] = useState([]);
   const resetForm = () => {
@@ -490,8 +505,9 @@ function VBT02Report({
     console.log("id", id);
     setLoading(false);
   };
+
   useEffect(() => {
-    const partCodeArr = currArr.map((row) => row.c_part_no);
+    const partCodeArr = currArr.map((row) => row?.c_part_no);
     if (currArr && currArr[0]?.ven_code) {
       getLastPrice(currArr[0]?.ven_code, partCodeArr);
     }
@@ -557,6 +573,7 @@ function VBT02Report({
       ///
       // let newarr = arr.slice([10]);
       console.log("arr", arr);
+      setSingleArr(arr);
       // arr = newarr;
       if (arr.length > 25) {
         setIsAnother(true);
@@ -570,6 +587,7 @@ function VBT02Report({
         setPaginate(result);
         setCurrArr(result[0]);
         Vbt01.setFieldValue("components", result[0]);
+        Vbt01.setFieldValue("bigarr", arr);
         setEditVBTCode(result[0]);
         setVbtComponent(result[0]);
         setCurrent(1);
@@ -601,6 +619,70 @@ function VBT02Report({
       }
     }
   };
+
+  // const updateSingleArr = (name, id, value) => {
+  //   setSingleArr((curr) => {
+  //     return curr.map((row) => {
+  //       if (row?.id === id) {
+  //         return {
+  //           ...row,
+  //           [name]: value,
+  //         };
+  //       } else {
+  //         return row;
+  //       }
+  //     });
+  //   });
+  // };
+  // console.log("components", components);
+  // console.log("SingleArrrrr", singleArr);
+  let a;
+  // console.log("mainArrss product", mainArrs);
+  useEffect(() => {
+    let arr = singleArr;
+    components?.forEach((component) => {
+      let index = singleArr.findIndex(
+        (obj) =>
+          obj.id === component.id && obj.c_part_no === component.c_part_no
+      );
+      if (index !== -1) {
+        // arr
+        arr[index] = component;
+        // singleArr[index] = component;
+      }
+    });
+    // console.log("udpated arr", arr);
+    setmainArrs(arr);
+    // Vbt01.setFieldValue("mainArrs", singleArr);
+  }, [components, singleArr]);
+
+  // console.log("single", singleArr);
+
+  // console.log("a", a);
+  // let indexesToReplace = new Set([0, components?.length]);
+  // indexesToReplace.forEach((index, i) => {
+  //   if (index >= 0 && index < singleArr.length) {
+  //     singleArr[index] = components[i];
+  //   }
+  // });
+  // useEffect(() => {
+  //   if (mainArrs) {
+  //     setmainArrs(mainArrs);
+  //   }
+  // }, [mainArrs]);
+
+  // useEffect(() => {
+  //   let a = components?.map((e) => {
+  //     return singleArr.filter((r) => r.id == e.id);
+  //     if (temp) {
+  //       return temp;
+  //     } else {
+  //       return null;
+  //     }
+  //   });
+  //   console.log("a", a);
+  // }, [components]);
+
   const getVBTDetail = async (minIdArr) => {
     // return;
     // setLoading(true);
@@ -619,6 +701,7 @@ function VBT02Report({
       setVbtComponent(data);
       let arr = data.data.map((row) => ({
         ...row,
+        id: v4(),
         minId: row.min_id,
         // poNumber: row.poNumber,
         // projectID: row.projectID,
@@ -675,6 +758,7 @@ function VBT02Report({
         customDuty: 0,
         otherDuty: 0,
         freightAmount: 0,
+        venAmmount: +Number(row.value),
         // totalFreight: 0,
         // totalMisc: 0,
         freight: 0,
@@ -688,7 +772,8 @@ function VBT02Report({
       }));
       getGl();
       getCurrencies();
-
+      // console.log("arr-", arr);
+      setSingleArr(arr);
       ///
       // let newarr = arr.slice([130]);
       // console.log("newArr", newarr);
@@ -698,7 +783,7 @@ function VBT02Report({
       if (arr.length > 25) {
         setIsAnother(true);
         console.log("Arr", arr.length);
-        chunk = arr.length / 25;
+        chunk = arr.length / 15;
         chunk = Math.ceil(chunk);
         setTotalPage(chunk);
         console.log("chunk", chunk);
@@ -731,19 +816,24 @@ function VBT02Report({
       // if (arr[0]?.ven_code) {
       //   getLastPrice(arr[0]?.ven_code, partCodeArr);
       // }
+      // Vbt01.setFieldValue("mainArrs", arr);
+      // setmainArrs(arr);
+      setSingleArr(arr);
     } else {
       toast.error(data.message.msg);
       setEditingVBT(null);
     }
     // setLoading(false);
   };
+
+  // console.log("paginate", paginate);
   useEffect(() => {
     if (totalPage) {
       setTotalPage(totalPage);
     }
   }, [totalPage]);
 
-  console.log("totalPage", totalPage);
+  // console.log("totalPage", totalPage);
   function divideArray(arr, numSubarrays) {
     // Calculate the size of each subarray
     const subarraySize = Math.floor(arr.length / numSubarrays);
@@ -811,43 +901,47 @@ function VBT02Report({
   }, [editVbtDrawer]);
 
   useEffect(() => {
-    const values = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.taxableValue).toFixed(2),
+    const values = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.taxableValue).toFixed(2),
       0
     );
     const value = +Number(values).toFixed(2);
-    const freight = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.freightAmount).toFixed(2),
+    const freights = mainArrs?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.freightAmount),
       0
     );
-    const cgsts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.cgstAmount).toFixed(2),
+    const freight = +Number(freights).toFixed(2);
+    const cgsts = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.cgstAmount).toFixed(2),
       0
     );
     const cgst = +Number(cgsts).toFixed(2);
-    const sgsts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.sgstAmount).toFixed(2),
+    const sgsts = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.sgstAmount).toFixed(2),
       0
     );
     const sgst = +Number(sgsts).toFixed(2);
     // console.log("sgst", sgst);
-    const igsts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.igstAmount).toFixed(2),
+    const igsts = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.igstAmount).toFixed(2),
       0
     );
 
     const igst = +Number(igsts).toFixed(2);
-    // console.log("igst", igst);
-
+    // console.log("mainArrVenAm", mainArrVenAm);
+    // setmainArrs(mainArrs);
+    // console.log("mainArrs", mainArrs);
     let vendorAmounts;
-    vendorAmounts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
+    vendorAmounts = mainArrs?.reduce(
+      (partialSum, a) => partialSum + (a?.venAmmount || 0),
       0
     );
-    var vendorAmount = +Number(vendorAmounts).toFixed(2);
-    // console.log("vendorAmount", vendorAmount);
-    const tds = components?.reduce(
-      (a, b) => a + +Number(b.tdsAmount ?? 0).toFixed(2),
+    // console.log("vendorAmount", vendorAmounts);
+    var vendorAmount = vendorAmounts;
+    setMAVenAmValue(vendorAmount);
+
+    const tds = singleArr?.reduce(
+      (a, b) => a + +Number(b?.tdsAmount ?? 0).toFixed(2),
       0
     );
 
@@ -859,6 +953,9 @@ function VBT02Report({
       vendorAmounts -= +Number(roundOffValue).toFixed(2);
       vendorAmount = +Number(vendorAmounts).toFixed(2);
     }
+
+    // console.log("my single arr", singleArr);
+    // setmainArrs(singleArr);
 
     const arr = [
       {
@@ -893,9 +990,116 @@ function VBT02Report({
       },
     ];
     setTaxDetails(arr);
-  }, [components, roundOffSign, roundOffValue]);
-  useEffect(() => {}, [components]);
+  }, [
+    singleArr,
+    roundOffSign,
+    roundOffValue,
+    mainArrVenAm,
+    components,
+    // mainArrs,
+  ]);
+  // useEffect(() => {
+  //   if (singleArr) {
+  //     console.log("singleArr->", singleArr);
+  //     setmainArrs(singleArr);
+  //     // Vbt01.setFieldValue("mainArrs", singleArr);
+  //   }
+  // }, [singleArr]);
+
+  // useEffect(() => {
+  //   const values = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.taxableValue).toFixed(2),
+  //     0
+  //   );
+  //   const value = +Number(values).toFixed(2);
+  //   const freight = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.freightAmount).toFixed(2),
+  //     0
+  //   );
+  //   const cgsts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.cgstAmount).toFixed(2),
+  //     0
+  //   );
+  //   const cgst = +Number(cgsts).toFixed(2);
+  //   const sgsts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.sgstAmount).toFixed(2),
+  //     0
+  //   );
+  //   const sgst = +Number(sgsts).toFixed(2);
+  //   // console.log("sgst", sgst);
+  //   const igsts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.igstAmount).toFixed(2),
+  //     0
+  //   );
+
+  //   const igst = +Number(igsts).toFixed(2);
+  //   // console.log("igst", igst);
+
+  //   let vendorAmounts;
+  //   vendorAmounts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
+  //     0
+  //   );
+  //   var vendorAmount = +Number(vendorAmounts).toFixed(2);
+  //   // console.log("vendorAmount", vendorAmount);
+  //   const tds = components?.reduce(
+  //     (a, b) => a + +Number(b.tdsAmount ?? 0).toFixed(2),
+  //     0
+  //   );
+
+  //   if (roundOffSign === "+") {
+  //     vendorAmounts = vendorAmount + +Number(roundOffValue).toFixed(2);
+  //     vendorAmount = +Number(vendorAmounts).toFixed(2);
+  //   }
+  //   if (roundOffSign === "-") {
+  //     vendorAmounts -= +Number(roundOffValue).toFixed(2);
+  //     vendorAmount = +Number(vendorAmounts).toFixed(2);
+  //   }
+
+  //   const arr = [
+  //     {
+  //       title: "Value",
+  //       description: value,
+  //     },
+  //     {
+  //       title: "Freight",
+  //       description: freight,
+  //     },
+  //     {
+  //       title: "CGST",
+  //       description: cgst,
+  //     },
+  //     {
+  //       title: "SGST",
+  //       description: sgst,
+  //     },
+  //     {
+  //       title: "IGST",
+  //       description: igst,
+  //     },
+  //     { title: "TDS", description: tds },
+  //     {
+  //       title: "Round Off",
+  //       description:
+  //         roundOffSign.toString() + [Number(roundOffValue).toFixed(2)],
+  //     },
+  //     {
+  //       title: "Vendor Amount",
+  //       description: vendorAmount,
+  //     },
+  //   ];
+  //   setTaxDetails(arr);
+  // }, [components, roundOffSign, roundOffValue]);
+
   // console.log("editingVBt", vbtComponent);
+
+  // console.log("main updated", mainUpdated);
+  // console.log("mainsArr", mainArrs);
+
+  useEffect(() => {
+    // console.log("inside use effect", mainArrs);
+    // setMainUpdated((curr) => curr + 1);
+  }, [JSON.stringify(mainArrs)]);
   return (
     <Drawer
       bodyStyle={{ padding: 5 }}
@@ -1004,6 +1208,19 @@ function VBT02Report({
                           lastRateArr={lastRateArr}
                           paginate={paginate}
                           setPaginate={setPaginate}
+                          setSingleArr={setSingleArr}
+                          singleArr={singleArr}
+                          mainArrs={mainArrs}
+                          setmainArrs={setmainArrs}
+                          // updateSingleArr={updateSingleArr}
+                          setNewArrVenAm={setNewArrVenAm}
+                          mainArrVenAm={mainArrVenAm}
+                          setMAVenAmValue={setMAVenAmValue}
+                          mAVenAmValue={mAVenAmValue}
+                          setMAFreightValue={setMAFreightValue}
+                          mAfreightValue={mAfreightValue}
+                          headerCal={headerCal}
+                          setHeaderCal={setHeaderCal}
                         />
                       </Form.Item>
                     ))}
@@ -1019,7 +1236,6 @@ function VBT02Report({
           </Col>
         </Row>
       </Form>
-
       {current < totalPage ? (
         <NavFooter
           nextLabel="Next"
