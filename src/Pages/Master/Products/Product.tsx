@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
-import View from "./View";
+// import View from "./View";
+import View from "@/Pages/Master/Products/View";
 
 import ComponentImages from "./ComponentImages";
 import useApi from "../../../hooks/useApi";
