@@ -789,12 +789,12 @@ const links = [
 
       placeholder: "MIS Date Wise Report",
     },
-    // {
-    //   routeName: "R34",
-    //   routePath: "/r34",
+    {
+      routeName: "R34",
+      routePath: "/r34",
 
-    //   placeholder: "MIS DateRange Wise Report",
-    // },
+      placeholder: "FG Return Report(NG)",
+    },
   ],
   // MIN label links
 
@@ -1157,6 +1157,13 @@ const links = [
     {
       routeName: "Depreciation",
       routePath: "/assets/depreciation",
+    },
+  ],
+  // Production MIS links
+  [
+    {
+      routeName: "Production MIS",
+      routePath: "/production/prodMis",
     },
   ],
 ];

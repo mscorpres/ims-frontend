@@ -1,34 +1,54 @@
 import React, { useState } from "react";
 import { Card, Col, Form, Row, Space } from "antd";
-import SingleDatePicker from "../../../Components/SingleDatePicker";
-import { R34Type } from "../../../types/reports";
-import MyDataTable from "../../gstreco/myDataTable";
-import MyButton from "../../../Components/MyButton";
-import useApi from "../../../hooks/useApi";
-import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-import { getR34 } from "../../../api/reports/inventoryReport";
-import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../../Components/exportToCSV";
-import MyDatePicker from "../../../Components/MyDatePicker";
+import { R34Type } from "@/types/reports";
+import MyDataTable from "@/Components/MyDataTable";
+import MyButton from "@/Components/MyButton";
+
+import ToolTipEllipses from "@/Components/ToolTipEllipses";
+import { getR34 } from "@/api/reports/inventoryReport";
+import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
+import { downloadCSV } from "@/Components/exportToCSV";
+import MyDatePicker from "@/Components/MyDatePicker";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import Details from "@/Pages/Reports/R/R34/Details";
+import useApi from "@/hooks/useApi";
 
 function R34() {
   const [rows, setRows] = useState<R34Type[]>([]);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<R34Type | null>(null);
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const date = Form.useWatch("date", form);
 
-  console.log("selecegd date", date);
-
   const handleFetchRows = async () => {
     const values = await form.validateFields();
-
     const response = await executeFun(() => getR34(values.date), "fetch");
-
     setRows(response.data ?? []);
   };
 
+  const actionColumn = [
+    {
+      headerName: "",
+      type: "actions",
+      width: 30,
+      getActions: ({ row }: { row: R34Type }) => [
+        // Edit icon
+        <GridActionsCellItem
+          showInMenu
+          // disabled={disabled}
+          label={"Details"}
+          onClick={() => setSelectedTransaction(row)}
+        />,
+      ],
+    },
+  ];
   return (
     <Row style={{ height: "95%", padding: 10 }} gutter={6}>
+      <Details
+        selectedTransaction={selectedTransaction}
+        setSelectedTransaction={setSelectedTransaction}
+      />
       <Col span={4}>
         <Card size="small">
           <Form form={form} layout="vertical">
@@ -62,7 +82,7 @@ function R34() {
         </Card>
       </Col>
       <Col span={20}>
-        <MyDataTable columns={columns} data={rows} />
+        <MyDataTable columns={[...actionColumn, ...columns]} data={rows} />
       </Col>
     </Row>
   );
@@ -78,10 +98,10 @@ const columns = [
   },
 
   {
-    headerName: " Department",
-    field: "department",
+    headerName: "Transaction Id",
+    field: "transactionId",
     renderCell: ({ row }: { row: R34Type }) => (
-      <ToolTipEllipses text={row.department} />
+      <ToolTipEllipses text={row.transactionId} />
     ),
     width: 150,
   },
@@ -104,43 +124,21 @@ const columns = [
     flex: 1,
   },
   {
-    headerName: "UoM",
-    field: "uom",
-    width: 70,
+    headerName: "Rtn. Date",
+    field: "insertedDate",
+    renderCell: ({ row }: { row: R34Type }) => (
+      <ToolTipEllipses text={row.insertedDate} />
+    ),
+    minWidth: 150,
+    flex: 1,
   },
   {
-    headerName: " Manpower",
-    field: "manPower",
-    width: 110,
+    headerName: "Rtn. By",
+    field: "insertedBy",
+    renderCell: ({ row }: { row: R34Type }) => (
+      <ToolTipEllipses text={row.insertedBy} />
+    ),
+    minWidth: 150,
+    flex: 1,
   },
-
-  {
-    headerName: "No Of Lines",
-    field: "lineCount",
-    width: 110,
-  },
-  {
-    headerName: "Output",
-    field: "output",
-    width: 110,
-  },
-
-  {
-    headerName: "Over Time",
-    field: "overTime",
-    width: 140,
-  },
-  {
-    headerName: " Working Hours",
-    field: "workHours",
-    width: 150,
-  },
-  // {
-  //   headerName: "Remarks.",
-  //   field: "remarks",
-  //   renderCell: ({ row }: { row: R34Type }) => (
-  //     <ToolTipEllipses text={row.remarks} />
-  //   ),
-  //   width: 220,
-  // },
 ];
