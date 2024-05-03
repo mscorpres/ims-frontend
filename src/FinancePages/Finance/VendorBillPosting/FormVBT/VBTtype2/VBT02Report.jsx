@@ -202,6 +202,7 @@ function VBT02Report({
         ven_address: values.venAddress,
         ven_amounts: modifiedArray,
         ven_code: values.components[0]?.ven_code,
+        acknowledgeIRN: values.ackNum,
         // vbt_gstin: values.components[0]?.gstin_option[0],
         // poNumber: values.components.map((component) => component.poNumber),
         // projectID: values.components.map((component) => component.projectID),
@@ -354,6 +355,7 @@ function VBT02Report({
         cifValue: values.components.map((component) => component.cifValue),
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
+        acknowledgeIRN: values.ackNum,
         customAssValue: values.components.map(
           (component) => component.customAssVal
         ),

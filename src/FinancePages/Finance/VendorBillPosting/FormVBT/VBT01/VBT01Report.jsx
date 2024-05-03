@@ -456,6 +456,7 @@ function VBT01Report({
         ),
         vbp_gst_rate: values.components.map((component) => component.gstRate),
         vbt_gstin: values.gst,
+        acknowledgeIRN: values.ackNum,
         ven_address: values.venAddress,
         // ven_amounts: values.components.map((component) => component.venAmmount),
         ven_amounts: modifiedArray,
@@ -464,6 +465,7 @@ function VBT01Report({
         cifValue: values.components.map((component) => component.cifValue),
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
+
         // vbt_gstin: values.components[0]?.gstin_option[0],
         // poNumber: values.components.map((component) => component.poNumber),
         // projectID: values.components.map((component) => component.projectID),
@@ -596,6 +598,7 @@ function VBT01Report({
         cifValue: values.components.map((component) => component.cifValue),
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
+        acknowledgeIRN: values.ackNum,
       };
 
       console.log("this is the finalData", finalObj);

@@ -34,6 +34,7 @@ function VBTHeaders({
   //   (partialSum, a) => partialSum + +Number(a.totalBilAmm).toFixed(2),
   //   0
   // );
+
   const [pageHeaders, setPageHeaders] = useState("");
   useEffect(() => {
     let obj = {};
@@ -61,6 +62,7 @@ function VBTHeaders({
               : apiUrl === "vbt02"
               ? `Being Service charges due to INV no. ${pageHeaders?.invoice_id} date of amount TDS:___ `
               : "",
+          ackNum: pageHeaders?.acknowledgeIRN,
           // billAmmount: billam,
           // venAmmount: pageHeaders?.reduce(
           //   (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(3),
@@ -78,6 +80,7 @@ function VBTHeaders({
         gst: editVBTCode[0]?.gst,
         effectiveDate: editVBTCode[0]?.effectiveDate,
         billAmmount: editVBTCode[0]?.billAmount,
+        ackNum: editVBTCode[0]?.acknowledgeIRN,
         // billAmmount: billam,
         // billAmmount: editVBTCode?.reduce(
         //   (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(3),
@@ -218,6 +221,14 @@ function VBTHeaders({
                   onChange={(e) => setRoundOffValue(e.target.value)}
                 />
               </div>
+            </Col>
+            <Col span={24}>
+              <Form.Item label="Acknowledgement Number" name="ackNum">
+                <Input
+                // value={roundOffValue}
+                // onChange={(e) => setRoundOffValue(e.target.value)}
+                />
+              </Form.Item>
             </Col>
 
             <Col span={24}>

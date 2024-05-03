@@ -75,6 +75,7 @@ function VBTHeaders({
           // comment: pageHeaders?.comment,
           gst: "999999999999999",
           venCode: pageHeaders?.ven_code,
+          ackNum: pageHeaders?.acknowledgeIRN,
           // comment:
           //   apiUrl === "vbt06"
           //     ? `Being Jobwork charges due of challan no:____on inv: ${pageHeaders?.invoice_id} dt:____of amount:____TDS:___ payable amt:____`
@@ -110,6 +111,7 @@ function VBTHeaders({
         mawbNo: addressDetails?.mawb_no,
         portCode: addressDetails?.port_code,
         portName: addressDetails?.port_name,
+        ackNum: editVBTCode[0]?.acknowledgeIRN,
         // billAmmount: billam,
         // billAmmount: editVBTCode?.reduce(
         //   (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(3),
@@ -229,6 +231,14 @@ function VBTHeaders({
             <Col span={12}>
               <Form.Item label="GSTIN Number" name="gst">
                 <Input />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item label="Acknowledgement Number" name="ackNum">
+                <Input
+                // value={roundOffValue}
+                // onChange={(e) => setRoundOffValue(e.target.value)}
+                />
               </Form.Item>
             </Col>
 
