@@ -9,20 +9,20 @@ import AddPhoto from "@/Pages/Master/Products/AddPhoto";
 import useApi from "@/hooks/useApi";
 import { getUOMList } from "@/api/master/uom";
 import { ResponseType } from "@/types/general";
-
 import { getProductsList } from "@/api/master/products";
 
 import ComponentImages from "./ComponentImages";
+import { ProductType } from "@/types/master";
 
 const Product = () => {
   const [productType, setProductType] = useState<"fg" | "sfg">();
-  const [formLoading, setFormLoading] = useState(false);
-  const [tableLoading, setTableLoading] = useState(false);
   const [uomOptions, setUomOptions] = useState([]);
-  const [rows, setRows] = useState([]);
-  const [editingProduct, setEditingProduct] = useState(false);
-  const [updatingImage, setUpdatingImage] = useState(false);
-  const [showImages, setShowImages] = useState(false);
+  const [rows, setRows] = useState<ProductType[]>([]);
+  const [editingProduct, setEditingProduct] = useState<boolean | string>(false);
+  const [updatingImage, setUpdatingImage] = useState<ProductType | false>(
+    false
+  );
+  const [showImages, setShowImages] = useState<ProductType | false>(false);
   const { executeFun, loading } = useApi();
 
   const { pathname } = useLocation();

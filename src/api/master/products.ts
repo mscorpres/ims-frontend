@@ -1,6 +1,6 @@
-import { imsAxios } from "../../axiosInterceptor";
+import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType } from "../../types/general";
-import { ProductType } from "../../types/master";
+import { ProductImageType, ProductType } from "@/types/master";
 
 interface GetProductList {
   p_name: string;
@@ -240,6 +240,48 @@ export const uploadImage = async (values, key: string) => {
     "/products/upload_product_img",
     formData
   );
+
+  return response;
+};
+
+interface GetImageType {
+  image_id: string;
+  image_name: string;
+  image_url: string;
+  uploaded_by: string;
+  uploaded_date: string;
+}
+export const getImages = async (key: string) => {
+  const response: ResponseType = await imsAxios.post(
+    "/products/fetchImageProduct",
+    {
+      product: key,
+    }
+  );
+
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map(
+      (row: GetImageType, index: number): ProductImageType => ({
+        id: row.image_id,
+        index: index + 1,
+        name: row.image_name,
+        url: row.image_url,
+        uploadedBy: row.uploaded_by,
+        updatedDate: row.uploaded_date,
+      })
+    );
+  }
+
+  response.data = arr;
+  return response;
+};
+
+export const deleteImage = async (key: string, image: string) => {
+  const response = await imsAxios.post("/products/ProductDelete", {
+    product: key,
+    image,
+  });
 
   return response;
 };
