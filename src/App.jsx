@@ -44,7 +44,7 @@ import {
 import InternalNav from "./Components/InternalNav";
 import { imsAxios } from "./axiosInterceptor";
 import MyAsyncSelect from "./Components/MyAsyncSelect";
-import internalLinks from "./Pages/internalLinks";
+import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 
 import { items, items1 } from "./utils/sidebarRoutes.jsx";

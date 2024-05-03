@@ -437,6 +437,14 @@ const links = [
     },
     { routeName: "VIEW FG OUT", routePath: "/view-fgOut" },
   ],
+  [
+    {
+      routeName: "Create FG Return",
+      routePath: "/createFgReturn",
+    },
+    { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
+    { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
+  ],
   // RM to RM transfer links
   [
     { routeName: "RM To RM", routePath: "/rm-to-rm" },
@@ -775,19 +783,18 @@ const links = [
 
       placeholder: "Cost Center Transaction Report",
     },
-
     {
       routeName: "R33",
       routePath: "/r33",
 
       placeholder: "MIS Date Wise Report",
     },
-    {
-      routeName: "R34",
-      routePath: "/r34",
+    // {
+    //   routeName: "R34",
+    //   routePath: "/r34",
 
-      placeholder: "MIS DateRange Wise Report",
-    },
+    //   placeholder: "MIS DateRange Wise Report",
+    // },
   ],
   // MIN label links
 
@@ -1000,7 +1007,7 @@ const links = [
       routePath: "/tally/vouchers/reference/tdsReport",
     },
     {
-      routeName: "GSTR1",
+      routeName: "GSTR Reports",
       routePath: "/tally/vouchers/reference/gst/gstReport1",
     },
     {
@@ -1093,11 +1100,11 @@ const links = [
       routePath: "/viewsummary",
     },
     {
-      routeName: "view book Data",
+      routeName: "View Book Data",
       routePath: "/viewbookdata",
     },
     {
-      routeName: "view GST Data",
+      routeName: "View GST Data",
       routePath: "/viewgstdata",
     },
   ],
@@ -1124,14 +1131,14 @@ const links = [
     },
   ],
   [
-    // {
-    //   routeName: "All Pages",
-    //   routePath: "/controlPanel/allPages",
-    // },
-    // {
-    //   routeName: "All Users",
-    //   routePath: "/controlPanel/allUsers",
-    // },
+    {
+      routeName: "All Pages",
+      routePath: "/controlPanel/allPages",
+    },
+    {
+      routeName: "All Users",
+      routePath: "/controlPanel/allUsers",
+    },
     ///
     {
       routeName: "Registered Users",
@@ -1140,8 +1147,16 @@ const links = [
   ],
   [
     {
-      routeName: "GSTR1",
-      routePath: "/tally/vouchers/reference/gst/gstReport1",
+      routeName: "Create Asset",
+      routePath: "/assets/create",
+    },
+    {
+      routeName: "View Asset",
+      routePath: "/assets/view",
+    },
+    {
+      routeName: "Depreciation",
+      routePath: "/assets/depreciation",
     },
   ],
 ];
