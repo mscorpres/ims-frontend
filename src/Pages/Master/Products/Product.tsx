@@ -4,15 +4,15 @@ import { useLocation } from "react-router-dom";
 // import View from "./View";
 import View from "@/Pages/Master/Products/View";
 import Add from "@/Pages/Master/Products/Add";
+import Edit from "@/Pages/Master/Products/Edit";
+import AddPhoto from "@/Pages/Master/Products/AddPhoto";
+import useApi from "@/hooks/useApi";
+import { getUOMList } from "@/api/master/uom";
+import { ResponseType } from "@/types/general";
+
+import { getProductsList } from "@/api/master/products";
 
 import ComponentImages from "./ComponentImages";
-import useApi from "../../../hooks/useApi";
-import { getUOMList } from "../../../api/master/uom";
-import { getProductsList } from "../../../api/master/products";
-import { ResponseType } from "../../../types/general";
-
-import Edit from "./Edit";
-import AddPhoto from "./AddPhoto";
 
 const Product = () => {
   const [productType, setProductType] = useState<"fg" | "sfg">();
