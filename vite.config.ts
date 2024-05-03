@@ -16,8 +16,9 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    fs: {
-      cachedChecks: false,
-    },
+    host: true,
+    // fs: {
+    //   cachedChecks: false,
+    // },
   },
 });
