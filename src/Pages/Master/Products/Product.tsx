@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
 import View from "@/pages/Master/Products/View.tsx";
-import Edit from "@/pages/Master/Products/Edit";
+import Edit from "@/pages/Master/Products/Edit.tsx";
 
-import Add from "@/pages/Master/Products/Add";
-import AddPhoto from "@/pages/Master/Products/AddPhoto";
-import ComponentImages from "@/pages/Master/Products/ComponentImages";
+import Add from "@/pages/Master/Products/Add.tsx";
+import AddPhoto from "@/pages/Master/Products/AddPhoto.tsx";
+import ComponentImages from "@/pages/Master/Products/ComponentImages.tsx";
 import useApi from "@/hooks/useApi";
 import { getUOMList } from "@/api/master/uom";
 import { getProductsList } from "@/api/master/products";
