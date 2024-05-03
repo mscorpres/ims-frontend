@@ -20,8 +20,8 @@ import EditDCComponents from "./EditDCComponents";
 import Loading from "../../../../Components/Loading";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
-import { convertSelectOptions } from "../../../../utils/general";
-import { getVendorOptions } from "../../../../api/general";
+import { convertSelectOptions } from "../../../../utils/general.ts";
+import { getVendorOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
 export default function EditDC({ updatedDCId, setUpdateDCId }) {

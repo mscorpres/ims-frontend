@@ -13,7 +13,7 @@ import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import ExecutePPR from "./ExecutePPR";
 import { toast } from "react-toastify";
 import useApi from "../../../../hooks/useApi";
-import { getProductsOptions } from "../../../../api/general";
+import { getProductsOptions } from "../../../../api/general.ts";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { getPendingReturns } from "../../../../api/store/fgReturn";
 

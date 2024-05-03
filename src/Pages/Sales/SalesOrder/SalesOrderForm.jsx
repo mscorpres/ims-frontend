@@ -29,7 +29,7 @@ import {
   getClientBranches,
   getClientsOptions,
 } from "../../../api/finance/clients";
-import { convertSelectOptions, getInt } from "../../../utils/general";
+import { convertSelectOptions, getInt } from "../../../utils/general.ts";
 import {
   getBillingAddressDetails,
   getBillingAddressOptions,
@@ -38,7 +38,7 @@ import {
   getProjectOptions,
   getUsersOptions,
   getVendorBranchOptions,
-} from "../../../api/general";
+} from "../../../api/general.ts";
 import {
   createOrder,
   getOrderDetails,

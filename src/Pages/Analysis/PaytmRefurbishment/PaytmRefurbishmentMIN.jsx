@@ -18,9 +18,9 @@ import NavFooter from "../../../Components/NavFooter";
 import SubmitConfirmModal from "./SubmitConfirmModal";
 import errorToast from "../../../Components/errorToast";
 import ResetConfirmModal from "./ResetConfirmModal copy";
-import { getProductsOptions, getVendorOptions } from "../../../api/general";
+import { getProductsOptions, getVendorOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../utils/general";
+import { convertSelectOptions } from "../../../utils/general.ts";
 
 function PaytmRefurbishmentMIN() {
   const [asyncOptions, setAsyncOptions] = useState([]);

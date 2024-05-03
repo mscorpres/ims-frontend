@@ -14,8 +14,8 @@ import { v4 } from "uuid";
 import Loading from "../../../Components/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import socket from "../../../Components/socket";
-import { getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 function VBTRecords() {
   const [wise, setWise] = useState("datewise");

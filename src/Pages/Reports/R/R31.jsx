@@ -23,9 +23,9 @@ import SummaryCard from "../../../Components/SummaryCard";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
-import { getVendorOptions } from "../../../api/general";
+import { getVendorOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../utils/general";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 function R31() {

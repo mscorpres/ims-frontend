@@ -13,7 +13,7 @@ import {
 } from "antd";
 import MySelect from "../../../Components/MySelect";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { SearchOutlined } from "@ant-design/icons";
@@ -22,7 +22,7 @@ import MyDataTable from "../../../Components/MyDataTable";
 import { getLogs, getVerifiedStocks } from "../../../api/store/physical-stock";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { convertSelectOptions } from "../../../utils/general";
+import { convertSelectOptions } from "../../../utils/general.ts";
 
 function ViewPhysical() {
   const [asyncOptions, setAsyncOptions] = useState([]);

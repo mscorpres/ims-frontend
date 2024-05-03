@@ -8,7 +8,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import useApi from "../../../hooks/useApi.ts";
-import { getVendorOptions } from "../../../api/general";
+import { getVendorOptions } from "../../../api/general.ts";
 function RegisteredUser() {
   const [user] = Form.useForm();
   const [searchInput, setSearchInput] = useState("");

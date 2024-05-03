@@ -1,7 +1,7 @@
 import { Button, Col, DatePicker, Row, Space } from "antd";
 import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { getClosingStockForQuery6 } from "../../../api/general";
+import { getClosingStockForQuery6 } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";

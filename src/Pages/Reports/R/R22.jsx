@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import MyDataTable from "../../../Components/MyDataTable";
-import { getProductsOptions } from "../../../api/general";
+import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 function R22() {

@@ -18,8 +18,11 @@ import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { CloseOutlined, CheckOutlined, EyeOutlined } from "@ant-design/icons";
 import PoApprovalModel from "./PoApprovalModel";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { getProjectOptions, getVendorOptions } from "../../../../api/general";
-import { convertSelectOptions } from "../../../../utils/general";
+import {
+  getProjectOptions,
+  getVendorOptions,
+} from "../../../../api/general.ts";
+import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
 

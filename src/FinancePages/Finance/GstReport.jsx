@@ -3,7 +3,7 @@ import { Row, Col, Card, Form, Typography } from "antd";
 import MySelect from "../../Components/MySelect";
 import SingleDatePicker from "../../Components/SingleDatePicker";
 import MyButton from "../../Components/MyButton";
-import { convertDate } from "../../utils/general";
+import { convertDate } from "../../utils/general.ts";
 import dayjs from "dayjs";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
 import { downloadGSTReport } from "../../socketEvents/finance";

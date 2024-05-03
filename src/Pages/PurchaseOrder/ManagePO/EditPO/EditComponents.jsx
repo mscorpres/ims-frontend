@@ -30,7 +30,7 @@ import {
 import FormTable from "../../../../Components/FormTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
-import { getComponentOptions } from "../../../../api/general";
+import { getComponentOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 export default function EditComponent({
   rowCount,

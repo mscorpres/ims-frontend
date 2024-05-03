@@ -20,7 +20,7 @@ import Exceljs from "exceljs";
 import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 const PartCodeConversionReport = () => {

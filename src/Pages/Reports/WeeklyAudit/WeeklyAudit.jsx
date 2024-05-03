@@ -24,7 +24,7 @@ import { v4 } from "uuid";
 import socket from "../../../Components/socket";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import MyButton from "../../../Components/MyButton";
 const WeeklyAudit = () => {
   const [rows, setRows] = useState([]);

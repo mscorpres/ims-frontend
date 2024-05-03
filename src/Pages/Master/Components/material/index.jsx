@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Divider,
   Flex,
@@ -28,8 +29,8 @@ import { Link } from "react-router-dom";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import useApi from "../../../../hooks/useApi.ts";
-import { downloadComponentMaster } from "../../../../api/master/component";
-import { getUOMList } from "../../../../api/master/uom.ts";
+import { downloadComponentMaster } from "../../../../api/master/component.ts";
+import { downloadFromLink } from "../../../../Components/printFunction";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
@@ -49,7 +50,7 @@ const Material = () => {
   const [typeOfComp, setTypeOfComp] = useState("");
   const [valFromName, setValForName] = useState("");
   const { executeFun, loading: loading1 } = useApi();
-
+  const [isEnabled, setIsEnabled] = useState(false);
   const [hsnForm] = Form.useForm();
   const [headerForm] = Form.useForm();
   const [attributeForm] = Form.useForm();
@@ -127,28 +128,26 @@ const Material = () => {
   };
 
   const getUomOptions = async () => {
-    const response = await executeFun(() => getUOMList(), "fetcj");
-    setUomOptions(response.data);
-    // try {
-    //   setLoading("fetch");
-    //   const response = await imsAxios.post("uom/uomSelect2");
-    //   const { data } = response;
-    //   if (data) {
-    //     if (data.code === 200) {
-    //       const arr = data.data.map((row) => ({
-    //         text: row.text,
-    //         value: row.id,
-    //       }));
+    try {
+      setLoading("fetch");
+      const response = await imsAxios.post("uom/uomSelect2");
+      const { data } = response;
+      if (data) {
+        if (data.code === 200) {
+          const arr = data.data.map((row) => ({
+            text: row.text,
+            value: row.id,
+          }));
 
-    //       setUomOptions(arr);
-    //     } else {
-    //       toast.error(data.message.msg);
-    //     }
-    //   }
-    // } catch (error) {
-    // } finally {
-    //   setLoading(false);
-    // }
+          setUomOptions(arr);
+        } else {
+          toast.error(data.message.msg);
+        }
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getHsnOptions = async (search) => {
@@ -230,6 +229,7 @@ const Material = () => {
         attr_raw: atrrRes,
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     } else if (selectedCategory?.label === "Capacitor") {
       payload = {
@@ -250,6 +250,7 @@ const Material = () => {
         attr_raw: atrrCAP,
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     } else if (selectedCategory?.label === "Inductor") {
       payload = {
@@ -270,6 +271,7 @@ const Material = () => {
         attr_raw: "",
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     } else {
       payload = {
@@ -290,9 +292,9 @@ const Material = () => {
         attr_raw: "",
         //manufacturing code
         manufacturing_code: manfCode,
+        pia_status: isEnabled == true ? "Y" : "N",
       };
     }
-    // console.log("payload", payload);
     // return;
 
     const response = await imsAxios.post(
@@ -572,6 +574,22 @@ const Material = () => {
                         </Row>
                       </Col>
                     )}
+                    <Col span={24}>
+                      <Form.Item name="piaEnable">
+                        <Checkbox
+                          checked={isEnabled}
+                          onChange={(e) => setIsEnabled(e.target.checked)}
+                        />
+                        <Typography.Text
+                          style={{
+                            fontSize: "10px",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          Enable PIA
+                        </Typography.Text>
+                      </Form.Item>
+                    </Col>
                     <Col span={24}>
                       <Form.Item
                         label="Description"
@@ -1031,8 +1049,8 @@ const CategoryModal = ({
       let siUnit = values.current_SI_Unit.label.split(" ")[0];
       let siVal = values.current_SI_UnitText;
       let fqVal = values.frequencyText;
-      // console.log("siUnit", siUnit);
-      // console.log("siVal", siVal);
+      console.log("siUnit", siUnit);
+      console.log("siVal", siVal);
       let compName =
         values.mounting_style.label +
         "-" +

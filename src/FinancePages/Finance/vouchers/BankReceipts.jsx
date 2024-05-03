@@ -16,7 +16,7 @@ import axiosResponseFunction from "../../../Components/axiosResponseFun";
 import Loading from "../../../Components/Loading";
 import dayjs from "dayjs";
 import useApi from "../../../hooks/useApi.ts";
-import { getProjectOptions } from "../../../api/general";
+import { getProjectOptions } from "../../../api/general.ts";
 
 export default function BankReceits() {
   const [bankPaymentRows, setBankPaymentRows] = useState([

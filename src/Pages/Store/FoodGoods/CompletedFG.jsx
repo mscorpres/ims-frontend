@@ -9,7 +9,7 @@ import MyDatePicker from "../../../Components/MyDatePicker";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi.ts";
-import { getProductsOptions } from "../../../api/general";
+import { getProductsOptions } from "../../../api/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 const CompletedFG = () => {

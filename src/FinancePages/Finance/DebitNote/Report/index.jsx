@@ -18,8 +18,8 @@ import printFunction, {
 } from "../../../../Components/printFunction";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../../utils/general";
-import { getVendorOptions } from "../../../../api/general";
+import { convertSelectOptions } from "../../../../utils/general.ts";
+import { getVendorOptions } from "../../../../api/general.ts";
 import MyButton from "../../../../Components/MyButton";
 
 function DebitNoteReport() {

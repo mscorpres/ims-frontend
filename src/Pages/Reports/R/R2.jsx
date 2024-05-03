@@ -11,7 +11,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import useApi from "../../../hooks/useApi.ts";
-import { getProjectOptions } from "../../../api/general";
+import { getProjectOptions } from "../../../api/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 const R2 = () => {

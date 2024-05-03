@@ -39,8 +39,8 @@ import printFunction, {
 } from "../../../Components/printFunction";
 import NavFooter from "../../../Components/NavFooter";
 import useApi from "../../../hooks/useApi.ts";
-import { getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 
 function ViewRnC() {
   const [searchLoading, setSearchLoading] = useState(false);

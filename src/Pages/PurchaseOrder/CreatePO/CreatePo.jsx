@@ -30,8 +30,8 @@ import {
   getCostCentresOptions,
   getProjectOptions,
   getVendorOptions,
-} from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+} from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 
 export default function CreatePo() {
   const [totalValues, setTotalValues] = useState([]);

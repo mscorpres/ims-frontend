@@ -18,7 +18,7 @@ import { CommonIcons } from "../../../../../Components/TableActions.jsx/TableAct
 import { toast } from "react-toastify";
 import MySelect from "../../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
-import { convertSelectOptions } from "../../../../../utils/general";
+import { convertSelectOptions } from "../../../../../utils/general.ts";
 import { getClientsOptions } from "../../../../../api/finance/clients";
 import MyButton from "../../../../../Components/MyButton";
 

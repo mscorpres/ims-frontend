@@ -20,8 +20,8 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
 
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions, getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 function CompletedQC() {
   const [wise, setWise] = useState("datewise");

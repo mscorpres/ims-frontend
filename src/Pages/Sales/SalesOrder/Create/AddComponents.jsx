@@ -28,8 +28,8 @@ import useApi from "../../../../hooks/useApi.ts";
 import {
   getComponentOptions,
   getProductsOptions,
-} from "../../../../api/general";
-import { convertSelectOptions } from "../../../../utils/general";
+} from "../../../../api/general.ts";
+import { convertSelectOptions } from "../../../../utils/general.ts";
 export default function AddComponents({
   rowCount,
   setRowCount,

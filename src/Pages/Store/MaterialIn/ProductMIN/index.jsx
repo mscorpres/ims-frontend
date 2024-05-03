@@ -50,8 +50,8 @@ import {
   getCostCentresOptions,
   getProjectOptions,
   getVendorOptions,
-} from "../../../../api/general";
-import { convertSelectOptions } from "../../../../utils/general";
+} from "../../../../api/general.ts";
+import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
 export default function ProductMIN() {

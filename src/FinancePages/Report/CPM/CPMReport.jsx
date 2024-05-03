@@ -8,7 +8,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import useApi from "../../../hooks/useApi.ts";
-import { getProjectOptions } from "../../../api/general";
+import { getProjectOptions } from "../../../api/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 export default function CPMReport() {

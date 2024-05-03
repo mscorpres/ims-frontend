@@ -12,8 +12,8 @@ import { imsAxios } from "../../../axiosInterceptor";
 import FormTable from "../../../Components/FormTable";
 import Loading from "../../../Components/Loading";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions, getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 function SampleQC() {
   const [wise, setWise] = useState("datewise");

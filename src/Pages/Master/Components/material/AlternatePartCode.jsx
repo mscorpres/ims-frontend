@@ -3,13 +3,13 @@ import useApi from "../../../../hooks/useApi.ts";
 import {
   getComponentOptions,
   updateAlternatePartCode,
-} from "../../../../api/general";
+} from "../../../../api/general.ts";
 import { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
-import { getAlternativePartCodes } from "../../../../api/master/component";
+import { getAlternativePartCodes } from "../../../../api/master/component.ts";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { toast } from "react-toastify";
 import { CheckOutlined } from "@ant-design/icons";

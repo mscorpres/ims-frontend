@@ -31,8 +31,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import useApi from "../../hooks/useApi.ts";
-import { getVendorOptions } from "../../api/general";
-import { convertSelectOptions } from "../../utils/general";
+import { getVendorOptions } from "../../api/general.ts";
+import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
 
 const POAnalysis = () => {

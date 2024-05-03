@@ -25,8 +25,8 @@ import CreateDebitNote from "../DebitNote/Create";
 import VBT01Report from "./FormVBT/VBT01/VBT01Report";
 import VBT02Report from "./FormVBT/VBTtype2/VBT02Report";
 import useApi from "../../../hooks/useApi.ts";
-import { getVendorOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getVendorOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 export default function VBTReport() {

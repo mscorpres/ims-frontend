@@ -36,9 +36,9 @@ import {
   getComponentDetail,
   getComponentOptions,
   getProductsOptions,
-} from "../../../../api/general";
+} from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../../utils/general";
+import { convertSelectOptions } from "../../../../utils/general.ts";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const CreateScrapeChallan = () => {

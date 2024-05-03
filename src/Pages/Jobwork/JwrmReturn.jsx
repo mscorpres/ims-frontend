@@ -9,8 +9,8 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import JwReturnModel from "./Modal/JwReturnModel";
 import { imsAxios } from "../../axiosInterceptor";
 import useLoading from "../../hooks/useLoading";
-import { getVendorOptions } from "../../api/general";
-import { convertSelectOptions } from "../../utils/general";
+import { getVendorOptions } from "../../api/general.ts";
+import { convertSelectOptions } from "../../utils/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 

@@ -11,7 +11,7 @@ export { default as ShippingAddress } from "./Master/ShippingAddress/ShippingAdd
 export { default as CreateBom } from "./Master/Bom/CreateBom";
 export { default as ManageBom } from "./Master/Bom/Manage";
 export { default as DisabledBom } from "./Master/Bom/Disabled";
-export { default as HsnMap } from "./Master/HSNMap/HsnMap";
+export { default as HsnMap } from "./Master/HSNMap/HsnMap.tsx";
 export { default as DocNumbering } from "./Master/DocNumbering";
 export { default as Vendor } from "./Master/Vendor/Vendor";
 export { default as CPMMaster } from "./Master/projects/CPMMaster";

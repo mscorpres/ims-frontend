@@ -13,7 +13,7 @@ import { Button, Input, Row, Space } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
 import useApi from "../../../../hooks/useApi.ts";
-import { getVendorOptions } from "../../../../api/general";
+import { getVendorOptions } from "../../../../api/general.ts";
 
 export default function VBT4() {
   const [wise, setWise] = useState("min_wise");

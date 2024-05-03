@@ -11,9 +11,9 @@ import MyDatePicker from "../../../Components/MyDatePicker";
 import MySelect from "../../../Components/MySelect";
 import SummaryCard from "../../../Components/SummaryCard";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { getComponentOptions, getVendorOptions } from "../../../api/general";
+import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../utils/general";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 function R17() {
   const [asyncOptions, setAsyncOptions] = useState([]);

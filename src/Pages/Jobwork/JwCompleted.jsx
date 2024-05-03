@@ -13,8 +13,8 @@ import printFunction, {
 } from "../../Components/printFunction";
 import TableActions from "../../Components/TableActions.jsx/TableActions";
 import ViewModal from "./Modal/ViewModal";
-import { getVendorOptions } from "../../api/general";
-import { convertSelectOptions } from "../../utils/general";
+import { getVendorOptions } from "../../api/general.ts";
+import { convertSelectOptions } from "../../utils/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 

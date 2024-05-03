@@ -18,7 +18,7 @@ import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import VerifiedFilePreview from "./VerifiedFilePreview";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
-import { getComponentOptions } from "../../../../api/general";
+import { getComponentOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
 function R19Master() {

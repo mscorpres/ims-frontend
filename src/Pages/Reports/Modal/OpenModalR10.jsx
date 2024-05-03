@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import waiting from "../../../animation/waiting.json";
 import makeAnimated from "react-select/animated";
 import Loading from "../../../Components/Loading";
-import { getComponentOptions } from "../../../api/general";
+import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 // import MultiSelect from "react-multiple-select-dropdown-lite";
 // import "react-multiple-select-dropdown-lite/dist/index.css";

@@ -11,7 +11,7 @@ import { v4 } from "uuid";
 import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { imsAxios } from "../../../../axiosInterceptor";
-import { getComponentOptions } from "../../../../api/general";
+import { getComponentOptions } from "../../../../api/general.ts";
 
 import useApi from "../../../../hooks/useApi.ts";
 

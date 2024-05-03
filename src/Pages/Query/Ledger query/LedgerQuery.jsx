@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Row, Col, Divider, Flex, Form, Card, Typography } from "antd";
 import useApi from "../../../hooks/useApi.ts";
-import { getComponentOptions } from "../../../api/general";
-import { convertSelectOptions } from "../../../utils/general";
+import { getComponentOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyButton from "../../../Components/MyButton";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
