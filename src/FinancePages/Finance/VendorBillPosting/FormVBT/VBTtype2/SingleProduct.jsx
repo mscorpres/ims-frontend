@@ -202,7 +202,6 @@ export default function SingleComponent({
   // };
   // console.log("single product", singleArr);
 
-
   useEffect(() => {
     let updatedTdsPercentage = 0;
 
@@ -408,9 +407,10 @@ export default function SingleComponent({
     // console.log("here");
     if (isCreate || totalFreight) {
       if (allRowFreight || totalFreight) {
+
         let freight =
           (totalFreight * Number(totalVenAm)) /
-          +Number(mAVenAmValue).toFixed(2);
+          +Number(totalbillAmmount).toFixed(2);
         freight = +Number(freight).toFixed(2);
         // console.log("freight", freight);
         form.setFieldValue(
@@ -442,6 +442,7 @@ export default function SingleComponent({
     totalVenAm,
     totalbillAmmount,
     allRowFreight,
+    mAVenAmValue,
   ]);
   // useEffect(() => {
   //   let a = form.getFieldValue(["components", field.name, "freightAmount"]);
