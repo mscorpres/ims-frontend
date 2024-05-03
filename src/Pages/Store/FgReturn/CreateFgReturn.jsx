@@ -84,7 +84,7 @@ function CreateFgReturn() {
       bom_id: values.bom?.key,
       qty_return: values.qty,
       location_in: values.location,
-      fg_status: values.status == "okay" ? "OK" : "NOT_OK",
+      fg_status: values.status,
       remark: values.remarks,
     };
 
