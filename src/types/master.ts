@@ -51,3 +51,12 @@ export interface ProductType {
   productCategory?: string; // "--"
   category?: "goods" | "services";
 }
+
+export interface ProductImageType {
+  id: string;
+  index?: number;
+  name: string;
+  url: string;
+  uploadedBy: string;
+  updatedDate: string;
+}

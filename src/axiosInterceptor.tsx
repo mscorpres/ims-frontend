@@ -24,12 +24,13 @@ imsAxios.interceptors.response.use(
       if (error?.response.data.success !== undefined) {
         console.log("this is the error response", error);
         toast.error(error.response.data.message);
-      } else {
-        toast.error(
-          error.response.data?.message?.msg ??
-            "Error while connecting to backend."
-        );
       }
+      //  else {
+      //   toast.error(
+      //     error.response.data?.message?.msg ??
+      //       "Error while connecting to backend."
+      //   );
+      // }
       return error.response.data;
     }
 

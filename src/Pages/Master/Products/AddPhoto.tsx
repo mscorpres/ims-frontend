@@ -4,12 +4,17 @@ import { InboxOutlined } from "@ant-design/icons";
 import MyButton from "../../../Components/MyButton";
 import useApi from "../../../hooks/useApi";
 import { uploadImage } from "../../../api/master/products";
+import { ProductType } from "@/types/master";
 
-function AddPhoto({ updatingImage, setUpdatingImage }) {
+interface PropTypes {
+  updatingImage: ProductType | false;
+  setUpdatingImage: React.Dispatch<React.SetStateAction<false | ProductType>>;
+}
+function AddPhoto({ updatingImage, setUpdatingImage }: PropTypes) {
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
-  const normFile = (e) => {
+  const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
     }
@@ -17,14 +22,16 @@ function AddPhoto({ updatingImage, setUpdatingImage }) {
   };
 
   const handleSubmit = async () => {
-    const values = await form.validateFields();
-    const response = await executeFun(
-      () => uploadImage(values, updatingImage.key),
-      "submit"
-    );
+    if (updatingImage && updatingImage.productKey) {
+      const values = await form.validateFields();
+      const response = await executeFun(
+        () => uploadImage(values, updatingImage.productKey),
+        "submit"
+      );
 
-    if (response.success) {
-      form.resetFields();
+      if (response.success) {
+        form.resetFields();
+      }
     }
   };
 
@@ -36,7 +43,7 @@ function AddPhoto({ updatingImage, setUpdatingImage }) {
   return (
     <Drawer
       destroyOnClose={true}
-      title={updatingImage.label}
+      title={updatingImage.name}
       open={updatingImage}
       onClose={() => setUpdatingImage(false)}
     >
