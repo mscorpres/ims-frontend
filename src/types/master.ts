@@ -51,3 +51,19 @@ export interface ProductType {
   productCategory?: string; // "--"
   category?: "goods" | "services";
 }
+
+export interface ProductImageType {
+  id: string;
+  index?: number;
+  name: string;
+  url: string;
+  uploadedBy: string;
+  updatedDate: string;
+}
+
+export interface HSNType {
+  code: string;
+  label: string;
+  tax: string;
+  index?: number;
+}

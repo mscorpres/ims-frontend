@@ -1,5 +1,6 @@
-import { imsAxios } from "../axiosInterceptor";
-import { convertSelectOptions } from "../utils/general";
+import { imsAxios } from "@/axiosInterceptor";
+import { ResponseType } from "@/types/general";
+import { convertSelectOptions } from "@/utils/general";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -97,13 +98,13 @@ export const getComponentOptions = async (search) => {
   // console.log("response", response);
   return response;
 };
-// export const updateAlternatePartCode = async (alternativeArr, basePartCode) => {
-//   const response = await imsAxios.post("/component/update_alt_part_no", {
-//     componentKey: basePartCode,
-//     alt_part_key: alternativeArr,
-//   });
-//   return response;
-// };
+export const updateAlternatePartCode = async (alternativeArr, basePartCode) => {
+  const response = await imsAxios.post("/component/update_alt_part_no", {
+    componentKey: basePartCode,
+    alt_part_key: alternativeArr,
+  });
+  return response;
+};
 export const fetchLocations = async (search) => {
   const response = await imsAxios.post("/backend/fetchLocation", {
     searchTerm: search,
@@ -149,18 +150,37 @@ export const getClosingStockForQuery6 = async (search) => {
   // response.data = arr;
   return response;
 };
-export const updateAlternatePartCode = async (arr, fetchPartCode) => {
-  const response = await imsAxios.post("/component/update_alt_part_no", {
-    componentKey: fetchPartCode,
-    alt_part_key: arr,
-  });
-  return response;
-};
 export const getComponentDetail = async (componentKey, vendorCode) => {
   const response = await imsAxios.post("/component/getComponentDetailsByCode", {
     component_code: componentKey,
     vendorCode,
   });
 
+  return response;
+};
+
+export const getMINOptions = async (search) => {
+  const response = await imsAxios.post("/qrLabel/getMinsTransaction", {
+    searchTerm: search,
+  });
+
+  let arr = [];
+  if (response.data.code === 200) {
+    arr = convertSelectOptions(response.data.data);
+  }
+  response.data = arr;
+  return response;
+};
+
+export const getHsnOptions = async (search: string) => {
+  const response: ResponseType = await imsAxios.post("/backend/searchHsn", {
+    searchTerm: search,
+  });
+
+  let arr = [];
+  if (response.success) {
+    arr = convertSelectOptions(response.data);
+  }
+  response.data = arr;
   return response;
 };
