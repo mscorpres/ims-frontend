@@ -60,3 +60,10 @@ export interface ProductImageType {
   uploadedBy: string;
   updatedDate: string;
 }
+
+export interface HSNType {
+  code: string;
+  label: string;
+  tax: string;
+  index?: number;
+}

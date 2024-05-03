@@ -1,4 +1,4 @@
-import { Form, Row, Typography } from "antd";
+import { Card, Form, Row, Typography } from "antd";
 import React from "react";
 import { CommonIcons } from "./TableActions.jsx/TableActions";
 import { useEffect } from "react";
@@ -22,6 +22,7 @@ const FormTable2 = ({
   const addRow = (newRow) => {
     let obj = newRow;
     const names = columns.map((row) => row.name);
+
     if (!newRow) {
       names.map((name) => name !== "" && (obj[name] = ""));
     }
@@ -37,93 +38,95 @@ const FormTable2 = ({
     form.setFieldValue(listName, arr);
   };
   return (
-    <table style={tableStyle}>
-      <thead
-        style={{
-          width: "100%",
-          display: "block",
-          marginTop: 3,
-          verticalAlign: "middle",
-          position: "sticky",
-          top: 0,
-          zIndex: 2,
-        }}
-      >
-        <tr style={tableHeaderStyle}>
-          {removableRows && (
-            <td
-              style={{
-                ...columnHeaderStyle(),
-                width: 30,
-              }}
-            >
-              {addableRow && (
-                <CommonIcons action="addRow" onClick={() => addRow(newRow)} />
-              )}
-            </td>
-          )}
-          {columns.map((col) =>
-            !col.conditional ? (
-              <td style={columnHeaderStyle(col)}>
-                <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                  {col.headerName}
-                </Typography.Text>
+    <Card size="small" style={{ height: "100%" }} bodyStyle={{ height: "98%" }}>
+      <table style={tableStyle}>
+        <thead
+          style={{
+            width: "100%",
+            display: "block",
+            marginTop: 0,
+            verticalAlign: "middle",
+            position: "sticky",
+            top: 0,
+            zIndex: 2,
+          }}
+        >
+          <tr style={tableHeaderStyle}>
+            {removableRows && (
+              <td
+                style={{
+                  ...columnHeaderStyle(),
+                  width: 30,
+                }}
+              >
+                {addableRow && (
+                  <CommonIcons action="addRow" onClick={() => addRow(newRow)} />
+                )}
               </td>
-            ) : (
-              col.condition() && (
+            )}
+            {columns.map((col) =>
+              !col.conditional ? (
                 <td style={columnHeaderStyle(col)}>
                   <Typography.Text style={{ fontSize: "0.8rem" }} strong>
                     {col.headerName}
                   </Typography.Text>
                 </td>
+              ) : (
+                col.condition() && (
+                  <td style={columnHeaderStyle(col)}>
+                    <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                      {col.headerName}
+                    </Typography.Text>
+                  </td>
+                )
               )
-            )
-          )}
-        </tr>
-      </thead>
+            )}
+          </tr>
+        </thead>
 
-      <tbody
-        style={{
-          display: "block",
-          height: "99%",
-          width: "100%",
-        }}
-      >
-        <Form.List
-          name={listName}
+        <tbody
           style={{
-            width: "fit-content",
-            height: "100%",
+            display: "block",
+            // height: "94%",
+            width: "100%",
           }}
         >
-          {(fields, { add, remove }) =>
-            fields.map((field, index) => (
-              <SingleRow
-                field={field}
-                fieldsLength={fields.length}
-                nonRemovableColumns={nonRemovableColumns}
-                removableRows={removableRows}
-                remove={remove}
-                index={index}
-                columns={columns}
-                listName={listName}
-                watchKeys={watchKeys}
-                form={form}
-                calculation={calculation}
-                formValues={formValues}
-                nonListWatchKeys={nonListWatchKeys}
-                componentRequiredRef={componentRequiredRef}
-              />
-            ))
-          }
-        </Form.List>
-        <Row justify="center" align="middle">
-          <Typography.Text type="secondary">
-            ----End of the List----
-          </Typography.Text>
-        </Row>
-      </tbody>
-    </table>
+          <Form.List
+            name={listName}
+            style={{
+              width: "fit-content",
+              height: "100%",
+            }}
+          >
+            {(fields, { add, remove }) =>
+              fields.map((field, index) => (
+                <SingleRow
+                  field={field}
+                  fieldsLength={fields.length}
+                  nonRemovableColumns={nonRemovableColumns}
+                  removableRows={removableRows}
+                  remove={remove}
+                  index={index}
+                  columns={columns}
+                  listName={listName}
+                  watchKeys={watchKeys}
+                  form={form}
+                  calculation={calculation}
+                  formValues={formValues}
+                  nonListWatchKeys={nonListWatchKeys}
+                  componentRequiredRef={componentRequiredRef}
+                />
+              ))
+            }
+          </Form.List>
+          <Row justify="center" align="middle">
+            <Typography.Text type="secondary">
+              ----End of the List----
+            </Typography.Text>
+          </Row>
+        </tbody>
+      </table>
+    </Card>
   );
 };
 
@@ -145,13 +148,13 @@ const SingleRow = memo(
     nonListWatchKeys = [],
     componentRequiredRef = [],
   }) => {
-    const watchValues = watchKeys.map((val) =>
+    const watchValues = watchKeys?.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
     const nonListWatchValues = nonListWatchKeys?.map((val) =>
       form.getFieldValue(val)
     );
-    const componentRequiredValues = componentRequiredRef.map((val) =>
+    const componentRequiredValues = componentRequiredRef?.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
     const valueObj = form.getFieldValue([listName, field.name]);
@@ -176,7 +179,7 @@ const SingleRow = memo(
         });
         calculation(field.name, obj);
       }
-    }, [[...watchValues, ...nonListWatchValues]]);
+    }, [[...(watchValues ?? []), ...nonListWatchValues]]);
     return (
       <Form.Item noStyle>
         <tr align="middle" key={field.key} style={tableColumnStyle}>
@@ -196,7 +199,16 @@ const SingleRow = memo(
             !row.conditional ? (
               <td key={columnIndex} style={columnCellStyle(row, index)}>
                 <Form.Item
-                  rules={isComponentRequired() && rules[row.name]}
+                  rules={
+                    isComponentRequired()
+                      ? [
+                          {
+                            required: true,
+                            message: `${row.headerName} is required `,
+                          },
+                        ]
+                      : row.rules
+                  }
                   name={[field.name, row.name]}
                   style={{
                     margin: 0,
@@ -213,7 +225,16 @@ const SingleRow = memo(
               row.condition() && (
                 <td style={columnCellStyle(row, index)}>
                   <Form.Item
-                    rules={isComponentRequired() && rules[row.name]}
+                    rules={
+                      isComponentRequired()
+                        ? [
+                            {
+                              required: true,
+                              message: `${row.headerName} is required `,
+                            },
+                          ]
+                        : row.rules
+                    }
                     name={[field.name, row.name]}
                     style={{
                       margin: 0,

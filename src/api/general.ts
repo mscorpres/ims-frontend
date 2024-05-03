@@ -1,5 +1,6 @@
-import { imsAxios } from "../axiosInterceptor";
-import { convertSelectOptions } from "../utils/general";
+import { imsAxios } from "@/axiosInterceptor";
+import { ResponseType } from "@/types/general";
+import { convertSelectOptions } from "@/utils/general";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -166,6 +167,19 @@ export const getMINOptions = async (search) => {
   let arr = [];
   if (response.data.code === 200) {
     arr = convertSelectOptions(response.data.data);
+  }
+  response.data = arr;
+  return response;
+};
+
+export const getHsnOptions = async (search: string) => {
+  const response: ResponseType = await imsAxios.post("/backend/searchHsn", {
+    searchTerm: search,
+  });
+
+  let arr = [];
+  if (response.success) {
+    arr = convertSelectOptions(response.data);
   }
   response.data = arr;
   return response;

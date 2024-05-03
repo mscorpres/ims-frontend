@@ -1,6 +1,10 @@
 import dayjs from "dayjs";
 
-export const convertSelectOptions = (arr, label, value) => {
+export const convertSelectOptions = (
+  arr: [],
+  label?: string,
+  value?: string
+) => {
   if (arr.map) {
     return arr.map((row) => ({
       text: row[label ?? "text"],
