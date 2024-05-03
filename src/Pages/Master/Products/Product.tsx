@@ -3,13 +3,14 @@ import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
 // import View from "./View";
 import View from "@/Pages/Master/Products/View";
+import Add from "@/Pages/Master/Products/Add";
 
 import ComponentImages from "./ComponentImages";
 import useApi from "../../../hooks/useApi";
 import { getUOMList } from "../../../api/master/uom";
 import { getProductsList } from "../../../api/master/products";
 import { ResponseType } from "../../../types/general";
-import Add from "./Add";
+
 import Edit from "./Edit";
 import AddPhoto from "./AddPhoto";
 
