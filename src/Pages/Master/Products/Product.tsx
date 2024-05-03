@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
-import View from "@/pages/Master/Products/View";
+import View from "@/pages/Master/Products/View.tsx";
 import Edit from "@/pages/Master/Products/Edit";
 import Add from "@/pages/Master/Products/Add";
 import AddPhoto from "@/pages/Master/Products/AddPhoto";
