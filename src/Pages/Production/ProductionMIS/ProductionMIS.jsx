@@ -1,13 +1,13 @@
-import { Card, Col, Divider, Form, Row, Typography } from "antd";
+import { Card, Col, Form, Row, Space, Typography } from "antd";
 import React, { useState } from "react";
 import SingleProduct from "./SingleProduct";
-import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
-import dayjs from "dayjs";
 import { toast } from "react-toastify";
+import MyAsyncSelect from "../../../Components/MyAsyncSelect.jsx";
+import MyButton from "../../../Components/MyButton/index.jsx";
 function ProductionMIS() {
   const [misForm] = Form.useForm();
   const [listDept, setListDept] = useState([]);
@@ -75,95 +75,98 @@ function ProductionMIS() {
   };
 
   return (
-    <>
-      <Row span={24}>
-        <Card
-          title={"Production MIS"}
-          style={{ height: "100%", margin: "2em" }}
-          size="small"
-        >
-          <Form
-            initialValues={initialValues}
-            layout="vertical"
-            form={misForm}
-            style={{ padding: 20 }}
-            // onFinish={onFinish}
-          >
-            {" "}
-            <div style={{ flex: 1 }}>
-              <Col
-                span={24}
-                style={{
-                  height: "90%",
-                  width: "100%",
-                  overflowX: "hidden",
-                  overflowY: "auto",
-                }}
-              >
-                <Form.List name="components">
-                  {(fields, { add, remove }) => (
-                    <>
-                      <Col span={24}>
-                        {fields.map((field, index) => (
-                          <Form.Item noStyle>
-                            <SingleProduct
-                              fields={fields}
-                              field={field}
-                              index={index}
-                              add={add}
-                              form={misForm}
-                              remove={remove}
-                              getdept={getdept}
-                              setListDept={setListDept}
-                              listDept={listDept}
-                              getOption={getOption}
-                              skuList={skuList}
-                              setSkuList={setSkuList}
-                              setAsyncOptions={setAsyncOptions}
-                              asyncOptions={asyncOptions}
-                              // dateRange={dateRange}
-                              // setDateRange={setDateRange}
-                              // format={format}
-                            />
-                          </Form.Item>
-                        ))}
-                        <Row justify="center">
-                          <Typography.Text type="secondary">
-                            ----End of the List----
-                          </Typography.Text>
-                        </Row>
-                      </Col>
-                    </>
-                  )}
-                </Form.List>
-              </Col>{" "}
-              <NavFooter
-                loading={loading}
-                submitFunction={submitHandler}
-                resetFunction={resetHandler}
-                nextLabel="Submit"
+    <Form
+      form={misForm}
+      layout="vertical"
+      style={{ padding: 10, height: "95%", overflowY: "hidden" }}
+      initialValues={initialValues}
+    >
+      <Row
+        span={24}
+        justify="center"
+        gutter={4}
+        style={{ height: "100%", overflowY: "hidden" }}
+      >
+        <Col span={4}>
+          <Card size="small" title="Add MIS">
+            <Form.Item
+              name="department"
+              label="Department"
+              rules={[
+                {
+                  required: true,
+                  message: "Please provide the Department.",
+                },
+              ]}
+            >
+              <MyAsyncSelect
+                optionsState={asyncOptions}
+                loadOptions={getdept}
+                onBlur={() => setAsyncOptions([])}
               />
-            </div>
-          </Form>
-        </Card>
+            </Form.Item>
+            <Row justify="center">
+              <Space>
+                <MyButton onClick={resetHandler} variant="reset" />
+                <MyButton
+                  onClick={submitHandler}
+                  variant="submit"
+                  text="Save"
+                />
+              </Space>
+            </Row>
+          </Card>
+        </Col>
+        <Col
+          span={16}
+          style={{ paddingBottom: 20, height: "100%", overflow: "auto" }}
+        >
+          <Form.List name="shifts">
+            {(fields, { add, remove }) => (
+              <Col span={24}>
+                {fields.map((field, index) => (
+                  <Form.Item noStyle>
+                    <SingleProduct
+                      fields={fields}
+                      field={field}
+                      index={index}
+                      add={add}
+                      form={misForm}
+                      remove={remove}
+                      getdept={getdept}
+                      setListDept={setListDept}
+                      listDept={listDept}
+                      getOption={getOption}
+                      skuList={skuList}
+                      setSkuList={setSkuList}
+                      setAsyncOptions={setAsyncOptions}
+                      asyncOptions={asyncOptions}
+                    />
+                  </Form.Item>
+                ))}
+                <Row justify="center">
+                  <Typography.Text type="secondary">
+                    ----End of the List----
+                  </Typography.Text>
+                </Row>
+              </Col>
+            )}
+          </Form.List>
+          {/* <NavFooter
+              loading={loading}
+              submitFunction={submitHandler}
+              resetFunction={resetHandler}
+              nextLabel="Submit"
+            /> */}
+        </Col>
       </Row>
-    </>
+    </Form>
   );
 }
 
 export default ProductionMIS;
+
 const initialValues = {
-  department: "",
-  sku: "",
-  prodName: "",
-  manpower: "",
-  noOfLines: "",
-  output: "",
-  start: "",
-  end: "",
-  overTime: "",
-  workHours: "",
-  remarks: "",
-  components: [{}],
-  date: "",
+  department: undefined,
+  shifts: [{}],
 };
