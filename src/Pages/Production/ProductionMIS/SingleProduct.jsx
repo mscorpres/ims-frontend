@@ -108,12 +108,12 @@ export default function SingleProduct({
           <Form.Item
             label="Date"
             name={[field.name, "date"]}
-            rules={[
-              {
-                required: true,
-                message: "Please provide the date.",
-              },
-            ]}
+            // rules={[
+            //   {
+            //     required: true,
+            //     message: "Please provide the date.",
+            //   },
+            // ]}
           >
             <SingleDatePicker
               setDate={(value) =>

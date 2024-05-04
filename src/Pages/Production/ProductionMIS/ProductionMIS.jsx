@@ -48,7 +48,7 @@ function ProductionMIS() {
     let a = misForm.getFieldValue();
     console.log("vale", values);
     let payload = {
-      department: values.components.map((r) => r.department),
+      department: values.department,
       sku: values.components.map((r) => r.sku),
       date: values.components.map((r) => r.date),
       manPower: values.components.map((r) => r.manpower),
@@ -121,7 +121,7 @@ function ProductionMIS() {
           span={16}
           style={{ paddingBottom: 20, height: "100%", overflow: "auto" }}
         >
-          <Form.List name="shifts">
+          <Form.List name="components">
             {(fields, { add, remove }) => (
               <Col span={24}>
                 {fields.map((field, index) => (
@@ -168,5 +168,5 @@ export default ProductionMIS;
 
 const initialValues = {
   department: undefined,
-  shifts: [{}],
+  components: [{}],
 };
