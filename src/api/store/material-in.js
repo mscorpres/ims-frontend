@@ -4,6 +4,15 @@ import printFunction, {
 } from "../../Components/printFunction";
 
 export const validateInvoice = async (values) => {
+  let comp = values.components;
+  let newComp = comp.map((element) => {
+    let obj = {
+      ...element,
+      invoiceId: values.invoiceId, // Assuming values.invoiceId is defined elsewhere
+    };
+    return obj;
+  });
+  values.components = newComp;
   const invoices = values.components.map((row) => row.invoiceId);
   const response = await imsAxios.post("/backend/checkInvoice", {
     invoice: invoices,
@@ -39,6 +48,16 @@ export const uploadVendorDoc = async (formData) => {
 };
 
 export const materialInWithoutPo = async (values, fileName) => {
+  let comp = values.components;
+  let newComp = comp.map((element) => {
+    let obj = {
+      ...element,
+      invoiceId: values.invoiceId,
+      invoiceDate: values.invoiceDate,
+    };
+    return obj;
+  });
+  values.components = newComp;
   const payload = {
     attachment: fileName ?? "",
     vendor: values.vendorName.value ?? "--",

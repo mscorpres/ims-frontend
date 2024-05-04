@@ -35,8 +35,8 @@ import {
   getVendorBranchDetails,
   getVendorBranchOptions,
   getVendorOptions,
-} from "../../../../api/general.ts";
-import { convertSelectOptions, getInt } from "../../../../utils/general.ts";
+} from "../../../../api/general";
+import { convertSelectOptions, getInt } from "../../../../utils/general";
 import FormTable2 from "../../../../Components/FormTable2";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
 import {
@@ -837,6 +837,20 @@ export default function MaterialInWithoutPO() {
                         />
                       </Form.Item>
                     </Col>
+                    <Col span={12}>
+                      <Form.Item label="Invoice Date" name="invoiceDate">
+                        <SingleDatePicker
+                          setDate={(value) => {
+                            form.setFieldValue("invoiceDate", value);
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Invoice Id" name="invoiceId">
+                        <Input />
+                      </Form.Item>
+                    </Col>
                     <Button onClick={() => setUploadClicked(true)}>
                       {" "}
                       Upload Documents
@@ -1153,30 +1167,30 @@ const columns = ({
     field: () => <Input disabled />,
     width: 120,
   },
-  {
-    headerName: "Invoice ID",
-    name: "invoiceId",
-    field: () => <Input />,
-    width: 200,
-  },
-  {
-    headerName: "Invoice Date",
-    name: "invoiceDate",
-    field: (first, second) => {
-      return (
-        <SingleDatePicker
-          setDate={(value) => {
-            {
-              console.log(["components", second, "invoiceDate"]);
-              form.setFieldValue(["components", second, "invoiceDate"], value);
-            }
-          }}
-        />
-      );
-    },
+  // {
+  //   headerName: "Invoice ID",
+  //   name: "invoiceId",
+  //   field: () => <Input />,
+  //   width: 200,
+  // },
+  // {
+  //   headerName: "Invoice Date",
+  //   name: "invoiceDate",
+  //   field: (first, second) => {
+  //     return (
+  //       <SingleDatePicker
+  //         setDate={(value) => {
+  //           {
+  //             console.log(["components", second, "invoiceDate"]);
+  //             form.setFieldValue(["components", second, "invoiceDate"], value);
+  //           }
+  //         }}
+  //       />
+  //     );
+  //   },
 
-    width: 150,
-  },
+  //   width: 150,
+  // },
   {
     headerName: "HSN Code",
     name: "hsnCode",

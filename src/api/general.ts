@@ -1,6 +1,6 @@
-import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
+import { imsAxios } from "../axiosInterceptor";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -13,6 +13,7 @@ export const getVendorOptions = async (search) => {
     console.log("something happened wrong", error);
   }
 };
+
 export const getVendorBranchOptions = async (vendorCode) => {
   const response = await imsAxios.post("/backend/vendorBranchList", {
     vendorcode: vendorCode,
