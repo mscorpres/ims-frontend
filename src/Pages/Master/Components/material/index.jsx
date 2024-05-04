@@ -128,22 +128,24 @@ const Material = () => {
   };
 
   const getUomOptions = async () => {
+    console.log("here");
     try {
       setLoading("fetch");
       const response = await imsAxios.post("uom/uomSelect2");
       const { data } = response;
       if (data) {
-        if (data.code === 200) {
-          const arr = data.data.map((row) => ({
-            text: row.text,
-            value: row.id,
-          }));
+        // if (data.code === 200) {
+        let arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
 
-          setUomOptions(arr);
-        } else {
-          toast.error(data.message.msg);
-        }
+        console.log("arr", arr);
+        setUomOptions(arr);
+      } else {
+        toast.error(data.message.msg);
       }
+      // }
     } catch (error) {
     } finally {
       setLoading(false);
