@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -52,6 +51,20 @@ export default function SingleComponent({
   setglState,
   glstate,
   lastRateArr,
+  paginate,
+  setPaginate,
+  setSingleArr,
+  singleArr,
+  mainArrs,
+  setmainArrs,
+  updateSingleArr,
+  setNewArrVenAm,
+  mainArrVenAm,
+  mAVenAmValue,
+  setMAFreightValue,
+  mAfreightValue,
+  headerCal,
+  setHeaderCal,
 }) {
   var lastRateFoundObj;
   const [showLastRateWarning, setShowLastRateWarning] = useState({
@@ -71,6 +84,7 @@ export default function SingleComponent({
   let lastOpVals = form.getFieldValue("components");
   const component =
     Form.useWatch(["components", field.name, "component"], form) ?? 0;
+
   const qty =
     Form.useWatch(["components", field.name, "vbtBillQty"], form) ?? 0;
   const rate =
@@ -144,6 +158,12 @@ export default function SingleComponent({
   const totalbillAmmount = Form.useWatch("billAmmount", form);
   const totalFreight = Form.useWatch("totalFreight", form);
   const rowIns = Form.useWatch("rowInsurance", form);
+  // const rowId = Form.useWatch("id", form);
+
+  // // form.setFieldValue("components", singleArr);
+  // useEffect(() => {
+  //   updateSingleArr("venAmmount", rowId, totalVenAm);
+  // }, [rowId]);
 
   let totalVenAm = form.getFieldValue(["components", field.name, "venAmmount"]);
   let arr = form.getFieldsValue("components");
@@ -152,6 +172,14 @@ export default function SingleComponent({
     (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
     0
   );
+  //  let vendorAmount = singleArr.components?.reduce(
+  //    (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
+  //   0
+  // );
+  // let vendorAmount = arr.components?.reduce(
+  //   (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
+  //   0
+  // );
   const options = [
     {
       text: "Local",
@@ -172,6 +200,7 @@ export default function SingleComponent({
   //     }
   //   }
   // };
+  // console.log("single product", singleArr);
 
   useEffect(() => {
     let updatedTdsPercentage = 0;
@@ -202,7 +231,7 @@ export default function SingleComponent({
       addFreight = 0;
     }
     if (isCreate || totalInsurance) {
-      console.log("totalInsurance", totalInsurance);
+      // console.log("totalInsurance", totalInsurance);
       // console.log("inrowInsur", inrowInsur);
       if (inrowInsur === "inRowInsurance") {
         let newinsurance =
@@ -224,7 +253,7 @@ export default function SingleComponent({
     if (customDuty) {
       let sws = (customDuty * 10) / 100;
       sws = +Number(sws).toFixed(2);
-      console.log("sws_______", sws);
+      // console.log("sws_______", sws);
       // form.setFieldValue(["components", field.name, "sws"], sws);
       if (
         !form.isFieldTouched(["components", field.name, "sws"]) &&
@@ -269,7 +298,7 @@ export default function SingleComponent({
     const cgst = gstType === "L" ? +Number(taxAmount).toFixed(2) / 2 : 0;
     const sgst = gstType === "L" ? +Number(taxAmount).toFixed(2) / 2 : 0;
     const igst = gstType === "I" ? +Number(taxAmount).toFixed(2) : 0;
-    console.log("cgst", igst);
+    // console.log("cgst", igst);
     taxAmount =
       +Number(cgst).toFixed(2) +
       +Number(sgst).toFixed(2) +
@@ -373,18 +402,22 @@ export default function SingleComponent({
   useEffect(() => {
     showGlWarning();
   }, [glCodeValue]);
-
+  // console.log("mainArrVenAm", mainArrVenAm);
   useEffect(() => {
+    // console.log("here");
     if (isCreate || totalFreight) {
       if (allRowFreight || totalFreight) {
         let freight =
           (totalFreight * Number(totalVenAm)) /
-          +Number(vendorAmount).toFixed(2);
+          +Number(totalbillAmmount).toFixed(2);
         freight = +Number(freight).toFixed(2);
+        // console.log("freight", freight);
         form.setFieldValue(
           ["components", field.name, "freightAmount"],
           freight
         );
+        setMAFreightValue(freight);
+
         // } else {
         //   console.log("freig not appliect");
         //   form.setFieldValue(["components", field.name, "freightAmount"], 0);
@@ -408,12 +441,24 @@ export default function SingleComponent({
     totalVenAm,
     totalbillAmmount,
     allRowFreight,
+    mAVenAmValue,
   ]);
+  // useEffect(() => {
+  //   let a = form.getFieldValue(["components", field.name, "freightAmount"]);
+  //   if (a) {
+  //     let a = mainArrs.map((r) => {
+  //       return {...r,mainArrFreight: };
+  //     });
+  //     console.log("aaaaaa", a);
+  //     setNewArrVenAm(a);
+  //   }
+  // }, [form.getFieldValue(["components", field.name, "freightAmount"])]);
+
   ///header calculations
   useEffect(() => {
     if (addMiscCalc) {
       if (isCreate || totalMisc) {
-        let misc = (totalMisc * totalVenAm) / vendorAmount;
+        let misc = (totalMisc * totalVenAm) / mAVenAmValue;
         misc = +Number(misc).toFixed(2);
 
         if (
@@ -470,6 +515,34 @@ export default function SingleComponent({
   useEffect(() => {
     // console.log("inrowInsur", inrowInsur);
   }, [allRowInsurance]);
+  // useEffect(() => {
+  //   console.log("working......");
+  //   // console.log("mainArrs in single product",);
+  //   // if (mainArrs) {
+  //   //   let a = mainArrs.map((r) => {
+  //   //     let b = r?.vbtBillQty * r?.vbtInRate * r?.currencyRate;
+  //   //     // console.log(
+  //   //     //   " r?.vbtBillQty * r?.vbtInRate * r?.currencyRate;",
+  //   //     //   r?.vbtBillQty,
+  //   //     //   r?.vbtInRate,
+  //   //     //   r?.currencyRate
+  //   //     // );
+  //   //     b = +Number(b).toFixed(3);
+
+  //   //     return { val: b };
+  //   //   });
+  //   //   console.log("a", a);
+  //   //   setHeaderCal(a);
+  //   //   setNewArrVenAm(a);
+  //   // }
+  //   // let vendorAmounts;
+  //   // vendorAmounts = mainArrs?.reduce(
+  //   //   (partialSum, a) => partialSum + +Number(a?.val).toFixed(2),
+  //   //   0
+  //   // );
+  //   // // console.log("setNewArrVenAm",newAR);
+  //   // var vendorAmount = vendorAmounts;
+  // }, [mainArrs]);
 
   const currencyOption = [
     {
@@ -483,7 +556,7 @@ export default function SingleComponent({
   ];
 
   const showRateWarning = () => {
-    console.log("this is the last date arr iin single, ", lastRateArr);
+    // console.log("this is the last date arr iin single, ", lastRateArr);
     const partCode = form.getFieldValue(["components", field.name, "partCode"]);
 
     lastRateFoundObj = lastRateArr?.find((row) => row.partCode === partCode);

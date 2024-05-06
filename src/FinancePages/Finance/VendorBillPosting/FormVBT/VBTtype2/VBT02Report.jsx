@@ -1,4 +1,14 @@
-import { Card, Col, Drawer, Form, Input, Modal, Row, Typography } from "antd";
+import {
+  Card,
+  Col,
+  Drawer,
+  Form,
+  Input,
+  Modal,
+  Pagination,
+  Row,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { imsAxios } from "../../../../../axiosInterceptor";
 import { useEffect } from "react";
@@ -10,6 +20,8 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import NavFooter from "../../../../../Components/NavFooter";
 import validateResponse from "../../../../../Components/validateResponse";
+import { v4 } from "uuid";
+
 function VBT02Report({
   editingVBT,
   setEditingVBT,
@@ -42,15 +54,37 @@ function VBT02Report({
   const [editApiUrl, setEditApiUrl] = useState("");
   const [isCreate, setIsCreate] = useState(false);
   const [glstate, setglState] = useState([]);
+  const [paginate, setPaginate] = useState([]);
+  const [totalPage, setTotalPage] = useState();
+  const [current, setCurrent] = useState(0);
+  const [currArr, setCurrArr] = useState([]);
+  const [newArr, setNewArr] = useState([]);
+  const [isAnother, setIsAnother] = useState("");
+  const [singleArr, setSingleArr] = useState([]);
+  const [mainArrVenAm, setNewArrVenAm] = useState([]);
+  const [mAVenAmValue, setMAVenAmValue] = useState("");
+  const [mAfreightValue, setMAFreightValue] = useState("");
+  const [headerCal, setHeaderCal] = useState([]);
+  const [mainArrs, setmainArrs] = useState([]);
+  const [mainUpdated, setMainUpdated] = useState(1);
+
   const components = Form.useWatch("components", {
     form: Vbt01,
     preserve: true,
   });
 
+  // const mainArrs = Form.useWatch("mainArrs", {
+  //   form: Vbt01,
+  //   preserve: true,
+  // });
+
   const [lastRateArr, setLastRateArr] = useState([]);
   const resetForm = () => {
     Vbt01.resetFields();
   };
+
+  var chunk;
+  var result;
   const getApiUrl = (vbtCode) => {
     return vbtCode.split("/")[0].toLowerCase();
   };
@@ -142,7 +176,15 @@ function VBT02Report({
 
   const submitFunction = async () => {
     const values = await Vbt01.validateFields();
-
+    // console.log("valuesss", values);
+    if (isAnother) {
+      let createdEntry = Vbt01.getFieldValue("components");
+      paginate[current - 1] = createdEntry;
+      setNewArr(paginate);
+      const creatingComp = Array.prototype.concat(...newArr);
+      // console.log("creatingComp", creatingComp);
+      values.components = creatingComp;
+    }
     if (isCreate) {
       const roundarr = values.components.map(
         (component) => component.venAmmount
@@ -249,7 +291,6 @@ function VBT02Report({
         round_type: roundOffSign.toString(),
         round_value: roundOffValue.toString(),
       };
-      // console.log("finalData", finalData);
       addVbt(finalData);
     } else {
       const roundarr = values.components.map(
@@ -424,6 +465,54 @@ function VBT02Report({
       },
     });
   };
+  const changeToNextPage = () => {
+    // setLoading(true);
+    // console.log("current", current);
+    let createdEntry = Vbt01.getFieldValue("components");
+    // console.log("createdEntry", createdEntry);
+
+    let id;
+    // let newArray = [];
+    if (current < totalPage) {
+      id = current + 1;
+      setCurrent(id);
+      Vbt01.setFieldValue("components", paginate[id - 1]);
+      setCurrArr(paginate[id - 1]);
+
+      paginate[current - 1] = createdEntry;
+      // console.log("paginate in func", paginate);
+
+      let newArray = [...newArr];
+      setNewArr(paginate);
+      // console.log("newArray", newArray);
+      // console.log("id", id);
+      setLoading(false);
+    }
+  };
+  const changeToBackPage = () => {
+    // setLoading(true);
+    let id;
+    let createdEntry = Vbt01.getFieldValue("components");
+    // console.log("createdEntry in back", createdEntry);
+    if (current - 1 > 0) {
+      id = current - 1;
+      setCurrent(id);
+      Vbt01.setFieldValue("components", paginate[id - 1]);
+      setCurrArr(paginate[id - 1]);
+      paginate[current - 1] = createdEntry;
+    }
+    setNewArr(paginate);
+    // console.log("id", id);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const partCodeArr = currArr.map((row) => row?.c_part_no);
+    if (currArr && currArr[0]?.ven_code) {
+      getLastPrice(currArr[0]?.ven_code, partCodeArr);
+    }
+  }, [currArr]);
+
   //edit vbt fn
   const getEditVbtDetails = async (vbtCode) => {
     setLoading(true);
@@ -440,7 +529,7 @@ function VBT02Report({
         Value: data[0]?.tds?.tdsGlKey,
       };
 
-      const arr = data.map((row) => ({
+      let arr = data.map((row) => ({
         ...row,
 
         tdsAssValue: row.tdsAssValue,
@@ -481,12 +570,42 @@ function VBT02Report({
         gstAssValue: row?.gstAssValue,
         glCodeValue: row?.purchase_gl.value,
       }));
-
+      ///
+      // let newarr = arr.slice([10]);
+      // console.log("arr", arr);
+      setSingleArr(arr);
+      // arr = newarr;
+      if (arr.length > 25) {
+        setIsAnother(true);
+        // console.log("Arr", arr.length);
+        chunk = arr.length / 25;
+        chunk = Math.ceil(chunk);
+        setTotalPage(chunk);
+        // console.log("chunk", chunk);
+        result = divideArray(arr, chunk);
+        // console.log("result", chunk);
+        setPaginate(result);
+        setCurrArr(result[0]);
+        Vbt01.setFieldValue("components", result[0]);
+        Vbt01.setFieldValue("bigarr", arr);
+        setEditVBTCode(result[0]);
+        setVbtComponent(result[0]);
+        setCurrent(1);
+      } else {
+        // chunk = arr.length;
+        setTotalPage(1);
+        result = arr;
+        // console.log("result", result);
+        Vbt01.setFieldValue("components", result);
+        setEditVBTCode(arr);
+        setVbtComponent(arr);
+      }
       // setEditingVBT(arr);
-      setEditVBTCode(arr);
-      setVbtComponent(arr);
-      Vbt01.setFieldValue("components", arr);
+      // setEditVBTCode(arr);
+      // setVbtComponent(arr);
+      // Vbt01.setFieldValue("components", arr);
       // getTdsOptions(response.data[0]?.minId);
+      setCurrent(1);
       setLoading(false);
     }
   };
@@ -500,6 +619,70 @@ function VBT02Report({
       }
     }
   };
+
+  // const updateSingleArr = (name, id, value) => {
+  //   setSingleArr((curr) => {
+  //     return curr.map((row) => {
+  //       if (row?.id === id) {
+  //         return {
+  //           ...row,
+  //           [name]: value,
+  //         };
+  //       } else {
+  //         return row;
+  //       }
+  //     });
+  //   });
+  // };
+  // console.log("components", components);
+  // console.log("SingleArrrrr", singleArr);
+  let a;
+  // console.log("mainArrss product", mainArrs);
+  useEffect(() => {
+    let arr = singleArr;
+    components?.forEach((component) => {
+      let index = singleArr.findIndex(
+        (obj) =>
+          obj.id === component.id && obj.c_part_no === component.c_part_no
+      );
+      if (index !== -1) {
+        // arr
+        arr[index] = component;
+        // singleArr[index] = component;
+      }
+    });
+    // console.log("udpated arr", arr);
+    setmainArrs(arr);
+    // Vbt01.setFieldValue("mainArrs", singleArr);
+  }, [components, singleArr]);
+
+  // console.log("single", singleArr);
+
+  // console.log("a", a);
+  // let indexesToReplace = new Set([0, components?.length]);
+  // indexesToReplace.forEach((index, i) => {
+  //   if (index >= 0 && index < singleArr.length) {
+  //     singleArr[index] = components[i];
+  //   }
+  // });
+  // useEffect(() => {
+  //   if (mainArrs) {
+  //     setmainArrs(mainArrs);
+  //   }
+  // }, [mainArrs]);
+
+  // useEffect(() => {
+  //   let a = components?.map((e) => {
+  //     return singleArr.filter((r) => r.id == e.id);
+  //     if (temp) {
+  //       return temp;
+  //     } else {
+  //       return null;
+  //     }
+  //   });
+  //   console.log("a", a);
+  // }, [components]);
+
   const getVBTDetail = async (minIdArr) => {
     // return;
     // setLoading(true);
@@ -516,8 +699,9 @@ function VBT02Report({
     const { data } = response;
     if (data.code === 200) {
       setVbtComponent(data);
-      const arr = data.data.map((row) => ({
+      let arr = data.data.map((row) => ({
         ...row,
+        id: v4(),
         minId: row.min_id,
         // poNumber: row.poNumber,
         // projectID: row.projectID,
@@ -574,6 +758,7 @@ function VBT02Report({
         customDuty: 0,
         otherDuty: 0,
         freightAmount: 0,
+        venAmmount: +Number(row.value),
         // totalFreight: 0,
         // totalMisc: 0,
         freight: 0,
@@ -587,30 +772,85 @@ function VBT02Report({
       }));
       getGl();
       getCurrencies();
+      // console.log("arr-", arr);
+      setSingleArr(arr);
+      ///
+      // let newarr = arr.slice([130]);
+      // console.log("newArr", newarr);
+      // arr = newarr;
+      ////
+      // if arr lenght is greater than 25
+      if (arr.length > 25) {
+        setIsAnother(true);
+        // console.log("Arr", arr.length);
+        chunk = arr.length / 15;
+        chunk = Math.ceil(chunk);
+        setTotalPage(chunk);
+        // console.log("chunk", chunk);
+        result = divideArray(arr, chunk);
+        // console.log("result", paginate.length);
+        setPaginate(result);
+        setCurrArr(result[0]);
+        Vbt01.setFieldValue("components", result[0]);
+      } else {
+        // chunk = arr.length;
+        setTotalPage(1);
+        result = arr;
+        // console.log("result", result);
+        Vbt01.setFieldValue("components", result);
+      }
+      setPaginate(result);
       // getTdsOptions(minIdArr[0]);
-      Vbt01.setFieldValue("components", arr);
+      setCurrArr(arr);
+
       Vbt01.setFieldValue("portCode", "INDEL4");
       Vbt01.setFieldValue("gst", "999999999999999");
       Vbt01.setFieldValue("totalFreight", 0);
       Vbt01.setFieldValue("totalMisc", 0);
+      setCurrent(1);
+
       // Vbt01.setFieldValue("portCode", "INDEL4");
       Vbt01.setFieldValue("portName", "Delhi Air Cargo");
       Vbt01.setFieldValue("cha", "LINKERS INDIA LOGISTICS PV");
-      const partCodeArr = arr.map((row) => row.c_part_no);
-      if (arr[0]?.ven_code) {
-        getLastPrice(arr[0]?.ven_code, partCodeArr);
-      }
-      // if (isEditVBT) {
-      //   const arr = data.data;
-      //   setEditingVBT([...arr]);
-      //   editExistingVbt(vbtKey);
+      // const partCodeArr = arr.map((row) => row.c_part_no);
+      // if (arr[0]?.ven_code) {
+      //   getLastPrice(arr[0]?.ven_code, partCodeArr);
       // }
+      // Vbt01.setFieldValue("mainArrs", arr);
+      // setmainArrs(arr);
+      setSingleArr(arr);
     } else {
       toast.error(data.message.msg);
       setEditingVBT(null);
     }
     // setLoading(false);
   };
+
+  // console.log("paginate", paginate);
+  useEffect(() => {
+    if (totalPage) {
+      setTotalPage(totalPage);
+    }
+  }, [totalPage]);
+
+  // console.log("totalPage", totalPage);
+  function divideArray(arr, numSubarrays) {
+    // Calculate the size of each subarray
+    const subarraySize = Math.floor(arr.length / numSubarrays);
+
+    // Initialize an empty array to store subarrays
+    const subarrays = [];
+
+    // Iterate through the array and divide it into subarrays
+    let startIndex = 0;
+    for (let i = 0; i < numSubarrays; i++) {
+      const endIndex = startIndex + subarraySize;
+      subarrays.push(arr.slice(startIndex, endIndex));
+      startIndex = endIndex;
+    }
+
+    return subarrays;
+  }
   const getLastPrice = async (venCode, partArr) => {
     const response = await imsAxios.post(
       // `/tally/vbt/lastOptions?vendorCode=${venCode}&partCode=${partCode}`
@@ -661,43 +901,47 @@ function VBT02Report({
   }, [editVbtDrawer]);
 
   useEffect(() => {
-    const values = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.taxableValue).toFixed(2),
+    const values = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.taxableValue).toFixed(2),
       0
     );
     const value = +Number(values).toFixed(2);
-    const freight = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.freightAmount).toFixed(2),
+    const freights = mainArrs?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.freightAmount),
       0
     );
-    const cgsts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.cgstAmount).toFixed(2),
+    const freight = +Number(freights).toFixed(2);
+    const cgsts = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.cgstAmount).toFixed(2),
       0
     );
     const cgst = +Number(cgsts).toFixed(2);
-    const sgsts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.sgstAmount).toFixed(2),
+    const sgsts = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.sgstAmount).toFixed(2),
       0
     );
     const sgst = +Number(sgsts).toFixed(2);
     // console.log("sgst", sgst);
-    const igsts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.igstAmount).toFixed(2),
+    const igsts = singleArr?.reduce(
+      (partialSum, a) => partialSum + +Number(a?.igstAmount).toFixed(2),
       0
     );
 
     const igst = +Number(igsts).toFixed(2);
-    // console.log("igst", igst);
-
+    // console.log("mainArrVenAm", mainArrVenAm);
+    // setmainArrs(mainArrs);
+    // console.log("mainArrs", mainArrs);
     let vendorAmounts;
-    vendorAmounts = components?.reduce(
-      (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
+    vendorAmounts = mainArrs?.reduce(
+      (partialSum, a) => partialSum + (a?.venAmmount || 0),
       0
     );
-    var vendorAmount = +Number(vendorAmounts).toFixed(2);
-    // console.log("vendorAmount", vendorAmount);
-    const tds = components?.reduce(
-      (a, b) => a + +Number(b.tdsAmount ?? 0).toFixed(2),
+    // console.log("vendorAmount", vendorAmounts);
+    var vendorAmount = vendorAmounts;
+    setMAVenAmValue(vendorAmount);
+
+    const tds = singleArr?.reduce(
+      (a, b) => a + +Number(b?.tdsAmount ?? 0).toFixed(2),
       0
     );
 
@@ -709,6 +953,9 @@ function VBT02Report({
       vendorAmounts -= +Number(roundOffValue).toFixed(2);
       vendorAmount = +Number(vendorAmounts).toFixed(2);
     }
+
+    // console.log("my single arr", singleArr);
+    // setmainArrs(singleArr);
 
     const arr = [
       {
@@ -743,9 +990,116 @@ function VBT02Report({
       },
     ];
     setTaxDetails(arr);
-  }, [components, roundOffSign, roundOffValue]);
-  useEffect(() => {}, [components]);
+  }, [
+    singleArr,
+    roundOffSign,
+    roundOffValue,
+    mainArrVenAm,
+    components,
+    // mainArrs,
+  ]);
+  // useEffect(() => {
+  //   if (singleArr) {
+  //     console.log("singleArr->", singleArr);
+  //     setmainArrs(singleArr);
+  //     // Vbt01.setFieldValue("mainArrs", singleArr);
+  //   }
+  // }, [singleArr]);
+
+  // useEffect(() => {
+  //   const values = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.taxableValue).toFixed(2),
+  //     0
+  //   );
+  //   const value = +Number(values).toFixed(2);
+  //   const freight = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.freightAmount).toFixed(2),
+  //     0
+  //   );
+  //   const cgsts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.cgstAmount).toFixed(2),
+  //     0
+  //   );
+  //   const cgst = +Number(cgsts).toFixed(2);
+  //   const sgsts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.sgstAmount).toFixed(2),
+  //     0
+  //   );
+  //   const sgst = +Number(sgsts).toFixed(2);
+  //   // console.log("sgst", sgst);
+  //   const igsts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.igstAmount).toFixed(2),
+  //     0
+  //   );
+
+  //   const igst = +Number(igsts).toFixed(2);
+  //   // console.log("igst", igst);
+
+  //   let vendorAmounts;
+  //   vendorAmounts = components?.reduce(
+  //     (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
+  //     0
+  //   );
+  //   var vendorAmount = +Number(vendorAmounts).toFixed(2);
+  //   // console.log("vendorAmount", vendorAmount);
+  //   const tds = components?.reduce(
+  //     (a, b) => a + +Number(b.tdsAmount ?? 0).toFixed(2),
+  //     0
+  //   );
+
+  //   if (roundOffSign === "+") {
+  //     vendorAmounts = vendorAmount + +Number(roundOffValue).toFixed(2);
+  //     vendorAmount = +Number(vendorAmounts).toFixed(2);
+  //   }
+  //   if (roundOffSign === "-") {
+  //     vendorAmounts -= +Number(roundOffValue).toFixed(2);
+  //     vendorAmount = +Number(vendorAmounts).toFixed(2);
+  //   }
+
+  //   const arr = [
+  //     {
+  //       title: "Value",
+  //       description: value,
+  //     },
+  //     {
+  //       title: "Freight",
+  //       description: freight,
+  //     },
+  //     {
+  //       title: "CGST",
+  //       description: cgst,
+  //     },
+  //     {
+  //       title: "SGST",
+  //       description: sgst,
+  //     },
+  //     {
+  //       title: "IGST",
+  //       description: igst,
+  //     },
+  //     { title: "TDS", description: tds },
+  //     {
+  //       title: "Round Off",
+  //       description:
+  //         roundOffSign.toString() + [Number(roundOffValue).toFixed(2)],
+  //     },
+  //     {
+  //       title: "Vendor Amount",
+  //       description: vendorAmount,
+  //     },
+  //   ];
+  //   setTaxDetails(arr);
+  // }, [components, roundOffSign, roundOffValue]);
+
   // console.log("editingVBt", vbtComponent);
+
+  // console.log("main updated", mainUpdated);
+  // console.log("mainsArr", mainArrs);
+
+  useEffect(() => {
+    // console.log("inside use effect", mainArrs);
+    // setMainUpdated((curr) => curr + 1);
+  }, [JSON.stringify(mainArrs)]);
   return (
     <Drawer
       bodyStyle={{ padding: 5 }}
@@ -793,6 +1147,8 @@ function VBT02Report({
               allRowSws={allRowSws}
               editVBTCode={editVBTCode}
               glstate={glstate}
+              paginate={paginate}
+              setPaginate={setPaginate}
             />
           </Col>
 
@@ -804,6 +1160,7 @@ function VBT02Report({
               overflowY: "auto",
             }}
           >
+            {`Page ${current} of ${totalPage}`}
             <Form.List name="components">
               {(fields, { add, remove }) => (
                 <>
@@ -849,6 +1206,21 @@ function VBT02Report({
                           getGstGlOptions={getGstGlOptions}
                           glstate={glstate}
                           lastRateArr={lastRateArr}
+                          paginate={paginate}
+                          setPaginate={setPaginate}
+                          setSingleArr={setSingleArr}
+                          singleArr={singleArr}
+                          mainArrs={mainArrs}
+                          setmainArrs={setmainArrs}
+                          // updateSingleArr={updateSingleArr}
+                          setNewArrVenAm={setNewArrVenAm}
+                          mainArrVenAm={mainArrVenAm}
+                          setMAVenAmValue={setMAVenAmValue}
+                          mAVenAmValue={mAVenAmValue}
+                          setMAFreightValue={setMAFreightValue}
+                          mAfreightValue={mAfreightValue}
+                          headerCal={headerCal}
+                          setHeaderCal={setHeaderCal}
                         />
                       </Form.Item>
                     ))}
@@ -864,14 +1236,36 @@ function VBT02Report({
           </Col>
         </Row>
       </Form>
-      <NavFooter
+      {current < totalPage ? (
+        <NavFooter
+          nextLabel="Next"
+          backLabel="Back"
+          submitFunction={() => {
+            changeToNextPage();
+          }}
+          resetFunction={backFunction}
+          backFunction={() => changeToBackPage()}
+          loading={loading}
+        />
+      ) : (
+        <NavFooter
+          nextLabel="Submit"
+          submitFunction={() => {
+            showCofirmModal();
+          }}
+          resetFunction={backFunction}
+          backFunction={() => changeToBackPage()}
+          loading={loading}
+        />
+      )}
+      {/* <NavFooter
         nextLabel="Submit"
         submitFunction={() => {
           showCofirmModal();
         }}
         resetFunction={backFunction}
         loading={loading}
-      />
+      /> */}
     </Drawer>
   );
 }
