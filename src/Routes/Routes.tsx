@@ -249,6 +249,7 @@ import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReve
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
+import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
 
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
@@ -775,6 +776,11 @@ const Routes = [
     path: "/warehouse/print-view-min",
     main: () => <ViewMin />,
   },
+  {
+    path: "/warehouse/pia-scan",
+    main: () => <PIAScan />,
+  },
+
   {
     path: "/warehouse/material-in",
     main: () => <MaterialInWithoutPO />,
