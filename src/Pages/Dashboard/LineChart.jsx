@@ -13,35 +13,33 @@ const LineChart = ({
 }) => {
   let a;
   const [search, setSearch] = useState("");
-  const [extractedData, setExtractedData] = useState("");
-  const [monthLabel, setMonthLabel] = useState("");
   const chartRef = useRef(null);
   let chartInstance = null;
   useEffect(() => {
     const ctx = chartRef.current.getContext("2d");
-    console.log("extractedData", extractedData);
+
     const config = {
       type: "bar",
       data: {
-        labels: monthLabel,
+        labels: labels,
         datasets: [
           {
             label: "Total",
-            data: extractedData[0]?.total_po,
+            data: totalPOData,
             borderColor: "rgba(75, 192, 192, 1)",
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             borderWidth: 2,
           },
           {
             label: "Domestic",
-            data: extractedData[0]?.domestic_po,
+            data: domesticPOData,
             borderColor: "rgba(255, 99, 132, 1)",
             backgroundColor: "rgba(255, 99, 132, 0.2)",
             borderWidth: 2,
           },
           {
             label: "Import",
-            data: extractedData[0]?.import_po,
+            data: importPOData,
             borderColor: "rgba(255, 205, 86, 1)",
             backgroundColor: "rgba(255, 205, 86, 0.2)",
             borderWidth: 2,
@@ -62,7 +60,7 @@ const LineChart = ({
 
     // Clean up function to destroy the chart
     return () => myChart.destroy();
-  }, [totalPOData, domesticPOData, importPOData, extractedData, monthLabel]);
+  }, [totalPOData, domesticPOData, importPOData]);
   const searchChart = async () => {
     console.log("search", search);
     console.log("combinedPoData", combinedPoData);
@@ -73,8 +71,6 @@ const LineChart = ({
       .filter((value) => value !== undefined);
 
     console.log("valuesOfSearchKeys", valuesOfSearchKeys);
-    setExtractedData(valuesOfSearchKeys);
-    setMonthLabel(search.label);
   };
 
   return (
@@ -85,12 +81,12 @@ const LineChart = ({
     >
       {/* <Typography.Text>Analysis</Typography.Text> */}
       <Row gutter={[10, 10]}>
-        <Col span={16}>
+        {/* <Col span={16}>
           <MySelect options={options} labelInValue onChange={setSearch} />
-        </Col>
-        <Col span={8}>
+        </Col> */}
+        {/* <Col span={8}>
           <MyButton variant="search" type="primary" onClick={searchChart} />
-        </Col>
+        </Col> */}
       </Row>
       <div style={{ width: "550px", height: "300px" }}>
         <canvas ref={chartRef} width="700px" height="330px"></canvas>
