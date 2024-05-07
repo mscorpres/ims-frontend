@@ -9,6 +9,7 @@ import {
   Typography,
   Flex,
   Divider,
+  Tooltip,
 } from "antd";
 import { useEffect, useState } from "react";
 import useApi from "../../hooks/useApi.ts";
@@ -29,7 +30,9 @@ import {
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
+import TableActions, {
+  CommonIcons,
+} from "../../Components/TableActions.jsx/TableActions";
 import Loading from "../../Components/Loading";
 import * as xlsx from "xlsx";
 import { downloadExcel } from "../../Components/printFunction";
@@ -41,6 +44,7 @@ import {
 import { useSearchParams } from "react-router-dom";
 import Ledgers from "./ledgers";
 import { createDraft } from "../../api/finance/vendor-reco";
+import MyButton from "../../Components/MyButton/index.jsx";
 
 const initialValues = {
   location: undefined,
@@ -96,18 +100,22 @@ const VendorReconcilation = () => {
     if (response.success) {
       setRecoRef(response.data.recoID);
       if (response.data.draftData) {
-        Modal.confirm({
-          title: "Draft Reco Found",
-          content: `It seems you started this reconcilation on ${response.data.createdOn}. Do you want to continue the reconcillation?`,
-          okText: "Continue",
-          cancelText: "No",
-          onOk: () => {
-            setVendorInput({
-              opening: response.data.draftData.vendorOpeningBalance.toString(),
-              closing: response.data.draftData.vendorClosingBalance.toString(),
-            });
-          },
+        setVendorInput({
+          opening: response.data.draftData.vendorOpeningBalance.toString(),
+          closing: response.data.draftData.vendorClosingBalance.toString(),
         });
+        // Modal.confirm({
+        //   title: "Draft Reco Found",
+        //   content: `It seems you started this reconcilation on ${response.data.createdOn}. Do you want to continue the reconcillation?`,
+        //   okText: "Continue",
+        //   cancelText: "No",
+        //   onOk: () => {
+        //     setVendorInput({
+        //       opening: response.data.draftData.vendorOpeningBalance.toString(),
+        //       closing: response.data.draftData.vendorClosingBalance.toString(),
+        //     });
+        //   },
+        // });
       }
     }
   };
@@ -248,21 +256,21 @@ const VendorReconcilation = () => {
     }
   };
 
-  const handleUpdateMatchStatus = async (status) => {
-    let finalArr = [];
-    selectedRows.map((selRow) => {
-      const found = rows.find((row) => row.id === selRow);
-      if (found) {
-        finalArr = [...finalArr, found.voucherNo];
-      }
-    });
-
+  const handleUpdateMatchStatus = async (status, voucherNo) => {
     const response = await executeFun(
-      () => updateMatchStatus(status, finalArr),
+      () => updateMatchStatus(!status ? "matched" : "unmatched", [voucherNo]),
       "updateStatus"
     );
     if (response.success) {
-      handleFetchLedgerDetais();
+      // handleFetchLedgerDetais();
+      setRows((curr) =>
+        curr.map((row) => {
+          if (row.voucherNo === voucherNo) {
+            row.matched = !status;
+          }
+          return row;
+        })
+      );
     }
   };
 
@@ -329,6 +337,27 @@ const VendorReconcilation = () => {
       setShowFilters(false);
     }
   }, [paramsVendorCode]);
+
+  const actionColumn = [
+    {
+      field: "actions",
+      headerName: "",
+      // width: 100,
+      type: "actions",
+      getActions: ({ row }) => [
+        // <GridActionsCellItem
+        //   icon={<EyeFilled onClick={() => setOpen(row?.module_used)} />}
+        // />,
+        <Tooltip title={row.matched ? "Un-match Entry" : "Match Entry"}>
+          <TableActions
+            action={row.matched ? "cancel" : "check"}
+            onClick={() => handleUpdateMatchStatus(row.matched, row.voucherNo)}
+          />
+          ,
+        </Tooltip>,
+      ],
+    },
+  ];
 
   return (
     <div style={{ padding: 10, height: "95%" }}>
@@ -414,12 +443,12 @@ const VendorReconcilation = () => {
         </Col>
         <Col span={20}>
           <MyDataTable
-            checkboxSelection
-            onSelectionModelChange={(newSelectionModel) => {
-              setSelectedRows(newSelectionModel);
-            }}
+            // checkboxSelection
+            // onSelectionModelChange={(newSelectionModel) => {
+            //   setSelectedRows(newSelectionModel);
+            // }}
             rows={rows}
-            columns={columns}
+            columns={[...columns, ...actionColumn]}
             loading={loading("fetchManualTrans") || loading("updateStatus")}
           />
         </Col>
@@ -937,7 +966,7 @@ const ButtonsCard = ({
   return (
     <Card size="small">
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        <Button
+        {/* <Button
           type="primary"
           disabled={selectedRows.length === 0}
           onClick={() => handleUpdateMatchStatus(statusOption.match)}
@@ -950,26 +979,32 @@ const ButtonsCard = ({
           onClick={() => handleUpdateMatchStatus(statusOption.unmatch)}
         >
           Un-Match Selected
-        </Button>
+        </Button> */}
+        <MyButton
+          variant="notes"
+          text=""
+          shape="circle"
+          disabled={!selectedVendor}
+          onClick={() => setShowNoteDialog(true)}
+        >
+          Notes
+        </MyButton>
+        <MyButton
+          variant="mail"
+          text=""
+          shape="circle"
+          disabled={!selectedVendor}
+          onClick={toggleShowRequestLedgerModal}
+        />
         <Button
           disabled={!selectedVendor}
           onClick={() => setShowTransactionModal(true)}
         >
           Manual Transactions
         </Button>
-        <Button
-          disabled={!selectedVendor}
-          onClick={() => setShowNoteDialog(true)}
-        >
-          Notes
-        </Button>
-        <Button
-          disabled={!selectedVendor}
-          onClick={toggleShowRequestLedgerModal}
-        >
-          Mails
-        </Button>
-        <Button onClick={() => handleSaveToDraft("draft")}>Save</Button>
+
+        <MyButton variant="submit" onClick={() => handleSaveToDraft("draft")} />
+        {/* <Button onClick={() => handleSaveToDraft("draft")}>Save</Button> */}
         <Button onClick={() => handleSaveToDraft("completed")}>
           Complete Reco
         </Button>
@@ -1137,7 +1172,7 @@ const columns = [
       ) : (
         <CloseCircleOutlined style={{ color: "red" }} />
       ),
-    width: 80,
+    width: 90,
   },
 ];
 

@@ -1184,9 +1184,6 @@ const CategoryModal = ({
   useEffect(() => {
     if (value) {
       let a = getComponentValueForName(value);
-      // console.log("value a", a);
-      // console.log("valueis added", value);
-      // console.log("alpha added", alpha);
       checkDecimal(value);
       getUniqueNo(a);
     }
