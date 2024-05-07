@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { imsAxios } from "../../axiosInterceptor";
-import MyDatePicker from "../../Components/MyDatePicker";
+import { useEffect, useState } from "react";
+import MyDatePicker from "@/Components/MyDatePicker";
 import {
   Table,
   TableBody,
@@ -22,29 +21,12 @@ import {
 } from "antd";
 import { v4 } from "uuid";
 import { DownloadOutlined } from "@ant-design/icons";
-import { downloadCSVCustomColumns } from "../../Components/exportToCSV";
-import MyButton from "../../Components/MyButton";
-import MySelect from "../../Components/MySelect";
-import useApi from "../../hooks/useApi";
-import { getTrialBalance } from "../../api/finance/reports";
-
-const scalingOptions = [
-  { text: "No Scaling", value: "0" },
-  { text: "Thousands", value: "T" },
-  { text: "Lakhs", value: "L" },
-  { text: "Crores", value: "Cr" },
-];
-
-const currencyOptions = [
-  {
-    text: "INR",
-    value: "inr",
-  },
-  {
-    text: "Foreign",
-    value: "foreign",
-  },
-];
+import { downloadCSVCustomColumns } from "@/Components/exportToCSV";
+import MyButton from "@/Components/MyButton";
+import MySelect from "@/Components/MySelect";
+import useApi from "@/hooks/useApi";
+import { getTrialBalance } from "@/api/finance/reports";
+import { scalingCurrencyOptions, scalingOptions } from "@/utils/selectOptions";
 
 function TrialBalReport() {
   const [date, setDate] = useState("");
@@ -105,12 +87,10 @@ function TrialBalReport() {
       Type: "",
       Name: "",
       Code: "",
-      Credit: getSum(allData, "credit").toFixed(2),
-      Debit: getSum(allData, "debit").toFixed(2),
+      Credit: getSum(allData, "credit"),
+      Debit: getSum(allData, "debit"),
     });
-    console.log("csv Data", csvData);
-    // downloadCSVCustomColumns
-    // console.log("parseInt", csvData);
+
     downloadCSVCustomColumns(csvData, "Trial Balance Report");
   };
   const convertToNumber = (debitString) => {
@@ -176,7 +156,6 @@ function TrialBalReport() {
               : 0,
           };
         } else if (row.type === "Ledger") {
-          console.log("debut is", Number(row.originalDebit) / exchangeRate);
           return {
             ...row,
 
@@ -198,7 +177,6 @@ function TrialBalReport() {
         }
       });
 
-      console.log("scaled array", arr);
       return arr;
     });
   };
@@ -316,7 +294,7 @@ function TrialBalReport() {
               <MySelect
                 onChange={setCurrnetCurrency}
                 value={currentCurrency}
-                options={currencyOptions}
+                options={scalingCurrencyOptions}
               />
             </div>
             <div style={{ width: 200 }}>
