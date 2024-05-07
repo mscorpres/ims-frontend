@@ -320,7 +320,7 @@ function ProcurementDashboard() {
                 <div style={{ flex: 1 }}>
                   {/* <MyDatePicker setDateRange={setDateRange} />{" "} */}
                   <span style={{ display: "flex" }}>
-                    <Col span={8}>
+                    <Col span={10}>
                       <Input
                         placeholder="Filled"
                         variant="filled"
@@ -451,7 +451,7 @@ function ProcurementDashboard() {
                   totalPOData={totalPOData}
                   combinedPoData={combinedPoData}
                 />
-                <RePieForPO combinedPoData={combinedPoData} />
+                {/* <RePieForPO combinedPoData={combinedPoData} /> */}
               </Col>
               <Col span={7} style={{ height: "10vh" }}>
                 {/* <div style={{ height: "20rem", width: " 27rem" }}> */}
