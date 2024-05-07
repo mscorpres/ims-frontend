@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Col, Form, Row, Space } from "antd";
-import SingleDatePicker from "@/Components/SingleDatePicker";
 import { R33Type } from "@/types/reports";
-import MyDataTable from "../../gstreco/myDataTable";
+
 import MyButton from "@/Components/MyButton";
+import MyDataTable from "@/Components/MyDataTable";
 import useApi from "@/hooks/useApi";
 import ToolTipEllipses from "@/Components/ToolTipEllipses";
 import { getR33 } from "@/api/reports/inventoryReport";
