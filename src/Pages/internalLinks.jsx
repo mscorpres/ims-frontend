@@ -1018,6 +1018,10 @@ const links = [
       routeName: "MIS Report",
       routePath: "/tally/vouchers/reference/misReport",
     },
+    {
+      routeName: "Ledger Report",
+      routePath: "/tally/ledger_report",
+    },
   ],
   // // debit note
   // [

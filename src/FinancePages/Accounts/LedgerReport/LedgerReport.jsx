@@ -23,24 +23,30 @@ import { useEffect } from "react";
 import { setCurrentLinks } from "../../../Features/loginSlice/loginSlice.js";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import useApi from "../../../hooks/useApi.ts";
-import { getLedgerReport } from "../../../api/finance/reports";
+import { getLedgerReport } from "../../../api/ledger";
 import MyButton from "../../../Components/MyButton/index.jsx";
 import { getLedgerOptions } from "../../../api/ledger";
-import { getRecoReport } from "../../../api/finance/vendor-reco";
+import { getRecoReport } from "../../../api/finance/vendor-reco.js";
 import Loading from "../../../Components/Loading.jsx";
+import { imsAxios } from "../../../axiosInterceptor.tsx";
 
 export default function LedgerReport() {
   const [asyncOptions, setAsyncOptions] = useState([]);
+
+  const [selectLoading, setSelectLoading] = useState(false);
   const [rows, setRows] = useState({ rows: [] });
   const [summary, setSummary] = useState({});
+  const [searchLedger, setSearchLedger] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [recoRows, setRecoRows] = useState([]);
 
   const [filterForm] = Form.useForm();
   const dispatch = useDispatch();
   const params = useParams();
-  const { executeFun, loading } = useApi();
+  const { executeFun, loading: loading1 } = useApi();
   const { Title, Link, Text } = Typography;
 
   const getLedgerOptions = async (searchInput) => {
@@ -62,14 +68,38 @@ export default function LedgerReport() {
   };
   const handleFetchLedgerReport = async () => {
     const values = await filterForm.validateFields();
-    const response = await executeFun(
-      () => getLedgerReport(values.vendor.value, values.date),
-      "fetch"
-    );
+    let payload = {
+      ledger: values?.vendor.value,
+      date: values?.date,
+    };
+    const response = await executeFun(() => getLedgerReport(payload), "fetch");
     handleFetchRecoReport();
-    setRows(response.data.rows);
-    console.log();
-    setSummary(response.data.summary);
+    let { data } = response;
+    if (response.success) {
+      if (data.code === 200) {
+        if (data?.data.rows) {
+          let arr = data?.data.rows.map((r, id) => {
+            return {
+              referenceDate: r.ref_date,
+              invoiceNumber: r.invoice_no,
+              invoiceDate: r.invoice_date,
+              reference: r.ref,
+              whichModule: r.which_module,
+              moduleUsed: r.module_used,
+              debitAmount: r.debit,
+              creditAmount: r.credit,
+              id: id + 1,
+            };
+          });
+          setRows(arr);
+        } else {
+          setRows([]);
+        }
+        setSummary(data?.data.summary);
+      } else {
+        toast.error();
+      }
+    }
 
     console.log("ledger report response", response);
     // if (searchLedger && searchDateRange) {
@@ -108,6 +138,12 @@ export default function LedgerReport() {
     setAsyncOptions(response.data);
   };
   const ledgerReportColumns = [
+    {
+      headerName: "#",
+      field: "id",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.id} />,
+      width: 100,
+    },
     {
       headerName: "Ref. Date",
       field: "referenceDate",
@@ -199,6 +235,23 @@ export default function LedgerReport() {
       `Ledger Report ${values.vendor.label} ${values.date}`
     );
   };
+  const ledgerByCode = async (code) => {
+    const response = await imsAxios.post("/tally/ledger/ledger_options", {
+      search: code,
+    });
+    if (response.data) {
+      if (response.data.code === 200) {
+        let obj = {
+          label: response.data.data[0].text,
+          value: response.data.data[0].id,
+        };
+        // setSearchLedger(obj);
+        filterForm.setFieldValue("vendor", obj);
+      } else {
+        toast.error(response.data.message.msg);
+      }
+    }
+  };
   useEffect(() => {
     dispatch(setCurrentLinks(links));
   }, []);
@@ -216,11 +269,15 @@ export default function LedgerReport() {
               <Form.Item name="vendor" label="Ledger" rules={rules.vendor}>
                 <MyAsyncSelect
                   onBlur={() => setAsyncOptions([])}
-                  selectLoading={loading("select")}
+                  selectLoading={loading1("select")}
                   placeholder="Select Ledger"
                   labelInValue
                   loadOptions={handleFetchLedgerOptions}
                   optionsState={asyncOptions}
+                  onChange={(value) =>
+                    filterForm.setFieldValue("vendor", value)
+                  }
+                  value={searchLedger}
                 />
               </Form.Item>
               <Form.Item name="date" label="Time Period" rules={rules.date}>
