@@ -61,7 +61,7 @@ function MisReport() {
   const [months, setMonths] = useState([]);
   const [colm, setColm] = useState(initColumns);
   const { user, notifications } = useSelector((state) => state.login);
-
+  const [expanded, setExpanded] = useState({ panel1: false, panel2: false });
   const fetchMisReport = async () => {
     setLoading(true);
     const response = await imsAxios.get(`/mis/generate?date=${dateRange}`);
@@ -238,6 +238,9 @@ function MisReport() {
       return curr;
     });
   }, [months]);
+  const handleChange = (panel) => (event, newExpanded) => {
+    setExpanded({ ...expanded, [panel]: newExpanded });
+  };
 
   return (
     <div style={{ height: "80%" }}>
@@ -279,7 +282,10 @@ function MisReport() {
               }}
             >
               <div>
-                <Accordion>
+                <Accordion
+                  expanded={expanded.panel1}
+                  onChange={handleChange("panel1")}
+                >
                   <AccordionSummary
                     expandIcon={<GridExpandMoreIcon />}
                     aria-controls="panel1a-content"
@@ -482,7 +488,10 @@ function MisReport() {
                 </Accordion>
               </div>
               <div>
-                <Accordion>
+                <Accordion
+                  expanded={expanded.panel2}
+                  onChange={handleChange("panel2")}
+                >
                   <AccordionSummary
                     expandIcon={<GridExpandMoreIcon />}
                     aria-controls="panel1a-content"
