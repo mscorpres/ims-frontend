@@ -131,10 +131,7 @@ function R33() {
         </Card>
       </Col>
       <Col span={20}>
-        <MyDataTable
-          columns={wise === "singleDate" ? singleColumns : rangeColumns}
-          data={rows}
-        />
+        <MyDataTable columns={rangeColumns} data={rows} />
       </Col>
     </Row>
   );
