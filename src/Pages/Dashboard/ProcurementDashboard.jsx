@@ -248,8 +248,8 @@ function ProcurementDashboard() {
     const response = await imsAxios.get("/dashboard/po_trends");
     if (response.success === true) {
       const { data } = response;
-      // console.log("respinse for pending po", response);
-      setCombinedData(response.data);
+      console.log("respinse for pending po", response);
+      setCombinedData(response?.data);
       const totalPoValues = [];
       const domesticPoValues = [];
       const importPoValues = [];
@@ -291,7 +291,7 @@ function ProcurementDashboard() {
         style={{
           background: "#e3efea",
           //   background: "#F5F5F5",
-          height: "80vh",
+          height: "90vh",
           // width: " 93vw",
           margin: "1em 2em 1em 2em",
           overflowY: "scroll",
@@ -453,7 +453,7 @@ function ProcurementDashboard() {
                 />
                 {/* <RePieForPO combinedPoData={combinedPoData} /> */}
               </Col>
-              <Col span={7} style={{ height: "10vh" }}>
+              <Col span={7}>
                 {/* <div style={{ height: "20rem", width: " 27rem" }}> */}
                 <BarChart data={barChartData} />
                 {/* </div> */}
@@ -490,11 +490,11 @@ function ProcurementDashboard() {
                   {/* </Card> */}
                 </Card>
               </Col>
-              <Col span={10} style={{ height: "10vh" }}>
-                <div style={{ height: "22rem", width: " 27rem" }}>
-                  {/* <BarChart data={barChartData} /> */}
-                </div>
-              </Col>
+              {/* <Col span={10}>
+                <div style={{ height: "22rem", width: " 27rem" }}> */}
+              {/* <BarChart data={barChartData} /> */}
+              {/* </div>
+              </Col> */}
             </Row>
           </Col>
         </Row>

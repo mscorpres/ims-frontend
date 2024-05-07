@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import Chart from "chart.js/auto"; // Importing Chart.js
-import { Card, Flex } from "antd";
+import { Card } from "antd";
 
 const LineChart = ({ datas, labels }) => {
-  // console.log("labels", labels);
   const chartRef = useRef(null);
 
   useEffect(() => {
@@ -11,27 +10,28 @@ const LineChart = ({ datas, labels }) => {
 
     // Configure the chart
     const config = {
-      type: "line", // Setting the chart type to line
+      type: "bar", // Change chart type to horizontalBar
       data: {
-        labels: labels, // Setting the labels for the x-axis
+        labels: labels,
         datasets: [
           {
-            label: "Line graph", // Description can be used as dataset label
+            label: "Horizontal Bar Chart",
             data: datas,
-            borderColor: "rgba(69, 34, 88, 0.7)", // Line color
-            backgroundColor: "rgba(75, 192, 192, 0.2)", // Area under the line fill color
-            borderWidth: 1, // Line width
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(69, 34, 88, 0.7)",
+            borderWidth: 1,
           },
         ],
       },
       options: {
+        indexAxis: "y", // Specify the index axis as y for horizontal bars
         responsive: true,
         scales: {
           x: {
             display: true,
             title: {
               display: true,
-              //   text: "GST Status", // Custom x-axis label
+              text: "", // Custom x-axis label
             },
           },
           y: {
@@ -58,9 +58,7 @@ const LineChart = ({ datas, labels }) => {
       style={{ width: "400px", height: "250px" }}
       title={"Vendor GST Registeration Status"}
     >
-      {/* <Typography.Text>Part Analysis</Typography.Text> */}
       <div style={{ width: "390px", height: "220px" }}>
-        {" "}
         <canvas ref={chartRef} width="350" height="150"></canvas>
       </div>
     </Card>
