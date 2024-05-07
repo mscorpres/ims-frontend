@@ -42,6 +42,16 @@ const R2 = () => {
       width: 130,
     },
     {
+      field: "po_raise_by",
+      headerName: "Requested By",
+      width: 130,
+    },
+    {
+      field: "po_approve_by",
+      headerName: "Approved By",
+      width: 130,
+    },
+    {
       field: "po_order_id",
       headerName: "Po Order Id",
       width: 120,
