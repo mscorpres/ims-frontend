@@ -83,13 +83,13 @@ function TrialBalReport() {
         "Credit.": row.credit && convertToNumber(row.credit),
       };
     });
-    csvData.push({
-      Type: "",
-      Name: "",
-      Code: "",
-      Credit: getSum(allData, "credit"),
-      Debit: getSum(allData, "debit"),
-    });
+    // csvData.push({
+    //   Type: "",
+    //   Name: "",
+    //   Code: "",
+    //   Credit: getSum(allData, "credit"),
+    //   Debit: getSum(allData, "debit"),
+    // });
 
     downloadCSVCustomColumns(csvData, "Trial Balance Report");
   };
