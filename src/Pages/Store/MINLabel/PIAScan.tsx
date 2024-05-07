@@ -1,207 +1,224 @@
-import { imsAxios } from "@/axiosInterceptor";
-import { Button, Card, Col, Divider, Form, Input, Row } from "antd";
-import React, { useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { Card, Col, Divider, Flex, Form, Input, Row, Typography } from "antd";
+import { useEffect, useRef, useState } from "react";
+
+import MyButton from "@/Components/MyButton";
+import { fetchBoxDetails, updateBoxQty } from "@/api/store/material-in.js";
+import useApi from "@/hooks/useApi";
+import useDebounce from "@/hooks/useDebounce";
+import Loading from "@/Components/Loading.jsx";
 
 function PIAScan() {
+  const [details, setDetails] = useState(defaultDetails);
+  const [ready, setReady] = useState(false);
+  const [scannedData, setScannedData] = useState({
+    string: "",
+    loading: false,
+  });
+  const updatedString = useDebounce(scannedData.string, 1000);
+
   const [scan] = Form.useForm();
-  const [buttonName, setButtonName] = useState("Scan");
-  const [loading, setLoading] = useState(false);
+  const { loading, executeFun } = useApi();
   const ref = useRef(null);
 
-  const extractedJson = (e) => {
-    console.log("parsed", e);
-    console.log("parsed here");
-    let parsed = JSON.parse(e);
-    let obj = {
-      minNumber: parsed["MIN ID"],
-      minQty: parsed["MIN Qty"],
-      minDate: parsed["MIN Date"],
-      projectId: parsed["PRJ ID"],
-      costCenter: parsed["Cost Center"],
-      partCode: parsed["Part Code"],
-      partName: parsed["Part Name"],
-      compKey: parsed["component_key"],
-      vendorName: parsed["Vendor Name"],
-      label: parsed["label"],
-      uom: parsed["part_uom"],
-      venCode: parsed["Vendor Code"],
-    };
-    console.log("obj", obj);
-    scan.setFieldValue("minNumber", obj.minNumber);
-    console.log("obj.minNumber", obj.minNumber);
-    if (obj && obj.label) {
-      getData(obj);
-    }
-    scan.setFieldValue("minQty", obj.minQty);
-    scan.setFieldValue("minDate", obj.minDate);
-    scan.setFieldValue("projectId", obj.projectId);
-    scan.setFieldValue("costCenter", obj.costCenter);
-    scan.setFieldValue("partCode", obj.partCode);
-    scan.setFieldValue("partName", obj.partName);
-    scan.setFieldValue("compKey", obj.compKey);
-    scan.setFieldValue("vendorName", obj.vendorName);
-    scan.setFieldValue("label", obj.label);
-    scan.setFieldValue("venCode", obj.venCode);
+  const handleScan = (value: string) => {
+    let parsed = JSON.parse(value);
+    handleFetchDetails(parsed["MIN ID"], parsed["label"]);
   };
-  const getData = async (obj) => {
-    const response = await imsAxios.post("/minBoxLablePrint/fetchBoxDetails", {
-      box: obj.label,
-      minId: obj.minNumber,
-    });
-    console.log("response", response);
-    let { data } = response;
-    if (response?.success) {
-      scan.setFieldValue("avlQty", data.avlQty);
-      scan.setFieldValue("boxCreateDt", data.boxCreateDt);
+  const handleFetchDetails = async (minId: string, boxLabel: string) => {
+    const response = await executeFun(
+      () => fetchBoxDetails(minId, boxLabel),
+      "fetch"
+    );
+    if (response.success) {
+      setDetails(response.data);
+      scan.setFieldValue("availabelQty", response.data.availabelQty);
     }
   };
   const reset = () => {
     scan.resetFields();
-  };
-  const submitData = async () => {
-    setLoading(false);
-    let values = await scan.validateFields();
-    console.log("values", values);
-    const response = await imsAxios.post("/minBoxLablePrint/updateAvailQty", {
-      box: values.label,
-      minId: values.minNumber,
-      avlQty: values.avlQty,
+    setDetails(defaultDetails);
+    setScannedData({
+      string: "",
+      loading: false,
     });
-    console.log("respomse", response);
-    if (response.success) {
-      toast.success(response?.message);
-      setLoading(false);
-      reset();
-    }
-    setLoading(false);
     scanTheQr();
   };
-  const scanTheQr = () => {
-    // console.log("here");
-    if (ref && ref?.current) {
-      console.log("ref", ref);
-      setButtonName("Ready To Scan");
-      ref.current?.focus();
-    } else {
-      console.log("ref here");
-      setButtonName("Scan");
-      console.error("Ref is not set up correctly.");
+  const submitData = async () => {
+    let values = await scan.validateFields();
+    const response = await executeFun(
+      () => updateBoxQty(details.minId, details.boxLabel, values.availabelQty),
+      "submit"
+    );
+
+    if (response.success) {
+      reset();
     }
+  };
+  const scanTheQr = () => {
+    setReady(true);
+
     ref.current?.focus();
   };
+  useEffect(() => {
+    console.log("scan finish");
+    if (updatedString) {
+      if (updatedString.length > 10) {
+        handleScan(updatedString);
+      }
+      setScannedData((curr) => ({
+        ...curr,
+        loading: false,
+      }));
+    }
+  }, [updatedString]);
+  useEffect(() => {
+    if (scannedData.string.length === 1) {
+      setScannedData((curr) => ({
+        ...curr,
+        loading: true,
+      }));
+    }
+  }, [scannedData]);
+  useEffect(() => {
+    scanTheQr();
+  }, []);
+
   return (
     <div>
-      <Row justify="center">
-        {/* <Col span={4}> */}
-        <Button style={{ width: "200px" }} type="primary" onClick={scanTheQr}>
-          {buttonName}
-        </Button>
-        {/* </Col> */}
-      </Row>
+      <Flex vertical justify="center" gap={10}>
+        <Flex justify="center">
+          <MyButton
+            size="large"
+            text="Scan Label"
+            variant="scan"
+            type="default"
+            onClick={scanTheQr}
+            loading={loading("fetch") || scannedData.loading}
+          />
+        </Flex>
+        <Flex justify="center">
+          <Typography.Text
+            strong
+            style={{ color: ready ? "green" : "brown", fontSize: 20 }}
+          >
+            {ready
+              ? "Ready to Scan !!!"
+              : "Click the scan button to start scanning !!!"}
+          </Typography.Text>
+        </Flex>
+      </Flex>
+
+      {/* hidden input */}
       <Input
         ref={ref}
-        onChange={(e) => extractedJson(e.target.value)}
-        style={{ opacity: 0, zIndex: -1, pointerEvents: "none" }}
+        onChange={(e) => {
+          setScannedData(() => ({
+            loading: true,
+            string: e.target.value,
+          }));
+        }}
+        onBlur={() => {
+          setReady(false);
+        }}
+        value={scannedData.string}
+        style={{ opacity: 0, zIndex: -1, pointerEvents: "none", width: 10 }}
       />
       <Row justify="center">
-        {/* <Row>
-        // <Col span={24}> /*/}
         <Col span={12}>
-          <Card title="Details">
+          <Card title="Box Details">
+            {(loading("fetch") || scannedData.loading) && <Loading />}
             <Form form={scan} layout="vertical">
-              {/* <Col span={24}> */}
-              <Row gutter={[10, 10]}>
-                <Col span={12}>
-                  <Form.Item name="partName" label="Part Name">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item name="partCode" label="Part Code">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item name="costCenter" label="Cost Center">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="venCode" label="Vendor Code">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
+              <Flex justify="center" vertical gap={"10px"}>
+                <div>
+                  <Typography.Text strong>MIN Details</Typography.Text>
+                  <Divider />
+                </div>
+                <Flex gap={"15px 50px"} wrap="wrap">
+                  <SingleDetail label="MIN ID" value={details.minId} />
+                  <SingleDetail label="MIN Date" value={details.minDate} />
+                  <SingleDetail label="Component" value={details.component} />
+                  <SingleDetail label="Part Code" value={details.partCode} />
+                  <SingleDetail label="MIN Qty" value={details.minQty} />
+                  <SingleDetail
+                    label="Cost Center"
+                    value={details.costCenter}
+                  />
+                  <SingleDetail label="Vendor" value={details.vendor} />
+                  <SingleDetail
+                    label="Vendor Code"
+                    value={details.vendorCode}
+                  />
+                  <SingleDetail label="Project" value={details.project} />
+                </Flex>
+                <div>
+                  <Typography.Text strong>Box Details</Typography.Text>
+                  <Divider />
+                </div>
+                <Flex gap={20} wrap="wrap">
+                  <SingleDetail label="Box Label" value={details.boxLabel} />
 
-                {/* <Col span={12}>
-              <Form.Item name="compKey" label="component_key">
-                <Input />
-              </Form.Item>
-            </Col> */}
-                <Col span={12}>
-                  <Form.Item name="vendorName" label="Vendor Name">
-                    <Input disabled />
+                  <SingleDetail label="Box Qty" value={details.boxQty} />
+                  <SingleDetail
+                    label="Box Created Date"
+                    value={details.boxDate}
+                  />
+                  <Form.Item
+                    name="availabelQty"
+                    label={
+                      <Typography.Text strong style={{ fontSize: "0.8rem" }}>
+                        Available Qty
+                      </Typography.Text>
+                    }
+                  >
+                    <Input disabled={!details.boxQty} />
                   </Form.Item>
-                </Col>
+                </Flex>
+              </Flex>
 
-                <Col span={8}>
-                  <Form.Item name="minNumber" label="MIN Id">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="minQty" label="MIN Qty">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item name="minDate" label="MIN Date">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="projectId" label="Project ID">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-
-                <Col span={6}>
-                  <Form.Item name="label" label="Label">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item name="avlQty" label="Available Qty">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="boxCreateDt" label="Box Created Date">
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-              </Row>
-              {/* </Row>
-              </Col> */}
               <Divider />
-              <Row justify="end" gutter={[10, 10]}>
-                <Col>
-                  <Button onClick={reset}>Reset</Button>
-                </Col>
-                <Col>
-                  <Button type="primary" onClick={submitData} loading={loading}>
-                    Save
-                  </Button>
-                </Col>
-              </Row>
+              <Flex justify="center" gap={5}>
+                <MyButton variant="reset" onClick={reset}>
+                  Reset
+                </MyButton>
+                <MyButton
+                  variant="submit"
+                  onClick={submitData}
+                  disabled={!details.boxQty}
+                  loading={loading("submit")}
+                />
+              </Flex>
             </Form>
           </Card>
         </Col>
-        {/* </Col> */}
       </Row>
-      {/* </Row> */}
     </div>
   );
 }
 
 export default PIAScan;
+
+const SingleDetail = ({ label, value }: { label: string; value?: string }) => {
+  return (
+    <Flex vertical gap={5}>
+      <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+        {label}
+      </Typography.Text>
+      <Typography.Text>{value ?? "--"}</Typography.Text>
+    </Flex>
+  );
+};
+
+const defaultDetails = {
+  minId: undefined,
+  minDate: undefined,
+  component: undefined,
+  partCode: undefined,
+  minQty: undefined,
+  costCenter: undefined,
+  vendor: undefined,
+  vendorCode: undefined,
+  boxLabel: undefined,
+  boxDate: undefined,
+  boxQty: undefined,
+  project: undefined,
+};

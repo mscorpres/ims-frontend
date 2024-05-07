@@ -519,11 +519,6 @@ export const items = (user) => [
         "B42"
         // <AiOutlineMinus />
       ),
-      getItem(
-        <Link to="/warehouse/pia-scan">Print and View MIN Label</Link>,
-        "B42"
-        // <AiOutlineMinus />
-      ),
     ]),
     getItem("Query", "B5", <MdQueryStats />, [
       getItem(

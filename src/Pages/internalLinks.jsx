@@ -804,7 +804,7 @@ const links = [
       routePath: "/warehouse/print-view-min",
     },
     {
-      routeName: "PIA",
+      routeName: "Update Box",
       routePath: "/warehouse/pia-scan",
     },
   ],

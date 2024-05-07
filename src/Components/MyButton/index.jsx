@@ -14,6 +14,7 @@ import {
   DeleteFilled,
   SaveOutlined,
   PrinterOutlined,
+  ScanOutlined,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {
@@ -166,6 +167,13 @@ const MyButton = (props) => {
         icon={<PrinterOutlined />}
       >
         {props.text ?? "Print"}
+      </Button>
+    );
+  }
+  if (props.variant === "scan") {
+    return (
+      <Button {...props} type={props.type ?? "primary"} icon={<ScanOutlined />}>
+        {props.text ?? "Scan"}
       </Button>
     );
   }
