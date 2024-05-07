@@ -1,29 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { Card, Col, Form, Row, Space } from "antd";
-import SingleDatePicker from "../../../Components/SingleDatePicker";
-import { R33Type } from "../../../types/reports";
-import MyDataTable from "../../gstreco/myDataTable";
-import MyButton from "../../../Components/MyButton";
-import useApi from "../../../hooks/useApi";
-import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-import { getR33 } from "../../../api/reports/inventoryReport";
-import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../../Components/exportToCSV";
-import MySelect from "../../../Components/MySelect";
-import MyDatePicker from "../../../Components/MyDatePicker";
+import { R33Type } from "@/types/reports";
+
+import MyButton from "@/Components/MyButton";
+import MyDataTable from "@/Components/MyDataTable";
+import useApi from "@/hooks/useApi";
+import ToolTipEllipses from "@/Components/ToolTipEllipses";
+import { getR33 } from "@/api/reports/inventoryReport";
+import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
+import { downloadCSV } from "@/Components/exportToCSV";
+import MySelect from "@/Components/MySelect";
+import MyDatePicker from "@/Components/MyDatePicker";
+import MyAsyncSelect from "@/Components/MyAsyncSelect";
+import { getDepartmentOptions } from "@/api/master/department";
+import { SelectOptionType } from "@/types/general";
+import { getProductsOptions } from "@/api/general";
 
 const wiseOptions = [
   {
-    text: "Single Date",
-    value: "singleDate",
+    text: "Product Wise",
+    value: "product",
   },
   {
-    text: "Date Range",
-    value: "dateRange",
+    text: "Department Wise",
+    value: "department",
+  },
+  {
+    text: "Consolidated",
+    value: "consolidated",
   },
 ];
+
 function R33() {
   const [rows, setRows] = useState<R33Type[]>([]);
+  const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const date = Form.useWatch("date", form);
@@ -33,15 +43,31 @@ function R33() {
     const values = await form.validateFields();
 
     const response = await executeFun(
-      () => getR33(values.date, values.wise),
+      () => getR33(values.date, values.wise, values.data),
       "fetch"
     );
 
     setRows(response.data ?? []);
   };
 
+  const handleFetchDepartmentOptions = async (search: string) => {
+    const response = await executeFun(
+      () => getDepartmentOptions(search),
+      "select"
+    );
+    setAsyncOptions(response.data);
+  };
+
+  const handleFetchProductOptions = async (search: string) => {
+    const response = await executeFun(
+      () => getProductsOptions(search),
+      "select"
+    );
+    setAsyncOptions(response.data);
+  };
   useEffect(() => {
     setRows([]);
+    form.setFieldValue("data", "");
   }, [wise]);
 
   return (
@@ -52,17 +78,27 @@ function R33() {
             <Form.Item name="wise" label="Wise">
               <MySelect options={wiseOptions} />
             </Form.Item>
+            {wise !== "consolidated" && (
+              <Form.Item
+                label={wise === "product" ? "Product" : "Department"}
+                name="data"
+              >
+                <MyAsyncSelect
+                  loadOptions={(search) =>
+                    wise === "department"
+                      ? handleFetchDepartmentOptions(search)
+                      : handleFetchProductOptions(search)
+                  }
+                  selectLoading={loading("select")}
+                  optionsState={asyncOptions}
+                  onBlur={() => setAsyncOptions([])}
+                />
+              </Form.Item>
+            )}
             <Form.Item name="date" label="Date">
-              {wise === "singleDate" && (
-                <SingleDatePicker
-                  setDate={(value) => form.setFieldValue("date", value)}
-                />
-              )}
-              {wise === "dateRange" && (
-                <MyDatePicker
-                  setDateRange={(value) => form.setFieldValue("date", value)}
-                />
-              )}
+              <MyDatePicker
+                setDateRange={(value) => form.setFieldValue("date", value)}
+              />
             </Form.Item>
             <Row justify="end">
               <Space>
@@ -271,5 +307,5 @@ const rangeColumns = [
 ];
 
 const initialValues = {
-  wise: "singleDate",
+  wise: "product",
 };

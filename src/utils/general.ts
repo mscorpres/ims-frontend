@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 
 export const convertSelectOptions = (
-  arr: [],
+  arr: [] = [],
   label?: string,
   value?: string
 ) => {

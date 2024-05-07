@@ -112,7 +112,7 @@ export const fetchLocations = async (search) => {
   });
   return response;
 };
-export const getProductsOptions = async (search, sku) => {
+export const getProductsOptions = async (search: string, sku?: boolean) => {
   let url;
   if (sku) {
     url = "/backend/fetchProduct";
