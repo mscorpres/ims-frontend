@@ -15,6 +15,8 @@ import {
   SaveOutlined,
   PrinterOutlined,
   ScanOutlined,
+  MailOutlined,
+  ReadOutlined,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {
@@ -174,6 +176,20 @@ const MyButton = (props) => {
     return (
       <Button {...props} type={props.type ?? "primary"} icon={<ScanOutlined />}>
         {props.text ?? "Scan"}
+      </Button>
+    );
+  }
+  if (props.variant === "mail") {
+    return (
+      <Button {...props} type={props.type ?? "default"} icon={<MailOutlined />}>
+        {props.text ?? "Mail"}
+      </Button>
+    );
+  }
+  if (props.variant === "notes") {
+    return (
+      <Button {...props} type={props.type ?? "default"} icon={<ReadOutlined />}>
+        {props.text ?? "Notes"}
       </Button>
     );
   }
