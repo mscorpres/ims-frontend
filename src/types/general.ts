@@ -4,3 +4,7 @@ export interface ResponseType {
   message?: string | null;
   error?: boolean;
 }
+export interface SelectOptionType {
+  text: string | number | boolean;
+  value: string | number | boolean;
+}

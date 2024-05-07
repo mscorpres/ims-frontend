@@ -37,3 +37,17 @@ export const downloadFromLink = (uri) => {
   document.body.removeChild(link);
   // delete link;
 };
+
+export const convertToNumber = (debitString: string) => {
+  const cleanedDebit = parseFloat(
+    typeof debitString === "string"
+      ? debitString.replace(/,/g, "")
+      : debitString
+      ? debitString
+      : 0
+  );
+
+  const debitNumber = cleanedDebit === 0 ? 0 : cleanedDebit || 0;
+
+  return +Number(debitNumber).toFixed(2);
+};

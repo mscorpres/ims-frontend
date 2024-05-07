@@ -201,3 +201,39 @@ export const printLabels = async (values) => {
   }
   return response;
 };
+
+export const fetchBoxDetails = async (minId, boxLabel) => {
+  const response = await imsAxios.post("/minBoxLablePrint/fetchBoxDetails", {
+    box: boxLabel,
+    minId: minId,
+  });
+  if (response.success) {
+    response.data = {
+      availabelQty: response.data.avlQty,
+      boxLabel: response.data.box,
+      boxDate: response.data.boxCreateDt,
+      costCenter: response.data.costCenter,
+      minDate: response.data.minDate,
+      minId: response.data.minId,
+      minQty: response.data.minQty,
+      partCode: response.data.partCode,
+      component: response.data.partName,
+      project: response.data.project,
+      boxQty: response.data.qty,
+      vendorCode: response.data.vendorCode,
+      vendor: response.data.vendorName,
+    };
+  }
+
+  return response;
+};
+
+export const updateBoxQty = async (minId, boxLabel, availabelQty) => {
+  const response = await imsAxios.post("/minBoxLablePrint/updateAvailQty", {
+    box: boxLabel,
+    minId,
+    avlQty: +availabelQty,
+  });
+
+  return response;
+};
