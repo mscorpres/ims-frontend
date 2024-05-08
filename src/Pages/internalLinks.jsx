@@ -1178,5 +1178,12 @@ const links = [
       routePath: "/production/prodMis",
     },
   ],
+  //Research and Development
+  [
+    {
+      routeName: "Products",
+      routePath: routeConstants.researchAndDevelopment.products,
+    },
+  ],
 ];
 export default links;

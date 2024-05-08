@@ -20,6 +20,7 @@ import {
   DeploymentUnitOutlined,
   DeliveredProcedureOutlined,
   CheckCircleOutlined,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 import { RiBillFill } from "react-icons/ri";
 import { BiMoney, BiTransfer } from "react-icons/bi";
@@ -706,6 +707,13 @@ export const items = (user) => [
     <Link to="/invoice/create">Sales & Distribution</Link>,
     "/invoice/create",
     <UnorderedListOutlined />
+  ),
+  getItem(
+    <Link to={routeConstants.researchAndDevelopment.products}>
+      Research and Development
+    </Link>,
+    routeConstants.researchAndDevelopment.products,
+    <ExperimentOutlined />
   ),
   // user?.type == "developer"
   //   ? getItem(
