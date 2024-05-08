@@ -29,8 +29,10 @@ import { Link } from "react-router-dom";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import useApi from "../../../../hooks/useApi.ts";
-import { downloadComponentMaster } from "../../../../api/master/component.ts";
-import { downloadFromLink } from "../../../../Components/printFunction";
+import {
+  downloadComponentMaster,
+  downloadElectronicReport,
+} from "../../../../api/master/component.ts";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();

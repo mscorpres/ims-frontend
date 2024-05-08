@@ -53,6 +53,8 @@ interface GetR34Type {
   sku: string;
   insert_dt: string;
   create_by: string;
+  qty: string;
+  remark: string;
 }
 export const getR34 = async (date: string) => {
   const response: ResponseType = await imsAxios.post("/report34/", { date });
@@ -67,6 +69,8 @@ export const getR34 = async (date: string) => {
         sku: row.sku,
         insertedDate: row.insert_dt,
         insertedBy: row.create_by,
+        qty: row.qty,
+        remarks: row.remark,
       })
     );
   }

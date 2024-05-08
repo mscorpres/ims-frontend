@@ -124,6 +124,22 @@ const columns = [
     flex: 1,
   },
   {
+    headerName: "Qty",
+    field: "qty",
+    renderCell: ({ row }: { row: R34Type }) => (
+      <ToolTipEllipses text={row.qty} />
+    ),
+    width: 120,
+  },
+  {
+    headerName: "Remarks",
+    field: "remarks",
+    renderCell: ({ row }: { row: R34Type }) => (
+      <ToolTipEllipses text={row.remarks} />
+    ),
+    width: 180,
+  },
+  {
     headerName: "Rtn. Date",
     field: "insertedDate",
     renderCell: ({ row }: { row: R34Type }) => (
