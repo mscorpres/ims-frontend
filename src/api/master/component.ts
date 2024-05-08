@@ -73,3 +73,9 @@ export const mapHsn = async (key: string, hsnRows: HSNType[]) => {
 
   return response;
 };
+
+export const downloadElectronicReport = async () => {
+  const response = await imsAxios.get("/component/electronicReport");
+
+  return response;
+};
