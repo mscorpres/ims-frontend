@@ -23,6 +23,7 @@ export interface R34Type {
   insertedDate: string;
   insertedBy: string;
   remarks?: string;
+  qty: string;
   components?: R34ComponentType[];
 }
 export interface R34ComponentType {

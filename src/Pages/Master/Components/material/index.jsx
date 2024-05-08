@@ -33,7 +33,6 @@ import {
   downloadComponentMaster,
   downloadElectronicReport,
 } from "../../../../api/master/component.ts";
-import { downloadFromLink } from "../../../../Components/printFunction";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
