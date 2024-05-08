@@ -783,7 +783,7 @@ function VBT02Report({
       if (arr.length > 25) {
         setIsAnother(true);
         console.log("Arr", arr.length);
-        chunk = arr.length / 15;
+        chunk = arr.length / 25;
         chunk = Math.ceil(chunk);
         setTotalPage(chunk);
         console.log("chunk", chunk);
