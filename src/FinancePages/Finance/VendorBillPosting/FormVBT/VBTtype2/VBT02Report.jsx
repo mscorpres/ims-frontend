@@ -176,13 +176,13 @@ function VBT02Report({
 
   const submitFunction = async () => {
     const values = await Vbt01.validateFields();
-    // console.log("valuesss", values);
+    console.log("valuesss", values);
     if (isAnother) {
       let createdEntry = Vbt01.getFieldValue("components");
       paginate[current - 1] = createdEntry;
       setNewArr(paginate);
       const creatingComp = Array.prototype.concat(...newArr);
-      // console.log("creatingComp", creatingComp);
+      console.log("creatingComp", creatingComp);
       values.components = creatingComp;
     }
     if (isCreate) {
@@ -467,9 +467,9 @@ function VBT02Report({
   };
   const changeToNextPage = () => {
     // setLoading(true);
-    // console.log("current", current);
+    console.log("current", current);
     let createdEntry = Vbt01.getFieldValue("components");
-    // console.log("createdEntry", createdEntry);
+    console.log("createdEntry", createdEntry);
 
     let id;
     // let newArray = [];
@@ -480,12 +480,12 @@ function VBT02Report({
       setCurrArr(paginate[id - 1]);
 
       paginate[current - 1] = createdEntry;
-      // console.log("paginate in func", paginate);
+      console.log("paginate in func", paginate);
 
       let newArray = [...newArr];
       setNewArr(paginate);
-      // console.log("newArray", newArray);
-      // console.log("id", id);
+      console.log("newArray", newArray);
+      console.log("id", id);
       setLoading(false);
     }
   };
@@ -493,7 +493,7 @@ function VBT02Report({
     // setLoading(true);
     let id;
     let createdEntry = Vbt01.getFieldValue("components");
-    // console.log("createdEntry in back", createdEntry);
+    console.log("createdEntry in back", createdEntry);
     if (current - 1 > 0) {
       id = current - 1;
       setCurrent(id);
@@ -502,7 +502,7 @@ function VBT02Report({
       paginate[current - 1] = createdEntry;
     }
     setNewArr(paginate);
-    // console.log("id", id);
+    console.log("id", id);
     setLoading(false);
   };
 
@@ -572,16 +572,16 @@ function VBT02Report({
       }));
       ///
       // let newarr = arr.slice([10]);
-      // console.log("arr", arr);
+      console.log("arr", arr);
       setSingleArr(arr);
       // arr = newarr;
       if (arr.length > 25) {
         setIsAnother(true);
-        // console.log("Arr", arr.length);
+        console.log("Arr", arr.length);
         chunk = arr.length / 25;
         chunk = Math.ceil(chunk);
         setTotalPage(chunk);
-        // console.log("chunk", chunk);
+        console.log("chunk", chunk);
         result = divideArray(arr, chunk);
         // console.log("result", chunk);
         setPaginate(result);
@@ -782,11 +782,11 @@ function VBT02Report({
       // if arr lenght is greater than 25
       if (arr.length > 25) {
         setIsAnother(true);
-        // console.log("Arr", arr.length);
-        chunk = arr.length / 15;
+        console.log("Arr", arr.length);
+        chunk = arr.length / 25;
         chunk = Math.ceil(chunk);
         setTotalPage(chunk);
-        // console.log("chunk", chunk);
+        console.log("chunk", chunk);
         result = divideArray(arr, chunk);
         // console.log("result", paginate.length);
         setPaginate(result);
