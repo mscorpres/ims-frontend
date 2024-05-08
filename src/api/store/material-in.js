@@ -174,7 +174,7 @@ export const getMINComponents = async (minId) => {
 
 export const printLabels = async (values) => {
   const url = values.components[0].boxes
-    ? "/minBoxLablePrint/generateBoxLable"
+    ? "/minBoxLablePrint/generateBoxLabel"
     : "/qrLabel/generateQR";
   const response = await imsAxios.post(url, values);
   if (response.success) {
