@@ -80,10 +80,10 @@ const ViewMIN = () => {
         />,
         <GridActionsCellItem
           showInMenu
-          disabled={row.invoiceStatus == false}
+          // disabled={row.invoiceStatus == false}
           // icon={<PrinterFilled className="view-icon" />}
           onClick={() => handlePrintMIN(row.minId)}
-          label="Print Attachement"
+          label="Print MIN"
         />,
         <GridActionsCellItem
           showInMenu
