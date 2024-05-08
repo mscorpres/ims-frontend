@@ -29,7 +29,10 @@ import { Link } from "react-router-dom";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import useApi from "../../../../hooks/useApi.ts";
-import { downloadComponentMaster } from "../../../../api/master/component.ts";
+import {
+  downloadComponentMaster,
+  downloadElectronicReport,
+} from "../../../../api/master/component.ts";
 import { downloadFromLink } from "../../../../Components/printFunction";
 
 const Material = () => {
@@ -427,6 +430,15 @@ const Material = () => {
     }
   };
 
+  const handleDownloadElectronicReport = async () => {
+    const response = await executeFun(
+      () => downloadElectronicReport(),
+      "download"
+    );
+    if (response.success) {
+      window.open(response.data, "_blank", "noreferrer");
+    }
+  };
   useEffect(() => {
     getAttrCategoryOptions();
     getUomOptions();
@@ -603,10 +615,16 @@ const Material = () => {
                     </Col>
                     <Col span={24}>
                       <Row justify="end">
-                        <Space>
+                        <Flex wrap="wrap" gap={10}>
                           <MyButton
                             loading={loading1("download")}
-                            text="Download Master"
+                            text="Electronic Report"
+                            variant="downloadSample"
+                            onClick={handleDownloadElectronicReport}
+                          />
+                          <MyButton
+                            loading={loading1("download")}
+                            text="Master"
                             variant="downloadSample"
                             onClick={handleDownloadMaster}
                           />
@@ -619,7 +637,7 @@ const Material = () => {
                             text="Create"
                             onClick={modalConfirmMaterial}
                           />
-                        </Space>
+                        </Flex>
                       </Row>
                     </Col>
                   </Row>
