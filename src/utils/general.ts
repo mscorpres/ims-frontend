@@ -1,15 +1,18 @@
+import { SelectOptionType } from "@/types/general";
 import dayjs from "dayjs";
 
 export const convertSelectOptions = (
   arr: [] = [],
   label?: string,
   value?: string
-) => {
+): SelectOptionType[] => {
   if (arr.map) {
     return arr.map((row) => ({
       text: row[label ?? "text"],
       value: row[value ?? "id"],
     }));
+  } else {
+    return [];
   }
 };
 
