@@ -55,15 +55,16 @@ export const sendRequestLedgerMail = async (values) => {
     mailTo: values.receiverEmail,
     subject: values.subject,
     body: values.body,
+    refID: values.refId,
   };
   const response = await imsAxios.post("/vendorReconciliation/mail", payload);
 
   return response;
 };
 
-export const getRequestedLedgerMails = async (vendorCode) => {
+export const getRequestedLedgerMails = async (refId) => {
   const response = await imsAxios.get(
-    `/vendorReconciliation/mails?vendor=${vendorCode}`
+    `/vendorReconciliation/mails?refID=${refId}`
   );
   let arr = [];
   if (response.success) {
@@ -83,5 +84,15 @@ export const getRequestedLedgerMails = async (vendorCode) => {
     response.data = arr;
   }
 
+  return response;
+};
+
+export const uploadLedgerAttachmnt = async (vendorCode, refId, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await imsAxios.put(
+    `/vendorReconciliation/uploadLedger?vendor=${vendorCode}&refID=${refId}`,
+    formData
+  );
   return response;
 };

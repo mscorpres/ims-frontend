@@ -8,17 +8,18 @@ const Ledgers = ({ open, hide }) => {
   const items = [
     {
       key: "1",
-      label: "Request Ledger",
+      label: "Send Mail",
       children: <RequestLedgerModal open={open} />,
     },
     {
       key: "2",
-      label: "Requested Ledgers",
+      label: "Sent Mails",
       children: (
         <RequestedLedgers
           modalOpen={open}
           vendor={open?.vendor}
           date={open?.date}
+          refId={open?.refId}
         />
       ),
     },

@@ -32,7 +32,6 @@ const RequestLedgerModal = ({ open, hide }) => {
 
   const handleUpdateEmail = async () => {
     const values = await form.validateFields(["receiverEmail"]);
-    console.log("receiver email is", values);
 
     const response = await executeFun(
       () => updateLedgerEmail(values.receiverEmail, open.vendor.value),
@@ -48,7 +47,7 @@ const RequestLedgerModal = ({ open, hide }) => {
     values["vendor"] = open.vendor;
     values["date"] = open.date;
     const response = await executeFun(
-      () => sendRequestLedgerMail(values),
+      () => sendRequestLedgerMail({ ...values, refId: open.refId }),
       "submit"
     );
     if (response.success) {

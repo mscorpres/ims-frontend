@@ -9,6 +9,7 @@ import {
   Typography,
   Flex,
   Divider,
+  Tooltip,
 } from "antd";
 import { useEffect, useState } from "react";
 import useApi from "../../hooks/useApi.ts";
@@ -23,12 +24,15 @@ import {
   deleteManualTransaction,
   getManualTransactions,
   getNotes,
+  updateDraft,
   updateMatchStatus,
 } from "../../api/finance/vendor-reco";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
+import TableActions, {
+  CommonIcons,
+} from "../../Components/TableActions.jsx/TableActions";
 import Loading from "../../Components/Loading";
 import * as xlsx from "xlsx";
 import { downloadExcel } from "../../Components/printFunction";
@@ -38,10 +42,9 @@ import {
   convertSelectOptions,
 } from "../../utils/general.ts";
 import { useSearchParams } from "react-router-dom";
-// import MyFormDatePicker from "../../Components/MyFormDatePicker";
-import dayjs from "dayjs";
-import RequestLedgerModal from "./ledgers/RequestLedger";
 import Ledgers from "./ledgers";
+import { createDraft } from "../../api/finance/vendor-reco";
+import MyButton from "../../Components/MyButton/index.jsx";
 
 const initialValues = {
   location: undefined,
@@ -54,9 +57,11 @@ const statusOption = {
 };
 
 const VendorReconcilation = () => {
+  const [showFilters, setShowFilters] = useState(true);
   const [details, setDetails] = useState({});
   const [rows, setRows] = useState([]);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
+  const [recoRef, setRecoRef] = useState(null);
   const [vedorInput, setVendorInput] = useState({
     opening: "",
     closing: "",
@@ -88,9 +93,55 @@ const VendorReconcilation = () => {
   var paramsVendorCode = searchParams.get("vendorCode");
   var paramsVendor = searchParams.get("vendor");
   var paramsDate = searchParams.get("date");
-  const [showFilters, setShowFilters] = useState(
-    paramsVendorCode ? false : true
-  );
+  // var paramsRecoId = searchParams.get("date");
+
+  const handleGenerateRecoRef = async (vendor, date) => {
+    const response = await executeFun(() => createDraft(vendor, date), "fetch");
+    if (response.success) {
+      setRecoRef(response.data.recoID);
+      if (response.data.draftData) {
+        setVendorInput({
+          opening: response.data.draftData.vendorOpeningBalance.toString(),
+          closing: response.data.draftData.vendorClosingBalance.toString(),
+        });
+        // Modal.confirm({
+        //   title: "Draft Reco Found",
+        //   content: `It seems you started this reconcilation on ${response.data.createdOn}. Do you want to continue the reconcillation?`,
+        //   okText: "Continue",
+        //   cancelText: "No",
+        //   onOk: () => {
+        //     setVendorInput({
+        //       opening: response.data.draftData.vendorOpeningBalance.toString(),
+        //       closing: response.data.draftData.vendorClosingBalance.toString(),
+        //     });
+        //   },
+        // });
+      }
+    }
+  };
+
+  const handleSaveToDraft = async (status) => {
+    const response = await executeFun(() =>
+      updateDraft(recoRef, vedorInput, status)
+    );
+    if (!response.success) {
+      Modal.confirm({
+        title: "Could not complete",
+        content: (
+          <Flex vertical gap={15}>
+            <Typography.Text strong>
+              Following transactions are not matched"
+            </Typography.Text>
+            <div>
+              {response.data.map((row) => (
+                <Typography.Text>{row.moduleUsed}, </Typography.Text>
+              ))}
+            </div>
+          </Flex>
+        ),
+      });
+    }
+  };
 
   const handleFetchLedgerDetais = async (vendor, date) => {
     const values = await filterForm.getFieldsValue();
@@ -135,7 +186,6 @@ const VendorReconcilation = () => {
     dateFromParams
   ) => {
     const { vendor, date } = await filterForm.getFieldsValue();
-    console.log("getting cendor parans", vendorFromParams);
     const response = await executeFun(
       () =>
         getManualTransactions(
@@ -144,7 +194,7 @@ const VendorReconcilation = () => {
         ),
       "fetchManualTrans"
     );
-
+    handleGenerateRecoRef(vendor.value, date);
     if (response.success) {
       const arr = response.data.map((row, index) => ({
         id: index + 1,
@@ -206,21 +256,21 @@ const VendorReconcilation = () => {
     }
   };
 
-  const handleUpdateMatchStatus = async (status) => {
-    let finalArr = [];
-    selectedRows.map((selRow) => {
-      const found = rows.find((row) => row.id === selRow);
-      if (found) {
-        finalArr = [...finalArr, found.voucherNo];
-      }
-    });
-
+  const handleUpdateMatchStatus = async (status, voucherNo) => {
     const response = await executeFun(
-      () => updateMatchStatus(status, finalArr),
+      () => updateMatchStatus(!status ? "matched" : "unmatched", [voucherNo]),
       "updateStatus"
     );
     if (response.success) {
-      handleFetchLedgerDetais();
+      // handleFetchLedgerDetais();
+      setRows((curr) =>
+        curr.map((row) => {
+          if (row.voucherNo === voucherNo) {
+            row.matched = !status;
+          }
+          return row;
+        })
+      );
     }
   };
 
@@ -261,7 +311,7 @@ const VendorReconcilation = () => {
 
   const toggleShowRequestLedgerModal = async () => {
     const values = await filterForm.validateFields();
-    setShowRequestLedgerModal(values);
+    setShowRequestLedgerModal({ ...values, refId: recoRef });
   };
 
   useEffect(() => {
@@ -272,60 +322,43 @@ const VendorReconcilation = () => {
   }, [showNoteDialog]);
 
   useEffect(() => {
-    if (paramsVendor) {
+    if (paramsVendorCode) {
       setShowFilters(false);
-      console.log("calling fetchin gledger rport", paramsVendorCode);
       filterForm.setFieldValue("vendor", {
         label: paramsVendor,
+        text: paramsVendor,
         value: paramsVendorCode,
       });
 
       filterForm.setFieldValue("date", paramsDate);
       handleFetchManualTransactions(paramsVendorCode, paramsDate);
       handleFetchLedgerDetais(paramsVendorCode, paramsDate);
+      handleGenerateRecoRef(paramsVendorCode, paramsDate);
+      setShowFilters(false);
     }
   }, [paramsVendorCode]);
 
-  // useEffect(() => {
-  //   setVendorInput({
-  //     opening: "",
-  //     closing: "",
-  //   });
-  // }, [details]);
-  // const actionColumn = {
-  //   headerName: "Matched?",
-  //   field: "matched",
-  //   renderCell: ({ row }) =>
-  //     row.matched ? (
-  //       <div onClick={() => handleUpdateMatchStatus("Draft")}>
-  //         <CheckCircleOutlined style={{ color: "green" }} />
-  //       </div>
-  //     ) : (
-  //       <div onClick={() => handleUpdateMatchStatus("Matched")}>
-  //         <CloseCircleOutlined style={{ color: "red" }} />
-  //       </div>
-  //     ),
-  //   width: 80,
-  // };
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // match icon
-      <GridActionsCellItem
-        showInMenu
-        disabled={row.type === "M"}
-        label={row.matched ? "Unmatch" : "Match"}
-        onClick={() =>
-          handleUpdateMatchStatus(
-            row.matched ? "Draft" : "Matched",
-            row.voucherNo
-          )
-        }
-      />,
-    ],
-  };
+  const actionColumn = [
+    {
+      field: "actions",
+      headerName: "",
+      // width: 100,
+      type: "actions",
+      getActions: ({ row }) => [
+        // <GridActionsCellItem
+        //   icon={<EyeFilled onClick={() => setOpen(row?.module_used)} />}
+        // />,
+        <Tooltip title={row.matched ? "Un-match Entry" : "Match Entry"}>
+          <TableActions
+            action={row.matched ? "cancel" : "check"}
+            onClick={() => handleUpdateMatchStatus(row.matched, row.voucherNo)}
+          />
+          ,
+        </Tooltip>,
+      ],
+    },
+  ];
+
   return (
     <div style={{ padding: 10, height: "95%" }}>
       {/* <AddNote
@@ -372,15 +405,6 @@ const VendorReconcilation = () => {
       <Row style={{ height: "100%" }} gutter={6}>
         <Col span={4} style={{ height: "100%", overflowY: "auto" }}>
           <Flex gap={6} vertical>
-            <ButtonsCard
-              setShowTransactionModal={setShowTransactionModal}
-              setShowNoteDialog={setShowNoteDialog}
-              selectedVendor={selectedVendor}
-              selectedRows={selectedRows}
-              setShowNotesModal={setShowNotesModal}
-              handleUpdateMatchStatus={handleUpdateMatchStatus}
-              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
-            />
             <VendorCard
               form={filterForm}
               setShowFilters={setShowFilters}
@@ -405,16 +429,26 @@ const VendorReconcilation = () => {
               details={details}
               vendorInput={vedorInput}
             />
+            <ButtonsCard
+              setShowTransactionModal={setShowTransactionModal}
+              setShowNoteDialog={setShowNoteDialog}
+              selectedVendor={selectedVendor}
+              selectedRows={selectedRows}
+              setShowNotesModal={setShowNotesModal}
+              handleUpdateMatchStatus={handleUpdateMatchStatus}
+              toggleShowRequestLedgerModal={toggleShowRequestLedgerModal}
+              handleSaveToDraft={handleSaveToDraft}
+            />
           </Flex>
         </Col>
         <Col span={20}>
           <MyDataTable
-            checkboxSelection
-            onSelectionModelChange={(newSelectionModel) => {
-              setSelectedRows(newSelectionModel);
-            }}
+            // checkboxSelection
+            // onSelectionModelChange={(newSelectionModel) => {
+            //   setSelectedRows(newSelectionModel);
+            // }}
             rows={rows}
-            columns={[actionColumn, ...columns]}
+            columns={[...columns, ...actionColumn]}
             loading={loading("fetchManualTrans") || loading("updateStatus")}
           />
         </Col>
@@ -474,7 +508,7 @@ const Filters = ({
                 loadOptions={handleFetchVendorOptiions}
                 selectLoading={fetchLoading("vendorSelect")}
                 onBlur={() => setAsyncOptions([])}
-                defaultValue={vcode}
+                // defaultValue={vcode}
               />
             </Form.Item>
 
@@ -551,12 +585,12 @@ const VendorCard = ({
   const adjustedVendorBalance = vendorInputClosing + vendorManualTotal;
   const arr1 = [
     {
-      type: vendorDetailsClosing > 0 ? "Dr Closing" : "Cr Closing",
+      type: vendorDetailsClosing >= 0 ? "Dr Closing" : "Cr Closing",
       particulars: "Balance as per Oakter (Riot Labz) books",
       amount: vendorDetailsClosing,
     },
     {
-      type: vendorInputClosing > 0 ? "Dr Closing" : "Cr Closing",
+      type: vendorInputClosing >= 0 ? "Dr Closing" : "Cr Closing",
       particulars: `Balance as per ${vendor?.label} books`,
       amount: vendorInputClosing,
     },
@@ -663,13 +697,11 @@ const VendorCard = ({
                 <Col>
                   <Row gutter={4}>
                     <Col>
-                      <Button
+                      <CommonIcons
                         onClick={() => setShowFilters(true)}
-                        type="primary"
                         size="small"
-                      >
-                        Change
-                      </Button>
+                        action="editButton"
+                      />
                     </Col>
 
                     <Col>
@@ -929,11 +961,12 @@ const ButtonsCard = ({
   selectedRows,
   handleUpdateMatchStatus,
   toggleShowRequestLedgerModal,
+  handleSaveToDraft,
 }) => {
   return (
     <Card size="small">
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        <Button
+        {/* <Button
           type="primary"
           disabled={selectedRows.length === 0}
           onClick={() => handleUpdateMatchStatus(statusOption.match)}
@@ -946,24 +979,34 @@ const ButtonsCard = ({
           onClick={() => handleUpdateMatchStatus(statusOption.unmatch)}
         >
           Un-Match Selected
-        </Button>
+        </Button> */}
+        <MyButton
+          variant="notes"
+          text=""
+          shape="circle"
+          disabled={!selectedVendor}
+          onClick={() => setShowNoteDialog(true)}
+        >
+          Notes
+        </MyButton>
+        <MyButton
+          variant="mail"
+          text=""
+          shape="circle"
+          disabled={!selectedVendor}
+          onClick={toggleShowRequestLedgerModal}
+        />
         <Button
           disabled={!selectedVendor}
           onClick={() => setShowTransactionModal(true)}
         >
           Manual Transactions
         </Button>
-        <Button
-          disabled={!selectedVendor}
-          onClick={() => setShowNoteDialog(true)}
-        >
-          Notes
-        </Button>
-        <Button
-          disabled={!selectedVendor}
-          onClick={toggleShowRequestLedgerModal}
-        >
-          Ledgers
+
+        <MyButton variant="submit" onClick={() => handleSaveToDraft("draft")} />
+        {/* <Button onClick={() => handleSaveToDraft("draft")}>Save</Button> */}
+        <Button onClick={() => handleSaveToDraft("completed")}>
+          Complete Reco
         </Button>
       </div>
     </Card>
@@ -1083,17 +1126,17 @@ const columns = [
     width: 100,
     renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceDate} />,
   },
-  {
-    headerName: "Reference",
-    field: "reference",
-    minWidth: 120,
-    flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.reference} />,
-  },
+  // {
+  //   headerName: "Reference",
+  //   field: "reference",
+  //   minWidth: 120,
+  //   flex: 1,
+  //   renderCell: ({ row }) => <ToolTipEllipses text={row.reference} />,
+  // },
   {
     headerName: "Type",
     field: "type",
-    width: 50,
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.type} />,
   },
   {
@@ -1129,7 +1172,7 @@ const columns = [
       ) : (
         <CloseCircleOutlined style={{ color: "red" }} />
       ),
-    width: 80,
+    width: 90,
   },
 ];
 
@@ -1227,12 +1270,12 @@ const handleDownload = (payload) => {
       origin: "A3",
     }
   );
-  // perios details
+  // period details
   xlsx.utils.sheet_add_json(
     ws,
     [
       {
-        A5: "Periods",
+        A5: "Period",
         B5: payload.date,
       },
     ],

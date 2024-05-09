@@ -1,5 +1,30 @@
 import { imsAxios } from "../../axiosInterceptor";
 
+export const createDraft = async (vendor, date) => {
+  const response = await imsAxios.post("/vendorReconciliation/create", {
+    vendor,
+    date,
+  });
+
+  return response;
+};
+
+export const updateDraft = async (recoRef, draftData, status) => {
+  const payload = {
+    recoID: recoRef,
+    status: status,
+    vendorClosingBalance: draftData.closing,
+    vendorOpeningBalance: draftData.opening,
+  };
+
+  const response = await imsAxios.put(
+    "/vendorReconciliation/update/reco",
+    payload
+  );
+
+  return response;
+};
+
 export const addTransaction = async (values) => {
   const payload = {
     vendor: values.vendor,
@@ -71,9 +96,11 @@ export const updateTransaction = async (payload) => {
   return response;
 };
 
-export const getRecoReport = async (vendorCode) => {
+export const getRecoReport = async (vendorCode, wise, status) => {
   const response = await imsAxios.get(
-    `/vendorReconciliation/view/reconciliation?wise=vendorwise&data=${vendorCode}`
+    `/vendorReconciliation/view/reconciliation?${
+      vendorCode ? `data=${vendorCode}` : ""
+    }&wise=${wise}&status=${status}`
   );
   let arr = [];
   if (response.success) {
@@ -81,9 +108,10 @@ export const getRecoReport = async (vendorCode) => {
       id: index + 1,
       dateRange: row.dateRange,
       status: row.status,
-      month: row.month,
-      vendorCode: row.vendorCode,
+      period: row.period,
+      vendorCode: row.vendor,
       vendor: row.vendorName,
+      recoId: row.recoID,
     }));
   }
   response.data = arr;
