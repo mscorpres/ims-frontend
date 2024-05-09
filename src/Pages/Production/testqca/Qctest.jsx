@@ -438,55 +438,65 @@ const Qctest = () => {
       >
         <Row gutter={[10, 10]}>
           <Col span={4}>
-            {/* <Row>
+            <Flex vertical gap={10}>
+              {/* <Row>
               <Space> */}
-            <Card>
-              {" "}
-              <Col span={24}>
-                <Form.Item name="PPRNO" label="PPR NO." rules={rules.pprno}>
-                  <MyAsyncSelect
-                    value={pprNo}
-                    optionsState={pproptions}
-                    loadOptions={(e) => getAllPPR(e)}
-                    onChange={(e) => {
-                      fetchSinglePPR(e);
-                    }}
-                    placeholder="Enter the PPR NO."
-                  />
+              <Card>
+                {" "}
+                <Col span={24}>
+                  <Form.Item name="PPRNO" label="PPR NO." rules={rules.pprno}>
+                    <MyAsyncSelect
+                      value={pprNo}
+                      optionsState={pproptions}
+                      loadOptions={(e) => getAllPPR(e)}
+                      onChange={(e) => {
+                        fetchSinglePPR(e);
+                      }}
+                      placeholder="Enter the PPR NO."
+                    />
+                  </Form.Item>
+                </Col>{" "}
+                <Col span={24}>
+                  <Form.Item name="Skuno" label="SKU">
+                    <Input
+                      style={{ width: "100%" }}
+                      type="text"
+                      placeholder={skuNumber}
+                      disabled
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="Process" label="Process" rules={rules.pprno}>
+                    <MySelect
+                      options={processOptions}
+                      onChange={(e, selectedValue) => {
+                        handleProcessSelect(e, selectedValue);
+                      }}
+                      placeholder="Select the process"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="Processlevel" label="Process Level">
+                    <Input
+                      style={{ width: "100%" }}
+                      type="text"
+                      placeholder={processLevel}
+                      disabled
+                    />
+                  </Form.Item>
+                </Col>
+              </Card>
+              <Card title="Manual Entry" size="small">
+                <Form.Item layout="vertical" label="Generate Count">
+                  <Input />
                 </Form.Item>
-              </Col>{" "}
-              <Col span={24}>
-                <Form.Item name="Skuno" label="SKU">
-                  <Input
-                    style={{ width: "100%" }}
-                    type="text"
-                    placeholder={skuNumber}
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={24}>
-                <Form.Item name="Process" label="Process" rules={rules.pprno}>
-                  <MySelect
-                    options={processOptions}
-                    onChange={(e, selectedValue) => {
-                      handleProcessSelect(e, selectedValue);
-                    }}
-                    placeholder="Select the process"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={24}>
-                <Form.Item name="Processlevel" label="Process Level">
-                  <Input
-                    style={{ width: "100%" }}
-                    type="text"
-                    placeholder={processLevel}
-                    disabled
-                  />
-                </Form.Item>
-              </Col>
-            </Card>
+                <Flex justify="end">
+                  <Button>Generate Entries</Button>
+                </Flex>
+              </Card>
+            </Flex>
 
             {/* </Space>
             </Row> */}
