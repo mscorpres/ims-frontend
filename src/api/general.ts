@@ -185,3 +185,17 @@ export const getHsnOptions = async (search: string) => {
   response.data = arr;
   return response;
 };
+
+export const getComponentStock = async (componentKey: string, type: "rm") => {
+  if (type === "rm") {
+  }
+  const response = await imsAxios.post("/minBoxLablePrint/getComponetQty", {
+    component: componentKey,
+  });
+
+  if (response.success) {
+    response.data = response.data.stock;
+  }
+
+  return response;
+};

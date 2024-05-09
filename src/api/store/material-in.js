@@ -228,12 +228,19 @@ export const fetchBoxDetails = async (minId, boxLabel) => {
   return response;
 };
 
-export const updateBoxQty = async (minId, boxLabel, availabelQty) => {
-  const response = await imsAxios.post("/minBoxLablePrint/updateAvailQty", {
-    box: boxLabel,
-    minId,
-    avlQty: +availabelQty,
-  });
+export const updateBoxQty = async (componentKey, values) => {
+  const payload = {
+    minId: values.map((row) => row.minId),
+    box: values.map((row) => row.boxLabel),
+    avlQty: values.map((row) => row.availabelQty),
+    is_open: values.map((row) => row.opened ?? false),
+    component: componentKey,
+  };
+
+  const response = await imsAxios.post(
+    "/minBoxLablePrint/updateAvailQty",
+    payload
+  );
 
   return response;
 };
