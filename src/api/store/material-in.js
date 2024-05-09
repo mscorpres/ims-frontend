@@ -4,6 +4,15 @@ import printFunction, {
 } from "../../Components/printFunction";
 
 export const validateInvoice = async (values) => {
+  let comp = values.components;
+  let newComp = comp.map((element) => {
+    let obj = {
+      ...element,
+      invoiceId: values.invoiceId, // Assuming values.invoiceId is defined elsewhere
+    };
+    return obj;
+  });
+  values.components = newComp;
   const invoices = values.components.map((row) => row.invoiceId);
   const response = await imsAxios.post("/backend/checkInvoice", {
     invoice: invoices,
@@ -38,9 +47,19 @@ export const uploadVendorDoc = async (formData) => {
   return response;
 };
 
-export const materialInWithoutPo = async (values, fileName) => {
+export const materialInWithoutPo = async (values, fileName, vendorType) => {
+  let comp = values.components;
+  let newComp = comp.map((element) => {
+    let obj = {
+      ...element,
+      invoiceId: values.invoiceId,
+      invoiceDate: values.invoiceDate,
+    };
+    return obj;
+  });
+  values.components = newComp;
   const payload = {
-    attachment: fileName ?? "",
+    attachment: vendorType !== "p01" ? fileName ?? "" : undefined,
     vendor: values.vendorName.value ?? "--",
     vendorbranch: values.vendorBranch ?? "--",
     address: values.vendorAddress,
@@ -180,5 +199,48 @@ export const printLabels = async (values) => {
   if (response.success) {
     printFunction(response.data.buffer.data);
   }
+  return response;
+};
+
+export const fetchBoxDetails = async (minId, boxLabel) => {
+  const response = await imsAxios.post("/minBoxLablePrint/fetchBoxDetails", {
+    box: boxLabel,
+    minId: minId,
+  });
+  if (response.success) {
+    response.data = {
+      availabelQty: response.data.avlQty,
+      boxLabel: response.data.box,
+      boxDate: response.data.boxCreateDt,
+      costCenter: response.data.costCenter,
+      minDate: response.data.minDate,
+      minId: response.data.minId,
+      minQty: response.data.minQty,
+      partCode: response.data.partCode,
+      component: response.data.partName,
+      project: response.data.project,
+      boxQty: response.data.qty,
+      vendorCode: response.data.vendorCode,
+      vendor: response.data.vendorName,
+    };
+  }
+
+  return response;
+};
+
+export const updateBoxQty = async (componentKey, values) => {
+  const payload = {
+    minId: values.map((row) => row.minId),
+    box: values.map((row) => row.boxLabel),
+    avlQty: values.map((row) => row.availabelQty),
+    is_open: values.map((row) => row.opened ?? false),
+    component: componentKey,
+  };
+
+  const response = await imsAxios.post(
+    "/minBoxLablePrint/updateAvailQty",
+    payload
+  );
+
   return response;
 };

@@ -153,21 +153,27 @@ export default function MaterialInWithoutPO() {
     let fileName;
     const formData = new FormData();
     console.log("submittinh min");
+    const vendorType = form.getFieldValue("vendorType");
+    console.log("vvveeeeee", vendorType);
     const values = await form.validateFields();
     // console.log("values", values);
-    values.fileComponents.map((comp) => {
+    values?.fileComponents?.map((comp) => {
       formData.append("files", comp.file[0]?.originFileObj);
     });
-    const fileResponse = await executeFun(
-      () => uploadMinInvoice(formData),
-      "submit"
-    );
+    let fileResponse;
+    if (vendorType !== "p01") {
+      fileResponse = await executeFun(
+        () => uploadMinInvoice(formData),
+        "submit"
+      );
+    }
     console.log("fileResponse-------", fileResponse);
-    if (fileResponse.success) {
-      fileName = fileResponse.data.data;
+
+    if (fileResponse?.success || vendorType == "p01") {
+      fileName = fileResponse?.data?.data;
 
       const response = await executeFun(
-        () => materialInWithoutPo(values, fileName),
+        () => materialInWithoutPo(values, fileName, vendorType),
         "submit"
       );
       console.log("response-------", response);
