@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
-import { Row, Col } from "antd";
+import { Row, Col, Input } from "antd";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import printFunction, {
   downloadFunction,
 } from "../../../../Components/printFunction";
 import RequestApproveModal from "./RequestApproveModal";
-
+import { Form, Modal } from "antd/es";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 const PendingApproval = () => {
   const [loading, setLoading] = useState("fetch");
   const [rows, setRows] = useState([]);
   const [showApproveModal, setShowApproveModal] = useState(false);
-
+  const [ModalForm] = Form.useForm();
   const getRows = async () => {
     try {
       setRows([]);
@@ -45,7 +46,47 @@ const PendingApproval = () => {
       setLoading(false);
     }
   };
-
+  const showSubmitConfirmationModal = (type) => {
+    // submit confirm modal
+    Modal.confirm({
+      title: "Do you Want to Cancel the Material Requisition?",
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <Form form={ModalForm}>
+          <Form.Item name="remark">
+            <Input
+              // onChange={(e) => {
+              //   setCancelRemark(e.target.value);
+              // }}
+              placeholder="Please input the remark"
+            />
+          </Form.Item>
+        </Form>
+      ),
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        await cancelmr(type);
+      },
+    });
+  };
+  const cancelmr = async (type) => {
+    const values = await ModalForm.validateFields();
+    // console.log("type", type);
+    // console.log("values", values);
+    // return;
+    const response = await imsAxios.post("/storeApproval/requestCancellation", {
+      transaction: type.requestId,
+      remark: values.remark,
+    });
+    // console.log("response", response);
+    if (response.success) {
+      toast.success(response.message);
+      ModalForm.resetFields();
+    } else {
+      toast.error(response.message);
+    }
+  };
   const actionColums = {
     headerName: "",
     type: "actions",
@@ -75,6 +116,11 @@ const PendingApproval = () => {
         showInMenu
         label="Print"
         onClick={() => handleDownload("print", row.requestId)}
+      />,
+      <GridActionsCellItem
+        showInMenu
+        label="Cancel"
+        onClick={() => showSubmitConfirmationModal(row)}
       />,
     ],
   };
