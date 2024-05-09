@@ -47,7 +47,7 @@ export const uploadVendorDoc = async (formData) => {
   return response;
 };
 
-export const materialInWithoutPo = async (values, fileName) => {
+export const materialInWithoutPo = async (values, fileName, vendorType) => {
   let comp = values.components;
   let newComp = comp.map((element) => {
     let obj = {
@@ -59,7 +59,7 @@ export const materialInWithoutPo = async (values, fileName) => {
   });
   values.components = newComp;
   const payload = {
-    attachment: fileName ?? "",
+    attachment: vendorType !== "p01" ? fileName ?? "" : undefined,
     vendor: values.vendorName.value ?? "--",
     vendorbranch: values.vendorBranch ?? "--",
     address: values.vendorAddress,
