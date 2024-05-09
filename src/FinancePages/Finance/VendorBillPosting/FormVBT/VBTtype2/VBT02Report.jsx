@@ -836,8 +836,8 @@ function VBT02Report({
   // console.log("totalPage", totalPage);
   function divideArray(arr, numSubarrays) {
     // Calculate the size of each subarray
-    const subarraySize = Math.floor(arr.length / numSubarrays);
-
+    const subarraySize = Math.ceil(arr.length / numSubarrays);
+    // console.log("subarraySize", subarraySize);
     // Initialize an empty array to store subarrays
     const subarrays = [];
 
