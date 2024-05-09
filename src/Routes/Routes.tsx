@@ -234,6 +234,7 @@ import EditSalesOrder from "../Pages/Sales/SalesOrder/edit/index.jsx";
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
 import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
 import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
+import AllocatedChallan from "../Pages/Sales/SalesOrder/SalesOrderRegister/AllocatedChallan/AllocatedChallan";
 
 import R32 from "../Pages/Reports/R/R32.jsx";
 import Index from "../Pages/Query/ClosingStock/Index.jsx";
@@ -1320,6 +1321,10 @@ const Routes = [
   {
     path: "/sales/order/challan",
     main: () => <Challan />,
+  },
+  {
+    path: "/sales/order/allocated",
+    main: () => <AllocatedChallan />,
   },
   //gst reco
   {

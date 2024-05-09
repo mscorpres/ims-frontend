@@ -1,4 +1,4 @@
-import { Space, Row, Form, Card, Col } from "antd";
+import { Space, Row, Form, Card, Col, Modal, Divider } from "antd";
 import React, { useState } from "react";
 import MyDatePicker from "../../../../../Components/MyDatePicker";
 import { getChallanList } from "../../../../../api/sales/salesOrder";
@@ -13,7 +13,14 @@ import MySelect from "../../../../../Components/MySelect";
 import MyButton from "../../../../../Components/MyButton";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import { convertSelectOptions } from "../../../../../utils/general.ts";
-import { getClientsOptions } from "../../../../../api/finance/clients";
+import { imsAxios } from "../../../../../axiosInterceptor.tsx";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import {
+  getClientsOptions,
+  getCourierOptions,
+} from "../../../../../api/finance/clients.js";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 const wiseOptions = [
   {
@@ -49,8 +56,9 @@ function Challan() {
   const [showDetails, setShowDetails] = useState(null);
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-
+  const [createAllocation, setCreateAllocation] = useState(false);
   const [filterForm] = Form.useForm();
+  const [ModalForm] = Form.useForm();
   const wise = Form.useWatch("wise", filterForm);
 
   const { executeFun, loading } = useApi();
@@ -64,7 +72,22 @@ function Challan() {
     const { data } = response;
     setRows(data);
   };
-
+  const handleCourierOptions = async (search) => {
+    const response = await executeFun(
+      () => getCourierOptions(search),
+      "select"
+    );
+    let arr;
+    if (response.success == true) {
+      // console.log("response.data", response.data);
+      // let arr = response.data.map((r) => {
+      //   return { id: r.value, text: r.text };
+      // });
+      arr = convertSelectOptions(response.data, "text", "value");
+      // console.log("arr---", arr);
+    }
+    setAsyncOptions(arr);
+  };
   const handleExcelDownload = () => {
     downloadCSV(rows, columns, "SO Challan Report");
   };
@@ -75,10 +98,67 @@ function Challan() {
       "select"
     );
     let arr = [];
+    // console.log("arr---", arr);
     if (response.success) {
       arr = convertSelectOptions(response.data.data, "name", "code");
     }
+    // console.log("arr---", arr);
     setAsyncOptions(arr);
+  };
+  // const createAllocation = async (row) => {
+  //   Modal.confirm({
+  //     title: "Are you sure you want to allocate this Challan?",
+  //     icon: <ExclamationCircleOutlined />,
+  //     content: (
+  //       <Form form={ModalForm} layout="vertical">
+  //         <Form.Item
+  //           name="courier"
+  //           label="Select Courier"
+  //           rules={[
+  //             {
+  //               required: true,
+  //               message: "This field is required",
+  //             },
+  //           ]}
+  //         >
+  //           <MyAsyncSelect
+  //             optionsState={asyncOptions}
+  //             loadOptions={handleCourierOptions}
+  //             onBlur={() => setAsyncOptions([])}
+  //             selectLoading={loading("select")}
+  //           />
+  //         </Form.Item>
+  //       </Form>
+  //     ),
+  //     okText: "Yes",
+  //     cancelText: "No",
+  //     onOk: async () => {
+  //       await allocatingChallan(row);
+  //     },
+  //   });
+  // };
+  const allocatingChallan = async (row) => {
+    // console.log("row", row);
+    const values = await ModalForm.validateFields();
+    // console.log("values", values);
+    const response = await imsAxios.post(
+      "/so_challan_shipment/allocateCourier",
+      {
+        invoice_no: row.challanId,
+        courier_name: values.courier,
+      }
+    );
+    if (response.success) {
+      toast.success(response.message);
+      reset();
+    } else {
+      toast.error(response.message);
+    }
+  };
+  const reset = () => {
+    ModalForm.resetFields();
+    filterForm.resetFields();
+    setCreateAllocation(false);
   };
   const actionColumn = {
     headerName: "",
@@ -94,8 +174,21 @@ function Challan() {
         }}
         label="View"
       />,
+      <GridActionsCellItem
+        showInMenu
+        // disabled={loading}
+        onClick={() => {
+          setCreateAllocation(row);
+        }}
+        label="Allocate"
+      />,
     ],
   };
+  useEffect(() => {
+    if (!createAllocation) {
+      ModalForm.resetFields();
+    }
+  }, [createAllocation]);
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
@@ -154,6 +247,35 @@ function Challan() {
         />
       </Col>
       <ChallanDetails open={showDetails} hide={() => setShowDetails(null)} />
+      {createAllocation && (
+        <Modal
+          open={createAllocation}
+          onOk={() => allocatingChallan(createAllocation)}
+          onCancel={() => setCreateAllocation(false)}
+          title="Allocate this Challan"
+        >
+          <Form form={ModalForm} layout="vertical">
+            <Divider />
+            <Form.Item
+              name="courier"
+              label="Select Courier"
+              rules={[
+                {
+                  required: true,
+                  message: "This field is required",
+                },
+              ]}
+            >
+              <MyAsyncSelect
+                optionsState={asyncOptions}
+                loadOptions={handleCourierOptions}
+                onBlur={() => setAsyncOptions([])}
+                selectLoading={loading("select")}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
     </Row>
   );
 }

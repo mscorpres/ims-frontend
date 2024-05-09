@@ -4,6 +4,10 @@ export const getClientsOptions = async (search) => {
   const response = await imsAxios.get(`/client/getClient?name=${search}`);
   return response;
 };
+export const getCourierOptions = async (search) => {
+  const response = await imsAxios.post("/backend/courierList");
+  return response;
+};
 
 export const getClientBranches = async (cliendCode) => {
   const response = await imsAxios.get(

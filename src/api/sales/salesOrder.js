@@ -77,6 +77,33 @@ export const getChallanList = async (wise, searchTerm) => {
   response.data = arr;
   return response;
 };
+export const getCourierList = async (search) => {
+  console.log("search", search);
+  const response = await imsAxios.post(
+    "/so_challan_shipment/fetchCourierList",
+    {
+      courier: search.courier,
+    }
+  );
+  let arr = [];
+  // console.log("response------", response);
+  if (response.success) {
+    arr = response.data.map((row, index) => ({
+      id: index + 1,
+
+      shippingAddress: row.shippingaddress,
+      courierName: row.courier_name,
+      client: row.client,
+      deliveryChallanDt: row.delivery_challan_dt,
+      challanId: row.so_challan_id,
+      clientaddress: row.clientaddress,
+      billingaddress: row.billingaddress,
+      soChallanId: row.so_challan_id,
+    }));
+  }
+  response.data = arr;
+  return response;
+};
 
 export const printOrder = async (orderId) => {
   const payload = {
@@ -215,7 +242,6 @@ export const updateShipment = async (
   updateShipmentRow,
   details
 ) => {
-
   let billId;
   if (values?.billingId?.id) {
     billId = values?.billingId?.id;

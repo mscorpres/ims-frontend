@@ -1077,6 +1077,10 @@ const links = [
       routeName: "Challan",
       routePath: "/sales/order/challan",
     },
+    {
+      routeName: "Allocated Challans",
+      routePath: "/sales/order/allocated",
+    },
   ],
   // mes links
   [
