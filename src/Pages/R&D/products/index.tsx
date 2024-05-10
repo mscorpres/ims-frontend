@@ -1,4 +1,15 @@
-import { Card, Col, Form, Input, Row, Space } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Upload,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import MySelect from "@/Components/MySelect";
 import MyButton from "@/Components/MyButton";
@@ -6,15 +17,21 @@ import ToolTipEllipses from "@/Components/ToolTipEllipses.jsx";
 import MyDataTable from "@/Components/MyDataTable.jsx";
 import useApi from "@/hooks/useApi";
 import { getUOMList } from "@/api/master/uom";
-
-const categoryOptions = [
-  { text: "Goods", value: "goods" },
-  { text: "Services", value: "services" },
-];
+import { createProduct, getProductsList } from "@/api/r&d/products";
+import { ModalType } from "@/types/general";
+import { ProductType } from "@/types/r&d";
+import ProductDocuments from "@/Pages/R&D/products/documents";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import { UploadOutlined } from "@ant-design/icons";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
   const [uomOptions, setUomOptions] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showDocs, setShowDocs] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
+    null
+  );
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
@@ -23,25 +40,82 @@ export default function Products() {
     setUomOptions(response.data ?? []);
   };
 
+  const handleFetchProductList = async () => {
+    const response = await executeFun(() => getProductsList(), "fetch");
+    setRows(response.data ?? []);
+  };
+
+  const validateHandler = async () => {
+    await form.validateFields();
+    setShowConfirm(true);
+  };
+
+  const handleCreateProduct = async () => {
+    const values = form.getFieldsValue();
+    const response = await executeFun(() => createProduct(values), "submit");
+    if (response.success) {
+      setShowConfirm(false);
+      resetHandler();
+      handleFetchProductList();
+    }
+  };
+
+  const resetHandler = () => {
+    form.resetFields();
+  };
+
+  const normFile = (e) => {
+    console.log("Upload event:", e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
   useEffect(() => {
     handleFetchUomOptions();
+    handleFetchProductList();
   }, []);
+
+  const actionColumns = [
+    {
+      headerName: "",
+      type: "actions",
+      width: 30,
+      getActions: ({ row }) => [
+        // docs and images
+        <GridActionsCellItem
+          showInMenu
+          placeholder="Show Docs and Images"
+          // disabled={disabled}
+          label={"Attachments"}
+          onClick={() => {
+            setShowDocs(true);
+            setSelectedProduct(row);
+          }}
+        />,
+      ],
+    },
+  ];
 
   return (
     <Row gutter={6} style={{ padding: 5, height: "95%" }} justify="center">
+      <ConfirmModal
+        show={showConfirm}
+        hide={() => setShowConfirm(false)}
+        submitHandler={handleCreateProduct}
+      />
+      {selectedProduct && (
+        <ProductDocuments
+          show={showDocs}
+          hide={() => setShowDocs(false)}
+          product={selectedProduct}
+        />
+      )}
+
       <Col span={4}>
         <Card size="small" title={"Add New Product"}>
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
-              <Col span={24}>
-                <Form.Item
-                  name="category"
-                  label="Product Type"
-                  rules={rules.category}
-                >
-                  <MySelect options={categoryOptions} />
-                </Form.Item>
-              </Col>
               <Col span={24}>
                 <Row gutter={4}>
                   <Col span={12}>
@@ -50,7 +124,7 @@ export default function Products() {
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item name="uom" label="UOM" rules={rules.uom}>
+                    <Form.Item name="unit" label="UOM" rules={rules.uom}>
                       <MySelect options={uomOptions} />
                     </Form.Item>
                   </Col>
@@ -66,52 +140,105 @@ export default function Products() {
                 </Form.Item>
               </Col>
               <Col span={24}>
-                <Row justify="end">
-                  <Space>
-                    <Form.Item>
-                      <MyButton
-                        // onClick={resetHandler}
-                        variant="reset"
-                      >
-                        Reset
-                      </MyButton>
-                    </Form.Item>
-                    <Form.Item>
-                      <MyButton
-                        // loading={loading("submit")}
-                        type="primary"
-                        variant="submit"
-                        // onClick={submitHandler}
-                      />
-                    </Form.Item>
-                  </Space>
-                </Row>
+                <Form.Item name="description" label="Description">
+                  <Input.TextArea rows={2} />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name="images"
+                  label="Images"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  extra="Max 4 Images"
+                >
+                  <Upload
+                    name="image"
+                    beforeUpload={() => false}
+                    style={{ marginBottom: 10 }}
+                    maxCount={4}
+                  >
+                    <MyButton
+                      variant="upload"
+                      text="Select"
+                      style={{ width: "100%", marginBottom: 5 }}
+                    />
+                  </Upload>
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name="documents"
+                  label="Documents"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  extra="Max 4 Documents"
+                >
+                  <Upload
+                    name="document"
+                    beforeUpload={() => false}
+                    style={{ marginBottom: 10 }}
+                    maxCount={4}
+                  >
+                    <MyButton
+                      variant="upload"
+                      text="Select"
+                      style={{ width: "100%", marginBottom: 5 }}
+                    />
+                  </Upload>
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Flex justify="center" gap={5}>
+                  <Form.Item>
+                    <MyButton onClick={resetHandler} variant="reset">
+                      Reset
+                    </MyButton>
+                  </Form.Item>
+                  <Form.Item>
+                    <MyButton
+                      loading={loading("submit")}
+                      type="primary"
+                      variant="submit"
+                      onClick={validateHandler}
+                    />
+                  </Form.Item>
+                </Flex>
               </Col>
             </Row>
           </Form>
         </Card>
       </Col>
       <Col span={10}>
-        <MyDataTable columns={columns} data={rows} />
+        <MyDataTable columns={[...actionColumns, ...columns]} data={rows} />
       </Col>
     </Row>
   );
 }
 
+interface ModalProps extends ModalType {}
+const ConfirmModal = (props: ModalProps) => {
+  return (
+    <Modal
+      open={props.show}
+      onCancel={props.hide}
+      title="Create Product"
+      okText="Continue"
+      onOk={props.submitHandler}
+      confirmLoading={props.loading}
+    >
+      Are you sure you want to create this product?
+    </Modal>
+  );
+};
+
 const initialValues = {
-  category: "goods",
   product: undefined,
   sku: undefined,
   uom: undefined,
 };
 
 const rules = {
-  category: [
-    {
-      required: true,
-      message: "Category is required",
-    },
-  ],
   sku: [
     {
       required: true,
@@ -138,31 +265,26 @@ const columns = [
     headerName: "Product Name",
     field: "name",
     flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+    renderCell: ({ row }: { row: ProductType }) => (
+      <ToolTipEllipses text={row.name} />
+    ),
   },
   {
     headerName: "SKU",
     field: "sku",
     width: 100,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+    renderCell: ({ row }: { row: ProductType }) => (
+      <ToolTipEllipses text={row.sku} copy={true} />
+    ),
   },
   {
     headerName: "Unit",
-    field: "uom",
+    field: "unit",
     width: 80,
   },
   {
-    headerName: "Category",
-    field: "category",
-    width: 100,
-    renderCell: ({ row }) => (
-      <>
-        {row?.category == ""
-          ? "--"
-          : row?.category == "services"
-          ? "Services"
-          : "Goods"}
-      </>
-    ),
+    headerName: "Approval Stage",
+    field: "approvalStage",
+    width: 120,
   },
 ];
