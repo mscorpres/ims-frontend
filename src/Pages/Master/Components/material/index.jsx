@@ -268,7 +268,7 @@ const Material = () => {
         group: headerValues.group,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "I",
-        attr_code: "--",
+        attr_code: uniqueId,
         // attr_code
         hsns: hsnRows.map((row) => row.code.value),
         taxs: hsnRows.map((row) => row.percentage),
@@ -1070,21 +1070,58 @@ const CategoryModal = ({
       let fqVal = values.frequencyText;
       console.log("siUnit", siUnit);
       console.log("siVal", siVal);
+      console.log("values", values);
       let compName =
-        values.mounting_style.label +
-        "-" +
+        "(" +
         values.package_size.key +
+        ")" +
         "-" +
-        compCode +
+        values.value +
+        values.si_unit.label +
         "-" +
         fqVal +
         values.frequency.label +
         "-" +
-        siVal +
-        siUnit;
+        values.current_SI_UnitText +
+        values.current_SI_Unit.label +
+        "-" +
+        values.dc_resistanceText +
+        values.dc_resistance.label +
+        "-" +
+        values.tolerance.label +
+        "-" +
+        values.mounting_style.label +
+        "-" +
+        "Inductor";
+      // +
 
-      // console.log("compName", compCode);
+      // ----
+      // values.mounting_style.label +
+      // "-" +
+      // compCode +
+      // "-" +
+      // fqVal +
+      // values.frequency.label +
+      // "-" +
+      // siVal +
+      // siUnit;
+      // let compName =
+      //   values.mounting_style.label +
+      //   "-" +
+      //   values.package_size.key +
+      //   "-" +
+      //   compCode +
+      //   "-" +
+      //   fqVal +
+      //   values.frequency.label +
+      //   "-" +
+      //   siVal +
+      //   siUnit;
+
+      console.log("compName", compCode);
+      console.log("compName", compName);
       setGeneratedCompName(compName);
+      setUniqueId(compName);
       headerForm.setFieldValue("componentname", compName);
 
       //
@@ -1100,7 +1137,7 @@ const CategoryModal = ({
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
-        setUniqueId(filledFields + codeValue);
+        // setUniqueId(filledFields + codeValue);
         // console.log("codeValue ", filledFields + codeValue);
       }
     }
@@ -1289,7 +1326,10 @@ const CategoryModal = ({
           <Row>
             <Col span={14}>
               {/* <Flex justify="center"> */}
-              <Typography.Text strong>Unique Id: {uniqueId}</Typography.Text>
+              <Typography.Text underline style={{ fontSize: 12 }}>
+                {" "}
+                Unique Id: {uniqueId}
+              </Typography.Text>
             </Col>
             <Col span={10}>
               {/* <Flex justify="center"> */}
@@ -1303,7 +1343,7 @@ const CategoryModal = ({
         </Col>
         {/* <Divider /> */}
         <Col span={24} style={{ marginTop: 10 }}>
-          <Typography.Text strong>
+          <Typography.Text underline style={{ fontSize: 12 }}>
             Component Name: {generatedCompName}
           </Typography.Text>
         </Col>
