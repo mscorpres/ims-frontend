@@ -1,6 +1,6 @@
 import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
-import { ProductType } from "@/types/r&d";
+import { ApprovalType, ProductType } from "@/types/r&d";
 import { convertSelectOptions } from "@/utils/general";
 
 interface GetProductListType {
@@ -11,6 +11,7 @@ interface GetProductListType {
   images: { url: string; fileName: string }[];
   documents: { url: string; fileName: string }[];
   isActive: boolean;
+  productKey: string;
   status: "0" | "1" | "2";
 }
 export const getProductsList = async () => {
@@ -28,6 +29,7 @@ export const getProductsList = async () => {
         documents: row.documents,
         id: index + 1,
         images: row.images,
+        key: row.productKey,
       })
     );
   }
@@ -69,5 +71,55 @@ export const getProductOptions = async (search: string) => {
   }
 
   response.data = arr;
+  return response;
+};
+
+interface GetLogs {
+  productName: string;
+  createdBy: string;
+  createdDate: string;
+  status: "0" | "1" | "2";
+  stage1Approver: string | null;
+  stage1Remarks: string | null;
+  stage1ApprovalDate: string | null;
+  stage2Approver: string | null;
+  stage2Remarks: string | null;
+  stage2ApprovalDate: string | null;
+  approver1CRN: string;
+  approver2CRN: string;
+}
+
+export const getApprovalLogs = async (productKey: string) => {
+  const response: ResponseType = await imsAxios.get(
+    `/products/fetch/logs?productKey=${productKey}`
+  );
+
+  if (response.success) {
+    const obj: GetLogs = response.data;
+    const final: ApprovalType = {
+      name: obj.productName,
+      product: productKey,
+      stage: obj.status,
+      creationDetails: {
+        by: obj.createdBy,
+        date: obj.createdDate,
+      },
+      approvalDetails1: {
+        by: obj.stage1Approver,
+        date: obj.stage1ApprovalDate,
+        crn: obj.approver1CRN,
+        remarks: obj.stage1Remarks ?? "--",
+      },
+      approvalDetails2: {
+        by: obj.stage2Approver,
+        date: obj.stage2ApprovalDate,
+        crn: obj.approver2CRN,
+        remarks: obj.stage1Remarks ?? "--",
+      },
+    };
+
+    response.data = final;
+  }
+
   return response;
 };

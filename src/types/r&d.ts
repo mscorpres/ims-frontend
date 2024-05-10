@@ -10,3 +10,25 @@ export interface ProductType {
   approvalStage: "0" | "1" | "2";
   isActive: boolean;
 }
+
+export interface ApprovalType {
+  product: string;
+  name: string;
+  creationDetails: {
+    by: string;
+    date: string;
+  };
+  approvalDetails1: {
+    by: string | null;
+    date: string | null;
+    crn: string;
+    remarks: string;
+  };
+  approvalDetails2: {
+    by: string | null;
+    date: string | null;
+    crn: string;
+    remarks: string;
+  };
+  stage: "0" | "1" | "2";
+}

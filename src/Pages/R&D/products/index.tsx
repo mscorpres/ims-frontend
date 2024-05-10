@@ -22,12 +22,14 @@ import { ModalType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
 import ProductDocuments from "@/Pages/R&D/products/documents";
 import { GridActionsCellItem } from "@mui/x-data-grid";
+import Approval from "@/Pages/R&D/products/approval";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
   const [uomOptions, setUomOptions] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
+  const [showApprovalLogs, setShowApprovalLogs] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
     null
   );
@@ -92,6 +94,16 @@ export default function Products() {
             setSelectedProduct(row);
           }}
         />,
+        <GridActionsCellItem
+          showInMenu
+          placeholder="Approval"
+          // disabled={disabled}
+          label={"Approval"}
+          onClick={() => {
+            setShowApprovalLogs(true);
+            setSelectedProduct(row);
+          }}
+        />,
       ],
     },
   ];
@@ -103,11 +115,21 @@ export default function Products() {
         hide={() => setShowConfirm(false)}
         submitHandler={handleCreateProduct}
       />
-      {selectedProduct && (
+      {selectedProduct && selectedProduct?.key && (
         <ProductDocuments
           show={showDocs}
           hide={() => setShowDocs(false)}
           product={selectedProduct}
+        />
+      )}
+      {selectedProduct && (
+        <Approval
+          show={showApprovalLogs}
+          hide={() => {
+            setShowApprovalLogs(false);
+            setSelectedProduct(null);
+          }}
+          productKey={selectedProduct.key}
         />
       )}
 
