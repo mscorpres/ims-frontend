@@ -75,30 +75,8 @@ const WoShipment = () => {
       icon: <ExclamationCircleOutlined />,
       content: (
         <Form form={ModalForm} layout="vertical">
-          {/* <Form.Item
-            name="challanID"
-            label="Challan ID"
-            rules={[
-              {
-                required: true,
-                message: "Please Enter a Challan ID",
-              },
-            ]}
-          >
-            <Input
-              // onChange={(e) => {
-              //   setCancelRemark(e.target.value);
-              // }}
-              placeholder="Please input the Challan ID"
-            />
-          </Form.Item> */}
           <Form.Item name="remark" label="Remark">
-            <Input
-              // onChange={(e) => {
-              //   setCancelRemark(e.target.value);
-              // }}
-              placeholder="Please input the remark"
-            />
+            <Input.TextArea rows={4} placeholder="Please input the remark" />
           </Form.Item>
         </Form>
       ),
@@ -411,7 +389,10 @@ const WoShipment = () => {
                 </Space>
               </div>
               <div style={{ marginLeft: 4 }}>
-                <Button onClick={showCreateShipmentModal}>
+                <Button
+                  disabled={selectedRows.length === 0}
+                  onClick={showCreateShipmentModal}
+                >
                   {" "}
                   Create Challan
                 </Button>
