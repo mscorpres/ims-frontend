@@ -22,7 +22,6 @@ import { ModalType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
 import ProductDocuments from "@/Pages/R&D/products/documents";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { UploadOutlined } from "@ant-design/icons";
 
 export default function Products() {
   const [rows, setRows] = useState([]);

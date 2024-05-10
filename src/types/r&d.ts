@@ -5,8 +5,8 @@ export interface ProductType {
   sku: string;
   description: string;
   unit: string;
-  images?: { url: string }[];
-  documents?: { url: string }[];
+  images?: { url: string; fileName: string }[];
+  documents?: { url: string; fileName: string }[];
   approvalStage: "0" | "1" | "2";
   isActive: boolean;
 }

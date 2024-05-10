@@ -29,23 +29,20 @@ const ProductDocuments = (props: DrawerProps) => {
       <Divider style={{ marginTop: 15 }} />
       <Typography.Title level={5}>Product Docs</Typography.Title>
 
-      <Flex>
-        {}
-        <Flex wrap="wrap" gap={10}>
-          {props.product.documents?.map((row, index) => (
-            <Card size="small" style={{ width: "100%" }}>
-              <Flex gap={10} justify="space-between" align="center">
-                <Typography.Text strong type="secondary">
-                  {row.url}
-                </Typography.Text>
-                <CommonIcons
-                  onClick={handleDownloadDoc}
-                  action="downloadButton"
-                />
-              </Flex>
-            </Card>
-          ))}
-        </Flex>
+      <Flex wrap="wrap" gap={10}>
+        {props.product.documents?.map((row, index) => (
+          <Card size="small" style={{ width: "100%" }}>
+            <Flex gap={10} justify="space-between" align="center">
+              <Typography.Text strong type="secondary">
+                {row.fileName}
+              </Typography.Text>
+              <CommonIcons
+                onClick={() => handleDownloadDoc(row.url)}
+                action="downloadButton"
+              />
+            </Flex>
+          </Card>
+        ))}
       </Flex>
     </Drawer>
   );
