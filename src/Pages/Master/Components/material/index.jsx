@@ -268,7 +268,7 @@ const Material = () => {
         group: headerValues.group,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "I",
-        attr_code: "--",
+        attr_code: uniqueId,
         // attr_code
         hsns: hsnRows.map((row) => row.code.value),
         taxs: hsnRows.map((row) => row.percentage),
@@ -1326,7 +1326,10 @@ const CategoryModal = ({
           <Row>
             <Col span={14}>
               {/* <Flex justify="center"> */}
-              <Typography.Text strong>Unique Id: {uniqueId}</Typography.Text>
+              <Typography.Text underline style={{ fontSize: 12 }}>
+                {" "}
+                Unique Id: {uniqueId}
+              </Typography.Text>
             </Col>
             <Col span={10}>
               {/* <Flex justify="center"> */}
@@ -1340,7 +1343,7 @@ const CategoryModal = ({
         </Col>
         {/* <Divider /> */}
         <Col span={24} style={{ marginTop: 10 }}>
-          <Typography.Text strong>
+          <Typography.Text underline style={{ fontSize: 12 }}>
             Component Name: {generatedCompName}
           </Typography.Text>
         </Col>

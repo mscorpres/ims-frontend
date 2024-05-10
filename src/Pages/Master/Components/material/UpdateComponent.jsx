@@ -81,6 +81,8 @@ export default function UpdateComponent() {
             catType = "Resistor";
           } else if (value.attr_category === "C") {
             catType = "Capacitor";
+          } else if (value.attr_category === "I") {
+            catType = "Inductor";
           } else {
             catType = "Other";
           }
@@ -538,7 +540,7 @@ export default function UpdateComponent() {
                       <MySelect options={groupOptions} />
                     </Form.Item>
                   </Col>
-                  <Col span={8}>
+                  <Col span={16}>
                     <Form.Item label="Attribute Code">
                       <Row justify="space-between">
                         {/* {categor yData && ( */}{" "}
@@ -564,12 +566,12 @@ export default function UpdateComponent() {
                       </Row>
                     </Form.Item>
                   </Col>
-                  <Col span={8}>
+                  <Col span={4}>
                     <Form.Item name="isEnabled" label="is Enabled?">
                       <MySelect options={isEnabledOptions} />
                     </Form.Item>
                   </Col>
-                  <Col span={8}>
+                  <Col span={4}>
                     <Form.Item name="jobWork" label="Job Work">
                       <Input />
                     </Form.Item>
