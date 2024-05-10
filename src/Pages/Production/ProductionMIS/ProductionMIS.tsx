@@ -10,10 +10,12 @@ import useApi from "@/hooks/useApi.js";
 import { getProductsOptions } from "@/api/general.js";
 import { getDepartmentOptions } from "@/api/master/department.js";
 import { createEntry } from "@/api/production/mis";
+import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
 
 function ProductionMIS() {
   const [misForm] = Form.useForm();
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [showAddDepartment, setShowAddDepartment] = useState(false);
 
   const { executeFun, loading } = useApi();
 
@@ -51,13 +53,27 @@ function ProductionMIS() {
       style={{ padding: 10, height: "95%", overflowY: "hidden" }}
       initialValues={initialValues}
     >
+      <AddDepartmentModal
+        show={showAddDepartment}
+        hide={() => setShowAddDepartment(false)}
+      />
       <Row
         justify="center"
         gutter={4}
         style={{ height: "100%", overflowY: "hidden" }}
       >
         <Col span={4}>
-          <Card size="small" title="Add MIS">
+          <Card
+            size="small"
+            title="Add MIS"
+            extra={
+              <MyButton
+                variant="add"
+                type="link"
+                onClick={() => setShowAddDepartment(true)}
+              />
+            }
+          >
             <Form.Item
               name="department"
               label="Department"

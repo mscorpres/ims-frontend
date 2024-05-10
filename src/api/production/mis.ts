@@ -46,3 +46,14 @@ export const createEntry = async (values: MISType) => {
   const response = await imsAxios.post("/production/mis/add", payload);
   return response;
 };
+
+export const createDepartment = async (name: string) => {
+  const response: ResponseType = await imsAxios.post(
+    "/production/mis/createDprt",
+    {
+      department: name,
+    }
+  );
+
+  return response;
+};
