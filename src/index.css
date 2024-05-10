@@ -296,7 +296,7 @@ textarea {
   cursor: pointer;
 }
 .ant-menu-horizontal {
-  border: none !important;
+  /* border: none !important; */
   margin: 0 !important;
 }
 .nested-table .ant-table-tbody .ant-table-row {

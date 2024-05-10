@@ -803,10 +803,10 @@ const links = [
       routeName: "View and Print MIN Label",
       routePath: "/warehouse/print-view-min",
     },
-    {
-      routeName: "Update Box",
-      routePath: "/warehouse/pia-scan",
-    },
+    // {
+    //   routeName: "Update Box",
+    //   routePath: "/warehouse/pia-scan",
+    // },
   ],
   // query reports
   [
