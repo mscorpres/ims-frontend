@@ -242,8 +242,8 @@ import routeConstants from "./routeConstants.js";
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan.jsx";
 import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
 //
-import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS.jsx";
-import R33 from "../Pages/Reports/R/R33.tsx";
+import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
+import R33 from "../Pages/Reports/R/R33";
 
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
