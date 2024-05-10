@@ -123,3 +123,28 @@ export const getApprovalLogs = async (productKey: string) => {
 
   return response;
 };
+
+interface UpdateStatusType {
+  productKey: string;
+  status: boolean;
+  remarks: string;
+}
+export const updateApprovalStatus = async (
+  productKey: string,
+  remarks: string,
+  status: "approve" | "reject",
+  stage: "0" | "1" | "2"
+) => {
+  const payload: UpdateStatusType = {
+    productKey: productKey,
+    remarks: remarks,
+    status: status === "approve",
+  };
+
+  const response = await imsAxios.patch(
+    `/products/approve/temp/L${+stage + 1}`,
+    payload
+  );
+
+  return response;
+};

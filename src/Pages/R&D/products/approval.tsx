@@ -1,4 +1,4 @@
-import { getApprovalLogs } from "@/api/r&d/products";
+import { getApprovalLogs, updateApprovalStatus } from "@/api/r&d/products";
 import useApi from "@/hooks/useApi";
 import { ModalType } from "@/types/general";
 import { ApprovalType } from "@/types/r&d";
@@ -14,6 +14,8 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import MyButton from "@/Components/MyButton";
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import Loading from "@/Components/Loading.jsx";
 
 interface PropTypes extends ModalType {
   productKey: string;
@@ -30,7 +32,7 @@ const Approval = (props: PropTypes) => {
   const handleFetchDetails = async (productKey: string) => {
     const response = await executeFun(
       () => getApprovalLogs(productKey),
-      "fetcj"
+      "fetch"
     );
     if (response.success) {
       setDetails(response.data);
@@ -49,6 +51,7 @@ const Approval = (props: PropTypes) => {
   }, [props.productKey]);
   return (
     <Modal open={props.show} onCancel={props.hide} title="Approval Logs">
+      {loading("fetch") && <Loading />}
       {details && approveAction && (
         <ApprovingModal
           show={showApprovingModal}
@@ -56,6 +59,8 @@ const Approval = (props: PropTypes) => {
           stage={details?.stage}
           name={details?.name}
           action={approveAction}
+          productKey={props.productKey}
+          handleFetchDetails={handleFetchDetails}
         />
       )}
 
@@ -168,19 +173,46 @@ interface ApprovingTypes extends ModalType {
   stage: "0" | "1" | "2";
   action: "approve" | "reject";
   name: string;
+  productKey: string;
+  handleFetchDetails: (productKey: string) => void;
 }
 const ApprovingModal = (props: ApprovingTypes) => {
   const [form] = Form.useForm();
+  const { executeFun, loading } = useApi();
+
+  const handleUpdateStatus = async () => {
+    const values = await form.validateFields();
+    const response = await executeFun(
+      () =>
+        updateApprovalStatus(
+          props.productKey,
+          values.remarks,
+          props.action,
+          props.stage
+        ),
+      "submit"
+    );
+    if (response.success) {
+      props.hide();
+      props.handleFetchDetails(props.productKey);
+    }
+  };
   return (
     <Modal
       open={props.show}
       onCancel={props.hide}
-      okText={action === ""}
+      okButtonProps={{
+        danger: props.action === "reject",
+        icon: props.action === "reject" ? <CloseOutlined /> : <CheckOutlined />,
+      }}
+      okText={props.action === "approve" ? "Approve" : "Reject"}
       title={
         props.action === "approve"
           ? `Approving ${props.name}`
           : `Rejecting ${props.name}`
       }
+      onOk={handleUpdateStatus}
+      confirmLoading={loading("submit")}
     >
       <Flex justify="center">
         <Typography.Text
@@ -190,7 +222,6 @@ const ApprovingModal = (props: ApprovingTypes) => {
             margin: "5px 0px",
           }}
           strong
-          // type="secondary"
         >
           Are you sure you want to {props.action} <span>{props.name}</span>?
         </Typography.Text>

@@ -1376,6 +1376,11 @@ const Routes = [
   //   path: "/assets/depreciation",
   //   main: () => <Depreciation />,
   // },
+  //research and development
+  {
+    path: routeConstants.researchAndDevelopment.products,
+    main: () => <Products />,
+  },
 
   ///login
   {
