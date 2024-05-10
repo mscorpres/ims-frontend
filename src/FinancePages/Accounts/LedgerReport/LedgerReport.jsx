@@ -30,7 +30,7 @@ import MyButton from "../../../Components/MyButton/index.jsx";
 import { getLedgerOptions } from "../../../api/ledger";
 import { getRecoReport } from "../../../api/finance/vendor-reco.js";
 import Loading from "../../../Components/Loading.jsx";
-import { imsAxios } from "../../../axiosInterceptor.tsx";
+import { imsAxios } from "../../../axiosInterceptor";
 
 export default function LedgerReport() {
   const [asyncOptions, setAsyncOptions] = useState([]);
