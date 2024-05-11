@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { Card, Col, Form, Input, Row, Space } from "antd";
 import MyDatePicker from "../../../../Components/MyDatePicker";
@@ -50,29 +50,6 @@ function PendingReversal() {
     console.log("pending response", response);
 
     setRows(response.data);
-    // setLoading(true);
-
-    // true;
-    // let response = await imsAxios.post("/fg_return/fetchFG_returnlist", {
-    //   wise: wise,
-    //   data: wise == "datewise" ? dateRange : searchInput,
-    // });
-    // if (response.success == true) {
-    //   let { data } = response;
-    //   let arr = data.map((e, id) => {
-    //     return {
-    //       ...e,
-    //       id: id + 1,
-    //     };
-    //   });
-    //   setRows(arr);
-    //   // setLoading(false);
-    // } else {getExecuteDetails
-
-    //   toast.error(response.message);
-    // }
-    // // setLoading(false);
-    // true;
   };
   const getExecuteDetails = async (row) => {
     console.log("row", row);
@@ -109,6 +86,12 @@ function PendingReversal() {
       // style: { backgroundColor: "transparent" },
     },
   ];
+
+  useEffect(() => {
+    if (wise === "skuwise") {
+      form.setFieldValue("data", "");
+    }
+  }, [wise]);
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
