@@ -709,12 +709,31 @@ export const items = (user) => [
     <UnorderedListOutlined />
   ),
   getItem(
-    <Link to={routeConstants.researchAndDevelopment.products}>
-      Research and Development
-    </Link>,
-    routeConstants.researchAndDevelopment.products,
-    <ExperimentOutlined />
+    "Research and Development",
+    "Research and Development",
+    <ExperimentOutlined />,
+    [
+      getItem(
+        <Link to={routeConstants.researchAndDevelopment.products}>
+          Products
+        </Link>,
+        routeConstants.researchAndDevelopment.products
+      ),
+      getItem(
+        <Link to={routeConstants.researchAndDevelopment.bom.create}>
+          Bill of Material
+        </Link>,
+        routeConstants.researchAndDevelopment.bom.create
+      ),
+    ]
   ),
+  // getItem(
+  //   <Link to={routeConstants.researchAndDevelopment.products}>
+  //     Research and Development
+  //   </Link>,
+  //   routeConstants.researchAndDevelopment.products,
+  //   <ExperimentOutlined />
+  // ),
   // user?.type == "developer"
   //   ? getItem(
   //       <Link to="/controlPanel/registeredUsers">Control Panel</Link>,

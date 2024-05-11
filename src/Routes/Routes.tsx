@@ -250,7 +250,9 @@ import ViewDocuments from "@/Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "@/Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
 import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
-import Products from "@/Pages/R&D/products/index";
+import Products from "@/Pages/R&D/products/index.js";
+import BOMCreate from "@/Pages/R&D/bom/create/index.js";
+import BOMList from "@/Pages/R&D/bom/list/index.js";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -1380,6 +1382,14 @@ const Routes = [
   {
     path: routeConstants.researchAndDevelopment.products,
     main: () => <Products />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.bom.create,
+    main: () => <BOMCreate />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.bom.list,
+    main: () => <BOMList />,
   },
 
   ///login

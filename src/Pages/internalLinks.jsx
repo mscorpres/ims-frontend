@@ -1185,5 +1185,15 @@ const links = [
       routePath: routeConstants.researchAndDevelopment.products,
     },
   ],
+  [
+    {
+      routeName: "Create BOM",
+      routePath: routeConstants.researchAndDevelopment.bom.create,
+    },
+    {
+      routeName: "BOM List",
+      routePath: routeConstants.researchAndDevelopment.bom.list,
+    },
+  ],
 ];
 export default links;
