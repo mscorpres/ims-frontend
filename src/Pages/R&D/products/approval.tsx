@@ -3,6 +3,7 @@ import useApi from "@/hooks/useApi";
 import { ModalType } from "@/types/general";
 import { ApprovalType } from "@/types/r&d";
 import {
+  Button,
   Divider,
   Flex,
   Form,
@@ -16,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import MyButton from "@/Components/MyButton";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import Loading from "@/Components/Loading.jsx";
+import { useSelector } from "react-redux/es/exports";
 
 interface PropTypes extends ModalType {
   productKey: string;
@@ -26,7 +28,8 @@ const Approval = (props: PropTypes) => {
   const [approveAction, setApproveAction] = useState<
     "approve" | "reject" | null
   >(null);
-
+  const { user } = useSelector((state) => state.login);
+  console.log("this is the user", user);
   const { executeFun, loading } = useApi();
 
   const handleFetchDetails = async (productKey: string) => {
@@ -50,7 +53,12 @@ const Approval = (props: PropTypes) => {
     }
   }, [props.productKey]);
   return (
-    <Modal open={props.show} onCancel={props.hide} title="Approval Logs">
+    <Modal
+      open={props.show}
+      onCancel={props.hide}
+      title="Approval Logs"
+      footer={<Button onClick={props.hide}>Done</Button>}
+    >
       {loading("fetch") && <Loading />}
       {details && approveAction && (
         <ApprovingModal
@@ -81,7 +89,7 @@ const Approval = (props: PropTypes) => {
       <Flex justify="space-between" wrap="wrap">
         <Flex vertical gap={10}>
           <SingleDetail
-            label="Approved By"
+            label="Approver"
             value={details?.approvalDetails1.by ?? "--"}
           />
           <SingleDetail
@@ -90,27 +98,32 @@ const Approval = (props: PropTypes) => {
           />
         </Flex>
         <div>
-          {details?.stage === "0" && (
-            <Space>
-              <MyButton
-                onClick={() => handleToggleApprovingModal("reject")}
-                variant="clear"
-                text="Reject"
-                danger
-              />
-              <MyButton
-                onClick={() => handleToggleApprovingModal("approve")}
-                variant="submit"
-                text="Approve"
-              />
-            </Space>
-          )}
+          {details?.stage === "0" &&
+            user.id === details.approvalDetails1.crn && (
+              <Space>
+                <MyButton
+                  onClick={() => handleToggleApprovingModal("reject")}
+                  variant="clear"
+                  text="Reject"
+                  danger
+                />
+                <MyButton
+                  onClick={() => handleToggleApprovingModal("approve")}
+                  variant="submit"
+                  text="Approve"
+                />
+              </Space>
+            )}
           {details?.stage !== "0" && (
             <SingleDetail
               label="Approved On"
               value={details?.approvalDetails1.date ?? "--"}
             />
           )}
+          {details?.stage === "0" &&
+            user.id !== details.approvalDetails1.crn && (
+              <SingleDetail label="Approved On" value={"Not Approved"} />
+            )}
         </div>
       </Flex>
       <Typography.Title level={5} style={{ marginTop: 10 }}>
@@ -120,7 +133,7 @@ const Approval = (props: PropTypes) => {
       <Flex justify="space-between" wrap="wrap">
         <Flex vertical gap={10}>
           <SingleDetail
-            label="Approved By"
+            label="Approver"
             value={details?.approvalDetails2.by ?? "--"}
           />
           <SingleDetail
@@ -129,27 +142,32 @@ const Approval = (props: PropTypes) => {
           />
         </Flex>
         <div>
-          {details?.stage === "1" && (
-            <Space>
-              <MyButton
-                onClick={() => handleToggleApprovingModal("reject")}
-                variant="clear"
-                text="Reject"
-                danger
-              />
-              <MyButton
-                onClick={() => handleToggleApprovingModal("approve")}
-                variant="submit"
-                text="Approve"
-              />
-            </Space>
-          )}
+          {details?.stage === "1" &&
+            user.id === details.approvalDetails2.crn && (
+              <Space>
+                <MyButton
+                  onClick={() => handleToggleApprovingModal("reject")}
+                  variant="clear"
+                  text="Reject"
+                  danger
+                />
+                <MyButton
+                  onClick={() => handleToggleApprovingModal("approve")}
+                  variant="submit"
+                  text="Approve"
+                />
+              </Space>
+            )}
           {details?.stage === "2" && (
             <SingleDetail
               label="Approved On"
               value={details?.approvalDetails2.date ?? "Not Approved"}
             />
           )}
+          {details?.stage === "1" &&
+            user.id !== details.approvalDetails2.crn && (
+              <SingleDetail label="Approved On" value={"Not Approved"} />
+            )}
         </div>
       </Flex>
     </Modal>
