@@ -999,7 +999,11 @@ const ButtonsCard = ({
           Manual Transactions
         </Button>
 
-        <MyButton variant="submit" onClick={() => handleSaveToDraft("draft")} />
+        <MyButton
+          variant="submit"
+          text="Save"
+          onClick={() => handleSaveToDraft("draft")}
+        />
         {/* <Button onClick={() => handleSaveToDraft("draft")}>Save</Button> */}
         <Button onClick={() => handleSaveToDraft("completed")}>
           Complete Reco
