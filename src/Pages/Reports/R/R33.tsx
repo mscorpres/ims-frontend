@@ -131,7 +131,10 @@ function R33() {
         </Card>
       </Col>
       <Col span={20}>
-        <MyDataTable columns={rangeColumns} data={rows} />
+        <MyDataTable
+          columns={wise === "consolidated" ? rangeColumns : singleColumns}
+          data={rows}
+        />
       </Col>
     </Row>
   );
