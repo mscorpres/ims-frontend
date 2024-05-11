@@ -648,7 +648,7 @@ const VendorCard = ({
     },
     {
       type: "",
-      particulars: "Vendor Adjusted Balane",
+      particulars: "Vendor Adjusted Balance",
       amount: adjustedVendorBalance,
     },
     {
@@ -672,10 +672,10 @@ const VendorCard = ({
   const handleDownloadExcel = () => {
     const obj = {
       vendor: vendor?.label,
-      date: "",
+      date: date,
       preparedBy: user?.userName,
       fileName: vendor?.value,
-      period: "1 April 23- 9 April 23",
+      period: date,
       arr1: arr1,
     };
     handleDownload(obj);
@@ -1192,34 +1192,6 @@ const filterRule = {
 };
 
 const handleDownload = (payload) => {
-  const columns = ["", "Particlular", "Amount"];
-
-  const rows = [
-    {
-      type: "DR",
-      particular: "Test particular 1",
-      amount: "10000",
-      remarks: "test remarks here",
-    },
-    {
-      type: "CR",
-      particular: "Test particular 2",
-      amount: "4660",
-      remarks: "test remarks here",
-    },
-    {
-      type: "DR",
-      particular: "Test particular 3",
-      amount: "100",
-      remarks: "test remarks here",
-    },
-    {
-      type: "DR",
-      particular: "Test particular 4",
-      amount: "100",
-      remarks: "test remarks here",
-    },
-  ];
   const wb = xlsx.utils.book_new();
   wb.Props = {
     Title: "New Sheet",
@@ -1290,7 +1262,7 @@ const handleDownload = (payload) => {
     [
       {
         A6: "",
-        B6: "Particulars",
+        B6: "Particulars (" + payload.period + ")",
         C6: "Amount",
         D6: "",
       },
