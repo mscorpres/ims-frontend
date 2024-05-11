@@ -134,8 +134,9 @@ export default function LedgerReport() {
     setRecoRows(response.data);
   };
   const handleFetchLedgerOptions = async (search) => {
-    const response = await executeFun(() => getLedgerOptions(search), "select");
-    setAsyncOptions(response.data);
+    // const response = await executeFun(() => getLedgerOptions(search), "select");
+    getLedgerOptions(search);
+    // setAsyncOptions(response.data);
   };
   const ledgerReportColumns = [
     {
