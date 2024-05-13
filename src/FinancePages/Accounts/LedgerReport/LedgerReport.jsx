@@ -355,7 +355,7 @@ export default function LedgerReport() {
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {summary?.debitTotal ?? "--"}
+                    {summary?.total_debit ?? "--"}
                   </Typography.Text>
                 )}
               </Col>
@@ -384,7 +384,7 @@ export default function LedgerReport() {
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {summary?.creditTotal}
+                    {summary?.total_credit}
                   </Typography.Text>
                 )}
               </Col>
