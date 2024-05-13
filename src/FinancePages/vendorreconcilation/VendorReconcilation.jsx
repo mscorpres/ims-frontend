@@ -90,6 +90,7 @@ const VendorReconcilation = () => {
   var paramsVendor = searchParams.get("vendor");
   var paramsDate = searchParams.get("date");
   // var paramsRecoId = searchParams.get("date");
+  console.log("this is the params date", paramsDate);
 
   const handleGenerateRecoRef = async (vendor, date) => {
     const response = await executeFun(() => createDraft(vendor, date), "fetch");
