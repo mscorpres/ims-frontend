@@ -2819,8 +2819,8 @@ const componentsItems = (location, gstType) => [
   {
     headerName: "Remark",
     name: "description",
-    width: 150,
-    field: (row) => <Input />,
+    width: 250,
+    field: (row) => <Input.TextArea rows={3} />,
   },
 ];
 const gstTypeOptions = [
