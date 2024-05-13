@@ -9,6 +9,11 @@ export interface SelectOptionType {
   value: string | number | boolean;
 }
 
+export interface SelectOptionType1 {
+  label: string;
+  value: string;
+}
+
 export interface ModalType {
   show: boolean;
   hide: () => void;

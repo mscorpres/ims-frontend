@@ -66,11 +66,11 @@ export const getProductOptions = async (search: string) => {
   );
 
   let arr: SelectOptionType[] = [];
-  if (response.success) {
-    arr = convertSelectOptions(response.data);
-  }
+  // if (response.success) {
+  //   arr = convertSelectOptions(response.data);
+  // }
 
-  response.data = arr;
+  // response.data = arr;
   return response;
 };
 

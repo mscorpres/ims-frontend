@@ -1,3 +1,5 @@
+import { SelectOptionType1 } from "@/types/general";
+
 export interface ProductType {
   key?: string;
   id?: string | number;
@@ -31,4 +33,28 @@ export interface ApprovalType {
     remarks: string;
   };
   stage: "0" | "1" | "2";
+}
+
+export interface BOMType {
+  name: string;
+  product?: string;
+  key?: string;
+  sku?: string;
+  description: string;
+  components: {
+    id?: string | number;
+    component: SelectOptionType1 | string;
+    name?: string;
+    partCode?: string;
+    qty: string;
+    remarks: string;
+    type: "substitute" | "main";
+    substituteOf: SelectOptionType1 | string;
+    status: "active" | "inactive";
+  }[];
+  createdOn?: string;
+}
+
+export interface BOMTypeExtended extends BOMType {
+  currentApprover: string;
 }

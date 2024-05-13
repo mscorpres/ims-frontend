@@ -1,28 +1,22 @@
-import {
-  Button,
-  Card,
-  Col,
-  Flex,
-  Form,
-  Input,
-  Modal,
-  Row,
-  Space,
-  Upload,
-} from "antd";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import { Card, Col, Flex, Form, Input, Modal, Row, Upload } from "antd";
+
 import MySelect from "@/Components/MySelect";
 import MyButton from "@/Components/MyButton";
 import ToolTipEllipses from "@/Components/ToolTipEllipses.jsx";
 import MyDataTable from "@/Components/MyDataTable.jsx";
+
+import Approval from "@/Pages/R&D/products/approval";
+import ProductDocuments from "@/Pages/R&D/products/documents";
+
 import useApi from "@/hooks/useApi";
+
 import { getUOMList } from "@/api/master/uom";
 import { createProduct, getProductsList } from "@/api/r&d/products";
+
 import { ModalType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
-import ProductDocuments from "@/Pages/R&D/products/documents";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import Approval from "@/Pages/R&D/products/approval";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
@@ -66,7 +60,6 @@ export default function Products() {
   };
 
   const normFile = (e) => {
-    console.log("Upload event:", e);
     if (Array.isArray(e)) {
       return e;
     }
@@ -83,10 +76,9 @@ export default function Products() {
       type: "actions",
       width: 30,
       getActions: ({ row }) => [
-        // docs and images
         <GridActionsCellItem
           showInMenu
-          placeholder="Show Docs and Images"
+          placeholder="See Attachments"
           // disabled={disabled}
           label={"Attachments"}
           onClick={() => {
@@ -129,7 +121,7 @@ export default function Products() {
             setShowApprovalLogs(false);
             setSelectedProduct(null);
           }}
-          productKey={selectedProduct.key}
+          productKey={selectedProduct.key ?? ""}
         />
       )}
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Card,
   Col,
@@ -8,16 +9,17 @@ import {
   Row,
   Typography,
 } from "antd";
-import React, { useState } from "react";
+import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
 import MySelect from "@/Components/MySelect.jsx";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
-import { SelectOptionType } from "@/types/general";
+import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
-import { getComponentOptions } from "@/api/general";
+import { SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
-import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
-import { toast } from "react-toastify";
+import { getComponentOptions } from "@/api/general";
+import { getProductOptions } from "@/api/r&d/products";
+import { createBOM } from "@/api/r&d/bom";
 
 const typeOptions: SelectOptionType[] = [
   {
@@ -29,7 +31,6 @@ const typeOptions: SelectOptionType[] = [
     value: "substitute",
   },
 ];
-
 interface ComponentType {
   component: {
     label: string;
@@ -49,7 +50,8 @@ interface ComponentType {
 const BOMCreate = () => {
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
-  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
+
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const type = Form.useWatch("type", form);
@@ -60,7 +62,6 @@ const BOMCreate = () => {
       "select"
     );
     setAsyncOptions(convertSelectOptions(response.data ?? []));
-    console.log("component response", response);
   };
 
   const handleAddComponents = async () => {
@@ -81,11 +82,11 @@ const BOMCreate = () => {
 
     let verifyArr = [...mainComponents, ...subComponents];
     const found = verifyArr.find((row) => row.value === values.component.value);
-    // if (verifyArr.find((row) => row.value === values.component.value)) {
-    //   return toast.error(
-    //     `Component already added in ${found?.type} components with Qty: ${found?.qty}`
-    //   );
-    // }
+    if (verifyArr.find((row) => row.value === values.component.value)) {
+      return toast.error(
+        `Component already added in ${found?.type} components with Qty: ${found?.qty}`
+      );
+    }
 
     if (values.type === "main") {
       setMainComponents((curr) => [...curr, newComponent]);
@@ -93,7 +94,7 @@ const BOMCreate = () => {
       setSubComponents((curr) => [...curr, newComponent]);
     }
 
-    // form.resetFields(["component", "type", "qty", "remarks", "substituteOf"]);
+    form.resetFields(["component", "type", "qty", "remarks", "substituteOf"]);
   };
 
   const handleDeleteComponent = (
@@ -110,6 +111,34 @@ const BOMCreate = () => {
       );
     }
   };
+
+  const handleFetchProductOptions = async (search: string) => {
+    const response = await executeFun(
+      () => getProductOptions(search),
+      "select"
+    );
+    setAsyncOptions(response.data ?? []);
+  };
+
+  const validateHandler = async () => {
+    const values = await form.validateFields();
+
+    let combined = [...mainComponents, ...subComponents];
+    const response = await executeFun(
+      () => createBOM({ ...values, components: combined }),
+      "submit"
+    );
+
+    if (response.success) {
+      resetHandler();
+    }
+  };
+
+  const resetHandler = () => {
+    form.resetFields();
+    setMainComponents([]);
+    setSubComponents([]);
+  };
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -125,17 +154,22 @@ const BOMCreate = () => {
                 <Input />
               </Form.Item>
               <Form.Item name="product" label="Product">
-                <Input />
+                <MyAsyncSelect
+                  loadOptions={handleFetchProductOptions}
+                  selectLoading={loading("select")}
+                  onBlur={() => setAsyncOptions([])}
+                  optionsState={asyncOptions}
+                />
               </Form.Item>
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Flex justify="center" gap={5}>
                 <MyButton variant="reset" />
-                <MyButton variant="submit" />
+                <MyButton variant="submit" onClick={validateHandler} />
               </Flex>
             </Card>
-            {/* Compnent add card */}
+            {/* Component add card */}
             <Card size="small" title="Add Component">
               <Form.Item name="component" label="Component">
                 <MyAsyncSelect
@@ -154,7 +188,11 @@ const BOMCreate = () => {
                 >
                   <InputNumber style={{ width: "100%" }} />
                 </Form.Item>
-                <Form.Item style={{ minWidth: 150 }} name="type" label="Type">
+                <Form.Item
+                  style={{ flex: 1, minWidth: 100 }}
+                  name="type"
+                  label="Type"
+                >
                   <MySelect options={typeOptions} />
                 </Form.Item>
               </Flex>
@@ -226,20 +264,6 @@ const BOMCreate = () => {
                 </div>
               </Card>
             </Col>
-            {/* <Col span={12}>
-              <Card
-                size="small"
-                title="Substitute Components"
-                style={{ height: "100%", overflow: "hidden" }}
-                bodyStyle={{ height: "98%", overflow: "hidden" }}
-              >
-                <Components
-                  rows={subComponents}
-                  type="substitute"
-                  handleDeleteComponent={handleDeleteComponent}
-                />
-              </Card>
-            </Col> */}
           </Row>
         </Col>
       </Row>
@@ -341,23 +365,6 @@ const Components = ({
     </div>
   );
 };
-
-// {
-//     name:"",
-//     product:"",
-//     description;"",
-//     components:[
-//         {
-//             component:"",
-//             qty:"",
-//             remarks:"",
-//             type :"main" | "subsitute",
-//             substitueOf:"",
-//             status:"active" | "inactive"
-//         }
-//     ]
-// }
-
 const initialValues = {
   component: undefined,
   qty: undefined,
