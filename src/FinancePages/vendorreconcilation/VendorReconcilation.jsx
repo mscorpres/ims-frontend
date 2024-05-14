@@ -90,6 +90,7 @@ const VendorReconcilation = () => {
   var paramsVendor = searchParams.get("vendor");
   var paramsDate = searchParams.get("date");
   // var paramsRecoId = searchParams.get("date");
+  console.log("this is the params date", paramsDate);
 
   const handleGenerateRecoRef = async (vendor, date) => {
     const response = await executeFun(() => createDraft(vendor, date), "fetch");
@@ -173,7 +174,7 @@ const VendorReconcilation = () => {
       }));
       setRows(arr);
       setDetails(obj);
-      setShowFilters();
+      setShowFilters(false);
     }
   };
 
@@ -319,20 +320,24 @@ const VendorReconcilation = () => {
 
   useEffect(() => {
     if (paramsVendorCode) {
-      setShowFilters(false);
+      // setShowFilters(false);
       filterForm.setFieldValue("vendor", {
         label: paramsVendor,
         text: paramsVendor,
         value: paramsVendorCode,
       });
 
-      filterForm.setFieldValue("date", paramsDate);
       handleFetchManualTransactions(paramsVendorCode, paramsDate);
       handleFetchLedgerDetais(paramsVendorCode, paramsDate);
       handleGenerateRecoRef(paramsVendorCode, paramsDate);
       setShowFilters(false);
     }
   }, [paramsVendorCode]);
+  useEffect(() => {
+    if (paramsDate) {
+      filterForm.setFieldValue("date", paramsDate);
+    }
+  }, []);
 
   const actionColumn = [
     {
@@ -375,6 +380,7 @@ const VendorReconcilation = () => {
           handleFetchLedgerDetais();
           handleFetchManualTransactions();
         }}
+        paramsDate={paramsDate}
         hide={hideFilters}
         loading={loading("fetchDetails")}
       />
@@ -455,16 +461,7 @@ const VendorReconcilation = () => {
 
 export default VendorReconcilation;
 
-const Filters = ({
-  form,
-  show,
-  hide,
-  submitFun,
-  loading,
-  manualTransactions,
-  vcode,
-  daterange,
-}) => {
+const Filters = ({ form, show, hide, submitFun, loading, paramsDate }) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const { executeFun, loading: fetchLoading } = useApi();
   const dateValue = Form.useWatch("date", form);
@@ -511,9 +508,7 @@ const Filters = ({
             <Form.Item name="date" label="Time Period" rules={filterRule.date}>
               <MyDatePicker
                 setDateRange={(value) => form.setFieldValue("date", value)}
-                // defaultValue={daterange}
-
-                // format="YYYY-MM-DD"
+                // value={paramsDate ?? ""}
               />
             </Form.Item>
           </Form>

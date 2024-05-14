@@ -352,6 +352,8 @@ const ManagePO = () => {
     console.log("this is the wise in po", wise);
   }, [wise]);
 
+  console.log("this is date range", searchDateRange);
+
   return (
     <div className="manage-po" style={{ position: "relative", height: "100%" }}>
       <Row
@@ -368,7 +370,7 @@ const ManagePO = () => {
                 <MyDatePicker
                   size="default"
                   setDateRange={setSearchDateRange}
-                  dateRange={searchDateRange}
+                  // dateRange={searchDateRange}
                   value={searchDateRange}
                 />
               ) : wise === "po_wise" ? (

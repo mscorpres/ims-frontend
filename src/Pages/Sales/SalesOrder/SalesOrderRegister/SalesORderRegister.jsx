@@ -35,6 +35,7 @@ function SalesORderRegister() {
   const navigate = useNavigate();
 
   const handleFetchRows = async () => {
+    console.log("this is the search term", searchTerm);
     const response = await executeFun(
       () => getSalesOrders(wise, searchTerm),
       "fetch"
@@ -243,7 +244,9 @@ function SalesORderRegister() {
     navigate("/sales/order/shipments");
   };
   useEffect(() => {
-    setSearchTerm("");
+    if (wise !== "DATE") {
+      setSearchTerm("");
+    }
   }, [wise]);
   useEffect(() => {
     if (!cancelRowSelected) {
@@ -309,7 +312,10 @@ function SalesORderRegister() {
                   </div>
                   <Col>
                     {wise == "DATE" && (
-                      <MyDatePicker setDateRange={setSearchTerm} />
+                      <MyDatePicker
+                        setDateRange={setSearchTerm}
+                        value={searchTerm}
+                      />
                     )}
                     {wise === "SONO" && (
                       <Input

@@ -130,7 +130,9 @@ const TransactionIn = () => {
     downloadCSV(rows, columns, "MIN Register Report");
   };
   useEffect(() => {
-    setSearchInput("");
+    if (wise === "P") {
+      setSearchInput("");
+    }
   }, [wise]);
   return (
     <div style={{ height: "90%", padding: "5px", paddingTop: 0 }}>
@@ -147,9 +149,10 @@ const TransactionIn = () => {
           <div style={{ width: 300 }}>
             {wise === "M" && (
               <MyDatePicker
-                size="default"
-                setDateRange={setSearchInput}
-                dateRange={searchInput}
+                setDateRange={(value) => {
+                  setSearchInput(value);
+                  console.log("setting date", value);
+                }}
                 value={searchInput}
               />
             )}
@@ -165,7 +168,7 @@ const TransactionIn = () => {
             onClick={getRows}
             type="primary"
             loading={loading === "fetch"}
-            disabled={wise === "" || searchInput === ""}
+            // disabled={wise === "" || searchInput === ""}
           >
             Fetch
           </MyButton>
