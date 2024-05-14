@@ -58,3 +58,20 @@ export interface BOMType {
 export interface BOMTypeExtended extends BOMType {
   currentApprover: string;
 }
+
+export interface BOMApprovalType {
+  currentStage: number;
+  logs: {
+    approver: null | {
+      crn: string;
+      name?: string;
+      email?: string;
+    };
+    currentStage: number;
+    remarks: string | null;
+    stage: number;
+    formattedStage: string;
+    isRejected: boolean;
+    date: string | null;
+  }[];
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Row } from "antd";
+import { Col, Row } from "antd";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 
 import MyDataTable from "@/Components/MyDataTable.jsx";
@@ -12,11 +12,13 @@ import { getBOMList } from "@/api/r&d/bom";
 import useApi from "@/hooks/useApi";
 
 import { BOMTypeExtended } from "@/types/r&d";
+import BOMApproval from "@/Pages/R&D/bom/list/approval";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
   const [selectedBOM, setSelectedBOM] = useState<BOMTypeExtended | null>(null);
   const [showComponents, setShowComponents] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
 
   const { executeFun, loading } = useApi();
 
@@ -40,6 +42,15 @@ const BOMList = () => {
             setSelectedBOM(row);
           }}
         />,
+        <GridActionsCellItem
+          showInMenu
+          placeholder="See Logs"
+          label={"Logs"}
+          onClick={() => {
+            setShowLogs(true);
+            setSelectedBOM(row);
+          }}
+        />,
       ],
     },
   ];
@@ -48,7 +59,7 @@ const BOMList = () => {
     handleFetchBOMList();
   }, []);
   return (
-    <Row style={{ height: "95%", padding: 10 }}>
+    <Row justify="center" style={{ height: "95%", padding: 10 }}>
       {selectedBOM && (
         <Components
           show={showComponents}
@@ -59,11 +70,21 @@ const BOMList = () => {
           }}
         />
       )}
-      <MyDataTable
-        columns={[...actionColumns, ...columns]}
-        data={rows}
-        loading={loading("fetch")}
+      <BOMApproval
+        show={showLogs}
+        hide={() => {
+          setShowLogs(false);
+          setSelectedBOM(null);
+        }}
+        selectedBom={selectedBOM}
       />
+      <Col sm={18} lg={14} xxl={12}>
+        <MyDataTable
+          columns={[...actionColumns, ...columns]}
+          data={rows}
+          loading={loading("fetch")}
+        />
+      </Col>
     </Row>
   );
 };
@@ -104,8 +125,5 @@ const columns = [
     headerName: "Description",
     width: 150,
     field: "description",
-    renderCell: ({ row }: { row: BOMTypeExtended }) => (
-      <ToolTipEllipses text={row.description} />
-    ),
   },
 ];

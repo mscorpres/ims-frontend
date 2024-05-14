@@ -1,6 +1,6 @@
 import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType } from "@/types/general";
-import { BOMType, BOMTypeExtended } from "@/types/r&d";
+import { BOMApprovalType, BOMType, BOMTypeExtended } from "@/types/r&d";
 
 interface CreateBOMType {
   name: string;
@@ -99,6 +99,76 @@ export const getComponents = async (bomKey: string) => {
   }
 
   response.data = arr;
+
+  return response;
+};
+
+interface GetLogsType {
+  details: {
+    createdBy: string;
+    createdOn: string;
+    stage: number;
+  };
+  logs: {
+    approverCrn: string;
+    approverName: string;
+    stage: number;
+    remarks: string | null;
+    date: string | null;
+    isRejected: boolean;
+  }[];
+}
+export const getLogs = async (bomKey: string) => {
+  const response: ResponseType = await imsAxios.get(
+    `/bom/logs?bomID=${bomKey}`
+  );
+  let arr: BOMApprovalType | {} = {};
+
+  if (response.success) {
+    const values: GetLogsType = response.data;
+    arr = {
+      currentStage: values.details.stage,
+      logs: values.logs.map((row) => ({
+        approver: {
+          crn: row.approverCrn,
+          name: row.approverName,
+        },
+        isRejected: row.isRejected,
+        remarks: row.remarks,
+        stage: row.stage,
+        formattedStage: (row.stage <= 3
+          ? `L1-S${row.stage}`
+          : row.stage > 3 && row.stage <= 6
+          ? `L2-S${row.stage - 3}`
+          : row.stage > 6 && row.stage <= 9 && `L3-S${row.stage - 6}`
+        ).toString(),
+        date: row.date,
+      })),
+    };
+  }
+
+  response.data = arr;
+  return response;
+};
+
+interface updateStatusType {
+  bomID: string;
+  status: boolean;
+  remarks: string;
+}
+export const updateStatus = async (
+  bomKey: string,
+  status: "approve" | "reject",
+  remarks: string,
+  stage: number
+) => {
+  const payload: updateStatusType = {
+    bomID: bomKey,
+    remarks: remarks,
+    status: status === "approve",
+  };
+
+  const response = await imsAxios.patch(`/bom/approve/temp/L${stage}`, payload);
 
   return response;
 };

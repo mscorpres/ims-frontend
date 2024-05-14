@@ -29,7 +29,6 @@ const Approval = (props: PropTypes) => {
     "approve" | "reject" | null
   >(null);
   const { user } = useSelector((state) => state.login);
-  console.log("this is the user", user);
   const { executeFun, loading } = useApi();
 
   const handleFetchDetails = async (productKey: string) => {
