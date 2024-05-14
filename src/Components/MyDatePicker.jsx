@@ -6,13 +6,24 @@ const MyDatePicker = ({ format = "DD-MM-YYYY", value, setDateRange, size }) => {
   useEffect(() => {
     if (value) {
       setDateRange(value);
-      console.log("valus props", value);
     } else if (value === "") {
       setDateRange(getDateFormatted([dayjs().subtract(89, "d"), dayjs()]));
     } else {
       setDateRange(getDateFormatted([dayjs().subtract(89, "d"), dayjs()]));
     }
   }, []);
+  useEffect(() => {
+    if (value === "") {
+      setTimeout(() => {
+        const formatted = getDateFormatted([
+          dayjs().subtract(89, "d"),
+          dayjs(),
+        ]);
+
+        setDateRange(formatted);
+      }, 200);
+    }
+  });
   return (
     <DatePicker.RangePicker
       size={size ? size : "default"}
@@ -20,7 +31,11 @@ const MyDatePicker = ({ format = "DD-MM-YYYY", value, setDateRange, size }) => {
         width: "100%",
         fontSize: window.innerWidth <= 1600 ? "0.7rem" : "0.9rem",
       }}
-      value={getDateFormatted(value) ?? [dayjs().subtract(89, "d"), dayjs()]}
+      value={
+        value !== ""
+          ? getDateFormatted(value)
+          : [dayjs().subtract(89, "d"), dayjs()]
+      }
       format={format}
       onChange={(e) => {
         setDateRange(getDateFormatted(e));
@@ -50,7 +65,7 @@ const getDateFormatted = (value) => {
         dayjs(value.substring(11, 21), "DD-MM-YYYY"),
       ];
     } else {
-      return getDateFormatted([dayjs().subtract(89, "d"), dayjs()]);
+      return [dayjs().subtract(89, "d"), dayjs()];
       // return undefined;
     }
   }

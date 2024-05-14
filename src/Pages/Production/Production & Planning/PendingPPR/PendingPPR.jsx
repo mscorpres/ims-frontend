@@ -59,8 +59,8 @@ const PendingPPR = () => {
   };
 
   const getRows = async () => {
-    setSearchLoading(true);
     if (searchInput != "") {
+      setSearchLoading(true);
       const { data } = await imsAxios.post("/ppr/fetchPendingPpr", {
         searchBy: wise,
         searchValue: searchInput.value ?? searchInput,
@@ -261,6 +261,7 @@ const PendingPPR = () => {
       setSearchInput("");
     }
   }, [wise]);
+
   return (
     <div style={{ height: "90%" }}>
       <ClosePPR
@@ -290,7 +291,6 @@ const PendingPPR = () => {
             <div style={{ width: 300 }}>
               {wise === "datewise" ? (
                 <MyDatePicker
-                  size="default"
                   setDateRange={setSearchInput}
                   value={searchInput}
                 />
@@ -322,7 +322,7 @@ const PendingPPR = () => {
             </div>
             <MyButton
               variant="search"
-              disabled={!searchInput ? true : false}
+              // disabled={!searchInput ? true : false}
               type="primary"
               loading={searchLoading}
               onClick={getRows}
