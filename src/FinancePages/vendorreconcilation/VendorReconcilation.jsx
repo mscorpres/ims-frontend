@@ -609,14 +609,14 @@ const VendorCard = ({
       amount: "",
     },
     ...imsManualArr,
+    // {
+    //   type: "",
+    //   particulars: "IMS Manual Total",
+    //   amount: imsManualTotal,
+    // },
     {
       type: "",
-      particulars: "IMS Manual Total",
-      amount: imsManualTotal,
-    },
-    {
-      type: "",
-      particulars: "Riot adjusted Balance",
+      particulars: "Balance of Riot Labz Books after entries adjustments",
       amount: adjustedRiotBalance,
     },
     {
@@ -635,14 +635,14 @@ const VendorCard = ({
       amount: "",
     },
     ...vendorManualArr,
+    // {
+    //   type: "",
+    //   particulars: "Vendor Manual Total",
+    //   amount: vendorManualTotal,
+    // },
     {
       type: "",
-      particulars: "Vendor Manual Total",
-      amount: vendorManualTotal,
-    },
-    {
-      type: "",
-      particulars: "Vendor Adjusted Balance",
+      particulars: `Balance of ${vendor?.label} books after entry adjustment`,
       amount: adjustedVendorBalance,
     },
     {
@@ -653,7 +653,7 @@ const VendorCard = ({
 
     {
       type: "",
-      particulars: "Balance of Riot Labz Books after entries adjustments",
+      particulars: `Balance of ${vendor?.label} Books after entries adjustments`,
       amount: "",
     },
     {
