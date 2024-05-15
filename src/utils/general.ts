@@ -14,6 +14,7 @@ export const convertSelectOptions = (
   } else {
     return [];
   }
+  return [];
 };
 
 export const removeHtml = (value) => {

@@ -123,7 +123,7 @@ import {
   AddAgreementType,
   AllPages,
   AllUsers,
-} from "../Pages/index.jsx";
+} from "@/Pages/index.jsx";
 
 import {
   CreateMaster,
@@ -174,87 +174,89 @@ import {
   AppVendorReport,
   VendorReconcilation,
   ViewReconcilation,
-} from "../FinancePages/index.jsx";
+} from "@/FinancePages/index.jsx";
 //GST report
-import GstReport from "../FinancePages/Finance/GstReport.jsx";
-import R11 from "../Pages/Reports/R/R11.jsx";
-import R12 from "../Pages/Reports/R/R12.jsx";
-import R2 from "../Pages/Reports/R/R2.jsx";
-import R3 from "../Pages/Reports/R/R3.jsx";
-import R4 from "../Pages/Reports/R/R4.jsx";
-import R5 from "../Pages/Reports/R/R5.jsx";
-import R6 from "../Pages/Reports/R/R6.jsx";
-import R7 from "../Pages/Reports/R/R7.jsx";
-import R8 from "../Pages/Reports/R/R8/index.jsx";
-import R9 from "../Pages/Reports/R/R9.jsx";
-import R10 from "../Pages/Reports/R/R10.jsx";
-import R13 from "../Pages/Reports/R/R13.jsx";
-import R14 from "../Pages/Reports/R/R14.jsx";
-import R15 from "../Pages/Reports/R/R15.jsx";
-import R16 from "../Pages/Reports/R/R16.jsx";
-import R17 from "../Pages/Reports/R/R17.jsx";
-import R18 from "../Pages/Reports/R/R18.jsx";
-import R19 from "../Pages/Reports/R/R19.jsx";
-import R20 from "../Pages/Reports/R/R20.jsx";
-import R21 from "../Pages/Reports/R/R21.jsx";
-import R22 from "../Pages/Reports/R/R22.jsx";
-import R24 from "../Pages/Reports/R/R24.jsx";
-import R25 from "../Pages/Reports/R/R25.jsx";
-import R26 from "../Pages/Reports/R/R26.jsx";
-import R27 from "../Pages/Reports/R/R27.jsx";
-import R28 from "../Pages/Reports/R/R28.jsx";
-import R29 from "../Pages/Reports/R/R29.jsx";
-import CompletedPPR from "../Pages/Production/Production & Planning/CompletedPPR.jsx";
-import AccountsPayableReport from "../FinancePages/Finance/vouchers/AppReference/AccountsPayableReport.jsx";
-import VBTRecords from "../FinancePages/Finance/VBTRecords/VBTRecords.jsx";
-import DebitCentralizedRegister from "../FinancePages/Finance/Debit/DebitCentralizedRegister.jsx";
-import SalesRegister from "../Pages/Invoice/SalesRegister/SalesRegister.jsx";
-import QaProcess from "../Pages/Master/QAProcess/QaProcess.jsx";
-import QaProcessMap from "../Pages/Master/QAProcess/QaProcessMap.jsx";
-import CreateWO from "../Pages/Workorder/CreateWo.jsx";
-import Qctest from "../Pages/Production/testqca/Qctest.jsx";
-import VBTMainTable from "../FinancePages/Finance/VendorBillPosting/FormVBT/VBTMainTable.jsx";
-import TdsReport from "../FinancePages/Report/TdsReport.jsx";
-import MisReport from "../FinancePages/Report/MisReport.jsx";
-import WoShipment from "../Pages/Workorder/WoShipment.jsx";
-import SalesORderRegister from "../Pages/Sales/SalesOrder/SalesOrderRegister/SalesORderRegister.jsx";
-import PartCodeConversionReport from "../Pages/Store/PartCodeConversionReport/PartCodeConversionReport.jsx";
-import Pending from "../Pages/SFTransfer/Pending.jsx";
-import Addparty from "../Pages/Legal/master/Addparty.jsx";
+import GstReport from "@/FinancePages/Finance/GstReport.jsx";
+import R11 from "@/Pages/Reports/R/R11.jsx";
+import R12 from "@/Pages/Reports/R/R12.jsx";
+import R2 from "@/Pages/Reports/R/R2.jsx";
+import R3 from "@/Pages/Reports/R/R3.jsx";
+import R4 from "@/Pages/Reports/R/R4.jsx";
+import R5 from "@/Pages/Reports/R/R5.jsx";
+import R6 from "@/Pages/Reports/R/R6.jsx";
+import R7 from "@/Pages/Reports/R/R7.jsx";
+import R8 from "@/Pages/Reports/R/R8/index.jsx";
+import R9 from "@/Pages/Reports/R/R9.jsx";
+import R10 from "@/Pages/Reports/R/R10.jsx";
+import R13 from "@/Pages/Reports/R/R13.jsx";
+import R14 from "@/Pages/Reports/R/R14.jsx";
+import R15 from "@/Pages/Reports/R/R15.jsx";
+import R16 from "@/Pages/Reports/R/R16.jsx";
+import R17 from "@/Pages/Reports/R/R17.jsx";
+import R18 from "@/Pages/Reports/R/R18.jsx";
+import R19 from "@/Pages/Reports/R/R19.jsx";
+import R20 from "@/Pages/Reports/R/R20.jsx";
+import R21 from "@/Pages/Reports/R/R21.jsx";
+import R22 from "@/Pages/Reports/R/R22.jsx";
+import R24 from "@/Pages/Reports/R/R24.jsx";
+import R25 from "@/Pages/Reports/R/R25.jsx";
+import R26 from "@/Pages/Reports/R/R26.jsx";
+import R27 from "@/Pages/Reports/R/R27.jsx";
+import R28 from "@/Pages/Reports/R/R28.jsx";
+import R29 from "@/Pages/Reports/R/R29.jsx";
+import CompletedPPR from "@/Pages/Production/Production & Planning/CompletedPPR.jsx";
+import AccountsPayableReport from "@/FinancePages/Finance/vouchers/AppReference/AccountsPayableReport.jsx";
+import VBTRecords from "@/FinancePages/Finance/VBTRecords/VBTRecords.jsx";
+import DebitCentralizedRegister from "@/FinancePages/Finance/Debit/DebitCentralizedRegister.jsx";
+import SalesRegister from "@/Pages/Invoice/SalesRegister/SalesRegister.jsx";
+import QaProcess from "@/Pages/Master/QAProcess/QaProcess.jsx";
+import QaProcessMap from "@/Pages/Master/QAProcess/QaProcessMap.jsx";
+import CreateWO from "@/Pages/Workorder/CreateWo.jsx";
+import Qctest from "@/Pages/Production/testqca/Qctest.jsx";
+import VBTMainTable from "@/FinancePages/Finance/VendorBillPosting/FormVBT/VBTMainTable.jsx";
+import TdsReport from "@/FinancePages/Report/TdsReport.jsx";
+import MisReport from "@/FinancePages/Report/MisReport.jsx";
+import WoShipment from "@/Pages/Workorder/WoShipment.jsx";
+import SalesORderRegister from "@/Pages/Sales/SalesOrder/SalesOrderRegister/SalesORderRegister.jsx";
+import PartCodeConversionReport from "@/Pages/Store/PartCodeConversionReport/PartCodeConversionReport.jsx";
+import Pending from "@/Pages/SFTransfer/Pending.jsx";
+import Addparty from "@/Pages/Legal/master/Addparty.jsx";
 
-import WoReport from "../Pages/Workorder/WoReport.jsx";
-import RnC from "../Pages/Legal/Registration&Certificates/RnC.jsx";
-import ViewRnC from "../Pages/Legal/Registration&Certificates/ViewRnC.jsx";
-import OneLogIn from "../Pages/Login/OneLogIn.jsx";
-import R30 from "../Pages/Reports/R/R30.jsx";
-import R31 from "../Pages/Reports/R/R31.jsx";
-import PendingPhysicalStock from "../Pages/Store/PhysicalStock/Pending.jsx";
-import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected.jsx";
-import EditSalesOrder from "../Pages/Sales/SalesOrder/edit/index.jsx";
-import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
-import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
-import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
-import AllocatedChallan from "../Pages/Sales/SalesOrder/SalesOrderRegister/AllocatedChallan/AllocatedChallan";
+import WoReport from "@/Pages/Workorder/WoReport.jsx";
+import RnC from "@/Pages/Legal/Registration&Certificates/RnC.jsx";
+import ViewRnC from "@/Pages/Legal/Registration&Certificates/ViewRnC.jsx";
+import OneLogIn from "@/Pages/Login/OneLogIn.jsx";
+import R30 from "@/Pages/Reports/R/R30.jsx";
+import R31 from "@/Pages/Reports/R/R31.jsx";
+import PendingPhysicalStock from "@/Pages/Store/PhysicalStock/Pending.jsx";
+import RejectedPhysicalStock from "@/Pages/Store/PhysicalStock/Rejected.jsx";
+import EditSalesOrder from "@/Pages/Sales/SalesOrder/edit/index.jsx";
+import RegisteredUser from "@/Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
+import ShipmentsList from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
+import Challan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
 
-import R32 from "../Pages/Reports/R/R32.jsx";
-import Index from "../Pages/Query/ClosingStock/Index.jsx";
+import R32 from "@/Pages/Reports/R/R32.jsx";
+import Index from "@/Pages/Query/ClosingStock/Index.jsx";
 import routeConstants from "./routeConstants.js";
-import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan.jsx";
-import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
+import CreateScrapeChallan from "@/Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan.jsx";
+import ProcurementDashboard from "@/Pages/Dashboard/ProcurementDashboard.jsx";
 //
-import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS.jsx";
-import R33 from "../Pages/Reports/R/R33.tsx";
+import ProductionMIS from "@/Pages/Production/ProductionMIS/ProductionMIS.jsx";
+import R33 from "@/Pages/Reports/R/R33.tsx";
 
-import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
-import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
-import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
-import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
+import CreateFgReturn from "@/Pages/Store/FgReturn/CreateFgReturn.jsx";
+import PendingReversal from "@/Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
+import ViewDocuments from "@/Pages/Store/Transaction/Modal/ViewDocuments.jsx";
+import CompletedFgReturn from "@/Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
 import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
+import Products from "@/Pages/R&D/products/index.js";
+import BOMCreate from "@/Pages/R&D/bom/create/index.js";
+import BOMList from "@/Pages/R&D/bom/list/index.js";
 
-// import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
-// import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
-// import Depreciation from "../Pages/fixeassetmodule/Depreciation";
+// import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
+// import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
+// import Depreciation from "@/Pages/fixeassetmodule/Depreciation";
 
 const Routes = [
   {
@@ -1364,23 +1366,42 @@ const Routes = [
     path: "/controlPanel/allUsers",
     main: () => <AllUsers />,
   },
+  // {
+  //   path: "/assets/create",
+  //   main: () => <CreateAsset />,
+  // },
+  // {
+  //   path: "/assets/view",
+  //   main: () => <ViewAsset />,
+  // },
+  // {
+  //   path: "/assets/depreciation",
+  //   main: () => <Depreciation />,
+  // },
+  //research and development
   {
-    path: "/assets/create",
-    main: () => <CreateAsset />,
+    path: routeConstants.researchAndDevelopment.products,
+    main: () => <Products />,
   },
   {
-    path: "/assets/view",
-    main: () => <ViewAsset />,
+    path: routeConstants.researchAndDevelopment.bom.create,
+    main: () => <BOMCreate />,
   },
   {
-    path: "/assets/depreciation",
-    main: () => <Depreciation />,
+    path: routeConstants.researchAndDevelopment.bom.list,
+    main: () => <BOMList />,
   },
 
   ///login
   {
     path: "/controlPanel/registeredUsers",
     main: () => <RegisteredUser />,
+  },
+
+  //research and development
+  {
+    path: routeConstants.researchAndDevelopment.products,
+    main: () => <Products />,
   },
 
   // should always be at the end

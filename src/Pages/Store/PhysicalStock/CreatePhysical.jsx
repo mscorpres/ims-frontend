@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { v4 } from "uuid";
-import { Button, Col, DatePicker, Input, Row } from "antd";
+import { Button, Col, DatePicker, Input, Row, Tabs } from "antd";
 import { toast } from "react-toastify";
 import MyDataTable from "../../../Components/MyDataTable";
 import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
@@ -9,9 +9,39 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
+import PIAScan from "@/Pages/Store/MINLabel/PIAScan.tsx";
 const { RangePicker } = DatePicker;
 
 function CreatePhysical() {
+  // console.log(addrow);
+
+  return (
+    <Tabs
+      defaultActiveKey="1"
+      // type="card"
+      tabPosition="left"
+      size={"small"}
+      style={{ margin: 10, height: "95%" }}
+      items={[
+        {
+          label: "Manual Entry",
+          key: 1,
+          children: <Manual />,
+        },
+        {
+          label: "PIA",
+          key: 2,
+          style: { height: "100%" },
+          children: <PIAScan />,
+        },
+      ]}
+    />
+  );
+}
+
+export default CreatePhysical;
+
+const Manual = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [datee, setDatee] = useState([]);
@@ -257,10 +287,8 @@ function CreatePhysical() {
     },
   ];
 
-  // console.log(addrow);
-
   return (
-    <div style={{ height: "95vh" }}>
+    <div>
       <div style={{ height: "79%" }}>
         <div style={{ height: "75vh", margin: "10px" }}>
           <MyDataTable data={addrow} columns={columns} hideHeaderMenu />
@@ -293,6 +321,4 @@ function CreatePhysical() {
       </Row>
     </div>
   );
-}
-
-export default CreatePhysical;
+};

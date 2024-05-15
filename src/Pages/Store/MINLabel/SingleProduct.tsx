@@ -1,27 +1,39 @@
-import { Card, Checkbox, Flex, Form, Input, Typography } from "antd";
+import {
+  Card,
+  Checkbox,
+  Col,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Typography,
+} from "antd";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 
-export default function SingleProduct({ field, remove, form, SingleDetail }) {
+export default function SingleProduct({ field, remove, form, index }) {
   const details = Form.useWatch(["components", field.name], form) ?? "";
 
   return (
-    <Card size="small">
-      <Flex justify="center" vertical gap={"10px"}>
-        <Flex justify="space-between" align="center">
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            {details.boxLabel}
-          </Typography.Title>
-          <CommonIcons
-            action="deleteButton"
-            onClick={() => remove(field.name)}
-          />
-        </Flex>
-        <Flex gap={"15px 50px"} wrap="wrap">
-          <SingleDetail label="MIN ID" value={details.minId} />
-          <SingleDetail label="MIN Date" value={details.minDate} />
-          <SingleDetail label="MIN Qty" value={details.minQty} />
-          <SingleDetail label="Box Qty" value={details.boxQty} />
-          <Form.Item name={[field.name, "opened"]} label="">
+    <Col span={24}>
+      <Row gutter={[6, 6]} align="middle">
+        <Col span={1}>
+          <Typography.Text>{index + 1}</Typography.Text>
+        </Col>
+        <Col span={4}>
+          <Typography.Text>{details.boxLabel}</Typography.Text>
+        </Col>
+        <Col span={4}>
+          <Typography.Text>{details.minId}</Typography.Text>
+        </Col>
+        <Col span={4}>
+          <Typography.Text>{details.minQty}</Typography.Text>
+        </Col>
+        <Col span={3}>
+          <Typography.Text>{details.boxQty}</Typography.Text>
+        </Col>
+        <Col span={3}>
+          <Flex justify="center">
             <Checkbox
               onChange={(e) =>
                 form.setFieldValue(
@@ -29,22 +41,21 @@ export default function SingleProduct({ field, remove, form, SingleDetail }) {
                   e.target.checked
                 )
               }
-            >
-              Box Opened?
-            </Checkbox>
+            ></Checkbox>
+          </Flex>
+        </Col>
+        <Col span={4}>
+          <Form.Item noStyle name={[field.name, "availabelQty"]}>
+            <InputNumber max={+details?.boxQty} disabled={!details.opened} />
           </Form.Item>
-          <Form.Item
-            name={[field.name, "availabelQty"]}
-            label={
-              <Typography.Text strong style={{ fontSize: "0.8rem" }}>
-                Available Qty
-              </Typography.Text>
-            }
-          >
-            <Input disabled={!details.opened} />
-          </Form.Item>
-        </Flex>
-      </Flex>
-    </Card>
+        </Col>
+        <Col>
+          <CommonIcons
+            action="deleteButton"
+            onClick={() => remove(field.name)}
+          />
+        </Col>
+      </Row>
+    </Col>
   );
 }

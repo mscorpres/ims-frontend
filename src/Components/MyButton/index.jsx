@@ -17,6 +17,7 @@ import {
   ScanOutlined,
   MailOutlined,
   ReadOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {

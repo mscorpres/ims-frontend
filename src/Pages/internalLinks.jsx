@@ -803,10 +803,10 @@ const links = [
       routeName: "View and Print MIN Label",
       routePath: "/warehouse/print-view-min",
     },
-    {
-      routeName: "Update Box",
-      routePath: "/warehouse/pia-scan",
-    },
+    // {
+    //   routeName: "Update Box",
+    //   routePath: "/warehouse/pia-scan",
+    // },
   ],
   // query reports
   [
@@ -1176,6 +1176,23 @@ const links = [
     {
       routeName: "Production MIS",
       routePath: "/production/prodMis",
+    },
+  ],
+  //Research and Development
+  [
+    {
+      routeName: "Products",
+      routePath: routeConstants.researchAndDevelopment.products,
+    },
+  ],
+  [
+    {
+      routeName: "Create BOM",
+      routePath: routeConstants.researchAndDevelopment.bom.create,
+    },
+    {
+      routeName: "BOM List",
+      routePath: routeConstants.researchAndDevelopment.bom.list,
     },
   ],
 ];

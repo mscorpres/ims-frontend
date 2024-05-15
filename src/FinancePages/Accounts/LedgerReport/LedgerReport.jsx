@@ -134,8 +134,9 @@ export default function LedgerReport() {
     setRecoRows(response.data);
   };
   const handleFetchLedgerOptions = async (search) => {
-    const response = await executeFun(() => getLedgerOptions(search), "select");
-    setAsyncOptions(response.data);
+    // const response = await executeFun(() => , "select");
+    getLedgerOptions(search);
+    // setAsyncOptions(response.data);
   };
   const ledgerReportColumns = [
     {
@@ -355,7 +356,7 @@ export default function LedgerReport() {
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {summary?.debitTotal ?? "--"}
+                    {summary?.total_debit ?? "--"}
                   </Typography.Text>
                 )}
               </Col>
@@ -384,7 +385,7 @@ export default function LedgerReport() {
                       fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                     }}
                   >
-                    {summary?.creditTotal}
+                    {summary?.total_credit}
                   </Typography.Text>
                 )}
               </Col>

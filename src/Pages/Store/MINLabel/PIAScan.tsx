@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, Col, Flex, Form, Input, Modal, Row, Typography } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Col,
+  Divider,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Typography,
+} from "antd";
+import { InfoCircleOutlined, ReloadOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
 import Loading from "@/Components/Loading.jsx";
@@ -22,6 +32,7 @@ function PIAScan() {
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [successData, setSuccessData] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [stock, setStock] = useState(0);
   const [scannedData, setScannedData] = useState({
     string: "",
     loading: false,
@@ -85,23 +96,33 @@ function PIAScan() {
     }
   };
   //fetching component stock from RM location
-  const handleFetchComponentStock = async (componentKey: string) => {
+  const handleFetchComponentStock = async (componentKey?: string) => {
+    const values = await scan.validateFields();
     const response = await executeFun(
-      () => getComponentStock(componentKey, "rm"),
+      () => getComponentStock(componentKey ?? values.part, "rm"),
       "submit"
     );
 
     if (response.success) {
+      setStock(response.data);
       return response.data;
     }
+  };
+
+  // calculating total available qty
+  const getTotalAvailableQty = (components: []) => {
+    return components?.reduce((partialSum, a) => {
+      return partialSum + +Number(a.availabelQty).toFixed(2);
+    }, 0);
   };
   // veryfying stock and total available qty
   const handleVerify = async (componentKey: string) => {
     const stock = await handleFetchComponentStock(componentKey);
     const values = await scan.validateFields();
-    const total = values.components?.reduce((partialSum, a) => {
-      return partialSum + +Number(a.availabelQty).toFixed(2);
-    }, 0);
+    const total = getTotalAvailableQty(values.components);
+    // const total = values.components?.reduce((partialSum, a) => {
+    //   return partialSum + +Number(a.availabelQty).toFixed(2);
+    // }, 0);
     return { isVerified: total === stock, totalQty: total, stockQty: stock };
   };
 
@@ -191,6 +212,7 @@ function PIAScan() {
     if (selectedComponent) {
       scanTheQr();
       handleGetPartCode(selectedComponent);
+      handleFetchComponentStock(selectedComponent);
     }
   }, [selectedComponent]);
 
@@ -199,7 +221,11 @@ function PIAScan() {
       initialValues={initialValues}
       layout="vertical"
       form={scan}
-      style={{ padding: 20, height: "95%", overflow: "hidden" }}
+      style={{
+        padding: 20,
+        height: "100%",
+        overflow: "hidden",
+      }}
     >
       <SubmitConfirm
         show={showConfirm}
@@ -214,62 +240,107 @@ function PIAScan() {
       {(loading("fetch") || scannedData.loading) && <Loading />}
       <Row
         justify="center"
-        gutter={6}
-        style={{ padding: "0px 5px", height: "100%", overflow: "hidden" }}
+        gutter={8}
+        style={{
+          padding: "0px 5px",
+          height: "100%",
+
+          overflow: "hidden",
+        }}
       >
-        <Col sm={6} xl={5} xxl={4}>
-          <Card size="small">
-            <Form.Item label="Component" name="part">
-              <MyAsyncSelect
-                onBlur={() => setAsyncOptions([])}
-                loadOptions={handleFetchComponentOptions}
-                optionsState={asyncOptions}
-                selectLoading={loading("select")}
-              />
-            </Form.Item>
-            <MyButton
-              text="Scan Label"
-              variant="scan"
-              type="default"
-              onClick={scanTheQr}
-              loading={loading("fetch") || scannedData.loading}
-              style={{ width: "100%" }}
-              disabled={!selectedComponent}
-            />
-            <Flex vertical gap={10} style={{ marginTop: 10 }}>
-              <Flex justify="center">
-                <Typography.Text
-                  strong
-                  style={{
-                    color: ready ? "green" : "brown",
-                    fontSize: 14,
-                    textAlign: "center",
-                  }}
-                >
-                  {ready
-                    ? "Ready to Scan !!!"
-                    : "Click the scan button to start scanning !!!"}
-                </Typography.Text>
-              </Flex>
+        <Col sm={4} xl={6} xxl={5}>
+          <Flex gap={10} vertical>
+            <Card size="small">
+              <Form.Item label="Component" name="part">
+                <MyAsyncSelect
+                  onBlur={() => setAsyncOptions([])}
+                  loadOptions={handleFetchComponentOptions}
+                  optionsState={asyncOptions}
+                  selectLoading={loading("select")}
+                />
+              </Form.Item>
               <MyButton
-                loading={loading("submit")}
-                block
-                variant="save"
-                onClick={validateHandler}
+                text="Scan Label"
+                variant="scan"
+                type="default"
+                onClick={scanTheQr}
+                loading={loading("fetch") || scannedData.loading}
+                style={{ width: "100%" }}
+                disabled={!selectedComponent}
               />
-              <Flex vertical align="center" style={{ marginTop: 15 }} gap={3}>
-                <InfoCircleOutlined style={{ color: "grey" }} />
-                <Typography.Text
-                  type="secondary"
-                  strong
-                  style={{ fontSize: 13, textAlign: "center" }}
-                >
-                  Select a component and then click the scan button to start
-                  scanning
-                </Typography.Text>
+              <Flex vertical gap={10} style={{ marginTop: 10 }}>
+                <Flex justify="center">
+                  <Typography.Text
+                    strong
+                    style={{
+                      color: ready ? "green" : "brown",
+                      fontSize: 14,
+                      textAlign: "center",
+                    }}
+                  >
+                    {ready
+                      ? "Ready to Scan !!!"
+                      : "Click the scan button to start scanning !!!"}
+                  </Typography.Text>
+                </Flex>
+                <MyButton
+                  loading={loading("submit")}
+                  block
+                  disabled={
+                    !(stock - getTotalAvailableQty(components ?? []) === 0) ||
+                    components?.length !== 0 ||
+                    !components ||
+                    components?.length === 0
+                  }
+                  variant="save"
+                  onClick={validateHandler}
+                />
+                <Flex vertical align="center" style={{ marginTop: 15 }} gap={3}>
+                  <InfoCircleOutlined style={{ color: "grey" }} />
+                  <Typography.Text
+                    type="secondary"
+                    strong
+                    style={{ fontSize: 13, textAlign: "center" }}
+                  >
+                    Select a component and then click the scan button to start
+                    scanning
+                  </Typography.Text>
+                </Flex>
               </Flex>
-            </Flex>
-          </Card>
+            </Card>
+            <Card size="small" title="Scan Summary">
+              <Flex gap={10} wrap="wrap" justify="space-between">
+                <SingleDetail
+                  label="Stock Qty"
+                  value={
+                    <Flex justify="space-between">
+                      {stock?.toString()}
+                      <ReloadOutlined
+                        onClick={() => handleFetchComponentStock()}
+                        style={{ color: "#02b0a9", cursor: "pointer" }}
+                      />
+                    </Flex>
+                  }
+                  // value={stock?.toString() ?? "--"}
+                />
+
+                <SingleDetail
+                  label="Boxes Scanned"
+                  value={components?.length ?? 0}
+                />
+                <SingleDetail
+                  label="Qty Scanned"
+                  value={getTotalAvailableQty(components ?? []).toString()}
+                />
+                <SingleDetail
+                  label="Qty Difference"
+                  value={(
+                    stock - getTotalAvailableQty(components ?? [])
+                  )?.toString()}
+                />
+              </Flex>
+            </Card>
+          </Flex>
           {/* hidden input */}
           <Input
             ref={ref}
@@ -288,9 +359,9 @@ function PIAScan() {
           />
         </Col>
         <Col
-          sm={18}
-          xl={16}
-          xxl={12}
+          sm={20}
+          xl={18}
+          xxl={14}
           style={{
             height: "100%",
             overflowY: "hidden",
@@ -318,33 +389,78 @@ function PIAScan() {
               </Typography.Text>
             </Flex>
           )}
-          <Form.List name="components">
-            {(fields, { add, remove }) => (
-              <Flex
-                vertical
-                gap={10}
-                style={{ height: "100%", overflowY: "auto" }}
-              >
-                {fields.map((field, index) => (
-                  <Form.Item noStyle>
-                    <SingleProduct
-                      field={field}
-                      form={scan}
-                      remove={remove}
-                      SingleDetail={SingleDetail}
-                    />
-                  </Form.Item>
-                ))}
-                <Row justify="center">
-                  {components?.length > 0 && (
-                    <Typography.Text type="secondary">
-                      ----End of the List----
-                    </Typography.Text>
-                  )}
-                </Row>
-              </Flex>
-            )}
-          </Form.List>
+          {components?.length > 0 && (
+            <Col span={24} style={{ height: "100%" }}>
+              <Row gutter={[6, 6]} style={{ height: "100%" }}>
+                <Col span={1}>
+                  <Typography.Text strong type="secondary">
+                    #
+                  </Typography.Text>
+                </Col>
+                <Col span={4}>
+                  <Typography.Text strong type="secondary">
+                    Box Label
+                  </Typography.Text>
+                </Col>
+                <Col span={4}>
+                  <Typography.Text strong type="secondary">
+                    MIN ID
+                  </Typography.Text>
+                </Col>
+                <Col span={4}>
+                  <Typography.Text strong type="secondary">
+                    MIN Qty
+                  </Typography.Text>
+                </Col>
+                <Col span={3}>
+                  <Typography.Text strong type="secondary">
+                    Box Qty
+                  </Typography.Text>
+                </Col>
+                <Col span={3}>
+                  <Typography.Text strong type="secondary">
+                    Box Opened?
+                  </Typography.Text>
+                </Col>
+                <Col span={4}>
+                  <Typography.Text strong type="secondary">
+                    Available Qty
+                  </Typography.Text>
+                </Col>
+                <Divider />
+                <Col span={24} style={{ height: "100%", overflow: "auto" }}>
+                  <Form.List name="components">
+                    {(fields, { add, remove }) => (
+                      <Flex
+                        vertical
+                        gap={10}
+                        // style={{ height: "100%", overflowY: "auto" }}
+                      >
+                        {fields.map((field, index) => (
+                          <Form.Item noStyle>
+                            <SingleProduct
+                              field={field}
+                              form={scan}
+                              remove={remove}
+                              SingleDetail={SingleDetail}
+                              index={index}
+                            />
+                          </Form.Item>
+                        ))}
+                        <Row justify="center">
+                          {components?.length > 0 && (
+                            <Typography.Text type="secondary">
+                              ----End of the List----
+                            </Typography.Text>
+                          )}
+                        </Row>
+                      </Flex>
+                    )}
+                  </Form.List>
+                </Col>
+              </Row>
+            </Col>
+          )}
         </Col>
       </Row>
     </Form>
@@ -353,7 +469,13 @@ function PIAScan() {
 
 export default PIAScan;
 
-const SingleDetail = ({ label, value }: { label: string; value?: string }) => {
+const SingleDetail = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | React.ReactNodez;
+}) => {
   return (
     <Flex vertical gap={5}>
       <Typography.Text style={{ fontSize: "0.8rem" }} strong>

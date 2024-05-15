@@ -1,6 +1,6 @@
-import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
-import MyDataTable from "../../../Components/MyDataTable.jsx";
-import TableActions from "../../../Components/TableActions.jsx/TableActions.jsx";
+import ToolTipEllipses from "@/Components/ToolTipEllipses.jsx";
+import MyDataTable from "@/Components/MyDataTable.jsx";
+import TableActions from "@/Components/TableActions.jsx/TableActions.jsx";
 import { ProductType } from "@/types/master";
 
 interface PropTypes {
