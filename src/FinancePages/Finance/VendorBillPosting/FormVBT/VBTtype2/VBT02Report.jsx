@@ -428,6 +428,8 @@ function VBT02Report({
       // setVBTData([]);
       setLoading(false);
       backFunction();
+    } else if (response.status == 524) {
+      setLoading(false);
     } else {
       setLoading(false);
       validateResponse(data);
