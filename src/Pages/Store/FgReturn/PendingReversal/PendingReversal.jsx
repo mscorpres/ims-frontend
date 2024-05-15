@@ -37,6 +37,7 @@ function PendingReversal() {
       () => getProductsOptions(search),
       "select"
     );
+
     setAsyncOptions(response.data);
   };
 
@@ -114,7 +115,7 @@ function PendingReversal() {
                 <MyAsyncSelect
                   loadOptions={handleFetchProductOptions}
                   selectLoading={loading("select")}
-                  optionsList={asyncOptions}
+                  optionsState={asyncOptions}
                   onBlur={() => setAsyncOptions([])}
                 />
               )}
