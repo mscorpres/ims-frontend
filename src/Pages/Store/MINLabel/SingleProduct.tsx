@@ -20,19 +20,31 @@ export default function SingleProduct({ field, remove, form, index }) {
         <Col span={1}>
           <Typography.Text>{index + 1}</Typography.Text>
         </Col>
-        <Col span={4}>
+        <Col span={1}>
           <Typography.Text>{details.boxLabel}</Typography.Text>
         </Col>
-        <Col span={4}>
+        <Col span={2}>
+          <Typography.Text>{details.vendorCode}</Typography.Text>
+        </Col>
+        <Col span={2}>
+          <Typography.Text>{details.invoiceDate}</Typography.Text>
+        </Col>
+        <Col span={2}>
+          <Typography.Text>{details.costCenter}</Typography.Text>
+        </Col>
+        <Col span={2}>
+          <Typography.Text>{details.project}</Typography.Text>
+        </Col>
+        <Col span={3}>
           <Typography.Text>{details.minId}</Typography.Text>
         </Col>
-        <Col span={4}>
+        <Col span={2}>
           <Typography.Text>{details.minQty}</Typography.Text>
         </Col>
-        <Col span={3}>
+        <Col span={2}>
           <Typography.Text>{details.boxQty}</Typography.Text>
         </Col>
-        <Col span={3}>
+        <Col span={2}>
           <Flex justify="center">
             <Checkbox
               onChange={(e) =>
@@ -44,12 +56,12 @@ export default function SingleProduct({ field, remove, form, index }) {
             ></Checkbox>
           </Flex>
         </Col>
-        <Col span={4}>
+        <Col span={2}>
           <Form.Item noStyle name={[field.name, "availabelQty"]}>
             <InputNumber max={+details?.boxQty} disabled={!details.opened} />
           </Form.Item>
         </Col>
-        <Col>
+        <Col style={{ paddingLeft: 10 }}>
           <CommonIcons
             action="deleteButton"
             onClick={() => remove(field.name)}

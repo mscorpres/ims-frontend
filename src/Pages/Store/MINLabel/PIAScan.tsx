@@ -214,6 +214,8 @@ function PIAScan() {
       handleGetPartCode(selectedComponent);
       handleFetchComponentStock(selectedComponent);
     }
+
+    console.log("these are the components", components);
   }, [selectedComponent]);
 
   return (
@@ -361,7 +363,7 @@ function PIAScan() {
         <Col
           sm={20}
           xl={18}
-          xxl={14}
+          xxl={19}
           style={{
             height: "100%",
             overflowY: "hidden",
@@ -397,32 +399,53 @@ function PIAScan() {
                     #
                   </Typography.Text>
                 </Col>
-                <Col span={4}>
+                <Col span={1}>
                   <Typography.Text strong type="secondary">
-                    Box Label
+                    Box
                   </Typography.Text>
                 </Col>
-                <Col span={4}>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Vendor
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Inv. Date
+                  </Typography.Text>
+                  {/* this above one */}
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Cost Center
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Project
+                  </Typography.Text>
+                </Col>
+                <Col span={3}>
                   <Typography.Text strong type="secondary">
                     MIN ID
                   </Typography.Text>
                 </Col>
-                <Col span={4}>
+                <Col span={2}>
                   <Typography.Text strong type="secondary">
                     MIN Qty
                   </Typography.Text>
                 </Col>
-                <Col span={3}>
+                <Col span={2}>
                   <Typography.Text strong type="secondary">
                     Box Qty
                   </Typography.Text>
                 </Col>
-                <Col span={3}>
+                <Col span={2}>
                   <Typography.Text strong type="secondary">
                     Box Opened?
                   </Typography.Text>
                 </Col>
-                <Col span={4}>
+                <Col span={2}>
                   <Typography.Text strong type="secondary">
                     Available Qty
                   </Typography.Text>
