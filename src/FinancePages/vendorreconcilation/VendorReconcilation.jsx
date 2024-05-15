@@ -22,6 +22,7 @@ import ManualTransactions from "./components/manualTransactions";
 import {
   addNote,
   deleteManualTransaction,
+  downloadRecoPdf,
   getManualTransactions,
   getNotes,
   updateDraft,
@@ -530,6 +531,8 @@ const VendorCard = ({
   const date = form.getFieldValue("date");
   const { user } = useSelector((state) => state.login);
 
+  const { executeFun, loading } = useApi();
+
   const vendorDetailsClosing = +Number(
     details?.closing?.replaceAll(",", "")
   ).toFixed(2);
@@ -672,6 +675,10 @@ const VendorCard = ({
     handleDownload(obj);
   };
 
+  const handleDownloadPdf = async () => {
+    executeFun(() => downloadRecoPdf(date, vendor.value), "pdf");
+  };
+
   return (
     <Card size="small">
       <Row>
@@ -698,6 +705,17 @@ const VendorCard = ({
                     <Col>
                       <CommonIcons
                         onClick={handleDownloadExcel}
+                        action="downloadButton"
+                        size={"small"}
+                      />
+                    </Col>
+                    <Col>
+                      <MyButton
+                        variant="pdf"
+                        text=""
+                        loading={loading("pdf")}
+                        shape="circle"
+                        onClick={handleDownloadPdf}
                         action="downloadButton"
                         size={"small"}
                       />
