@@ -1,0 +1,558 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  Card,
+  Col,
+  Divider,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Typography,
+} from "antd";
+import { InfoCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
+import MyButton from "@/Components/MyButton";
+import Loading from "@/Components/Loading.jsx";
+import MyAsyncSelect from "@/Components/MyAsyncSelect";
+//module components
+import SingleProduct from "./SingleProduct";
+// types
+import { SelectOptionType } from "@/types/general";
+//hooks
+import useApi from "@/hooks/useApi";
+import useDebounce from "@/hooks/useDebounce";
+//apis
+import { fetchBoxDetails, updateBoxQty } from "@/api/store/material-in.js";
+import { getComponentOptions, getComponentStock } from "@/api/general.ts";
+
+function PIAScan() {
+  const [ready, setReady] = useState(false);
+  const [selectedPartCode, setSelectedPartCode] = useState(null);
+  const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
+  const [successData, setSuccessData] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [stock, setStock] = useState(0);
+  const [scannedData, setScannedData] = useState({
+    string: "",
+    loading: false,
+  });
+  const { executeFun, loading } = useApi();
+  const updatedString = useDebounce(scannedData.string, 1000);
+
+  const [scan] = Form.useForm();
+  const ref = useRef(null);
+
+  const components = Form.useWatch("components", {
+    form: scan,
+    preserve: true,
+  });
+  const selectedComponent = Form.useWatch("part", scan);
+
+  // fetching data from qr code and setting into form and validating same part code
+  const handleScan = (value: string) => {
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed && parsed["Part Code"] == selectedPartCode) {
+        handleFetchDetails(parsed["MIN ID"], parsed["label"]);
+      } else {
+        toast.error(
+          "The Part Code Does not match! Scan Again with correct Part code"
+        );
+        setScannedData({
+          loading: false,
+          string: "",
+        });
+      }
+    } catch (error) {
+      setScannedData({
+        loading: false,
+        string: "",
+      });
+    }
+  };
+  // getting box details and adding it to the form
+  const handleFetchDetails = async (minId: string, boxLabel: string) => {
+    const response = await executeFun(
+      () => fetchBoxDetails(minId, boxLabel),
+      "fetch"
+    );
+    if (response.success) {
+      scan.setFieldValue("availabelQty", response.data.availabelQty);
+      const components = scan.getFieldValue("components");
+      if (
+        components.find(
+          (component) => component.boxLabel === response.data.boxLabel
+        )
+      ) {
+        return toast.error(`Box ${response.data.boxLabel} Already Scanned`);
+      }
+      components.push(response.data);
+      scan.setFieldValue("components", components);
+      setScannedData({
+        loading: false,
+        string: "",
+      });
+    }
+  };
+  //fetching component stock from RM location
+  const handleFetchComponentStock = async (componentKey?: string) => {
+    const values = await scan.validateFields();
+    const response = await executeFun(
+      () => getComponentStock(componentKey ?? values.part, "rm"),
+      "submit"
+    );
+
+    if (response.success) {
+      setStock(response.data);
+      return response.data;
+    }
+  };
+
+  // calculating total available qty
+  const getTotalAvailableQty = (components: []) => {
+    return components?.reduce((partialSum, a) => {
+      return partialSum + +Number(a.availabelQty).toFixed(2);
+    }, 0);
+  };
+  // veryfying stock and total available qty
+  const handleVerify = async (componentKey: string) => {
+    const stock = await handleFetchComponentStock(componentKey);
+    const values = await scan.validateFields();
+    const total = getTotalAvailableQty(values.components);
+    // const total = values.components?.reduce((partialSum, a) => {
+    //   return partialSum + +Number(a.availabelQty).toFixed(2);
+    // }, 0);
+    return { isVerified: total === stock, totalQty: total, stockQty: stock };
+  };
+
+  const validateHandler = async () => {
+    let values = await scan.validateFields();
+    const verifiied = await handleVerify(values.part);
+    if (!verifiied?.isVerified) {
+      return toast.error("Qty Entered and Stock does not matched");
+    }
+
+    setShowConfirm(true);
+    setSuccessData({
+      stockQty: verifiied.stockQty,
+      count: values.components.length,
+      totalQty: verifiied.totalQty,
+      component: selectedPartCode,
+    });
+  };
+  // submitting the form (first fetching stock and veryfying it then submitting)
+  const handleSubmit = async () => {
+    let values = await scan.validateFields();
+
+    const response = await executeFun(
+      () => updateBoxQty(values.part, values.components),
+      "submit"
+    );
+
+    if (response.success) {
+      scan.resetFields();
+      setShowConfirm(false);
+      setSuccessData(null);
+    }
+  };
+  // storing part code in state to validate same part code after scanning labels
+  const handleGetPartCode = (componentKey: string) => {
+    const foundComponent = asyncOptions.find(
+      (row: SelectOptionType) => row.value === componentKey
+    );
+    setSelectedPartCode(foundComponent?.partCode);
+  };
+  const handleFetchComponentOptions = async (search: string) => {
+    const response = await executeFun(
+      () => getComponentOptions(search),
+      "select"
+    );
+
+    if (response.success) {
+      const arr = response.data.map((row) => ({
+        text: row.text,
+        value: row.id,
+        partCode: row.part_code,
+      }));
+      return setAsyncOptions(arr);
+    }
+    setAsyncOptions([]);
+  };
+  //focusing to hidden input and updating ready state
+  const scanTheQr = () => {
+    setReady(true);
+    ref.current?.focus();
+  };
+  const handleReset = () => {
+    scan.resetFields();
+  };
+
+  useEffect(() => {
+    if (updatedString) {
+      if (updatedString.length > 10) {
+        handleScan(updatedString);
+      }
+      setScannedData((curr) => ({
+        ...curr,
+        loading: false,
+      }));
+    }
+  }, [updatedString]);
+  useEffect(() => {
+    if (scannedData.string.length === 1) {
+      setScannedData((curr) => ({
+        ...curr,
+        loading: true,
+      }));
+    }
+  }, [scannedData]);
+
+  useEffect(() => {
+    if (selectedComponent) {
+      scanTheQr();
+      handleGetPartCode(selectedComponent);
+      handleFetchComponentStock(selectedComponent);
+    }
+
+    console.log("these are the components", components);
+  }, [selectedComponent]);
+
+  return (
+    <Form
+      initialValues={initialValues}
+      layout="vertical"
+      form={scan}
+      style={{
+        padding: 20,
+        height: "100%",
+        overflow: "hidden",
+      }}
+    >
+      <SubmitConfirm
+        show={showConfirm}
+        hide={() => setShowConfirm(false)}
+        loading={loading("submit")}
+        stockQty={successData?.stockQty}
+        count={successData?.count}
+        totalQty={successData?.totalQty}
+        component={successData?.component}
+        submitHandler={handleSubmit}
+      />
+      {(loading("fetch") || scannedData.loading) && <Loading />}
+      <Row
+        justify="center"
+        gutter={8}
+        style={{
+          padding: "0px 5px",
+          height: "100%",
+
+          overflow: "hidden",
+        }}
+      >
+        <Col sm={4} xl={6} xxl={5}>
+          <Flex gap={10} vertical>
+            <Card size="small">
+              <Form.Item label="Component" name="part">
+                <MyAsyncSelect
+                  onBlur={() => setAsyncOptions([])}
+                  loadOptions={handleFetchComponentOptions}
+                  optionsState={asyncOptions}
+                  selectLoading={loading("select")}
+                />
+              </Form.Item>
+              <MyButton
+                text="Scan Label"
+                variant="scan"
+                type="default"
+                onClick={scanTheQr}
+                loading={loading("fetch") || scannedData.loading}
+                style={{ width: "100%" }}
+                disabled={!selectedComponent}
+              />
+              <Flex vertical gap={10} style={{ marginTop: 10 }}>
+                <Flex justify="center">
+                  <Typography.Text
+                    strong
+                    style={{
+                      color: ready ? "green" : "brown",
+                      fontSize: 14,
+                      textAlign: "center",
+                    }}
+                  >
+                    {ready
+                      ? "Ready to Scan !!!"
+                      : "Click the scan button to start scanning !!!"}
+                  </Typography.Text>
+                </Flex>
+                <MyButton
+                  loading={loading("submit")}
+                  block
+                  disabled={
+                    !(stock - getTotalAvailableQty(components ?? []) === 0) ||
+                    components?.length !== 0 ||
+                    !components ||
+                    components?.length === 0
+                  }
+                  variant="save"
+                  onClick={validateHandler}
+                />
+                <Flex vertical align="center" style={{ marginTop: 15 }} gap={3}>
+                  <InfoCircleOutlined style={{ color: "grey" }} />
+                  <Typography.Text
+                    type="secondary"
+                    strong
+                    style={{ fontSize: 13, textAlign: "center" }}
+                  >
+                    Select a component and then click the scan button to start
+                    scanning
+                  </Typography.Text>
+                </Flex>
+              </Flex>
+            </Card>
+            <Card size="small" title="Scan Summary">
+              <Flex gap={10} wrap="wrap" justify="space-between">
+                <SingleDetail
+                  label="Stock Qty"
+                  value={
+                    <Flex justify="space-between">
+                      {stock?.toString()}
+                      <ReloadOutlined
+                        onClick={() => handleFetchComponentStock()}
+                        style={{ color: "#02b0a9", cursor: "pointer" }}
+                      />
+                    </Flex>
+                  }
+                  // value={stock?.toString() ?? "--"}
+                />
+
+                <SingleDetail
+                  label="Boxes Scanned"
+                  value={components?.length ?? 0}
+                />
+                <SingleDetail
+                  label="Qty Scanned"
+                  value={getTotalAvailableQty(components ?? []).toString()}
+                />
+                <SingleDetail
+                  label="Qty Difference"
+                  value={(
+                    stock - getTotalAvailableQty(components ?? [])
+                  )?.toString()}
+                />
+              </Flex>
+            </Card>
+          </Flex>
+          {/* hidden input */}
+          <Input
+            ref={ref}
+            onChange={(e) => {
+              setScannedData(() => ({
+                loading: true,
+                string: e.target.value,
+              }));
+              // }
+            }}
+            onBlur={() => {
+              setReady(false);
+            }}
+            value={scannedData.string}
+            style={{ opacity: 0, zIndex: -1, pointerEvents: "none", width: 10 }}
+          />
+        </Col>
+        <Col
+          sm={20}
+          xl={18}
+          xxl={19}
+          style={{
+            height: "100%",
+            overflowY: "hidden",
+            border: "1px solid #eee",
+            borderRadius: 10,
+            padding: 10,
+          }}
+        >
+          {components?.length === 0 && (
+            <Flex
+              justify="center"
+              align="center"
+              vertical
+              style={{ height: "90%" }}
+            >
+              <Typography.Text type="secondary" strong style={{ fontSize: 20 }}>
+                No Label Scanned!!
+              </Typography.Text>
+              <Typography.Text
+                type="secondary"
+                strong
+                style={{ textAlign: "center" }}
+              >
+                Select a component and scan labels to see components...
+              </Typography.Text>
+            </Flex>
+          )}
+          {components?.length > 0 && (
+            <Col span={24} style={{ height: "100%" }}>
+              <Row gutter={[6, 6]} style={{ height: "100%" }}>
+                <Col span={1}>
+                  <Typography.Text strong type="secondary">
+                    #
+                  </Typography.Text>
+                </Col>
+                <Col span={1}>
+                  <Typography.Text strong type="secondary">
+                    Box
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Vendor
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Inv. Date
+                  </Typography.Text>
+                  {/* this above one */}
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Cost Center
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Project
+                  </Typography.Text>
+                </Col>
+                <Col span={3}>
+                  <Typography.Text strong type="secondary">
+                    MIN ID
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    MIN Qty
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Box Qty
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Box Opened?
+                  </Typography.Text>
+                </Col>
+                <Col span={2}>
+                  <Typography.Text strong type="secondary">
+                    Available Qty
+                  </Typography.Text>
+                </Col>
+                <Divider />
+                <Col span={24} style={{ height: "100%", overflow: "auto" }}>
+                  <Form.List name="components">
+                    {(fields, { add, remove }) => (
+                      <Flex
+                        vertical
+                        gap={10}
+                        // style={{ height: "100%", overflowY: "auto" }}
+                      >
+                        {fields.map((field, index) => (
+                          <Form.Item noStyle>
+                            <SingleProduct
+                              field={field}
+                              form={scan}
+                              remove={remove}
+                              SingleDetail={SingleDetail}
+                              index={index}
+                            />
+                          </Form.Item>
+                        ))}
+                        <Row justify="center">
+                          {components?.length > 0 && (
+                            <Typography.Text type="secondary">
+                              ----End of the List----
+                            </Typography.Text>
+                          )}
+                        </Row>
+                      </Flex>
+                    )}
+                  </Form.List>
+                </Col>
+              </Row>
+            </Col>
+          )}
+        </Col>
+      </Row>
+    </Form>
+  );
+}
+
+export default PIAScan;
+
+const SingleDetail = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | React.ReactNodez;
+}) => {
+  return (
+    <Flex vertical gap={5}>
+      <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+        {label}
+      </Typography.Text>
+      <Typography.Text>{value ?? "--"}</Typography.Text>
+    </Flex>
+  );
+};
+
+const initialValues = {
+  components: [],
+};
+
+interface ConfirmProps {
+  show: boolean;
+  hide: () => void;
+  loading: true;
+  stockQty: string | number;
+  count: number;
+  totalQty: string | number;
+  component: string;
+  submitHandler: () => void;
+}
+const SubmitConfirm = ({
+  show,
+  hide,
+  loading,
+  stockQty,
+  count,
+  totalQty,
+  component,
+  submitHandler,
+}: ConfirmProps) => {
+  return (
+    <Modal
+      confirmLoading={loading}
+      title="Confirm Updating Boxes"
+      open={show}
+      onCancel={hide}
+      okText="Continue"
+      onOk={submitHandler}
+    >
+      <Flex vertical gap={15}>
+        <Typography.Text strong>
+          Total Available Quantity ({totalQty}) is verified with the stock Qty (
+          {stockQty}) of component {component}.
+        </Typography.Text>
+
+        <Typography.Text strong>
+          Are you sure you want to update available quantities of these boxes?
+        </Typography.Text>
+        <Typography.Text strong>Total Boxes Scanned: {count}</Typography.Text>
+      </Flex>
+    </Modal>
+  );
+};
