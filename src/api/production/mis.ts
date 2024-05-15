@@ -38,8 +38,8 @@ export const createEntry = async (values: MISType) => {
     remarks: values.shifts.map((row) => row.remarks ?? ""),
     shiftIn: values.shifts.map((row) => row.shiftStart),
     shiftEnd: values.shifts.map((row) => row.shiftEnd),
-    overTime: values.shifts.map((row) => row.overTime),
-    workHours: values.shifts.map((row) => row.workingHours),
+    overTime: values.shifts.map((row) => row.overTime.format("HH:mm")),
+    workHours: values.shifts.map((row) => row.workingHours.format("HH:mm")),
     department: values.department,
   };
 

@@ -96,14 +96,16 @@ export default function SingleProduct({
           <TimePicker format={format} />
         </Form.Item>
         <Form.Item label="Over Time" name={[field.name, "overTime"]}>
-          <InputNumber />
+          <TimePicker format={format} />
+          {/* <InputNumber /> */}
         </Form.Item>
         <Form.Item
           label="Working Hours"
           name={[field.name, "workingHours"]}
           rules={rules.workingHoursHours}
         >
-          <InputNumber />
+          <TimePicker format={format} />
+          {/* <InputNumber /> */}
         </Form.Item>
         <Form.Item
           style={{ width: 300 }}
