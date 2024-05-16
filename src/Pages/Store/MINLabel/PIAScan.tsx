@@ -24,7 +24,7 @@ import useApi from "@/hooks/useApi";
 import useDebounce from "@/hooks/useDebounce";
 //apis
 import { fetchBoxDetails, updateBoxQty } from "@/api/store/material-in.js";
-import { getComponentOptions, getComponentStock } from "@/api/general.ts";
+import { getComponentOptions, getComponentStock } from "@/api/general";
 
 function PIAScan() {
   const [ready, setReady] = useState(false);

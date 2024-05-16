@@ -1,6 +1,6 @@
-import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
+import { imsAxios } from "../axiosInterceptor";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -13,6 +13,7 @@ export const getVendorOptions = async (search) => {
     console.log("something happened wrong", error);
   }
 };
+
 export const getVendorBranchOptions = async (vendorCode) => {
   const response = await imsAxios.post("/backend/vendorBranchList", {
     vendorcode: vendorCode,
@@ -111,7 +112,7 @@ export const fetchLocations = async (search) => {
   });
   return response;
 };
-export const getProductsOptions = async (search, sku) => {
+export const getProductsOptions = async (search: string, sku?: boolean) => {
   let url;
   if (sku) {
     url = "/backend/fetchProduct";
@@ -182,5 +183,19 @@ export const getHsnOptions = async (search: string) => {
     arr = convertSelectOptions(response.data);
   }
   response.data = arr;
+  return response;
+};
+
+export const getComponentStock = async (componentKey: string, type: "rm") => {
+  if (type === "rm") {
+  }
+  const response = await imsAxios.post("/minBoxLablePrint/getComponetQty", {
+    component: componentKey,
+  });
+
+  if (response.success) {
+    response.data = response.data.stock;
+  }
+
   return response;
 };
