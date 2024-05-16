@@ -30,7 +30,7 @@ import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 
 export default function VBTReport() {
-  const [searchInput, setSearchInput] = useState("MIN/23-24/");
+  const [searchInput, setSearchInput] = useState("MIN/24-25/");
 
   const [wise, setWise] = useState("minwise");
   const [vbtOption, setVbtOption] = useState("ALL");
@@ -970,7 +970,7 @@ export default function VBTReport() {
   useEffect(() => {
     setRows([]);
     if (wise == "minwise") {
-      setSearchInput("MIN/23-24/");
+      setSearchInput("MIN/24-25/");
     } else {
       setSearchInput("");
     }
