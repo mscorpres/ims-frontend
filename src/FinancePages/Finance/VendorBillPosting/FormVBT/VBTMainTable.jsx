@@ -25,7 +25,7 @@ import MyButton from "../../../../Components/MyButton";
 
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
-  const [searchInput, setSearchInput] = useState("");
+  const [searchInput, setSearchInput] = useState("MIN/24-25/");
   const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
@@ -262,7 +262,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
 
   useEffect(() => {
     if (wise == "min_wise") {
-      setSearchInput("");
+      setSearchInput("MIN/24-25/");
     } else {
       setSearchInput(null);
     }
