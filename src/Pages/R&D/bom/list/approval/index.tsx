@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux/es/exports";
 import MyButton from "@/Components/MyButton";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import Loading from "@/Components/Loading.jsx";
 
 interface PropTypes extends ModalType {
   selectedBom: BOMTypeExtended | null;
@@ -28,6 +29,7 @@ const BOMApproval = (props: PropTypes) => {
   const { loading, executeFun } = useApi();
 
   const handleFetchLogs = async (bomKey: string) => {
+    setLogs({});
     const response = await executeFun(() => getLogs(bomKey), "fetch");
     console.log("logs response", response);
     setLogs(response.data);
@@ -37,14 +39,22 @@ const BOMApproval = (props: PropTypes) => {
     if (props.selectedBom && props.selectedBom?.key) {
       handleFetchLogs(props.selectedBom.key);
     }
-  }, [props.selectedBom]);
+  }, [props.show]);
   return (
     <Drawer
       open={props.show}
       onClose={props.hide}
       title={`${props.selectedBom?.name} Logs`}
+      extra={
+        logs.logs?.find((row) => row.isRejected) && (
+          <Typography.Text style={{ fontSize: 16 }} type="danger" strong>
+            Rejected
+          </Typography.Text>
+        )
+      }
       width={600}
     >
+      {loading("fetch") && <Loading />}
       <RemarksModal
         details={approvalModalDetails}
         handleFetchLogs={handleFetchLogs}
@@ -77,7 +87,12 @@ const BOMApproval = (props: PropTypes) => {
             </Typography.Title>
           </div>
           <Flex wrap="wrap" justify="space-between">
-            <SingleDetail label="Approver" value={row.approver?.name} />
+            <Flex vertical>
+              <SingleDetail label="Approver" value={row.approver?.name} />
+              <Typography.Text style={{ fontSize: 11 }} type="secondary">
+                {row.approver?.department}, {row.approver?.designation}
+              </Typography.Text>
+            </Flex>
 
             {logs.currentStage + 1 === row.stage &&
               user.id === row.approver?.crn &&

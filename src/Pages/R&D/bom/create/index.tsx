@@ -1,11 +1,13 @@
 import { useState } from "react";
 import {
+  Button,
   Card,
   Col,
   Flex,
   Form,
   Input,
   InputNumber,
+  Modal,
   Row,
   Typography,
 } from "antd";
@@ -15,7 +17,7 @@ import MySelect from "@/Components/MySelect.jsx";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
-import { SelectOptionType } from "@/types/general";
+import { ModalType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { getComponentOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
@@ -164,10 +166,10 @@ const BOMCreate = () => {
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} />
               </Form.Item>
-              <Flex justify="center" gap={5}>
+              {/* <Flex justify="center" gap={5}>
                 <MyButton variant="reset" />
                 <MyButton variant="submit" onClick={validateHandler} />
-              </Flex>
+              </Flex> */}
             </Card>
             {/* Component add card */}
             <Card size="small" title="Add Component">
@@ -196,6 +198,14 @@ const BOMCreate = () => {
                   <MySelect options={typeOptions} />
                 </Form.Item>
               </Flex>
+              <Form.Item
+                style={{ flex: 1, minWidth: 100 }}
+                name="vendor"
+                label="Vendor"
+              >
+                <Input />
+              </Form.Item>
+              <Button>Add Locations</Button>
               {type === "substitute" && (
                 <Form.Item name="substituteOf" label="Substitute Of">
                   <MySelect options={mainComponents} labelInValue={true} />
@@ -380,5 +390,19 @@ const Empty = () => {
         No Components Added!!!
       </Typography.Text>
     </Flex>
+  );
+};
+
+interface LocationProps extends ModalType {}
+const LocationModal = (props: LocationProps) => {
+  const [searchInput, setSearchInput] = useState("");
+  const { executeFun, loading } = useApi();
+  return (
+    <Modal open={props.show} onCancel={props.hide} title="Locations">
+      <Input
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+      />
+    </Modal>
   );
 };

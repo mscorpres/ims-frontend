@@ -46,6 +46,8 @@ interface GetBOMListType {
   sku: string;
   createdAt: string;
   currentApprover: string;
+  version: string;
+  documents: [];
 }
 export const getBOMList = async () => {
   const response: ResponseType = await imsAxios.get("/bom/fetch");
@@ -62,6 +64,8 @@ export const getBOMList = async () => {
       createdOn: row.createdAt,
       components: [],
       id: index + 1,
+      version: row.version,
+      documents: row.documents,
     }));
   }
 
@@ -70,14 +74,21 @@ export const getBOMList = async () => {
 };
 
 interface GetBomComponentsType {
-  name: string;
+  component: {
+    text: string;
+    value: string;
+    partCode: string;
+  };
   quantity: string;
   remarks: string;
   type: "main" | "substitute";
-  substituteOf: string;
+  substituteOf: {
+    text: string;
+    value: string;
+    partCode: string;
+  } | null;
   status: "active" | "inactive";
   createdAt: string;
-  componentID: string;
 }
 export const getComponents = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(`/bom/fetch/${bomKey}`);
@@ -87,14 +98,19 @@ export const getComponents = async (bomKey: string) => {
     let values: GetBomComponentsType[] = response.data;
 
     arr = values.map((row, index: number) => ({
-      component: row.componentID,
+      component: row.component.value,
+      partCode: row.component.partCode,
       id: index + 1,
       qty: row.quantity,
       remarks: row.remarks,
       status: row.status,
-      substituteOf: row.substituteOf,
       type: row.type,
-      name: row.name,
+      name: row.component.text,
+      substituteOf: {
+        key: row.substituteOf?.value,
+        name: row.substituteOf?.text,
+        partCode: row.substituteOf?.partCode,
+      },
     }));
   }
 
@@ -112,6 +128,8 @@ interface GetLogsType {
   logs: {
     approverCrn: string;
     approverName: string;
+    department: string;
+    designation: string;
     stage: number;
     remarks: string | null;
     date: string | null;
@@ -132,6 +150,8 @@ export const getLogs = async (bomKey: string) => {
         approver: {
           crn: row.approverCrn,
           name: row.approverName,
+          department: row.department,
+          designation: row.designation,
         },
         isRejected: row.isRejected,
         remarks: row.remarks,

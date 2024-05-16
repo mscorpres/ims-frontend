@@ -17,6 +17,7 @@ const Components = (props: Proptypes) => {
 
   const handleFetchComponents = async (bomKey: string) => {
     const response = await executeFun(() => getComponents(bomKey), "fetch");
+    console.log("compnent response", response);
     setRows(response.data ?? []);
   };
 
@@ -34,7 +35,7 @@ const Components = (props: Proptypes) => {
     <Drawer
       open={props.show}
       onClose={props.hide}
-      width={1000}
+      width={1400}
       title={`BOM: ${props.selectedBOM.name}`}
       extra={`${rows.length} Components`}
     >
@@ -63,6 +64,27 @@ const columns = [
     field: "partCode",
   },
   {
+    headerName: "Sub. Part Code",
+    width: 120,
+    field: "subPartCode",
+    valueGetter: ({ row }: { row: BOMType["components"][0] }) => {
+      if (typeof row.substituteOf === "object" && row.substituteOf?.partCode) {
+        return row.substituteOf?.partCode;
+      }
+    },
+  },
+  {
+    headerName: "Sub. Name",
+    minWidth: 100,
+    flex: 1,
+    field: "subName",
+    valueGetter: ({ row }: { row: BOMType["components"][0] }) => {
+      if (typeof row.substituteOf === "object" && row.substituteOf?.name) {
+        return row.substituteOf?.name;
+      }
+    },
+  },
+  {
     headerName: "Qty",
     width: 80,
     field: "qty",
@@ -82,5 +104,10 @@ const columns = [
     renderCell: ({ row }: { row: BOMType["components"][0] }) => (
       <ToolTipEllipses text={row.type.toUpperCase()} />
     ),
+  },
+  {
+    headerName: "Remarks",
+    width: 200,
+    field: "remarks",
   },
 ];

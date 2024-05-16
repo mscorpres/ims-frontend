@@ -78,7 +78,7 @@ const BOMList = () => {
         }}
         selectedBom={selectedBOM}
       />
-      <Col sm={18} lg={14} xxl={12}>
+      <Col sm={20} lg={16} xxl={14}>
         <MyDataTable
           columns={[...actionColumns, ...columns]}
           data={rows}
@@ -117,13 +117,18 @@ const columns = [
     field: "createdOn",
   },
   {
+    headerName: "Version",
+    width: 80,
+    field: "version",
+  },
+  {
     headerName: "Current Approver",
     width: 150,
     field: "currentApprover",
   },
   {
     headerName: "Description",
-    width: 150,
+    width: 250,
     field: "description",
   },
 ];

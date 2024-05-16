@@ -41,6 +41,8 @@ export interface BOMType {
   key?: string;
   sku?: string;
   description: string;
+  version: string;
+  documents: [];
   components: {
     id?: string | number;
     component: SelectOptionType1 | string;
@@ -49,7 +51,14 @@ export interface BOMType {
     qty: string;
     remarks: string;
     type: "substitute" | "main";
-    substituteOf: SelectOptionType1 | string;
+    substituteOf:
+      | SelectOptionType1
+      | string
+      | {
+          partCode: string;
+          key: string;
+          name: string;
+        };
     status: "active" | "inactive";
   }[];
   createdOn?: string;
@@ -66,6 +75,8 @@ export interface BOMApprovalType {
       crn: string;
       name?: string;
       email?: string;
+      department?: string;
+      designation?: string;
     };
     currentStage: number;
     remarks: string | null;
