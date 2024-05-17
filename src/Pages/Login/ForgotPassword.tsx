@@ -9,7 +9,7 @@ interface PropTypes extends ModalType {}
 
 let defaultTimer = 60;
 const ForgotPassword = (props: PropTypes) => {
-  const [stage, setStage] = useState<0 | 1 | 2>(2);
+  const [stage, setStage] = useState<0 | 1 | 2>(0);
   const [timer, setTimer] = useState(defaultTimer);
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
