@@ -41,3 +41,24 @@ export const getDetails = async () => {
   }
   return response;
 };
+
+export const sendOtp = async (email) => {
+  const response = await imsAxios.get(`/auth/sendOtp?email=${email}`);
+  return response;
+};
+
+export const verifyOtp = async (email, otp) => {
+  const response = await imsAxios.get(
+    `/auth/verifyOtp?email=${email}&otp=${otp}`
+  );
+  return response;
+};
+
+export const updatePassword = async (email, password) => {
+  const response = await imsAxios.patch(`/auth/updatePassword`, {
+    email,
+    password,
+  });
+
+  return response;
+};
