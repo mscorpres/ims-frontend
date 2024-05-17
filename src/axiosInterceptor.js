@@ -20,19 +20,25 @@ imsAxios.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log("this is the error response", error);
-
-    if (error?.response.data.success !== undefined) {
-      console.log("this is the error response", error);
-      toast.error(error.response.data.message);
+    if (typeof error.response?.data === "object") {
+      if (error.response.data?.data?.logout) {
+        toast.error(error.response.data.message);
+        localStorage.clear();
+        window.location.reload();
+        return error;
+      }
+      if (error?.response.data.success !== undefined) {
+        console.log("this is the error response", error);
+        toast.error(error.response.data.message);
+      }
+      //  else {
+      //   toast.error(
+      //     error.response.data?.message?.msg ??
+      //       "Error while connecting to backend."
+      //   );
+      // }
+      return error.response.data;
     }
-    // if (typeof error.response?.data === "object") {
-    //   toast.error(
-    //     error.response.data?.message?.msg ??
-    //       "Error while connecting to backend."
-    //   );
-    //   return error.response.data;
-    // }
 
     // if (error.response.status === 404) {
     //   toast.error("Some Internal error occured");
@@ -45,7 +51,7 @@ imsAxios.interceptors.response.use(
     //   );
     // }
     if (!error.response.data?.message) {
-      toast.error(error.response?.data.message);
+      toast.error(error.response?.data);
     }
     // }
     return error.response;
