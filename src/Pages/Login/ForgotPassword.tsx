@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { ModalType } from "@/types/general";
-import { Button, Card, Flex, Form, Input, Modal } from "antd";
+import { Button, Card, Flex, Form, Input, Modal, Typography } from "antd";
 import useApi from "@/hooks/useApi";
 import { sendOtp, verifyOtp, updatePassword } from "@/api/auth.js";
+import { InfoCircleFilled, InfoCircleOutlined } from "@ant-design/icons";
 
 interface PropTypes extends ModalType {}
 
 let defaultTimer = 60;
 const ForgotPassword = (props: PropTypes) => {
-  const [stage, setStage] = useState<0 | 1 | 2>(0);
+  const [stage, setStage] = useState<0 | 1 | 2>(2);
   const [timer, setTimer] = useState(defaultTimer);
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
@@ -140,6 +141,23 @@ const ForgotPassword = (props: PropTypes) => {
               >
                 <Input type="password" />
               </Form.Item>
+              <Card size="small">
+                <Flex justify="space-between" align="top">
+                  <Typography.Text
+                    strong
+                    style={{ marginBottom: 10, display: "block" }}
+                  >
+                    Valid Password Format
+                  </Typography.Text>
+                  <InfoCircleOutlined />
+                </Flex>
+                <ul style={{ fontSize: 12, color: "grey" }}>
+                  <li>1. One Small Letter</li>
+                  <li>2. One Capital Letter</li>
+                  <li>3. One Number</li>
+                  <li>4. One Special Character (_,$,#,@)</li>
+                </ul>
+              </Card>
             </Flex>
           )}
         </Flex>
