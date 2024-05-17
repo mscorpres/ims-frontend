@@ -17,6 +17,8 @@ import {
   ScanOutlined,
   MailOutlined,
   ReadOutlined,
+  UploadOutlined,
+  ContainerOutlined,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {
@@ -190,6 +192,17 @@ const MyButton = (props) => {
     return (
       <Button {...props} type={props.type ?? "default"} icon={<ReadOutlined />}>
         {props.text ?? "Notes"}
+      </Button>
+    );
+  }
+  if (props.variant === "pdf") {
+    return (
+      <Button
+        {...props}
+        type={props.type ?? "primary"}
+        icon={<ContainerOutlined />}
+      >
+        {props.text ?? "Download PDF"}
       </Button>
     );
   }
