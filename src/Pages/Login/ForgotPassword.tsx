@@ -15,18 +15,12 @@ const ForgotPassword = (props: PropTypes) => {
 
   const handleSubmit = async () => {
     if (stage === 0) {
-      const values = await form.validateFields(["email"]);
-      const response = await executeFun(() => sendOtp(values.email), "submit");
-      console.log(response);
-      if (response.success) {
-        setStage(1);
-        startTimer();
-      }
+      handleSendOtp();
     } else if (stage === 1) {
       const values = await form.validateFields(["email", "otp"]);
       const response = await verifyOtp(values.email, values.otp);
       if (response.success) {
-        setTimer(0);
+        startTimer();
         setStage(2);
       }
     } else if (stage === 2) {
@@ -45,7 +39,17 @@ const ForgotPassword = (props: PropTypes) => {
     }
   };
 
+  const handleSendOtp = async () => {
+    const values = await form.validateFields(["email"]);
+    const response = await executeFun(() => sendOtp(values.email), "submit");
+    console.log(response);
+    if (response.success) {
+      setStage(1);
+      startTimer();
+    }
+  };
   const startTimer = () => {
+    setTimer(defaultTimer);
     const interval = setInterval(() => {
       setTimer((count) => {
         if (count > 0) {
@@ -88,6 +92,17 @@ const ForgotPassword = (props: PropTypes) => {
             </Form.Item>
           )}
           <br />
+          {stage === 1 && (
+            <Button onClick={handleSendOtp} disabled={timer > 0} type="link">
+              Resend
+              {timer > 0 && (
+                <span style={{ marginLeft: 5 }}>
+                  00:
+                  {+Number(timer).toFixed(0).toString().padStart(2, "0")}
+                </span>
+              )}
+            </Button>
+          )}
           {stage === 2 && (
             <Flex vertical style={{ width: "100%" }}>
               <Form.Item
@@ -125,15 +140,6 @@ const ForgotPassword = (props: PropTypes) => {
               >
                 <Input type="password" />
               </Form.Item>
-              <Button disabled={timer > 0} type="link">
-                Resend
-                {timer > 0 && (
-                  <span style={{ marginLeft: 5 }}>
-                    00:
-                    {+Number(timer).toFixed(0).toString().padStart(2, "0")}
-                  </span>
-                )}
-              </Button>
             </Flex>
           )}
         </Flex>
