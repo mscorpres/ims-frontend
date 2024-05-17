@@ -21,6 +21,12 @@ imsAxios.interceptors.response.use(
   },
   (error) => {
     if (typeof error.response?.data === "object") {
+      if (error.response.data?.data?.logout) {
+        toast.error(error.response.data.message);
+        localStorage.clear();
+        window.location.reload();
+        return error;
+      }
       if (error?.response.data.success !== undefined) {
         console.log("this is the error response", error);
         toast.error(error.response.data.message);
