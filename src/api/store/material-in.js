@@ -229,9 +229,11 @@ export const fetchBoxDetails = async (minId, boxLabel) => {
 };
 
 export const updateBoxQty = async (componentKey, values) => {
+  console.log("values are ", values);
+
   const payload = {
-    minId: values.map((row) => row.minId),
-    box: values.map((row) => row.boxLabel),
+    minId: values.map((row) => row["MIN ID"]),
+    box: values.map((row) => row["label"]),
     avlQty: values.map((row) => row.availabelQty),
     is_open: values.map((row) => row.opened ?? false),
     component: componentKey,
