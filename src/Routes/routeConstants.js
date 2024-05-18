@@ -14,6 +14,9 @@ const routeConstants = {
       list: "/research-and-development/bom/list",
     },
   },
+  far: {
+    upload: "/fixed-assets/upload",
+  },
 };
 // to trigger
 export default routeConstants;
