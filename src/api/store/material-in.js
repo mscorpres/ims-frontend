@@ -1,5 +1,4 @@
 import { imsAxios } from "../../axiosInterceptor";
-import { downloadCSV } from "../../Components/exportToCSV";
 import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
@@ -162,15 +161,10 @@ export const downloadConsumptionList = async (minId, columns) => {
       catPartCode: row.catPartCode,
       qty: row.qty,
       uom: row.uom,
-      date: row.date,
-      partName: row.partName,
-      invNo: row.invNo,
-      jwID: row.jwID,
     }));
 
     response.data = arr;
-    downloadCSV(arr, columns, "MIN Consumption List");
-    return response;
+    downloadCSV(arr, col, "MIN Consumption List");
   }
 };
 
@@ -234,17 +228,15 @@ export const fetchBoxDetails = async (minId, boxLabel) => {
   return response;
 };
 
-export const updateBoxQty = async (componentKey, values, stock) => {
+export const updateBoxQty = async (componentKey, values) => {
   console.log("values are ", values);
 
   const payload = {
-    minId: values.components.map((row) => row["MIN ID"]),
-    box: values.components.map((row) => row["label"]),
-    avlQty: values.components.map((row) => row.availabelQty),
-    is_open: values.components.map((row) => row.opened ?? false),
+    minId: values.map((row) => row["MIN ID"]),
+    box: values.map((row) => row["label"]),
+    avlQty: values.map((row) => row.availabelQty),
+    is_open: values.map((row) => row.opened ?? false),
     component: componentKey,
-    remark: values.remarks,
-    imsQty: stock.toString(),
   };
 
   const response = await imsAxios.post(
