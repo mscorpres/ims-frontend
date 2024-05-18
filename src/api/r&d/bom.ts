@@ -1,5 +1,5 @@
 import { imsAxios } from "@/axiosInterceptor";
-import { ResponseType } from "@/types/general";
+import { ResponseType, SelectOptionType } from "@/types/general";
 import { BOMApprovalType, BOMType, BOMTypeExtended } from "@/types/r&d";
 
 interface CreateBOMType {
@@ -13,6 +13,8 @@ interface CreateBOMType {
     type: "substitute" | "main";
     substitute: string;
     status: "active" | "inactive";
+    vendor?: string;
+    location?: string;
   }[];
 }
 export const createBOM = async (values: BOMType) => {
@@ -28,6 +30,11 @@ export const createBOM = async (values: BOMType) => {
           ? row.substituteOf.value
           : row.substituteOf,
       type: row.type,
+      vendor:
+        typeof row.vendor === "object" && row.vendor
+          ? row.vendor?.value
+          : row.vendor,
+      location: row.locations,
     })),
     description: values.description,
     name: values.name,
@@ -189,6 +196,65 @@ export const updateStatus = async (
   };
 
   const response = await imsAxios.patch(`/bom/approve/temp/L${stage}`, payload);
+
+  return response;
+};
+
+interface GetExistingBom {
+  name: string;
+  description: string;
+  sku: string;
+  version: string;
+  bomID: string;
+  components: {
+    component: {
+      text: string;
+      value: string;
+      partCode: string;
+    };
+    quantity: string;
+    remarks: string;
+    type: "main" | "substitute";
+    substituteOf: null | {
+      text: string;
+      value: string;
+      partCode: string;
+    };
+    status: "active" | "inactive";
+    createdAt: string;
+    vendor: string | SelectOptionType;
+    location: string;
+    componentUniqueID: string;
+  }[];
+}
+export const getExistingBom = async (sku: string) => {
+  const response: ResponseType = await imsAxios.get(
+    `/bom/checkExisting?sku=${sku}`
+  );
+
+  if (response.success) {
+    let values: GetExistingBom = response.data;
+
+    let obj: BOMTypeExtended = {
+      name: values.name,
+      description: values.description,
+      product: { text: values.sku, value: values.sku },
+      version: values.version,
+      id: values.bomID,
+      components: values.components.map((row) => ({
+        component: row.component,
+        qty: row.quantity,
+        remarks: row.remarks,
+        status: row.status,
+        substituteOf: row.substituteOf,
+        type: row.type,
+        locations: row.location,
+        vendor: row.vendor,
+      })),
+    };
+
+    response.data = obj;
+  }
 
   return response;
 };

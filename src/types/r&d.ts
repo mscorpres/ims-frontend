@@ -1,4 +1,4 @@
-import { SelectOptionType1 } from "@/types/general";
+import { SelectOptionType, SelectOptionType1 } from "@/types/general";
 
 export interface ProductType {
   key?: string;
@@ -37,18 +37,20 @@ export interface ApprovalType {
 
 export interface BOMType {
   name: string;
-  product?: string;
+  product?: SelectOptionType | string;;
   key?: string;
   sku?: string;
   description: string;
-  version: string;
+  version?: string;
   documents: [];
   components: {
     id?: string | number;
-    component: SelectOptionType1 | string;
+    component: SelectOptionType | string;
     name?: string;
     partCode?: string;
     qty: string;
+    vendor?: SelectOptionType | string;
+    locations?: string;
     remarks: string;
     type: "substitute" | "main";
     substituteOf:
@@ -65,7 +67,8 @@ export interface BOMType {
 }
 
 export interface BOMTypeExtended extends BOMType {
-  currentApprover: string;
+  currentApprover?: string;
+  id: string
 }
 
 export interface BOMApprovalType {

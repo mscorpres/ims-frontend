@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   Col,
+  Divider,
   Flex,
   Form,
   Input,
@@ -10,6 +11,7 @@ import {
   Modal,
   Row,
   Typography,
+  Upload,
 } from "antd";
 import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
@@ -19,9 +21,9 @@ import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
 import { ModalType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
-import { getComponentOptions } from "@/api/general";
+import { getComponentOptions, getVendorOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
-import { createBOM } from "@/api/r&d/bom";
+import { createBOM, getExistingBom } from "@/api/r&d/bom";
 
 const typeOptions: SelectOptionType[] = [
   {
@@ -53,6 +55,7 @@ const BOMCreate = () => {
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
+  const [vendorType, setVendorType] = useState(false);
 
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
@@ -122,6 +125,17 @@ const BOMCreate = () => {
     setAsyncOptions(response.data ?? []);
   };
 
+  const handleFetchVendorOptions = async (search: string) => {
+    const response = await executeFun(() => getVendorOptions(search), "select");
+
+    let arr: SelectOptionType[] = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
+    }
+
+    setAsyncOptions(arr);
+  };
+
   const validateHandler = async () => {
     const values = await form.validateFields();
 
@@ -135,7 +149,24 @@ const BOMCreate = () => {
       resetHandler();
     }
   };
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
 
+  const handleFetchExistingBom = async (sku: string) => {
+    const response = await executeFun(() => getExistingBom(sku), "fetch");
+    if (response.success) {
+      form.setFieldsValue(response.data);
+    }
+  };
+
+  const toggleVendorType = () => {
+    setVendorType((curr) => !curr);
+    form.setFieldValue("vendor", undefined);
+  };
   const resetHandler = () => {
     form.resetFields();
     setMainComponents([]);
@@ -149,7 +180,7 @@ const BOMCreate = () => {
       initialValues={initialValues}
     >
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
-        <Col span={4}>
+        <Col span={4} style={{ height: "100%", overflow: "auto" }}>
           <Flex vertical gap={5}>
             <Card size="small" title="Header Details">
               <Form.Item name="name" label="BOM Name">
@@ -161,10 +192,31 @@ const BOMCreate = () => {
                   selectLoading={loading("select")}
                   onBlur={() => setAsyncOptions([])}
                   optionsState={asyncOptions}
+                  onChange={(value) => console.log("product is", value)}
                 />
               </Form.Item>
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} />
+              </Form.Item>
+              <Form.Item
+                name="documents"
+                label="Documents"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+                extra="Max 4 Documents"
+              >
+                <Upload
+                  name="document"
+                  beforeUpload={() => false}
+                  style={{ marginBottom: 10 }}
+                  maxCount={4}
+                >
+                  <MyButton
+                    variant="upload"
+                    text="Select"
+                    style={{ width: "100%", marginBottom: 5 }}
+                  />
+                </Upload>
               </Form.Item>
               {/* <Flex justify="center" gap={5}>
                 <MyButton variant="reset" />
@@ -201,11 +253,37 @@ const BOMCreate = () => {
               <Form.Item
                 style={{ flex: 1, minWidth: 100 }}
                 name="vendor"
-                label="Vendor"
+                label={
+                  <Flex
+                    align="center"
+                    style={{ width: 500 }}
+                    justify="space-between"
+                  >
+                    <p>Vendor</p>
+                    <Button onClick={toggleVendorType} size="small" type="link">
+                      {!vendorType ? "Type" : "Select"} Vendor
+                    </Button>
+                  </Flex>
+                }
+              >
+                {!vendorType && (
+                  <MyAsyncSelect
+                    optionsState={asyncOptions}
+                    loadOptions={handleFetchVendorOptions}
+                    selectLoading={loading("select")}
+                    onBlur={() => setAsyncOptions([])}
+                  />
+                )}
+                {vendorType && <Input />}
+              </Form.Item>
+              <Form.Item
+                style={{ flex: 1, minWidth: 100 }}
+                name="locations"
+                label="Locations"
               >
                 <Input />
               </Form.Item>
-              <Button>Add Locations</Button>
+
               {type === "substitute" && (
                 <Form.Item name="substituteOf" label="Substitute Of">
                   <MySelect options={mainComponents} labelInValue={true} />
@@ -218,6 +296,23 @@ const BOMCreate = () => {
               <Flex justify="center" gap={5}>
                 <MyButton variant="reset" />
                 <MyButton variant="add" onClick={handleAddComponents} />
+              </Flex>
+              <Divider />
+              <Flex align="center" vertical gap={10}>
+                <Typography.Text
+                  strong
+                  type="secondary"
+                  style={{ textAlign: "center", fontSize: 13 }}
+                >
+                  After adding the components and header details, click on
+                  Create BOM
+                </Typography.Text>
+                <MyButton
+                  variant="submit"
+                  text="Create BOM"
+                  loading={loading("submit")}
+                  onClick={validateHandler}
+                />
               </Flex>
             </Card>
           </Flex>
