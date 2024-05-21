@@ -98,7 +98,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     }
   };
   const getLocation = async (costCenter) => {
-    const { data } = await imsAxios.get("/backend/jw_sf_inward_location", {
+    const { data } = await imsAxios.post("/backend/jw_sf_inward_location", {
       cost_center: costCenter,
     });
     let arr = [];
