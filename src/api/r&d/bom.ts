@@ -38,7 +38,7 @@ export const createBOM = async (values: BOMType) => {
     })),
     description: values.description,
     name: values.name,
-    sku: values.product,
+    sku: values.product.value ?? values.product,
   };
   console.log("payload id", payload);
 
@@ -233,23 +233,29 @@ export const getExistingBom = async (sku: string) => {
   );
 
   if (response.success) {
-    let values: GetExistingBom = response.data;
+    let values: GetExistingBom = response.data[0];
 
     let obj: BOMTypeExtended = {
       name: values.name,
       description: values.description,
-      product: { text: values.sku, value: values.sku },
+      product: { label: values.sku.text, value: values.sku.text },
       version: values.version,
       id: values.bomID,
       components: values.components.map((row) => ({
-        component: row.component,
+        component: { ...row.component, label: row.component.text },
         qty: row.quantity,
         remarks: row.remarks,
         status: row.status,
-        substituteOf: row.substituteOf,
+        substituteOf: {
+          label: row.substituteOf?.text,
+          partCode: row.substituteOf?.partCode,
+          value: row.substituteOf?.value,
+        },
         type: row.type,
         locations: row.location,
         vendor: row.vendor,
+        text: row.component.text,
+        value: row.component.value,
       })),
     };
 

@@ -55,6 +55,7 @@ const BOMCreate = () => {
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
+  const [version, setVersion] = useState("");
   const [vendorType, setVendorType] = useState(false);
 
   const [form] = Form.useForm();
@@ -76,6 +77,8 @@ const BOMCreate = () => {
       "type",
       "remarks",
       "substituteOf",
+      "vendor",
+      "locations",
     ]);
     console.log("add values", values);
     const newComponent = {
@@ -160,6 +163,14 @@ const BOMCreate = () => {
     const response = await executeFun(() => getExistingBom(sku), "fetch");
     if (response.success) {
       form.setFieldsValue(response.data);
+      setVersion(response.data.version);
+      setMainComponents(
+        response.data.components.filter((row) => row.type === "main")
+      );
+      setSubComponents(
+        response.data.components.filter((row) => row.type === "substitute")
+      );
+      console.log("this is response", response.data);
     }
   };
 
@@ -182,7 +193,11 @@ const BOMCreate = () => {
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
         <Col span={4} style={{ height: "100%", overflow: "auto" }}>
           <Flex vertical gap={5}>
-            <Card size="small" title="Header Details">
+            <Card
+              size="small"
+              title="Header Details"
+              extra={<Typography.Text strong>V{version}</Typography.Text>}
+            >
               <Form.Item name="name" label="BOM Name">
                 <Input />
               </Form.Item>
@@ -192,7 +207,7 @@ const BOMCreate = () => {
                   selectLoading={loading("select")}
                   onBlur={() => setAsyncOptions([])}
                   optionsState={asyncOptions}
-                  onChange={(value) => console.log("product is", value)}
+                  onChange={(value) => handleFetchExistingBom(value)}
                 />
               </Form.Item>
               <Form.Item name="description" label="Description">
@@ -250,6 +265,11 @@ const BOMCreate = () => {
                   <MySelect options={typeOptions} />
                 </Form.Item>
               </Flex>
+              {type === "substitute" && (
+                <Form.Item name="substituteOf" label="Substitute Of">
+                  <MySelect options={mainComponents} labelInValue={true} />
+                </Form.Item>
+              )}
               <Form.Item
                 style={{ flex: 1, minWidth: 100 }}
                 name="vendor"
@@ -284,12 +304,6 @@ const BOMCreate = () => {
                 <Input />
               </Form.Item>
 
-              {type === "substitute" && (
-                <Form.Item name="substituteOf" label="Substitute Of">
-                  <MySelect options={mainComponents} labelInValue={true} />
-                </Form.Item>
-              )}
-
               <Form.Item name="remarks" label="Remarks">
                 <Input.TextArea rows={3} />
               </Form.Item>
@@ -317,9 +331,9 @@ const BOMCreate = () => {
             </Card>
           </Flex>
         </Col>
-        <Col span={18} style={{ height: "100%", overflow: "hidden" }}>
-          <Row gutter={6} style={{ height: "100%" }}>
-            <Col span={12} style={{ height: "100%", overflow: "hidden" }}>
+        <Col span={20} style={{ height: "100%", overflow: "hidden" }}>
+          <Row gutter={[6, 6]} style={{ height: "100%" }}>
+            <Col span={24} style={{ height: "50%", overflow: "hidden" }}>
               <Card
                 size="small"
                 title="Main Components"
@@ -344,13 +358,13 @@ const BOMCreate = () => {
                 </div>
               </Card>
             </Col>
-            <Col span={12} style={{ height: "100%", overflow: "hidden" }}>
+            <Col span={24} style={{ height: "100%", overflow: "hidden" }}>
               <Card
                 size="small"
                 title="Substitute Components"
                 extra={`${subComponents.length} Added`}
                 style={{
-                  height: "100%",
+                  height: "50%",
                 }}
                 bodyStyle={{
                   height: "95%",
@@ -403,15 +417,21 @@ const Components = ({
           <Col span={8}>
             <Typography.Text strong>Component</Typography.Text>
           </Col>
-          <Col span={4}>
+          <Col span={2}>
             <Typography.Text strong>Qty</Typography.Text>
           </Col>
+          <Col span={3}>
+            <Typography.Text strong>Vendor</Typography.Text>
+          </Col>
+          <Col span={3}>
+            <Typography.Text strong>Locations</Typography.Text>
+          </Col>
           {type === "substitute" && (
-            <Col span={6}>
+            <Col span={4}>
               <Typography.Text strong>Substitute of</Typography.Text>
             </Col>
           )}
-          <Col span={type === "substitute" ? 5 : 11}>
+          <Col span={type === "substitute" ? 3 : 7}>
             <Typography.Text strong>Remarks</Typography.Text>
           </Col>
 
@@ -430,22 +450,32 @@ const Components = ({
                   </Col>
                   <Col span={8}>
                     <Typography.Text style={{ fontSize: 13 }}>
-                      {row.component.label}
+                      {row.component.label ?? row.component.text}
                     </Typography.Text>
                   </Col>
-                  <Col span={4}>
+                  <Col span={2}>
                     <Typography.Text style={{ fontSize: 13 }}>
                       {row.qty}
                     </Typography.Text>
                   </Col>
+                  <Col span={3}>
+                    <Typography.Text style={{ fontSize: 13 }}>
+                      {row.vendor?.label ?? row.vendor}
+                    </Typography.Text>
+                  </Col>
+                  <Col span={3}>
+                    <Typography.Text style={{ fontSize: 13 }}>
+                      {row.locations}
+                    </Typography.Text>
+                  </Col>
                   {type === "substitute" && (
-                    <Col span={6}>
+                    <Col span={4}>
                       <Typography.Text style={{ fontSize: 13 }}>
                         {row.substituteOf?.label}
                       </Typography.Text>
                     </Col>
                   )}
-                  <Col span={type === "substitute" ? 4 : 10}>
+                  <Col span={type === "substitute" ? 2 : 6}>
                     <Typography.Text style={{ fontSize: 13 }}>
                       {row.remarks}
                     </Typography.Text>
