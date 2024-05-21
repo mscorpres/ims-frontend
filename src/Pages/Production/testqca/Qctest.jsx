@@ -20,6 +20,7 @@ const Qctest = () => {
   const [buttonloading, setbuttonloading] = useState("");
   const [buttonstyle, setbuttonstyle] = useState("pointer");
   const [closetype, setclosetype] = useState(true);
+  const [manualCount, setManualCount] = useState("");
 
   const showModal = (e) => {
     e === "AUTO" ? setModalType(e) : setModalType(e.target.id);
@@ -60,6 +61,11 @@ const Qctest = () => {
   const [ScanData, setScanData] = useState([]);
 
   const Column = [
+    {
+      field: "index",
+      headerName: "#",
+      width: 1,
+    },
     {
       field: "date",
       headerName: "Date",
@@ -210,7 +216,10 @@ const Qctest = () => {
     setbuttonloading("");
     setbuttonstyle("pointer");
     if (data.status === "success") {
-      setScanData([...ScanData, scaannn]);
+      setScanData([
+        ...ScanData,
+        scaannn.map((row, index) => ({ ...row, index: index + 1 })),
+      ]);
       toast.success(data.message.msg);
       setCurrentScan(currentscan + 1);
       setPassedScan(passedscan + 1);
@@ -262,7 +271,10 @@ const Qctest = () => {
     setbuttonloading("");
     setbuttonstyle("pointer");
     if (data.status === "success") {
-      setScanData([...ScanData, scaannn]);
+      setScanData([
+        ...ScanData,
+        scaannn.map((row, index) => ({ ...row, index: index + 1 })),
+      ]);
       toast.success(data.message.msg);
       setFailedScan(failedscan + 1);
       var x = failedscan + 1;
@@ -294,6 +306,25 @@ const Qctest = () => {
       return { text: item.defect_name, value: item.problem_key };
     });
     setfaillist(arr);
+  };
+
+  const handleGenerateManualEntries = async () => {
+    // to fetch process
+    // const { data } = await imsAxios.post("/createqca/fetch_testing_data", {
+    //   qca_ppr: pprNo,
+    //   qca_process: e,
+    // });
+
+    const response = await imsAxios.post("/createqca/bulk_insert_qca_Process", {
+      qca_ppr: pprNo,
+      qca_process: processid,
+      qca_result: "PASS",
+      numberRows: manualCount,
+    });
+
+    if (response.success) {
+      getscanneddata(processid);
+    }
   };
   useEffect(() => {
     getfaillist();
@@ -357,12 +388,16 @@ const Qctest = () => {
     printFunction(response.data.data.buffer.data);
     if (l === "PASS") {
       const updatedscanData = ScanData.filter((item) => item.Status === "FAIL");
-      setScanData(updatedscanData);
+      setScanData(
+        updatedscanData.map((row, index) => ({ ...row, index: index + 1 }))
+      );
       setCurrentScan(updatedscanData.length);
       setPassedScan(0);
     } else {
       const updatedscanData = ScanData.filter((item) => item.Status === "PASS");
-      setScanData(updatedscanData);
+      setScanData(
+        updatedscanDat.map((row, index) => ({ ...row, index: index + 1 }))
+      );
       setCurrentScan(updatedscanData.length);
       setFailedScan(0);
     }
@@ -397,7 +432,9 @@ const Qctest = () => {
         Status: item.result,
       };
     });
-    setScanData(updatesscandata);
+    setScanData(
+      updatesscandata.map((row, index) => ({ ...row, index: index + 1 }))
+    );
     if (faillength.length === lot) {
       setLotStatus(false);
       setclosetype(false);
@@ -490,10 +527,15 @@ const Qctest = () => {
               </Card>
               <Card title="Manual Entry" size="small">
                 <Form.Item layout="vertical" label="Generate Count">
-                  <Input />
+                  <Input
+                    onChange={(e) => setManualCount(e.target.value)}
+                    value={manualCount}
+                  />
                 </Form.Item>
                 <Flex justify="end">
-                  <Button>Generate Entries</Button>
+                  <Button onClick={handleGenerateManualEntries}>
+                    Generate Entries
+                  </Button>
                 </Flex>
               </Card>
             </Flex>
