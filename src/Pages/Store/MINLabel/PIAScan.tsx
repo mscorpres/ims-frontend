@@ -1,5 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, Col, Divider, Flex, Form, Modal, Row, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Flex,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Typography,
+} from "antd";
 import { InfoCircleOutlined, ReloadOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
@@ -8,7 +19,7 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect";
 //module components
 import SingleProduct from "./SingleProduct";
 // types
-import { SelectOptionType } from "@/types/general";
+import { ModalType, SelectOptionType } from "@/types/general";
 //hooks
 import useApi from "@/hooks/useApi";
 //apis
@@ -22,6 +33,7 @@ function PIAScan() {
   const [successData, setSuccessData] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [stock, setStock] = useState(0);
+  const [showResetHandler, setShowResetHandler] = useState(false);
   const [scannedData, setScannedData] = useState({
     string: "",
     loading: false,
@@ -42,7 +54,12 @@ function PIAScan() {
   const handleScan = (value: string) => {
     try {
       const parsed = JSON.parse(value.toString().split("/n")[0]);
-      if (components.find((row) => row.label === parsed["label"])) {
+      if (
+        components.find(
+          (row) =>
+            row.label === parsed["label"] && row["MIN ID"] === parsed["MIN ID"]
+        )
+      ) {
         toast.error(`BOX ${parsed["label"]}  is already scanned`);
         return undefined;
       }
@@ -136,7 +153,7 @@ function PIAScan() {
     let values = await scan.validateFields();
 
     const response = await executeFun(
-      () => updateBoxQty(values.part, values.components),
+      () => updateBoxQty(values.part, values, stock),
       "submit"
     );
 
@@ -177,6 +194,9 @@ function PIAScan() {
   };
   const handleReset = () => {
     scan.resetFields();
+    setStock(0);
+    setSelectedPartCode(null);
+    setShowResetHandler(false);
   };
 
   useEffect(() => {
@@ -207,6 +227,11 @@ function PIAScan() {
         totalQty={successData?.totalQty}
         component={successData?.component}
         submitHandler={handleSubmit}
+      />
+      <ResetConfirm
+        show={showResetHandler}
+        hide={() => setShowResetHandler(false)}
+        resetHandler={handleReset}
       />
       {scanLoading && <Loading />}
 
@@ -255,6 +280,9 @@ function PIAScan() {
                       : "Click the scan button to start scanning !!!"}
                   </Typography.Text>
                 </Flex>
+                <Form.Item name="remarks" label="Remarks">
+                  <Input.TextArea rows={3} />
+                </Form.Item>
                 <MyButton
                   loading={loading("submit")}
                   block
@@ -277,6 +305,10 @@ function PIAScan() {
                     scanning
                   </Typography.Text>
                 </Flex>
+                <MyButton
+                  onClick={() => setShowResetHandler(true)}
+                  variant="reset"
+                />
               </Flex>
             </Card>
             <Card size="small" title="Scan Summary">
@@ -541,6 +573,27 @@ const SubmitConfirm = ({
           Are you sure you want to update available quantities of these boxes?
         </Typography.Text>
         <Typography.Text strong>Total Boxes Scanned: {count}</Typography.Text>
+      </Flex>
+    </Modal>
+  );
+};
+
+interface ResetProps extends ModalType {
+  resetHandler: () => void;
+}
+const ResetConfirm = (props: ResetProps) => {
+  return (
+    <Modal
+      open={props.show}
+      onCancel={props.hide}
+      onOk={props.resetHandler}
+      okText="Reset"
+    >
+      <Flex vertical>
+        <Typography.Text strong>
+          Are you sure you want to reset?
+        </Typography.Text>
+        <Typography.Text>All the progress will be lost</Typography.Text>
       </Flex>
     </Modal>
   );
