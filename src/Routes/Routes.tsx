@@ -234,6 +234,7 @@ import EditSalesOrder from "@/Pages/Sales/SalesOrder/edit/index.jsx";
 import RegisteredUser from "@/Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
 import ShipmentsList from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
 import Challan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
+import AllocatedChallan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/AllocatedChallan/AllocatedChallan.jsx";
 
 import R32 from "@/Pages/Reports/R/R32.jsx";
 import Index from "@/Pages/Query/ClosingStock/Index.jsx";
@@ -253,6 +254,7 @@ import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
 import Products from "@/Pages/R&D/products/index.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
+import Far from "@/Pages/Far/Far";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -270,6 +272,10 @@ const Routes = [
   {
     path: "/",
     main: () => <Dashboard />,
+  },
+  {
+    path: "/fixedAssetRegister",
+    main: () => <Far />,
   },
   {
     path: "/dashboardProcurement",
