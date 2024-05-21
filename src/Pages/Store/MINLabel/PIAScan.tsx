@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  Button,
   Card,
   Col,
   Divider,
@@ -18,10 +19,9 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect";
 //module components
 import SingleProduct from "./SingleProduct";
 // types
-import { SelectOptionType } from "@/types/general";
+import { ModalType, SelectOptionType } from "@/types/general";
 //hooks
 import useApi from "@/hooks/useApi";
-import useDebounce from "@/hooks/useDebounce";
 //apis
 import { fetchBoxDetails, updateBoxQty } from "@/api/store/material-in.js";
 import { getComponentOptions, getComponentStock } from "@/api/general.ts";
@@ -33,12 +33,13 @@ function PIAScan() {
   const [successData, setSuccessData] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [stock, setStock] = useState(0);
+  const [showResetHandler, setShowResetHandler] = useState(false);
   const [scannedData, setScannedData] = useState({
     string: "",
     loading: false,
   });
+  const [scanLoading, setScanLoading] = useState(false);
   const { executeFun, loading } = useApi();
-  const updatedString = useDebounce(scannedData.string, 1000);
 
   const [scan] = Form.useForm();
   const ref = useRef(null);
@@ -52,47 +53,53 @@ function PIAScan() {
   // fetching data from qr code and setting into form and validating same part code
   const handleScan = (value: string) => {
     try {
-      const parsed = JSON.parse(value);
+      const parsed = JSON.parse(value.toString().split("/n")[0]);
+      if (
+        components.find(
+          (row) =>
+            row.label === parsed["label"] && row["MIN ID"] === parsed["MIN ID"]
+        )
+      ) {
+        toast.error(`BOX ${parsed["label"]}  is already scanned`);
+        return undefined;
+      }
+
       if (parsed && parsed["Part Code"] == selectedPartCode) {
         handleFetchDetails(parsed["MIN ID"], parsed["label"]);
+        return parsed;
       } else {
         toast.error(
           "The Part Code Does not match! Scan Again with correct Part code"
         );
-        setScannedData({
-          loading: false,
-          string: "",
-        });
       }
     } catch (error) {
-      setScannedData({
-        loading: false,
-        string: "",
-      });
+      toast.error(
+        "Some Error occurred while scanning the box, please scan the last box again"
+      );
     }
   };
   // getting box details and adding it to the form
   const handleFetchDetails = async (minId: string, boxLabel: string) => {
     const response = await executeFun(
       () => fetchBoxDetails(minId, boxLabel),
-      "fetch"
+      boxLabel
     );
+
     if (response.success) {
-      scan.setFieldValue("availabelQty", response.data.availabelQty);
       const components = scan.getFieldValue("components");
-      if (
-        components.find(
-          (component) => component.boxLabel === response.data.boxLabel
-        )
-      ) {
-        return toast.error(`Box ${response.data.boxLabel} Already Scanned`);
-      }
-      components.push(response.data);
-      scan.setFieldValue("components", components);
-      setScannedData({
-        loading: false,
-        string: "",
-      });
+      scan.setFieldValue(
+        "components",
+        components.map((row) => {
+          if (row.label === boxLabel) {
+            return {
+              ...row,
+              availabelQty: response.data.availabelQty,
+            };
+          } else {
+            return row;
+          }
+        })
+      );
     }
   };
   //fetching component stock from RM location
@@ -112,7 +119,7 @@ function PIAScan() {
   // calculating total available qty
   const getTotalAvailableQty = (components: []) => {
     return components?.reduce((partialSum, a) => {
-      return partialSum + +Number(a.availabelQty).toFixed(2);
+      return partialSum + +Number(a.availabelQty ?? 0).toFixed(2);
     }, 0);
   };
   // veryfying stock and total available qty
@@ -146,7 +153,7 @@ function PIAScan() {
     let values = await scan.validateFields();
 
     const response = await executeFun(
-      () => updateBoxQty(values.part, values.components),
+      () => updateBoxQty(values.part, values, stock),
       "submit"
     );
 
@@ -179,6 +186,7 @@ function PIAScan() {
     }
     setAsyncOptions([]);
   };
+
   //focusing to hidden input and updating ready state
   const scanTheQr = () => {
     setReady(true);
@@ -186,27 +194,10 @@ function PIAScan() {
   };
   const handleReset = () => {
     scan.resetFields();
+    setStock(0);
+    setSelectedPartCode(null);
+    setShowResetHandler(false);
   };
-
-  useEffect(() => {
-    if (updatedString) {
-      if (updatedString.length > 10) {
-        handleScan(updatedString);
-      }
-      setScannedData((curr) => ({
-        ...curr,
-        loading: false,
-      }));
-    }
-  }, [updatedString]);
-  useEffect(() => {
-    if (scannedData.string.length === 1) {
-      setScannedData((curr) => ({
-        ...curr,
-        loading: true,
-      }));
-    }
-  }, [scannedData]);
 
   useEffect(() => {
     if (selectedComponent) {
@@ -214,8 +205,6 @@ function PIAScan() {
       handleGetPartCode(selectedComponent);
       handleFetchComponentStock(selectedComponent);
     }
-
-    console.log("these are the components", components);
   }, [selectedComponent]);
 
   return (
@@ -239,7 +228,13 @@ function PIAScan() {
         component={successData?.component}
         submitHandler={handleSubmit}
       />
-      {(loading("fetch") || scannedData.loading) && <Loading />}
+      <ResetConfirm
+        show={showResetHandler}
+        hide={() => setShowResetHandler(false)}
+        resetHandler={handleReset}
+      />
+      {scanLoading && <Loading />}
+
       <Row
         justify="center"
         gutter={8}
@@ -285,12 +280,14 @@ function PIAScan() {
                       : "Click the scan button to start scanning !!!"}
                   </Typography.Text>
                 </Flex>
+                <Form.Item name="remarks" label="Remarks">
+                  <Input.TextArea rows={3} />
+                </Form.Item>
                 <MyButton
                   loading={loading("submit")}
                   block
                   disabled={
                     !(stock - getTotalAvailableQty(components ?? []) === 0) ||
-                    components?.length !== 0 ||
                     !components ||
                     components?.length === 0
                   }
@@ -308,6 +305,10 @@ function PIAScan() {
                     scanning
                   </Typography.Text>
                 </Flex>
+                <MyButton
+                  onClick={() => setShowResetHandler(true)}
+                  variant="reset"
+                />
               </Flex>
             </Card>
             <Card size="small" title="Scan Summary">
@@ -344,20 +345,39 @@ function PIAScan() {
             </Card>
           </Flex>
           {/* hidden input */}
-          <Input
+          {/* <Form.Item name="raw"> */}
+          <input
+            // style={{ height: 300, width: "100%" }}
             ref={ref}
-            onChange={(e) => {
-              setScannedData(() => ({
-                loading: true,
-                string: e.target.value,
-              }));
-              // }
-            }}
             onBlur={() => {
               setReady(false);
             }}
-            value={scannedData.string}
-            style={{ opacity: 0, zIndex: -1, pointerEvents: "none", width: 10 }}
+            onKeyDown={(e) => {
+              if (e.target.value.length === 1) {
+                setScanLoading(true);
+              }
+              if (e.keyCode === 13) {
+                let arr = scan.getFieldValue("components");
+                setScanLoading(false);
+                if (handleScan(e.target.value))
+                  scan.setFieldValue("components", [
+                    ...arr,
+                    handleScan(e.target.value),
+                  ]);
+
+                setScannedData({
+                  string: "",
+                });
+                e.target.value = "";
+              }
+            }}
+            style={{
+              width: 0,
+              height: 0,
+              opacity: 0,
+              zIndex: -1,
+              pointerEvents: "none",
+            }}
           />
         </Col>
         <Col
@@ -465,6 +485,7 @@ function PIAScan() {
                               field={field}
                               form={scan}
                               remove={remove}
+                              loading={loading}
                               SingleDetail={SingleDetail}
                               index={index}
                             />
@@ -552,6 +573,27 @@ const SubmitConfirm = ({
           Are you sure you want to update available quantities of these boxes?
         </Typography.Text>
         <Typography.Text strong>Total Boxes Scanned: {count}</Typography.Text>
+      </Flex>
+    </Modal>
+  );
+};
+
+interface ResetProps extends ModalType {
+  resetHandler: () => void;
+}
+const ResetConfirm = (props: ResetProps) => {
+  return (
+    <Modal
+      open={props.show}
+      onCancel={props.hide}
+      onOk={props.resetHandler}
+      okText="Reset"
+    >
+      <Flex vertical>
+        <Typography.Text strong>
+          Are you sure you want to reset?
+        </Typography.Text>
+        <Typography.Text>All the progress will be lost</Typography.Text>
       </Flex>
     </Modal>
   );

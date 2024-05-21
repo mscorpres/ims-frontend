@@ -21,6 +21,12 @@ imsAxios.interceptors.response.use(
   },
   (error) => {
     if (typeof error.response?.data === "object") {
+      if (error.response.data?.data?.logout) {
+        toast.error(error.response.data.message);
+        localStorage.clear();
+        window.location.reload();
+        return error;
+      }
       if (error?.response.data.success !== undefined) {
         console.log("this is the error response", error);
         toast.error(error.response.data.message);
@@ -53,7 +59,7 @@ imsAxios.interceptors.response.use(
 );
 console.log("this is the company branch", localStorage.getItem("otherData"));
 let branch =
-  JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "";
+  JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "BRMSC012";
 let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "24-25";
 
 imsAxios.defaults.headers["Company-Branch"] = branch;

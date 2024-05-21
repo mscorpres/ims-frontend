@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import ForgotPassword from "./ForgotPassword.tsx";
 // import {
 //   loginAuth,
 //   setSettings,
@@ -12,6 +13,7 @@ import {
   Card,
   Col,
   Divider,
+  Flex,
   Form,
   Input,
   Modal,
@@ -27,6 +29,7 @@ const Login = () => {
   const [signUpPage, setSignUpPage] = useState("1");
   const [forgotPassword, setForgotPassword] = useState("0");
   const [ispassSame, setIsPassSame] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { executeFun, loading } = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -211,6 +214,10 @@ const Login = () => {
   // console.log("ispassSame", ispassSame);
   return (
     <div style={{ height: "100vh" }}>
+      <ForgotPassword
+        show={showForgotPassword}
+        hide={() => setShowForgotPassword(false)}
+      />
       <Row style={{ height: "100%" }}>
         <Col
           span={8}
@@ -362,6 +369,14 @@ const Login = () => {
                             Log In
                           </Button>
                         </Form.Item>
+                        <Flex justify="end">
+                          <Button
+                            onClick={() => setShowForgotPassword(true)}
+                            type="link"
+                          >
+                            Forgot Password
+                          </Button>
+                        </Flex>
                         <Text style={{ marginLeft: "8em" }}>
                           {" "}
                           Not Registered yet?
@@ -369,6 +384,7 @@ const Login = () => {
                         <Link style={{ marginLeft: "1em" }} onClick={createAcc}>
                           Create an Account
                         </Link>
+                        <br />
                       </>
                     ) : (
                       <>

@@ -254,7 +254,7 @@ import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
 import Products from "@/Pages/R&D/products/index.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
-import Far from "@/Pages/Far/Far";
+import FARUpload from "@/Pages/far/index.js";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -1408,6 +1408,12 @@ const Routes = [
   {
     path: routeConstants.researchAndDevelopment.products,
     main: () => <Products />,
+  },
+
+  // far upload
+  {
+    path: routeConstants.far.upload,
+    main: () => <FARUpload />,
   },
 
   // should always be at the end
