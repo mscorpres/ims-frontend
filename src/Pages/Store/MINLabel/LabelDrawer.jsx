@@ -34,6 +34,7 @@ const LabelDrawer = ({
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const selectedMIN = Form.useWatch("minId", form);
+  const components = Form.useWatch("components", form);
 
   const handleFetchComponents = async (minId) => {
     const response = await executeFun(() => getMINComponents(minId), "fetch");
@@ -137,6 +138,12 @@ const LabelDrawer = ({
           </div>
           <div style={{ marginTop: 5 }}>
             <MyButton
+              disabled={
+                +boxes.reduce(
+                  (partialSum, a) => +Number(partialSum) + +Number(a.qty),
+                  0
+                ) > +components?.[0]?.qty
+              }
               loading={loading("submit")}
               onClick={handlePrintLabels}
               variant="print"
@@ -161,7 +168,7 @@ const LabelDrawer = ({
         </Form.List>
       </Form>
       {piaEnabled && (
-        <Flex justify="center">
+        <Flex vertical align="center">
           <Typography.Text strong type="secondary">
             Total Qty:{" "}
             {boxes.reduce(
@@ -169,6 +176,14 @@ const LabelDrawer = ({
               0
             )}
           </Typography.Text>
+          {+boxes.reduce(
+            (partialSum, a) => +Number(partialSum) + +Number(a.qty),
+            0
+          ) > +components?.[0]?.qty && (
+            <Typography.Text strong type="danger">
+              Box Qty can not be greater than MIN Qty
+            </Typography.Text>
+          )}
         </Flex>
       )}
       {piaEnabled && (
