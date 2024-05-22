@@ -30,6 +30,13 @@ import {
   getProductsOptions,
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
+import MySelect from "../../../../Components/MySelect.jsx";
+
+const POoption = [
+  { text: "Product", value: "product" },
+  { text: "Component", value: "component" },
+];
+
 export default function AddComponents({
   rowCount,
   setRowCount,
@@ -59,6 +66,7 @@ export default function AddComponents({
   const addRows = () => {
     const newRow = {
       id: v4(),
+      type: "product",
       index: rowCount.length + 1,
       currency: "364907247",
       exchange_rate: 1,
@@ -109,6 +117,7 @@ export default function AddComponents({
     setShowCurrencyUpdateConfirmModal(false);
     setRowCount(arr);
   };
+  console.log("these are the rows", rowCount);
   const inputHandler = async (name, value, id) => {
     let arr = rowCount;
     console.log("update rate and value", value);
@@ -306,6 +315,21 @@ export default function AddComponents({
             [name]: value,
           };
           // return obj;
+        } else if (name === "type") {
+          obj = {
+            ...obj,
+            type: value,
+
+            cgst: 0,
+            component: "",
+            rate: 0,
+            unit: "",
+            inrValue: 0,
+            hsncode: "",
+            gstrate: 0,
+            sgst: 0,
+            igst: 0,
+          };
         }
         return obj;
       } else {
@@ -328,7 +352,9 @@ export default function AddComponents({
       // );
       // console.log("iscomponents", iscomponents);
       var data;
-      if (iscomponents == "component") {
+      const found = arr.find((row) => row.id === id);
+      console.log("we found", found);
+      if (found?.type == "component") {
         console.log("newPurchaseOrder", newPurchaseOrder);
         setPageLoading(true);
         let response = await imsAxios.post(
@@ -417,8 +443,9 @@ export default function AddComponents({
       setRowCount(arr);
     }
   };
-  const getComponents = async (searchInput) => {
-    if (iscomponents === "product") {
+  const getComponents = async (searchInput, type) => {
+    console.log("this is the type", type);
+    if (type === "product") {
       const response = await executeFun(
         () => getProductsOptions(searchInput),
         "select"
@@ -458,6 +485,7 @@ export default function AddComponents({
     setRowCount([
       {
         id: v4(),
+        type: "product",
         index: 1,
         currency: "364907247",
         exchange: "1",
@@ -535,9 +563,34 @@ export default function AddComponents({
       sortable: false,
       renderCell: ({ row }) =>
         rowCount.length > 1 && (
-          <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
+          <CommonIcons
+            action="removeRow"
+            value={params.row.type}
+            onClick={() => removeRows(row?.id)}
+          />
         ),
       // sortable: false,
+    },
+    {
+      headerName: "Type",
+      width: 100,
+      field: "type",
+      renderCell: (params) => (
+        <MySelect
+          options={POoption}
+          value={params.row.type}
+          onChange={(value) => inputHandler("type", value, params.row.id)}
+        />
+      ),
+
+      // componentSelect(
+      //   params,
+      //   inputHandler,
+      //   getComponents,
+      //   setAsyncOptions,
+      //   asyncOptions,
+      //   loading("select")
+      // ),
     },
     {
       headerName: "Product",
