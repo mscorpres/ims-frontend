@@ -18,9 +18,11 @@ interface CreateBOMType {
   }[];
 }
 export const createBOM = async (values: BOMType) => {
+  console.log("these are the values", values);
+
   const payload: CreateBOMType = {
     components: values.components.map((row) => ({
-      component:
+      componentKey:
         typeof row.component === "object" ? row.component.value : row.component,
       qty: row.qty,
       remarks: row.remarks,
@@ -40,9 +42,21 @@ export const createBOM = async (values: BOMType) => {
     name: values.name,
     sku: values.product.value ?? values.product,
   };
-  console.log("payload id", payload);
 
-  const response = await imsAxios.post("/bom/tempProduct", payload);
+  const formData = new FormData();
+  for (let key in payload) {
+    if (key === "components") {
+      formData.append(key, JSON.stringify(payload[key]));
+    } else {
+      formData.append(key, payload[key]);
+    }
+  }
+
+  values.documents?.map((row) => {
+    formData.append("documents", row.originFileObj);
+  });
+
+  const response = await imsAxios.post("/bom/tempProduct", formData);
   return response;
 };
 
