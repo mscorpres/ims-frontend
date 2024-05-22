@@ -92,7 +92,8 @@ function VBTHeaders({
   }, [vbtComponent, pageHeaders]);
   useEffect(() => {
     if (editVBTCode) {
-      setVbtComponent(editVBTCode);
+      console.log("setting vbt data to", editVBTCode);
+      // setVbtComponent(editVBTCode); //changed here
     }
   }, [editVBTCode]);
   useEffect(() => {
