@@ -548,13 +548,10 @@ const SalesOrderForm = () => {
                             label="Client Type"
                             rules={rules.vendortype}
                           >
-                            <MySelect
-                              size="default"
-                              options={vendorDetailsOptions}
-                            />
+                           
                             {/* <Input value="Customer" /> */}
-                          </Form.Item>
-                        </Col> */}
+                        {/* </Form.Item> */}
+                        {/* </Col> */} */}
                         {/* vendor name */}
                         <Col span={6}>
                           <Form.Item
