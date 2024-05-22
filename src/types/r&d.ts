@@ -42,7 +42,7 @@ export interface BOMType {
   sku?: string;
   description: string;
   version?: string;
-  documents: [];
+  documents: File[] | {fileName: string, url: string}[];
   components: {
     id?: string | number;
     component: SelectOptionType | string;

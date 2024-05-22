@@ -22,7 +22,7 @@ export const createBOM = async (values: BOMType) => {
 
   const payload: CreateBOMType = {
     components: values.components.map((row) => ({
-      componentKey:
+      component:
         typeof row.component === "object" ? row.component.value : row.component,
       qty: row.qty,
       remarks: row.remarks,

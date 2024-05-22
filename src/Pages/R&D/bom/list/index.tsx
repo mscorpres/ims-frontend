@@ -13,11 +13,13 @@ import useApi from "@/hooks/useApi";
 
 import { BOMTypeExtended } from "@/types/r&d";
 import BOMApproval from "@/Pages/R&D/bom/list/approval";
+import Attachments from "@/Pages/R&D/bom/list/attachments";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
   const [selectedBOM, setSelectedBOM] = useState<BOMTypeExtended | null>(null);
   const [showComponents, setShowComponents] = useState(false);
+  const [showAttachments, setShowAttachments] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
 
   const { executeFun, loading } = useApi();
@@ -44,6 +46,15 @@ const BOMList = () => {
         />,
         <GridActionsCellItem
           showInMenu
+          placeholder="See Attachments"
+          label={"Attachments"}
+          onClick={() => {
+            setShowAttachments(true);
+            setSelectedBOM(row);
+          }}
+        />,
+        <GridActionsCellItem
+          showInMenu
           placeholder="See Logs"
           label={"Logs"}
           onClick={() => {
@@ -60,6 +71,16 @@ const BOMList = () => {
   }, []);
   return (
     <Row justify="center" style={{ height: "95%", padding: 10 }}>
+      {selectedBOM && (
+        <Attachments
+          show={showAttachments}
+          hide={() => {
+            setShowAttachments(false);
+            setSelectedBOM(null);
+          }}
+          bom={selectedBOM}
+        />
+      )}
       {selectedBOM && (
         <Components
           show={showComponents}
