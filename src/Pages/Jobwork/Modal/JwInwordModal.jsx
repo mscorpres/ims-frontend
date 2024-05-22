@@ -448,6 +448,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
+      cost_center: header.cost_center,
       documentName: filedata.map((r) => r.documentName),
       component: mainData[0].component.value ?? mainData[0].component,
       consCompcomponents: bomList.map((r) => r.key),
