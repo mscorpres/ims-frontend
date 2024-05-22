@@ -155,6 +155,7 @@ const SalesOrderForm = () => {
         if (locationType === "client") {
           form.setFieldValue("gstin", details.gst);
           form.setFieldValue("clientaddress", address);
+          form.setFieldValue("shipPan", details.panNo);
         } else if (locationType === "shipaddressid") {
           form.setFieldValue("shipPan", details.panNo);
           form.setFieldValue("shipGST", details.gst);
@@ -459,6 +460,7 @@ const SalesOrderForm = () => {
         form.setFieldValue("shipGST", gst);
         form.setFieldValue("shipaddress", address);
         form.setFieldValue("shipaddressid", client.label);
+        form.setFieldValue("shipaddressid", client.label);
       } else {
         toast.info("Please Fill in the client details.");
         // setCopyInfo(false);
@@ -579,6 +581,7 @@ const SalesOrderForm = () => {
                               size="default"
                               options={vendorDetailsOptions}
                             />
+                            {/* <Input value="Customer" /> */}
                           </Form.Item>
                         </Col>
                         {/* vendor name */}
@@ -596,7 +599,7 @@ const SalesOrderForm = () => {
                                   width: 350,
                                 }}
                               >
-                                Client Name
+                                Name
                                 <span
                                   onClick={() => setShowAddVendorModal(true)}
                                   style={{
@@ -634,7 +637,7 @@ const SalesOrderForm = () => {
                                   cursor: "pointer",
                                 }}
                               >
-                                Client Branch
+                                Branch
                                 <span
                                   onClick={() => {
                                     client

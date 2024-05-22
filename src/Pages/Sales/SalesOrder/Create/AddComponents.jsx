@@ -554,7 +554,11 @@ export default function AddComponents({
           loading("select")
         ),
     },
-
+    {
+      headerName: "Item Description",
+      width: 250,
+      renderCell: (params) => itemDescriptionCell(params, inputHandler),
+    },
     {
       headerName: "Ord. Qty",
       field: "qty",
@@ -569,7 +573,13 @@ export default function AddComponents({
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
-
+    {
+      headerName: "GST Type",
+      width: 150,
+      field: "gsttype",
+      sortable: false,
+      renderCell: (params) => gstTypeCell(params, inputHandler),
+    },
     {
       headerName: "Local Value",
       width: 150,
@@ -584,27 +594,7 @@ export default function AddComponents({
       sortable: false,
       renderCell: (params) => foreignCell(params),
     },
-    {
-      headerName: "Due Date",
-      width: 150,
-      field: "duedate",
-      sortable: false,
-      renderCell: (params) => invoiceDateCell(params, inputHandler), //ask
-    },
-    {
-      headerName: "HSN Code",
-      width: 150,
-      field: "hsncode",
-      sortable: false,
-      renderCell: (params) => HSNCell(params, inputHandler),
-    },
-    {
-      headerName: "GST Type",
-      width: 150,
-      field: "gsttype",
-      sortable: false,
-      renderCell: (params) => gstTypeCell(params, inputHandler),
-    },
+
     {
       headerName: "GST Rate",
       headerName: "GST RATE",
@@ -634,11 +624,19 @@ export default function AddComponents({
       sortable: false,
       renderCell: (params) => IGSTCell(params, inputHandler),
     },
-
     {
-      headerName: "Item Description",
-      width: 250,
-      renderCell: (params) => itemDescriptionCell(params, inputHandler),
+      headerName: "Due Date",
+      width: 150,
+      field: "duedate",
+      sortable: false,
+      renderCell: (params) => invoiceDateCell(params, inputHandler), //ask
+    },
+    {
+      headerName: "HSN Code",
+      width: 150,
+      field: "hsncode",
+      sortable: false,
+      renderCell: (params) => HSNCell(params, inputHandler),
     },
   ];
   useEffect(() => {
@@ -790,7 +788,7 @@ export default function AddComponents({
                           window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                       }}
                     >
-                      {newPurchaseOrder?.gstin}
+                      {newdata?.gstin}
                     </Typography.Text>
                   </Col>
                 </Row>
