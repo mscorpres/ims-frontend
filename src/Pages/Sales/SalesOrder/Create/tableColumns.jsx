@@ -25,7 +25,7 @@ export const componentSelect = (
     }}
     labelInValue
     styles={{ width: "100%" }}
-    loadOptions={loadOptions}
+    loadOptions={(search) => loadOptions(search, row?.type)}
     optionsState={asyncOptions}
   />
 );

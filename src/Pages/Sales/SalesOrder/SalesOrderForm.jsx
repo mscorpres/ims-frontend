@@ -64,6 +64,7 @@ const SalesOrderForm = () => {
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
+      type: "product",
       index: 1,
       currency: "364907247",
       exchange_rate: 1,
@@ -484,7 +485,6 @@ const SalesOrderForm = () => {
       >
         <p>Are you sure to reset details of this Sales Order?</p>
       </Modal>
-
       <CreateCostModal
         showAddCostModal={showAddCostModal}
         setShowAddCostModal={setShowAddCostModal}
@@ -527,35 +527,6 @@ const SalesOrderForm = () => {
 
                   <Row>
                     <Col span={4}>
-                      <Descriptions size="small" title="SO Type">
-                        <Descriptions.Item
-                          contentStyle={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                          }}
-                        >
-                          Provide Sales Order type as in
-                          <br /> (New Or Supplementary)
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Col>
-                    <Col span={20}>
-                      <Row gutter={16}>
-                        {/* SO type */}
-                        <Col span={6}>
-                          <Form.Item
-                            name="pocreatetype"
-                            label="SO Type"
-                            rules={rules.pocreatetype}
-                          >
-                            <MySelect options={POoption} />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                  <Divider />
-                  <Row>
-                    <Col span={4}>
                       <Descriptions size="small" title="Client Details">
                         <Descriptions.Item
                           contentStyle={{
@@ -571,7 +542,7 @@ const SalesOrderForm = () => {
                       {loading("clientLoading") && <Loading />}
                       <Row gutter={16}>
                         {/* vendor type */}
-                        <Col span={6}>
+                        {/* <Col span={6}>
                           <Form.Item
                             name="vendortype"
                             label="Client Type"
@@ -583,7 +554,7 @@ const SalesOrderForm = () => {
                             />
                             {/* <Input value="Customer" /> */}
                           </Form.Item>
-                        </Col>
+                        </Col> */}
                         {/* vendor name */}
                         <Col span={6}>
                           <Form.Item
@@ -1218,10 +1189,5 @@ const initialValues = {
   project_name: "",
   original_po: "",
 };
-
-const POoption = [
-  { text: "Product", value: "product" },
-  { text: "Component", value: "component" },
-];
 
 const vendorDetailsOptions = [{ text: "Customer", value: "c01" }];
