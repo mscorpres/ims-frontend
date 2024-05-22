@@ -551,7 +551,7 @@ const SalesOrderForm = () => {
                            
                             {/* <Input value="Customer" /> */}
                         {/* </Form.Item> */}
-                        {/* </Col> */} */}
+                        {/* </Col> */} 
                         {/* vendor name */}
                         <Col span={6}>
                           <Form.Item
