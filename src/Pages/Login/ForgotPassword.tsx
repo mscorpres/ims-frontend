@@ -116,7 +116,7 @@ const ForgotPassword = (props: PropTypes) => {
                 name="password"
                 label="Password"
               >
-                <Input type="password" />
+                <Input.Password type="password" />
               </Form.Item>
               <Form.Item
                 rules={[
@@ -139,7 +139,7 @@ const ForgotPassword = (props: PropTypes) => {
                 name="password2"
                 label="Confirm Password"
               >
-                <Input type="password" />
+                <Input.Password type="password" />
               </Form.Item>
               <Card size="small">
                 <Flex justify="space-between" align="top">

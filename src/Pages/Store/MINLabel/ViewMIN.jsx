@@ -248,7 +248,7 @@ const consuptionColumns = [
   },
   {
     headerName: "Cat PartCode",
-    field: "catPartCodeate",
+    field: "catPartCode",
   },
   {
     headerName: "Qty",
