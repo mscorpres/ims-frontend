@@ -1,4 +1,5 @@
 import { imsAxios } from "../../axiosInterceptor";
+import { downloadCSV } from "../../Components/exportToCSV";
 import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
@@ -161,10 +162,15 @@ export const downloadConsumptionList = async (minId, columns) => {
       catPartCode: row.catPartCode,
       qty: row.qty,
       uom: row.uom,
+      date: row.date,
+      partName: row.partName,
+      invNo: row.invNo,
+      jwID: row.jwID,
     }));
 
     response.data = arr;
-    downloadCSV(arr, col, "MIN Consumption List");
+    downloadCSV(arr, columns, "MIN Consumption List");
+    return response;
   }
 };
 
