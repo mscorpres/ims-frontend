@@ -37,6 +37,28 @@ function ProductionMIS() {
 
   const handleCreateEntry = async () => {
     const values = await misForm.validateFields();
+    console.log("values", values);
+    const arr = values.shifts.map((row) => {
+      // work timing
+      let obj = row.workingHours;
+
+      let diff = obj[1].diff(obj[0], "m");
+      if (diff < 0) {
+        diff = 24 * 60 + diff;
+      }
+
+      let workObj = row.shiftStart;
+
+      let workDdiff = workObj[1].diff(workObj[0], "m");
+      if (workDdiff < 0) {
+        workDdiff = 24 + workDdiff;
+      }
+      const final = `${Math.floor((workDdiff - diff) / 60)}:${
+        (workDdiff - diff) % 60
+      }`;
+    });
+
+    return;
     const response = await executeFun(() => createEntry(values), "submit");
     if (response.success) {
       resetHandler();
@@ -146,55 +168,55 @@ const initialValues = {
 const rules = {
   department: [
     {
-      required: true,
+      required: false,
       message: "Department is required",
     },
   ],
   product: [
     {
-      required: true,
+      required: false,
       message: "Product is required",
     },
   ],
   manPower: [
     {
-      required: true,
+      required: false,
       message: "ManPower is required",
     },
   ],
   lineCount: [
     {
-      required: true,
+      required: false,
       message: "Line Count is required",
     },
   ],
   output: [
     {
-      required: true,
+      required: false,
       message: "Output is required",
     },
   ],
   date: [
     {
-      required: true,
+      required: false,
       message: "Date is required",
     },
   ],
   shiftStart: [
     {
-      required: true,
+      required: false,
       message: "Shift Start is required",
     },
   ],
   shiftEnd: [
     {
-      required: true,
+      required: false,
       message: "Shift End is required",
     },
   ],
   workingHours: [
     {
-      required: true,
+      required: false,
       message: "Working Hours is required",
     },
   ],

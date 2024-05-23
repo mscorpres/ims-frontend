@@ -14,6 +14,8 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import MyButton from "../../../Components/MyButton";
+import { useEffect } from "react";
+import dayjs from "dayjs";
 
 export default function SingleProduct({
   index,
@@ -27,7 +29,50 @@ export default function SingleProduct({
   loading,
   rules,
 }) {
-  const format = "HH:mm";
+  const format = "HH";
+  const workingHours = Form.useWatch(["shifts", field.name, "shiftStart"]);
+  const workingTimings = Form.useWatch([
+    "shifts",
+    field.name,
+    "workingTimings",
+  ]);
+
+  useEffect(() => {
+    if (
+      workingHours?.length > 0 &&
+      (workingTimings?.length === 0 || !workingTimings)
+    ) {
+      console.log("here is", workingHours);
+      form.setFieldValue(
+        ["shifts", field.name, "workingTimings"],
+        workingHours
+      );
+    }
+    if (workingHours?.length === 2 && workingTimings?.length === 2) {
+      // work timing
+      let obj = workingTimings;
+
+      let diff = obj[1].diff(obj[0], "m");
+      if (diff < 0) {
+        diff = 24 * 60 + diff;
+      }
+
+      let workObj = workingHours;
+
+      let workDdiff = workObj[1].diff(workObj[0], "m");
+      if (workDdiff < 0) {
+        workDdiff = 24 + workDdiff;
+      }
+      const final = `${Math.floor((workDdiff - diff) / 60)}:${
+        (workDdiff - diff) % 60
+      }`;
+
+      form.setFieldValue(
+        ["shifts", field.name, "overTime"],
+        dayjs(final, "HH:mm")
+      );
+    }
+  }, [workingHours, workingTimings]);
   return (
     <Card size="small" style={{ marginBottom: 5 }}>
       <Flex gap={5} wrap="wrap" justify="space-bewteen">
@@ -59,7 +104,15 @@ export default function SingleProduct({
         </Form.Item>
         <Form.Item
           style={{ width: 100 }}
-          label="Line Count"
+          label="Line No."
+          name={[field.name, "lineCount"]}
+          rules={rules.lineCount}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          style={{ width: 100 }}
+          label="Shift"
           name={[field.name, "lineCount"]}
           rules={rules.lineCount}
         >
@@ -81,30 +134,32 @@ export default function SingleProduct({
             }
           />
         </Form.Item>
-        <Form.Item
-          label="Shift Starts"
-          name={[field.name, "shiftStart"]}
-          rules={rules.shiftStart}
-        >
-          <TimePicker format={format} />
-        </Form.Item>
-        <Form.Item
-          label="Shift End"
-          name={[field.name, "shiftEnd"]}
-          rules={rules.shiftEnd}
-        >
-          <TimePicker format={format} />
-        </Form.Item>
+        <div style={{ width: 150 }}>
+          <Form.Item
+            label="Shift Hours"
+            name={[field.name, "shiftStart"]}
+            rules={rules.shiftStart}
+          >
+            <TimePicker.RangePicker format={"HH:mm"} />
+          </Form.Item>
+        </div>
+
+        <div style={{ width: 150 }}>
+          <Form.Item
+            label="Work Timing"
+            name={[field.name, "workingTimings"]}
+            rules={rules.workingHoursHours}
+          >
+            <TimePicker.RangePicker
+              order={false}
+              format={format}
+              showNow={false}
+            />
+            {/* <InputNumber /> */}
+          </Form.Item>
+        </div>
         <Form.Item label="Over Time" name={[field.name, "overTime"]}>
-          <TimePicker format={format} />
-          {/* <InputNumber /> */}
-        </Form.Item>
-        <Form.Item
-          label="Working Hours"
-          name={[field.name, "workingHours"]}
-          rules={rules.workingHoursHours}
-        >
-          <TimePicker format={format} />
+          <TimePicker format={"HH:mm"} />
           {/* <InputNumber /> */}
         </Form.Item>
         <Form.Item
