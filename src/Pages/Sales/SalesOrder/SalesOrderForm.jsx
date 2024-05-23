@@ -91,6 +91,7 @@ const SalesOrderForm = () => {
   const [showAddVendorModal, setShowAddVendorModal] = useState(false);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
+  const [fileupload, setFileUpload] = useState("table");
   const [pageLoading, setPageLoading] = useState(false);
   const [copyinfo, setCopyInfo] = useState("");
   const [form] = Form.useForm();
@@ -102,7 +103,6 @@ const SalesOrderForm = () => {
   const shipaddressid = Form.useWatch("shipaddressid", form);
   const fetchQty = form.getFieldValue("qty");
 
-  // console.log("fetchQty", fetchQty, shipaddressid);
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
   const toggleInputType = (checked) => {
@@ -156,7 +156,7 @@ const SalesOrderForm = () => {
         if (locationType === "client") {
           form.setFieldValue("gstin", details.gst);
           form.setFieldValue("clientaddress", address);
-          form.setFieldValue("shipPan", details.panNo);
+          form.setFieldValue("clientPan", details.panNo);
         } else if (locationType === "shipaddressid") {
           form.setFieldValue("shipPan", details.panNo);
           form.setFieldValue("shipGST", details.gst);
@@ -254,10 +254,9 @@ const SalesOrderForm = () => {
     );
 
     if (response.success) {
-      const { bill, materials, ship, client } = response.data.data;
+      const { bill, materials, ship, client } = response.data;
       handleProjectChange(client[0].projectname);
       const obj = {
-        pocreatetype: client[0].soType_value,
         client: client[0].clientcode,
         vendortype: "c01",
         clientbranch: client[0].clientbranch,
@@ -284,6 +283,8 @@ const SalesOrderForm = () => {
       };
       const arr = materials.map((row, index) => ({
         id: { v4 },
+        // pocreatetype: client[0].soType_value,
+        type: row.so_type.value,
         updateRow: row.updateid,
         index: index + 1,
         currency: row.currency,
@@ -326,31 +327,31 @@ const SalesOrderForm = () => {
   const validateSales = async () => {
     setSelectLoading(true);
     const values = await form.validateFields();
-
     const payload = {
       headers: {
-        so_id: orderId?.replaceAll("_", "/"),
         bill_id: values.billaddressid,
         billing_address: values.billaddress,
         comment: values.po_comment,
         cost_center: values.pocostcenter?.value ?? values.pocostcenter,
-        due_day: values.paymenttermsday,
         customer_address: values.clientaddress,
         customer_branch: values.clientbranch.value,
+        customer_gstin: values.gstin,
         customer: values.client.value,
         delivery_term: values.termscondition,
+        due_day: values.paymenttermsday,
         payment_term: values.paymentterms,
         project: values.project_name?.value ?? values.project_name,
-        so_type: values.pocreatetype,
-        shipping_address: values.shipaddress,
-        shipping_id: values.shipaddressid,
-        terms_condition: values.termscondition,
         quotation_detail: values.quotationdetail,
-        customer_gstin: values.gstin,
-        shipping_pan: values.shipPan,
+        shipping_address: values.shipaddress,
         shipping_gstin: values.shipGST,
+        shipping_id: values.shipaddressid,
+        shipping_pan: values.shipPan,
+        so_id: orderId?.replaceAll("_", "/"),
+        // so_type: values.pocreatetype,
+        terms_condition: values.termscondition,
       },
       materials: {
+        so_type: rowCount.map((component) => component.type),
         items: rowCount.map((component) => component.component.value),
         updaterow: rowCount.map((component) => component.updateRow ?? 0),
         currency: rowCount.map((component) => component.currency),
@@ -376,6 +377,11 @@ const SalesOrderForm = () => {
       if (response.success) {
         setActiveTab("1");
         form.resetFields();
+        navigate(`/sales/order/register`);
+      } else {
+        console.log("response.message", response);
+        setConfirmSubmit(false);
+        toast.error(data.message.msg);
       }
       setConfirmSubmit(false);
     } else {
@@ -391,8 +397,8 @@ const SalesOrderForm = () => {
         toast.success(response.message.msg);
       } else {
         // console.log("response.data", response.data);
-        toast.error(response.data.message);
-        setConfirmSubmit(false);
+        // setConfirmSubmit(false);
+        toast.error(response.message.msg);
 
         setSelectLoading(false);
       }
@@ -413,6 +419,40 @@ const SalesOrderForm = () => {
 
   const nextFun = () => {
     setActiveTab("2");
+  };
+  const callFileUpload = async () => {
+    const values = await form.validateFields();
+    const formData = new FormData();
+    formData.append("file", values.files[0].originFileObj);
+    const response = await imsAxios.post(
+      "/sellRequest/uploadSOItems",
+      formData
+    );
+    let { data } = response;
+    if (response.success) {
+      const arr = data.map((row, index) => ({
+        id: { v4 },
+        // pocreatetype: client[0].soType_value,
+        type: row.item_type,
+        // currency: "364907247",
+        index: index + 1,
+
+        component: {
+          label: row.item?.text,
+          value: row.item?.value,
+        },
+        qty: row.qty,
+        rate: row.rate,
+        remark: row.item_desc,
+
+        duedate: row.due_date, //this
+        gsttype: row.gst_type, //this
+        gstrate: row.gst_rate,
+      }));
+      setRowCount(arr);
+    } else {
+      toast.error(response.message);
+    }
   };
   useEffect(() => {
     if (showAddVendorModal === true) {
@@ -454,11 +494,13 @@ const SalesOrderForm = () => {
     if (copyinfo) {
       let gst = form.getFieldValue("gstin");
       let address = form.getFieldValue("clientaddress");
+      let pan = form.getFieldValue("clientPan");
 
       // console.log("gst", gst, client);
       if (client) {
         // form.setFieldValue("shipPan", details.panNo);
         form.setFieldValue("shipGST", gst);
+        form.setFieldValue("shipPan", pan);
         form.setFieldValue("shipaddress", address);
         form.setFieldValue("shipaddressid", client.label);
         form.setFieldValue("shipaddressid", client.label);
@@ -551,7 +593,7 @@ const SalesOrderForm = () => {
                            
                             {/* <Input value="Customer" /> */}
                         {/* </Form.Item> */}
-                        {/* </Col> */} 
+                        {/* </Col> */}
                         {/* vendor name */}
                         <Col span={6}>
                           <Form.Item
@@ -1005,6 +1047,9 @@ const SalesOrderForm = () => {
                     iscomponents={iscomponents}
                     setConfirmSubmit={setConfirmSubmit}
                     confirmSubmit={confirmSubmit}
+                    fileupload={fileupload}
+                    setFileUpload={setFileUpload}
+                    callFileUpload={callFileUpload}
                   />
                 </div>
               </Tabs.TabPane>
@@ -1016,6 +1061,7 @@ const SalesOrderForm = () => {
         setBranchAddOpen={setShowBranchModal}
         branchAddOpen={showBranchModal}
       />
+
       {successData && (
         <SuccessPage
           resetFunction={resetFunction}

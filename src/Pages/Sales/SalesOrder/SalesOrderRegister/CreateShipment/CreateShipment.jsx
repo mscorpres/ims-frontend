@@ -223,7 +223,6 @@ function CreateShipment({
   const getShipmentForUpdate = async (id) => {
     // console.log("id", id);
     const response = await executeFun(() => getUpdateShipmentDetails(id));
-    // console.log("response", response);
     if (response.success) {
       const {
         client,

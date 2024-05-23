@@ -18,6 +18,7 @@ export const getOrderDetails = async (orderId) => {
 };
 
 export const createOrder = async (payload) => {
+  console.log("payload", payload);
   const response = await imsAxios.post(
     "/sellRequest/createSellRequest",
     payload

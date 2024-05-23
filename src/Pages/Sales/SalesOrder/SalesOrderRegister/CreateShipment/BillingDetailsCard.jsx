@@ -6,12 +6,12 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
   console.log("details=>", details);
   return (
     <Card size="small" title="Billing Details (as per the sales order)">
-      <Row gutter={[0, 6]}>
+      {/* <Row gutter={[0, 6]}>
         {details.billing?.cin && (
           <Col span={24}>
             <Row>
               <Col span={24}>
-                <Typography.Text strong>Billing CIN</Typography.Text>
+                <Typography.Text strong>CIN</Typography.Text>
               </Col>
               <Col span={24}>
                 <Typography.Text>{details.billing?.cin}</Typography.Text>
@@ -24,7 +24,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
           <Col span={24}>
             <Row>
               <Col span={24}>
-                <Typography.Text strong>Billing PAN</Typography.Text>
+                <Typography.Text strong>PAN</Typography.Text>
               </Col>
               <Col span={24}>
                 <Typography.Text>{details.billing?.pan}</Typography.Text>
@@ -56,7 +56,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
             </Row>
           </Col>
         )}
-      </Row>
+      </Row> */}
       {updateShipmentRow ? (
         <>
           <Row gutter={[0, 6]}>
@@ -64,7 +64,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing CIN</Typography.Text>
+                    <Typography.Text strong>CIN</Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -79,7 +79,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing PAN</Typography.Text>
+                    <Typography.Text strong>PAN</Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -93,7 +93,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing GST Number</Typography.Text>
+                    <Typography.Text strong>GST Number</Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
@@ -107,7 +107,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing Address </Typography.Text>
+                    <Typography.Text strong>Address </Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>{details.address}</Typography.Text>
@@ -124,7 +124,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing CIN</Typography.Text>
+                    <Typography.Text strong>CIN</Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>{details.billing?.cin}</Typography.Text>
@@ -137,7 +137,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing PAN</Typography.Text>
+                    <Typography.Text strong>PAN</Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>{details.billing?.pan}</Typography.Text>
@@ -149,7 +149,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing GST Number</Typography.Text>
+                    <Typography.Text strong>GST Number</Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>{details.billing?.gst}</Typography.Text>
@@ -161,7 +161,7 @@ const BillingInfo = ({ details, updateShipmentRow }) => {
               <Col span={24}>
                 <Row>
                   <Col span={24}>
-                    <Typography.Text strong>Billing Address </Typography.Text>
+                    <Typography.Text strong>Address </Typography.Text>
                   </Col>
                   <Col span={24}>
                     <Typography.Text>
