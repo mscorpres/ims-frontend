@@ -55,3 +55,11 @@ export const convertToNumber = (debitString: string) => {
 
   return +Number(debitNumber).toFixed(2);
 };
+
+export const getStringDate = (type: "month") => {
+  if (type === "month") {
+    return `${dayjs().startOf("month").format("DD-MM-YYYY")}-${dayjs().format(
+      "DD-MM-YYYY"
+    )}`;
+  }
+};

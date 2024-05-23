@@ -13,16 +13,17 @@ const MyDatePicker = ({ format = "DD-MM-YYYY", value, setDateRange, size }) => {
     }
   }, []);
   useEffect(() => {
-    if (value === "") {
-      setTimeout(() => {
+    setTimeout(() => {
+      if (value === "") {
+        console.log("it is coming here");
         const formatted = getDateFormatted([
           dayjs().subtract(89, "d"),
           dayjs(),
         ]);
 
         setDateRange(formatted);
-      }, 200);
-    }
+      }
+    }, 1000);
   });
   return (
     <DatePicker.RangePicker

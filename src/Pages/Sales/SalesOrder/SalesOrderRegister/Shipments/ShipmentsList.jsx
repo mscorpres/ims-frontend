@@ -18,13 +18,16 @@ import { CommonIcons } from "../../../../../Components/TableActions.jsx/TableAct
 import { toast } from "react-toastify";
 import MySelect from "../../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
-import { convertSelectOptions } from "../../../../../utils/general.ts";
+import {
+  convertSelectOptions,
+  getStringDate,
+} from "../../../../../utils/general.ts";
 import { getClientsOptions } from "../../../../../api/finance/clients";
 import MyButton from "../../../../../Components/MyButton";
 
 const initialValues = {
-  data: "",
-  wise: "clientwise",
+  data: getStringDate("month"),
+  wise: "datewise",
 };
 
 const wiseOptions = [
@@ -59,6 +62,7 @@ function ShipmentsList() {
   const [ModalForm] = Form.useForm();
   const [filterForm] = Form.useForm();
   const wise = Form.useWatch("wise", filterForm);
+  const selectedData = Form.useWatch("data", filterForm);
 
   const getRows = async () => {
     const values = await filterForm.validateFields();
@@ -268,6 +272,8 @@ function ShipmentsList() {
   useEffect(() => {
     if (wise === "so_id_wise" || wise === "clientwise") {
       filterForm.setFieldValue("data", "");
+    } else if (wise === "datewise") {
+      filterForm.setFieldValue("data", getStringDate("month"));
     }
   }, [wise]);
 
@@ -294,7 +300,7 @@ function ShipmentsList() {
                   : "Sales Order ID Wise"
               }
             >
-              {wise === "datewise" && (
+              {wise === "datewise" && selectedData !== "" && (
                 <MyDatePicker
                   setDateRange={(value) =>
                     filterForm.setFieldValue("data", value)

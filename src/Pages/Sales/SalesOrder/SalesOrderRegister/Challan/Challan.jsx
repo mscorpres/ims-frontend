@@ -12,7 +12,10 @@ import ChallanDetails from "./ChallanDetails";
 import MySelect from "../../../../../Components/MySelect";
 import MyButton from "../../../../../Components/MyButton";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
-import { convertSelectOptions } from "../../../../../utils/general.ts";
+import {
+  convertSelectOptions,
+  getStringDate,
+} from "../../../../../utils/general.ts";
 import { imsAxios } from "../../../../../axiosInterceptor.tsx";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
@@ -34,8 +37,8 @@ const wiseOptions = [
 ];
 
 const initialValues = {
-  data: "",
-  wise: "clientwise",
+  data: getStringDate("month"),
+  wise: "datewise",
 };
 
 const rules = {
@@ -60,6 +63,7 @@ function Challan() {
   const [filterForm] = Form.useForm();
   const [ModalForm] = Form.useForm();
   const wise = Form.useWatch("wise", filterForm);
+  const selectedData = Form.useWatch("data", filterForm);
 
   const { executeFun, loading } = useApi();
 
@@ -207,7 +211,7 @@ function Challan() {
               rules={rules.data}
               label={wise === "datewise" ? "Period" : "Client"}
             >
-              {wise === "datewise" && (
+              {wise === "datewise" && selectedData !== "" && (
                 <MyDatePicker
                   setDateRange={(value) =>
                     filterForm.setFieldValue("data", value)

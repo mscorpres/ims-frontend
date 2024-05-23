@@ -19,6 +19,8 @@ import { toast } from "react-toastify";
 import printFunction from "../../../../Components/printFunction";
 import CreateShipment from "./CreateShipment/CreateShipment";
 import MyButton from "../../../../Components/MyButton";
+import dayjs from "dayjs";
+import { getStringDate } from "../../../../utils/general.ts";
 function SalesORderRegister() {
   // const [loading, setLoading] = useState(false);
   const [componentList, setComponentList] = useState(false);
@@ -27,7 +29,11 @@ function SalesORderRegister() {
   const [rows, setRows] = useState([]);
   const [modalVals, setModalVals] = useState([]);
   const [wise, setWise] = useState("DATE");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(
+    `${dayjs().startOf("month").format("DD-MM-YYYY")}-${dayjs().format(
+      "DD-MM-YYYY"
+    )}`
+  );
   const [cancelRowSelected, setCancelRowSelected] = useState([]);
   const [openShipmentList, setOpenShipmentList] = useState("false");
   const [form] = Form.useForm();
@@ -245,7 +251,10 @@ function SalesORderRegister() {
   };
   useEffect(() => {
     if (wise !== "DATE") {
-      setSearchTerm("");
+      // const arr = [dayjs().startOf("month"), dayjs()]
+      setSearchTerm(``);
+    } else {
+      setSearchTerm(getStringDate("month"));
     }
   }, [wise]);
   useEffect(() => {
@@ -311,7 +320,7 @@ function SalesORderRegister() {
                     />
                   </div>
                   <Col>
-                    {wise == "DATE" && (
+                    {wise == "DATE" && searchTerm !== "" && (
                       <MyDatePicker
                         setDateRange={setSearchTerm}
                         value={searchTerm}
