@@ -90,7 +90,7 @@ function PIAScan() {
       scan.setFieldValue(
         "components",
         components.map((row) => {
-          if (row.label === boxLabel) {
+          if (row.label === boxLabel && row["MIN ID"] === minId) {
             return {
               ...row,
               availabelQty: response.data.availabelQty,
