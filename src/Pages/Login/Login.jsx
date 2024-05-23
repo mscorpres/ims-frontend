@@ -71,21 +71,21 @@ const Login = () => {
       if (success) {
         console.log("this is the login data", data);
         const obj = {
-          email: data.crn_email,
-          phone: data.crn_mobile,
-          userName: data.username,
-          token: data.token,
-          favPages: JSON.parse(data.fav_pages),
-          type: data.crn_type,
-          mobileConfirmed: data.other.m_v,
-          emailConfirmed: data.other.e_v,
-          passwordChanged: data.other.c_p ?? "C",
+          email: data.data.crn_email,
+          phone: data.data.crn_mobile,
+          userName: data.data.username,
+          token: data.data.token,
+          favPages: JSON.parse(data.data.fav_pages),
+          type: data.data.crn_type,
+          mobileConfirmed: data.data.other.m_v,
+          emailConfirmed: data.data.other.e_v,
+          passwordChanged: data.data.other.c_p ?? "C",
           company_branch: JSON.parse(localStorage.getItem("otherData"))
             ?.company_branch,
           currentLink: JSON.parse(localStorage.getItem("otherData"))
             ?.currentLink,
-          id: data.crn_id,
-          showlegal: data.department === "legal" ? true : false,
+          id: data.data.crn_id,
+          showlegal: data.data.department === "legal" ? true : false,
           session: "24-25",
           company_branch: "BRMSC012",
         };
