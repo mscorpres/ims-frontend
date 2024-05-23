@@ -20,7 +20,17 @@ import {
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import FormTable from "../../../../Components/FormTable";
-import { Button, Card, Col, Modal, Row, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Modal,
+  Radio,
+  Row,
+  Switch,
+  Typography,
+} from "antd";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
 import CurrenceModal from "./CurrenceModal";
@@ -31,7 +41,12 @@ import {
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import MySelect from "../../../../Components/MySelect.jsx";
+import MyButton from "../../../../Components/MyButton/index.jsx";
+import UploadFile from "../../../Master/Bom/CreateBom/UploadFile.jsx";
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 const POoption = [
   { text: "Product", value: "product" },
   { text: "Component", value: "component" },
@@ -51,6 +66,9 @@ export default function AddComponents({
   confirmSubmit,
   submitLoading,
   setConfirmSubmit,
+  fileupload,
+  setFileUpload,
+  callFileUpload,
 }) {
   const [currencies, setCurrencies] = useState([]);
   // const [selectLoading, setSelectLoading] = useState(false);
@@ -61,7 +79,19 @@ export default function AddComponents({
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const newdata = form.getFieldsValue();
-
+  console.log("rowCount", rowCount);
+  const sampleData = [
+    {
+      TYPE: "P",
+      ITEM_CODE: "15705",
+      ITEM_DESC: "item 1",
+      QTY: "100",
+      RATE: "10",
+      GST_TYPE: "I",
+      GST_RATE: "18",
+      DUE_DATE: "20-05-2024",
+    },
+  ];
   const { executeFun, loading } = useApi();
   const addRows = () => {
     const newRow = {
@@ -542,6 +572,11 @@ export default function AddComponents({
     ];
     setTotalValues(obj);
   }, [rowCount, rowCount.qty]);
+  //file upload status
+  const toggleInputType = (e) => {
+    setFileUpload(e.target.value);
+  };
+
   //getting currencies on page load
   const getCurrencies = async () => {
     const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
@@ -561,12 +596,12 @@ export default function AddComponents({
       width: 40,
       field: "add",
       sortable: false,
-      renderCell: ({ row }) =>
+      renderCell: ({ params }) =>
         rowCount.length > 1 && (
           <CommonIcons
             action="removeRow"
-            value={params.row.type}
-            onClick={() => removeRows(row?.id)}
+            value={params?.row.type}
+            onClick={() => removeRows(params)}
           />
         ),
       // sortable: false,
@@ -578,8 +613,8 @@ export default function AddComponents({
       renderCell: (params) => (
         <MySelect
           options={POoption}
-          value={params.row.type}
-          onChange={(value) => inputHandler("type", value, params.row.id)}
+          value={params?.row.type}
+          onChange={(value) => inputHandler("type", value, params?.row.id)}
         />
       ),
 
@@ -609,6 +644,7 @@ export default function AddComponents({
     },
     {
       headerName: "Item Description",
+
       width: 250,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
     },
@@ -627,12 +663,21 @@ export default function AddComponents({
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
     {
+      headerName: "GST Rate",
+      headerName: "GST RATE",
+      width: 100,
+      field: "gstrate",
+      sortable: false,
+      renderCell: (params) => gstRate(params, inputHandler),
+    },
+    {
       headerName: "GST Type",
       width: 150,
       field: "gsttype",
       sortable: false,
       renderCell: (params) => gstTypeCell(params, inputHandler),
     },
+
     {
       headerName: "Local Value",
       width: 150,
@@ -648,14 +693,6 @@ export default function AddComponents({
       renderCell: (params) => foreignCell(params),
     },
 
-    {
-      headerName: "GST Rate",
-      headerName: "GST RATE",
-      width: 100,
-      field: "gstrate",
-      sortable: false,
-      renderCell: (params) => gstRate(params, inputHandler),
-    },
     {
       headerName: "CGST",
       width: 150,
@@ -692,6 +729,7 @@ export default function AddComponents({
       renderCell: (params) => HSNCell(params, inputHandler),
     },
   ];
+
   useEffect(() => {
     getCurrencies();
   }, []);
@@ -772,8 +810,47 @@ export default function AddComponents({
       )}
       <Row style={{ height: "100%" }} gutter={8}>
         <Col style={{ height: "100%" }} span={6}>
-          <Row gutter={[0, 4]} style={{ height: "100%" }}>
+          <Row gutter={[0, 4]} style={{ height: "100%" }} justify="center">
             {/* vendor card */}
+
+            <Radio.Group
+              onChange={toggleInputType}
+              value={fileupload}
+              options={uploadTypeOptions}
+            />
+            <Col span={24}>
+              <Row>
+                <Col span={24}>
+                  {fileupload == "file" && (
+                    <Row
+                      justify="center"
+                      style={{ marginTop: 4, marginBottom: 5 }}
+                    >
+                      <Col span={24}>
+             
+                        <Col span={24}>
+                          <UploadFile />
+                        </Col>
+                      </Col>
+                      <Button
+                        type="link"
+                        onClick={() =>
+                          downloadCSVCustomColumns(
+                            sampleData,
+                            "Sales Order Sample"
+                          )
+                        }
+                      >
+                        Download Sample File
+                      </Button>
+                      <Button onClick={callFileUpload}>Upload</Button>
+                    </Row>
+                  )}
+                </Col>
+              </Row>
+            </Col>
+            {/* </Col> */}
+            {/* </r> */}
             <Col span={24} style={{ height: "50%" }}>
               <Card
                 style={{ height: "100%" }}
@@ -789,7 +866,7 @@ export default function AddComponents({
                       }}
                       level={5}
                     >
-                      Client Name
+                      Name
                     </Typography.Title>
 
                     <Typography.Text
@@ -809,7 +886,7 @@ export default function AddComponents({
                       }}
                       level={5}
                     >
-                      Client Address
+                      Address
                     </Typography.Title>
 
                     <Typography.Text
@@ -832,7 +909,7 @@ export default function AddComponents({
                       }}
                       level={5}
                     >
-                      Client GSTIN
+                      GSTIN
                     </Typography.Title>
 
                     <Typography.Text
@@ -930,3 +1007,13 @@ export default function AddComponents({
     </div>
   );
 }
+const uploadTypeOptions = [
+  {
+    label: "File",
+    value: "file",
+  },
+  {
+    label: "Manual",
+    value: "table",
+  },
+];

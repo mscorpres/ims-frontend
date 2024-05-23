@@ -12,7 +12,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
                 <Col span={24}>
                   <Row>
                     <Col span={24}>
-                      <Typography.Text strong>Shipping CIN</Typography.Text>
+                      <Typography.Text strong>CIN</Typography.Text>
                     </Col>
                     <Col span={24}>
                       <Typography.Text>
@@ -23,7 +23,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
                 </Col>
 
                 <Col span={24}>
-                  <Typography.Text strong>Shipping PAN</Typography.Text>
+                  <Typography.Text strong>PAN</Typography.Text>
                 </Col>
                 <Col span={24}>
                   <Typography.Text>
@@ -36,7 +36,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
             <Col span={24}>
               <Row>
                 <Col span={24}>
-                  <Typography.Text strong>Shipping GST Number</Typography.Text>
+                  <Typography.Text strong>GST Number</Typography.Text>
                 </Col>
                 <Col span={24}>
                   <Typography.Text>
@@ -49,7 +49,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
             <Col span={24}>
               <Row>
                 <Col span={24}>
-                  <Typography.Text strong>Shipping Address </Typography.Text>
+                  <Typography.Text strong>Address </Typography.Text>
                 </Col>
                 <Col span={24}>
                   <Typography.Text>
@@ -68,7 +68,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
                 <Col span={24}>
                   <Row>
                     <Col span={24}>
-                      <Typography.Text strong>Shipping CIN</Typography.Text>
+                      <Typography.Text strong>CIN</Typography.Text>
                     </Col>
                     <Col span={24}>
                       <Typography.Text>{details.shipping?.cin}</Typography.Text>
@@ -77,7 +77,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
                 </Col>
 
                 <Col span={24}>
-                  <Typography.Text strong>Shipping PAN</Typography.Text>
+                  <Typography.Text strong>PAN</Typography.Text>
                 </Col>
                 <Col span={24}>
                   <Typography.Text>{details.shipping?.pan}</Typography.Text>
@@ -88,7 +88,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
             <Col span={24}>
               <Row>
                 <Col span={24}>
-                  <Typography.Text strong>Shipping GST Number</Typography.Text>
+                  <Typography.Text strong>GST Number</Typography.Text>
                 </Col>
                 <Col span={24}>
                   <Typography.Text>{details.shipping?.gst}</Typography.Text>
@@ -99,7 +99,7 @@ const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
             <Col span={24}>
               <Row>
                 <Col span={24}>
-                  <Typography.Text strong>Shipping Address </Typography.Text>
+                  <Typography.Text strong>Address </Typography.Text>
                 </Col>
                 <Col span={24}>
                   <Typography.Text>{details.shipping?.address}</Typography.Text>

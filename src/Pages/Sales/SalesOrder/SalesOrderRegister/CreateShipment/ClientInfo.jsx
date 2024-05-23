@@ -5,7 +5,6 @@ const ClientInfo = ({ details }) => {
   return (
     <Card size="small" title="Client Details">
       <Row gutter={[0, 6]}>
-
         {(details.clientName || details.client) && (
           <Col span={24}>
             <Row>
@@ -25,7 +24,7 @@ const ClientInfo = ({ details }) => {
           <Col span={24}>
             <Row>
               <Col span={24}>
-                <Typography.Text strong>Client Branch </Typography.Text>
+                <Typography.Text strong>Branch </Typography.Text>
               </Col>
               <Col span={24}>
                 <Typography.Text>{details.clientBranch}</Typography.Text>
@@ -37,7 +36,7 @@ const ClientInfo = ({ details }) => {
           <Col span={24}>
             <Row>
               <Col span={24}>
-                <Typography.Text strong>Client Address </Typography.Text>
+                <Typography.Text strong>Address </Typography.Text>
               </Col>
               <Col span={24}>
                 <Typography.Text>{details.address}</Typography.Text>
@@ -45,7 +44,6 @@ const ClientInfo = ({ details }) => {
             </Row>
           </Col>
         )}
-
       </Row>
     </Card>
   );

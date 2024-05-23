@@ -49,7 +49,7 @@ function SalesORderRegister() {
     let arr = [];
 
     if (response.success) {
-      arr = response.data.data.map((row, index) => ({
+      arr = response.data.map((row, index) => ({
         id: index + 1,
         constCenter: row.cost_center,
         createdBy: row.create_by,
