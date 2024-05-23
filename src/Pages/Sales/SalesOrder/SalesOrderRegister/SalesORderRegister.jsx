@@ -113,8 +113,8 @@ function SalesORderRegister() {
       }
     );
     const { data } = response;
-    let arr = data.message;
-    if (data.code === 200) {
+    let arr = response.message;
+    if (response.success) {
       arr = arr.map((row, index) => ({
         id: index + 1,
         ...row,
@@ -212,6 +212,11 @@ function SalesORderRegister() {
       flex: 1,
       field: "item_code",
       renderCell: ({ row }) => <ToolTipEllipses text={row.item_code} />,
+    },
+    {
+      headerName: "Pending Qty",
+      flex: 1,
+      field: "pending_qty",
     },
     {
       headerName: "Qty",

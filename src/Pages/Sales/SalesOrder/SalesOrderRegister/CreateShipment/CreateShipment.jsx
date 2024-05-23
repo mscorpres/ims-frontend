@@ -120,7 +120,7 @@ function CreateShipment({
   const handleFetchDetails = async (orderId) => {
     const response = await executeFun(() => getOrderDetails(orderId), "fetch");
     if (response.success) {
-      const { client, bill, materials, ship } = response.data.data;
+      const { client, bill, materials, ship } = response.data;
       const detailsObj = {
         clientName: client[0].clientname,
         clientCode: client[0].clientcode.value,
