@@ -328,6 +328,7 @@ const SalesOrderForm = () => {
   const validateSales = async () => {
     setSelectLoading(true);
     const values = await form.validateFields();
+    console.log("values are here", values);
     const payload = {
       headers: {
         bill_id: values.billaddressid,
@@ -380,6 +381,7 @@ const SalesOrderForm = () => {
         form.resetFields();
         navigate(`/sales/order/register`);
       } else {
+        setConfirmSubmit(null);
         console.log("response.message", response);
         setConfirmSubmit(false);
         toast.error(data.message.msg);
@@ -395,15 +397,16 @@ const SalesOrderForm = () => {
         setUploadFile(false);
         setSelectLoading(false);
         setSelectLoading(false);
-        setConfirmSubmit(false);
+        setConfirmSubmit(null);
         toast.success(response.message.msg);
       } else {
         // console.log("response.data", response.data);
-        // setConfirmSubmit(false);
+        setConfirmSubmit(null);
         toast.error(response.message.msg);
 
         setSelectLoading(false);
       }
+      setConfirmSubmit(null);
     }
     setSelectLoading(false);
     setConfirmSubmit(false);
@@ -444,6 +447,7 @@ const SalesOrderForm = () => {
           value: row.item?.value,
         },
         qty: row.qty,
+        hsncode: row.hsn,
         rate: row.rate,
         remark: row.item_desc,
 
@@ -1132,7 +1136,7 @@ const rules = {
   client: [
     {
       required: true,
-      message: "Please Select a vendor Name!",
+      message: "Please Select a client Name!",
     },
   ],
   clientbranch: [

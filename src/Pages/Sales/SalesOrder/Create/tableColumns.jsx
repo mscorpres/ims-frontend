@@ -43,7 +43,7 @@ export const rateCell = ({ row }, inputHandler, currencies) => (
   <Input.Group compact>
     <Input
       size="default"
-      style={{ width: "65%", borderColor: row.approval && "red" }}
+      style={{ width: "65%" }}
       value={row.rate}
       onChange={(e) => inputHandler("rate", e.target.value, row.id)}
     />

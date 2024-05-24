@@ -92,6 +92,7 @@ export default function AddComponents({
       GST_TYPE: "I",
       GST_RATE: "18",
       DUE_DATE: "20-05-2024",
+      HSN: "123",
     },
   ];
   const { executeFun, loading } = useApi();
@@ -740,6 +741,10 @@ export default function AddComponents({
     },
   ];
 
+  // const openModal = async () => {
+  //   const values = await form.validateFields();
+  //   console.log("valus", values);
+  // };
   useEffect(() => {
     getCurrencies();
   }, []);
