@@ -422,6 +422,7 @@ function CreateShipment({
               CommonIcons={CommonIcons}
               getlocations={getlocations}
               loading={loading}
+              updateShipmentRow={updateShipmentRow}
             />
           </Col>
         </Row>
@@ -437,6 +438,7 @@ const Product = ({
   asyncOptions,
   getlocations,
   loading,
+  updateShipmentRow,
 }) => {
   return (
     <Card style={{ height: "100%" }} bodyStyle={{ height: "95%" }}>
@@ -444,7 +446,13 @@ const Product = ({
         removableRows={true}
         nonRemovableColumns={1}
         columns={[
-          ...productItems(getlocations, setAsyncOptions, asyncOptions, loading),
+          ...productItems(
+            getlocations,
+            setAsyncOptions,
+            asyncOptions,
+            loading,
+            updateShipmentRow
+          ),
         ]}
         listName="products"
         watchKeys={["rate", "qty", "gstRate", "exchangeRate", "currencySymbol"]}
@@ -477,207 +485,411 @@ const Product = ({
   );
 };
 
-const productItems = (getlocations, setAsyncOptions, asyncOptions, loading) => [
-  {
-    headerName: "#",
-    name: "",
-    width: 30,
-    field: (_, index) => (
-      <Typography.Text type="secondary">{index + 1}.</Typography.Text>
-    ),
-  },
-  {
-    headerName: "Products",
-    name: "product",
-    width: 250,
-    flex: true,
-    field: () => <Input disabled />,
-  },
+const productItems = (
+  getlocations,
+  setAsyncOptions,
+  asyncOptions,
+  loading,
+  updateShipmentRow
+) =>
+  updateShipmentRow
+    ? [
+        {
+          headerName: "#",
+          name: "",
+          width: 30,
+          field: (_, index) => (
+            <Typography.Text type="secondary">{index + 1}.</Typography.Text>
+          ),
+        },
+        {
+          headerName: "Products",
+          name: "product",
+          width: 250,
+          flex: true,
+          field: () => <Input disabled />,
+        },
 
-  {
-    headerName: "HSN Code",
-    name: "hsn",
-    width: 150,
-    field: () => <Input disabled={true} />,
-  },
-  {
-    headerName: "Ord. Qty",
-    name: "qty",
-    width: 100,
-    field: () => <Input />,
-  },
-  {
-    headerName: "Pending Qty",
-    name: "pendingqty",
-    width: 100,
-    field: () => <Input />,
-  },
-  {
-    headerName: "Rate",
-    name: "rate",
-    width: 100,
-    field: (row) => <Input />,
-    // field: (row) => (
-    //   <Input.Group compact>
-    //     <Input
-    //       size="default"
-    //       style={{ width: "65%", borderColor: row.approval && "red" }}
-    //       value={row.rate}
-    //       onChange={(e) => inputHandler("rate", e.target.value, row.id)}
-    //     />
-    //     <div style={{ width: "35%" }}>
-    //       <MySelect
-    //         options={currencies}
-    //         value={row.currency}
-    //         onChange={(value) => inputHandler("currency", value, row.id)}
-    //       />
-    //     </div>
-    //   </Input.Group>
-    // ),
-  },
+        {
+          headerName: "HSN Code",
+          name: "hsn",
+          width: 150,
+          field: () => <Input disabled={true} />,
+        },
+        {
+          headerName: "Ord. Qty",
+          name: "qty",
+          width: 100,
+          field: () => <Input />,
+        },
 
-  //   {
-  //     headerName: "Value",
-  //     name: "value",
-  //     width: 150,
-  //     field: () => <Input disabled />,
-  //   },
+        {
+          headerName: "Rate",
+          name: "rate",
+          width: 100,
+          field: (row) => <Input />,
+          // field: (row) => (
+          //   <Input.Group compact>
+          //     <Input
+          //       size="default"
+          //       style={{ width: "65%", borderColor: row.approval && "red" }}
+          //       value={row.rate}
+          //       onChange={(e) => inputHandler("rate", e.target.value, row.id)}
+          //     />
+          //     <div style={{ width: "35%" }}>
+          //       <MySelect
+          //         options={currencies}
+          //         value={row.currency}
+          //         onChange={(value) => inputHandler("currency", value, row.id)}
+          //       />
+          //     </div>
+          //   </Input.Group>
+          // ),
+        },
 
-  {
-    headerName: "Local Value",
-    width: 150,
-    name: "inrValue",
-    field: (row) => (
-      <Input
-        disabled={true}
-        // value={Number(row.inrValue).toFixed(2)}
-      />
-    ),
-  },
-  {
-    headerName: "Foreign Value",
-    width: 150,
-    name: "foreignValueCombined",
-    field: (row) => <Input disabled={true} />,
-  },
-  // {
-  //   headerName: "Foreign Value",
-  //   width: 150,
-  //   name: "usdValue",
-  //   field: (row) => (
-  //     <Input
-  //       size="default"
-  //       disabled={true}
-  //       value={
-  //         row?.currency == 364907247 ? 0 : Number(row?.foreginValue).toFixed(2)
-  //       }
-  //     />
-  //   ),
-  // },
+        //   {
+        //     headerName: "Value",
+        //     name: "value",
+        //     width: 150,
+        //     field: () => <Input disabled />,
+        //   },
 
-  {
-    headerName: "Due Date",
-    width: 150,
-    name: "dueDate",
-    field: (row) => (
-      <InputMask
-        disabled={true}
-        name="duedate"
-        value={row.duedate}
-        // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
-        className="date-text-input"
-        mask="99-99-9999"
-        placeholder="__-__-____"
-        style={{ textAlign: "center", borderRadius: 5, height: 30 }}
-        // defaultValue="01-09-2022"
-      />
-    ),
-  },
-  {
-    headerName: "GST Type",
-    width: 100,
-    name: "gstTypeLabel",
-    field: (row) => <Input disabled={true} />,
-  },
-  {
-    headerName: "GST %",
-    width: 100,
-    name: "gstRate",
-    field: (row) => <Input disabled={true} />,
-  },
-  {
-    headerName: "CGST",
-    width: 100,
-    name: "cgst",
-    field: (row) => <Input disabled={true} />,
-  },
-  {
-    headerName: "SGST",
-    width: 100,
-    name: "sgst",
-    field: (row) => <Input disabled={true} />,
-  },
-  {
-    headerName: "IGST",
-    width: 100,
-    name: "igst",
-    field: (row) => <Input disabled={true} />,
-  },
-  {
-    headerName: "Pick Location",
+        {
+          headerName: "Local Value",
+          width: 150,
+          name: "inrValue",
+          field: (row) => (
+            <Input
+              disabled={true}
+              // value={Number(row.inrValue).toFixed(2)}
+            />
+          ),
+        },
+        {
+          headerName: "Foreign Value",
+          width: 150,
+          name: "foreignValueCombined",
+          field: (row) => <Input disabled={true} />,
+        },
+        // {
+        //   headerName: "Foreign Value",
+        //   width: 150,
+        //   name: "usdValue",
+        //   field: (row) => (
+        //     <Input
+        //       size="default"
+        //       disabled={true}
+        //       value={
+        //         row?.currency == 364907247 ? 0 : Number(row?.foreginValue).toFixed(2)
+        //       }
+        //     />
+        //   ),
+        // },
 
-    width: 120,
+        {
+          headerName: "Due Date",
+          width: 150,
+          name: "dueDate",
+          field: (row) => (
+            <InputMask
+              disabled={true}
+              name="duedate"
+              value={row.duedate}
+              // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
+              className="date-text-input"
+              mask="99-99-9999"
+              placeholder="__-__-____"
+              style={{ textAlign: "center", borderRadius: 5, height: 30 }}
+              // defaultValue="01-09-2022"
+            />
+          ),
+        },
+        {
+          headerName: "GST Type",
+          width: 100,
+          name: "gstTypeLabel",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "GST %",
+          width: 100,
+          name: "gstRate",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "CGST",
+          width: 100,
+          name: "cgst",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "SGST",
+          width: 100,
+          name: "sgst",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "IGST",
+          width: 100,
+          name: "igst",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "Pick Location",
 
-    name: "pickLocation",
-    field: ({ row }) => (
-      <MyAsyncSelect
-        onBlur={() => setAsyncOptions([])}
-        loadOptions={getlocations}
-        optionsState={asyncOptions}
-        selectLoading={loading("select")}
-      />
-    ),
-  },
-  {
-    headerName: "Item Description",
-    name: "remark",
-    width: 250,
-    field: (row) => (
-      <Input
-        size="default"
-        value={row.remark}
-        // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
-        placeholder="Enter Remark"
-      />
-    ),
-  },
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // {
-  //   headerName: "Remark",
-  //   name: "description",
-  //   width: 150,
-  //   field: (row) => <Input />,
-  // },
-  //   {
-  //     headerName: "Product Description",
-  //     name: "productdescription",
-  //     width: 150,
-  //     field: (row) => <TextArea row={3} />,
-  //   },
-];
+          width: 120,
+
+          name: "pickLocation",
+          field: ({ row }) => (
+            <MyAsyncSelect
+              onBlur={() => setAsyncOptions([])}
+              loadOptions={getlocations}
+              optionsState={asyncOptions}
+              selectLoading={loading("select")}
+            />
+          ),
+        },
+        {
+          headerName: "Item Description",
+          name: "remark",
+          width: 250,
+          field: (row) => (
+            <Input
+              size="default"
+              value={row.remark}
+              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+              placeholder="Enter Remark"
+            />
+          ),
+        },
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // {
+        //   headerName: "Remark",
+        //   name: "description",
+        //   width: 150,
+        //   field: (row) => <Input />,
+        // },
+        //   {
+        //     headerName: "Product Description",
+        //     name: "productdescription",
+        //     width: 150,
+        //     field: (row) => <TextArea row={3} />,
+        //   },
+      ]
+    : [
+        {
+          headerName: "#",
+          name: "",
+          width: 30,
+          field: (_, index) => (
+            <Typography.Text type="secondary">{index + 1}.</Typography.Text>
+          ),
+        },
+        {
+          headerName: "Products",
+          name: "product",
+          width: 250,
+          flex: true,
+          field: () => <Input disabled />,
+        },
+
+        {
+          headerName: "HSN Code",
+          name: "hsn",
+          width: 150,
+          field: () => <Input disabled={true} />,
+        },
+        {
+          headerName: "Ord. Qty",
+          name: "qty",
+          width: 100,
+          field: () => <Input />,
+        },
+        {
+          headerName: "Pending Qty",
+          name: "pendingqty",
+          width: 100,
+          field: () => <Input />,
+        },
+        {
+          headerName: "Rate",
+          name: "rate",
+          width: 100,
+          field: (row) => <Input />,
+          // field: (row) => (
+          //   <Input.Group compact>
+          //     <Input
+          //       size="default"
+          //       style={{ width: "65%", borderColor: row.approval && "red" }}
+          //       value={row.rate}
+          //       onChange={(e) => inputHandler("rate", e.target.value, row.id)}
+          //     />
+          //     <div style={{ width: "35%" }}>
+          //       <MySelect
+          //         options={currencies}
+          //         value={row.currency}
+          //         onChange={(value) => inputHandler("currency", value, row.id)}
+          //       />
+          //     </div>
+          //   </Input.Group>
+          // ),
+        },
+
+        //   {
+        //     headerName: "Value",
+        //     name: "value",
+        //     width: 150,
+        //     field: () => <Input disabled />,
+        //   },
+
+        {
+          headerName: "Local Value",
+          width: 150,
+          name: "inrValue",
+          field: (row) => (
+            <Input
+              disabled={true}
+              // value={Number(row.inrValue).toFixed(2)}
+            />
+          ),
+        },
+        {
+          headerName: "Foreign Value",
+          width: 150,
+          name: "foreignValueCombined",
+          field: (row) => <Input disabled={true} />,
+        },
+        // {
+        //   headerName: "Foreign Value",
+        //   width: 150,
+        //   name: "usdValue",
+        //   field: (row) => (
+        //     <Input
+        //       size="default"
+        //       disabled={true}
+        //       value={
+        //         row?.currency == 364907247 ? 0 : Number(row?.foreginValue).toFixed(2)
+        //       }
+        //     />
+        //   ),
+        // },
+
+        {
+          headerName: "Due Date",
+          width: 150,
+          name: "dueDate",
+          field: (row) => (
+            <InputMask
+              disabled={true}
+              name="duedate"
+              value={row.duedate}
+              // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
+              className="date-text-input"
+              mask="99-99-9999"
+              placeholder="__-__-____"
+              style={{ textAlign: "center", borderRadius: 5, height: 30 }}
+              // defaultValue="01-09-2022"
+            />
+          ),
+        },
+        {
+          headerName: "GST Type",
+          width: 100,
+          name: "gstTypeLabel",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "GST %",
+          width: 100,
+          name: "gstRate",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "CGST",
+          width: 100,
+          name: "cgst",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "SGST",
+          width: 100,
+          name: "sgst",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "IGST",
+          width: 100,
+          name: "igst",
+          field: (row) => <Input disabled={true} />,
+        },
+        {
+          headerName: "Pick Location",
+
+          width: 120,
+
+          name: "pickLocation",
+          field: ({ row }) => (
+            <MyAsyncSelect
+              onBlur={() => setAsyncOptions([])}
+              loadOptions={getlocations}
+              optionsState={asyncOptions}
+              selectLoading={loading("select")}
+            />
+          ),
+        },
+        {
+          headerName: "Item Description",
+          name: "remark",
+          width: 250,
+          field: (row) => (
+            <Input
+              size="default"
+              value={row.remark}
+              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+              placeholder="Enter Remark"
+            />
+          ),
+        },
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // {
+        //   headerName: "Remark",
+        //   name: "description",
+        //   width: 150,
+        //   field: (row) => <Input />,
+        // },
+        //   {
+        //     headerName: "Product Description",
+        //     name: "productdescription",
+        //     width: 150,
+        //     field: (row) => <TextArea row={3} />,
+        //   },
+      ];
 export default CreateShipment;
 const gstRateOptions = [
   {

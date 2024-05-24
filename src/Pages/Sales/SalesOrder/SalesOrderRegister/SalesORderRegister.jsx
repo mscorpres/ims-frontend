@@ -56,6 +56,7 @@ function SalesORderRegister() {
         createdBy: row.create_by,
         createdDate: row.create_dt,
         customer: row.customer,
+        customerCode: row.customer_code,
         deliveryTerm: row.delivery_term,
         paymentTerm: row.payment_term,
         project: row.project_id,
@@ -422,14 +423,20 @@ const columns = [
   },
 
   {
-    headerName: "Sale Request ID",
+    headerName: "Request ID",
     minWidth: 150,
     flex: 1,
     field: "salesId",
     renderCell: ({ row }) => <ToolTipEllipses text={row.salesId} copy={true} />,
   },
   {
-    headerName: "Sale  Customer",
+    headerName: "Customer Code",
+    minWidth: 150,
+    field: "customerCode",
+    flex: 1,
+  },
+  {
+    headerName: "SaleCustomer",
     minWidth: 150,
     field: "customer",
     flex: 1,
@@ -440,7 +447,7 @@ const columns = [
   //   field: "project",
   // },
   {
-    headerName: "Sale Cost Center",
+    headerName: "Cost Center",
     width: 150,
     field: "costCenter",
     renderCell: ({ row }) => (
@@ -448,12 +455,12 @@ const columns = [
     ),
   },
   {
-    headerName: "Sale Delivery Term",
+    headerName: "Delivery Term",
     width: 150,
     field: "deliveryTerm",
   },
   {
-    headerName: "Sale Payment Term",
+    headerName: "Payment Term",
     width: 100,
     field: "paymentTerm",
   },
