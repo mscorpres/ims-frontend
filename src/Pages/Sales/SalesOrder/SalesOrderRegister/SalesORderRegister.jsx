@@ -61,6 +61,7 @@ function SalesORderRegister() {
         project: row.project_id,
         salesId: row.req_id,
         type: row.type,
+        status: row.status,
       }));
     }
 
@@ -462,6 +463,11 @@ const columns = [
     headerName: "Sale Payment Term",
     width: 100,
     field: "paymentTerm",
+  },
+  {
+    headerName: "Status",
+    width: 100,
+    field: "status",
   },
 
   {
