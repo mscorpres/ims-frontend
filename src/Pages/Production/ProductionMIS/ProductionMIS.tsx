@@ -11,6 +11,22 @@ import { getProductsOptions } from "@/api/general.js";
 import { getDepartmentOptions } from "@/api/master/department.js";
 import { createEntry } from "@/api/production/mis";
 import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
+import dayjs from "dayjs";
+
+const shiftLabelOptions = [
+  {
+    text: "A",
+    value: "a",
+  },
+  {
+    text: "B",
+    value: "b",
+  },
+  {
+    text: "C",
+    value: "c",
+  },
+];
 
 function ProductionMIS() {
   const [misForm] = Form.useForm();
@@ -141,6 +157,7 @@ function ProductionMIS() {
                       setAsyncOptions={setAsyncOptions}
                       asyncOptions={asyncOptions}
                       rules={rules}
+                      shiftLabelOptions={shiftLabelOptions}
                     />
                   </Form.Item>
                 ))}
@@ -162,7 +179,12 @@ export default ProductionMIS;
 
 const initialValues = {
   department: undefined,
-  shifts: [{}],
+  shifts: [
+    {
+      shiftLabel: "A",
+      // ShiftHours:[dayjs("09")]
+    },
+  ],
 };
 
 const rules = {
