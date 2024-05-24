@@ -102,7 +102,15 @@ const BOMCreate = () => {
       setSubComponents((curr) => [...curr, newComponent]);
     }
 
-    form.resetFields(["component", "type", "qty", "remarks", "substituteOf"]);
+    form.resetFields([
+      "component",
+      "type",
+      "qty",
+      "remarks",
+      "substituteOf",
+      "vendor",
+      "locations",
+    ]);
   };
 
   const handleDeleteComponent = (
@@ -210,7 +218,7 @@ const BOMCreate = () => {
                   onChange={(value) => handleFetchExistingBom(value)}
                 />
               </Form.Item>
-              <Form.Item name="description" label="Description">
+              <Form.Item name="description" label="Remarks">
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Form.Item
@@ -299,7 +307,7 @@ const BOMCreate = () => {
               <Form.Item
                 style={{ flex: 1, minWidth: 100 }}
                 name="locations"
-                label="Locations"
+                label="Placement"
               >
                 <Input />
               </Form.Item>
@@ -506,6 +514,8 @@ const initialValues = {
   type: "main",
   remarks: undefined,
   substituteOf: undefined,
+  vendor: undefined,
+  locations: undefined,
 };
 
 const Empty = () => {

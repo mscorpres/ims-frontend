@@ -10,6 +10,7 @@ import {
   TimePicker,
   Typography,
 } from "antd";
+import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
@@ -28,6 +29,7 @@ export default function SingleProduct({
   asyncOptions,
   loading,
   rules,
+  shiftLabelOptions,
 }) {
   const format = "HH";
   const workingHours = Form.useWatch(["shifts", field.name, "shiftStart"]);
@@ -79,6 +81,22 @@ export default function SingleProduct({
         <Typography.Text type="secondary" strong>
           {index + 1}.
         </Typography.Text>
+        <Form.Item
+          style={{ width: 100 }}
+          label="Shift"
+          name={[field.name, "shiftLabel"]}
+          rules={rules.shiftLabel}
+        >
+          <MySelect options={shiftLabelOptions} />
+        </Form.Item>
+        <Form.Item
+          style={{ width: 100 }}
+          label="Line No."
+          name={[field.name, "lineCount"]}
+          rules={rules.lineCount}
+        >
+          <Input />
+        </Form.Item>
         <div style={{ width: 250 }}>
           <Form.Item
             label="Product"
@@ -102,22 +120,7 @@ export default function SingleProduct({
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          style={{ width: 100 }}
-          label="Line No."
-          name={[field.name, "lineCount"]}
-          rules={rules.lineCount}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          style={{ width: 100 }}
-          label="Shift"
-          name={[field.name, "lineCount"]}
-          rules={rules.lineCount}
-        >
-          <Input />
-        </Form.Item>
+
         <Form.Item
           style={{ width: 100 }}
           label="Output"
@@ -137,10 +140,10 @@ export default function SingleProduct({
         <div style={{ width: 150 }}>
           <Form.Item
             label="Shift Hours"
-            name={[field.name, "shiftStart"]}
+            name={[field.name, "ShiftHours"]}
             rules={rules.shiftStart}
           >
-            <TimePicker.RangePicker format={"HH:mm"} />
+            <TimePicker.RangePicker format={"HH:mm"} order={false} />
           </Form.Item>
         </div>
 

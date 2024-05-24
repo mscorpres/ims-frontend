@@ -422,11 +422,7 @@ const Material = () => {
   };
 
   const handleDownloadMaster = async () => {
-    const response = await executeFun(downloadComponentMaster, "download");
-
-    if (response.success) {
-      window.open(response.data.filePath, "_blank", "noreferrer");
-    }
+    executeFun(downloadComponentMaster, "download");
   };
 
   const handleDownloadElectronicReport = async () => {

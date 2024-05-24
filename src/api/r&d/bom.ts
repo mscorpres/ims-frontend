@@ -85,6 +85,7 @@ export const getBOMList = async () => {
       createdOn: row.createdAt,
       components: [],
       id: index + 1,
+
       version: row.version,
       documents: row.documents,
     }));
@@ -274,6 +275,18 @@ export const getExistingBom = async (sku: string) => {
     };
 
     response.data = obj;
+  }
+
+  return response;
+};
+
+export const downloadBom = async (bomId: string) => {
+  const response: ResponseType = await imsAxios.get(
+    `/bom/download/temp?bomID=${bomId}`
+  );
+
+  if (response.success) {
+    window.open(response.data.url, "_blank", "noreferrer");
   }
 
   return response;
