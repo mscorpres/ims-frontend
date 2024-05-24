@@ -61,6 +61,7 @@ const SalesOrderForm = () => {
   const [totalValues, setTotalValues] = useState([]);
   const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
+  const [uploadfile, setUploadFile] = useState(false);
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
@@ -391,6 +392,7 @@ const SalesOrderForm = () => {
         setActiveTab("1");
         form.resetFields();
         // newdata.resetFields();
+        setUploadFile(false);
         setSelectLoading(false);
         setSelectLoading(false);
         setConfirmSubmit(false);
@@ -450,6 +452,7 @@ const SalesOrderForm = () => {
         gstrate: row.gst_rate,
       }));
       setRowCount(arr);
+      setUploadFile(true);
     } else {
       toast.error(response.message);
     }
@@ -959,7 +962,7 @@ const SalesOrderForm = () => {
                         <Col span={6}>
                           <Form.Item
                             name="shipaddressid"
-                            label="Shipping Name"
+                            label="Name"
                             rules={rules.shipaddressid}
                           >
                             {/* <MySelect
@@ -1000,7 +1003,7 @@ const SalesOrderForm = () => {
                       <Row>
                         <Col span={18}>
                           <Form.Item
-                            label="Shipping Address"
+                            label="Address"
                             name="shipaddress"
                             rules={rules.shipaddress}
                           >
@@ -1050,6 +1053,8 @@ const SalesOrderForm = () => {
                     fileupload={fileupload}
                     setFileUpload={setFileUpload}
                     callFileUpload={callFileUpload}
+                    setUploadFile={setUploadFile}
+                    uploadfile={uploadfile}
                   />
                 </div>
               </Tabs.TabPane>

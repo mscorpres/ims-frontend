@@ -69,6 +69,8 @@ export default function AddComponents({
   fileupload,
   setFileUpload,
   callFileUpload,
+  setUploadFile,
+  uploadfile,
 }) {
   const [currencies, setCurrencies] = useState([]);
   // const [selectLoading, setSelectLoading] = useState(false);
@@ -107,9 +109,9 @@ export default function AddComponents({
       hsncode: "",
       gsttype: "L",
       gstrate: "",
-      cgst: "",
-      sgst: "",
-      igst: "",
+      cgst: "0",
+      sgst: "0",
+      igst: "0",
       remark: "--",
       inrValue: 0,
       foreginValue: 0,
@@ -576,6 +578,14 @@ export default function AddComponents({
   const toggleInputType = (e) => {
     setFileUpload(e.target.value);
   };
+  useEffect(() => {
+    if (fileupload == "file" && rowCount.length > 0 && uploadfile) {
+      rowCount.map((r) => {
+        console.log("hereeeee is ", r.gstrate);
+        // inputHandler("gsttype,", r.gsttype, r.id);
+      });
+    }
+  }, [uploadfile]);
 
   //getting currencies on page load
   const getCurrencies = async () => {
