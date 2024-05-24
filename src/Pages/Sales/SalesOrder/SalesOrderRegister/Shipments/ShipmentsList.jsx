@@ -262,7 +262,7 @@ function ShipmentsList() {
               onClick={() => {
                 createChallan(row);
               }}
-              label="Create Challan"
+              label="Create Invoice"
             />,
             <GridActionsCellItem
               showInMenu

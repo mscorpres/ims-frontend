@@ -1074,11 +1074,11 @@ const links = [
       routePath: "/sales/order/shipments",
     },
     {
-      routeName: "Challan",
+      routeName: "Invoice",
       routePath: "/sales/order/challan",
     },
     {
-      routeName: "Allocated Challans",
+      routeName: "Allocated Invoices",
       routePath: "/sales/order/allocated",
     },
   ],
