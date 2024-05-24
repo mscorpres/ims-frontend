@@ -596,12 +596,12 @@ export default function AddComponents({
       width: 40,
       field: "add",
       sortable: false,
-      renderCell: ({ params }) =>
+      renderCell: ({ row }) =>
         rowCount.length > 1 && (
           <CommonIcons
             action="removeRow"
-            value={params?.row.type}
-            onClick={() => removeRows(params)}
+            value={row.type}
+            onClick={() => removeRows(row.id)}
           />
         ),
       // sortable: false,
@@ -827,7 +827,6 @@ export default function AddComponents({
                       style={{ marginTop: 4, marginBottom: 5 }}
                     >
                       <Col span={24}>
-             
                         <Col span={24}>
                           <UploadFile />
                         </Col>

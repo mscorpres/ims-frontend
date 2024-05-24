@@ -166,6 +166,7 @@ export const createShipment = async (values, open, details) => {
       picklocation: values.products.map((row) => row.pickLocation),
       hsncode: values.products.map((row) => row.hsn),
       remark: values.products.map((row) => row.remark),
+      updaterow: values.products.map((row) => row.updateid),
     },
   };
   const response = await imsAxios.post(
@@ -273,7 +274,8 @@ export const updateShipment = async (
       remark: values.products.map((row) => row.remark),
     },
   };
-  // // return;
+  // console.log("payload", payload);
+  // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/updateSOshipment",
     payload
