@@ -256,6 +256,8 @@ import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import FARUpload from "@/Pages/Far";
 
+// import FARUpload from "@/Pages/Far/index.tsx";
+
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "@/Pages/fixeassetmodule/Depreciation";
@@ -273,10 +275,7 @@ const Routes = [
     path: "/",
     main: () => <Dashboard />,
   },
-  {
-    path: "/fixedAssetRegister",
-    main: () => <Far />,
-  },
+
   {
     path: "/dashboardProcurement",
     main: () => <ProcurementDashboard />,

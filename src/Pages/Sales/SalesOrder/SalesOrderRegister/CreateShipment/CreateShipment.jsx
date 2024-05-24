@@ -153,6 +153,7 @@ function CreateShipment({
           productKey: material.itemKey,
           hsn: material.hsncode,
           qty: material.orderqty,
+          pendingqty: material.pendingqty,
           rate: material.rate,
           pickLocation: "",
 
@@ -502,6 +503,12 @@ const productItems = (getlocations, setAsyncOptions, asyncOptions, loading) => [
   {
     headerName: "Ord. Qty",
     name: "qty",
+    width: 100,
+    field: () => <Input />,
+  },
+  {
+    headerName: "Pending Qty",
+    name: "pendingqty",
     width: 100,
     field: () => <Input />,
   },
