@@ -147,7 +147,7 @@ function CreateShipment({
         billingId: bill.addrbillid,
         billingAddress: bill.billaddress,
         shippingId: ship.addrshipid,
-        shippingAddress: detailsObj.shipping_address,
+        shippingAddress: detailsObj?.shipping?.address,
         products: materials.map((material) => ({
           product: material.selectedItem[0].text,
           productKey: material.itemKey,
@@ -173,7 +173,6 @@ function CreateShipment({
           updateid: material.updateid,
         })),
       };
-
 
       handleFetchShippingOptions(detailsObj.clientCode);
       setDetails(detailsObj);
@@ -232,6 +231,7 @@ function CreateShipment({
         client_address,
         shipping,
       } = response.data.header;
+      // console.log("response.data", response.data);
 
       const detailsObj = {
         clientName: client.name,

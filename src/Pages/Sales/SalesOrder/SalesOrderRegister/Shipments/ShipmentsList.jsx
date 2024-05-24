@@ -77,7 +77,7 @@ function ShipmentsList() {
         let arr = data.map((row, index) => ({
           ...row,
           id: index + 1,
-          billingId: row.billing_id,
+          billingId: row.billing_name,
           billingAddress: row.billingaddress,
           client: row.client,
           clientAddressId: row.client_add_id,
@@ -452,6 +452,7 @@ const columns = [
     headerName: "Billing Name",
     width: 120,
     field: "billingId",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.billingId} />,
   },
   {
     headerName: "Billing Address",
