@@ -19,6 +19,8 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import { PrinterFilled } from "@ant-design/icons";
 import LabelDrawer from "./LabelDrawer";
 
+//to redeploy
+
 const ViewMIN = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showLabelDrawer, setShowLabelDrawer] = useState(false);
