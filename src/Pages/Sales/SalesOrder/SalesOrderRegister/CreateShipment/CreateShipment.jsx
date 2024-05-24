@@ -147,7 +147,7 @@ function CreateShipment({
         billingId: bill.addrbillid,
         billingAddress: bill.billaddress,
         shippingId: ship.addrshipid,
-        shippingAddress: ship.shipaddress,
+        shippingAddress: detailsObj?.shipping?.address,
         products: materials.map((material) => ({
           product: material.selectedItem[0].text,
           productKey: material.itemKey,
@@ -170,10 +170,9 @@ function CreateShipment({
           gstRate: material.gstrate,
           dueDate: material.due_date,
           remark: material.remark,
+          updateid: material.updateid,
         })),
       };
-
-      console.log(" =>", obj);
 
       handleFetchShippingOptions(detailsObj.clientCode);
       setDetails(detailsObj);
@@ -230,9 +229,10 @@ function CreateShipment({
         shipping_info,
         client_info,
         client_address,
-        shipping_address,
+        shipping,
       } = response.data.header;
-      // console.log("client", client, billing_info, shipping_info);
+      // console.log("response.data", response.data);
+
       const detailsObj = {
         clientName: client.name,
         clientCode: client.code,
@@ -245,14 +245,15 @@ function CreateShipment({
           address: billing_info.billaddress,
         },
         shipping_info: {
-          pan: shipping_info?.ship_pan,
-          gst: shipping_info.gst,
+          pan: shipping?.pan,
+          gst: shipping?.gst,
           cin: "--",
-          address: shipping_address,
-          shippingID: shipping_info?.ship_id,
+          address: response.data.header.shipping_address,
+          shippingId: shipping?.ship_id,
         },
-        shipping_address: shipping_address,
+        shipping_address: response.data.header.shipping_address,
       };
+
       const { header, material } = response.data;
       const obj = {
         eWayBillNo: header.eway_bill,
@@ -261,10 +262,10 @@ function CreateShipment({
         otherRef: header.other_ref,
         billingId: header.billing_info,
         billingAddress: header.billing_address,
-        shippingId: header.shipping_info.ship_id,
+        shippingId: header.shipping?.ship_id,
         so_id: header.so_id,
         so_shipment_id: header.so_shipment_id,
-        shippingAddress: header.shipping_address,
+        shippingAddress: detailsObj?.shipping_address,
         products: material.map((m) => ({
           product: m.item_name,
           productKey: m.item_key,
@@ -289,7 +290,6 @@ function CreateShipment({
           updaterow: m.updateID,
         })),
       };
-      // console.log("obj", obj);
 
       console.log("detailsObj", detailsObj);
       handleFetchShippingOptions(detailsObj.clientCode);
@@ -370,7 +370,11 @@ function CreateShipment({
       open={updateShipmentRow ? updateShipmentRow : open}
       width="100vw"
       bodyStyle={{ overflow: "hidden", padding: 10 }}
-      title={`Creating Shipment : ${open} `}
+      title={
+        updateShipmentRow
+          ? `Update Shipment ${open} `
+          : `Create Shipment  ${open}`
+      }
     >
       <Form style={{ height: "100%" }} layout="vertical" form={shipmentForm}>
         <Row gutter={8} style={{ height: "95%", overflow: "hidden" }}>

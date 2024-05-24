@@ -77,7 +77,7 @@ function ShipmentsList() {
         let arr = data.map((row, index) => ({
           ...row,
           id: index + 1,
-          billingId: row.billing_id,
+          billingId: row.billing_name,
           billingAddress: row.billingaddress,
           client: row.client,
           clientAddressId: row.client_add_id,
@@ -90,7 +90,12 @@ function ShipmentsList() {
           shippingId: row.shipping_id,
           shippingAddress: row.shippingaddress,
           orderId: row.so_id,
+          itemPartNo: row.item_part_no,
+          itemName: row.item_name,
+          itemQty: row.item_qty,
+          itemRate: row.item_rate,
         }));
+
         setRows(arr);
       } else {
         toast.error(data.message);
@@ -257,7 +262,7 @@ function ShipmentsList() {
               onClick={() => {
                 createChallan(row);
               }}
-              label="Create Challan"
+              label="Create Invoice"
             />,
             <GridActionsCellItem
               showInMenu
@@ -387,16 +392,41 @@ const columns = [
     ),
   },
   {
+    headerName: "Item Part Code",
+    // minWidth: 120,
+    width: 130,
+    field: "itemPartNo",
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.itemPartNo} copy={true} />
+    ),
+  },
+  {
+    headerName: "Item Part Name",
+    // minWidth: 120,
+    width: 300,
+    field: "itemName",
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.itemName} copy={true} />
+    ),
+  },
+  {
+    headerName: "Item Qty",
+    // minWidth: 120,
+    width: 100,
+    field: "itemQty",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.itemQty} />,
+  },
+  {
+    headerName: "Item Rate",
+    // minWidth: 120,
+    width: 130,
+    field: "itemRate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.itemRate} />,
+  },
+  {
     headerName: "Shipment Date",
     width: 150,
     field: "date",
-  },
-  {
-    headerName: "SO ID",
-    // minWidth: 120,
-    width: 130,
-    field: "orderId",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.orderId} copy={true} />,
   },
 
   {
@@ -419,9 +449,10 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.clientAddress} />,
   },
   {
-    headerName: "Billing Id",
+    headerName: "Billing Name",
     width: 120,
     field: "billingId",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.billingId} />,
   },
   {
     headerName: "Billing Address",
@@ -431,7 +462,7 @@ const columns = [
   },
 
   {
-    headerName: "Shipping Id",
+    headerName: "Shipping Name",
     width: 150,
     field: "shippingId",
   },

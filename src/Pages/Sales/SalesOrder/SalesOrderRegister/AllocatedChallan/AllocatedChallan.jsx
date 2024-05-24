@@ -23,12 +23,10 @@ import {
 import { imsAxios } from "../../../../../axiosInterceptor.tsx";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 
-
 const initialValues = {
   data: "",
   wise: "clientwise",
 };
-
 
 function AllocatedChallan() {
   const [showDetails, setShowDetails] = useState(null);
@@ -165,6 +163,11 @@ const columns = [
     headerName: "Courier Name",
     flex: 1,
     field: "courierName",
+  },
+  {
+    headerName: "Courier Number",
+    flex: 1,
+    field: "courierNumber",
   },
 
   {

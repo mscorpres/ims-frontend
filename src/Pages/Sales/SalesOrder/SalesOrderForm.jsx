@@ -61,6 +61,7 @@ const SalesOrderForm = () => {
   const [totalValues, setTotalValues] = useState([]);
   const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
+  const [uploadfile, setUploadFile] = useState(false);
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
@@ -327,6 +328,7 @@ const SalesOrderForm = () => {
   const validateSales = async () => {
     setSelectLoading(true);
     const values = await form.validateFields();
+    console.log("values are here", values);
     const payload = {
       headers: {
         bill_id: values.billaddressid,
@@ -379,6 +381,7 @@ const SalesOrderForm = () => {
         form.resetFields();
         navigate(`/sales/order/register`);
       } else {
+        setConfirmSubmit(null);
         console.log("response.message", response);
         setConfirmSubmit(false);
         toast.error(data.message.msg);
@@ -391,17 +394,19 @@ const SalesOrderForm = () => {
         setActiveTab("1");
         form.resetFields();
         // newdata.resetFields();
+        setUploadFile(false);
         setSelectLoading(false);
         setSelectLoading(false);
-        setConfirmSubmit(false);
+        setConfirmSubmit(null);
         toast.success(response.message.msg);
       } else {
         // console.log("response.data", response.data);
-        // setConfirmSubmit(false);
+        setConfirmSubmit(null);
         toast.error(response.message.msg);
 
         setSelectLoading(false);
       }
+      setConfirmSubmit(null);
     }
     setSelectLoading(false);
     setConfirmSubmit(false);
@@ -442,6 +447,7 @@ const SalesOrderForm = () => {
           value: row.item?.value,
         },
         qty: row.qty,
+        hsncode: row.hsn,
         rate: row.rate,
         remark: row.item_desc,
 
@@ -450,6 +456,7 @@ const SalesOrderForm = () => {
         gstrate: row.gst_rate,
       }));
       setRowCount(arr);
+      setUploadFile(true);
     } else {
       toast.error(response.message);
     }
@@ -959,7 +966,7 @@ const SalesOrderForm = () => {
                         <Col span={6}>
                           <Form.Item
                             name="shipaddressid"
-                            label="Shipping Name"
+                            label="Name"
                             rules={rules.shipaddressid}
                           >
                             {/* <MySelect
@@ -1000,7 +1007,7 @@ const SalesOrderForm = () => {
                       <Row>
                         <Col span={18}>
                           <Form.Item
-                            label="Shipping Address"
+                            label="Address"
                             name="shipaddress"
                             rules={rules.shipaddress}
                           >
@@ -1050,6 +1057,8 @@ const SalesOrderForm = () => {
                     fileupload={fileupload}
                     setFileUpload={setFileUpload}
                     callFileUpload={callFileUpload}
+                    setUploadFile={setUploadFile}
+                    uploadfile={uploadfile}
                   />
                 </div>
               </Tabs.TabPane>
@@ -1127,7 +1136,7 @@ const rules = {
   client: [
     {
       required: true,
-      message: "Please Select a vendor Name!",
+      message: "Please Select a client Name!",
     },
   ],
   clientbranch: [

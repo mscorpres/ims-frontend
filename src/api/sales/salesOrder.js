@@ -94,6 +94,7 @@ export const getCourierList = async (search) => {
 
       shippingAddress: row.shippingaddress,
       courierName: row.courier_name,
+      courierNumber: row.courier_number,
       client: row.client,
       deliveryChallanDt: row.delivery_challan_dt,
       challanId: row.so_challan_id,
@@ -146,6 +147,8 @@ export const cancelChallanFromSo = async (singleRow, remark) => {
 };
 
 export const createShipment = async (values, open, details) => {
+  // console.log("values", values);
+  // console.log("details", details);
   const payload = {
     header: {
       bill_id: values.billingId,
@@ -166,8 +169,11 @@ export const createShipment = async (values, open, details) => {
       picklocation: values.products.map((row) => row.pickLocation),
       hsncode: values.products.map((row) => row.hsn),
       remark: values.products.map((row) => row.remark),
+      updaterow: values.products.map((row) => row.updateid),
     },
   };
+  // console.log("payload", payload);
+  // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/saveSOShipment",
     payload
@@ -273,7 +279,8 @@ export const updateShipment = async (
       remark: values.products.map((row) => row.remark),
     },
   };
-  // // return;
+  // console.log("payload", payload);
+  // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/updateSOshipment",
     payload

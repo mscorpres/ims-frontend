@@ -61,6 +61,7 @@ function SalesORderRegister() {
         project: row.project_id,
         salesId: row.req_id,
         type: row.type,
+        status: row.status,
       }));
     }
 
@@ -144,10 +145,7 @@ function SalesORderRegister() {
   const handlePrintOrder = async (orderId) => {
     const response = await executeFun(() => printOrder(orderId), "print");
     if (response.success) {
-      printFunction(
-        response.data.data.buffer.data,
-        response.data.data.filename
-      );
+      printFunction(response.data.buffer.data, response.data.filename);
     }
   };
 
@@ -422,11 +420,7 @@ const columns = [
     width: 30,
     field: "id",
   },
-  {
-    headerName: "Order type",
-    width: 100,
-    field: "type",
-  },
+
   {
     headerName: "Sale Request ID",
     minWidth: 150,
@@ -440,11 +434,11 @@ const columns = [
     field: "customer",
     flex: 1,
   },
-  {
-    headerName: "Sale Project Id",
-    width: 150,
-    field: "project",
-  },
+  // {
+  //   headerName: "Sale Project Id",
+  //   width: 150,
+  //   field: "project",
+  // },
   {
     headerName: "Sale Cost Center",
     width: 150,
@@ -462,6 +456,16 @@ const columns = [
     headerName: "Sale Payment Term",
     width: 100,
     field: "paymentTerm",
+  },
+  {
+    headerName: "Order type",
+    width: 100,
+    field: "type",
+  },
+  {
+    headerName: "Status",
+    width: 100,
+    field: "status",
   },
 
   {

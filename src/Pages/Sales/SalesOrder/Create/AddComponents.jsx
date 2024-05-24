@@ -69,6 +69,8 @@ export default function AddComponents({
   fileupload,
   setFileUpload,
   callFileUpload,
+  setUploadFile,
+  uploadfile,
 }) {
   const [currencies, setCurrencies] = useState([]);
   // const [selectLoading, setSelectLoading] = useState(false);
@@ -90,6 +92,7 @@ export default function AddComponents({
       GST_TYPE: "I",
       GST_RATE: "18",
       DUE_DATE: "20-05-2024",
+      HSN: "123",
     },
   ];
   const { executeFun, loading } = useApi();
@@ -107,9 +110,9 @@ export default function AddComponents({
       hsncode: "",
       gsttype: "L",
       gstrate: "",
-      cgst: "",
-      sgst: "",
-      igst: "",
+      cgst: "0",
+      sgst: "0",
+      igst: "0",
       remark: "--",
       inrValue: 0,
       foreginValue: 0,
@@ -576,6 +579,14 @@ export default function AddComponents({
   const toggleInputType = (e) => {
     setFileUpload(e.target.value);
   };
+  useEffect(() => {
+    if (fileupload == "file" && rowCount.length > 0 && uploadfile) {
+      rowCount.map((r) => {
+        console.log("hereeeee is ", r.gstrate);
+        // inputHandler("gsttype,", r.gsttype, r.id);
+      });
+    }
+  }, [uploadfile]);
 
   //getting currencies on page load
   const getCurrencies = async () => {
@@ -596,12 +607,12 @@ export default function AddComponents({
       width: 40,
       field: "add",
       sortable: false,
-      renderCell: ({ params }) =>
+      renderCell: ({ row }) =>
         rowCount.length > 1 && (
           <CommonIcons
             action="removeRow"
-            value={params?.row.type}
-            onClick={() => removeRows(params)}
+            value={row.type}
+            onClick={() => removeRows(row.id)}
           />
         ),
       // sortable: false,
@@ -730,6 +741,10 @@ export default function AddComponents({
     },
   ];
 
+  // const openModal = async () => {
+  //   const values = await form.validateFields();
+  //   console.log("valus", values);
+  // };
   useEffect(() => {
     getCurrencies();
   }, []);
@@ -827,7 +842,6 @@ export default function AddComponents({
                       style={{ marginTop: 4, marginBottom: 5 }}
                     >
                       <Col span={24}>
-             
                         <Col span={24}>
                           <UploadFile />
                         </Col>
