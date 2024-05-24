@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Drawer } from "antd";
+import { Card, Col, Drawer, Flex, Row } from "antd";
 import ToolTipEllipses from "@/Components/ToolTipEllipses";
 import MyDataTable from "@/Components/MyDataTable.jsx";
-import { getComponents } from "@/api/r&d/bom";
+import { downloadBom, getComponents } from "@/api/r&d/bom";
 import useApi from "@/hooks/useApi";
 import { ModalType } from "@/types/general";
 import { BOMType, BOMTypeExtended } from "@/types/r&d";
+import { CommonIcons } from "../../../../../Components/TableActions.jsx/TableActions";
+import BOMApproval from "@/Pages/R&D/bom/list/approval";
 
 interface Proptypes extends ModalType {
   selectedBOM: BOMTypeExtended;
@@ -19,6 +21,15 @@ const Components = (props: Proptypes) => {
     const response = await executeFun(() => getComponents(bomKey), "fetch");
     console.log("compnent response", response);
     setRows(response.data ?? []);
+  };
+
+  const handleDownload = async () => {
+    if (props.selectedBOM && props.selectedBOM.key) {
+      const response = await executeFun(
+        () => downloadBom(props.selectedBOM.key),
+        "download"
+      );
+    }
   };
 
   useEffect(() => {
@@ -35,11 +46,35 @@ const Components = (props: Proptypes) => {
     <Drawer
       open={props.show}
       onClose={props.hide}
-      width={1400}
+      width="100%"
       title={`BOM: ${props.selectedBOM.name}`}
-      extra={`${rows.length} Components`}
+      extra={
+        <Flex align="center" gap={10}>
+          {rows.length} Components
+          <CommonIcons
+            action="downloadButton"
+            onClick={handleDownload}
+            loading={loading("download")}
+          />
+        </Flex>
+      }
     >
-      <MyDataTable loading={loading("fetch")} columns={columns} data={rows} />
+      <Row style={{ height: "100%", overflow: "hidden" }} gutter={8}>
+        <Col span={6} style={{ overflow: "auto", height: "100%" }}>
+          <Card title="Approval Logs" size="small">
+            {props.selectedBOM && (
+              <BOMApproval selectedBom={props.selectedBOM} />
+            )}
+          </Card>
+        </Col>
+        <Col span={18} style={{ overflow: "auto", height: "100%" }}>
+          <MyDataTable
+            loading={loading("fetch")}
+            columns={columns}
+            data={rows}
+          />
+        </Col>
+      </Row>
     </Drawer>
   );
 };

@@ -37,8 +37,8 @@ const BOMList = () => {
       getActions: ({ row }: { row: BOMTypeExtended }) => [
         <GridActionsCellItem
           showInMenu
-          placeholder="See Components"
-          label={"Components"}
+          placeholder="Components and Logs"
+          label={"Components and Logs"}
           onClick={() => {
             setShowComponents(true);
             setSelectedBOM(row);
@@ -46,22 +46,22 @@ const BOMList = () => {
         />,
         <GridActionsCellItem
           showInMenu
-          placeholder="See Attachments"
+          placeholder="Attachments"
           label={"Attachments"}
           onClick={() => {
             setShowAttachments(true);
             setSelectedBOM(row);
           }}
         />,
-        <GridActionsCellItem
-          showInMenu
-          placeholder="See Logs"
-          label={"Logs"}
-          onClick={() => {
-            setShowLogs(true);
-            setSelectedBOM(row);
-          }}
-        />,
+        // <GridActionsCellItem
+        //   showInMenu
+        //   placeholder="See Logs"
+        //   label={"Logs"}
+        //   onClick={() => {
+        //     setShowLogs(true);
+        //     setSelectedBOM(row);
+        //   }}
+        // />,
       ],
     },
   ];
@@ -91,14 +91,14 @@ const BOMList = () => {
           }}
         />
       )}
-      <BOMApproval
+      {/* <BOMApproval
         show={showLogs}
         hide={() => {
           setShowLogs(false);
           setSelectedBOM(null);
         }}
         selectedBom={selectedBOM}
-      />
+      /> */}
       <Col sm={20} lg={16} xxl={14}>
         <MyDataTable
           columns={[...actionColumns, ...columns]}

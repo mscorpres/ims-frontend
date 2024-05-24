@@ -3,6 +3,7 @@ import useApi from "@/hooks/useApi";
 import { ModalType } from "@/types/general";
 import { BOMApprovalType, BOMTypeExtended } from "@/types/r&d";
 import {
+  Button,
   Divider,
   Drawer,
   Flex,
@@ -41,19 +42,20 @@ const BOMApproval = (props: PropTypes) => {
     }
   }, [props.show]);
   return (
-    <Drawer
-      open={props.show}
-      onClose={props.hide}
-      title={`${props.selectedBom?.name} Logs`}
-      extra={
-        logs.logs?.find((row) => row.isRejected) && (
-          <Typography.Text style={{ fontSize: 16 }} type="danger" strong>
-            Rejected
-          </Typography.Text>
-        )
-      }
-      width={600}
-    >
+    // <Drawer
+    //   open={props.show}
+    //   onClose={props.hide}
+    //   title={`${props.selectedBom?.name} Logs`}
+    //   extra={
+    //     logs.logs?.find((row) => row.isRejected) && (
+    //       <Typography.Text style={{ fontSize: 16 }} type="danger" strong>
+    //         Rejected
+    //       </Typography.Text>
+    //     )
+    //   }
+    //   width={600}
+    // >
+    <>
       {loading("fetch") && <Loading />}
       <RemarksModal
         details={approvalModalDetails}
@@ -137,7 +139,7 @@ const BOMApproval = (props: PropTypes) => {
           <Divider />
         </Flex>
       ))}
-    </Drawer>
+    </>
   );
 };
 
@@ -191,6 +193,11 @@ const RemarksModal = (props: ModalProps) => {
       props.handleFetchLogs(props.details?.bom.key ?? "");
     }
   };
+  useEffect(() => {
+    if (!props.show) {
+      form.setFieldValue("remarks", undefined);
+    }
+  }, [props.show]);
   return (
     <Modal
       open={props.show}

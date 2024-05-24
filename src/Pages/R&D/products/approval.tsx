@@ -51,6 +51,7 @@ const Approval = (props: PropTypes) => {
       handleFetchDetails(props.productKey);
     }
   }, [props.productKey]);
+
   return (
     <Modal
       open={props.show}
@@ -214,6 +215,11 @@ const ApprovingModal = (props: ApprovingTypes) => {
       props.handleFetchDetails(props.productKey);
     }
   };
+  useEffect(() => {
+    if (!props.show) {
+      form.setFieldValue("remarks", undefined);
+    }
+  }, [props.show]);
   return (
     <Modal
       open={props.show}

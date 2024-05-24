@@ -153,7 +153,7 @@ export default function Products() {
                 </Form.Item>
               </Col>
               <Col span={24}>
-                <Form.Item name="description" label="Description">
+                <Form.Item name="description" label="Remarks">
                   <Input.TextArea rows={2} />
                 </Form.Item>
               </Col>
