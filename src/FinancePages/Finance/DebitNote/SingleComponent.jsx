@@ -348,7 +348,7 @@ const SingleComponent = ({
       </Col>
       <Col span={1}>
         <Form.Item label="GST Rate" name={[field.name, "gstRate"]}>
-          <Input disabled />
+          <Input />
         </Form.Item>
       </Col>
       <Col span={2}>
