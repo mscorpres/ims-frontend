@@ -116,12 +116,13 @@ export const printOrder = async (orderId) => {
 };
 
 export const createChallanFromSo = async (shipments, remark) => {
+  console.log("shipments", shipments);
   let payload = {
     shipment_id: shipments.map((r) => r.shipmentId),
     so_id: shipments.map((r) => r.orderId),
     client_id: shipments[0].clientCode,
     client_addr_id: shipments[0].clientAddressId,
-    bill_id: shipments[0].billingId,
+    bill_id: shipments[0].billing_id,
     ship_id: shipments[0].shippingId,
     remark: remark,
   };
