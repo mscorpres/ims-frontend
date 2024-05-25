@@ -71,16 +71,18 @@ export default function AddComponents({
   callFileUpload,
   setUploadFile,
   uploadfile,
-  billingStateCode,
-  dispatchStateCode,
   derivedType,
+  resetFunction2,
+  confirmReset,
+  setConfirmReset,
+  setPageLoading,
+  pageLoading,
 }) {
   const [currencies, setCurrencies] = useState([]);
   // const [selectLoading, setSelectLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(false);
+  // const [pageLoading, setPageLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showCurrencyModal, setShowCurrencyModal] = useState(null);
-  const [confirmReset, setConfirmReset] = useState(false);
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const newdata = form.getFieldsValue();
@@ -160,6 +162,7 @@ export default function AddComponents({
     let arr = rowCount;
     console.log("update rate and value", value);
     arr = arr.map((row) => {
+      console.log("row of inputhanfler", row);
       if (row.id == id) {
         let obj = row;
         if (name == "rate") {
@@ -307,7 +310,7 @@ export default function AddComponents({
 
           // return obj;
         } else if (name == "gstrate") {
-          // console.log("row is here", row);
+          console.log("row is here", row);
           if (row.gsttype == "L" && name != "gsttype") {
             let percentage = value / 2;
             obj = {
@@ -520,32 +523,6 @@ export default function AddComponents({
     //   }
     // }
   };
-  const resetFunction = () => {
-    // console.log("here");
-    setRowCount([
-      {
-        id: v4(),
-        type: "product",
-        index: 1,
-        currency: "364907247",
-        exchange: "1",
-        component: "",
-        qty: 1,
-        rate: "",
-        duedate: "",
-        inrValue: 0,
-        hsncode: "",
-        gsttype: derivedType,
-        gstrate: "",
-        cgst: 0,
-        sgst: 0,
-        igst: 0,
-        remark: "--",
-        unit: "--",
-      },
-    ]);
-    setConfirmReset(false);
-  };
   useEffect(() => {
     let obj = [
       {
@@ -589,7 +566,7 @@ export default function AddComponents({
   useEffect(() => {
     if (fileupload == "file" && rowCount.length > 0 && uploadfile) {
       rowCount.map((r) => {
-        // console.log("hereeeee is ", r.gstrate);
+        console.log("hereeeee is ", r.gstrate);
         inputHandler("gstrate,", r.gstrate, r.id);
       });
     }
@@ -755,6 +732,9 @@ export default function AddComponents({
   useEffect(() => {
     getCurrencies();
   }, []);
+  useEffect(() => {
+    setRowCount(rowCount);
+  }, [rowCount]);
   // useEffect(() => {
   //   if (selectLoading) {
   //     setTimeout(() => {
@@ -779,7 +759,7 @@ export default function AddComponents({
           <Button key="back" onClick={() => setConfirmReset(false)}>
             No
           </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction}>
+          <Button key="submit" type="primary" onClick={resetFunction2}>
             Yes
           </Button>,
         ]}
@@ -864,7 +844,9 @@ export default function AddComponents({
                       >
                         Download Sample File
                       </Button>
-                      <Button onClick={callFileUpload}>Upload</Button>
+                      <Button onClick={callFileUpload} loading={pageLoading}>
+                        Upload
+                      </Button>
                     </Row>
                   )}
                 </Col>

@@ -62,7 +62,7 @@ const SalesOrderForm = () => {
   const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [uploadfile, setUploadFile] = useState(false);
-  const [billingStateCode, setBiliingStateCode] = useState("");
+  const [biliingStateCode, setBiliingStateCode] = useState("");
   const [shippingStateCode, setShippingStateCode] = useState("");
   const [derivedType, setDerivedType] = useState("");
   const [rowCount, setRowCount] = useState([
@@ -93,6 +93,7 @@ const SalesOrderForm = () => {
     },
   ]);
 
+  const [confirmReset, setConfirmReset] = useState(false);
   const [showAddVendorModal, setShowAddVendorModal] = useState(false);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
@@ -118,7 +119,10 @@ const SalesOrderForm = () => {
     // let billingStateCode = "07";
     // console.log("dispatchtSateaCode-----", dispatchStateCode);
     // console.log("billingStateCode-----", billingStateCode);
-    if (Number(dispatchStateCode?.key) != Number(billingStateCode)) {
+    if (
+      Number(dispatchStateCode?.key) != Number(biliingStateCode) ||
+      Number(dispatchStateCode?.key) != Number(shippingStateCode)
+    ) {
       // console.log("here");
       setDerivedType("I");
       // setDerivedType({ value: "I", text: "INTER STATE" });
@@ -155,14 +159,17 @@ const SalesOrderForm = () => {
   const handleFetchClientBranchOptions = async (clientCode) => {
     const response = await executeFun(
       () => getClientBranches(clientCode),
+      // ?\
       "select"
     );
+    console.log("response of client", response);
     if (response.success) {
       const arr = response.data.data.map((row) => ({
         text: row.city.name,
         value: row.city.id,
       }));
       form.setFieldValue("clientbranch", arr[0]);
+      setShippingStateCode(response.data.data.state.key);
       return setClientBranchOptions(arr);
     }
     setClientBranchOptions([]);
@@ -466,11 +473,38 @@ const SalesOrderForm = () => {
     form.resetFields();
     setShowDetailsConfirm(false);
   };
+  const resetFunction2 = () => {
+    console.log("here");
+    setRowCount([
+      // {
+      //   id: v4(),
+      //   type: "product",
+      //   index: 1,
+      //   currency: "364907247",
+      //   exchange: "1",
+      //   component: "",
+      //   qty: 1,
+      //   rate: "",
+      //   duedate: "",
+      //   inrValue: 0,
+      //   hsncode: "",
+      //   gsttype: derivedType,
+      //   gstrate: "",
+      //   cgst: 0,
+      //   sgst: 0,
+      //   igst: 0,
+      //   remark: "--",
+      //   unit: "--",
+      // },
+    ]);
+    setConfirmReset(false);
+  };
 
   const nextFun = () => {
     setActiveTab("2");
   };
   const callFileUpload = async () => {
+    setPageLoading(true);
     const values = await form.validateFields();
     const formData = new FormData();
     formData.append("file", values.files[0].originFileObj);
@@ -503,9 +537,12 @@ const SalesOrderForm = () => {
       }));
       setRowCount(arr);
       setUploadFile(true);
+      setPageLoading(false);
     } else {
       toast.error(response.message);
+      setPageLoading(false);
     }
+    setPageLoading(false);
   };
   useEffect(() => {
     if (showAddVendorModal === true) {
@@ -1156,9 +1193,13 @@ const SalesOrderForm = () => {
                     callFileUpload={callFileUpload}
                     setUploadFile={setUploadFile}
                     uploadfile={uploadfile}
-                    billingStateCode={billingStateCode}
                     dispatchStateCode={dispatchStateCode}
                     derivedType={derivedType}
+                    resetFunction2={resetFunction2}
+                    confirmReset={confirmReset}
+                    setConfirmReset={setConfirmReset}
+                    setPageLoading={setPageLoading}
+                    pageLoading={pageLoading}
                   />
                 </div>
               </Tabs.TabPane>

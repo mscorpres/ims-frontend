@@ -237,6 +237,11 @@ export const getChallanDetails = async (challanId) => {
       componentKey: row.item_id,
       rate: row.item_rate,
       qty: row.item_qty,
+      cgst: row.item_cgst,
+      gstRate: row.item_gst_rate,
+      inrValue: row.item_qty * row.item_rate,
+      igst: row.item_igst,
+      sgst: row.item_sgst,
       remark: row.remark,
     }));
 
