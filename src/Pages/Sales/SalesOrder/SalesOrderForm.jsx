@@ -438,22 +438,22 @@ const SalesOrderForm = () => {
       const arr = data.map((row, index) => ({
         id: { v4 },
         // pocreatetype: client[0].soType_value,
-        type: row.item_type,
-        // currency: "364907247",
+        type: row?.item_type,
+        currency: row?.currency,
         index: index + 1,
 
         component: {
           label: row.item?.text,
           value: row.item?.value,
         },
-        qty: row.qty,
-        hsncode: row.hsn,
-        rate: row.rate,
-        remark: row.item_desc,
+        qty: row?.qty,
+        hsncode: row?.hsn,
+        rate: row?.rate,
+        remark: row?.item_desc,
 
-        duedate: row.due_date, //this
-        gsttype: row.gst_type, //this
-        gstrate: row.gst_rate,
+        duedate: row?.due_date, //this
+        gsttype: row?.gst_type, //this
+        gstrate: row?.gst_rate,
       }));
       setRowCount(arr);
       setUploadFile(true);
