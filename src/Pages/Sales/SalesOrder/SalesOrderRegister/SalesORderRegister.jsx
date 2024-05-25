@@ -464,11 +464,11 @@ const columns = [
     width: 100,
     field: "paymentTerm",
   },
-  {
-    headerName: "Order type",
-    width: 100,
-    field: "type",
-  },
+  // {
+  //   headerName: "Order type",
+  //   width: 100,
+  //   field: "type",
+  // },
   {
     headerName: "Status",
     width: 100,

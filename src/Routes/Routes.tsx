@@ -254,7 +254,7 @@ import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
 import Products from "@/Pages/R&D/products/index.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
-// import FARUpload from "@/Pages/Far";
+import FARUpload from "@/Pages/far";
 
 // import FARUpload from "@/Pages/Far/index.tsx";
 
@@ -1410,10 +1410,10 @@ const Routes = [
   },
 
   // far upload
-  // {
-  //   path: routeConstants.far.upload,
-  //   main: () => <FARUpload />,
-  // },
+  {
+    path: routeConstants.far.upload,
+    main: () => <FARUpload />,
+  },
 
   // should always be at the end
   {

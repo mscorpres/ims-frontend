@@ -171,14 +171,14 @@ const columns = [
   },
 
   {
-    headerName: "Delivery Challan Date",
+    headerName: "Invoice Date",
     minWidth: 200,
     flex: 1,
     field: "deliveryChallanDt",
     renderCell: ({ row }) => <ToolTipEllipses text={row.deliveryChallanDt} />,
   },
   {
-    headerName: "So Challan Id",
+    headerName: "So Invoice Id",
     minWidth: 200,
     flex: 1,
     field: "soChallanId",
