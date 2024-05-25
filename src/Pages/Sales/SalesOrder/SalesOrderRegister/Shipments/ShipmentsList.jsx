@@ -108,7 +108,7 @@ function ShipmentsList() {
 
   const createChallan = async (singleRow) => {
     Modal.confirm({
-      title: "Are you sure you want to create this Challan?",
+      title: "Are you sure you want to create this Invoice?",
       icon: <ExclamationCircleOutlined />,
       content: (
         <Form form={ModalForm} layout="vertical">
@@ -168,6 +168,7 @@ function ShipmentsList() {
     }
   };
   const createShipmentChallan = async (singleRow) => {
+    ModalForm.resetFields()
     let mins = [];
     if (singleRow) {
       mins = [singleRow].map((row) => rows.filter((r) => r.id === row.id)[0]);

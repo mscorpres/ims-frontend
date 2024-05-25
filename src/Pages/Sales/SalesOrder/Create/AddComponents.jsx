@@ -71,6 +71,9 @@ export default function AddComponents({
   callFileUpload,
   setUploadFile,
   uploadfile,
+  billingStateCode,
+  dispatchStateCode,
+  derivedType,
 }) {
   const [currencies, setCurrencies] = useState([]);
   // const [selectLoading, setSelectLoading] = useState(false);
@@ -96,6 +99,8 @@ export default function AddComponents({
     },
   ];
   const { executeFun, loading } = useApi();
+
+  // console.log("derivedType here in add", derivedType);
   const addRows = () => {
     const newRow = {
       id: v4(),
@@ -108,7 +113,7 @@ export default function AddComponents({
       rate: "",
       duedate: "",
       hsncode: "",
-      gsttype: "L",
+      gsttype: derivedType ? derivedType : "",
       gstrate: "",
       cgst: "0",
       sgst: "0",
@@ -302,6 +307,7 @@ export default function AddComponents({
 
           // return obj;
         } else if (name == "gstrate") {
+          // console.log("row is here", row);
           if (row.gsttype == "L" && name != "gsttype") {
             let percentage = value / 2;
             obj = {
@@ -515,6 +521,7 @@ export default function AddComponents({
     // }
   };
   const resetFunction = () => {
+    // console.log("here");
     setRowCount([
       {
         id: v4(),
@@ -528,7 +535,7 @@ export default function AddComponents({
         duedate: "",
         inrValue: 0,
         hsncode: "",
-        gsttype: "L",
+        gsttype: derivedType,
         gstrate: "",
         cgst: 0,
         sgst: 0,
@@ -582,8 +589,8 @@ export default function AddComponents({
   useEffect(() => {
     if (fileupload == "file" && rowCount.length > 0 && uploadfile) {
       rowCount.map((r) => {
-        console.log("hereeeee is ", r.gstrate);
-        // inputHandler("gsttype,", r.gsttype, r.id);
+        // console.log("hereeeee is ", r.gstrate);
+        inputHandler("gstrate,", r.gstrate, r.id);
       });
     }
   }, [uploadfile]);
@@ -639,7 +646,7 @@ export default function AddComponents({
       // ),
     },
     {
-      headerName: "Product",
+      headerName: "Material",
       width: 250,
       field: "component",
       sortable: false,
@@ -654,7 +661,7 @@ export default function AddComponents({
         ),
     },
     {
-      headerName: "Item Description",
+      headerName: "Material Description",
 
       width: 250,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
@@ -950,7 +957,7 @@ export default function AddComponents({
                     <Col span={24} key={row.label}>
                       <Row>
                         <Col
-                          span={18}
+                          span={14}
                           style={{
                             fontSize: "0.8rem",
                             fontWeight:
@@ -960,7 +967,7 @@ export default function AddComponents({
                         >
                           {row.label}
                         </Col>
-                        <Col span={6} className="right">
+                        <Col span={10} className="right">
                           {row.sign.toString() == "" ? (
                             ""
                           ) : (

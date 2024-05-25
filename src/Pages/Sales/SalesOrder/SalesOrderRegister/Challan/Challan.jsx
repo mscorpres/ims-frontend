@@ -59,7 +59,6 @@ function Challan() {
   const [showDetails, setShowDetails] = useState(null);
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [createAllocation, setCreateAllocation] = useState(false);
   const [filterForm] = Form.useForm();
   const [ModalForm] = Form.useForm();
   const wise = Form.useWatch("wise", filterForm);
@@ -162,7 +161,7 @@ function Challan() {
   const reset = () => {
     ModalForm.resetFields();
     filterForm.resetFields();
-    setCreateAllocation(false);
+    // setCreateAllocation(false);
   };
   const actionColumn = {
     headerName: "",
@@ -178,21 +177,21 @@ function Challan() {
         }}
         label="View"
       />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          setCreateAllocation(row);
-        }}
-        label="Allocate"
-      />,
+      // <GridActionsCellItem
+      //   showInMenu
+      //   // disabled={loading}
+      //   onClick={() => {
+      //     setCreateAllocation(row);
+      //   }}
+      //   label="Allocate"
+      // />,
     ],
   };
-  useEffect(() => {
-    if (!createAllocation) {
-      ModalForm.resetFields();
-    }
-  }, [createAllocation]);
+  // useEffect(() => {
+  //   if (!createAllocation) {
+  //     ModalForm.resetFields();
+  //   }
+  // }, [createAllocation]);
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
@@ -251,7 +250,7 @@ function Challan() {
         />
       </Col>
       <ChallanDetails open={showDetails} hide={() => setShowDetails(null)} />
-      {createAllocation && (
+      {/* {createAllocation && (
         <Modal
           open={createAllocation}
           onOk={() => allocatingChallan(createAllocation)}
@@ -279,7 +278,7 @@ function Challan() {
             </Form.Item>
           </Form>
         </Modal>
-      )}
+      )} */}
     </Row>
   );
 }

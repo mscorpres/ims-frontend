@@ -167,6 +167,13 @@ export const createShipment = async (values, open, details) => {
       item: values.products.map((row) => row.productKey),
       qty: values.products.map((row) => row.qty),
       rate: values.products.map((row) => row.rate),
+      gstType: values.products.map((row) =>
+        row.gstTypeLabel == "LOCAL" ? "L" : "I"
+      ),
+      gstRate: values.products.map((row) => row.gstRate),
+      cgst: values.products.map((row) => row.cgst),
+      sgst: values.products.map((row) => row.sgst),
+      igst: values.products.map((row) => row.igst),
       picklocation: values.products.map((row) => row.pickLocation),
       hsncode: values.products.map((row) => row.hsn),
       remark: values.products.map((row) => row.remark),
@@ -278,9 +285,16 @@ export const updateShipment = async (
       // picklocation: values.products.map((row) => row.pickLocation),
       hsn: values.products.map((row) => row.hsn),
       remark: values.products.map((row) => row.remark),
+      gstType: values.products.map((row) =>
+        row.gstTypeLabel == "LOCAL" ? "L" : "I"
+      ),
+      gstRate: values.products.map((row) => row.gstRate),
+      cgst: values.products.map((row) => row.cgst),
+      sgst: values.products.map((row) => row.sgst),
+      igst: values.products.map((row) => row.igst),
     },
   };
-  // console.log("payload", payload);
+  console.log("payload", payload);
   // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/updateSOshipment",

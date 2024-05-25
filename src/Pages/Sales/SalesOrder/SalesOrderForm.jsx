@@ -62,6 +62,9 @@ const SalesOrderForm = () => {
   const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [uploadfile, setUploadFile] = useState(false);
+  const [billingStateCode, setBiliingStateCode] = useState("");
+  const [shippingStateCode, setShippingStateCode] = useState("");
+  const [derivedType, setDerivedType] = useState("");
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
@@ -75,7 +78,7 @@ const SalesOrderForm = () => {
       duedate: "",
       inrValue: 0,
       hsncode: "",
-      gsttype: "L",
+      gsttype: derivedType,
       gstrate: "",
       cgst: 0,
       sgst: 0,
@@ -89,23 +92,47 @@ const SalesOrderForm = () => {
       diffPercentage: "--",
     },
   ]);
+
   const [showAddVendorModal, setShowAddVendorModal] = useState(false);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
   const [fileupload, setFileUpload] = useState("table");
   const [pageLoading, setPageLoading] = useState(false);
   const [copyinfo, setCopyInfo] = useState("");
+  const [stateOptions, setStateOptions] = useState([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const iscomponents = Form.useWatch("pocreatetype", form);
   const client = Form.useWatch("client", form);
   const clientbranch = Form.useWatch("clientbranch", form);
   const billaddressid = Form.useWatch("billaddressid", form);
+  const dispatchStateCode = Form.useWatch("shippingstate", form);
   const shipaddressid = Form.useWatch("shipaddressid", form);
   const fetchQty = form.getFieldValue("qty");
 
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
+  const stateCode = async () => {
+    // const values = await form.validateFields();
+    // let dispatchStateCode = "7";
+    // let billingStateCode = "07";
+    // console.log("dispatchtSateaCode-----", dispatchStateCode);
+    // console.log("billingStateCode-----", billingStateCode);
+    if (Number(dispatchStateCode?.key) != Number(billingStateCode)) {
+      // console.log("here");
+      setDerivedType("I");
+      // setDerivedType({ value: "I", text: "INTER STATE" });
+    } else {
+      // console.log("same");
+      setDerivedType("L");
+      // setDerivedType({ value: "L", text: "LOCAL" });
+    }
+  };
+  console.log("derivedType", derivedType);
+  useEffect(() => {
+    // console.log("here in state code");
+    stateCode();
+  }, [dispatchStateCode]);
   const toggleInputType = (checked) => {
     setCopyInfo(checked);
     // console.log(`switch to ${checked}`);
@@ -199,6 +226,9 @@ const SalesOrderForm = () => {
     if (response.success) {
       const { data } = response;
       form.setFieldValue("billPan", data.data.pan);
+      // console.log("data.data.statecode", data.data.statecode);
+      form.setFieldValue("billingStateCode");
+      setBiliingStateCode(data.data.statecode);
       form.setFieldValue("billGST", data.data.gstin);
       let newStringaddress = removeHtml(data.data.address);
       form.setFieldValue("billaddress", newStringaddress);
@@ -222,6 +252,18 @@ const SalesOrderForm = () => {
       "select"
     );
     setAsyncOptions(response.data);
+  };
+  const getState = async (e) => {
+    setPageLoading(true);
+    const { data } = await imsAxios.get("/tally/backend/states", { search: e });
+    setPageLoading(false);
+    if (data.data[0]) {
+      let arr = data.data.map((row) => ({
+        text: row.name,
+        value: row.code,
+      }));
+      setStateOptions(arr);
+    }
   };
   const handleProjectChange = async (projectId) => {
     const response = await executeFun(
@@ -304,7 +346,8 @@ const SalesOrderForm = () => {
             : getInt(row.orderqty) * getInt(row.rate),
         duedate: row.due_date, //this
         hsncode: row.hsncode,
-        gsttype: row.gsttype[0].id, //this
+        gsttype: derivedType,
+        // gsttype: row.gsttype[0].id, //this
         gstrate: row.gstrate,
         cgst: row.cgst,
         sgst: row.sgst,
@@ -418,6 +461,8 @@ const SalesOrderForm = () => {
   };
 
   const resetFunction = () => {
+    setRowCount([{}]);
+    // console.log("here");
     form.resetFields();
     setShowDetailsConfirm(false);
   };
@@ -450,6 +495,7 @@ const SalesOrderForm = () => {
         hsncode: row?.hsn,
         rate: row?.rate,
         remark: row?.item_desc,
+        unit: row?.unit,
 
         duedate: row?.due_date, //this
         gsttype: row?.gst_type, //this
@@ -486,6 +532,40 @@ const SalesOrderForm = () => {
       handleFetchOrderDetails(orderId);
     }
   }, []);
+  useEffect(() => {
+    getState();
+  }, []);
+  useEffect(() => {
+    if (derivedType) {
+      setRowCount([
+        {
+          id: v4(),
+          type: "product",
+          index: 1,
+          currency: "364907247",
+          exchange_rate: 1,
+          component: "",
+          qty: 1,
+          rate: "",
+          duedate: "",
+          inrValue: 0,
+          hsncode: "",
+          gsttype: derivedType,
+          gstrate: "",
+          cgst: 0,
+          sgst: 0,
+          igst: 0,
+          remark: "--",
+          unit: "--",
+          rate_cap: 0,
+          tol_price: 0,
+          project_req_qty: 0,
+          po_exec_qty: 0,
+          diffPercentage: "--",
+        },
+      ]);
+    }
+  }, [derivedType]);
   useEffect(() => {
     if (billaddressid) {
       getBillingAddress(billaddressid);
@@ -687,7 +767,7 @@ const SalesOrderForm = () => {
                         </Col>
                       </Row>
                       <Row gutter={8}>
-                        <Col span={18}>
+                        <Col span={14}>
                           <Form.Item
                             name="clientaddress"
                             label="Billing Address"
@@ -929,7 +1009,7 @@ const SalesOrderForm = () => {
                       </Row>
                       {/* billing address */}
                       <Row>
-                        <Col span={18}>
+                        <Col span={14}>
                           <Form.Item
                             name="billaddress"
                             label="Bill From Address"
@@ -973,7 +1053,7 @@ const SalesOrderForm = () => {
                               // options={shipToOptions}
                               options={clientBranchOptions}
                             /> */}
-                            <Input />
+                            <Input size="default" />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
@@ -1002,10 +1082,27 @@ const SalesOrderForm = () => {
                             />
                           </Form.Item>
                         </Col>
+                        {copyinfo == false && (
+                          <Col span={6}>
+                            <Form.Item
+                              name="shippingstate"
+                              label="State"
+                              // rules={rules.shipGST}
+                            >
+                              <MySelect
+                                // selectLoading={loading("clientSelect")}
+                                labelInValue
+                                onBlur={() => setStateOptions([])}
+                                options={stateOptions}
+                                // loadOptions={getState}
+                              />
+                            </Form.Item>
+                          </Col>
+                        )}
                       </Row>
                       {/* shipping address */}
                       <Row>
-                        <Col span={18}>
+                        <Col span={14}>
                           <Form.Item
                             label="Address"
                             name="shipaddress"
@@ -1059,6 +1156,9 @@ const SalesOrderForm = () => {
                     callFileUpload={callFileUpload}
                     setUploadFile={setUploadFile}
                     uploadfile={uploadfile}
+                    billingStateCode={billingStateCode}
+                    dispatchStateCode={dispatchStateCode}
+                    derivedType={derivedType}
                   />
                 </div>
               </Tabs.TabPane>

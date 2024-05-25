@@ -177,7 +177,7 @@ function SalesORderRegister() {
           // setOpen(true);
           getComponentsList(row);
         }}
-        label="Components list"
+        label="Material list"
       />,
       <GridActionsCellItem
         showInMenu
@@ -372,7 +372,7 @@ function SalesORderRegister() {
           className="message-modal"
           // closable={false}
           destroyOnClose={true}
-          title={`Component List `}
+          title={`Material List `}
         >
           <MyDataTable
             loading={loading("fetch")}
