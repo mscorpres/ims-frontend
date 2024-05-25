@@ -44,17 +44,18 @@ const ChallanDetails = ({ open, hide }) => {
       }
     );
     if (response.success) {
+      setCreateAllocation(false);
       toast.success(response.message);
       reset();
-      setCreateAllocation(false);
     } else {
+      // setCreateAllocation(false);
       toast.error(response.message);
     }
   };
   const reset = () => {
     ModalForm.resetFields();
     filterForm.resetFields();
-    // setCreateAllocation(false);
+    setCreateAllocation(false);
   };
   const handleFetchChallanDetails = async (challanId) => {
     const response = await executeFun(
