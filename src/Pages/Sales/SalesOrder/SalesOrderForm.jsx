@@ -353,8 +353,8 @@ const SalesOrderForm = () => {
             : getInt(row.orderqty) * getInt(row.rate),
         duedate: row.due_date, //this
         hsncode: row.hsncode,
-        gsttype: derivedType,
-        // gsttype: row.gsttype[0].id, //this
+        // gsttype: row.gsttype,
+        gsttype: row.gsttype[0].id, //this
         gstrate: row.gstrate,
         cgst: row.cgst,
         sgst: row.sgst,
