@@ -811,7 +811,7 @@ export default function AddComponents({
         />
       )}
       <Row style={{ height: "100%" }} gutter={8}>
-        <Col style={{ height: "100%" }} span={6}>
+        <Col style={{ height: "100%", overflow: "auto" }} span={6}>
           <Row gutter={[0, 4]} style={{ height: "100%" }} justify="center">
             {/* vendor card */}
 
@@ -852,8 +852,66 @@ export default function AddComponents({
                 </Col>
               </Row>
             </Col>
+            {/* tax detail card */}
+            <Col span={24} style={{ height: "50%" }}>
+              <Card
+                style={{ height: "100%" }}
+                // bodyStyle={{ height: "90%" }}
+                title="Tax Detail"
+              >
+                <Row gutter={[0, 4]}>
+                  {totalValues?.map((row) => (
+                    <Col span={24} key={row.label}>
+                      <Row>
+                        <Col
+                          span={14}
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight:
+                              totalValues?.indexOf(row) ==
+                                totalValues.length - 1 && 600,
+                          }}
+                        >
+                          {row.label}
+                        </Col>
+                        <Col span={10} className="right">
+                          {row.sign.toString() == "" ? (
+                            ""
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: "0.7rem",
+                                fontWeight:
+                                  totalValues?.indexOf(row) ==
+                                    totalValues.length - 1 && 600,
+                              }}
+                            >
+                              ({row.sign.toString()}){" "}
+                            </span>
+                          )}
+                          <span
+                            style={{
+                              fontSize: "0.8rem",
+                              fontWeight:
+                                totalValues?.indexOf(row) ==
+                                  totalValues.length - 1 && 600,
+                            }}
+                          >
+                            {Number(
+                              row.values?.reduce((partialSum, a) => {
+                                return partialSum + Number(a);
+                              }, 0)
+                            ).toFixed(2)}
+                          </span>
+                        </Col>
+                      </Row>
+                    </Col>
+                  ))}
+                </Row>
+              </Card>
+            </Col>
             {/* </Col> */}
-            {/* </r> */}
+            {/* </r> client details*/}
             <Col span={24} style={{ height: "50%" }}>
               <Card
                 style={{ height: "100%" }}
@@ -927,64 +985,6 @@ export default function AddComponents({
                 </Row>
               </Card>
             </Col>
-            {/* tax detail card */}
-            <Col span={24} style={{ height: "50%" }}>
-              <Card
-                style={{ height: "100%" }}
-                // bodyStyle={{ height: "90%" }}
-                title="Tax Detail"
-              >
-                <Row gutter={[0, 4]}>
-                  {totalValues?.map((row) => (
-                    <Col span={24} key={row.label}>
-                      <Row>
-                        <Col
-                          span={14}
-                          style={{
-                            fontSize: "0.8rem",
-                            fontWeight:
-                              totalValues?.indexOf(row) ==
-                                totalValues.length - 1 && 600,
-                          }}
-                        >
-                          {row.label}
-                        </Col>
-                        <Col span={10} className="right">
-                          {row.sign.toString() == "" ? (
-                            ""
-                          ) : (
-                            <span
-                              style={{
-                                fontSize: "0.7rem",
-                                fontWeight:
-                                  totalValues?.indexOf(row) ==
-                                    totalValues.length - 1 && 600,
-                              }}
-                            >
-                              ({row.sign.toString()}){" "}
-                            </span>
-                          )}
-                          <span
-                            style={{
-                              fontSize: "0.8rem",
-                              fontWeight:
-                                totalValues?.indexOf(row) ==
-                                  totalValues.length - 1 && 600,
-                            }}
-                          >
-                            {Number(
-                              row.values?.reduce((partialSum, a) => {
-                                return partialSum + Number(a);
-                              }, 0)
-                            ).toFixed(2)}
-                          </span>
-                        </Col>
-                      </Row>
-                    </Col>
-                  ))}
-                </Row>
-              </Card>
-            </Col>
           </Row>
         </Col>
         <Col
@@ -993,7 +993,7 @@ export default function AddComponents({
             height: "100%",
             padding: 0,
 
-            border: "1px solid #EEEEEE",
+            border: "2px solid #EEEEEE",
           }}
         >
           <FormTable columns={columns} data={rowCount} />

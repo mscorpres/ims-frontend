@@ -474,7 +474,7 @@ const SalesOrderForm = () => {
     setShowDetailsConfirm(false);
   };
   const resetFunction2 = () => {
-    console.log("here");
+    // console.log("here");
     setRowCount([
       // {
       //   id: v4(),
@@ -512,38 +512,72 @@ const SalesOrderForm = () => {
       "/sellRequest/uploadSOItems",
       formData
     );
+
     let { data } = response;
     if (response.success) {
-      const arr = data.map((row, index) => ({
-        id: { v4 },
-        // pocreatetype: client[0].soType_value,
-        type: row?.item_type,
-        currency: row?.currency,
-        index: index + 1,
-
-        component: {
-          label: row.item?.text,
-          value: row.item?.value,
-        },
-        qty: row?.qty,
-        hsncode: row?.hsn,
-        rate: row?.rate,
-        remark: row?.item_desc,
-        unit: row?.unit,
-
-        duedate: row?.due_date, //this
-        gsttype: row?.gst_type, //this
-        gstrate: row?.gst_rate,
-      }));
-      setRowCount(arr);
+      setPageLoading(false);
+      uploadInputhandler(data);
       setUploadFile(true);
-      setPageLoading(false);
     } else {
-      toast.error(response.message);
       setPageLoading(false);
+      toast.error(response.message);
     }
     setPageLoading(false);
   };
+
+  const uploadInputhandler = (source) => {
+    let arr = source;
+    arr = arr.map((row, index) => ({
+      id: v4(),
+      type: row.item_type,
+      index: index + 1,
+      currency: row.currency,
+      exchange_rate: 1,
+      component: {
+        label: row.item?.text,
+        value: row.item?.value,
+      },
+      qty: row.qty,
+      rate: row.rate,
+      duedate: row.due_date,
+      inrValue: +Number(row.rate) * +Number(row.qty) * +Number(1),
+      hsncode: row.hsn,
+      gsttype: row.gst_type,
+      gstrate: row.gst_rate,
+      cgst:
+        row.gst_type === "I"
+          ? 0
+          : (+Number(row.rate) *
+              +Number(row.qty) *
+              +Number(1) *
+              +Number(row.gst_rate)) /
+            2 /
+            100,
+      sgst:
+        row.gst_type === "I"
+          ? 0
+          : (+Number(row.rate) *
+              +Number(row.qty) *
+              +Number(1) *
+              +Number(row.gst_rate)) /
+            2 /
+            100,
+      igst:
+        row.gst_type !== "I"
+          ? 0
+          : (+Number(row.rate) *
+              +Number(row.qty) *
+              +Number(1) *
+              +Number(row.gst_rate)) /
+            100,
+      remark: row.item_desc,
+      unit: row.unit,
+    }));
+
+    console.log("after calculation", arr);
+    setRowCount(arr);
+  };
+
   useEffect(() => {
     if (showAddVendorModal === true) {
       navigate("/tally/clients/add");
