@@ -117,18 +117,20 @@ const SalesOrderForm = () => {
     // const values = await form.validateFields();
     // let dispatchStateCode = "7";
     // let billingStateCode = "07";
-    // console.log("dispatchtSateaCode-----", dispatchStateCode);
-    // console.log("billingStateCode-----", billingStateCode);
+    // console.log("dispatchStateCode-----", dispatchStateCode);
+    // console.log("biliingStateCode-----", biliingStateCode);
+    // console.log("shippingStateCode-----", shippingStateCode);
     if (
-      Number(dispatchStateCode?.key) != Number(biliingStateCode) ||
-      Number(dispatchStateCode?.key) != Number(shippingStateCode)
+      Number(dispatchStateCode?.key) == Number(biliingStateCode) ||
+      Number(biliingStateCode) == Number(shippingStateCode)
     ) {
-      // console.log("here");
-      setDerivedType("I");
+      console.log("here");
+      setDerivedType("L");
+      
       // setDerivedType({ value: "I", text: "INTER STATE" });
     } else {
-      // console.log("same");
-      setDerivedType("L");
+      console.log("same");
+      setDerivedType("I");
       // setDerivedType({ value: "L", text: "LOCAL" });
     }
   };
@@ -136,7 +138,7 @@ const SalesOrderForm = () => {
   useEffect(() => {
     // console.log("here in state code");
     stateCode();
-  }, [dispatchStateCode]);
+  }, [dispatchStateCode, biliingStateCode, shippingStateCode]);
   const toggleInputType = (checked) => {
     setCopyInfo(checked);
     // console.log(`switch to ${checked}`);
@@ -164,12 +166,17 @@ const SalesOrderForm = () => {
     );
     console.log("response of client", response);
     if (response.success) {
+      // console.log("response.data.data", response.data.data);
       const arr = response.data.data.map((row) => ({
         text: row.city.name,
         value: row.city.id,
       }));
+      console.log(
+        " response.data?.data?.state?.key]",
+        response.data?.data[0].state.code
+      );
+      setShippingStateCode(response.data?.data[0]?.state?.code);
       form.setFieldValue("clientbranch", arr[0]);
-      setShippingStateCode(response.data.data.state.key);
       return setClientBranchOptions(arr);
     }
     setClientBranchOptions([]);
