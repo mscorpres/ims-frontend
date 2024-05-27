@@ -96,6 +96,25 @@ const ChallanDetails = ({ open, hide }) => {
     }
     setAsyncOptions(arr);
   };
+  const callEInvoice = async () => {
+    // toast.success(
+    //   `The Acknowledgement Number - ${11},\nInvoice Date - ${11},\nIRN No. is- ${11}`
+    // );
+    // return;
+    const response = await imsAxios.post(
+      "/so_challan_shipment/generateEinvoice",
+      {
+        so_invoice: open,
+      }
+    );
+    if (response.success) {
+      // console.log("response", response.data);
+      toast.success(
+        `The Acknowledgement Number -${response.data.ack_no} ,\n Invoice Date -${response.data.invoice_date},\n IRN No. is- ${response.data.irn_no}`
+      );
+      // toast.success(response.data);
+    }
+  };
   useEffect(() => {
     if (open) {
       handleFetchChallanDetails(open);
@@ -226,13 +245,18 @@ const ChallanDetails = ({ open, hide }) => {
               >
                 Allocate
               </Button>
-              <Button style={{ marginLeft: "8px" }}>
-                <a
+              <Button
+                style={{ marginLeft: "8px" }}
+                onClick={() => {
+                  callEInvoice();
+                }}
+              >
+                {/* <a
                   href="https://dev.mscorpres.net/files/so_invoice.pdf"
                   // target="_blank"
-                >
-                  Generate E-Invoice
-                </a>
+                > */}
+                Generate E-Invoice
+                {/* </a> */}
               </Button>
             </Row>
           </Col>
