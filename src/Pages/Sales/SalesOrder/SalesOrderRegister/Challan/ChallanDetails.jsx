@@ -109,9 +109,9 @@ const ChallanDetails = ({ open, hide }) => {
     );
     if (response.success) {
       // console.log("response", response.data);
-      toast.success(
-        `The Acknowledgement Number -${response.data.ack_no} ,\n Invoice Date -${response.data.invoice_date},\n IRN No. is- ${response.data.irn_no}`
-      );
+      toast.success(`The Acknowledgement Number -${response.data.ack_no} `);
+      toast.success(`Invoice Date -${response.data.invoice_date}`);
+      toast.success(`IRN No. is- ${response.data.irn_no}`);
       // toast.success(response.data);
     }
   };
