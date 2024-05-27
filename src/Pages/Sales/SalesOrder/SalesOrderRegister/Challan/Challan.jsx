@@ -1,7 +1,10 @@
 import { Space, Row, Form, Card, Col, Modal, Divider } from "antd";
 import React, { useState } from "react";
 import MyDatePicker from "../../../../../Components/MyDatePicker";
-import { getChallanList } from "../../../../../api/sales/salesOrder";
+import {
+  getChallanList,
+  printOrderForChallan,
+} from "../../../../../api/sales/salesOrder";
 import useApi from "../../../../../hooks/useApi.ts";
 import MyDataTable from "../../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
@@ -24,6 +27,7 @@ import {
 } from "../../../../../api/finance/clients.js";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import printFunction from "../../../../../Components/printFunction.jsx";
 
 const wiseOptions = [
   {
@@ -108,6 +112,17 @@ function Challan() {
     // console.log("arr---", arr);
     setAsyncOptions(arr);
   };
+  const handlePrintOrder = async (orderId) => {
+    const response = await executeFun(
+      () => printOrderForChallan(orderId),
+      "print"
+    );
+    let { data } = response;
+    if (response.success) {
+      // console.log("response", data.buffer.data);
+      printFunction(data.buffer.data, data.buffer.filename);
+    }
+  };
   // const createAllocation = async (row) => {
   //   Modal.confirm({
   //     title: "Are you sure you want to allocate this Challan?",
@@ -176,6 +191,14 @@ function Challan() {
           setShowDetails(row?.challanId);
         }}
         label="View"
+      />,
+      <GridActionsCellItem
+        showInMenu
+        // disabled={loading}
+        onClick={() => {
+          handlePrintOrder(row.challanId);
+        }}
+        label="Print"
       />,
       // <GridActionsCellItem
       //   showInMenu

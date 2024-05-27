@@ -115,6 +115,17 @@ export const printOrder = async (orderId) => {
   return response;
 };
 
+export const printOrderForChallan = async (orderId) => {
+  const payload = {
+    so_invoice: orderId,
+  };
+  const response = await imsAxios.post(
+    "/so_challan_shipment/printSellInvoice",
+    payload
+  );
+  return response;
+};
+
 export const createChallanFromSo = async (shipments, remark) => {
   console.log("shipments", shipments);
   let payload = {
