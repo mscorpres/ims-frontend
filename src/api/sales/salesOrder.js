@@ -173,7 +173,7 @@ export const createShipment = async (values, open, details) => {
     },
     material: {
       item: values.products.map((row) => row.productKey),
-      qty: values.products.map((row) => row.qty),
+      qty: values.products.map((row) => row.oldbillqty),
       rate: values.products.map((row) => row.rate),
       gstType: values.products.map((row) =>
         row.gstTypeLabel == "LOCAL" ? "L" : "I"

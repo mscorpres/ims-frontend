@@ -319,7 +319,7 @@ const columns = [
     field: "date",
   },
   {
-    headerName: "Invoice Id",
+    headerName: "Invoice Number",
     width: 180,
     field: "challanId",
     renderCell: ({ row }) => (

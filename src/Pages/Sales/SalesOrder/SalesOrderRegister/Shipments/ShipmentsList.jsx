@@ -480,14 +480,14 @@ const columns = [
     field: "shippingAddress",
     renderCell: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
   },
-  {
-    headerName: "Invoice Created",
-    width: 100,
-    field: "challanStatus",
-  },
   // {
-  //   headerName: "Status",
-  //   width: 80,
-  //   field: "status",
+  //   headerName: "Invoice Created",
+  //   width: 100,
+  //   field: "challanStatus",
   // },
+  {
+    headerName: "Status",
+    width: 80,
+    field: "status",
+  },
 ];

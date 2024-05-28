@@ -10,6 +10,8 @@ import {
   Form,
   Modal,
   Divider,
+  Menu,
+  Dropdown,
 } from "antd";
 import MyDataTable from "../../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
@@ -97,21 +99,84 @@ const ChallanDetails = ({ open, hide }) => {
     setAsyncOptions(arr);
   };
   const callEInvoice = async () => {
-    // toast.success(
-    //   `The Acknowledgement Number - ${11},\nInvoice Date - ${11},\nIRN No. is- ${11}`
-    // );
-    // return;
     const response = await imsAxios.post(
       "/so_challan_shipment/generateEinvoice",
       {
         so_invoice: open,
       }
     );
+
     if (response.success) {
       // console.log("response", response.data);
-      toast.success(`The Acknowledgement Number -${response.data.ack_no} `);
-      toast.success(`Invoice Date -${response.data.invoice_date}`);
-      toast.success(`IRN No. is- ${response.data.irn_no}`);
+      Modal.info({
+        title: `${response.message}`,
+        width: 600,
+        content: (
+          <div>
+            <Divider />
+            <Col span={24}>
+              <Typography.Title level={5}>
+                Acknowledgement Number -{response.data.ack_no}
+              </Typography.Title>
+            </Col>
+            <Col span={24}>
+              <Typography.Title level={5}>
+                Invoice Date -{response.data.invoice_date}
+              </Typography.Title>
+            </Col>
+            <Col span={24}>
+              <Typography.Title level={5}>
+                IRN Number- {response.data.irn_no}
+              </Typography.Title>
+            </Col>
+            <Divider />
+          </div>
+        ),
+      });
+    }
+  };
+  const callEwayBill = async () => {
+    const response = await imsAxios.post(
+      "/so_challan_shipment/generateEwayBill",
+      {
+        so_invoice: open,
+      }
+    );
+    if (response.success) {
+      Modal.info({
+        title: `${response.message}`,
+        content: (
+          <div>
+            <Divider />
+            <Col span={24}>
+              <Typography.Title level={5}>
+                Eway Bill Number -{response.data.ewayBillNo}
+              </Typography.Title>
+            </Col>
+            <Col span={24}>
+              <Typography.Title level={5}>
+                Eway Bill Date -{response.data.ewayBillDate}
+              </Typography.Title>
+            </Col>
+            <Col span={24}>
+              <Typography.Title level={5}>
+                Generate By- {response.data.generateBy}
+              </Typography.Title>
+            </Col>
+            <Col span={24}>
+              <Typography.Title level={5}>
+                Valid Upto- {response.data.validUpto}
+              </Typography.Title>
+            </Col>
+            <Divider />
+          </div>
+        ),
+      });
+      // console.log("response", response.data);
+      // return;
+      // toast.success(
+      //   `The Acknowledgement Number -${response.data.ack_no} Invoice Date -${response.data.invoice_date} IRN No. is- ${response.data.irn_no}`
+      // );
       // toast.success(response.data);
     }
   };
@@ -161,9 +226,19 @@ const ChallanDetails = ({ open, hide }) => {
     ];
     setTotalValues(obj);
   }, [rows]);
+  const items = [
+    {
+      key: "1",
+      label: <a onClick={callEInvoice}>E-Invoice</a>,
+    },
+    {
+      key: "2",
+      label: <a onClick={callEwayBill}> E-way Bill</a>,
+    },
+  ];
   return (
     <Drawer
-      title={`Challan Details : ${open ?? ""}`}
+      title={`Invoice Details : ${open ?? ""}`}
       open={open}
       onClose={hide}
       width="90%"
@@ -245,7 +320,16 @@ const ChallanDetails = ({ open, hide }) => {
               >
                 Allocate
               </Button>
-              <Button
+              <Dropdown
+                menu={{
+                  items,
+                }}
+                placement="bottom"
+                arrow
+              >
+                <Button>Generate</Button>
+              </Dropdown>
+              {/* <Button
                 style={{ marginLeft: "8px" }}
                 onClick={() => {
                   callEInvoice();
@@ -255,9 +339,22 @@ const ChallanDetails = ({ open, hide }) => {
                   href="https://dev.mscorpres.net/files/so_invoice.pdf"
                   // target="_blank"
                 > */}
-                Generate E-Invoice
-                {/* </a> */}
-              </Button>
+
+              {/* </a> */}
+              {/* </Button>
+              <Button
+                style={{ marginLeft: "8px" }}
+                onClick={() => {
+                  callEwayBill();
+                }}
+              > */}
+              {/* <a
+                  href="https://dev.mscorpres.net/files/so_invoice.pdf"
+                  // target="_blank"
+                > */}
+
+              {/* </a> */}
+              {/* </Button> */}
             </Row>
           </Col>
           <MyDataTable

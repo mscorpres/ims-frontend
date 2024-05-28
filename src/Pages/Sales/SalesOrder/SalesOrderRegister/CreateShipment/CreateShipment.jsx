@@ -62,11 +62,11 @@ function CreateShipment({
   const calculation = (id, row) => {
     // console.log("row us here", row);
     const exchangeRate = row.exchangeRate ?? 1;
-    const qty = row.qty;
+    const oldbillqty = row.oldbillqty;
     const rate = row.rate;
     const inrValue =
-      +Number(qty) * +Number(rate) * +Number(exchangeRate).toFixed(2);
-    const foreignValue = +Number(qty) * +Number(rate);
+      +Number(oldbillqty) * +Number(rate) * +Number(exchangeRate).toFixed(2);
+    const foreignValue = +Number(oldbillqty) * +Number(rate);
     const foreignValueCombined = `${row.currencySymbol ?? ""} ${foreignValue}`;
     let cgst;
     let sgst;
@@ -170,6 +170,7 @@ function CreateShipment({
           hsn: material.hsncode,
           qty: material.orderqty,
           pendingqty: material.pendingqty,
+          oldbillqty: material.pendingqty,
           rate: material.rate,
           pickLocation: "",
 
@@ -248,7 +249,7 @@ function CreateShipment({
         client_address,
         shipping,
       } = response.data.header;
-      // console.log("response.data", response.data);
+      console.log("response.data", response.data);
 
       const detailsObj = {
         clientName: client.name,
@@ -287,7 +288,7 @@ function CreateShipment({
           product: m.item_name,
           productKey: m.item_key,
           hsn: m.hsn_code,
-          qty: m.item_qty,
+          oldbillqty: m.item_qty,
           rate: m.item_rate,
           inrValue:
             +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),
@@ -309,6 +310,7 @@ function CreateShipment({
       };
 
       console.log("detailsObj", detailsObj);
+      console.log("obj", obj);
       handleFetchShippingOptions(detailsObj.clientCode);
       setDetails(detailsObj);
       shipmentForm.setFieldsValue(obj);
@@ -473,6 +475,7 @@ const Product = ({
       watchKeys={[
         "rate",
         "qty",
+        "oldbillqty",
         "gstRate",
         "exchangeRate",
         "currencySymbol",
@@ -482,7 +485,7 @@ const Product = ({
         "gstRate",
       ]}
       nonListWatchKeys={["gstTypeLabel"]}
-      componentRequiredRef={["rate", "qty", "pickLocation"]}
+      componentRequiredRef={["rate", "qty", "pickLocation", "oldbillqty"]}
       form={form}
       calculation={calculation}
       rules={{
@@ -552,13 +555,18 @@ const productItems = (
           width: 150,
           field: () => <Input disabled={true} />,
         },
+        // {
+        //   headerName: "Ord. Qty",
+        //   name: "qty",
+        //   width: 100,
+        //   field: () => <Input />,
+        // },
         {
-          headerName: "Ord. Qty",
-          name: "qty",
+          headerName: "Bill Qty",
+          name: "oldbillqty",
           width: 100,
-          field: () => <Input />,
+          field: (row) => <Input />,
         },
-
         {
           headerName: "Rate",
           name: "rate",
@@ -749,16 +757,22 @@ const productItems = (
           field: () => <Input disabled={true} />,
         },
         {
-          headerName: "Qty",
-          name: "qty",
+          headerName: "Bill Qty",
+          name: "oldbillqty",
           width: 100,
-          field: () => <Input />,
+          field: (row) => <Input />,
         },
         {
           headerName: "Pending Qty",
           name: "pendingqty",
           width: 100,
-          field: () => <Input />,
+          field: () => <Input disabled />,
+        },
+        {
+          headerName: "Qty",
+          name: "qty",
+          width: 100,
+          field: () => <Input disabled />,
         },
         {
           headerName: "Rate",
