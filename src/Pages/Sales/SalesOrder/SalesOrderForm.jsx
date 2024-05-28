@@ -62,6 +62,9 @@ const SalesOrderForm = () => {
   const [branchAddOpen, setBranchAddOpen] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [uploadfile, setUploadFile] = useState(false);
+  const [biliingStateCode, setBiliingStateCode] = useState("");
+  const [shippingStateCode, setShippingStateCode] = useState("");
+  const [derivedType, setDerivedType] = useState("");
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
@@ -75,7 +78,7 @@ const SalesOrderForm = () => {
       duedate: "",
       inrValue: 0,
       hsncode: "",
-      gsttype: "L",
+      gsttype: derivedType,
       gstrate: "",
       cgst: 0,
       sgst: 0,
@@ -89,23 +92,53 @@ const SalesOrderForm = () => {
       diffPercentage: "--",
     },
   ]);
+
+  const [confirmReset, setConfirmReset] = useState(false);
   const [showAddVendorModal, setShowAddVendorModal] = useState(false);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
   const [fileupload, setFileUpload] = useState("table");
   const [pageLoading, setPageLoading] = useState(false);
   const [copyinfo, setCopyInfo] = useState("");
+  const [stateOptions, setStateOptions] = useState([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const iscomponents = Form.useWatch("pocreatetype", form);
   const client = Form.useWatch("client", form);
   const clientbranch = Form.useWatch("clientbranch", form);
   const billaddressid = Form.useWatch("billaddressid", form);
+  const dispatchStateCode = Form.useWatch("shippingstate", form);
   const shipaddressid = Form.useWatch("shipaddressid", form);
   const fetchQty = form.getFieldValue("qty");
 
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
+  const stateCode = async () => {
+    // const values = await form.validateFields();
+    // let dispatchStateCode = "7";
+    // let billingStateCode = "07";
+    // console.log("dispatchStateCode-----", dispatchStateCode);
+    // console.log("biliingStateCode-----", biliingStateCode);
+    // console.log("shippingStateCode-----", shippingStateCode);
+    if (
+      Number(dispatchStateCode?.key) == Number(biliingStateCode) ||
+      Number(biliingStateCode) == Number(shippingStateCode)
+    ) {
+      console.log("here");
+      setDerivedType("L");
+      
+      // setDerivedType({ value: "I", text: "INTER STATE" });
+    } else {
+      console.log("same");
+      setDerivedType("I");
+      // setDerivedType({ value: "L", text: "LOCAL" });
+    }
+  };
+  console.log("derivedType", derivedType);
+  useEffect(() => {
+    // console.log("here in state code");
+    stateCode();
+  }, [dispatchStateCode, biliingStateCode, shippingStateCode]);
   const toggleInputType = (checked) => {
     setCopyInfo(checked);
     // console.log(`switch to ${checked}`);
@@ -128,13 +161,21 @@ const SalesOrderForm = () => {
   const handleFetchClientBranchOptions = async (clientCode) => {
     const response = await executeFun(
       () => getClientBranches(clientCode),
+      // ?\
       "select"
     );
+    console.log("response of client", response);
     if (response.success) {
+      // console.log("response.data.data", response.data.data);
       const arr = response.data.data.map((row) => ({
         text: row.city.name,
         value: row.city.id,
       }));
+      console.log(
+        " response.data?.data?.state?.key]",
+        response.data?.data[0].state.code
+      );
+      setShippingStateCode(response.data?.data[0]?.state?.code);
       form.setFieldValue("clientbranch", arr[0]);
       return setClientBranchOptions(arr);
     }
@@ -199,6 +240,9 @@ const SalesOrderForm = () => {
     if (response.success) {
       const { data } = response;
       form.setFieldValue("billPan", data.data.pan);
+      // console.log("data.data.statecode", data.data.statecode);
+      form.setFieldValue("billingStateCode");
+      setBiliingStateCode(data.data.statecode);
       form.setFieldValue("billGST", data.data.gstin);
       let newStringaddress = removeHtml(data.data.address);
       form.setFieldValue("billaddress", newStringaddress);
@@ -222,6 +266,18 @@ const SalesOrderForm = () => {
       "select"
     );
     setAsyncOptions(response.data);
+  };
+  const getState = async (e) => {
+    setPageLoading(true);
+    const { data } = await imsAxios.get("/tally/backend/states", { search: e });
+    setPageLoading(false);
+    if (data.data[0]) {
+      let arr = data.data.map((row) => ({
+        text: row.name,
+        value: row.code,
+      }));
+      setStateOptions(arr);
+    }
   };
   const handleProjectChange = async (projectId) => {
     const response = await executeFun(
@@ -304,6 +360,7 @@ const SalesOrderForm = () => {
             : getInt(row.orderqty) * getInt(row.rate),
         duedate: row.due_date, //this
         hsncode: row.hsncode,
+        // gsttype: row.gsttype,
         gsttype: row.gsttype[0].id, //this
         gstrate: row.gstrate,
         cgst: row.cgst,
@@ -418,14 +475,43 @@ const SalesOrderForm = () => {
   };
 
   const resetFunction = () => {
+    setRowCount([{}]);
+    // console.log("here");
     form.resetFields();
     setShowDetailsConfirm(false);
+  };
+  const resetFunction2 = () => {
+    // console.log("here");
+    setRowCount([
+      // {
+      //   id: v4(),
+      //   type: "product",
+      //   index: 1,
+      //   currency: "364907247",
+      //   exchange: "1",
+      //   component: "",
+      //   qty: 1,
+      //   rate: "",
+      //   duedate: "",
+      //   inrValue: 0,
+      //   hsncode: "",
+      //   gsttype: derivedType,
+      //   gstrate: "",
+      //   cgst: 0,
+      //   sgst: 0,
+      //   igst: 0,
+      //   remark: "--",
+      //   unit: "--",
+      // },
+    ]);
+    setConfirmReset(false);
   };
 
   const nextFun = () => {
     setActiveTab("2");
   };
   const callFileUpload = async () => {
+    setPageLoading(true);
     const values = await form.validateFields();
     const formData = new FormData();
     formData.append("file", values.files[0].originFileObj);
@@ -433,34 +519,72 @@ const SalesOrderForm = () => {
       "/sellRequest/uploadSOItems",
       formData
     );
+
     let { data } = response;
     if (response.success) {
-      const arr = data.map((row, index) => ({
-        id: { v4 },
-        // pocreatetype: client[0].soType_value,
-        type: row.item_type,
-        // currency: "364907247",
-        index: index + 1,
-
-        component: {
-          label: row.item?.text,
-          value: row.item?.value,
-        },
-        qty: row.qty,
-        hsncode: row.hsn,
-        rate: row.rate,
-        remark: row.item_desc,
-
-        duedate: row.due_date, //this
-        gsttype: row.gst_type, //this
-        gstrate: row.gst_rate,
-      }));
-      setRowCount(arr);
+      setPageLoading(false);
+      uploadInputhandler(data);
       setUploadFile(true);
     } else {
+      setPageLoading(false);
       toast.error(response.message);
     }
+    setPageLoading(false);
   };
+
+  const uploadInputhandler = (source) => {
+    let arr = source;
+    arr = arr.map((row, index) => ({
+      id: v4(),
+      type: row.item_type,
+      index: index + 1,
+      currency: row.currency,
+      exchange_rate: 1,
+      component: {
+        label: row.item?.text,
+        value: row.item?.value,
+      },
+      qty: row.qty,
+      rate: row.rate,
+      duedate: row.due_date,
+      inrValue: +Number(row.rate) * +Number(row.qty) * +Number(1),
+      hsncode: row.hsn,
+      gsttype: row.gst_type,
+      gstrate: row.gst_rate,
+      cgst:
+        row.gst_type === "I"
+          ? 0
+          : (+Number(row.rate) *
+              +Number(row.qty) *
+              +Number(1) *
+              +Number(row.gst_rate)) /
+            2 /
+            100,
+      sgst:
+        row.gst_type === "I"
+          ? 0
+          : (+Number(row.rate) *
+              +Number(row.qty) *
+              +Number(1) *
+              +Number(row.gst_rate)) /
+            2 /
+            100,
+      igst:
+        row.gst_type !== "I"
+          ? 0
+          : (+Number(row.rate) *
+              +Number(row.qty) *
+              +Number(1) *
+              +Number(row.gst_rate)) /
+            100,
+      remark: row.item_desc,
+      unit: row.unit,
+    }));
+
+    console.log("after calculation", arr);
+    setRowCount(arr);
+  };
+
   useEffect(() => {
     if (showAddVendorModal === true) {
       navigate("/tally/clients/add");
@@ -486,6 +610,40 @@ const SalesOrderForm = () => {
       handleFetchOrderDetails(orderId);
     }
   }, []);
+  useEffect(() => {
+    getState();
+  }, []);
+  useEffect(() => {
+    if (derivedType) {
+      setRowCount([
+        {
+          id: v4(),
+          type: "product",
+          index: 1,
+          currency: "364907247",
+          exchange_rate: 1,
+          component: "",
+          qty: 1,
+          rate: "",
+          duedate: "",
+          inrValue: 0,
+          hsncode: "",
+          gsttype: derivedType,
+          gstrate: "",
+          cgst: 0,
+          sgst: 0,
+          igst: 0,
+          remark: "--",
+          unit: "--",
+          rate_cap: 0,
+          tol_price: 0,
+          project_req_qty: 0,
+          po_exec_qty: 0,
+          diffPercentage: "--",
+        },
+      ]);
+    }
+  }, [derivedType]);
   useEffect(() => {
     if (billaddressid) {
       getBillingAddress(billaddressid);
@@ -687,7 +845,7 @@ const SalesOrderForm = () => {
                         </Col>
                       </Row>
                       <Row gutter={8}>
-                        <Col span={18}>
+                        <Col span={14}>
                           <Form.Item
                             name="clientaddress"
                             label="Billing Address"
@@ -929,7 +1087,7 @@ const SalesOrderForm = () => {
                       </Row>
                       {/* billing address */}
                       <Row>
-                        <Col span={18}>
+                        <Col span={14}>
                           <Form.Item
                             name="billaddress"
                             label="Bill From Address"
@@ -973,7 +1131,7 @@ const SalesOrderForm = () => {
                               // options={shipToOptions}
                               options={clientBranchOptions}
                             /> */}
-                            <Input />
+                            <Input size="default" />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
@@ -1002,10 +1160,27 @@ const SalesOrderForm = () => {
                             />
                           </Form.Item>
                         </Col>
+                        {copyinfo == false && (
+                          <Col span={6}>
+                            <Form.Item
+                              name="shippingstate"
+                              label="State"
+                              // rules={rules.shipGST}
+                            >
+                              <MySelect
+                                // selectLoading={loading("clientSelect")}
+                                labelInValue
+                                onBlur={() => setStateOptions([])}
+                                options={stateOptions}
+                                // loadOptions={getState}
+                              />
+                            </Form.Item>
+                          </Col>
+                        )}
                       </Row>
                       {/* shipping address */}
                       <Row>
-                        <Col span={18}>
+                        <Col span={14}>
                           <Form.Item
                             label="Address"
                             name="shipaddress"
@@ -1059,6 +1234,13 @@ const SalesOrderForm = () => {
                     callFileUpload={callFileUpload}
                     setUploadFile={setUploadFile}
                     uploadfile={uploadfile}
+                    dispatchStateCode={dispatchStateCode}
+                    derivedType={derivedType}
+                    resetFunction2={resetFunction2}
+                    confirmReset={confirmReset}
+                    setConfirmReset={setConfirmReset}
+                    setPageLoading={setPageLoading}
+                    pageLoading={pageLoading}
                   />
                 </div>
               </Tabs.TabPane>

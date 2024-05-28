@@ -60,6 +60,7 @@ function CreateShipment({
 
   const shippingId = Form.useWatch("shippingId", shipmentForm);
   const calculation = (id, row) => {
+    // console.log("row us here", row);
     const exchangeRate = row.exchangeRate ?? 1;
     const qty = row.qty;
     const rate = row.rate;
@@ -67,7 +68,22 @@ function CreateShipment({
       +Number(qty) * +Number(rate) * +Number(exchangeRate).toFixed(2);
     const foreignValue = +Number(qty) * +Number(rate);
     const foreignValueCombined = `${row.currencySymbol ?? ""} ${foreignValue}`;
+    let cgst;
+    let sgst;
+    let igst;
+    if (row.gstTypeLabel == "LOCAL") {
+      cgst = (inrValue * row.gstRate) / 100;
+      sgst = (inrValue * row.gstRate) / 100;
+      igst = 0;
+    } else {
+      sgst = 0;
+      cgst = 0;
+      igst = (inrValue * row.gstRate) / 100;
+    }
     shipmentForm.setFieldValue(["products", id, "inrValue"], inrValue);
+    shipmentForm.setFieldValue(["products", id, "sgst"], sgst);
+    shipmentForm.setFieldValue(["products", id, "cgst"], cgst);
+    shipmentForm.setFieldValue(["products", id, "igst"], igst);
 
     shipmentForm.setFieldValue(
       ["products", id, "foreignValueCombined"],
@@ -455,8 +471,18 @@ const Product = ({
           ),
         ]}
         listName="products"
-        watchKeys={["rate", "qty", "gstRate", "exchangeRate", "currencySymbol"]}
-        nonListWatchKeys={["gstType"]}
+        watchKeys={[
+          "rate",
+          "qty",
+          "gstRate",
+          "exchangeRate",
+          "currencySymbol",
+          "cgst",
+          "sgst",
+          "gstTypeLabel",
+          "gstRate",
+        ]}
+        nonListWatchKeys={["gstTypeLabel"]}
         componentRequiredRef={["rate", "qty", "pickLocation"]}
         form={form}
         calculation={calculation}
@@ -503,13 +529,25 @@ const productItems = (
           ),
         },
         {
-          headerName: "Products",
+          headerName: "Material",
           name: "product",
           width: 250,
           flex: true,
           field: () => <Input disabled />,
         },
-
+        {
+          headerName: "Material Description",
+          name: "remark",
+          width: 250,
+          field: (row) => (
+            <Input
+              size="default"
+              value={row.remark}
+              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+              placeholder="Enter Remark"
+            />
+          ),
+        },
         {
           headerName: "HSN Code",
           name: "hsn",
@@ -649,19 +687,7 @@ const productItems = (
             />
           ),
         },
-        {
-          headerName: "Item Description",
-          name: "remark",
-          width: 250,
-          field: (row) => (
-            <Input
-              size="default"
-              value={row.remark}
-              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
-              placeholder="Enter Remark"
-            />
-          ),
-        },
+
         //
         //
         //
@@ -699,13 +725,25 @@ const productItems = (
           ),
         },
         {
-          headerName: "Products",
+          headerName: "Material",
           name: "product",
           width: 250,
           flex: true,
           field: () => <Input disabled />,
         },
-
+        {
+          headerName: "Material Description",
+          name: "remark",
+          width: 250,
+          field: (row) => (
+            <Input
+              size="default"
+              value={row.remark}
+              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+              placeholder="Enter Remark"
+            />
+          ),
+        },
         {
           headerName: "HSN Code",
           name: "hsn",
@@ -713,7 +751,7 @@ const productItems = (
           field: () => <Input disabled={true} />,
         },
         {
-          headerName: "Ord. Qty",
+          headerName: "Qty",
           name: "qty",
           width: 100,
           field: () => <Input />,
@@ -850,19 +888,7 @@ const productItems = (
             />
           ),
         },
-        {
-          headerName: "Item Description",
-          name: "remark",
-          width: 250,
-          field: (row) => (
-            <Input
-              size="default"
-              value={row.remark}
-              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
-              placeholder="Enter Remark"
-            />
-          ),
-        },
+
         //
         //
         //

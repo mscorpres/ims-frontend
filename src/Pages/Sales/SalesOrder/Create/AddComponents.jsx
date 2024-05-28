@@ -71,13 +71,18 @@ export default function AddComponents({
   callFileUpload,
   setUploadFile,
   uploadfile,
+  derivedType,
+  resetFunction2,
+  confirmReset,
+  setConfirmReset,
+  setPageLoading,
+  pageLoading,
 }) {
   const [currencies, setCurrencies] = useState([]);
   // const [selectLoading, setSelectLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(false);
+  // const [pageLoading, setPageLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showCurrencyModal, setShowCurrencyModal] = useState(null);
-  const [confirmReset, setConfirmReset] = useState(false);
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const newdata = form.getFieldsValue();
@@ -96,6 +101,8 @@ export default function AddComponents({
     },
   ];
   const { executeFun, loading } = useApi();
+
+  // console.log("derivedType here in add", derivedType);
   const addRows = () => {
     const newRow = {
       id: v4(),
@@ -108,7 +115,7 @@ export default function AddComponents({
       rate: "",
       duedate: "",
       hsncode: "",
-      gsttype: "L",
+      gsttype: derivedType ? derivedType : "",
       gstrate: "",
       cgst: "0",
       sgst: "0",
@@ -155,6 +162,7 @@ export default function AddComponents({
     let arr = rowCount;
     console.log("update rate and value", value);
     arr = arr.map((row) => {
+      console.log("row of inputhanfler", row);
       if (row.id == id) {
         let obj = row;
         if (name == "rate") {
@@ -302,6 +310,7 @@ export default function AddComponents({
 
           // return obj;
         } else if (name == "gstrate") {
+          console.log("row is here", row);
           if (row.gsttype == "L" && name != "gsttype") {
             let percentage = value / 2;
             obj = {
@@ -514,31 +523,6 @@ export default function AddComponents({
     //   }
     // }
   };
-  const resetFunction = () => {
-    setRowCount([
-      {
-        id: v4(),
-        type: "product",
-        index: 1,
-        currency: "364907247",
-        exchange: "1",
-        component: "",
-        qty: 1,
-        rate: "",
-        duedate: "",
-        inrValue: 0,
-        hsncode: "",
-        gsttype: "L",
-        gstrate: "",
-        cgst: 0,
-        sgst: 0,
-        igst: 0,
-        remark: "--",
-        unit: "--",
-      },
-    ]);
-    setConfirmReset(false);
-  };
   useEffect(() => {
     let obj = [
       {
@@ -583,7 +567,7 @@ export default function AddComponents({
     if (fileupload == "file" && rowCount.length > 0 && uploadfile) {
       rowCount.map((r) => {
         console.log("hereeeee is ", r.gstrate);
-        // inputHandler("gsttype,", r.gsttype, r.id);
+        inputHandler("gstrate,", r.gstrate, r.id);
       });
     }
   }, [uploadfile]);
@@ -639,7 +623,7 @@ export default function AddComponents({
       // ),
     },
     {
-      headerName: "Product",
+      headerName: "Material",
       width: 250,
       field: "component",
       sortable: false,
@@ -654,7 +638,7 @@ export default function AddComponents({
         ),
     },
     {
-      headerName: "Item Description",
+      headerName: "Material Description",
 
       width: 250,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
@@ -748,6 +732,9 @@ export default function AddComponents({
   useEffect(() => {
     getCurrencies();
   }, []);
+  useEffect(() => {
+    setRowCount(rowCount);
+  }, [rowCount]);
   // useEffect(() => {
   //   if (selectLoading) {
   //     setTimeout(() => {
@@ -772,7 +759,7 @@ export default function AddComponents({
           <Button key="back" onClick={() => setConfirmReset(false)}>
             No
           </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction}>
+          <Button key="submit" type="primary" onClick={resetFunction2}>
             Yes
           </Button>,
         ]}
@@ -824,7 +811,7 @@ export default function AddComponents({
         />
       )}
       <Row style={{ height: "100%" }} gutter={8}>
-        <Col style={{ height: "100%" }} span={6}>
+        <Col style={{ height: "100%", overflow: "auto" }} span={6}>
           <Row gutter={[0, 4]} style={{ height: "100%" }} justify="center">
             {/* vendor card */}
 
@@ -857,14 +844,74 @@ export default function AddComponents({
                       >
                         Download Sample File
                       </Button>
-                      <Button onClick={callFileUpload}>Upload</Button>
+                      <Button onClick={callFileUpload} loading={pageLoading}>
+                        Upload
+                      </Button>
                     </Row>
                   )}
                 </Col>
               </Row>
             </Col>
+            {/* tax detail card */}
+            <Col span={24} style={{ height: "50%" }}>
+              <Card
+                style={{ height: "100%" }}
+                // bodyStyle={{ height: "90%" }}
+                title="Tax Detail"
+              >
+                <Row gutter={[0, 4]}>
+                  {totalValues?.map((row) => (
+                    <Col span={24} key={row.label}>
+                      <Row>
+                        <Col
+                          span={14}
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight:
+                              totalValues?.indexOf(row) ==
+                                totalValues.length - 1 && 600,
+                          }}
+                        >
+                          {row.label}
+                        </Col>
+                        <Col span={10} className="right">
+                          {row.sign.toString() == "" ? (
+                            ""
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: "0.7rem",
+                                fontWeight:
+                                  totalValues?.indexOf(row) ==
+                                    totalValues.length - 1 && 600,
+                              }}
+                            >
+                              ({row.sign.toString()}){" "}
+                            </span>
+                          )}
+                          <span
+                            style={{
+                              fontSize: "0.8rem",
+                              fontWeight:
+                                totalValues?.indexOf(row) ==
+                                  totalValues.length - 1 && 600,
+                            }}
+                          >
+                            {Number(
+                              row.values?.reduce((partialSum, a) => {
+                                return partialSum + Number(a);
+                              }, 0)
+                            ).toFixed(2)}
+                          </span>
+                        </Col>
+                      </Row>
+                    </Col>
+                  ))}
+                </Row>
+              </Card>
+            </Col>
             {/* </Col> */}
-            {/* </r> */}
+            {/* </r> client details*/}
             <Col span={24} style={{ height: "50%" }}>
               <Card
                 style={{ height: "100%" }}
@@ -938,64 +985,6 @@ export default function AddComponents({
                 </Row>
               </Card>
             </Col>
-            {/* tax detail card */}
-            <Col span={24} style={{ height: "50%" }}>
-              <Card
-                style={{ height: "100%" }}
-                // bodyStyle={{ height: "90%" }}
-                title="Tax Detail"
-              >
-                <Row gutter={[0, 4]}>
-                  {totalValues?.map((row) => (
-                    <Col span={24} key={row.label}>
-                      <Row>
-                        <Col
-                          span={18}
-                          style={{
-                            fontSize: "0.8rem",
-                            fontWeight:
-                              totalValues?.indexOf(row) ==
-                                totalValues.length - 1 && 600,
-                          }}
-                        >
-                          {row.label}
-                        </Col>
-                        <Col span={6} className="right">
-                          {row.sign.toString() == "" ? (
-                            ""
-                          ) : (
-                            <span
-                              style={{
-                                fontSize: "0.7rem",
-                                fontWeight:
-                                  totalValues?.indexOf(row) ==
-                                    totalValues.length - 1 && 600,
-                              }}
-                            >
-                              ({row.sign.toString()}){" "}
-                            </span>
-                          )}
-                          <span
-                            style={{
-                              fontSize: "0.8rem",
-                              fontWeight:
-                                totalValues?.indexOf(row) ==
-                                  totalValues.length - 1 && 600,
-                            }}
-                          >
-                            {Number(
-                              row.values?.reduce((partialSum, a) => {
-                                return partialSum + Number(a);
-                              }, 0)
-                            ).toFixed(2)}
-                          </span>
-                        </Col>
-                      </Row>
-                    </Col>
-                  ))}
-                </Row>
-              </Card>
-            </Col>
           </Row>
         </Col>
         <Col
@@ -1004,7 +993,7 @@ export default function AddComponents({
             height: "100%",
             padding: 0,
 
-            border: "1px solid #EEEEEE",
+            border: "2px solid #EEEEEE",
           }}
         >
           <FormTable columns={columns} data={rowCount} />

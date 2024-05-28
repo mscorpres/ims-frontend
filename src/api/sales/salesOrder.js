@@ -115,13 +115,25 @@ export const printOrder = async (orderId) => {
   return response;
 };
 
+export const printOrderForChallan = async (orderId) => {
+  const payload = {
+    so_invoice: orderId,
+  };
+  const response = await imsAxios.post(
+    "/so_challan_shipment/printSellInvoice",
+    payload
+  );
+  return response;
+};
+
 export const createChallanFromSo = async (shipments, remark) => {
+  console.log("shipments", shipments);
   let payload = {
     shipment_id: shipments.map((r) => r.shipmentId),
     so_id: shipments.map((r) => r.orderId),
     client_id: shipments[0].clientCode,
     client_addr_id: shipments[0].clientAddressId,
-    bill_id: shipments[0].billingId,
+    bill_id: shipments[0].billing_id,
     ship_id: shipments[0].shippingId,
     remark: remark,
   };
@@ -166,6 +178,13 @@ export const createShipment = async (values, open, details) => {
       item: values.products.map((row) => row.productKey),
       qty: values.products.map((row) => row.qty),
       rate: values.products.map((row) => row.rate),
+      gstType: values.products.map((row) =>
+        row.gstTypeLabel == "LOCAL" ? "L" : "I"
+      ),
+      gstRate: values.products.map((row) => row.gstRate),
+      cgst: values.products.map((row) => row.cgst),
+      sgst: values.products.map((row) => row.sgst),
+      igst: values.products.map((row) => row.igst),
       picklocation: values.products.map((row) => row.pickLocation),
       hsncode: values.products.map((row) => row.hsn),
       remark: values.products.map((row) => row.remark),
@@ -229,6 +248,11 @@ export const getChallanDetails = async (challanId) => {
       componentKey: row.item_id,
       rate: row.item_rate,
       qty: row.item_qty,
+      cgst: row.item_cgst,
+      gstRate: row.item_gst_rate,
+      inrValue: row.item_qty * row.item_rate,
+      igst: row.item_igst,
+      sgst: row.item_sgst,
       remark: row.remark,
     }));
 
@@ -277,9 +301,16 @@ export const updateShipment = async (
       // picklocation: values.products.map((row) => row.pickLocation),
       hsn: values.products.map((row) => row.hsn),
       remark: values.products.map((row) => row.remark),
+      gstType: values.products.map((row) =>
+        row.gstTypeLabel == "LOCAL" ? "L" : "I"
+      ),
+      gstRate: values.products.map((row) => row.gstRate),
+      cgst: values.products.map((row) => row.cgst),
+      sgst: values.products.map((row) => row.sgst),
+      igst: values.products.map((row) => row.igst),
     },
   };
-  // console.log("payload", payload);
+  console.log("payload", payload);
   // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/updateSOshipment",

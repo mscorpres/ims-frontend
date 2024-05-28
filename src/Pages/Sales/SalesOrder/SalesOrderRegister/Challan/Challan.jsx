@@ -1,7 +1,10 @@
 import { Space, Row, Form, Card, Col, Modal, Divider } from "antd";
 import React, { useState } from "react";
 import MyDatePicker from "../../../../../Components/MyDatePicker";
-import { getChallanList } from "../../../../../api/sales/salesOrder";
+import {
+  getChallanList,
+  printOrderForChallan,
+} from "../../../../../api/sales/salesOrder";
 import useApi from "../../../../../hooks/useApi.ts";
 import MyDataTable from "../../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
@@ -24,6 +27,7 @@ import {
 } from "../../../../../api/finance/clients.js";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import printFunction from "../../../../../Components/printFunction.jsx";
 
 const wiseOptions = [
   {
@@ -59,7 +63,6 @@ function Challan() {
   const [showDetails, setShowDetails] = useState(null);
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [createAllocation, setCreateAllocation] = useState(false);
   const [filterForm] = Form.useForm();
   const [ModalForm] = Form.useForm();
   const wise = Form.useWatch("wise", filterForm);
@@ -108,6 +111,17 @@ function Challan() {
     }
     // console.log("arr---", arr);
     setAsyncOptions(arr);
+  };
+  const handlePrintOrder = async (orderId) => {
+    const response = await executeFun(
+      () => printOrderForChallan(orderId),
+      "print"
+    );
+    let { data } = response;
+    if (response.success) {
+      // console.log("response", data.buffer.data);
+      printFunction(data.buffer.data, data.buffer.filename);
+    }
   };
   // const createAllocation = async (row) => {
   //   Modal.confirm({
@@ -162,7 +176,7 @@ function Challan() {
   const reset = () => {
     ModalForm.resetFields();
     filterForm.resetFields();
-    setCreateAllocation(false);
+    // setCreateAllocation(false);
   };
   const actionColumn = {
     headerName: "",
@@ -182,17 +196,25 @@ function Challan() {
         showInMenu
         // disabled={loading}
         onClick={() => {
-          setCreateAllocation(row);
+          handlePrintOrder(row.challanId);
         }}
-        label="Allocate"
+        label="Print"
       />,
+      // <GridActionsCellItem
+      //   showInMenu
+      //   // disabled={loading}
+      //   onClick={() => {
+      //     setCreateAllocation(row);
+      //   }}
+      //   label="Allocate"
+      // />,
     ],
   };
-  useEffect(() => {
-    if (!createAllocation) {
-      ModalForm.resetFields();
-    }
-  }, [createAllocation]);
+  // useEffect(() => {
+  //   if (!createAllocation) {
+  //     ModalForm.resetFields();
+  //   }
+  // }, [createAllocation]);
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
@@ -251,7 +273,7 @@ function Challan() {
         />
       </Col>
       <ChallanDetails open={showDetails} hide={() => setShowDetails(null)} />
-      {createAllocation && (
+      {/* {createAllocation && (
         <Modal
           open={createAllocation}
           onOk={() => allocatingChallan(createAllocation)}
@@ -279,7 +301,7 @@ function Challan() {
             </Form.Item>
           </Form>
         </Modal>
-      )}
+      )} */}
     </Row>
   );
 }
@@ -297,7 +319,7 @@ const columns = [
     field: "date",
   },
   {
-    headerName: "Challan Id",
+    headerName: "Invoice Id",
     width: 180,
     field: "challanId",
     renderCell: ({ row }) => (

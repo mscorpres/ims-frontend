@@ -13,12 +13,12 @@ const ShipmentInfo = ({
     <div>
       <Card size="small" title="Shipment Info">
         <Row gutter={6}>
-          <Col span={12}>
+          {/* <Col span={12}>
             <Form.Item name="eWayBillNo" label="E-way Bill Number">
               <Input />
             </Form.Item>
-          </Col>
-          <Col span={12}>
+          </Col> */}
+          <Col span={24}>
             <Form.Item name="docNo" label="Ship Doc. Number">
               <Input />
             </Form.Item>
