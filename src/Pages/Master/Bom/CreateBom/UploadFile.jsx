@@ -2,7 +2,7 @@ import { Form, Upload } from "antd";
 import React from "react";
 import { InboxOutlined, UploadOutlined } from "@ant-design/icons";
 
-const UploadFile = ({ rules }) => {
+const UploadFile = ({ rules, uploadfile, setUploadFile }) => {
   const props = {
     name: "file",
     multiple: false,
@@ -15,6 +15,13 @@ const UploadFile = ({ rules }) => {
   };
   const normFile = (e) => {
     console.log("Upload event:", e);
+    if (e && e.fileList.length > 0) {
+      console.log("here");
+      setUploadFile(true);
+    } else {
+      console.log("no file");
+      setUploadFile(false);
+    }
     if (Array.isArray(e)) {
       return e.files[0].originFileObj;
     }
