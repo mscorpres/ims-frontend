@@ -740,9 +740,7 @@ export default function AddComponents({
   useEffect(() => {
     getCurrencies();
   }, []);
-  useEffect(() => {
-    setRowCount(rowCount);
-  }, [rowCount]);
+
   // useEffect(() => {
   //   if (selectLoading) {
   //     setTimeout(() => {
@@ -768,7 +766,13 @@ export default function AddComponents({
           <Button key="back" onClick={() => setConfirmReset(false)}>
             No
           </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction2}>
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => {
+              resetFunction2();
+            }}
+          >
             Yes
           </Button>,
         ]}

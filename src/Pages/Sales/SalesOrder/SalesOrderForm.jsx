@@ -615,33 +615,13 @@ const SalesOrderForm = () => {
   }, []);
   useEffect(() => {
     if (derivedType) {
-      setRowCount([
-        {
-          id: v4(),
-          type: "product",
-          index: 1,
-          currency: "364907247",
-          exchange_rate: 1,
-          component: "",
-          qty: 1,
-          rate: "",
-          duedate: "",
-          inrValue: 0,
-          hsncode: "",
+      setRowCount((curr) =>
+        curr.map((row) => ({
+          ...row,
           gsttype: derivedType,
-          gstrate: "",
-          cgst: 0,
-          sgst: 0,
-          igst: 0,
-          remark: "--",
-          unit: "--",
-          rate_cap: 0,
-          tol_price: 0,
-          project_req_qty: 0,
-          po_exec_qty: 0,
-          diffPercentage: "--",
-        },
-      ]);
+        }))
+      );
+      
     }
   }, [derivedType]);
   useEffect(() => {
@@ -688,7 +668,7 @@ const SalesOrderForm = () => {
         onCancel={() => setShowDetailsConfirm(false)}
         okText="Yes"
         cancelText="Go Back"
-        onOk={resetFunction}
+        onOk={() => resetFunction()}
       >
         <p>Are you sure to reset details of this Sales Order?</p>
       </Modal>
