@@ -324,7 +324,7 @@ const links = [
       routePath: "/master/component/category",
     },
     {
-      routeName: "StocKControl",
+      routeName: "Stock Control",
       routePath: "/stockControl",
     },
   ],

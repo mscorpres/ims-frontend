@@ -273,10 +273,7 @@ const Routes = [
     path: "/",
     main: () => <Dashboard />,
   },
-  {
-    path: "/fixedAssetRegister",
-    main: () => <Far />,
-  },
+
   {
     path: "/dashboardProcurement",
     main: () => <ProcurementDashboard />,
