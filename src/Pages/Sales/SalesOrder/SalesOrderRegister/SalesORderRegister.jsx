@@ -93,12 +93,13 @@ function SalesORderRegister() {
     // const { data } = response;
     const response = await executeFun(
       () => cancelTheSelectedSo(values),
-      "fetch"
+      "cancel"
     );
-    if (response.code === 200) {
-      toast.success(response.message);
+    if (response.success) {
+      // toast.success(response.message);
       setCancelRowSelected(false);
       form.resetFields();
+      handleFetchRows();
     } else {
       toast.error(response.data);
     }
@@ -274,6 +275,7 @@ function SalesORderRegister() {
         title={`Are you sure you want to cancel this SO ${cancelRowSelected?.salesId}`}
         open={cancelRowSelected?.salesId}
         width={400}
+        confirmLoading={loading("cancel")}
         onCancel={() => setCancelRowSelected(false)}
         onOk={() => validate()}
       >
