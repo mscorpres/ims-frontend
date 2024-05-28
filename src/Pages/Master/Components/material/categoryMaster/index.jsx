@@ -62,7 +62,7 @@ const CategoryMaster = () => {
               name: row.name,
               options: data.message.map((row) => ({
                 text: row.attr_value,
-                value: row.attr_value,
+                value: row.code,
               })),
             },
           ]);
@@ -118,7 +118,7 @@ const CategoryMaster = () => {
     }
   }, [fields]);
   useEffect(() => {
-    console.log(fieldSelectOptions);
+    console.log("fieldSelectOptions", fieldSelectOptions);
   }, [fieldSelectOptions]);
   return (
     <Row style={{ height: "90%", padding: 10 }}>
@@ -139,7 +139,7 @@ const CategoryMaster = () => {
       </Col>
       <Divider />
       <Col span={24} style={{ height: "95%" }}>
-        <Row gutter={[6, 6]}>
+        <Row gutter={[6, 10]}>
           {fields.map((field, index) => (
             <Col span={24} key={index}>
               <Row gutter={[6, 6]}>
@@ -168,19 +168,18 @@ const CategoryMaster = () => {
                               <Row>
                                 <Col span={24}>
                                   <Typography.Text strong>
-                                    Code:
+                                    {opt.value}
                                   </Typography.Text>
                                 </Col>
                               </Row>
                             }
-                            title="Title"
                           >
                             <Col
                               style={{
                                 background: "#cccccc",
                                 padding: "5px 8px",
                                 borderRadius: 3,
-                                margin: "0px 3px",
+                                margin: "2px 3px",
                               }}
                             >
                               {opt.text}
@@ -194,11 +193,11 @@ const CategoryMaster = () => {
                         </Col>
                       ))}
                     <Col>
-                      <MyButton
+                      {/* <MyButton
                         onClick={() => setShowAddModal(field)}
                         variant="add"
                         type="link"
-                      />
+                      /> */}
                     </Col>
                   </Row>
                 </Col>

@@ -74,14 +74,14 @@ const BOMApproval = (props: PropTypes) => {
             opacity:
               row.stage > logs?.currentStage + 1 && row.date === "" ? 0.5 : 1,
           }}
-          gap={"10px 0px"}
+          gap={"0px 0px"}
         >
           <div>
             <Typography.Title level={5}>
-              Stage: {row.formattedStage}
+              {row.formattedStage}
               {row.isRejected && (
                 <span
-                  style={{ color: "brown", marginLeft: 10, marginBottom: 10 }}
+                  style={{ color: "brown", marginLeft: 10, marginBottom: 0 }}
                 >
                   Rejected
                 </span>
@@ -157,7 +157,9 @@ const SingleDetail = ({
       <Typography.Text style={{ fontSize: "0.8rem" }} strong>
         {label}
       </Typography.Text>
-      <Typography.Text>{value ?? "--"}</Typography.Text>
+      <Typography.Text style={{ fontSize: 13 }}>
+        {value ?? "--"}
+      </Typography.Text>
     </Flex>
   );
 };

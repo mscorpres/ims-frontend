@@ -11,6 +11,8 @@ export interface ProductType {
   documents?: { url: string; fileName: string }[];
   approvalStage: "0" | "1" | "2";
   isActive: boolean;
+  createdBy?: string,
+  createdDate?: string
 }
 
 export interface ApprovalType {

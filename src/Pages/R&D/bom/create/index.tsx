@@ -307,7 +307,7 @@ const BOMCreate = () => {
               <Form.Item
                 style={{ flex: 1, minWidth: 100 }}
                 name="locations"
-                label="Placement"
+                label="PCB Placement"
               >
                 <Input />
               </Form.Item>
@@ -432,7 +432,7 @@ const Components = ({
             <Typography.Text strong>Vendor</Typography.Text>
           </Col>
           <Col span={3}>
-            <Typography.Text strong>Locations</Typography.Text>
+            <Typography.Text strong>Placement</Typography.Text>
           </Col>
           {type === "substitute" && (
             <Col span={4}>

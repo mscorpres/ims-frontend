@@ -258,8 +258,6 @@ import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import FARUpload from "@/Pages/far";
 
-// import FARUpload from "@/Pages/Far/index.tsx";
-
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "@/Pages/fixeassetmodule/Depreciation";
