@@ -117,7 +117,6 @@ const SalesOrderForm = () => {
     // const values = await form.validateFields();
     // let dispatchStateCode = "7";
     // let billingStateCode = "07";
-    // console.log("dispatchStateCode-----", dispatchStateCode);
     // console.log("biliingStateCode-----", biliingStateCode);
     // console.log("shippingStateCode-----", shippingStateCode);
     if (
@@ -126,7 +125,7 @@ const SalesOrderForm = () => {
     ) {
       console.log("here");
       setDerivedType("L");
-      
+
       // setDerivedType({ value: "I", text: "INTER STATE" });
     } else {
       console.log("same");
@@ -309,10 +308,12 @@ const SalesOrderForm = () => {
       () => getOrderDetails(orderId.replaceAll("_", "/")),
       "fetch"
     );
-
+    console.log("response for edit", response);
     if (response.success) {
       const { bill, materials, ship, client } = response.data;
-      handleProjectChange(client[0].projectname);
+      // if (client[0]?.projectname.length > 0) {
+      //   handleProjectChange(client[0]?.projectname);
+      // }
       const obj = {
         client: client[0].clientcode,
         vendortype: "c01",
@@ -375,14 +376,15 @@ const SalesOrderForm = () => {
         po_exec_qty: 0,
         diffPercentage: "--",
       }));
-      setRowCount(arr);
       form.setFieldsValue(obj);
+      setRowCount(arr);
+      console.log("arr", arr);
+      console.log("obj", obj);
     }
   };
 
-  console.log("rows =>", rowCount);
-
   const validateSales = async () => {
+    console.log("rows =>", rowCount);
     setSelectLoading(true);
     const values = await form.validateFields();
     console.log("values are here", values);
@@ -511,7 +513,6 @@ const SalesOrderForm = () => {
     setActiveTab("2");
   };
   const callFileUpload = async () => {
-    setPageLoading(true);
     const values = await form.validateFields();
     const formData = new FormData();
     formData.append("file", values.files[0].originFileObj);
@@ -519,12 +520,11 @@ const SalesOrderForm = () => {
       "/sellRequest/uploadSOItems",
       formData
     );
-
+    setPageLoading(true);
     let { data } = response;
     if (response.success) {
       setPageLoading(false);
       uploadInputhandler(data);
-      setUploadFile(true);
     } else {
       setPageLoading(false);
       toast.error(response.message);

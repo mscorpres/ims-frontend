@@ -233,6 +233,8 @@ import RejectedPhysicalStock from "@/Pages/Store/PhysicalStock/Rejected.jsx";
 import EditSalesOrder from "@/Pages/Sales/SalesOrder/edit/index.jsx";
 import RegisteredUser from "@/Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
 import ShipmentsList from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
+import CreateShipment from "@/Pages/Sales/SalesOrder/SalesOrderRegister/CreateShipment/CreateShipment.jsx";
+// import CreateShipmentRedirect from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/CreateShipmentRedirect";
 import Challan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
 import AllocatedChallan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/AllocatedChallan/AllocatedChallan.jsx";
 
@@ -1314,6 +1316,10 @@ const Routes = [
   {
     path: "/sales/order/:orderId/edit",
     main: () => <EditSalesOrder />,
+  },
+  {
+    path: "/sales/order/createShipment/:orderId",
+    main: () => <CreateShipment />,
   },
   {
     path: "/sales/order/register",
