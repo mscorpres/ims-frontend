@@ -291,12 +291,12 @@ function CreateShipment({
           rate: m.item_rate,
           inrValue:
             +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),
-          pickLocation: m.item_pick_location.loc_key,
+          // pickLocation: m.item_pick_location.loc_key,
 
           // foreignValueCombined: m.currency_symbol + " " + m.taxablevalue,
           foreignValue:
             +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),
-          pickLocation: m.item_pick_location.loc_key,
+          pickLocation: m.so_type.value === "product" ? "20210324113426" : "",
           gstTypeLabel: m.item_gst_type,
           cgst: m.cgst,
           sgst: m.sgst,
@@ -424,7 +424,7 @@ function CreateShipment({
               )}
             </Flex>
           </Col>
-          <Col span={18}>
+          <Col span={18} style={{ height: "100%" }}>
             {loading("fetch") && <Loading />}
             <Product
               calculation={calculation}
@@ -457,57 +457,55 @@ const Product = ({
   updateShipmentRow,
 }) => {
   return (
-    <Card style={{ height: "100%" }} bodyStyle={{ height: "95%" }}>
-      <FormTable2
-        removableRows={true}
-        nonRemovableColumns={1}
-        columns={[
-          ...productItems(
-            getlocations,
-            setAsyncOptions,
-            asyncOptions,
-            loading,
-            updateShipmentRow
-          ),
-        ]}
-        listName="products"
-        watchKeys={[
-          "rate",
-          "qty",
-          "gstRate",
-          "exchangeRate",
-          "currencySymbol",
-          "cgst",
-          "sgst",
-          "gstTypeLabel",
-          "gstRate",
-        ]}
-        nonListWatchKeys={["gstTypeLabel"]}
-        componentRequiredRef={["rate", "qty", "pickLocation"]}
-        form={form}
-        calculation={calculation}
-        rules={{
-          pickLocation: [
-            {
-              required: true,
-              message: "Please select a pick location",
-            },
-          ],
-          rate: [
-            {
-              required: true,
-              message: "Please enter Rate",
-            },
-          ],
-          qty: [
-            {
-              required: true,
-              message: "Please enter Qty",
-            },
-          ],
-        }}
-      />
-    </Card>
+    <FormTable2
+      removableRows={true}
+      nonRemovableColumns={1}
+      columns={[
+        ...productItems(
+          getlocations,
+          setAsyncOptions,
+          asyncOptions,
+          loading,
+          updateShipmentRow
+        ),
+      ]}
+      listName="products"
+      watchKeys={[
+        "rate",
+        "qty",
+        "gstRate",
+        "exchangeRate",
+        "currencySymbol",
+        "cgst",
+        "sgst",
+        "gstTypeLabel",
+        "gstRate",
+      ]}
+      nonListWatchKeys={["gstTypeLabel"]}
+      componentRequiredRef={["rate", "qty", "pickLocation"]}
+      form={form}
+      calculation={calculation}
+      rules={{
+        pickLocation: [
+          {
+            required: true,
+            message: "Please select a pick location",
+          },
+        ],
+        rate: [
+          {
+            required: true,
+            message: "Please enter Rate",
+          },
+        ],
+        qty: [
+          {
+            required: true,
+            message: "Please enter Qty",
+          },
+        ],
+      }}
+    />
   );
 };
 
