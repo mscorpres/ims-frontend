@@ -13,6 +13,8 @@ interface GetProductListType {
   isActive: boolean;
   productKey: string;
   status: "0" | "1" | "2";
+  createdAt: string;
+  createdBy: string;
 }
 export const getProductsList = async () => {
   const response: ResponseType = await imsAxios.get("/products/fetch/temp");
@@ -30,6 +32,8 @@ export const getProductsList = async () => {
         id: index + 1,
         images: row.images,
         key: row.productKey,
+        createdBy: row.createdBy,
+        createdDate: row.createdAt,
       })
     );
   }

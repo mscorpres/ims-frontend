@@ -125,7 +125,7 @@ export default function Products() {
         />
       )}
 
-      <Col span={4}>
+      <Col span={6} xxl={4}>
         <Card size="small" title={"Add New Product"}>
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
@@ -222,8 +222,12 @@ export default function Products() {
           </Form>
         </Card>
       </Col>
-      <Col span={10}>
-        <MyDataTable columns={[...actionColumns, ...columns]} data={rows} />
+      <Col span={18} xl={16} xxl={14}>
+        <MyDataTable
+          columns={[...actionColumns, ...columns]}
+          data={rows}
+          loading={loading("fetch")}
+        />
       </Col>
     </Row>
   );
@@ -298,6 +302,16 @@ const columns = [
   {
     headerName: "Approval Stage",
     field: "approvalStage",
+    width: 120,
+  },
+  {
+    headerName: "Created By",
+    field: "createdBy",
+    width: 180,
+  },
+  {
+    headerName: "Created At",
+    field: "createdDate",
     width: 120,
   },
 ];

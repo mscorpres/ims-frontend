@@ -28,9 +28,9 @@ export default function MyAsyncSelect({
   const updatedValue = useDebounce(searchValue);
 
   useEffect(() => {
-    if (updatedValue.length >= 3) {
-      loadOptions(updatedValue);
-    }
+    // if (updatedValue.length >= 3) {
+    loadOptions(updatedValue);
+    // }
   }, [updatedValue]);
   return (
     <Select
@@ -40,8 +40,9 @@ export default function MyAsyncSelect({
       showSearch
       bordered={noBorder ? false : true}
       value={value}
+      // onFocus={}
       placeholder={placeholder}
-      onFocus={onFocus}
+      onFocus={() => loadOptions("")}
       // suffixIcon={<SearchOutlined />}
       // allowClear
       defaultValue={defaultValue}

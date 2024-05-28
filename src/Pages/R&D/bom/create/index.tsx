@@ -307,7 +307,7 @@ const BOMCreate = () => {
               <Form.Item
                 style={{ flex: 1, minWidth: 100 }}
                 name="locations"
-                label="Placement"
+                label="PCB Placement"
               >
                 <Input />
               </Form.Item>
