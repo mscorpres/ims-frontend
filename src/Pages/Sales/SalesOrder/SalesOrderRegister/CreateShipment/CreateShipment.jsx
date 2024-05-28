@@ -8,6 +8,7 @@ import {
   Typography,
   Flex,
   Modal,
+  InputNumber,
 } from "antd";
 import { useEffect, useState } from "react";
 import useApi from "../../../../../hooks/useApi.ts";
@@ -38,6 +39,7 @@ import {
 } from "../../../../../api/finance/clients";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
+import ToolTipEllipses from "../../../../../Components/ToolTipEllipses.jsx";
 
 function CreateShipment({
   open,
@@ -735,16 +737,25 @@ const productItems = (
           name: "product",
           width: 250,
           flex: true,
-          field: () => <Input disabled />,
+          field: (row) => <ToolTipEllipses text={row.product} />,
         },
         {
           headerName: "Material Description",
           name: "remark",
           width: 250,
+          // field: (row) => (
+          //   <Input
+          //     size="default"
+          //     value={row.remark}
+          //     // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+          //     placeholder="Enter Remark"
+          //   />
+          // ),
           field: (row) => (
-            <Input
-              size="default"
-              value={row.remark}
+            <input
+              style={{ height: 30 }}
+              type="text"
+              // value={row.remark}
               // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
               placeholder="Enter Remark"
             />
@@ -754,31 +765,48 @@ const productItems = (
           headerName: "HSN Code",
           name: "hsn",
           width: 150,
-          field: () => <Input disabled={true} />,
+          field: (row) => <ToolTipEllipses text={row.hsn} />,
         },
         {
           headerName: "Bill Qty",
           name: "oldbillqty",
           width: 100,
-          field: (row) => <Input />,
+          field: (row) => <InputNumber max={row.pendingqty} />,
+          // field: (row) => (
+          //   <input
+          //     max={row.pendingqty}
+          //     style={{ height: 30, width: 80 }}
+          //     type="number"
+          //     // value={row.remark}
+          //     // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+          //   />
+          // ),
         },
         {
           headerName: "Pending Qty",
           name: "pendingqty",
           width: 100,
-          field: () => <Input disabled />,
+          field: (row) => row.pendingqty,
         },
         {
           headerName: "Qty",
           name: "qty",
           width: 100,
-          field: () => <Input disabled />,
+          field: (row) => row.qty,
         },
         {
           headerName: "Rate",
           name: "rate",
           width: 100,
-          field: (row) => <Input />,
+          field: (row) => (
+            <input
+              style={{ height: 30, width: 80 }}
+              type="number"
+              // value={row.remark}
+              // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
+            />
+          ),
+          // field: (row) => <Input />,
           // field: (row) => (
           //   <Input.Group compact>
           //     <Input
@@ -809,18 +837,13 @@ const productItems = (
           headerName: "Local Value",
           width: 150,
           name: "inrValue",
-          field: (row) => (
-            <Input
-              disabled={true}
-              // value={Number(row.inrValue).toFixed(2)}
-            />
-          ),
+          field: (row) => row.inrValue,
         },
         {
           headerName: "Foreign Value",
           width: 150,
           name: "foreignValueCombined",
-          field: (row) => <Input disabled={true} />,
+          field: (row) => row.foreignValueCombined,
         },
         // {
         //   headerName: "Foreign Value",
@@ -841,49 +864,50 @@ const productItems = (
           headerName: "Due Date",
           width: 150,
           name: "dueDate",
-          field: (row) => (
-            <InputMask
-              disabled={true}
-              name="duedate"
-              value={row.duedate}
-              // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
-              className="date-text-input"
-              mask="99-99-9999"
-              placeholder="__-__-____"
-              style={{ textAlign: "center", borderRadius: 5, height: 30 }}
-              // defaultValue="01-09-2022"
-            />
-          ),
+          field: (row) => row.dueDate,
+          // field: (row) => (
+          //   <InputMask
+          //     disabled={true}
+          //     name="duedate"
+          //     value={row.duedate}
+          //     // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
+          //     className="date-text-input"
+          //     mask="99-99-9999"
+          //     placeholder="__-__-____"
+          //     style={{ textAlign: "center", borderRadius: 5, height: 30 }}
+          //     // defaultValue="01-09-2022"
+          //   />
+          // ),
         },
         {
           headerName: "GST Type",
           width: 100,
           name: "gstTypeLabel",
-          field: (row) => <Input disabled={true} />,
+          field: (row) => row.gstTypeLabel,
         },
         {
           headerName: "GST %",
           width: 100,
           name: "gstRate",
-          field: (row) => <Input disabled={true} />,
+          field: (row) => row.gstRate,
         },
         {
           headerName: "CGST",
           width: 100,
           name: "cgst",
-          field: (row) => <Input disabled={true} />,
+          field: (row) => row.cgst,
         },
         {
           headerName: "SGST",
           width: 100,
           name: "sgst",
-          field: (row) => <Input disabled={true} />,
+          field: (row) => row.sgst,
         },
         {
           headerName: "IGST",
           width: 100,
           name: "igst",
-          field: (row) => <Input disabled={true} />,
+          field: (row) => row.igst,
         },
         {
           headerName: "Pick Location",
