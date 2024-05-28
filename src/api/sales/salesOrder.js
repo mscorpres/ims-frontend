@@ -29,11 +29,8 @@ export const updateOrder = async (payload) => {
   const response = await imsAxios.post("/sellRequest/soDataUpdate", payload);
   return response;
 };
-export const cancelTheSelectedSo = async (values) => {
-  const response = await imsAxios.post("/sellRequest/CancelSO", {
-    so: values.so,
-    remark: values.remarks,
-  });
+export const cancelTheSelectedSo = async (payload) => {
+  const response = await imsAxios.post("/sellRequest/CancelSO", payload);
   return response;
 };
 export const listOfShipment = async (searchTerm, wise) => {
@@ -130,7 +127,7 @@ export const createChallanFromSo = async (shipments, remark) => {
   console.log("shipments", shipments);
   let payload = {
     shipment_id: shipments.map((r) => r.shipmentId),
-    so_id: shipments.map((r) => r.orderId),
+    so_id: shipments.map((r) => r.soId),
     client_id: shipments[0].clientCode,
     client_addr_id: shipments[0].clientAddressId,
     bill_id: shipments[0].billing_id,

@@ -513,6 +513,8 @@ const SalesOrderForm = () => {
     setActiveTab("2");
   };
   const callFileUpload = async () => {
+    setPageLoading(true);
+    // console.log("pageLoading", pageLoading);
     const values = await form.validateFields();
     const formData = new FormData();
     formData.append("file", values.files[0].originFileObj);
@@ -520,9 +522,9 @@ const SalesOrderForm = () => {
       "/sellRequest/uploadSOItems",
       formData
     );
-    setPageLoading(true);
     let { data } = response;
     if (response.success) {
+      toast.success(response.message);
       setPageLoading(false);
       uploadInputhandler(data);
     } else {
@@ -531,7 +533,7 @@ const SalesOrderForm = () => {
     }
     setPageLoading(false);
   };
-
+  console.log("pageLoading", pageLoading);
   const uploadInputhandler = (source) => {
     let arr = source;
     arr = arr.map((row, index) => ({
@@ -621,7 +623,6 @@ const SalesOrderForm = () => {
           gsttype: derivedType,
         }))
       );
-      
     }
   }, [derivedType]);
   useEffect(() => {

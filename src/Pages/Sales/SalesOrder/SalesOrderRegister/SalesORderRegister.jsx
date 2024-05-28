@@ -91,8 +91,11 @@ function SalesORderRegister() {
     //   remark: values.remarks,
     // });
     // const { data } = response;
+
+    // return;
+    let payload = { so: cancelRowSelected?.salesId, remark: values.remarks };
     const response = await executeFun(
-      () => cancelTheSelectedSo(values),
+      () => cancelTheSelectedSo(payload),
       "cancel"
     );
     if (response.success) {
@@ -156,49 +159,76 @@ function SalesORderRegister() {
     field: "actions",
     width: 10,
     type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          navigate(`/sales/order/${row.salesId.replaceAll("/", "_")}/edit`);
-        }}
-        label="Update"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => setCancelRowSelected(row)}
-        label="Cancel"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          // setOpen(true);
-          getComponentsList(row);
-        }}
-        label="Material list"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          // setOpen(true);
-          setShowShipmentDrawer(row.salesId);
-        }}
-        label="Create Shipment"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          // setOpen(true);
-          handlePrintOrder(row.salesId);
-        }}
-        label="Print"
-      />,
-    ],
+    getActions: ({ row }) =>
+      row.status == "Cancelled"
+        ? [
+            
+          
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                // setOpen(true);
+                getComponentsList(row);
+              }}
+              label="Material list"
+            />,
+          
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                // setOpen(true);
+                handlePrintOrder(row.salesId);
+              }}
+              label="Print"
+            />,
+          ]
+        : [
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                navigate(
+                  `/sales/order/${row.salesId.replaceAll("/", "_")}/edit`
+                );
+              }}
+              label="Update"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => setCancelRowSelected(row)}
+              label="Cancel"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                // setOpen(true);
+                getComponentsList(row);
+              }}
+              label="Material list"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                // setOpen(true);
+                setShowShipmentDrawer(row.salesId);
+              }}
+              label="Create Shipment"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                // setOpen(true);
+                handlePrintOrder(row.salesId);
+              }}
+              label="Print"
+            />,
+          ],
   };
   const columnsdrawer = [
     {
@@ -255,6 +285,14 @@ function SalesORderRegister() {
   const getShipmentList = () => {
     navigate("/sales/order/shipments");
   };
+  ///
+  // useEffect(() => {
+  //   console.log("cancelRowSelected", cancelRowSelected);
+  //   if (cancelRowSelected) {
+  //     form.setFieldValue("so", cancelRowSelected?.salesId);
+  //   }
+  // }, [cancelRowSelected]);
+
   useEffect(() => {
     if (wise !== "DATE") {
       // const arr = [dayjs().startOf("month"), dayjs()]
@@ -268,7 +306,6 @@ function SalesORderRegister() {
       form.resetFields();
     }
   }, [cancelRowSelected]);
-
   return (
     <>
       <Modal
@@ -288,7 +325,7 @@ function SalesORderRegister() {
               remarks: "",
             }}
           >
-            <Form.Item
+            {/* <Form.Item
               label="SO Id"
               name="so"
               rules={[
@@ -297,8 +334,8 @@ function SalesORderRegister() {
                 },
               ]}
             >
-              <Input value={cancelRowSelected?.req_id} />
-            </Form.Item>
+              <Input />
+            </Form.Item> */}
             <Form.Item
               label="Remarks"
               name="remarks"

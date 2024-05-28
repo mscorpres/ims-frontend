@@ -86,10 +86,11 @@ function ShipmentsList() {
           challanStatus: row.del_challan_status,
           date: row.shipment_dt,
           shipmentId: row.shipment_id,
+          soId: row.so_id,
           status: row.shipment_status === "A" ? "Active" : "Close",
           shippingId: row.shipping_id,
           shippingAddress: row.shippingaddress,
-          orderId: row.so_id,
+          // orderId: row.so_id,
           itemPartNo: row.item_part_no,
           itemName: row.item_name,
           itemQty: row.item_qty,
@@ -127,7 +128,7 @@ function ShipmentsList() {
 
   const cancelShipment = async (singleRow) => {
     Modal.confirm({
-      title: "Are you sure you want to cancel this Challan?",
+      title: "Are you sure you want to cancel this Shipment?",
       icon: <ExclamationCircleOutlined />,
       content: (
         <Form form={ModalForm} layout="vertical">
@@ -168,7 +169,7 @@ function ShipmentsList() {
     }
   };
   const createShipmentChallan = async (singleRow) => {
-    ModalForm.resetFields()
+    ModalForm.resetFields();
     let mins = [];
     if (singleRow) {
       mins = [singleRow].map((row) => rows.filter((r) => r.id === row.id)[0]);
@@ -393,6 +394,12 @@ const columns = [
     ),
   },
   {
+    headerName: "SO Id",
+    width: 150,
+    field: "soId",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.soId} copy={true} />,
+  },
+  {
     headerName: "Item Part Code",
     // minWidth: 120,
     width: 130,
@@ -474,13 +481,13 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
   },
   {
-    headerName: "Challan Created",
+    headerName: "Invoice Created",
     width: 100,
     field: "challanStatus",
   },
-  {
-    headerName: "Status",
-    width: 80,
-    field: "status",
-  },
+  // {
+  //   headerName: "Status",
+  //   width: 80,
+  //   field: "status",
+  // },
 ];

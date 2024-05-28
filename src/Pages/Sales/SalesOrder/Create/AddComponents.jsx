@@ -158,12 +158,9 @@ export default function AddComponents({
     setShowCurrencyUpdateConfirmModal(false);
     setRowCount(arr);
   };
-  console.log("these are the rows", rowCount);
   const inputHandler = async (name, value, id) => {
     let arr = rowCount;
-    console.log("update rate and value", value);
     arr = arr.map((row) => {
-      console.log("row of inputhanfler", row);
       if (row.id == id) {
         let obj = row;
         if (name == "rate") {
