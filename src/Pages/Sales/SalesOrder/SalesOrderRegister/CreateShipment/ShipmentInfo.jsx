@@ -67,6 +67,7 @@ const ShipmentInfo = ({
             onClick={validateHandler}
             variant="submit"
             text={updateShipmentRow ? "Update Shipment" : "Create Shipment"}
+            loading={"select"}
           />
         </Row>
       </Card>
