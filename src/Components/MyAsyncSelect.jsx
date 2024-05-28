@@ -19,8 +19,7 @@ export default function MyAsyncSelect({
   noBorder,
   color,
   hideArrow,
-  searchIcon,
-  onFocus,
+  fetchDefault,
   onMouseEnter,
   optionsList,
 }) {
@@ -28,9 +27,9 @@ export default function MyAsyncSelect({
   const updatedValue = useDebounce(searchValue);
 
   useEffect(() => {
-    // if (updatedValue.length >= 3) {
-    loadOptions(updatedValue);
-    // }
+    if (updatedValue.length >= 3) {
+      loadOptions(updatedValue);
+    }
   }, [updatedValue]);
   return (
     <Select
@@ -42,7 +41,7 @@ export default function MyAsyncSelect({
       value={value}
       // onFocus={}
       placeholder={placeholder}
-      onFocus={() => loadOptions("")}
+      onFocus={() => fetchDefault && loadOptions("")}
       // suffixIcon={<SearchOutlined />}
       // allowClear
       defaultValue={defaultValue}
