@@ -25,6 +25,7 @@ import {
   Card,
   Col,
   Collapse,
+  Input,
   Modal,
   Radio,
   Row,
@@ -86,7 +87,7 @@ export default function AddComponents({
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const newdata = form.getFieldsValue();
-  console.log("rowCount", rowCount);
+  console.log("uploadfiles", uploadfile);
   const sampleData = [
     {
       TYPE: "P",
@@ -602,6 +603,12 @@ export default function AddComponents({
       // sortable: false,
     },
     {
+      headerName: "Index",
+      width: 100,
+      field: "index",
+      renderCell: (params) => <Input value={params?.row.index} />,
+    },
+    {
       headerName: "Type",
       width: 100,
       field: "type",
@@ -622,6 +629,7 @@ export default function AddComponents({
       //   loading("select")
       // ),
     },
+
     {
       headerName: "Material",
       width: 250,
@@ -732,9 +740,7 @@ export default function AddComponents({
   useEffect(() => {
     getCurrencies();
   }, []);
-  useEffect(() => {
-    setRowCount(rowCount);
-  }, [rowCount]);
+
   // useEffect(() => {
   //   if (selectLoading) {
   //     setTimeout(() => {
@@ -742,6 +748,7 @@ export default function AddComponents({
   //     }, 600000);
   //   }
   // }, [selectLoading]);
+  console.log("fileupload", fileupload);
   return (
     <div
       style={{
@@ -759,7 +766,13 @@ export default function AddComponents({
           <Button key="back" onClick={() => setConfirmReset(false)}>
             No
           </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction2}>
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => {
+              resetFunction2();
+            }}
+          >
             Yes
           </Button>,
         ]}
@@ -830,7 +843,10 @@ export default function AddComponents({
                     >
                       <Col span={24}>
                         <Col span={24}>
-                          <UploadFile />
+                          <UploadFile
+                            uploadfile={uploadfile}
+                            setUploadFile={setUploadFile}
+                          />
                         </Col>
                       </Col>
                       <Button
@@ -844,7 +860,11 @@ export default function AddComponents({
                       >
                         Download Sample File
                       </Button>
-                      <Button onClick={callFileUpload} loading={pageLoading}>
+                      <Button
+                        onClick={callFileUpload}
+                        loading={pageLoading}
+                        disabled={uploadfile == false}
+                      >
                         Upload
                       </Button>
                     </Row>
