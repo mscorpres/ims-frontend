@@ -87,10 +87,12 @@ const POAnalysis = () => {
 
   const handleSocketDownload = async () => {
     const values = await filterForm.validateFields();
+    console.log("here are the values", values);
     const payload = {
       vendor: values.value,
       notificationId: v4(),
     };
+    console.log("firing event");
     socket.emit("jw_analysis", payload);
   };
   const handlePrint = async (jwId, action) => {

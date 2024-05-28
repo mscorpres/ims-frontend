@@ -539,7 +539,7 @@ const SalesOrderForm = () => {
     arr = arr.map((row, index) => ({
       id: v4(),
       type: row.item_type,
-      index: index + 1,
+      index: (rowCount?.length ?? 0) + index + 1,
       currency: row.currency,
       exchange_rate: 1,
       component: {
@@ -584,7 +584,7 @@ const SalesOrderForm = () => {
     }));
 
     console.log("after calculation", arr);
-    setRowCount(arr);
+    setRowCount((curr) => [...curr, ...arr]);
   };
 
   useEffect(() => {

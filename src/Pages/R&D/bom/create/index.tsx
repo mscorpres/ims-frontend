@@ -216,6 +216,7 @@ const BOMCreate = () => {
                   onBlur={() => setAsyncOptions([])}
                   optionsState={asyncOptions}
                   onChange={(value) => handleFetchExistingBom(value)}
+                  fetchDefault={true}
                 />
               </Form.Item>
               <Form.Item name="description" label="Remarks">
