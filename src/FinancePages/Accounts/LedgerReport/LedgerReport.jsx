@@ -222,13 +222,13 @@ export default function LedgerReport() {
         datetitle: "Date Range",
         Date: values.date,
       },
-      {
-        Opening: "Opening: " + summary?.opening.replaceAll(",", ""),
+    {
+        Opening: "Opening: " + summary?.opening?.replaceAll(",", ""),
         "Current Total Debit":
-          "Current Total Debit: " + summary?.debitTotal.replaceAll(",", ""),
+          "Current Total Debit: " + summary?.debitTotal?.replaceAll(",", ""),
         "Current Total Credit":
-          "Current Total Credit: " + summary?.creditTotal.replaceAll(",", ""),
-        Closing: "Closing: " + summary?.closing.replaceAll(",", ""),
+          "Current Total Credit: " + summary?.creditTotal?.replaceAll(",", ""),
+        Closing: "Closing: " + summary?.closing?.replaceAll(",", ""),
       },
     ];
     downloadCSVCustomColumns(
