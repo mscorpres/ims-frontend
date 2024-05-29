@@ -1,5 +1,5 @@
-import { Button, Flex, Form, Row, Space, Typography } from "antd";
-import React, { useState } from "react";
+import { Form, Row, Typography } from "antd";
+import React from "react";
 import { CommonIcons } from "./TableActions.jsx/TableActions";
 import { useEffect } from "react";
 import { memo } from "react";
@@ -18,13 +18,7 @@ const FormTable2 = ({
   newRow,
   reverse,
 }) => {
-  const limit = 10;
   const formValues = Form.useWatch();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginationButtons, setPaginationButtons] = useState({
-    next: true,
-    back: false,
-  });
   const addRow = (newRow) => {
     let obj = newRow;
     const names = columns.map((row) => row.name);
@@ -42,234 +36,94 @@ const FormTable2 = ({
 
     form.setFieldValue(listName, arr);
   };
-
-  const handleNext = () => {
-    // if(currentPage)
-    const rows = form.getFieldValue(listName);
-    const length = rows?.length;
-    const count = Math.ceil(length / limit);
-    // console.log("this is the count", count);
-    // console.log("this is the count length", length);
-    // if (count === currentPage) {
-    //   setPaginationButtons((curr) => ({
-    //     ...curr,
-    //     next: false,
-    //   }));
-    // }
-    if (count > currentPage) {
-      setCurrentPage((curr) => curr + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    const rows = form.getFieldValue(listName);
-    const length = rows.length;
-    const count = Math.ceil(length / limit);
-
-    // if (!paginationButtons.next) {
-    //   setPaginationButtons((curr) => ({
-    //     ...curr,
-    //     next: true,
-    //   }));
-    // }
-    // if(currentPage)
-    setCurrentPage((curr) => curr - 1);
-  };
-
-  const handlePaginationState = () => {
-    const rows = form.getFieldValue(listName);
-    const length = rows?.length ?? 1;
-    const count = Math.ceil(length / limit);
-
-    console.log("this is the count", count);
-
-    const currentItems = rows.filter(
-      (_, index) =>
-        index < limit * currentPage &&
-        (currentPage > 1 ? index >= limit * (currentPage - 1) : true)
-    );
-
-    const nextItems = rows.filter(
-      (_, index) =>
-        index < limit * (currentPage + 1) &&
-        (currentPage > 1 ? index >= limit * currentPage : true)
-    );
-
-    console.log("this is the current length count", nextItems.length > 0);
-    if (currentItems.length === 0 && currentPage > 1) {
-      handlePrev();
-    }
-    setPaginationButtons((curr) => ({
-      next: nextItems.length > 0,
-      back: currentPage > 1,
-    }));
-  };
-  useEffect(() => {
-    handlePaginationState();
-    // if(currentPage === count){
-    //   setPaginationButtons(curr)
-    // }
-  }, [currentPage]);
-  useEffect(() => {
-    setTimeout(() => {
-      handlePaginationState();
-    }, 1000);
-  }, []);
   return (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        overflow: "auto",
-        pading: 5,
-        border: "1px solid #ccc",
-        borderRadius: 10,
-      }}
-    >
-      <table style={tableStyle}>
-        <thead
-          style={{
-            width: "100%",
-            display: "block",
-            // marginTop: 3,
-            verticalAlign: "middle",
-            position: "sticky",
-            top: 0,
-            zIndex: 2,
-            overflow: "hidden",
-          }}
-        >
-          <tr style={tableHeaderStyle}>
-            {removableRows && (
-              <td
-                style={{
-                  ...columnHeaderStyle(),
-                  width: 30,
-                }}
-              >
-                {addableRow && (
-                  <CommonIcons
-                    action="addRow"
-                    onClick={() => {
-                      handlePaginationState();
-                      addRow(newRow);
-                    }}
-                  />
-                )}
+    <table style={tableStyle}>
+      <thead
+        style={{
+          width: "100%",
+          display: "block",
+          marginTop: 3,
+          verticalAlign: "middle",
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+        }}
+      >
+        <tr style={tableHeaderStyle}>
+          {removableRows && (
+            <td
+              style={{
+                ...columnHeaderStyle(),
+                width: 30,
+              }}
+            >
+              {addableRow && (
+                <CommonIcons action="addRow" onClick={() => addRow(newRow)} />
+              )}
+            </td>
+          )}
+          {columns.map((col) =>
+            !col.conditional ? (
+              <td style={columnHeaderStyle(col)}>
+                <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                  {col.headerName}
+                </Typography.Text>
               </td>
-            )}
-            {columns.map((col) =>
-              !col.conditional ? (
+            ) : (
+              col.condition() && (
                 <td style={columnHeaderStyle(col)}>
                   <Typography.Text style={{ fontSize: "0.8rem" }} strong>
                     {col.headerName}
                   </Typography.Text>
                 </td>
-              ) : (
-                col.condition() && (
-                  <td style={columnHeaderStyle(col)}>
-                    <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                      {col.headerName}
-                    </Typography.Text>
-                  </td>
-                )
               )
-            )}
-          </tr>
-        </thead>
+            )
+          )}
+        </tr>
+      </thead>
 
-        <tbody
+      <tbody
+        style={{
+          display: "block",
+          height: "99%",
+          width: "100%",
+        }}
+      >
+        <Form.List
+          name={listName}
           style={{
-            display: "block",
-            height: "90%",
-            width: "100%",
-            // overflowY: "auto",
-            // overflowX:'hidden'
+            width: "fit-content",
+            height: "100%",
           }}
         >
-          <Form.List
-            name={listName}
-            style={{
-              width: "fit-content",
-              height: "100%",
-            }}
-          >
-            {(fields, { add, remove }) =>
-              fields
-                .filter(
-                  (_, index) =>
-                    index < limit * currentPage &&
-                    (currentPage > 1
-                      ? index >= limit * (currentPage - 1)
-                      : true)
-                )
-                .map((field, index) => (
-                  <SingleRow
-                    currentPage={currentPage}
-                    limit={limit}
-                    field={field}
-                    fieldsLength={fields.length}
-                    nonRemovableColumns={nonRemovableColumns}
-                    removableRows={removableRows}
-                    remove={remove}
-                    index={index}
-                    columns={columns}
-                    listName={listName}
-                    watchKeys={watchKeys}
-                    form={form}
-                    calculation={calculation}
-                    formValues={formValues}
-                    nonListWatchKeys={nonListWatchKeys}
-                    componentRequiredRef={componentRequiredRef}
-                    handlePaginationState={handlePaginationState}
-                  />
-                ))
-            }
-          </Form.List>
-        </tbody>
-        {/* <tfoot
-          style={{
-            width: "100%",
-            overflowX: "hidden",
-            position: "sticky",
-            background: "blue",
-          }}
-        >
-          <Row justify="center" align="middle">
-            <Typography.Text type="secondary">
-              ----End of the List----
-            </Typography.Text>
-          </Row>
-        </tfoot> */}
-      </table>
-      <Flex justify="center" style={{}}>
-        <Flex justify="space-between" style={{ width: "100%" }}>
-          <div style={{ flex: 1 }}></div>
-          <div style={{ flex: 1 }}>
-            <Flex justify="center">
-              <Typography.Text type="secondary" style={{ flex: 1 }}>
-                ----End of the List----
-              </Typography.Text>
-            </Flex>
-          </div>
-          <Flex justify="end">
-            <Space style={{ flex: 1 }}>
-              <Typography.Text strong type="secondary">
-                Current Page: {currentPage}
-              </Typography.Text>
-              <Button disabled={!paginationButtons.back} onClick={handlePrev}>
-                Prev
-              </Button>
-              <Button disabled={!paginationButtons.next} onClick={handleNext}>
-                Next
-              </Button>
-            </Space>
-          </Flex>
-        </Flex>
-      </Flex>
-    </div>
+          {(fields, { add, remove }) =>
+            fields.map((field, index) => (
+              <SingleRow
+                field={field}
+                fieldsLength={fields.length}
+                nonRemovableColumns={nonRemovableColumns}
+                removableRows={removableRows}
+                remove={remove}
+                index={index}
+                columns={columns}
+                listName={listName}
+                watchKeys={watchKeys}
+                form={form}
+                calculation={calculation}
+                formValues={formValues}
+                nonListWatchKeys={nonListWatchKeys}
+                componentRequiredRef={componentRequiredRef}
+              />
+            ))
+          }
+        </Form.List>
+        <Row justify="center" align="middle">
+          <Typography.Text type="secondary">
+            ----End of the List----
+          </Typography.Text>
+        </Row>
+      </tbody>
+    </table>
   );
 };
 
@@ -290,11 +144,7 @@ const SingleRow = memo(
     calculation,
     nonListWatchKeys = [],
     componentRequiredRef = [],
-    currentPage,
-    handlePaginationState,
-    limit,
   }) => {
-    console.log("this is field", field);
     const watchValues = watchKeys.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
@@ -338,13 +188,7 @@ const SingleRow = memo(
               }}
             >
               {fieldsLength > nonRemovableColumns && (
-                <CommonIcons
-                  action="removeRow"
-                  onClick={() => {
-                    handlePaginationState();
-                    remove(field.name);
-                  }}
-                />
+                <CommonIcons action="removeRow" onClick={() => remove(index)} />
               )}
             </td>
           )}
@@ -362,10 +206,7 @@ const SingleRow = memo(
                   }}
                   validateTrigger="onBlur"
                 >
-                  {row.field(
-                    { fieldName: field.name, ...valueObj },
-                    index + limit * (currentPage - 1)
-                  )}
+                  {row.field({ fieldName: field.name, ...valueObj }, index)}
                 </Form.Item>
               </td>
             ) : (
@@ -382,10 +223,7 @@ const SingleRow = memo(
                     }}
                     validateTrigger="onBlur"
                   >
-                    {row.field(
-                      { fieldName: field.name, ...valueObj },
-                      index + limit * currentPage
-                    )}
+                    {row.field({ fieldName: field.name, ...valueObj }, index)}
                   </Form.Item>
                 </td>
               )
@@ -413,21 +251,18 @@ const columnCellStyle = (row, index) => ({
   margin: "0px 1px",
 });
 const tableStyle = {
-  // display: "block",
-  // height: "100%",
-  // width: "100%",
-  // overflow: "hidden",
-  // position: "sticky",
-  // overflowX: "auto",
-  // overflowY: "hidden",
-
+  display: "block",
+  height: "100%",
+  width: "100%",
+  overflowX: "scroll",
+  overflowY: "auto",
   padding: 0,
 };
 const tableHeaderStyle = {
-  // display: "flex",
-  // minWidth: "100%",
-  // width: "fit-content",
-  // borderRadius: 5,
+  display: "flex",
+  minWidth: "100%",
+  width: "fit-content",
+  borderRadius: 5,
 };
 const tableColumnStyle = {
   display: "flex",
