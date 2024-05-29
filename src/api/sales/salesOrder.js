@@ -270,6 +270,7 @@ export const updateShipment = async (
   updateShipmentRow,
   details
 ) => {
+;
   let billId;
   if (values?.billingId?.id) {
     billId = values?.billingId?.id;
@@ -294,6 +295,7 @@ export const updateShipment = async (
       updaterow: values.products.map((row) => row.updaterow.toString()),
       item: values.products.map((row) => row.productKey),
       qty: values.products.map((row) => row.qty),
+      qty: values.products.map((row) => row.oldbillqty),
       rate: values.products.map((row) => row.rate),
       // picklocation: values.products.map((row) => row.pickLocation),
       hsn: values.products.map((row) => row.hsn),
