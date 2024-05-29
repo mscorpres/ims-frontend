@@ -14,8 +14,11 @@ const imsAxios = axios.create({
 imsAxios.interceptors.response.use(
   (response) => {
     if (response.data?.success !== undefined) {
-      console.log("this is the response from axios interceptor", response.data);
       return response.data;
+    } else {
+      if (response.data.code !== 200 && response?.data?.message?.msg) {
+        toast.error(response?.data?.message?.msg);
+      }
     }
     return response;
   },
@@ -28,8 +31,11 @@ imsAxios.interceptors.response.use(
         return error;
       }
       if (error?.response.data.success !== undefined) {
-        console.log("this is the error response", error);
-        toast.error(error.response.data.message);
+        // toast.error(error.response.data.message);
+      } else if (error?.response.data.success === undefined) {
+        toast.error(
+          error.response.data.message.msg ?? error.response.data.message.msg
+        );
       }
       //  else {
       //   toast.error(

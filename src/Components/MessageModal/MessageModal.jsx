@@ -52,12 +52,12 @@ export default function MessageModal({
   }, []);
 
   const getAllConverations = async () => {
-    setGetConversationLoading(true);
-    const { data } = await imsAxios.get("/chat/get-conversations");
-    setGetConversationLoading(false);
-    if (data.code == 200) {
-      setConversations(data.data);
-    }
+    // setGetConversationLoading(true);
+    // const { data } = await imsAxios.get("/chat/get-conversations");
+    // setGetConversationLoading(false);
+    // if (data.code == 200) {
+    //   setConversations(data.data);
+    // }
   };
   const getAllConverationById = async (rec) => {
     SiSocketdotio.emit("socket_join_room", {
