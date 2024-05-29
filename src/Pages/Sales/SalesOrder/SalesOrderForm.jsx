@@ -551,7 +551,7 @@ const SalesOrderForm = () => {
       duedate: row.due_date,
       inrValue: +Number(row.rate) * +Number(row.qty) * +Number(1),
       hsncode: row.hsn,
-      gsttype: row.gst_type,
+      gsttype: derivedType,
       gstrate: row.gst_rate,
       cgst:
         row.gst_type === "I"

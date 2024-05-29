@@ -767,8 +767,21 @@ const productItems = (
           width: 150,
           field: (row) => <ToolTipEllipses text={row.hsn} />,
         },
+
         {
-          headerName: "Bill Qty",
+          headerName: "Order Qty",
+          name: "qty",
+          width: 100,
+          field: (row) => row.qty,
+        },
+        {
+          headerName: "Pending Qty",
+          name: "pendingqty",
+          width: 100,
+          field: (row) => row.pendingqty,
+        },
+        {
+          headerName: "Shipment Qty",
           name: "oldbillqty",
           width: 100,
           field: (row) => <InputNumber max={row.pendingqty} />,
@@ -781,18 +794,6 @@ const productItems = (
           //     // onChange={(e) => inputHandler("remark", e.target.value, row.id)}
           //   />
           // ),
-        },
-        {
-          headerName: "Pending Qty",
-          name: "pendingqty",
-          width: 100,
-          field: (row) => row.pendingqty,
-        },
-        {
-          headerName: "Qty",
-          name: "qty",
-          width: 100,
-          field: (row) => row.qty,
         },
         {
           headerName: "Rate",
