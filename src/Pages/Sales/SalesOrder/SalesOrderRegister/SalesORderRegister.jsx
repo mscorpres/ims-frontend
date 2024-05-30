@@ -162,8 +162,6 @@ function SalesORderRegister() {
     getActions: ({ row }) =>
       row.status == "Cancelled"
         ? [
-            
-          
             <GridActionsCellItem
               showInMenu
               // disabled={loading}
@@ -173,7 +171,7 @@ function SalesORderRegister() {
               }}
               label="Material list"
             />,
-          
+
             <GridActionsCellItem
               showInMenu
               // disabled={loading}
@@ -215,7 +213,12 @@ function SalesORderRegister() {
               // disabled={loading}
               onClick={() => {
                 // setOpen(true);
-                setShowShipmentDrawer(row.salesId);
+                // setShowShipmentDrawer(row.salesId);
+                navigate(
+                  `/sales/order/createShipment/${row?.salesId
+                    ?.replaceAll("-", "=")
+                    .replaceAll("/", "_")}`
+                );
               }}
               label="Create Shipment"
             />,
@@ -285,14 +288,6 @@ function SalesORderRegister() {
   const getShipmentList = () => {
     navigate("/sales/order/shipments");
   };
-  ///
-  // useEffect(() => {
-  //   console.log("cancelRowSelected", cancelRowSelected);
-  //   if (cancelRowSelected) {
-  //     form.setFieldValue("so", cancelRowSelected?.salesId);
-  //   }
-  // }, [cancelRowSelected]);
-
   useEffect(() => {
     if (wise !== "DATE") {
       // const arr = [dayjs().startOf("month"), dayjs()]
@@ -306,6 +301,7 @@ function SalesORderRegister() {
       form.resetFields();
     }
   }, [cancelRowSelected]);
+
   return (
     <>
       <Modal
@@ -435,10 +431,10 @@ function SalesORderRegister() {
             data={componentList}
           /> */}
         {/* </Drawer> */}
-        <CreateShipment
+        {/* <CreateShipment
           open={showShipmentDrawer}
           hide={() => setShowShipmentDrawer(null)}
-        />
+        /> */}
         {/* <Row style={{ padding: 5, paddingTop: 0 }}></Row> */}
         <div style={{ height: "100%" }}>
           <MyDataTable

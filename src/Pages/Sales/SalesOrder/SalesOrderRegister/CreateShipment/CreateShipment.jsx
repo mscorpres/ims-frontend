@@ -40,6 +40,8 @@ import {
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses.jsx";
+import { useNavigate, useParams } from "react-router-dom";
+import NavFooter from "../../../../../Components/NavFooter.jsx";
 
 function CreateShipment({
   open,
@@ -53,16 +55,27 @@ function CreateShipment({
   const [locationlist, setlocationlist] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
 
+  const [newArr, setNewArr] = useState([]);
+  const [current, setCurrent] = useState(0);
+  const [paginate, setPaginate] = useState([]);
+  const [currArr, setCurrArr] = useState([]);
+  const [totalPage, setTotalPage] = useState();
+  const [isAnother, setIsAnother] = useState("");
+  const [newId, setNewId] = useState("");
   const [details, setDetails] = useState({});
+  const [editId, setEditId] = useState("");
 
   const { executeFun, loading } = useApi();
   const [shipmentForm] = Form.useForm();
+  const navigate = useNavigate();
 
   const billingId = Form.useWatch("billingId", shipmentForm);
+  var chunk;
+  var result;
+  let params = useParams();
 
   const shippingId = Form.useWatch("shippingId", shipmentForm);
   const calculation = (id, row) => {
-    // console.log("row us here", row);
     const exchangeRate = row.exchangeRate ?? 1;
     const oldbillqty = row.oldbillqty;
     const rate = row.rate;
@@ -97,46 +110,51 @@ function CreateShipment({
     const values = await shipmentForm.validateFields();
 
     Modal.confirm({
-      title: updateShipmentRow
-        ? "Are you sure you want to Update this shipment?"
-        : "Are you sure you want to create this shipment?",
+      title:
+        updateShipmentRow || editId
+          ? "Are you sure you want to Update this shipment?"
+          : "Are you sure you want to create this shipment?",
 
       content: "Check all the values properly before proceeding",
-      okText: updateShipmentRow ? "Update" : "Create",
+      okText: updateShipmentRow || editId ? "Update" : "Create",
       onOk: () => handleSubmit(values),
     });
   };
 
   const handleSubmit = async (values) => {
-    let response;
-    if (updateShipmentRow) {
-      response = await executeFun(
-        () => updateShipment(values, open, updateShipmentRow, details),
+    if (editId) {
+    }
+    // let response;
+    if (updateShipmentRow || editId) {
+      let response = await executeFun(
+        () => updateShipment(values, open, editId, details),
         "submit"
       );
+      if (response.success) {
+        // hide();
+        shipmentForm.resetFields();
+        // setUpdateShipmentRow(null);
+        setDetails(null);
+        navigate(`/sales/order/shipments`);
+      }
     } else {
-      response = await executeFun(
-        () => createShipment(values, open, details),
+      let response = await executeFun(
+        () => createShipment(values, newId, details),
         "submit"
       );
+      if (response.success) {
+        // hide();
+        shipmentForm.resetFields();
+        // setUpdateShipmentRow(null);
+        setDetails(null);
+        navigate(`/sales/order/register`);
+      }
     }
-    // return;    console.log("this is the handle submit respnse", response);
-    if (response.success) {
-      shipmentForm.resetFields();
-      hide();
-      setDetails(null);
-    }
-
-    // console.log("response", response);
-    // if (response.success) {
-    //   toast.success(response.message);
-    // } else {
-    //   toast.error(response.message);
-    // }
   };
 
   const handleFetchDetails = async (orderId) => {
     const response = await executeFun(() => getOrderDetails(orderId), "fetch");
+    console.log("response", response);
     if (response.success) {
       const { client, bill, materials, ship } = response.data;
       const detailsObj = {
@@ -144,13 +162,13 @@ function CreateShipment({
         clientCode: client[0].clientcode.value,
         clientBranch: client[0].clientbranch.label,
         address: client[0].clientaddress,
-        billing: {
+        billing_info: {
           pan: bill.billpanno,
           gst: bill.billgstid,
           cin: bill.billcinno,
           address: bill.billaddress,
         },
-        shipping: {
+        shipping_info: {
           pan: ship.shippanno,
           gst: ship.shipgstid,
           cin: "--",
@@ -165,7 +183,7 @@ function CreateShipment({
         billingId: bill.addrbillid,
         billingAddress: bill.billaddress,
         shippingId: ship.addrshipid,
-        shippingAddress: detailsObj?.shipping?.address,
+        shippingAddress: detailsObj?.shipping_info?.address,
         products: materials.map((material) => ({
           product: material.selectedItem[0].text,
           productKey: material.itemKey,
@@ -193,13 +211,46 @@ function CreateShipment({
           updateid: material.updateid,
         })),
       };
-
+      let arr = obj.products;
+      if (arr.length > 25) {
+        setIsAnother(true);
+        chunk = arr.length / 25;
+        chunk = Math.ceil(chunk);
+        setTotalPage(chunk);
+        result = divideArray(arr, chunk);
+        setPaginate(result);
+        setCurrArr(result[0]);
+        obj.products = result[0];
+        shipmentForm.setFieldsValue(obj);
+        setCurrent(1);
+      } else {
+        // chunk = arr.length;
+        setTotalPage(1);
+        result = arr;
+        shipmentForm.setFieldsValue(obj);
+      }
+      setCurrent(1);
       handleFetchShippingOptions(detailsObj.clientCode);
       setDetails(detailsObj);
-      shipmentForm.setFieldsValue(obj);
     }
   };
+  function divideArray(arr, numSubarrays) {
+    // Calculate the size of each subarray
+    const subarraySize = Math.ceil(arr.length / numSubarrays);
+    // console.log("subarraySize", subarraySize);
+    // Initialize an empty array to store subarrays
+    const subarrays = [];
 
+    // Iterate through the array and divide it into subarrays
+    let startIndex = 0;
+    for (let i = 0; i < numSubarrays; i++) {
+      const endIndex = startIndex + subarraySize;
+      subarrays.push(arr.slice(startIndex, endIndex));
+      startIndex = endIndex;
+    }
+
+    return subarrays;
+  }
   const handleFetchBillingOptions = async () => {
     const response = await executeFun(() => getBillingAddressOptions());
     let arr = [];
@@ -241,7 +292,10 @@ function CreateShipment({
 
   const getShipmentForUpdate = async (id) => {
     // console.log("id", id);
-    const response = await executeFun(() => getUpdateShipmentDetails(id));
+    const response = await executeFun(
+      () => getUpdateShipmentDetails(id),
+      "fetch"
+    );
     if (response.success) {
       const {
         client,
@@ -251,8 +305,8 @@ function CreateShipment({
         client_address,
         shipping,
       } = response.data.header;
-      console.log("response.data", response.data);
-
+      // console.log("response.data", response.data);
+      const { header, material } = response.data;
       const detailsObj = {
         clientName: client.name,
         clientCode: client.code,
@@ -262,7 +316,7 @@ function CreateShipment({
           pan: billing_info.pan,
           gst: billing_info.gst,
           cin: billing_info.id,
-          address: billing_info.billaddress,
+          address: header?.billing_address,
         },
         shipping_info: {
           pan: shipping?.pan,
@@ -270,11 +324,12 @@ function CreateShipment({
           cin: "--",
           address: response.data.header.shipping_address,
           shippingId: shipping?.ship_id,
+          soId: header.so_id,
+          soShipmentId: header.so_shipment_id,
         },
         shipping_address: response.data.header.shipping_address,
       };
 
-      const { header, material } = response.data;
       const obj = {
         eWayBillNo: header.eway_bill,
         docNo: "",
@@ -312,10 +367,47 @@ function CreateShipment({
       };
 
       console.log("detailsObj", detailsObj);
-      console.log("obj", obj);
       handleFetchShippingOptions(detailsObj.clientCode);
       setDetails(detailsObj);
-      shipmentForm.setFieldsValue(obj);
+      let arr = obj.products;
+      // console.log("arr", arr);
+      if (arr.length > 25) {
+        setIsAnother(true);
+        // console.log("Arr", arr.length);
+        chunk = arr.length / 25;
+        chunk = Math.ceil(chunk);
+        setTotalPage(chunk);
+        // console.log("chunk", chunk);
+        result = divideArray(arr, chunk);
+        // console.log("result", chunk);
+        setPaginate(result);
+        setCurrArr(result[0]);
+        // console.log("resi", result);
+        // let a = [...obj];
+        obj.products = result[0];
+        // console.log("obj new", obj);
+        shipmentForm.setFieldsValue(obj);
+        // Vbt01.setFieldValue("components", result[0]);
+        // Vbt01.setFieldValue("bigarr", arr);
+        // setEditVBTCode(result[0]);
+        // setVbtComponent(result[0]);
+        setCurrent(1);
+      } else {
+        setCurrent(1);
+        // chunk = arr.length;
+        setTotalPage(1);
+        result = arr;
+        // console.log("res", result);
+        shipmentForm.setFieldsValue(obj);
+        // console.log("result", result);
+        // Vbt01.setFieldValue("components", result);
+        // setEditVBTCode(arr);
+        // setVbtComponent(arr);
+      }
+
+      handleFetchShippingOptions(detailsObj.clientCode);
+      setDetails(detailsObj);
+      // console.log("lenght of ibk", obj.products.length);
     }
   };
   const removeHtml = (value) => {
@@ -342,7 +434,7 @@ function CreateShipment({
     );
     if (response.success) {
       const details = response.data[0];
-      console.log("details", details);
+      // console.log("details", details);
       if (details) {
         shipmentForm.setFieldValue("shippingAddress", details.address);
         // shipmentForm.setFieldValue("shippingAddress", {
@@ -361,19 +453,90 @@ function CreateShipment({
       }
     }
   };
+  ///pagination functions
+  const changeToNextPage = () => {
+    // setLoading(true);
+    // console.log("current", current);
+    let createdEntry = shipmentForm.getFieldValue("products");
+    // console.log("createdEntry", createdEntry);
+
+    let id;
+    // let newArray = [];
+    if (current < totalPage) {
+      id = current + 1;
+      setCurrent(id);
+      shipmentForm.setFieldValue("products", paginate[id - 1]);
+      setCurrArr(paginate[id - 1]);
+
+      paginate[current - 1] = createdEntry;
+
+      let newArray = [...newArr];
+      setNewArr(paginate);
+      // setLoading(false);
+    }
+  };
+  const changeToBackPage = () => {
+    // setLoading(true);
+    let id;
+
+    let createdEntry = shipmentForm.getFieldValue("products");
+    if (current - 1 > 0) {
+      id = current - 1;
+      setCurrent(id);
+      shipmentForm.setFieldValue("products", paginate[id - 1]);
+      setCurrArr(paginate[id - 1]);
+      paginate[current - 1] = createdEntry;
+    }
+    setNewArr(paginate);
+    // console.log("id", id);
+    // setLoading(false);
+  };
+  const backFunction = () => {
+    shipmentForm.resetFields();
+  };
+  //////
+
+  // useEffect(() => {
+  //   if (updateShipmentRow) {
+  //     console.log("update ->", updateShipmentRow);
+  //     getShipmentForUpdate(updateShipmentRow.shipment_id);
+  //     getlocations();
+  //     handleFetchBillingOptions();
+  //   }
+  // }, [updateShipmentRow]);
   useEffect(() => {
-    if (updateShipmentRow) {
-      console.log("update ->", updateShipmentRow);
-      getShipmentForUpdate(updateShipmentRow.shipment_id);
+    if (editId) {
+      getShipmentForUpdate(editId);
       getlocations();
       handleFetchBillingOptions();
     }
-  }, [updateShipmentRow]);
+  }, [editId]);
   useEffect(() => {
     if (billingId) {
+      // console.log("billingId-------", billingId);
       getBillingAddress(billingId);
     }
   }, [billingId]);
+  useEffect(() => {
+    if (params) {
+      // console.log("params", params);
+      let a = params?.orderId?.replaceAll("_", "/").replaceAll("=", "-");
+      // console.log("a", a.split(":"));
+      let isedit = a.split(":");
+      if (isedit[0] == "edit") {
+        // console.log("is edit", isedit[1]);
+        setEditId(isedit[1]);
+      } else {
+        // console.log("here");
+        setNewId(params?.orderId?.replaceAll("_", "/").replaceAll("=", "-"));
+      }
+    }
+  }, [params]);
+  useEffect(() => {
+    if (newId) {
+      handleFetchDetails(newId);
+    }
+  }, [newId]);
   // useEffect(() => {
   //   if (clientbranch?.value && client?.value) {
   //     handleFetchClientBranchDetails("client", clientbranch.value);
@@ -386,18 +549,23 @@ function CreateShipment({
   //   }
   // }, [shippingId]);
   return (
-    <Drawer
-      onClose={hide}
-      open={updateShipmentRow ? updateShipmentRow : open}
-      width="100vw"
-      bodyStyle={{ overflow: "hidden", padding: 10 }}
-      title={
-        updateShipmentRow
-          ? `Update Shipment ${open} `
-          : `Create Shipment  ${open}`
-      }
-    >
-      <Form style={{ height: "100%" }} layout="vertical" form={shipmentForm}>
+    // <Drawer
+    //   onClose={hide}
+    //   open={updateShipmentRow ? updateShipmentRow : open}
+    //   width="100vw"
+    //   bodyStyle={{ overflow: "hidden", padding: 10 }}
+    //   title={
+    //     updateShipmentRow
+    //       ? `Update Shipment ${open} `
+    //       : `Create Shipment  ${open}`
+    //   }
+    // >
+    <div style={{ height: "100%" }}>
+      {" "}
+      {loading("fetch") && <Loading />}
+      <Form style={{ height: "90%" }} layout="vertical" form={shipmentForm}>
+        {" "}
+        {/* {loading("fetch") && <Loading />} */}
         <Row gutter={8} style={{ height: "95%", overflow: "hidden" }}>
           <Col span={6} style={{ height: "100%", overflow: "hidden" }}>
             {loading("fetch") && <Loading />}
@@ -413,7 +581,7 @@ function CreateShipment({
                     validateHandler={validateHandler}
                     billingOptions={billingOptions}
                     shippingOptions={shippingOptions}
-                    updateShipmentRow={updateShipmentRow}
+                    updateShipmentRow={details}
                   />
                   <ClientInfo details={details} />
                   <BillingInfo
@@ -422,14 +590,17 @@ function CreateShipment({
                   />
                   <ShippingDetailsCard
                     details={details}
-                    updateShipmentRow={updateShipmentRow}
+                    updateShipmentRow={details}
                   />
                 </>
               )}
             </Flex>
           </Col>
           <Col span={18} style={{ height: "100%" }}>
-            {loading("fetch") && <Loading />}
+            {/* {loading("fetch") && <Loading />} */}
+            <div
+              style={{ marginBottom: "4px", marginTop: "4px" }}
+            >{`Page ${current} of ${totalPage}`}</div>
             <Product
               calculation={calculation}
               form={shipmentForm}
@@ -443,11 +614,39 @@ function CreateShipment({
               getlocations={getlocations}
               loading={loading}
               updateShipmentRow={updateShipmentRow}
+              editId={editId}
             />
           </Col>
+          {current < totalPage ? (
+            <NavFooter
+              nextLabel="Next"
+              backLabel="Back"
+              submitFunction={() => {
+                changeToNextPage();
+              }}
+              // resetFunction={backFunction}
+              backFunction={() => changeToBackPage()}
+              // loading={loading}
+            />
+          ) : (
+            <NavFooter
+              nextLabel={
+                updateShipmentRow || editId
+                  ? "Update Shipment"
+                  : "Create Shipment"
+              }
+              submitFunction={() => {
+                validateHandler();
+              }}
+              // resetFunction={backFunction}
+              backFunction={() => changeToBackPage()}
+              // loading={loading}
+            />
+          )}
         </Row>
       </Form>
-    </Drawer>
+    </div>
+    // </Drawer>
   );
 }
 const Product = ({
@@ -459,6 +658,7 @@ const Product = ({
   getlocations,
   loading,
   updateShipmentRow,
+  editId,
 }) => {
   return (
     <FormTable2
@@ -470,7 +670,8 @@ const Product = ({
           setAsyncOptions,
           asyncOptions,
           loading,
-          updateShipmentRow
+          updateShipmentRow,
+          editId
         ),
       ]}
       listName="products"
@@ -519,9 +720,10 @@ const productItems = (
   setAsyncOptions,
   asyncOptions,
   loading,
-  updateShipmentRow
+  updateShipmentRow,
+  editId
 ) =>
-  updateShipmentRow
+  updateShipmentRow || editId
     ? [
         {
           headerName: "#",
@@ -569,6 +771,7 @@ const productItems = (
           width: 100,
           field: (row) => <Input />,
         },
+
         {
           headerName: "Rate",
           name: "rate",
@@ -767,7 +970,6 @@ const productItems = (
           width: 150,
           field: (row) => <ToolTipEllipses text={row.hsn} />,
         },
-
         {
           headerName: "Order Qty",
           name: "qty",

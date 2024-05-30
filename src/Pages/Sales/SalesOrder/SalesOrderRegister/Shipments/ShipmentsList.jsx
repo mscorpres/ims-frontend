@@ -24,6 +24,7 @@ import {
 } from "../../../../../utils/general.ts";
 import { getClientsOptions } from "../../../../../api/finance/clients";
 import MyButton from "../../../../../Components/MyButton";
+import { useNavigate } from "react-router-dom";
 
 const initialValues = {
   data: getStringDate("month"),
@@ -61,9 +62,10 @@ function ShipmentsList() {
   const { executeFun, loading } = useApi();
   const [ModalForm] = Form.useForm();
   const [filterForm] = Form.useForm();
+  const [showCreateshipment, setShowCreateShipment] = useState();
   const wise = Form.useWatch("wise", filterForm);
   const selectedData = Form.useWatch("data", filterForm);
-
+  const navigate = useNavigate();
   const getRows = async () => {
     const values = await filterForm.validateFields();
     setRows([]);
@@ -104,7 +106,7 @@ function ShipmentsList() {
     }
   };
   const sendUpdate = (row) => {
-    setUpdateShipmentRow(row);
+    setUpdateShipmentRow(row.shipment_id);
   };
 
   const createChallan = async (singleRow) => {
@@ -206,6 +208,16 @@ function ShipmentsList() {
     }
     setAsyncOptions(arr);
   };
+  useEffect(() => {
+    if (updateShipmentRow) {
+      // console.log("here", updateShipmentRow);
+      navigate(
+        `/sales/order/createShipment/edit:${updateShipmentRow
+          ?.replaceAll("-", "=")
+          .replaceAll("/", "_")}`
+      );
+    }
+  }, [updateShipmentRow]);
 
   const actionColumn = {
     headerName: "",
@@ -247,6 +259,11 @@ function ShipmentsList() {
               // disabled={loading}
               onClick={() => {
                 sendUpdate(row);
+                // navigate(
+                //   `/sales/order/createShipment/edit:${row?.shipment_id
+                //     ?.replaceAll("-", "=")
+                //     .replaceAll("/", "_")}`
+                // );
               }}
               label="Update"
             />,
@@ -367,12 +384,14 @@ function ShipmentsList() {
           }}
         />
       </Col>
-      <CreateShipment
-        open={updateShipmentRow?.shipment_id}
-        setUpdateShipmentRow={setUpdateShipmentRow}
-        updateShipmentRow={updateShipmentRow}
-        hide={() => setUpdateShipmentRow(null)}
-      />
+      {showCreateshipment && (
+        <CreateShipment
+          open={updateShipmentRow?.shipment_id}
+          setUpdateShipmentRow={setUpdateShipmentRow}
+          updateShipmentRow={updateShipmentRow}
+          hide={() => setUpdateShipmentRow(null)}
+        />
+      )}
       <ShipmentDetails open={showDetails} hide={() => setShowDetails(null)} />
     </Row>
   );
