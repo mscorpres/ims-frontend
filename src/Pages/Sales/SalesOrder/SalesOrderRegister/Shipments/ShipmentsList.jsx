@@ -100,8 +100,6 @@ function ShipmentsList() {
         }));
 
         setRows(arr);
-      } else {
-        toast.error(data.message);
       }
     }
   };

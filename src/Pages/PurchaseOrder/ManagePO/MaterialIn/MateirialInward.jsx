@@ -586,12 +586,15 @@ export default function MateirialInward({
     { headerName: "Location", field: "location", flex: 1 },
   ];
   useEffect(() => {
-    getDetail();
-    getLocation();
-    getCurrencies();
-    getAutoComnsumptionOptions();
-    setSuccessPageData(null);
-    setInvoices([]);
+    if (materialInward) {
+      getDetail();
+      getLocation();
+      getCurrencies();
+      getAutoComnsumptionOptions();
+      setSuccessPageData(null);
+      setInvoices;
+    }
+    [];
   }, [materialInward]);
   useEffect(() => {
     let grandTotal = poData?.materials.map((row) =>

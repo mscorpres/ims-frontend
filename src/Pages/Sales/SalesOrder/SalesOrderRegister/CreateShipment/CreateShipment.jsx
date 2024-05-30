@@ -291,7 +291,7 @@ function CreateShipment({
   }, [open]);
 
   const getShipmentForUpdate = async (id) => {
-    // console.log("id", id);
+
     const response = await executeFun(
       () => getUpdateShipmentDetails(id),
       "fetch"
@@ -421,7 +421,7 @@ function CreateShipment({
 
     if (response.success) {
       const { data } = response;
-      shipmentForm.setFieldValue("billPan", data.data.pan);
+      shipmentForm.setFieldValue("billPan", data?.data?.pan);
       shipmentForm.setFieldValue("billGST", data.data.gstin);
       let newStringaddress = removeHtml(data.data.address);
       shipmentForm.setFieldValue("billingAddress", newStringaddress);

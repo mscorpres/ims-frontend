@@ -270,6 +270,7 @@ export const updateShipment = async (
   updateShipmentRow,
   details
 ) => {
+;
   let billId;
   if (values?.billingId?.id) {
     billId = values?.billingId?.id;
