@@ -118,7 +118,7 @@ export const getApprovalLogs = async (productKey: string) => {
         by: obj.stage2Approver,
         date: obj.stage2ApprovalDate,
         crn: obj.approver2CRN,
-        remarks: obj.stage1Remarks ?? "--",
+        remarks: obj.stage2Remarks ?? "--",
       },
     };
 
