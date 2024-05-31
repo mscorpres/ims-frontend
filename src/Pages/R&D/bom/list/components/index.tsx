@@ -88,16 +88,17 @@ const columns = [
     field: "id",
   },
   {
+    headerName: "Part Code",
+    width: 80,
+    field: "partCode",
+  },
+  {
     headerName: "Name",
     minWidth: 100,
     flex: 1,
     field: "name",
   },
-  {
-    headerName: "Part Code",
-    width: 80,
-    field: "partCode",
-  },
+
   {
     headerName: "Sub. Part Code",
     width: 120,
@@ -107,6 +108,29 @@ const columns = [
         return row.substituteOf?.partCode;
       }
     },
+  },
+  // placement here
+  {
+    headerName: "Placement",
+    width: 100,
+    field: "locations",
+    renderCell: ({ row }: { row: BOMType["components"][0] }) => (
+      <ToolTipEllipses text={row.locations?.toUpperCase()} />
+    ),
+  },
+  {
+    headerName: "Qty",
+    width: 80,
+    field: "qty",
+  },
+  // vendor here
+  {
+    headerName: "Vendor",
+    width: 200,
+    field: "vendor",
+    renderCell: ({ row }: { row: BOMType["components"][0] }) => (
+      <ToolTipEllipses text={row.vendor?.toUpperCase()} />
+    ),
   },
   {
     headerName: "Sub. Name",
@@ -119,11 +143,7 @@ const columns = [
       }
     },
   },
-  {
-    headerName: "Qty",
-    width: 80,
-    field: "qty",
-  },
+
   {
     headerName: "Status",
     width: 80,
@@ -132,14 +152,14 @@ const columns = [
       <ToolTipEllipses text={row.status.toUpperCase()} />
     ),
   },
-  {
-    headerName: "Type",
-    width: 120,
-    field: "type",
-    renderCell: ({ row }: { row: BOMType["components"][0] }) => (
-      <ToolTipEllipses text={row.type.toUpperCase()} />
-    ),
-  },
+  // {
+  //   headerName: "Type",
+  //   width: 120,
+  //   field: "type",
+  //   renderCell: ({ row }: { row: BOMType["components"][0] }) => (
+  //     <ToolTipEllipses text={row.type.toUpperCase()} />
+  //   ),
+  // },
   {
     headerName: "Remarks",
     width: 200,

@@ -111,6 +111,8 @@ interface GetBomComponentsType {
   } | null;
   status: "active" | "inactive";
   createdAt: string;
+  location: string;
+  vendor: string;
 }
 export const getComponents = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(`/bom/fetch/${bomKey}`);
@@ -133,6 +135,8 @@ export const getComponents = async (bomKey: string) => {
         name: row.substituteOf?.text,
         partCode: row.substituteOf?.partCode,
       },
+      vendor: row.vendor,
+      locations: row.location,
     }));
   }
 
