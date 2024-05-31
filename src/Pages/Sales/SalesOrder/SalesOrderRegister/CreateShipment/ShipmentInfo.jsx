@@ -11,7 +11,7 @@ const ShipmentInfo = ({
 }) => {
   return (
     <div>
-      <Card size="small" title="Shipment Info">
+      <Card size="small" title="Shipment Info" >
         <Row gutter={6}>
           {/* <Col span={12}>
             <Form.Item name="eWayBillNo" label="E-way Bill Number">
@@ -62,14 +62,14 @@ const ShipmentInfo = ({
           <Input.TextArea rows={3} />
         </Form.Item>
 
-        <Row justify="end">
+        {/* <Row justify="end">
           <MyButton
             onClick={validateHandler}
             variant="submit"
             text={updateShipmentRow ? "Update Shipment" : "Create Shipment"}
             // loading={"select" || "fetch"}
           />
-        </Row>
+        </Row> */}
       </Card>
     </div>
   );
