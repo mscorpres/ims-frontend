@@ -93,8 +93,13 @@ const columns = [
     field: "partCode",
   },
   {
+    headerName: "Unique Code",
+    width: 180,
+    field: "uniqueCode",
+  },
+  {
     headerName: "Name",
-    minWidth: 100,
+    minWidth: 200,
     flex: 1,
     field: "name",
   },

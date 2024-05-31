@@ -64,6 +64,7 @@ export interface BOMType {
           name: string;
         };
     status: "active" | "inactive";
+    uniqueCode?: string
   }[];
   createdOn?: string;
 }

@@ -113,6 +113,7 @@ interface GetBomComponentsType {
   createdAt: string;
   location: string;
   vendor: string;
+  componentUniqueID: string;
 }
 export const getComponents = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(`/bom/fetch/${bomKey}`);
@@ -137,6 +138,7 @@ export const getComponents = async (bomKey: string) => {
       },
       vendor: row.vendor,
       locations: row.location,
+      uniqueCode: row.componentUniqueID,
     }));
   }
 
