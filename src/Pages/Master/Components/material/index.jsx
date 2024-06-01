@@ -130,7 +130,6 @@ const Material = () => {
   };
 
   const getUomOptions = async () => {
-    console.log("here");
     try {
       setLoading("fetch");
       const response = await imsAxios.post("uom/uomSelect2");
@@ -142,7 +141,6 @@ const Material = () => {
           value: row.id,
         }));
 
-        console.log("arr", arr);
         setUomOptions(arr);
       } else {
         toast.error(data.message.msg);
@@ -190,9 +188,6 @@ const Material = () => {
 
   const modalConfirmMaterial = async () => {
     const headerValues = await headerForm.validateFields();
-    // console.log("headerValues", headerValues);
-    console.log("attributeValues", attributeValues);
-    console.log("manfCode", manfCode);
     // return;
     let atrrRes = {
       multipler: attributeValues?.multiplier,
@@ -305,7 +300,6 @@ const Material = () => {
       "/component/addComponent/verify",
       payload
     );
-    console.log("response", response);
     const { data } = response;
     if (data.code === 200) {
       Modal.confirm({
@@ -342,7 +336,6 @@ const Material = () => {
     try {
       setLoading("submit");
       // return;
-      console.log("Here in submit handler");
       const response = await imsAxios.post(
         "/component/addComponent/save",
         payload
@@ -460,7 +453,6 @@ const Material = () => {
   }, [selectedCategory]);
   const typeIs = headerForm.getFieldValue("attrCategory");
 
-  // console.log("generatedCompName", generatedCompName);
   useEffect(() => {
     if (generatedCompName) {
       setGeneratedCompName(generatedCompName);
@@ -852,6 +844,7 @@ const CategoryModal = ({
   const [fieldSelectOptions, setFieldSelectOptions] = useState([]);
   const [existingComponents, setExistingComponents] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [uniqueCode, setUniqueCode] = useState("");
   const [stage, setStage] = useState(0);
   var alpha;
   var extractednum;
@@ -859,8 +852,11 @@ const CategoryModal = ({
   var wholeVal;
   var result;
   const value = Form.useWatch("value", form);
+  const values = Form.useWatch([], form);
+
+  console.log("fields", fields);
+  console.log("values are", values);
   const getCategoryFields = async (categoryKey) => {
-    console.log("category key", categoryKey.label);
     setSelectedCategory(categoryKey);
     try {
       setLoading("fetch");
@@ -914,7 +910,6 @@ const CategoryModal = ({
             },
           ]);
         }
-        console.log("fieldsss is here", fieldSelectOptions);
       });
     } catch (error) {}
     setLoading(false);
@@ -925,15 +920,15 @@ const CategoryModal = ({
       if (result) {
         let decimalPartLength = (value.toString().split(".")[1] || "").length;
         let decimalVal = addZerosToTen(decimalPartLength);
+
         let pointVal = 1 / decimalVal;
         alpha = getLetterFromDeciNumber(pointVal);
         form.setFieldValue("multiplier", alpha);
         getWholeNumber(value, decimalVal);
+        console.log("getWholeNumber", getWholeNumber(value, decimalVal));
       } else {
         let newNum = removeAndCountTrailingZeros(value);
-        // console.log("newNum", newNum);
         getAlpha = removeTrailingZerosUsingSwitch(newNum.count);
-        // console.log("getAlpha", getAlpha);
         extractednum = newNum.stringWithoutTrailingZeros;
       }
     }
@@ -943,33 +938,27 @@ const CategoryModal = ({
     return num.toString().padStart(5, "0");
   }
   const getComponentValueForName = (value) => {
-    // console.log("value===========", value);
     let componentVal;
     let categorSnip = selectedCategory?.label?.toUpperCase();
+
     let newSnip = categorSnip?.substr(0, 3);
     if (newSnip != "CAP") {
       if (value <= 999) {
-        // console.log("R", value + "R");
         componentVal = value + "R";
       } else if (value <= 999999 && value >= 1000) {
         componentVal = +Number(value / 1000).toFixed(1) + "K";
-        // console.log("K", componentVal + "K");
       } else if (value > 1000000) {
         componentVal = +Number(value / 1000000).toFixed(1) + "M";
-        // console.log("M", componentVal + "M");
       }
     } else {
       componentVal = value;
     }
     setValForName(componentVal);
-    // console.log("componentVal", componentVal);
     return componentVal;
   };
   //generate code
   const getUniqueNo = async (compCode) => {
-    // console.log("alpha getUniqueNo", alpha);
     let values = await form.validateFields();
-    // console.log("valuesvalues-----------", values);
     setAttributeValues(values);
     //
     let makingString;
@@ -981,7 +970,6 @@ const CategoryModal = ({
 
     let categorSnip = selectedCategory.label.toUpperCase();
     let newSnip = categorSnip.substr(0, 3);
-    // console.log("categorSnip=", newSnip);
     if (newSnip == "CAP") {
       let compName =
         values.package_size.key +
@@ -999,7 +987,6 @@ const CategoryModal = ({
         "-" +
         "Capacitor";
 
-      console.log("compName", compCode);
       setGeneratedCompName(compName);
 
       let filledFields =
@@ -1012,12 +999,10 @@ const CategoryModal = ({
         // values.power_rating.value +
         values.tolerance.key +
         values.voltage.key;
-      // console.log("filledFields", filledFields);
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
 
-        // console.log("!codeValue!", filledFields + codeValue + values.si_unit);
         setUniqueId(filledFields + codeValue + values.si_unit.key);
       }
       //the Filledfields are change
@@ -1036,7 +1021,6 @@ const CategoryModal = ({
         "-" +
         "Resistor";
 
-      console.log("compName", compCode);
       setGeneratedCompName(compName);
       headerForm.setFieldValue("componentname", compName);
 
@@ -1049,24 +1033,18 @@ const CategoryModal = ({
         ")" +
         values.power_rating.key +
         values.tolerance.key;
-      // console.log("filledFields", filledFields);
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
         setUniqueId(filledFields + codeValue);
-        // console.log("codeValue ", filledFields + codeValue);
       }
     } else if (newSnip == "IND") {
-      // console.log(
       //   " values.current_SI_Unit.label",
       //   values.current_SI_Unit.label.split(" ")
       // );
       let siUnit = values.current_SI_Unit.label.split(" ")[0];
       let siVal = values.current_SI_UnitText;
       let fqVal = values.frequencyText;
-      console.log("siUnit", siUnit);
-      console.log("siVal", siVal);
-      console.log("values", values);
       let compName =
         "(" +
         values.package_size.key +
@@ -1114,8 +1092,6 @@ const CategoryModal = ({
       //   siVal +
       //   siUnit;
 
-      console.log("compName", compCode);
-      console.log("compName", compName);
       setGeneratedCompName(compName);
       setUniqueId(compName);
       headerForm.setFieldValue("componentname", compName);
@@ -1129,18 +1105,14 @@ const CategoryModal = ({
         ")" +
         values.power_rating?.key +
         values.tolerance.key;
-      // console.log("filledFields", filledFields);
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
         // setUniqueId(filledFields + codeValue);
-        // console.log("codeValue ", filledFields + codeValue);
       }
     }
-    // console.log("valuesvalues=", values);
     // //
     else {
-      console.log("makingString greater than 5  =", makingString);
     }
   };
 
@@ -1150,7 +1122,6 @@ const CategoryModal = ({
     return parseInt(result);
   }
   function getLetterFromNumber(number) {
-    console.log("number number", number);
     const mapping = {
       1: "A",
       10: "B",
@@ -1166,19 +1137,17 @@ const CategoryModal = ({
     };
 
     const result = Object.entries(mapping).find(
-      ([key, value]) => parseInt(key) === number
+      ([key, value]) => parseInt(key) === +number
     );
-    console.log("resultresult", result);
-    form.setFieldValue("multiplier", result[1]);
+    console.log("this is resut", +number);
+    // form.setFieldValue("multiplier", result[1]);
     return result ? result[1] : "Number not found";
   }
   function removeTrailingZerosUsingSwitch(numbers, letter) {
     let numberpowerOfTen;
 
     let number = addZerosToTen(numbers);
-    console.log("number ->", number);
     alpha = getLetterFromNumber(number);
-    console.log("apl", alpha);
     setAttributeValues({ multipler: alpha });
     // form.setFieldValue("multiplier", alpha);
   }
@@ -1227,20 +1196,21 @@ const CategoryModal = ({
 
   const getWholeNumber = (num, decimalVal) => {
     wholeVal = num * decimalVal;
+    console.log("wholeVal", wholeVal);
     wholeVal = Number(wholeVal).toFixed(0);
-    // console.log("num is here", wholeVal);
   };
   // ---
   useEffect(() => {
     if (value) {
+      console.log("updated value field", value);
       let a = getComponentValueForName(value);
+      console.log("a value is", a);
       checkDecimal(value);
       getUniqueNo(a);
     }
   }, [value, alpha]);
   useEffect(() => {
     let a = getComponentValueForName(value);
-    // console.log("value a", a);
     setValForName(a);
   }, [value]);
 
@@ -1260,7 +1230,6 @@ const CategoryModal = ({
     }
   };
   const sortedFields = [...fields].sort((a, b) => {
-    // console.log("ff", fields);
     if (a.type === b.type) {
       return a.label.localeCompare(b.label);
     }
@@ -1270,7 +1239,6 @@ const CategoryModal = ({
     if (show) {
       setStage(0);
       getCategoryFields(show.selectedCategory);
-      console.log("show.selectedCategory", show.selectedCategory);
       setTypeOfComp(show.selectedCategory);
     }
   }, [show]);
@@ -1287,12 +1255,75 @@ const CategoryModal = ({
   useEffect(() => {
     getieldSelectOptions(fields);
   }, [fields]);
+
+  useEffect(() => {
+    if (values) {
+      const mounting = values["12312"];
+      const packageSize = values["434092"];
+      const value = values["353453454"];
+      const multiplier = values["65490895"];
+      const tolerance = values["89768575"];
+      const powerRating = values["7876567"];
+      const frequency = values["5749534324"];
+
+      let updatedValue = "";
+      let broken = "";
+      if (value) {
+        if (value.includes(".")) {
+          let after = value?.toString().split(".")[1];
+
+          if (after) {
+            broken = after.split("");
+            broken = broken.map((row, index) => {
+              if (index === broken.length - 1) {
+                return 1;
+              } else {
+                return 0;
+              }
+            });
+            broken = "0." + broken.join("");
+            console.log("this is broken", broken);
+          }
+        } else {
+          broken = value.split("");
+
+          broken = broken.map((row, index) => {
+            if (index === 0) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+          broken = broken.join("");
+          console.log("this is broken", broken);
+        }
+      }
+      let multipler = "";
+      if (broken.length > 0) {
+        multipler = getLetterFromNumber(broken);
+      }
+      const code = `RES${getValue(mounting)}(${getValue(
+        packageSize
+      )})${getValue(tolerance)}${getValue(powerRating)}${multipler}`;
+      setUniqueCode(code);
+    }
+  }, [values]);
+
+  const getValue = (value) => {
+    if (value === undefined) {
+      return "--";
+    } else if (value?.value) {
+      return value.value;
+    } else if (typeof value === string) {
+      return value;
+    }
+  };
   return (
     <Modal
       title="Assign Attributes"
       open={show}
       onOk={submitHandler}
-      width={1050}
+      width={800}
       okText="Continue"
       cancelText={stage === 0 ? "Cancel" : "Back"}
       confirmLoading={loading === "submit"}
@@ -1324,6 +1355,11 @@ const CategoryModal = ({
               {/* <Flex justify="center"> */}
               <Typography.Text underline style={{ fontSize: 12 }}>
                 {" "}
+                Unique Id updated: {uniqueCode}
+              </Typography.Text>
+              <br></br>
+              <Typography.Text underline style={{ fontSize: 12 }}>
+                {" "}
                 Unique Id: {uniqueId}
               </Typography.Text>
             </Col>
@@ -1348,8 +1384,8 @@ const CategoryModal = ({
       {loading === "fetch" && <Loading />}
       {stage === 0 && (
         <Form form={form} layout="vertical" style={{ marginTop: 10 }}>
-          <Row gutter={10}>
-            {sortedFields.map((row) => (
+          <Flex gap={10} wrap="wrap" justify="center">
+            {/* {sortedFields.map((row) => (
               <Col span={8}>
                 <Flex>
                   {row.hasValue === "true" && (
@@ -1386,8 +1422,46 @@ const CategoryModal = ({
                   </Form.Item>
                 </Flex>
               </Col>
+            ))} */}
+            {fields.map((row) => (
+              <div style={{ width: 200 }} span={8}>
+                <Flex>
+                  {row.hasValue === "true" && (
+                    <Form.Item
+                      style={{ textTransform: "capitalize", flex: 1 }}
+                      name={row.label + "Text"}
+                      label={
+                        row.label === "frequency"
+                          ? "Freq. Value"
+                          : "SI Unit Value"
+                      }
+                    >
+                      <Input />
+                    </Form.Item>
+                  )}
+                  <Form.Item
+                    style={{ textTransform: "capitalize", flex: 1.5 }}
+                    name={row.name}
+                    label={row.label.replaceAll("_", " ")}
+                  >
+                    {row.type === "select" && (
+                      <MySelect
+                        style={{ textTransform: "none" }}
+                        labelInValue
+                        // disabled={row.label === "multiplier"}
+                        options={
+                          fieldSelectOptions.find(
+                            (field) => field.name === row.name
+                          )?.options || []
+                        }
+                      />
+                    )}
+                    {row.type === "text" && <Input />}
+                  </Form.Item>
+                </Flex>
+              </div>
             ))}
-          </Row>
+          </Flex>
         </Form>
       )}
 

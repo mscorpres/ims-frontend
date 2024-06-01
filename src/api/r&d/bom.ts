@@ -256,31 +256,32 @@ export const getExistingBom = async (sku: string) => {
   if (response.success) {
     let values: GetExistingBom = response.data[0];
 
-    let obj: BOMTypeExtended = {
-      name: values.name,
-      description: values.description,
-      product: { label: values.sku.text, value: values.sku.text },
-      version: values.version,
-      id: values.bomID,
-      components: values.components.map((row) => ({
-        component: { ...row.component, label: row.component.text },
-        qty: row.quantity,
-        remarks: row.remarks,
-        status: row.status,
-        substituteOf: {
-          label: row.substituteOf?.text,
-          partCode: row.substituteOf?.partCode,
-          value: row.substituteOf?.value,
-        },
-        type: row.type,
-        locations: row.location,
-        vendor: row.vendor,
-        text: row.component.text,
-        value: row.component.value,
-      })),
-    };
-
-    response.data = obj;
+    if (values) {
+      let obj: BOMTypeExtended = {
+        name: values.name,
+        description: values.description,
+        product: { label: values.sku.text, value: values.sku.text },
+        version: values.version,
+        id: values.bomID,
+        components: values.components.map((row) => ({
+          component: { ...row.component, label: row.component.text },
+          qty: row.quantity,
+          remarks: row.remarks,
+          status: row.status,
+          substituteOf: {
+            label: row.substituteOf?.text,
+            partCode: row.substituteOf?.partCode,
+            value: row.substituteOf?.value,
+          },
+          type: row.type,
+          locations: row.location,
+          vendor: row.vendor,
+          text: row.component.text,
+          value: row.component.value,
+        })),
+      };
+      response.data = obj;
+    }
   }
 
   return response;
