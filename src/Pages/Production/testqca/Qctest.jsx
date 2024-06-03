@@ -9,6 +9,16 @@ import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import printFunction from "../../../Components/printFunction";
 
+const statusOptions = [
+  {
+    text: "Pass",
+    value: "PASS",
+  },
+  {
+    text: "Fail",
+    value: "FAIL",
+  },
+];
 const Qctest = () => {
   //COMPONENET FUNCTIONS AND STATES
   const passbutton = useRef();
@@ -21,6 +31,8 @@ const Qctest = () => {
   const [buttonstyle, setbuttonstyle] = useState("pointer");
   const [closetype, setclosetype] = useState(true);
   const [manualCount, setManualCount] = useState("");
+  const [manualType, setManualType] = useState("");
+  const [manualRemarks, setManualRemarks] = useState("");
 
   const showModal = (e) => {
     e === "AUTO" ? setModalType(e) : setModalType(e.target.id);
@@ -121,6 +133,9 @@ const Qctest = () => {
   const [accesstoken, setAccesstoken] = useState("");
   const [faillist, setfaillist] = useState("");
   const [defaultLotsize, setdefaultlotsize] = useState(0);
+  const [selected, setSelected] = useState([]);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [generateLoading, setGenerateLoading] = useState(false);
   console.log("set process data", processData);
   //API FUNCTIONS
   //1) PPR SEARCH API
@@ -314,14 +329,15 @@ const Qctest = () => {
     //   qca_ppr: pprNo,
     //   qca_process: e,
     // });
-
+    setGenerateLoading(true);
     const response = await imsAxios.post("/createqca/bulk_insert_qca_Process", {
       qca_ppr: pprNo,
       qca_process: processid,
-      qca_result: "PASS",
+      qca_result: manualType,
       numberRows: manualCount,
+      remark: manualRemarks,
     });
-
+    setGenerateLoading(false);
     if (response.success) {
       getscanneddata(processid);
     }
@@ -463,7 +479,30 @@ const Qctest = () => {
       return null;
     }
   }
+  const validateDelete = async () => {
+    Modal.confirm({
+      title: "Confirm Delete",
+      content: "Are you sure you want to delete the selected entries?",
+      okText: "Delete",
+      confirmLoading: deleteLoading,
+      onOk: handleDelete,
+    });
+  };
+  const handleDelete = async () => {
+    console.log("this is selected", selected);
 
+    const rows = selected.map((sel) => ScanData.find((row) => row.id === sel));
+    console.log("selected rows", rows);
+    setDeleteLoading(true);
+    const response = await imsAxios.post("/createqca/delete_testing_data", {
+      sku: skuNumber,
+      bar_code: rows.map((row) => row.QRNumber),
+      qca_process: processid,
+      result: rows.map((row) => row.Status),
+    });
+    setDeleteLoading(false);
+    getscanneddata(processid);
+  };
   return (
     <>
       <div
@@ -532,8 +571,27 @@ const Qctest = () => {
                     value={manualCount}
                   />
                 </Form.Item>
+
+                <Form.Item layout="vertical" label="Status">
+                  <MySelect
+                    value={manualType}
+                    onChange={(value) => setManualType(value)}
+                    options={statusOptions}
+                  />
+                </Form.Item>
+                {manualType === "FAIL" && (
+                  <Form.Item layout="vertical" label="Fail Remarks">
+                    <Input.TextArea
+                      value={manualRemarks}
+                      onChange={(e) => setManualRemarks(e.target.value)}
+                    />
+                  </Form.Item>
+                )}
                 <Flex justify="end">
-                  <Button onClick={handleGenerateManualEntries}>
+                  <Button
+                    loading={generateLoading}
+                    onClick={handleGenerateManualEntries}
+                  >
                     Generate Entries
                   </Button>
                 </Flex>
@@ -573,26 +631,30 @@ const Qctest = () => {
                 </Row> */}
                 <Row style={{ justifyContent: "space-around" }}>
                   <Col span={15} style={{ marginRight: "23%" }}>
-                    <Form.Item
-                      // name="QRNumber"
-                      label={
-                        <b>
-                          <p>QR Number</p>
-                        </b>
-                      }
-                    >
-                      <Input
-                        style={{ width: "20%" }}
-                        value={inputQrNumber}
-                        type="text"
-                        id="PCBTEST"
-                        placeholder="Scan QR Code"
-                        onChange={(e) => setInputQrNumber(e.target.value)}
-                        onKeyDownCapture={(e) => {
-                          qrInput(e);
-                        }}
-                      />
-                    </Form.Item>
+                    <Flex gap={10}>
+                      <Form.Item
+                        // name="QRNumber"
+                        label={
+                          <b>
+                            <p>QR Number</p>
+                          </b>
+                        }
+                      >
+                        <Input
+                          value={inputQrNumber}
+                          type="text"
+                          id="PCBTEST"
+                          placeholder="Scan QR Code"
+                          onChange={(e) => setInputQrNumber(e.target.value)}
+                          onKeyDownCapture={(e) => {
+                            qrInput(e);
+                          }}
+                        />
+                      </Form.Item>
+                      <Button danger type="primary" onClick={validateDelete}>
+                        Delete Selected
+                      </Button>
+                    </Flex>
                   </Col>
                   <Col>
                     <button
@@ -615,7 +677,14 @@ const Qctest = () => {
                   </Col>
                 </Row>
                 <div style={{ height: "95%" }}>
-                  <MyDataTable data={ScanData} columns={Column} />
+                  <MyDataTable
+                    onSelectionModelChange={(selected) => {
+                      setSelected(selected);
+                    }}
+                    checkboxSelection={true}
+                    data={ScanData}
+                    columns={Column}
+                  />
                 </div>
 
                 {/* <MyDataTable data={ScanData} columns={Column} /> */}
