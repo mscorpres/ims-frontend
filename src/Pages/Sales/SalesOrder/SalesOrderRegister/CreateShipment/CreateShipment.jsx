@@ -73,7 +73,7 @@ function CreateShipment({
   var chunk;
   var result;
   let params = useParams();
-
+  let newArray = [];
   const shippingId = Form.useWatch("shippingId", shipmentForm);
   const calculation = (id, row) => {
     const exchangeRate = row.exchangeRate ?? 1;
@@ -122,6 +122,7 @@ function CreateShipment({
   };
 
   const handleSubmit = async (values) => {
+    values.products = newArr.flat();
     if (editId) {
     }
     // let response;
@@ -291,7 +292,6 @@ function CreateShipment({
   }, [open]);
 
   const getShipmentForUpdate = async (id) => {
-
     const response = await executeFun(
       () => getUpdateShipmentDetails(id),
       "fetch"
@@ -461,7 +461,6 @@ function CreateShipment({
     // console.log("createdEntry", createdEntry);
 
     let id;
-    // let newArray = [];
     if (current < totalPage) {
       id = current + 1;
       setCurrent(id);
@@ -470,7 +469,7 @@ function CreateShipment({
 
       paginate[current - 1] = createdEntry;
 
-      let newArray = [...newArr];
+      newArray = [...newArr];
       setNewArr(paginate);
       // setLoading(false);
     }
@@ -487,6 +486,7 @@ function CreateShipment({
       setCurrArr(paginate[id - 1]);
       paginate[current - 1] = createdEntry;
     }
+    newArray = [...newArr];
     setNewArr(paginate);
     // console.log("id", id);
     // setLoading(false);
@@ -741,7 +741,7 @@ const productItems = (
           field: () => <Input disabled />,
         },
         {
-          headerName: "Material Description",
+          headerName: "ASIN Number",
           name: "remark",
           width: 250,
           field: (row) => (
@@ -943,7 +943,7 @@ const productItems = (
           field: (row) => <ToolTipEllipses text={row.product} />,
         },
         {
-          headerName: "Material Description",
+          headerName: "ASIN Number",
           name: "remark",
           width: 250,
           // field: (row) => (

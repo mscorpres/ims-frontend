@@ -458,7 +458,7 @@ const columns = [
   },
 
   {
-    headerName: "Request ID",
+    headerName: "Order ID",
     minWidth: 150,
     flex: 1,
     field: "salesId",
@@ -471,7 +471,7 @@ const columns = [
     flex: 1,
   },
   {
-    headerName: "SaleCustomer",
+    headerName: "Customer Name",
     minWidth: 150,
     field: "customer",
     flex: 1,
