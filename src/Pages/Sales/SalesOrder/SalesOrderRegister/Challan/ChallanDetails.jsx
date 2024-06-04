@@ -24,12 +24,14 @@ import { getCourierOptions } from "../../../../../api/finance/clients.js";
 import { convertSelectOptions } from "../../../../../utils/general.ts";
 import { imsAxios } from "../../../../../axiosInterceptor.tsx";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const ChallanDetails = ({ open, hide }) => {
   const [rows, setRows] = useState([]);
   const [totalValues, setTotalValues] = useState([]);
   const [details, setDetails] = useState({});
   const [createAllocation, setCreateAllocation] = useState(false);
+  const [generateId, setGenerateId] = useState("");
   const [ModalForm] = Form.useForm();
 
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -53,50 +55,6 @@ const ChallanDetails = ({ open, hide }) => {
       // setCreateAllocation(false);
       toast.error(response.message);
     }
-  };
-  const reset = () => {
-    ModalForm.resetFields();
-    filterForm.resetFields();
-    setCreateAllocation(false);
-  };
-  const handleFetchChallanDetails = async (challanId) => {
-    const response = await executeFun(
-      () => getChallanDetails(challanId),
-      "fetch"
-    );
-
-    setRows(response.data.components);
-    // console.log("response.data.components", response.data.components);
-    setDetails(response.data.details);
-  };
-
-  //
-  const clientDetails = {
-    address: details?.clientAddress,
-    client: details?.client,
-  };
-
-  const billingDetails = {
-    address: details?.billingAddress,
-  };
-  const shippingDetails = {
-    address: details?.shippingAddress,
-  };
-  const handleCourierOptions = async (search) => {
-    const response = await executeFun(
-      () => getCourierOptions(search),
-      "select"
-    );
-    let arr;
-    if (response.success == true) {
-      // console.log("response.data", response.data);
-      // let arr = response.data.map((r) => {
-      //   return { id: r.value, text: r.text };
-      // });
-      arr = convertSelectOptions(response.data, "text", "value");
-      // console.log("arr---", arr);
-    }
-    setAsyncOptions(arr);
   };
   const callEInvoice = async () => {
     const response = await imsAxios.post(
@@ -180,6 +138,71 @@ const ChallanDetails = ({ open, hide }) => {
       // toast.success(response.data);
     }
   };
+  const items = [
+    {
+      key: "1",
+      label: (
+        //  <a onClick={callEInvoice}>E-Invoice</a>
+        <Link
+          style={{ textDecoration: "none", color: "black" }}
+          to={`/salesOrder/e-way/${generateId.replaceAll("/", "_")}`}
+          target="_blank"
+        >
+          E-Way Bill
+        </Link>
+      ),
+    },
+    {
+      key: "2",
+      label: <a onClick={callEInvoice}> E-Invoice Bill</a>,
+    },
+  ];
+  const reset = () => {
+    ModalForm.resetFields();
+    filterForm.resetFields();
+    setCreateAllocation(false);
+  };
+  const handleFetchChallanDetails = async (challanId) => {
+    const response = await executeFun(
+      () => getChallanDetails(challanId),
+      "fetch"
+    );
+
+    setRows(response.data.components);
+    console.log("response.data.components", response.data.components);
+    setGenerateId(response.data.components[0].orderId);
+    setDetails(response.data.details);
+  };
+
+  //
+  const clientDetails = {
+    address: details?.clientAddress,
+    client: details?.client,
+  };
+
+  const billingDetails = {
+    address: details?.billingAddress,
+  };
+  const shippingDetails = {
+    address: details?.shippingAddress,
+  };
+  const handleCourierOptions = async (search) => {
+    const response = await executeFun(
+      () => getCourierOptions(search),
+      "select"
+    );
+    let arr;
+    if (response.success == true) {
+      // console.log("response.data", response.data);
+      // let arr = response.data.map((r) => {
+      //   return { id: r.value, text: r.text };
+      // });
+      arr = convertSelectOptions(response.data, "text", "value");
+      // console.log("arr---", arr);
+    }
+    setAsyncOptions(arr);
+  };
+
   useEffect(() => {
     if (open) {
       handleFetchChallanDetails(open);
@@ -226,16 +249,7 @@ const ChallanDetails = ({ open, hide }) => {
     ];
     setTotalValues(obj);
   }, [rows]);
-  const items = [
-    {
-      key: "1",
-      label: <a onClick={callEInvoice}>E-Invoice</a>,
-    },
-    {
-      key: "2",
-      label: <a onClick={callEwayBill}> E-way Bill</a>,
-    },
-  ];
+
   return (
     <Drawer
       title={`Invoice Details : ${open ?? ""}`}
@@ -320,15 +334,17 @@ const ChallanDetails = ({ open, hide }) => {
               >
                 Allocate
               </Button>
-              <Dropdown
-                menu={{
-                  items,
-                }}
-                placement="bottom"
-                arrow
-              >
-                <Button>Generate</Button>
-              </Dropdown>
+              <Col>
+                <Dropdown
+                  menu={{
+                    items,
+                  }}
+                  placement="bottom"
+                  arrow
+                >
+                  <Button>Generate</Button>
+                </Dropdown>
+              </Col>
               {/* <Button
                 style={{ marginLeft: "8px" }}
                 onClick={() => {
@@ -406,10 +422,12 @@ const columns = [
     width: 30,
   },
   {
-    headerName: "SO Id",
-    field: "orderId",
+    headerName: "Invoice Number",
+    field: "invoiceNo",
     width: 150,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.orderId} copy={true} />,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.invoiceNo} copy={true} />
+    ),
   },
   {
     headerName: "Shipment Id",

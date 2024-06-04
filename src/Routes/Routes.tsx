@@ -231,12 +231,14 @@ import R31 from "@/Pages/Reports/R/R31.jsx";
 import PendingPhysicalStock from "@/Pages/Store/PhysicalStock/Pending.jsx";
 import RejectedPhysicalStock from "@/Pages/Store/PhysicalStock/Rejected.jsx";
 import EditSalesOrder from "@/Pages/Sales/SalesOrder/edit/index.jsx";
+import EwayBillSalesOrder from "@/Pages/Sales/SalesOrder/SalesOrderRegister/EwayBillSalesOrder.jsx";
 import RegisteredUser from "@/Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
 import ShipmentsList from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
 import CreateShipment from "@/Pages/Sales/SalesOrder/SalesOrderRegister/CreateShipment/CreateShipment.jsx";
 // import CreateShipmentRedirect from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/CreateShipmentRedirect";
 import Challan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
 import AllocatedChallan from "@/Pages/Sales/SalesOrder/SalesOrderRegister/AllocatedChallan/AllocatedChallan.jsx";
+import InvoiceRegister from "@/Pages/Sales/SalesOrder/SalesOrderRegister/InvoiceRegister/InvoiceRegister.jsx";
 
 import R32 from "@/Pages/Reports/R/R32.jsx";
 import Index from "@/Pages/Query/ClosingStock/Index.jsx";
@@ -257,6 +259,7 @@ import Products from "@/Pages/R&D/products/index.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import FARUpload from "@/Pages/far";
+import SalesOrderRegisterWithShipment from "../Pages/Sales/SalesOrder/SalesOrderRegister/SalesOrderRegisterWithShipment.jsx";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -1289,6 +1292,12 @@ const Routes = [
     path: "/warehouse/e-way/jw/:jwId",
     main: () => <EWayBill />,
   },
+  ///eway bill for sales order
+  {
+    path: "/salesOrder/e-way/:soId",
+    main: () => <EwayBillSalesOrder />,
+  },
+  ///////
   {
     path: "/tasks/admin",
     main: () => <AdminTasks />,
@@ -1323,6 +1332,11 @@ const Routes = [
     path: "/sales/order/register",
     main: () => <SalesORderRegister />,
   },
+  /////client
+  // {
+  //   path: "/sales/order/salesregister",
+  //   main: () => <SalesOrderRegisterWithShipment />,
+  // },
   //
   {
     path: "/sales/order/shipments",
@@ -1336,6 +1350,10 @@ const Routes = [
   {
     path: "/sales/order/allocated",
     main: () => <AllocatedChallan />,
+  },
+  {
+    path: "/sales/order/registered",
+    main: () => <InvoiceRegister />,
   },
   //gst reco
   {
