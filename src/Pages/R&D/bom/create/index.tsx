@@ -168,19 +168,19 @@ const BOMCreate = () => {
   };
 
   const handleFetchExistingBom = async (sku: string) => {
-    const response = await executeFun(() => getExistingBom(sku), "fetch");
-    if (response.success) {
-      if (response.data) {
-        form.setFieldsValue(response.data);
-        setVersion(response.data.version);
-        setMainComponents(
-          response.data.components.filter((row) => row.type === "main")
-        );
-        setSubComponents(
-          response.data.components.filter((row) => row.type === "substitute")
-        );
-      }
-    }
+    // const response = await executeFun(() => getExistingBom(sku), "fetch");
+    // if (response.success) {
+    //   if (response.data) {
+    //     form.setFieldsValue(response.data);
+    //     setVersion(response.data.version);
+    //     setMainComponents(
+    //       response.data.components.filter((row) => row.type === "main")
+    //     );
+    //     setSubComponents(
+    //       response.data.components.filter((row) => row.type === "substitute")
+    //     );
+    //   }
+    // }
   };
 
   const toggleVendorType = () => {
