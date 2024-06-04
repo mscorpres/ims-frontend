@@ -1087,7 +1087,7 @@ const links = [
       routePath: "/sales/order/allocated",
     },
     {
-      routeName: "E Register",
+      routeName: "E Invoice",
       routePath: "/sales/order/registered",
     },
   ],

@@ -88,6 +88,7 @@ function InvoiceRegister() {
       arr = data.map((row, index) => ({
         id: index + 1,
         invoiceDate: row.invoice_date,
+        challanId: row.challanId,
         supplyType: row.supply_type,
         subSupplyType: row.sub_supply_type,
         doctype: row.document_type,
@@ -233,6 +234,12 @@ function InvoiceRegister() {
     }
     setComponentList(arr);
   };
+  useEffect(() => {
+    if (type) {
+      setRows([]);
+    }
+  }, [type]);
+
   // const getShipment = async (row) => {
   //   const response = await imsAxios.post(
   //     "/sellRequest/fetchSellRequestDetails",
@@ -252,6 +259,7 @@ function InvoiceRegister() {
   //   setShipmentList(arr);
   // };
   const handlePrintOrder = async (orderId) => {
+    console.log("order", orderId);
     const response = await executeFun(
       () => printOrderForChallan(orderId),
       "print"
@@ -355,9 +363,9 @@ function InvoiceRegister() {
   return (
     <>
       <Modal
-        title={`Are you sure you want to cancel this E-Invoice ${cancelRowSelected?.challanId}`}
+        title={`Are you sure you want to cancel ${cancelRowSelected?.challanId}`}
         open={cancelRowSelected?.challanId}
-        width={450}
+        width={500}
         confirmLoading={loading("cancel")}
         onCancel={() => setCancelRowSelected(false)}
         onOk={() => validate()}
@@ -560,6 +568,12 @@ const ewaycolumns = [
     ),
   },
   {
+    headerName: "Invoice Number",
+    minWidth: 150,
+    field: "challanId",
+    flex: 1,
+  },
+  {
     headerName: "Supply Type",
     minWidth: 150,
     field: "supplyType",
@@ -656,7 +670,7 @@ const ewaycolumns = [
     flex: 1,
   },
   {
-    headerName: "Trnas Name",
+    headerName: "Trans Name",
     minWidth: 150,
     field: "trnasName",
     flex: 1,
@@ -670,7 +684,7 @@ const ewaycolumns = [
   {
     headerName: "Doc Date",
     minWidth: 150,
-    field: "docDate",
+    field: "trans_doc_date",
     flex: 1,
   },
   {

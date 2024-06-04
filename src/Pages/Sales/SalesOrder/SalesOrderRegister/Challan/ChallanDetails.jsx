@@ -154,7 +154,7 @@ const ChallanDetails = ({ open, hide }) => {
     },
     {
       key: "2",
-      label: <a onClick={callEInvoice}> E-Invoice Bill</a>,
+      label: <a onClick={callEInvoice}> E-Invoice</a>,
     },
   ];
   const reset = () => {

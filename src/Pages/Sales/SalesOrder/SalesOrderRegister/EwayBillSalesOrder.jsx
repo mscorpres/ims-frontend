@@ -248,6 +248,8 @@ const EwayBillSalesOrder = () => {
       // sub_supply_type: values.subType,
       // document_type: "Delivery Challan",
       vehicleNo: values.vehicleNo,
+      transporter_name: values.transporterName,
+      trans_doc_date: values.transportDate,
     };
     console.log("payload", payload);
     // return;
@@ -268,11 +270,15 @@ const EwayBillSalesOrder = () => {
         payload
       );
       console.log("respolse", response);
+      console.log(
+        "response.data.data.eway_bill_no",
+        response.data.data
+      );
       const { data } = response;
       if (data) {
         if (data.code === 200) {
           toast.success(data.message);
-          setSuccessData({ ewayBillNo: data.data.ewayBillNo });
+          setSuccessData({ ewayBillNo: response.data.data.eway_bill_no });
         } else {
           toast.error(data.message.msg);
         }
@@ -574,7 +580,11 @@ const EwayBillSalesOrder = () => {
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item name="transportDoc" label="Transport Doc">
+                  <Form.Item
+                    name="transportDoc"
+                    label="Transport Doc"
+                    rules={rules.transportDoc}
+                  >
                     <Input />
                   </Form.Item>
                 </Col>
@@ -825,6 +835,12 @@ const rules = {
     {
       required: true,
       message: "Please enter GST!",
+    },
+  ],
+  transportDoc: [
+    {
+      required: true,
+      message: "Please provide transport Doc!",
     },
   ],
   billToState: [
