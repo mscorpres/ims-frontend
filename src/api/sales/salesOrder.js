@@ -8,6 +8,22 @@ export const getSalesOrders = async (wise, data) => {
 
   return response;
 };
+export const fetchEwayBill = async (wise, data) => {
+  const response = await imsAxios.post("/so_challan_shipment/getEwayBillList", {
+    wise,
+    data,
+  });
+
+  return response;
+};
+export const fetchEInv = async (wise, data) => {
+  const response = await imsAxios.post("/so_challan_shipment/getEinvoiceList", {
+    wise,
+    data,
+  });
+
+  return response;
+};
 
 export const getOrderDetails = async (orderId) => {
   const response = await imsAxios.post("/sellRequest/fetchData4Update", {
@@ -258,6 +274,7 @@ export const getChallanDetails = async (challanId) => {
     arr = response.data.map((row, index) => ({
       id: index + 1,
       orderId: row.so_id,
+      invoiceNo: row.invoiceNo,
       shipmentId: row.shipment_id,
       partCode: row.item_part_no,
       component: row.item_name,
