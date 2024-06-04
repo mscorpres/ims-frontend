@@ -778,7 +778,7 @@ export default function Reference() {
 
         {vbtRows.length > 0 ? (
           <>
-            <Col style={{ marginLeft: "14px" }}>
+            <Col style={{ marginLeft: "3rem" }}>
               <Button
                 // type="secondary"
                 disabled={vbtRows.length < 0}

@@ -11,6 +11,7 @@ import {
   Row,
   Switch,
   Tabs,
+  Typography,
 } from "antd";
 import CreateCostModal from "./Create/CreateCostModal";
 import AddProjectModal from "./Create/AddProjectModal";
@@ -512,12 +513,13 @@ const SalesOrderForm = () => {
   const nextFun = () => {
     setActiveTab("2");
   };
-  const callFileUpload = async () => {
+  const callFileUpload = async (file) => {
     setPageLoading(true);
-    // console.log("pageLoading", pageLoading);
+    // console.log("file", file);
     const values = await form.validateFields();
     const formData = new FormData();
-    formData.append("file", values.files[0].originFileObj);
+    formData.append("file", file);
+
     const response = await imsAxios.post(
       "/sellRequest/uploadSOItems",
       formData
@@ -535,11 +537,13 @@ const SalesOrderForm = () => {
   };
   console.log("pageLoading", pageLoading);
   const uploadInputhandler = (source) => {
+    setRowCount([]);
     let arr = source;
     arr = arr.map((row, index) => ({
       id: v4(),
       type: row.item_type,
-      index: (rowCount?.length ?? 0) + index + 1,
+      // index: (rowCount?.length ?? 0) + index + 1,
+      index: index + 1,
       currency: row.currency,
       exchange_rate: 1,
       component: {
@@ -1094,8 +1098,17 @@ const SalesOrderForm = () => {
                         >
                           Provide shipping information
                         </Descriptions.Item>
-                      </Descriptions>{" "}
+                      </Descriptions>
                       <Switch disabled={!client} onChange={toggleInputType} />
+                      <Descriptions size="small">
+                        <Descriptions.Item
+                          contentStyle={{
+                            fontSize: window.innerWidth < 1600 && "0.7rem",
+                          }}
+                        >
+                          Same As Client Details
+                        </Descriptions.Item>
+                      </Descriptions>
                     </Col>
 
                     <Col span={20}>

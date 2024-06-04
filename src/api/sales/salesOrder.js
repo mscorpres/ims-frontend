@@ -158,6 +158,7 @@ export const cancelChallanFromSo = async (singleRow, remark) => {
 export const createShipment = async (values, open, details) => {
   // console.log("values", values);
   // console.log("details", details);
+  // return;
   const payload = {
     header: {
       bill_id: values.billingId,
@@ -270,7 +271,6 @@ export const updateShipment = async (
   updateShipmentRow,
   details
 ) => {
-;
   let billId;
   if (values?.billingId?.id) {
     billId = values?.billingId?.id;

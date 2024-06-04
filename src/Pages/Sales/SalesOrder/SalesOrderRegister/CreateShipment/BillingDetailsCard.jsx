@@ -2,8 +2,6 @@ import React from "react";
 import { Card, Typography, Row, Col } from "antd";
 
 const BillingInfo = ({ details, updateShipmentRow }) => {
-  console.log("updateShipmentRow", updateShipmentRow);
-  console.log("details=>", details);
   return (
     <Card size="small" title="Billing Details (as per the sales order)">
       {/* <Row gutter={[0, 6]}>

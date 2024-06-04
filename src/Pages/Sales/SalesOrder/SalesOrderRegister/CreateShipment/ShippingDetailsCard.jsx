@@ -2,7 +2,6 @@ import React from "react";
 import { Card, Typography, Row, Col } from "antd";
 
 const ShippingDetailsCard = ({ details, updateShipmentRow }) => {
-  console.log("details", details);
   return (
     <Card size="small" title="Shipping Details(as per the sales order)">
       {/* {updateShipmentRow ? ( */}

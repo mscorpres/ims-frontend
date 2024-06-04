@@ -25,12 +25,14 @@ import {
   Card,
   Col,
   Collapse,
+  Form,
   Input,
   Modal,
   Radio,
   Row,
   Switch,
   Typography,
+  Upload,
 } from "antd";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
@@ -48,6 +50,7 @@ import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
+import { UploadOutlined } from "@ant-design/icons";
 const POoption = [
   { text: "Product", value: "product" },
   { text: "Component", value: "component" },
@@ -88,11 +91,12 @@ export default function AddComponents({
     useState(false);
   const newdata = form.getFieldsValue();
   console.log("uploadfiles", uploadfile);
+  const [uploadForm] = Form.useForm();
   const sampleData = [
     {
       TYPE: "P",
       ITEM_CODE: "15705",
-      ITEM_DESC: "item 1",
+      ASIN: "item 1",
       QTY: "100",
       RATE: "10",
       GST_TYPE: "I",
@@ -643,7 +647,7 @@ export default function AddComponents({
         ),
     },
     {
-      headerName: "Material Description",
+      headerName: "ASIN Number",
 
       width: 250,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
@@ -737,6 +741,14 @@ export default function AddComponents({
   useEffect(() => {
     getCurrencies();
   }, []);
+  const props = {
+    multiple: false,
+    maxCount: 1,
+    beforeUpload(file) {
+      callFileUpload(file);
+      return false;
+    },
+  };
 
   // useEffect(() => {
   //   if (selectLoading) {
@@ -821,16 +833,19 @@ export default function AddComponents({
         />
       )}
       <Row style={{ height: "100%" }} gutter={8}>
-        <Col style={{ height: "100%", overflow: "auto" }} span={6}>
+        <Col
+          style={{ height: "100%", overflow: "auto", justify: "center" }}
+          span={6}
+        >
           <Row gutter={[0, 4]} style={{ height: "100%" }} justify="center">
             {/* vendor card */}
 
-            <Radio.Group
+            {/* <Radio.Group
               onChange={toggleInputType}
               value={fileupload}
               options={uploadTypeOptions}
-            />
-            <Col span={24}>
+            /> */}
+            {/* <Col span={24}>
               <Row>
                 <Col span={24}>
                   {fileupload == "file" && (
@@ -868,9 +883,34 @@ export default function AddComponents({
                   )}
                 </Col>
               </Row>
+            </Col> */}
+            <Col
+              span={24}
+              style={{
+                height: "3rem",
+                // align: "middle",
+                marginLeft: "4px",
+                justify: "center",
+              }}
+            >
+              <Row justify="center">
+                <Form
+                  span={4}
+                  form={uploadForm}
+                  // style={{ align: "middle", justify: "center" }}
+                >
+                  <Form.Item name="dragger">
+                    <Upload name="files" {...props}>
+                      <Button icon={<UploadOutlined />}>
+                        Upload Excel Here
+                      </Button>
+                    </Upload>
+                  </Form.Item>
+                </Form>
+              </Row>
             </Col>
             {/* tax detail card */}
-            <Col span={24} style={{ height: "50%" }}>
+            <Col span={24} style={{ height: "50%", marginTop: 10 }}>
               <Card
                 style={{ height: "100%" }}
                 // bodyStyle={{ height: "90%" }}
