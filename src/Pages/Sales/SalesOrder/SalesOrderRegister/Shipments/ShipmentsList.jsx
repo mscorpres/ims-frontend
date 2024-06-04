@@ -113,6 +113,10 @@ function ShipmentsList() {
       icon: <ExclamationCircleOutlined />,
       content: (
         <Form form={ModalForm} layout="vertical">
+          {" "}
+          <Form.Item name="nos_of_boxes" label="No of Boxes">
+            <Input />
+          </Form.Item>
           <Form.Item name="remark" label="Remark">
             <Input.TextArea rows={3} placeholder="Please input the remark" />
           </Form.Item>
@@ -180,7 +184,7 @@ function ShipmentsList() {
     let remark = values.remark;
 
     const response = await executeFun(
-      () => createChallanFromSo(mins, remark),
+      () => createChallanFromSo(mins, values),
       "select"
     );
 
