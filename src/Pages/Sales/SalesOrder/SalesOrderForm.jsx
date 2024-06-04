@@ -111,27 +111,46 @@ const SalesOrderForm = () => {
   const dispatchStateCode = Form.useWatch("shippingstate", form);
   const shipaddressid = Form.useWatch("shipaddressid", form);
   const fetchQty = form.getFieldValue("qty");
-
+  console.log("dispatchStateCode", dispatchStateCode);
   const { executeFun, loading } = useApi();
   const { orderId } = useParams();
+  console.log("dispatchStateCode-----", dispatchStateCode);
+  console.log("biliingStateCode-----", biliingStateCode);
+  console.log("shippingStateCode-----", shippingStateCode);
   const stateCode = async () => {
     // const values = await form.validateFields();
     // let dispatchStateCode = "7";
     // let billingStateCode = "07";
     // console.log("biliingStateCode-----", biliingStateCode);
-    // console.log("shippingStateCode-----", shippingStateCode);
-    if (
-      Number(dispatchStateCode?.key) == Number(biliingStateCode) ||
-      Number(biliingStateCode) == Number(shippingStateCode)
-    ) {
-      console.log("here");
-      setDerivedType("L");
+    // if (
+    //   Number(dispatchStateCode?.key) == Number(biliingStateCode) ||
+    //   Number(biliingStateCode) == Number(shippingStateCode)
+    // ) {
+    //   console.log("here");
+    //   setDerivedType("L");
 
-      // setDerivedType({ value: "I", text: "INTER STATE" });
+    //   // setDerivedType({ value: "I", text: "INTER STATE" });
+    // } else {
+    //   console.log("same");
+    //   setDerivedType("I");
+    //   // setDerivedType({ value: "L", text: "LOCAL" });
+    // }
+    if (dispatchStateCode) {
+      console.log("dispatchStateCode-----", dispatchStateCode);
+      if (
+        Number(dispatchStateCode?.key) == Number(biliingStateCode) ||
+        Number(dispatchStateCode?.text) == Number(biliingStateCode)
+      ) {
+        setDerivedType("L");
+      } else {
+        setDerivedType("I");
+      }
     } else {
-      console.log("same");
-      setDerivedType("I");
-      // setDerivedType({ value: "L", text: "LOCAL" });
+      if (Number(biliingStateCode) == Number(shippingStateCode)) {
+        setDerivedType("L");
+      } else {
+        setDerivedType("I");
+      }
     }
   };
   console.log("derivedType", derivedType);
@@ -171,12 +190,22 @@ const SalesOrderForm = () => {
         text: row.city.name,
         value: row.city.id,
       }));
+
       console.log(
         " response.data?.data?.state?.key]",
-        response.data?.data[0].state.code
+        response.data?.data[0].pinCode
       );
+
       setShippingStateCode(response.data?.data[0]?.state?.code);
+      // setShippingStateCode(response.data?.data[0]?.state?.code);
       form.setFieldValue("clientbranch", arr[0]);
+      let obj = {
+        text: response.data?.data[0]?.state.code,
+        value: response.data?.data[0]?.state.name,
+      };
+      console.log("obj", obj);
+      form.setFieldValue("shippingstate", obj);
+      form.setFieldValue("shippingPin", response.data?.data[0].pinCode);
       return setClientBranchOptions(arr);
     }
     setClientBranchOptions([]);
@@ -189,6 +218,7 @@ const SalesOrderForm = () => {
 
     if (response.success) {
       const details = response.data[0];
+      console.log("details", details);
       if (details) {
         form.setFieldValue("billingState", {
           label: details.state.name,
@@ -198,6 +228,7 @@ const SalesOrderForm = () => {
         if (locationType === "client") {
           form.setFieldValue("gstin", details.gst);
           form.setFieldValue("clientaddress", address);
+          // form.setFieldValue("clientPin", pinCode);
           form.setFieldValue("clientPan", details.panNo);
         } else if (locationType === "shipaddressid") {
           form.setFieldValue("shipPan", details.panNo);
@@ -406,7 +437,11 @@ const SalesOrderForm = () => {
         quotation_detail: values.quotationdetail,
         shipping_address: values.shipaddress,
         shipping_gstin: values.shipGST,
+        shipping_pinCode: values.shippingPin,
         shipping_id: values.shipaddressid,
+        shipping_address: values.shipaddress,
+        shipping_state: values.shipaddressid,
+        shipping_state: values.shippingstate.text,
         shipping_pan: values.shipPan,
         so_id: orderId?.replaceAll("_", "/"),
         // so_type: values.pocreatetype,
@@ -433,7 +468,8 @@ const SalesOrderForm = () => {
         igst: rowCount.map((component) => component.igst),
       },
     };
-
+    console.log("values are here", payload);
+    // return;
     if (orderId) {
       const response = await executeFun(() => updateOrder(payload), "submit");
       if (response.success) {
@@ -646,7 +682,8 @@ const SalesOrderForm = () => {
       let address = form.getFieldValue("clientaddress");
       let pan = form.getFieldValue("clientPan");
 
-      // console.log("gst", gst, client);
+      // console.log("gspant", gst, client);
+      // console.log("pan", pan);
       if (client) {
         // form.setFieldValue("shipPan", details.panNo);
         form.setFieldValue("shipGST", gst);
@@ -1142,7 +1179,7 @@ const SalesOrderForm = () => {
                           </Form.Item>
                         </Col>
                         {/* gstin uin */}
-                        <Col span={6}>
+                        <Col span={4}>
                           <Form.Item
                             name="shipGST"
                             label=" GSTIN / UIN"
@@ -1154,22 +1191,61 @@ const SalesOrderForm = () => {
                             />
                           </Form.Item>
                         </Col>
-                        {copyinfo == false && (
-                          <Col span={6}>
-                            <Form.Item
-                              name="shippingstate"
-                              label="State"
-                              // rules={rules.shipGST}
-                            >
-                              <MySelect
-                                // selectLoading={loading("clientSelect")}
-                                labelInValue
-                                onBlur={() => setStateOptions([])}
-                                options={stateOptions}
-                                // loadOptions={getState}
-                              />
-                            </Form.Item>
-                          </Col>
+                        {copyinfo == false ? (
+                          <>
+                            <Col span={5}>
+                              <Form.Item
+                                name="shippingstate"
+                                label="State"
+                                // rules={rules.shipGST}
+                              >
+                                <MySelect
+                                  // selectLoading={loading("clientSelect")}
+                                  labelInValue
+                                  onBlur={() => setStateOptions([])}
+                                  options={stateOptions}
+                                  // loadOptions={getState}
+                                />
+                              </Form.Item>
+                            </Col>
+                            <Col span={3}>
+                              <Form.Item
+                                name="shippingPin"
+                                label="Pincode"
+                                rules={rules.shipPinCode}
+                              >
+                                <Input />
+                              </Form.Item>
+                            </Col>
+                          </>
+                        ) : (
+                          <>
+                            {" "}
+                            <Col span={5}>
+                              <Form.Item
+                                name="shippingstate"
+                                label="State"
+                                // rules={rules.shipPinCode}
+                              >
+                                <MySelect
+                                  // selectLoading={loading("clientSelect")}
+                                  labelInValue
+                                  onBlur={() => setStateOptions([])}
+                                  options={stateOptions}
+                                  // loadOptions={getState}
+                                />
+                              </Form.Item>
+                            </Col>
+                            <Col span={3}>
+                              <Form.Item
+                                name="shippingPin"
+                                label="Pincode"
+                                rules={rules.shipPinCode}
+                              >
+                                <Input />
+                              </Form.Item>
+                            </Col>
+                          </>
                         )}
                       </Row>
                       {/* shipping address */}
@@ -1379,6 +1455,12 @@ const rules = {
     {
       required: true,
       message: "Please Enter Shipping GSTIN!",
+    },
+  ],
+  shipPinCode: [
+    {
+      required: true,
+      message: "Please Enter Shipping pincode!",
     },
   ],
   shipaddress: [
