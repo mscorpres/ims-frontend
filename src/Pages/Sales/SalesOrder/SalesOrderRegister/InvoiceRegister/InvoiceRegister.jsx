@@ -23,9 +23,13 @@ import {
   getStringDate,
 } from "../../../../../utils/general.ts";
 import {
+  cancelTheSelectedSo,
+  canceleInv,
   fetchEInv,
   fetchEwayBill,
   getSalesOrders,
+  printOrder,
+  printOrderForChallan,
 } from "../../../../../api/sales/salesOrder.js";
 import { getClientsOptions } from "../../../../../api/finance/clients.js";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect.jsx";
@@ -194,11 +198,8 @@ function InvoiceRegister() {
     // const { data } = response;
 
     // return;
-    let payload = { so: cancelRowSelected?.salesId, remark: values.remarks };
-    const response = await executeFun(
-      () => cancelTheSelectedSo(payload),
-      "cancel"
-    );
+    let payload = { invoice_no: cancelRowSelected?.challanId };
+    const response = await executeFun(() => canceleInv(payload), "cancel");
     if (response.success) {
       // toast.success(response.message);
       setCancelRowSelected(false);
@@ -206,11 +207,13 @@ function InvoiceRegister() {
       handleFetchRows();
     } else {
       toast.error(response.data);
+      setCancelRowSelected(false);
     }
   };
   const validate = async () => {
     const values = await form.validateFields();
     cancelTheSelected(values);
+    // getData();
   };
   const getComponentsList = async (row) => {
     const response = await imsAxios.post(
@@ -249,12 +252,16 @@ function InvoiceRegister() {
   //   setShipmentList(arr);
   // };
   const handlePrintOrder = async (orderId) => {
-    const response = await executeFun(() => printOrder(orderId), "print");
+    const response = await executeFun(
+      () => printOrderForChallan(orderId),
+      "print"
+    );
+    let { data } = response;
     if (response.success) {
-      printFunction(response.data.buffer.data, response.data.filename);
+      // console.log("response", data.buffer.data);
+      printFunction(data.buffer.data, data.buffer.filename);
     }
   };
-
   const actionColumn = {
     headerName: "",
     field: "actions",
@@ -273,7 +280,7 @@ function InvoiceRegister() {
         // disabled={loading}
         onClick={() => {
           // setOpen(true);
-          handlePrintOrder(row.salesId);
+          handlePrintOrder(row.challanId);
         }}
         label="Print"
       />,
@@ -348,14 +355,14 @@ function InvoiceRegister() {
   return (
     <>
       <Modal
-        title={`Are you sure you want to cancel this SO ${cancelRowSelected?.salesId}`}
-        open={cancelRowSelected?.salesId}
-        width={400}
+        title={`Are you sure you want to cancel this E-Invoice ${cancelRowSelected?.challanId}`}
+        open={cancelRowSelected?.challanId}
+        width={450}
         confirmLoading={loading("cancel")}
         onCancel={() => setCancelRowSelected(false)}
         onOk={() => validate()}
       >
-        <>
+        {/* <>
           <Form
             form={form}
             style={{ width: "100%" }}
@@ -375,7 +382,7 @@ function InvoiceRegister() {
             >
               <Input />
             </Form.Item> */}
-            <Form.Item
+        {/* <Form.Item
               label="Remarks"
               name="remarks"
               rules={[
@@ -386,8 +393,8 @@ function InvoiceRegister() {
             >
               <Input.TextArea rows={2} />
             </Form.Item>
-          </Form>
-        </>
+          </Form> */}
+        {/* </> */}
       </Modal>
       <div style={{ height: "90%", padding: 5 }}>
         <Row justify="space-between" style={{ marginBottom: 5 }}>
@@ -544,154 +551,154 @@ const ewaycolumns = [
   },
 
   {
-    headerName: "invoiceDate",
+    headerName: "Invoice Date",
     minWidth: 150,
     flex: 1,
-    field: "invoiceDate",
+    field: "Invoice Date",
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.invoiceDate} copy={true} />
     ),
   },
   {
-    headerName: "supplyType",
+    headerName: "Supply Type",
     minWidth: 150,
     field: "supplyType",
     flex: 1,
   },
   {
-    headerName: "subSupplyType",
+    headerName: "Sub Supply Type",
     minWidth: 150,
     field: "subSupplyType",
     flex: 1,
   },
   {
-    headerName: "doctype",
+    headerName: "Doc Type",
     minWidth: 150,
     field: "doctype",
     flex: 1,
   },
   {
-    headerName: "transType",
+    headerName: "Trans Type",
     minWidth: 150,
     field: "transType",
     flex: 1,
   },
   {
-    headerName: "dFromName",
+    headerName: "Dispatch Name",
     minWidth: 150,
     field: "dFromName",
     flex: 1,
   },
   {
-    headerName: "dFromAdd",
+    headerName: "Dispatch Address",
     minWidth: 150,
     field: "dFromAdd",
     flex: 1,
   },
   {
-    headerName: "dFromgst",
+    headerName: "Dispatch GST",
     minWidth: 150,
     field: "dFromgst",
     flex: 1,
   },
   {
-    headerName: "dFromplace",
+    headerName: "Dispatch From",
     minWidth: 150,
     field: "dFromplace",
     flex: 1,
   },
   {
-    headerName: "dFromState",
+    headerName: "Dispatch State",
     minWidth: 150,
     field: "dFromState",
     flex: 1,
   },
   {
-    headerName: "dFrompin",
+    headerName: "Dispatch Pincode",
     minWidth: 150,
     field: "dFrompin",
     flex: 1,
   },
   {
-    headerName: "sFromName",
+    headerName: "Shipping Name",
     minWidth: 150,
     field: "sFromName",
     flex: 1,
   },
   {
-    headerName: "sFromGST",
+    headerName: "Shipping GST",
     minWidth: 150,
     field: "sFromGST",
     flex: 1,
   },
   {
-    headerName: "sFromPlace",
+    headerName: "Shipping Place",
     minWidth: 150,
     field: "sFromPlace",
     flex: 1,
   },
   {
-    headerName: "sFromState",
+    headerName: "Shipping State",
     minWidth: 150,
     field: "sFromState",
     flex: 1,
   },
   {
-    headerName: "sFrompin",
+    headerName: "Shipping Pincode",
     minWidth: 150,
     field: "sFrompin",
     flex: 1,
   },
   {
-    headerName: "transportId",
+    headerName: "Transport Id",
     minWidth: 150,
     field: "transportId",
     flex: 1,
   },
   {
-    headerName: "trnasName",
+    headerName: "Trnas Name",
     minWidth: 150,
     field: "trnasName",
     flex: 1,
   },
   {
-    headerName: "transDocDate",
+    headerName: "Trans Doc Date",
     minWidth: 150,
     field: "transDocDate",
     flex: 1,
   },
   {
-    headerName: "docDate",
+    headerName: "Doc Date",
     minWidth: 150,
     field: "docDate",
     flex: 1,
   },
   {
-    headerName: "vehicle",
+    headerName: "Vehicle",
     minWidth: 150,
     field: "vehicle",
     flex: 1,
   },
   {
-    headerName: "transMode",
+    headerName: "Trans Mode",
     minWidth: 150,
     field: "transMode",
     flex: 1,
   },
   {
-    headerName: "eBillnum",
+    headerName: "E-way Bill Number",
     minWidth: 150,
     field: "eBillnum",
     flex: 1,
   },
   {
-    headerName: "generatedDate",
+    headerName: "Generated Date",
     minWidth: 150,
     field: "generatedDate",
     flex: 1,
   },
   {
-    headerName: "ewatStatus",
+    headerName: "Eway Status",
     minWidth: 150,
     field: "ewatStatus",
     flex: 1,
@@ -705,7 +712,7 @@ const ewInvcolumns = [
   },
 
   {
-    headerName: "Delivery Challan Date",
+    headerName: "Invoice Date",
     minWidth: 150,
     flex: 1,
     field: "deliveryChallanDate",
@@ -714,7 +721,7 @@ const ewInvcolumns = [
     ),
   },
   {
-    headerName: "Challan Id",
+    headerName: "Invoice Number",
     minWidth: 150,
     field: "challanId",
     flex: 1,
@@ -732,13 +739,13 @@ const ewInvcolumns = [
     flex: 1,
   },
   {
-    headerName: "Invoice No",
+    headerName: "E-Invoice No",
     minWidth: 150,
     field: "invoiceno",
     flex: 1,
   },
   {
-    headerName: "Invoice Date",
+    headerName: "E-Invoice Date",
     minWidth: 150,
     field: "invoicedate",
     flex: 1,

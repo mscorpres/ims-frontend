@@ -173,7 +173,7 @@ function ShipmentsList() {
     }
   };
   const createShipmentChallan = async (singleRow) => {
-    ModalForm.resetFields();
+    // ModalForm.resetFields();
     let mins = [];
     if (singleRow) {
       mins = [singleRow].map((row) => rows.filter((r) => r.id === row.id)[0]);
@@ -181,8 +181,8 @@ function ShipmentsList() {
       mins = selectedRows.map((row) => rows.filter((r) => r.id === row)[0]);
     }
     const values = await ModalForm.validateFields();
-    let remark = values.remark;
 
+  
     const response = await executeFun(
       () => createChallanFromSo(mins, values),
       "select"
@@ -193,6 +193,7 @@ function ShipmentsList() {
       ModalForm.setFieldValue("remark", "");
       getRows();
     }
+    ModalForm.resetFields();
   };
 
   const handleExcelDownload = () => {

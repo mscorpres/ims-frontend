@@ -28,6 +28,7 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import printFunction from "../../../../../Components/printFunction.jsx";
+import Loading from "../../../../../Components/Loading.jsx";
 
 const wiseOptions = [
   {
@@ -115,7 +116,7 @@ function Challan() {
   const handlePrintOrder = async (orderId) => {
     const response = await executeFun(
       () => printOrderForChallan(orderId),
-      "print"
+      "select"
     );
     let { data } = response;
     if (response.success) {
@@ -218,6 +219,7 @@ function Challan() {
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
+      {" "}
       <Col span={4}>
         <Card size="small" title="Filters">
           <Form
@@ -267,7 +269,7 @@ function Challan() {
       </Col>
       <Col span={20}>
         <MyDataTable
-          loading={loading("fetch")}
+          loading={loading("fetch") || loading("select")}
           columns={[actionColumn, ...columns]}
           data={rows}
         />

@@ -49,6 +49,13 @@ export const cancelTheSelectedSo = async (payload) => {
   const response = await imsAxios.post("/sellRequest/CancelSO", payload);
   return response;
 };
+export const canceleInv = async (payload) => {
+  const response = await imsAxios.post(
+    "/so_challan_shipment/cancel_einvoice",
+    payload
+  );
+  return response;
+};
 export const listOfShipment = async (searchTerm, wise) => {
   const response = await imsAxios.post(
     "/so_challan_shipment/fetchSalesOrderShipmentlist",

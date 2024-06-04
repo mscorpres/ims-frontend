@@ -1214,7 +1214,7 @@ const SalesOrderForm = () => {
                                 label="Pincode"
                                 rules={rules.shipPinCode}
                               >
-                                <Input />
+                                <Input size="default" />
                               </Form.Item>
                             </Col>
                           </>
@@ -1242,7 +1242,7 @@ const SalesOrderForm = () => {
                                 label="Pincode"
                                 rules={rules.shipPinCode}
                               >
-                                <Input />
+                                <Input size="default" />
                               </Form.Item>
                             </Col>
                           </>
