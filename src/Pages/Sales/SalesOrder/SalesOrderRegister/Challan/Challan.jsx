@@ -27,7 +27,9 @@ import {
 } from "../../../../../api/finance/clients.js";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import printFunction from "../../../../../Components/printFunction.jsx";
+import printFunction, {
+  downloadFunction,
+} from "../../../../../Components/printFunction.jsx";
 import Loading from "../../../../../Components/Loading.jsx";
 
 const wiseOptions = [
@@ -121,7 +123,8 @@ function Challan() {
     let { data } = response;
     if (response.success) {
       // console.log("response", data.buffer.data);
-      printFunction(data.buffer.data, data.buffer.filename);
+      // printFunction(data.buffer.data, data.buffer.filename);
+      downloadFunction(data.buffer.data, data.filename);
     }
   };
   // const createAllocation = async (row) => {
@@ -199,7 +202,7 @@ function Challan() {
         onClick={() => {
           handlePrintOrder(row.challanId);
         }}
-        label="Print"
+        label="Download"
       />,
       // <GridActionsCellItem
       //   showInMenu
