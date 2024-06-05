@@ -172,7 +172,7 @@ const ChallanDetails = ({ open, hide }) => {
 
     setRows(response.data.components);
     console.log("response.data.components", response.data.components);
-    setGenerateId(response.data.components[0].orderId);
+    setGenerateId(response.data.components[0].shipmentId);
     setDetails(response.data.details);
   };
 

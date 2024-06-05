@@ -31,6 +31,7 @@ import {
   Radio,
   Row,
   Switch,
+  Tooltip,
   Typography,
   Upload,
 } from "antd";
@@ -44,13 +45,10 @@ import {
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import MySelect from "../../../../Components/MySelect.jsx";
-import MyButton from "../../../../Components/MyButton/index.jsx";
-import UploadFile from "../../../Master/Bom/CreateBom/UploadFile.jsx";
-import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
-
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { IoMdInformationCircleOutline } from "react-icons/io";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
+import { GoDownload } from "react-icons/go";
 const POoption = [
   { text: "Product", value: "product" },
   { text: "Component", value: "component" },
@@ -914,17 +912,54 @@ export default function AddComponents({
                 </Form>
                 {/* </Col> */}
                 {/* <Col span={4}> */}
-                <Button
-                  style={{ marginLeft: 4 }}
-                  icon={<DownloadOutlined />}
-                  type="link"
-                  onClick={() =>
-                    downloadCSVCustomColumns(sampleData, "Sales Order Sample")
-                  }
-                >
-                  {/* <DownloadOutlined /> */}
-                  Sample
-                </Button>
+                <div>
+                  <Tooltip
+                    placement="topLeft"
+                    title={
+                      "Don't change the headers of sample file and upload the xlsx"
+                    }
+                    // arrow={mergedArrow}
+                  >
+                    <Button
+                      type="link"
+                      icon={
+                        <IoMdInformationCircleOutline
+                          size={"1.2rem"}
+                          marginTop={50}
+                        />
+                      }
+                    ></Button>
+                  </Tooltip>
+                  <Tooltip
+                    placement="topLeft"
+                    title={"Download sample"}
+                    // arrow={mergedArrow}
+                  >
+                    {/* <Button
+                    type="link"
+                      icon={
+                        <IoMdInformationCircleOutline
+                          size={"1.2rem"}
+                          marginTop={50}
+                        />
+                      }
+                    ></Button> */}
+                    <Button
+                      style={{ marginLeft: 4, marginBottom: 2 }}
+                      icon={<GoDownload size={"1.2rem"} />}
+                      type="link"
+                      onClick={() =>
+                        downloadCSVCustomColumns(
+                          sampleData,
+                          "Sales Order Sample"
+                        )
+                      }
+                    >
+                      {/* <DownloadOutlined /> */}
+                      {/* Sample */}
+                    </Button>
+                  </Tooltip>
+                </div>
                 {/* </Col> */}
               </Row>
             </Col>

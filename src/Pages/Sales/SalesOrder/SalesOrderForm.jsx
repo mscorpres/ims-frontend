@@ -459,8 +459,10 @@ const SalesOrderForm = () => {
         gst_type: rowCount.map((component) => component.gsttype),
         hsn: rowCount.map((component) => component.hsncode),
         price: rowCount.map((component) => component.rate),
-        qty: rowCount.map(
-          (component) => +Number(+Number(component.qty).toFixed(2))
+        qty: rowCount.map((component) =>
+          component.qty == ""
+            ? null
+            : +Number(+Number(component.qty).toFixed(2))
         ),
         remark: rowCount.map((component) => component.remark),
         cgst: rowCount.map((component) => component.cgst),
@@ -546,8 +548,12 @@ const SalesOrderForm = () => {
     setConfirmReset(false);
   };
 
-  const nextFun = () => {
-    setActiveTab("2");
+  const nextFun = async () => {
+    const values = await form.validateFields();
+    console.log("values", values);
+    if (values) {
+      setActiveTab("2");
+    }
   };
   const callFileUpload = async (file) => {
     setPageLoading(true);

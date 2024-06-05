@@ -102,7 +102,7 @@ const EwayBillSalesOrder = () => {
     const response = await imsAxios.post(
       "/so_challan_shipment/fetchDataForEwayBill",
       {
-        so_id: params.soId.replaceAll("_", "/"),
+        shipment_id: params.soId.replaceAll("_", "/"),
       }
     );
     console.log("response-", response);
