@@ -353,13 +353,16 @@ const EwayBillSalesOrder = () => {
                 <Col span={4}>
                   <Form.Item name="docDate" label="Document Date">
                     <SingleDatePicker
+                      setDate={(value) => form.setFieldValue("docDate", value)}
+                    />
+                    {/* <SingleDatePicker
                       setDate={(value) =>
                         form.setFieldValue(
                           "docDate",
                           dayjs(value).format("DD-MM-YYYY")
                         )
                       }
-                    />
+                    /> */}
                   </Form.Item>
                 </Col>
                 <Col span={4}>

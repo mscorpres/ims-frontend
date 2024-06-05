@@ -25,6 +25,7 @@ import {
 import {
   cancelTheSelectedSo,
   canceleInv,
+  canceleway,
   fetchEInv,
   fetchEwayBill,
   getSalesOrders,
@@ -192,6 +193,8 @@ function InvoiceRegister() {
     }
   };
   const cancelTheSelected = async (values) => {
+    let response;
+    let payload;
     // const response = await imsAxios.post("/sellRequest/CancelSO", {
     //   so: values.so,
     //   remark: values.remarks,
@@ -199,8 +202,15 @@ function InvoiceRegister() {
     // const { data } = response;
 
     // return;
-    let payload = { invoice_no: cancelRowSelected?.challanId };
-    const response = await executeFun(() => canceleInv(payload), "cancel");
+    if (type == "eway") {
+      console.log("cancelRowSelected", cancelRowSelected);
+      payload = { ewayBillNo: cancelRowSelected?.eBillnum };
+      // canceleway();
+      response = await executeFun(() => canceleway(payload), "cancel");
+    } else {
+      payload = { invoice_no: cancelRowSelected?.challanId };
+      response = await executeFun(() => canceleInv(payload), "cancel");
+    }
     if (response.success) {
       // toast.success(response.message);
       setCancelRowSelected(false);
@@ -210,6 +220,7 @@ function InvoiceRegister() {
       toast.error(response.data);
       setCancelRowSelected(false);
     }
+    getData();
   };
   const validate = async () => {
     const values = await form.validateFields();
@@ -363,9 +374,14 @@ function InvoiceRegister() {
   return (
     <>
       <Modal
-        title={`Are you sure you want to cancel ${cancelRowSelected?.challanId}`}
+        title={
+          type == "eway"
+            ? `Are you sure you want to cancel this Eway Bill ${cancelRowSelected?.eBillnum}`
+            : `Are you sure you want to cancel E-
+            Invoice ${cancelRowSelected?.challanId}`
+        }
         open={cancelRowSelected?.challanId}
-        width={500}
+        width={420}
         confirmLoading={loading("cancel")}
         onCancel={() => setCancelRowSelected(false)}
         onOk={() => validate()}

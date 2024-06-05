@@ -56,6 +56,13 @@ export const canceleInv = async (payload) => {
   );
   return response;
 };
+export const canceleway = async (payload) => {
+  const response = await imsAxios.post(
+    "/so_challan_shipment/cancelEwayBill",
+    payload
+  );
+  return response;
+};
 export const listOfShipment = async (searchTerm, wise) => {
   const response = await imsAxios.post(
     "/so_challan_shipment/fetchSalesOrderShipmentlist",
