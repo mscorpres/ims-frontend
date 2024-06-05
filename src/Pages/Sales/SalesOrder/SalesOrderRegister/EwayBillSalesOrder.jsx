@@ -528,7 +528,11 @@ const EwayBillSalesOrder = () => {
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item name="transporterName" label="Transporter Name">
+                  <Form.Item
+                    name="transporterName"
+                    label="Transporter Name"
+                    rules={rules.transporterName}
+                  >
                     <Input />
                   </Form.Item>
                 </Col>
@@ -858,6 +862,12 @@ const rules = {
     {
       required: true,
       message: "Please select a State!",
+    },
+  ],
+  transporterName: [
+    {
+      required: true,
+      message: "Please provide Transporter's name!",
     },
   ],
   distance: [
