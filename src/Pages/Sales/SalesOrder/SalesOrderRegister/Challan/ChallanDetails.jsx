@@ -91,6 +91,8 @@ const ChallanDetails = ({ open, hide }) => {
           </div>
         ),
       });
+    } else {
+      toast.error(response.message);
     }
   };
   const callEwayBill = async () => {
