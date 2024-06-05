@@ -50,7 +50,7 @@ import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
-import { UploadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 const POoption = [
   { text: "Product", value: "product" },
   { text: "Component", value: "component" },
@@ -897,32 +897,35 @@ export default function AddComponents({
                 justify: "center",
               }}
             >
-              <Row justify="center">
-                <Col span={12}>
-                  {" "}
-                  <Form
-                    span={4}
-                    form={uploadForm}
-                    // style={{ align: "middle", justify: "center" }}
-                  >
-                    <Form.Item name="dragger">
-                      <Upload name="files" {...props}>
-                        <Button icon={<UploadOutlined />}>Upload Here</Button>
-                      </Upload>
-                    </Form.Item>
-                  </Form>
-                </Col>
-
-                <Col span={12}>
-                  <Button
-                    type="link"
-                    onClick={() =>
-                      downloadCSVCustomColumns(sampleData, "Sales Order Sample")
-                    }
-                  >
-                    Download Sample File
-                  </Button>
-                </Col>
+              <Row justify="space-between">
+                {/* <Col span={18}> */}{" "}
+                <Form
+                  span={4}
+                  form={uploadForm}
+                  // style={{ align: "middle", justify: "center" }}
+                >
+                  <Form.Item name="dragger">
+                    <Upload name="files" {...props}>
+                      <Button icon={<UploadOutlined />}>
+                        Upload Excel Here
+                      </Button>
+                    </Upload>
+                  </Form.Item>
+                </Form>
+                {/* </Col> */}
+                {/* <Col span={4}> */}
+                <Button
+                  style={{ marginLeft: 4 }}
+                  icon={<DownloadOutlined />}
+                  type="link"
+                  onClick={() =>
+                    downloadCSVCustomColumns(sampleData, "Sales Order Sample")
+                  }
+                >
+                  {/* <DownloadOutlined /> */}
+                  Sample
+                </Button>
+                {/* </Col> */}
               </Row>
             </Col>
             {/* tax detail card */}
