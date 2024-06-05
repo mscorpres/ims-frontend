@@ -605,9 +605,13 @@ export default function AddComponents({
     },
     {
       headerName: "Index",
-      width: 100,
+      width: 50,
       field: "index",
-      renderCell: (params) => <Input value={params?.row.index} />,
+      renderCell: (params) => (
+        <Typography.Text value={params?.row.index}>
+          {params?.row.index}
+        </Typography.Text>
+      ),
     },
     {
       headerName: "Type",

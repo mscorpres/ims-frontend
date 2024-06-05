@@ -162,6 +162,8 @@ const EwayBillSalesOrder = () => {
       console.log("finalObj", finalObj);
       form.setFieldsValue(finalObj);
       setLoading(false);
+    } else {
+      toast.error(response.message);
     }
     // setLoading(false);
   };
@@ -269,19 +271,18 @@ const EwayBillSalesOrder = () => {
         "/so_challan_shipment/createEwayBill",
         payload
       );
-      console.log("respolse", response);
-      console.log(
-        "response.data.data.eway_bill_no",
-        response.data.data
-      );
+      // console.log("respolse", response);
+      // console.log("response.data.message.message", response.message);
       const { data } = response;
       if (data) {
         if (data.code === 200) {
           toast.success(data.message);
           setSuccessData({ ewayBillNo: response.data.data.eway_bill_no });
         } else {
-          toast.error(data.message.msg);
+          toast.error(data.message);
         }
+      } else {
+        toast.error(response.message);
       }
     } catch (error) {
     } finally {
