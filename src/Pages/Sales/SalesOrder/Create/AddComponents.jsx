@@ -898,19 +898,31 @@ export default function AddComponents({
               }}
             >
               <Row justify="center">
-                <Form
-                  span={4}
-                  form={uploadForm}
-                  // style={{ align: "middle", justify: "center" }}
-                >
-                  <Form.Item name="dragger">
-                    <Upload name="files" {...props}>
-                      <Button icon={<UploadOutlined />}>
-                        Upload Excel Here
-                      </Button>
-                    </Upload>
-                  </Form.Item>
-                </Form>
+                <Col span={12}>
+                  {" "}
+                  <Form
+                    span={4}
+                    form={uploadForm}
+                    // style={{ align: "middle", justify: "center" }}
+                  >
+                    <Form.Item name="dragger">
+                      <Upload name="files" {...props}>
+                        <Button icon={<UploadOutlined />}>Upload Here</Button>
+                      </Upload>
+                    </Form.Item>
+                  </Form>
+                </Col>
+
+                <Col span={12}>
+                  <Button
+                    type="link"
+                    onClick={() =>
+                      downloadCSVCustomColumns(sampleData, "Sales Order Sample")
+                    }
+                  >
+                    Download Sample File
+                  </Button>
+                </Col>
               </Row>
             </Col>
             {/* tax detail card */}
