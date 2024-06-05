@@ -711,12 +711,12 @@ export const items = (user) => [
     <UnorderedListOutlined />,
     [
       getItem("Sales Order", "G1", <TbReportAnalytics />, [
-        getItem(<Link to="/sales/order/register">Register</Link>, "H51"),
         getItem(
           <Link to="/sales/order/create">Create order</Link>,
           "H52"
           // <AiOutlineMinus />
         ),
+        getItem(<Link to="/sales/order/register">Register</Link>, "H51"),
       ]),
       getItem("Invoice", "H2", <FaFileInvoiceDollar />, [
         getItem(<Link to="/invoice/create">Create</Link>, "H21"),

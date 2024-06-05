@@ -164,7 +164,16 @@ function SalesOrderRegisterWithShipment() {
       icon: <ExclamationCircleOutlined />,
       content: (
         <Form form={ModalForm} layout="vertical">
-          <Form.Item name="nos_of_boxes" label="No of Boxes">
+          <Form.Item
+            name="nos_of_boxes"
+            label="No of Boxes"
+            rules={[
+              {
+                required: true,
+                message: "No of Boxes is required",
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
           <Form.Item name="remark" label="Remark">
