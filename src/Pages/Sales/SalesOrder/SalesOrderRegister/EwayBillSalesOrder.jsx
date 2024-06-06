@@ -29,74 +29,14 @@ const EwayBillSalesOrder = () => {
   const [components, setComponents] = useState([]);
   const [transporterModeOptions, setTransporterModeOptions] = useState([]);
   const [successData, setSuccessData] = useState(null);
-  const params = useParams();
 
+  const params = useParams();
   const [form] = Form.useForm();
   const billtoState = Form.useWatch("billFromState", form);
   const transporterId = Form.useWatch("transporterId", form);
-  console.log("billtoState", billtoState);
-  // const getDetails = async () => {
-  //   try {
-  //     setLoading("fetch");
-  //     const response = await imsAxios.post("/jwEwaybill/fetch_challan_data", {
-  //       challan_no: params.soId.replaceAll("_", "/"),
-  //     });
+  const fromPincode = Form.useWatch("dispatchFromPincode", form);
+  const toPincode = Form.useWatch("dispatchToPincode", form);
 
-  //     const { data } = response;
-  //     if (data) {
-  //       if (data.code === 200) {
-  //         const { header, items, docType, subSupplyType, supplyType } =
-  //           data.data;
-  //         const finalObj = {
-  //           type: supplyType,
-  //           subType: subSupplyType,
-  //           docNo: header.challan_id,
-  //           docType: docType,
-  //           docDate: header.jw_date,
-  //           billFromName: header.dispatch_company,
-  //           billFromGstin: header.dispatch_gst,
-  //           billFromState: {
-  //             label: header.dispatch_state_name,
-  //             value: header.dispatch_state,
-  //           },
-  //           dispatchFromPlace: header.dispatch_label,
-  //           dispatchFromPincode: header.dispatch_pincode,
-  //           dispatchFromAddress: header.dispatch_address,
-  //           billToName: header.vendorName,
-  //           billToGstin: header.vendorGstin,
-  //           billToState: {
-  //             label: header.dispatch_state_name,
-  //             value: header.vendorState,
-  //           },
-  //           dispatchToPlace: header.vendorCity,
-  //           dispatchToPincode: header.vendorPinCode,
-  //           dispatchToAddress: header.vendor_address,
-  //           vehicleNo: header.vehicle,
-  //           mode: "1",
-  //           vehicleType: "R",
-  //           transactionType: "1",
-  //         };
-  //         const arr = items.map((row, index) => ({
-  //           id: index + 1,
-  //           component: row.component_name,
-  //           hsn: row.hsn_code,
-  //           qty: row.issue_qty,
-  //           rate: row.part_rate,
-  //           value: row.taxable_amount,
-  //           uom: row.unit_name,
-  //         }));
-  //         setComponents(arr);
-  //         form.setFieldsValue(finalObj);
-  //       } else {
-  //         toast.error(data.message.msg);
-  //       }
-  //     }
-  //   } catch (error) {
-  //   } finally {
-  //     setLoading("fetch");
-  //   }
-  // };
-  // -----
   const getEwayBillDetails = async () => {
     setLoading("fetch");
     const response = await imsAxios.post(
@@ -105,12 +45,8 @@ const EwayBillSalesOrder = () => {
         shipment_id: params.soId.replaceAll("_", "/"),
       }
     );
-    console.log("response-", response);
     let { data, header } = response;
     if (response.success) {
-      // const { header } = data;
-      // console.log("data", data);
-      // console.log("header", header);
       const finalObj = {
         type: header.supplyType,
         subType: header.subSupplyType,
@@ -160,7 +96,6 @@ const EwayBillSalesOrder = () => {
         // uom: row.unit_name,
       }));
       setComponents(arr);
-      console.log("finalObj", finalObj);
       form.setFieldsValue(finalObj);
       setLoading(false);
     } else {
@@ -207,11 +142,6 @@ const EwayBillSalesOrder = () => {
 
   const validateHandler = async () => {
     const values = await form.validateFields();
-    console.log("val", values);
-    // Bill from - company name
-    // Dispatch from - same as sales order
-    // Bill to - client details of sales order
-    // Ship to - same as sales order
     const payload = {
       supply_type: values.type,
       documnet_date: values.docDate,
@@ -254,7 +184,6 @@ const EwayBillSalesOrder = () => {
       transporter_name: values.transporterName,
       trans_doc_date: values.transportDate,
     };
-    console.log("payload", payload);
     // return;
     Modal.confirm({
       title: "Create E-Way Bill",
@@ -272,8 +201,6 @@ const EwayBillSalesOrder = () => {
         "/so_challan_shipment/createEwayBill",
         payload
       );
-      // console.log("respolse", response);
-      // console.log("response.data.message.message", response.message);
       const { data } = response;
       if (data) {
         if (data.code === 200) {
@@ -302,6 +229,7 @@ const EwayBillSalesOrder = () => {
     } catch (error) {}
   };
 
+  // ------------------------------//////////////---------------------------
   useEffect(() => {
     // getDetails();
     getEwayBillDetails();
@@ -313,6 +241,16 @@ const EwayBillSalesOrder = () => {
       getGstinDetails(transporterId);
     }
   }, [transporterId]);
+  useEffect(() => {
+    if (fromPincode) {
+      form.setFieldValue("fromPin", fromPincode);
+    }
+  }, [fromPincode]);
+  useEffect(() => {
+    if (toPincode) {
+      form.setFieldValue("toPin", toPincode);
+    }
+  }, [toPincode]);
   return (
     <Form form={form} layout="vertical" style={{ padding: 10 }}>
       {loading == "fetch" && <Loading />}
