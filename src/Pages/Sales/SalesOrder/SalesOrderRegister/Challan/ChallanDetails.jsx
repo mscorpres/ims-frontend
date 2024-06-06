@@ -153,7 +153,7 @@ const ChallanDetails = ({ open, hide }) => {
         <Link
           style={{ textDecoration: "none", color: "black" }}
           to={`/salesOrder/e-way/${generateId.replaceAll("/", "_")}`}
-          target="_blank"
+          // target="_blank"
         >
           E-Way Bill
         </Link>

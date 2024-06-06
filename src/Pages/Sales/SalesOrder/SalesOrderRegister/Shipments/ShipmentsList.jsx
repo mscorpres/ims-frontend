@@ -50,6 +50,12 @@ const rules = {
       message: "This field is required",
     },
   ],
+  nos_of_boxes: [
+    {
+      required: true,
+      message: "Number of Boxes is required",
+    },
+  ],
 };
 
 function ShipmentsList() {
@@ -114,7 +120,11 @@ function ShipmentsList() {
       content: (
         <Form form={ModalForm} layout="vertical">
           {" "}
-          <Form.Item name="nos_of_boxes" label="No of Boxes">
+          <Form.Item
+            name="nos_of_boxes"
+            label="No of Boxes"
+            rules={rules.nos_of_boxes}
+          >
             <Input />
           </Form.Item>
           <Form.Item name="remark" label="Remark">
@@ -182,7 +192,6 @@ function ShipmentsList() {
     }
     const values = await ModalForm.validateFields();
 
-  
     const response = await executeFun(
       () => createChallanFromSo(mins, values),
       "select"

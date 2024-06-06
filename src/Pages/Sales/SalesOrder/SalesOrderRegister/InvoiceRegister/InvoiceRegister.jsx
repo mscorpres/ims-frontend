@@ -212,6 +212,7 @@ function InvoiceRegister() {
       response = await executeFun(() => canceleInv(payload), "cancel");
     }
     if (response.success) {
+      getData();
       // toast.success(response.message);
       setCancelRowSelected(false);
       form.resetFields();
@@ -220,6 +221,7 @@ function InvoiceRegister() {
       toast.error(response.data);
       setCancelRowSelected(false);
     }
+    // console.log("here");
     getData();
   };
   const validate = async () => {

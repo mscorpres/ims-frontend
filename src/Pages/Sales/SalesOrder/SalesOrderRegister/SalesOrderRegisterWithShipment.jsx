@@ -167,12 +167,7 @@ function SalesOrderRegisterWithShipment() {
           <Form.Item
             name="nos_of_boxes"
             label="No of Boxes"
-            rules={[
-              {
-                required: true,
-                message: "No of Boxes is required",
-              },
-            ]}
+            rules={rules.nos_of_boxes}
           >
             <Input />
           </Form.Item>
@@ -608,3 +603,11 @@ const columns = [
     field: "createdDate",
   },
 ];
+const rules = {
+  nos_of_boxes: [
+    {
+      required: true,
+      message: "Number of Boxes is required",
+    },
+  ],
+};
