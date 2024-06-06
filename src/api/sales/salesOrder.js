@@ -209,7 +209,7 @@ export const createShipment = async (values, open, details) => {
   // return;
   const payload = {
     header: {
-      bill_id: values.billingId,
+      bill_id: values.billingId.value,
       bill_addr: values.billingAddress,
       so_id: open,
       ship_id: values.shippingId,

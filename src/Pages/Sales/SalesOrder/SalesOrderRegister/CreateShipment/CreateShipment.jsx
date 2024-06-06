@@ -70,6 +70,7 @@ function CreateShipment({
   const navigate = useNavigate();
 
   const billingId = Form.useWatch("billingId", shipmentForm);
+  // console.log("billingId", billingId);
   var chunk;
   var result;
   let params = useParams();
@@ -193,7 +194,11 @@ function CreateShipment({
         docNo: "",
         vehicleNo: "",
         otherRef: "",
-        billingId: bill.addrbillid,
+        billingId: {
+          value: bill.addrbillid,
+          label: bill.addrbillname,
+        },
+        // billingId: bill.addrbillid,
         billingAddress: bill.billaddress,
         shippingId: ship.addrshipid,
         shippingAddress: detailsObj?.shipping_info?.address,
@@ -225,6 +230,7 @@ function CreateShipment({
         })),
       };
       let arr = obj.products;
+      // console.log("obj", obj);
       if (arr.length > 25) {
         setIsAnother(true);
         chunk = arr.length / 25;
@@ -527,7 +533,7 @@ function CreateShipment({
   useEffect(() => {
     if (billingId) {
       // console.log("billingId-------", billingId);
-      getBillingAddress(billingId);
+      getBillingAddress(billingId.label);
     }
   }, [billingId]);
   useEffect(() => {

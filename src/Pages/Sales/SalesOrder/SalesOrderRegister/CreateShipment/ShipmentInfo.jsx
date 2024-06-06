@@ -11,7 +11,7 @@ const ShipmentInfo = ({
 }) => {
   return (
     <div>
-      <Card size="small" title="Shipment Info" >
+      <Card size="small" title="Shipment Info">
         <Row gutter={6}>
           {/* <Col span={12}>
             <Form.Item name="eWayBillNo" label="E-way Bill Number">
@@ -37,7 +37,7 @@ const ShipmentInfo = ({
         {updateShipmentRow ? (
           <>
             <Form.Item name="billingId" label="Billing Name">
-              <MySelect options={billingOptions} disabled />
+              <MySelect options={billingOptions} disabled labelInValue={true} />
             </Form.Item>
             <Form.Item name="billingAddress" label="Billing Address">
               <Input.TextArea rows={3} disabled />
