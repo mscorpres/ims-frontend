@@ -33,7 +33,7 @@ const ChallanDetails = ({ open, hide }) => {
   const [createAllocation, setCreateAllocation] = useState(false);
   const [generateId, setGenerateId] = useState("");
   const [ModalForm] = Form.useForm();
-
+  const [isloading, setisLaoding] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const { executeFun, loading } = useApi();
   const allocatingChallan = async (row) => {
@@ -56,7 +56,9 @@ const ChallanDetails = ({ open, hide }) => {
       toast.error(response.message);
     }
   };
+  // console.log("isloading", isloading);
   const callEInvoice = async () => {
+    setisLaoding(true);
     const response = await imsAxios.post(
       "/so_challan_shipment/generateEinvoice",
       {
@@ -91,9 +93,12 @@ const ChallanDetails = ({ open, hide }) => {
           </div>
         ),
       });
+      setisLaoding(false);
     } else {
       toast.error(response.message);
+      setisLaoding(false);
     }
+    setisLaoding(false);
   };
   const callEwayBill = async () => {
     const response = await imsAxios.post(
@@ -376,7 +381,7 @@ const ChallanDetails = ({ open, hide }) => {
             </Row>
           </Col>
           <MyDataTable
-            loading={loading("fetch")}
+            loading={loading("fetch") || isloading}
             columns={columns}
             data={rows}
           />
