@@ -1200,12 +1200,12 @@ const links = [
       routePath: routeConstants.researchAndDevelopment.bom.create,
     },
     {
-      routeName: "BOM List",
-      routePath: routeConstants.researchAndDevelopment.bom.list,
-    },
-    {
       routeName: "BOM Drafts",
       routePath: routeConstants.researchAndDevelopment.bom.drafts,
+    },
+    {
+      routeName: "BOM List",
+      routePath: routeConstants.researchAndDevelopment.bom.list,
     },
   ],
 ];

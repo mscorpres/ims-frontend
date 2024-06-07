@@ -14,23 +14,28 @@ import useApi from "@/hooks/useApi";
 import { BOMTypeExtended } from "@/types/r&d";
 import BOMApproval from "@/Pages/R&D/bom/list/approval";
 import Attachments from "@/Pages/R&D/bom/list/attachments";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
   const [selectedBOM, setSelectedBOM] = useState<BOMTypeExtended | null>(null);
   const [showComponents, setShowComponents] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
-  const [showLogs, setShowLogs] = useState(false);
 
-  const { pathname: pathName } = useParams();
-
+  const { pathname: pathName } = useLocation();
+  const navigate = useNavigate();
   console.log("this is the pathname", pathName);
 
   const { executeFun, loading } = useApi();
 
   const handleFetchBOMList = async () => {
-    const response = await executeFun(() => getBOMList(), "fetch");
+    let action: "draft" | "final";
+    if (pathName.includes("draft")) {
+      action = "draft";
+    } else {
+      action = "final";
+    }
+    const response = await executeFun(() => getBOMList(action), "fetch");
     setRows(response.data);
   };
 
@@ -58,6 +63,46 @@ const BOMList = () => {
             setSelectedBOM(row);
           }}
         />,
+        // <GridActionsCellItem
+        //   showInMenu
+        //   placeholder="See Logs"
+        //   label={"Logs"}
+        //   onClick={() => {
+        //     setShowLogs(true);
+        //     setSelectedBOM(row);
+        //   }}
+        // />,
+      ],
+    },
+  ];
+
+  // const handleContinue = () => {
+  //   navigate()
+  // }
+  const draftActionColumns = [
+    {
+      headerName: "",
+      type: "actions",
+      width: 30,
+      getActions: ({ row }: { row: BOMTypeExtended }) => [
+        <GridActionsCellItem
+          showInMenu
+          placeholder="Continue"
+          label={"Continue"}
+          onClick={() => {
+            setShowComponents(true);
+            setSelectedBOM(row);
+          }}
+        />,
+        // <GridActionsCellItem
+        //   showInMenu
+        //   placeholder="Attachments"
+        //   label={"Attachments"}
+        //   onClick={() => {
+        //     setShowAttachments(true);
+        //     setSelectedBOM(row);
+        //   }}
+        // />,
         // <GridActionsCellItem
         //   showInMenu
         //   placeholder="See Logs"

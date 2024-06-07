@@ -76,8 +76,14 @@ interface GetBOMListType {
   version: string;
   documents: [];
 }
-export const getBOMList = async () => {
-  const response: ResponseType = await imsAxios.get("/bom/fetch");
+export const getBOMList = async (action: "final" | "draft") => {
+  let url = "";
+  if (action === "draft") {
+    url = "/bom/fetchBom/draft";
+  } else {
+    url = "/bom/fetch";
+  }
+  const response: ResponseType = await imsAxios.get(url);
   let arr: BOMTypeExtended[] = [];
 
   if (response.success) {
