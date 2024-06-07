@@ -146,7 +146,7 @@ const CategoryForm = (props: PropTypes) => {
           valueArr?.join("")?.length > 4
             ? "Invalid Value"
             : valueArr?.join("")?.padStart(4, "0") ?? "__"
-        }${getValue(siUnit)}`;
+        }${valueLetter}${getValue(siUnit)}`;
 
         generatedName = `${getValue(packageSize)}-${getLabel(
           siUnitCapValue
