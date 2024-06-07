@@ -89,10 +89,10 @@ const BOMList = () => {
           showInMenu
           placeholder="Continue"
           label={"Continue"}
-          onClick={() => {
-            setShowComponents(true);
-            setSelectedBOM(row);
-          }}
+          // onClick={() => {
+          //   setShowComponents(true);
+          //   setSelectedBOM(row);
+          // }}
         />,
         // <GridActionsCellItem
         //   showInMenu
@@ -151,7 +151,12 @@ const BOMList = () => {
       /> */}
       <Col sm={20} lg={16} xxl={14}>
         <MyDataTable
-          columns={[...actionColumns, ...columns]}
+          columns={[
+            ...(pathName.includes("draft")
+              ? [...draftActionColumns]
+              : [...actionColumns]),
+            ...columns,
+          ]}
           data={rows}
           loading={loading("fetch")}
         />
