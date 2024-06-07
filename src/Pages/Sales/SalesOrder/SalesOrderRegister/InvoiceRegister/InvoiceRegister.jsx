@@ -29,6 +29,7 @@ import {
   fetchEInv,
   fetchEwayBill,
   getSalesOrders,
+  printEwayBill,
   printOrder,
   printOrderForChallan,
 } from "../../../../../api/sales/salesOrder.js";
@@ -274,7 +275,7 @@ function InvoiceRegister() {
   const handlePrintOrder = async (orderId) => {
     console.log("order", orderId);
     const response = await executeFun(
-      () => printOrderForChallan(orderId),
+      () => printEwayBill(orderId.eBillnum),
       "print"
     );
     let { data } = response;
@@ -301,7 +302,7 @@ function InvoiceRegister() {
         // disabled={loading}
         onClick={() => {
           // setOpen(true);
-          handlePrintOrder(row.challanId);
+          handlePrintOrder(row);
         }}
         label="Print"
       />,

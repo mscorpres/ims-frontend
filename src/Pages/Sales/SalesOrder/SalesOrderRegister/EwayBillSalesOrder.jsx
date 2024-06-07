@@ -28,7 +28,9 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { printEwayBill } from "../../../../api/sales/salesOrder";
 import useApi from "../../../../hooks/useApi";
-import printFunction from "../../../../Components/printFunction";
+import printFunction, {
+  downloadFunction,
+} from "../../../../Components/printFunction";
 
 const EwayBillSalesOrder = () => {
   const [loading, setLoading] = useState(false);
@@ -243,7 +245,7 @@ const EwayBillSalesOrder = () => {
     let { data } = response;
     if (response.success) {
       // console.log("response", data.buffer.data);
-      printFunction(data.buffer.data, data.buffer.filename);
+      downloadFunction(data.buffer.data, data.filename);
       setLoading(false);
     }
     setLoading(false);
