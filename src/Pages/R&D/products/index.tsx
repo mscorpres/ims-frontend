@@ -15,8 +15,11 @@ import useApi from "@/hooks/useApi";
 import { getUOMList } from "@/api/master/uom";
 import { createProduct, getProductsList } from "@/api/r&d/products";
 
-import { ModalType } from "@/types/general";
+import { ModalType, SelectOptionType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
+import { getCostCentresOptions, getProjectOptions } from "@/api/general";
+import { convertSelectOptions } from "@/utils/general";
+import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
@@ -27,6 +30,7 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
     null
   );
+  const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
@@ -38,6 +42,27 @@ export default function Products() {
   const handleFetchProductList = async () => {
     const response = await executeFun(() => getProductsList(), "fetch");
     setRows(response.data ?? []);
+  };
+
+  const handleCostCenterOptions = async (search: string) => {
+    const response = await executeFun(
+      () => getCostCentresOptions(search),
+      "select"
+    );
+    let arr: SelectOptionType[] = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
+    }
+    setAsyncOptions(arr);
+  };
+
+  const handleProjectOptions = async (search: string) => {
+    const response = await executeFun(
+      () => getProjectOptions(search),
+      "select"
+    );
+
+    setAsyncOptions(response.data ?? []);
   };
 
   const validateHandler = async () => {
@@ -153,6 +178,34 @@ export default function Products() {
                 </Form.Item>
               </Col>
               <Col span={24}>
+                <Form.Item
+                  style={{ flex: 1, minWidth: 100 }}
+                  name="costCenter"
+                  label="Cost Center"
+                >
+                  <MyAsyncSelect
+                    optionsState={asyncOptions}
+                    loadOptions={handleCostCenterOptions}
+                    selectLoading={loading("select")}
+                    onBlur={() => setAsyncOptions([])}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  style={{ flex: 1, minWidth: 100 }}
+                  name="project"
+                  label="Project"
+                >
+                  <MyAsyncSelect
+                    optionsState={asyncOptions}
+                    loadOptions={handleProjectOptions}
+                    selectLoading={loading("select")}
+                    onBlur={() => setAsyncOptions([])}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
                 <Form.Item name="description" label="Remarks">
                   <Input.TextArea rows={2} />
                 </Form.Item>
@@ -222,7 +275,7 @@ export default function Products() {
           </Form>
         </Card>
       </Col>
-      <Col span={18} xl={16} xxl={14}>
+      <Col span={20} xl={18} xxl={16}>
         <MyDataTable
           columns={[...actionColumns, ...columns]}
           data={rows}
@@ -300,10 +353,21 @@ const columns = [
     width: 80,
   },
   {
+    headerName: "Cost Center",
+    field: "costCenter",
+    width: 150,
+  },
+  {
+    headerName: "Project",
+    field: "project",
+    width: 150,
+  },
+  {
     headerName: "Approval Stage",
     field: "approvalStage",
     width: 120,
   },
+
   {
     headerName: "Created By",
     field: "createdBy",

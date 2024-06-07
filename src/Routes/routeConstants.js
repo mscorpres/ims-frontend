@@ -12,6 +12,7 @@ const routeConstants = {
     bom: {
       create: "/research-and-development/bom/create",
       list: "/research-and-development/bom/list",
+      drafts: "/research-and-development/bom/drafts",
     },
   },
   far: {

@@ -309,23 +309,35 @@ export default function UpdateComponent() {
       pia_status: isEnabled == true ? "Y" : "N",
     };
     // console.log("payload", payload);
+    console.log("category text", categoryData);
 
-    const response = await imsAxios.post(
-      "/component/updateComponent/verify",
-      payload
-    );
-    const { data } = response;
-    if (data.code === 200) {
+    if (categoryData.text === "--") {
+      const response = await imsAxios.post(
+        "/component/updateComponent/verify",
+        payload
+      );
+      const { data } = response;
+      if (data.code === 200) {
+        Modal.confirm({
+          title: "Are you sure you want to submit this Updated Component?",
+          content: `${data.message}`,
+          onOk() {
+            submitHandler(payload);
+          },
+          onCancel() {},
+        });
+      } else {
+        toast.error(data.message.msg);
+      }
+    } else {
       Modal.confirm({
         title: "Are you sure you want to submit this Updated Component?",
-        content: `${data.message}`,
+
         onOk() {
           submitHandler(payload);
         },
         onCancel() {},
       });
-    } else {
-      toast.error(data.message.msg);
     }
   };
   const validateHandler = async () => {
@@ -414,7 +426,7 @@ export default function UpdateComponent() {
         "/component/updateComponent/save",
         payload
       );
-
+      // categoryData?.text
       const { data } = response;
       if (data) {
         if (data.code === "200") {

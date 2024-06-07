@@ -17,11 +17,17 @@ import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
 import MySelect from "@/Components/MySelect.jsx";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
+
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
 import { ModalType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
-import { getComponentOptions, getVendorOptions } from "@/api/general";
+import {
+  getComponentOptions,
+  getCostCentresOptions,
+  getProjectOptions,
+  getVendorOptions,
+} from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import { createBOM, getExistingBom } from "@/api/r&d/bom";
 
@@ -75,10 +81,9 @@ const BOMCreate = () => {
       "component",
       "qty",
       "type",
-      "remarks",
       "substituteOf",
-      "vendor",
       "locations",
+      "type",
     ]);
     console.log("add values", values);
     const newComponent = {
@@ -147,13 +152,13 @@ const BOMCreate = () => {
     setAsyncOptions(arr);
   };
 
-  const validateHandler = async () => {
-    const values = await form.validateFields();
+  const validateHandler = async (action: "final" | "draft") => {
+    const values = await form.validateFields(["name", "version", "product"]);
 
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
-      () => createBOM({ ...values, components: combined }),
-      "submit"
+      () => createBOM({ ...values, components: combined }, action),
+      action
     );
 
     if (response.success) {
@@ -207,10 +212,13 @@ const BOMCreate = () => {
               title="Header Details"
               extra={<Typography.Text strong>V{version}</Typography.Text>}
             >
-              <Form.Item name="name" label="BOM Name">
+              <Form.Item name="name" label="BOM Name" rules={rules.name}>
                 <Input />
               </Form.Item>
-              <Form.Item name="product" label="Product">
+              <Form.Item name="version" label="Version" rules={rules.version}>
+                <Input />
+              </Form.Item>
+              <Form.Item name="product" label="Product" rules={rules.product}>
                 <MyAsyncSelect
                   loadOptions={handleFetchProductOptions}
                   selectLoading={loading("select")}
@@ -250,7 +258,11 @@ const BOMCreate = () => {
             </Card>
             {/* Component add card */}
             <Card size="small" title="Add Component">
-              <Form.Item name="component" label="Component">
+              <Form.Item
+                name="component"
+                label="Component"
+                rules={rules.component}
+              >
                 <MyAsyncSelect
                   loadOptions={handleFetchComponentOptions}
                   optionsState={asyncOptions}
@@ -264,6 +276,7 @@ const BOMCreate = () => {
                   style={{ flex: 1, minWidth: 100 }}
                   name="qty"
                   label="Qty"
+                  rules={rules.qty}
                 >
                   <InputNumber style={{ width: "100%" }} />
                 </Form.Item>
@@ -271,6 +284,7 @@ const BOMCreate = () => {
                   style={{ flex: 1, minWidth: 100 }}
                   name="type"
                   label="Type"
+                  rules={rules.type}
                 >
                   <MySelect options={typeOptions} />
                 </Form.Item>
@@ -309,7 +323,8 @@ const BOMCreate = () => {
               <Form.Item
                 style={{ flex: 1, minWidth: 100 }}
                 name="locations"
-                label="PCB Placement"
+                label="PCB Locations"
+                rules={rules.locations}
               >
                 <Input />
               </Form.Item>
@@ -334,8 +349,15 @@ const BOMCreate = () => {
                 <MyButton
                   variant="submit"
                   text="Create BOM"
-                  loading={loading("submit")}
-                  onClick={validateHandler}
+                  loading={loading("final")}
+                  onClick={() => validateHandler("final")}
+                />
+                <MyButton
+                  variant="save"
+                  type="default"
+                  text="Save As Draft"
+                  loading={loading("draft")}
+                  onClick={() => validateHandler("draft")}
                 />
               </Flex>
             </Card>
@@ -542,4 +564,49 @@ const LocationModal = (props: LocationProps) => {
       />
     </Modal>
   );
+};
+
+const rules = {
+  name: [
+    {
+      required: true,
+      message: "BOM Name is required",
+    },
+  ],
+  version: [
+    {
+      required: true,
+      message: "BOM Version is required",
+    },
+  ],
+  product: [
+    {
+      required: true,
+      message: "Product is required",
+    },
+  ],
+  component: [
+    {
+      required: true,
+      message: "Component is required",
+    },
+  ],
+  qty: [
+    {
+      required: true,
+      message: "Qty is required",
+    },
+  ],
+  type: [
+    {
+      required: true,
+      message: "Type is required",
+    },
+  ],
+  locations: [
+    {
+      required: true,
+      message: "PCB Locations is required",
+    },
+  ],
 };

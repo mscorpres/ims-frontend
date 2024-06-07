@@ -1400,6 +1400,10 @@ const Routes = [
     path: routeConstants.researchAndDevelopment.bom.list,
     main: () => <BOMList />,
   },
+  {
+    path: routeConstants.researchAndDevelopment.bom.drafts,
+    main: () => <BOMList />,
+  },
 
   ///login
   {

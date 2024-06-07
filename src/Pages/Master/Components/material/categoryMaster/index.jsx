@@ -3,9 +3,12 @@ import { imsAxios } from "../../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import {
   Col,
+  Collapse,
   Divider,
+  Flex,
   Form,
   Input,
+  InputNumber,
   Modal,
   Popover,
   Row,
@@ -13,17 +16,21 @@ import {
   Typography,
 } from "antd";
 import MyButton from "../../../../../Components/MyButton";
+import Loading from "../../../../../Components/Loading";
 
 const CategoryMaster = () => {
   const [loading, setLoading] = useState("fetch");
   const [fields, setFields] = useState([]);
+  const [fields1, setFields1] = useState([]);
   const [fieldSelectOptions, setFieldSelectOptions] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const getCategoryFields = async () => {
     try {
       setLoading("fetch");
+      setFields1([]);
       const response = await imsAxios.get("/mfgcategory/getAttributes");
+      setLoading(false);
       const { data } = response;
 
       if (data) {
@@ -34,8 +41,33 @@ const CategoryMaster = () => {
               label: row.text,
               name: row.id,
               type: row.inp_type,
+              isAddable: row.isAddable === "true",
+              regex: row.regex,
+              componentType: row.componentType,
             }));
           setFields(arr);
+          console.log("fields arr", arr);
+
+          const set = new Set();
+          arr.map((row) => {
+            set.add(row.componentType);
+          });
+
+          console.log("set is", set);
+          set.forEach((row) => {
+            const foundArr = arr.filter(
+              (fieldRow) => fieldRow.componentType === row
+            );
+            console.log("found arr", foundArr);
+            setFields1((curr) => [
+              ...curr,
+              {
+                label: row,
+                key: row,
+                fields: foundArr,
+              },
+            ]);
+          });
         } else {
           toast.error(data.message.msg);
         }
@@ -45,7 +77,7 @@ const CategoryMaster = () => {
       setLoading(false);
     }
   };
-
+  console.log("field select options", fieldSelectOptions);
   const getieldSelectOptions = async (fields) => {
     try {
       let optionsArr = [];
@@ -77,8 +109,8 @@ const CategoryMaster = () => {
   const getSingleFieldSelectOptions = async (attributeId) => {
     try {
       let optionsArr = [];
-      setLoading(attributeId);
-
+      setLoading("fetch");
+      setFieldSelectOptions([]);
       const response = await imsAxios.post("/mfgcategory/getAttributeValue", {
         attribute: attributeId,
       });
@@ -121,7 +153,8 @@ const CategoryMaster = () => {
     console.log("fieldSelectOptions", fieldSelectOptions);
   }, [fieldSelectOptions]);
   return (
-    <Row style={{ height: "90%", padding: 10 }}>
+    <Row style={{ height: "95%", padding: 10, paddingBottom: 50 }}>
+      {loading === "fetch" && <Loading />}
       <Col span={24}>
         <Row>
           <Col span={24}>
@@ -138,8 +171,8 @@ const CategoryMaster = () => {
         </Row>
       </Col>
       <Divider />
-      <Col span={24} style={{ height: "95%" }}>
-        <Row gutter={[6, 10]}>
+      <Col span={24} style={{ height: "100%", marginBottom: 100 }}>
+        {/* <Row gutter={[6, 10]}>
           {fields.map((field, index) => (
             <Col span={24} key={index}>
               <Row gutter={[6, 6]}>
@@ -193,23 +226,99 @@ const CategoryMaster = () => {
                         </Col>
                       ))}
                     <Col>
-                      {/* <MyButton
-                        onClick={() => setShowAddModal(field)}
-                        variant="add"
-                        type="link"
-                      /> */}
+                      {field.isAddable && (
+                        <MyButton
+                          onClick={() => setShowAddModal(field)}
+                          variant="add"
+                          type="link"
+                        />
+                      )}
                     </Col>
                   </Row>
                 </Col>
               </Row>
             </Col>
           ))}
-        </Row>
+        </Row> */}
+        <Collapse
+          items={fields1.map((row) => {
+            return {
+              ...row,
+              children: (
+                <Row gutter={[6, 10]}>
+                  {row.fields.map((field, index) => (
+                    <Col span={24} key={index}>
+                      <Row gutter={[6, 6]}>
+                        <Col span={1}>
+                          <Typography.Text strong type="secondary">
+                            {index + 1}.
+                          </Typography.Text>
+                        </Col>
+                        <Col span={4}>
+                          <Typography.Text
+                            strong
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {field.label.replaceAll("_", " ")}:
+                          </Typography.Text>
+                        </Col>
+                        <Col span={18}>
+                          <Row gutter={16}>
+                            {fieldSelectOptions
+                              .filter((opt) => opt.name === field.name)[0]
+                              ?.options.map((opt) => (
+                                <Popover
+                                  content={
+                                    <Row>
+                                      <Col span={24}>
+                                        <Typography.Text strong>
+                                          {opt.value}
+                                        </Typography.Text>
+                                      </Col>
+                                    </Row>
+                                  }
+                                >
+                                  <Col
+                                    style={{
+                                      background: "#cccccc",
+                                      padding: "5px 8px",
+                                      borderRadius: 3,
+                                      margin: "2px 3px",
+                                    }}
+                                  >
+                                    {opt.text}
+                                  </Col>
+                                </Popover>
+                              ))}
+
+                            <Col>
+                              {field.isAddable && (
+                                <MyButton
+                                  onClick={() => setShowAddModal(field)}
+                                  variant="add"
+                                  type="link"
+                                />
+                              )}
+                            </Col>
+                          </Row>
+                        </Col>
+                      </Row>
+                    </Col>
+                  ))}
+                </Row>
+              ),
+            };
+          })}
+          style={{ maxHeight: "90%", overflow: "auto" }}
+        />
       </Col>
       <AddOptionModal
+        fields1={fields1}
         getSingleFieldSelectOptions={getSingleFieldSelectOptions}
         show={showAddModal}
         hide={() => setShowAddModal(false)}
+        fieldSelectOptions={fieldSelectOptions}
+        getCategoryFields={getCategoryFields}
       />
     </Row>
   );
@@ -217,15 +326,44 @@ const CategoryMaster = () => {
 
 export default CategoryMaster;
 
-const AddOptionModal = ({ show, hide, getSingleFieldSelectOptions }) => {
+const AddOptionModal = ({
+  show,
+  hide,
+  getSingleFieldSelectOptions,
+  fields1,
+  fieldSelectOptions,
+  getCategoryFields,
+}) => {
   const [loading, setLoading] = useState(false);
 
   const validateHander = async () => {
     const values = await form.validateFields();
+
+    let newValue;
+
+    if (
+      show.name === "89768575" ||
+      show.name === "7876567" ||
+      show.name === "453940492"
+    ) {
+      const found = fieldSelectOptions.find((row) => row.name === show.name);
+      console.log("found", found);
+      const lastValue = found.options[found.options.length - 1];
+
+      newValue = +lastValue.value + 1;
+      if (show.name === "7876567") {
+        newValue = newValue.toString().padStart(2, "0");
+      }
+
+      console.log("new value", newValue);
+    } else if (show.name === "434092") {
+      newValue = values.input1 + "*" + values.input2;
+    }
+
     const payload = {
       attribute: show.name,
       value: values.label,
-      code: values.code,
+      code: newValue,
     };
 
     Modal.confirm({
@@ -251,6 +389,7 @@ const AddOptionModal = ({ show, hide, getSingleFieldSelectOptions }) => {
           hide();
           getSingleFieldSelectOptions(payload.attribute);
           form.resetFields();
+          getCategoryFields();
         }
       }
     } catch (error) {
@@ -265,6 +404,7 @@ const AddOptionModal = ({ show, hide, getSingleFieldSelectOptions }) => {
       form.resetFields();
     }
   }, [show]);
+  console.log("this is show", show);
   return (
     <Modal
       title="Add Option"
@@ -282,12 +422,44 @@ const AddOptionModal = ({ show, hide, getSingleFieldSelectOptions }) => {
           </Typography.Text>
         </Row>
         <Divider />
-        <Form.Item name="label" label="Label">
+        {show.name === "434092" && (
+          <Flex align="center" justify="center" gap={10}>
+            <Form.Item name="input1" label="Length">
+              <InputNumber />
+            </Form.Item>
+            *
+            <Form.Item name="input2" label="Width">
+              <InputNumber />
+            </Form.Item>
+          </Flex>
+        )}
+        {show.name !== "434092" && (
+          <>
+            {" "}
+            <Form.Item
+              name="label"
+              label="Label"
+              rules={
+                show.regex && [
+                  {
+                    required: true,
+                    // type: "regexp",
+                    pattern:
+                      /^([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[Ee]([+-]?\d+))?\*([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[Ee]([+-]?\d+))?$/,
+                    // pattern: new RegExp("/\\d+(\\.\\d+)?\\*\\d+(\\.\\d+)?/g"),
+                    message: "Wrong format!",
+                  },
+                ]
+              }
+            >
+              <Input />
+            </Form.Item>
+          </>
+        )}
+
+        {/* <Form.Item name="code" label="Code">
           <Input />
-        </Form.Item>
-        <Form.Item name="code" label="Code">
-          <Input />
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </Modal>
   );

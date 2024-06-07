@@ -6,6 +6,7 @@ interface CreateBOMType {
   name: string;
   sku: string;
   description: string;
+  version: string;
   components: {
     component: string;
     qty: string;
@@ -17,9 +18,13 @@ interface CreateBOMType {
     location?: string;
   }[];
 }
-export const createBOM = async (values: BOMType) => {
-  console.log("these are the values", values);
-
+export const createBOM = async (values: BOMType, action: "final" | "draft") => {
+  let url = "";
+  if (action === "draft") {
+    url = "/bom/saveAsDraft";
+  } else {
+    url = "/bom/tempProduct";
+  }
   const payload: CreateBOMType = {
     components: values.components.map((row) => ({
       component:
@@ -38,6 +43,7 @@ export const createBOM = async (values: BOMType) => {
           : row.vendor,
       location: row.locations,
     })),
+    version: values.version,
     description: values.description,
     name: values.name,
     sku: values.product.value ?? values.product,
@@ -56,7 +62,7 @@ export const createBOM = async (values: BOMType) => {
     formData.append("documents", row.originFileObj);
   });
 
-  const response = await imsAxios.post("/bom/tempProduct", formData);
+  const response = await imsAxios.post(url, formData);
   return response;
 };
 

@@ -13,6 +13,8 @@ interface GetProductListType {
   isActive: boolean;
   productKey: string;
   status: "0" | "1" | "2";
+  projectCode: SelectOptionType;
+  costCenter: SelectOptionType;
   createdAt: string;
   createdBy: string;
 }
@@ -32,6 +34,8 @@ export const getProductsList = async () => {
         id: index + 1,
         images: row.images,
         key: row.productKey,
+        costCenter: row.costCenter.text,
+        project: row.projectCode.text,
         createdBy: row.createdBy,
         createdDate: row.createdAt,
       })
@@ -49,6 +53,8 @@ export const createProduct = async (values: ProductType) => {
   formData.append("sku", values.sku);
   formData.append("unit", values.unit);
   formData.append("description", values.description);
+  formData.append("projectCode", values.project);
+  formData.append("costCenter", values.costCenter);
   values.images?.map((row) => {
     formData.append("images", row.originFileObj);
   });
