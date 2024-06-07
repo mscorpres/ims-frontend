@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   Col,
   Divider,
@@ -22,6 +23,12 @@ import SingleDatePicker from "../../../../Components/SingleDatePicker";
 import dayjs from "dayjs";
 import MyButton from "../../../../Components/MyButton";
 import Loading from "../../../../Components/Loading";
+import { DownCircleFilled } from "@ant-design/icons";
+import { MdOutlineFileDownload } from "react-icons/md";
+import { Link } from "react-router-dom";
+import { printEwayBill } from "../../../../api/sales/salesOrder";
+import useApi from "../../../../hooks/useApi";
+import printFunction from "../../../../Components/printFunction";
 
 const EwayBillSalesOrder = () => {
   const [loading, setLoading] = useState(false);
@@ -29,7 +36,7 @@ const EwayBillSalesOrder = () => {
   const [components, setComponents] = useState([]);
   const [transporterModeOptions, setTransporterModeOptions] = useState([]);
   const [successData, setSuccessData] = useState(null);
-
+  const [generatedBill, setGeneratedBill] = useState("");
   const params = useParams();
   const [form] = Form.useForm();
   const billtoState = Form.useWatch("billFromState", form);
@@ -37,6 +44,7 @@ const EwayBillSalesOrder = () => {
   const fromPincode = Form.useWatch("dispatchFromPincode", form);
   const toPincode = Form.useWatch("dispatchToPincode", form);
 
+  const { executeFun, loading1 } = useApi();
   const getEwayBillDetails = async () => {
     setLoading("fetch");
     const response = await imsAxios.post(
@@ -205,6 +213,7 @@ const EwayBillSalesOrder = () => {
       if (data) {
         if (data.code === 200) {
           toast.success(data.message);
+          setGeneratedBill(response.data.data.eway_bill_no);
           setSuccessData({ ewayBillNo: response.data.data.eway_bill_no });
         } else {
           toast.error(data.message);
@@ -227,6 +236,17 @@ const EwayBillSalesOrder = () => {
         form.setFieldValue("transporterName", data.tradeName);
       }
     } catch (error) {}
+  };
+  const printTheEway = async () => {
+    setLoading("print");
+    const response = await executeFun(() => printEwayBill(generatedBill));
+    let { data } = response;
+    if (response.success) {
+      // console.log("response", data.buffer.data);
+      printFunction(data.buffer.data, data.buffer.filename);
+      setLoading(false);
+    }
+    setLoading(false);
   };
 
   // ------------------------------//////////////---------------------------
@@ -580,20 +600,43 @@ const EwayBillSalesOrder = () => {
         </Row>
       )}
       {successData && (
-        <Result
-          status="success"
-          title="E-Way Bill Generation Successfull"
-          extra={[
-            <Row justify="center" gutter={16}>
-              <Col>
-                <Typography.Title level={4}>E-Way Bill No:</Typography.Title>
-                <Typography.Title copyable={true} level={5}>
-                  {successData?.ewayBillNo}
-                </Typography.Title>
-              </Col>
-            </Row>,
-          ]}
-        />
+        <div>
+          {/* {loading == "fetch" && <Loading size={"140rem"} />} */}
+
+          <Result
+            // loading={loading1 == "print"}
+            style={{ marginTop: "10rem" }}
+            status="success"
+            title="E-Way Bill Generation Successfull"
+            extra={[
+              <Row justify="center" gutter={16}>
+                <Col>
+                  <Typography.Title level={4}>E-Way Bill No:</Typography.Title>
+                  <Typography.Title copyable={true} level={5}>
+                    {successData?.ewayBillNo}
+                  </Typography.Title>
+                  <Row justify="space-between">
+                    <Link
+                      style={{ textDecoration: "none", color: "black" }}
+                      to={`/sales/order/challan`}
+                      // target="_blank"
+                    >
+                      <Button>Back</Button>
+                    </Link>
+                    <Button
+                      // type="link"
+                      style={{ marginLeft: 50 }}
+                      onClick={() => printTheEway()}
+                      loading={loading == "print"}
+                    >
+                      Download
+                    </Button>
+                  </Row>
+                </Col>
+              </Row>,
+            ]}
+          />
+        </div>
       )}
     </Form>
   );

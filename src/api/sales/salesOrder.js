@@ -152,6 +152,16 @@ export const printOrderForChallan = async (orderId) => {
   );
   return response;
 };
+export const printEwayBill = async (ewayBillNo) => {
+  const payload = {
+    ewayBillNo: ewayBillNo,
+  };
+  const response = await imsAxios.post(
+    "/so_challan_shipment/printEwayBill",
+    payload
+  );
+  return response;
+};
 
 export const createChallanFromSo = async (shipments, values, componentList) => {
   let payload = {
