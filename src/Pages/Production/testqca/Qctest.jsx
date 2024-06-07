@@ -340,6 +340,8 @@ const Qctest = () => {
     setGenerateLoading(false);
     if (response.success) {
       getscanneddata(processid);
+    } else {
+      toast.error(response.message);
     }
   };
   useEffect(() => {

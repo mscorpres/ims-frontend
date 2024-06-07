@@ -13,6 +13,8 @@ export interface ProductType {
   isActive: boolean;
   createdBy?: string,
   createdDate?: string
+  project: string,
+  costCenter: string,
 }
 
 export interface ApprovalType {
@@ -45,6 +47,7 @@ export interface BOMType {
   description: string;
   version?: string;
   documents: File[] | {fileName: string, url: string}[];
+
   components: {
     id?: string | number;
     component: SelectOptionType | string;

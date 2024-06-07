@@ -9,6 +9,7 @@ import {
   Flex,
   Form,
   Input,
+  InputNumber,
   Modal,
   Row,
   Space,
@@ -33,6 +34,7 @@ import {
   downloadComponentMaster,
   downloadElectronicReport,
 } from "../../../../api/master/component.ts";
+import CategoryForm from "./CategoryForm.tsx";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
@@ -56,9 +58,9 @@ const Material = () => {
   const [hsnForm] = Form.useForm();
   const [headerForm] = Form.useForm();
   const [attributeForm] = Form.useForm();
-  const selectedCategory = Form.useWatch("attrCategory", headerForm);
   const [components, setComponents] = useState([]);
 
+  const selectedCategory = Form.useWatch("attrCategory", headerForm);
   const getRows = async () => {
     setLoading("fetch");
     try {
@@ -427,6 +429,15 @@ const Material = () => {
       window.open(response.data, "_blank", "noreferrer");
     }
   };
+
+  const updateNameAndCode = (code, name) => {
+    if (code) {
+      setUniqueId(code);
+    }
+    if (name) {
+      setGeneratedCompName(name);
+    }
+  };
   useEffect(() => {
     getAttrCategoryOptions();
     getUomOptions();
@@ -466,6 +477,32 @@ const Material = () => {
       <AddPhoto
         updatingImage={uploadingImage}
         setUpdatingImage={setUploadingImage}
+      />
+      <MaterialUpdate
+        materialModal={materialModal}
+        setMaterialModal={setMaterialModal}
+        // allComponent={allComponent}
+      />
+      <UpdatedCategoryModal
+        show={showAttributesModal}
+        hide={() => setShowAttributesModal(false)}
+        uniqueCode={uniqueId}
+        setUniqueCode={setUniqueId}
+        updateNameAndCode={updateNameAndCode}
+        category={selectedCategory}
+        componentName={generatedCompName}
+        headerForm={headerForm}
+        // setAttributeValues={setAttributeValues}
+        // setGeneratedCompName={setGeneratedCompName}
+        // generatedCompName={generatedCompName}
+        // setValForName={setValForName}
+        // valFromName={valFromName}
+        // form={attributeForm}
+        // headerForm={headerForm}
+        // setManfCode={setManfCode}
+        // manfCode={manfCode}
+        // typeOfComp={typeOfComp}
+        // setTypeOfComp={setTypeOfComp}
       />
       <Row gutter={[6, 6]} style={{ height: "100%", padding: "10px" }}>
         <Col
@@ -510,9 +547,9 @@ const Material = () => {
                       >
                         <Input
                           disabled={
-                            typeIs?.label === "Resistor" ||
-                            typeIs?.label === "Capacitor" ||
-                            typeIs?.label === "Inductor"
+                            selectedCategory?.label === "Resistor" ||
+                            selectedCategory?.label === "Capacitor" ||
+                            selectedCategory?.label === "Inductor"
                           }
                           // value={generatedCompName}
                         />
@@ -556,11 +593,13 @@ const Material = () => {
                     </Col>
 
                     {uniqueId && (
-                      <Col span={14}>
-                        <Row justify="end">
-                          <Space>
-                            <Typography.Text strong type="secondary">
-                              Unique Id: {uniqueId}
+                      <Col span={14} style={{ paddingLeft: 10 }}>
+                        <Row justify="start">
+                          <Flex style={{ width: "100%" }} align="end">
+                            <Typography.Text strong style={{ width: "100%" }}>
+                              <span style={{ fontSize: 11 }}>Unique Id:</span>{" "}
+                              <br />
+                              {uniqueId}
                             </Typography.Text>
 
                             <TableActions
@@ -571,7 +610,7 @@ const Material = () => {
                                 })
                               }
                             />
-                          </Space>
+                          </Flex>
                         </Row>
                       </Col>
                     )}
@@ -759,28 +798,6 @@ const Material = () => {
           />
         </Col>
       </Row>
-      <MaterialUpdate
-        materialModal={materialModal}
-        setMaterialModal={setMaterialModal}
-        // allComponent={allComponent}
-      />
-      <CategoryModal
-        show={showAttributesModal}
-        hide={() => setShowAttributesModal(false)}
-        setAttributeValues={setAttributeValues}
-        uniqueId={uniqueId}
-        setUniqueId={setUniqueId}
-        setGeneratedCompName={setGeneratedCompName}
-        generatedCompName={generatedCompName}
-        setValForName={setValForName}
-        valFromName={valFromName}
-        form={attributeForm}
-        headerForm={headerForm}
-        setManfCode={setManfCode}
-        manfCode={manfCode}
-        typeOfComp={typeOfComp}
-        setTypeOfComp={setTypeOfComp}
-      />
     </div>
   );
 };
@@ -876,6 +893,7 @@ const CategoryModal = ({
             name: row.id,
             type: row.inp_type,
             hasValue: row.hasValue,
+            order: row.order,
           }));
           setFields(arr);
         } else {
@@ -892,6 +910,7 @@ const CategoryModal = ({
       let optionsArr = [];
       setLoading("fetch");
       setFieldSelectOptions([]);
+
       await fields.map(async (row) => {
         const response = await imsAxios.post("/mfgcategory/getAttributeValue", {
           attribute: row.name,
@@ -1123,6 +1142,9 @@ const CategoryModal = ({
   }
   function getLetterFromNumber(number) {
     const mapping = {
+      0.001: "Z",
+      0.01: "Y",
+      0.1: "X",
       1: "A",
       10: "B",
       100: "C",
@@ -1140,8 +1162,8 @@ const CategoryModal = ({
       ([key, value]) => parseInt(key) === +number
     );
     console.log("this is resut", +number);
-    // form.setFieldValue("multiplier", result[1]);
-    return result ? result[1] : "Number not found";
+    form.setFieldValue("65490895", number);
+    return mapping[+number] ? mapping[+number] : "Number not found";
   }
   function removeTrailingZerosUsingSwitch(numbers, letter) {
     let numberpowerOfTen;
@@ -1216,7 +1238,7 @@ const CategoryModal = ({
 
   const submitHandler = async (payload) => {
     try {
-      setUniqueId(uniqueId);
+      setUniqueId(uniqueCode);
 
       hide();
       if (stage === 0) {
@@ -1235,6 +1257,7 @@ const CategoryModal = ({
     }
     return a.type.localeCompare(b.type);
   });
+
   useEffect(() => {
     if (show) {
       setStage(0);
@@ -1257,64 +1280,132 @@ const CategoryModal = ({
   }, [fields]);
 
   useEffect(() => {
+    console.log("typeOfComp", typeOfComp);
     if (values) {
+      setAttributeValues(values);
       const mounting = values["12312"];
       const packageSize = values["434092"];
-      const value = values["353453454"];
+      const value =
+        typeOfComp?.value === "20231025864820945"
+          ? values["353453454"]
+          : typeOfComp?.value === "20231028142920945"
+          ? values["574954523value"]
+          : values["574954524value"];
       const multiplier = values["65490895"];
       const tolerance = values["89768575"];
       const powerRating = values["7876567"];
       const frequency = values["5749534324"];
+      const freequencyValue = values["5749534324value"];
+      const capacitorType = values["49431234739"];
+      const voltage = values["453940492"];
+      const voltageValue = values["453940492value"];
+      const siUnit = values["574954523"];
+      const currentSiUnitInd = values["5749532987"];
+      const currentSiUnitIndValue = values["5749532987value"]; //this one
+      const dcResistance = values["98789537458"];
+      const dcResistanceValue = values["98789537458value"];
+      const siUnitInd = values["574954524"];
+      const siUnitIndValue = values["574954524value"]; //this one
+      const siUnitCap = values["574954523"];
+      const siUnitCapValue = values["574954523value"];
+      let zeroes = [1];
+      const valueArr = value
+        ?.toString()
+        .replaceAll(".", "")
+        .split(".")[0]
+        .split("");
+      for (let i = valueArr?.length - 1; i >= 0; i--) {
+        const current = valueArr[i];
 
-      let updatedValue = "";
-      let broken = "";
-      if (value) {
-        if (value.includes(".")) {
-          let after = value?.toString().split(".")[1];
-
-          if (after) {
-            broken = after.split("");
-            broken = broken.map((row, index) => {
-              if (index === broken.length - 1) {
-                return 1;
-              } else {
-                return 0;
-              }
-            });
-            broken = "0." + broken.join("");
-            console.log("this is broken", broken);
-          }
+        if (current === "0") {
+          zeroes.push(0);
+          valueArr.pop();
         } else {
-          broken = value.split("");
-
-          broken = broken.map((row, index) => {
-            if (index === 0) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          broken = broken.join("");
-          console.log("this is broken", broken);
+          break;
         }
       }
-      let multipler = "";
+      const broken = convertValue(value?.toString());
+      let valueLetter = "";
       if (broken.length > 0) {
-        multipler = getLetterFromNumber(broken);
+        if (!value?.toString().includes(".")) {
+          valueLetter = getLetterFromNumber(zeroes?.join(""));
+        } else {
+          valueLetter = getLetterFromNumber(convertValue(value?.toString()));
+        }
+        console.log("this is broken", broken);
       }
-      const code = `RES${getValue(mounting)}(${getValue(
-        packageSize
-      )})${getValue(tolerance)}${getValue(powerRating)}${multipler}`;
+      console.log("valueArr", valueArr);
+
+      let code = "";
+      if (typeOfComp?.value === "20231025864820945") {
+        //resistor
+        code = `RES${getValue(mounting)}(${getValue(packageSize)})${getValue(
+          tolerance
+        )}${getValue(powerRating)}${
+          valueArr?.join("")?.length > 4
+            ? "Invalid Value"
+            : valueArr?.join("")?.padStart(4, "0") ?? "__"
+        }${valueLetter}`;
+
+        setGeneratedCompName(
+          `${getValue(packageSize)}-${
+            getComponentValueForName(+value) ?? "__"
+          }-${getLabel(tolerance)}-${getLabel(powerRating)}W-${
+            getLabel(mounting) === "Thru Hole" ? "MI" : getLabel(mounting)
+          }-Resistor`
+        );
+      } else if (typeOfComp?.value === "20231028142920945") {
+        //capacitor
+        code = `CAP${getValue(mounting)}${getValue(capacitorType)}(${getValue(
+          packageSize
+        )})${getValue(tolerance)}${getValue(voltage)}${
+          valueArr?.join("")?.length > 4
+            ? "Invalid Value"
+            : valueArr?.join("")?.padStart(4, "0") ?? "__"
+        }${getValue(siUnit)}`;
+
+        setGeneratedCompName(
+          `${getValue(packageSize)}-${getLabel(siUnitCapValue)}${getLabel(
+            siUnitCap
+          )}-${getLabel(tolerance)}-${getLabel(voltage)}V-${
+            getLabel(mounting) === "Thru Hole" ? "MI" : getLabel(mounting)
+          }-${getLabel(capacitorType)}`
+        );
+      } else if (typeOfComp?.value === "348423983543") {
+        //inductor
+        code = `(${getValue(packageSize)})-${getValue(
+          siUnitIndValue
+        )}${getLabel(siUnitInd)}-${getValue(freequencyValue)}${getLabel(
+          frequency
+        )}-${getValue(currentSiUnitIndValue)}${getLabel(
+          currentSiUnitInd
+        )}-${getValue(dcResistanceValue)}${getLabel(dcResistance)}-${getLabel(
+          tolerance
+        )}-${
+          getLabel(mounting) === "Thru Hole" ? "MI" : getLabel(mounting)
+        }-Inductor`;
+        setGeneratedCompName(code);
+      }
       setUniqueCode(code);
     }
   }, [values]);
 
   const getValue = (value) => {
     if (value === undefined) {
-      return "--";
+      return "__";
     } else if (value?.value) {
       return value.value;
-    } else if (typeof value === string) {
+    } else if (typeof value === "string") {
+      return value;
+    }
+  };
+
+  const getLabel = (value) => {
+    if (value === undefined) {
+      return "__";
+    } else if (value?.label) {
+      return value.label;
+    } else if (typeof value === "string") {
       return value;
     }
   };
@@ -1336,210 +1427,219 @@ const CategoryModal = ({
           : () => setStage(0)
       }
     >
-      <Row>
-        {" "}
-        {/* <Divider /> */}
-        <Col span={24}>
-          <Flex justify="center" gap={5}>
-            <Typography.Text underline strong>
-              Selected Category: {selectedCategory?.label}
-            </Typography.Text>
-
-            {/* <Typography.Text>{show?.selectedCategory?.label} </Typography.Text> */}
-          </Flex>
-        </Col>
-        <Divider />
-        <Col span={24} style={{ marginTop: 10 }}>
-          <Row>
-            <Col span={14}>
-              {/* <Flex justify="center"> */}
-              <Typography.Text underline style={{ fontSize: 12 }}>
-                {" "}
-                Unique Id updated: {uniqueCode}
-              </Typography.Text>
-              <br></br>
-              <Typography.Text underline style={{ fontSize: 12 }}>
-                {" "}
-                Unique Id: {uniqueId}
-              </Typography.Text>
-            </Col>
-            <Col span={10}>
-              {/* <Flex justify="center"> */}
-              {/* <Typography.Text strong>Manufacturing Code: {uniqueId}</Typography.Text> */}
-              <Input
-                placeholder="Manufacturing Code"
-                onChange={(e) => setManfCode(e.target.value)}
-              />
-            </Col>
-          </Row>
-        </Col>
-        {/* <Divider /> */}
-        <Col span={24} style={{ marginTop: 10 }}>
-          <Typography.Text underline style={{ fontSize: 12 }}>
-            Component Name: {generatedCompName}
-          </Typography.Text>
-        </Col>
-        <Divider />
-      </Row>
-      {loading === "fetch" && <Loading />}
-      {stage === 0 && (
-        <Form form={form} layout="vertical" style={{ marginTop: 10 }}>
-          <Flex gap={10} wrap="wrap" justify="center">
-            {/* {sortedFields.map((row) => (
-              <Col span={8}>
-                <Flex>
-                  {row.hasValue === "true" && (
-                    <Form.Item
-                      style={{ textTransform: "capitalize", flex: 1 }}
-                      name={row.label + "Text"}
-                      label={
-                        row.label === "frequency"
-                          ? "Freq. Value"
-                          : "SI Unit Value"
-                      }
-                    >
-                      <Input />
-                    </Form.Item>
-                  )}
-                  <Form.Item
-                    style={{ textTransform: "capitalize", flex: 1.5 }}
-                    name={row.label}
-                    label={row.label.replaceAll("_", " ")}
-                  >
-                    {row.type === "select" && (
-                      <MySelect
-                        style={{ textTransform: "none" }}
-                        labelInValue
-                        // disabled={row.label === "multiplier"}
-                        options={
-                          fieldSelectOptions.find(
-                            (field) => field.name === row.name
-                          )?.options || []
-                        }
-                      />
-                    )}
-                    {row.type === "text" && <Input />}
-                  </Form.Item>
-                </Flex>
-              </Col>
-            ))} */}
-            {fields.map((row) => (
-              <div style={{ width: 200 }} span={8}>
-                <Flex>
-                  {row.hasValue === "true" && (
-                    <Form.Item
-                      style={{ textTransform: "capitalize", flex: 1 }}
-                      name={row.label + "Text"}
-                      label={
-                        row.label === "frequency"
-                          ? "Freq. Value"
-                          : "SI Unit Value"
-                      }
-                    >
-                      <Input />
-                    </Form.Item>
-                  )}
-                  <Form.Item
-                    style={{ textTransform: "capitalize", flex: 1.5 }}
-                    name={row.name}
-                    label={row.label.replaceAll("_", " ")}
-                  >
-                    {row.type === "select" && (
-                      <MySelect
-                        style={{ textTransform: "none" }}
-                        labelInValue
-                        // disabled={row.label === "multiplier"}
-                        options={
-                          fieldSelectOptions.find(
-                            (field) => field.name === row.name
-                          )?.options || []
-                        }
-                      />
-                    )}
-                    {row.type === "text" && <Input />}
-                  </Form.Item>
-                </Flex>
+      <Row gutter={8}>
+        <Col span={12}>
+          <Card
+            size="small"
+            style={{ height: "100%" }}
+            bodyStyle={{ height: "98%" }}
+          >
+            <Flex vertical gap={20}>
+              <div>
+                <Typography.Text strong>
+                  Selected Category: {selectedCategory?.label}
+                </Typography.Text>
               </div>
-            ))}
-          </Flex>
-        </Form>
-      )}
-
-      {stage === 1 && (
-        <Row>
-          <Col span={24}>
-            <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-              <Typography.Text strong>Unique ID: </Typography.Text>
-              <Typography.Text>{uniqueId} </Typography.Text>
+              <Divider style={{ margin: "-5px 0px" }} />
+              <div>
+                <Typography.Text strong>
+                  Unique Id: <br />
+                  <span style={{ color: "#04b0a8" }}>{uniqueCode}</span>
+                </Typography.Text>
+              </div>
+              <div>
+                <Divider style={{ margin: "-5px 0px" }} />
+                <Typography.Text strong>
+                  Component Name: <br />
+                  <span style={{ color: "#04b0a8" }}>{generatedCompName}</span>
+                </Typography.Text>
+              </div>
+              <Divider style={{ margin: "-5px 0px" }} />
+              <div>
+                <Input
+                  placeholder="Manufacturing Code"
+                  onChange={(e) => setManfCode(e.target.value)}
+                />
+              </div>
             </Flex>
-            {existingComponents.length > 0 && (
-              <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                <Typography.Text
-                  style={{ textAlign: "center" }}
-                  strong
-                  type="secondary"
-                >
-                  There are <strong>{existingComponents.length}</strong>{" "}
-                  components which are already assigned with the same unique ID{" "}
-                </Typography.Text>
-              </Flex>
-            )}
-            {existingComponents.length > 0 && (
-              <Row gutter={[6, 6]}>
-                <Col span={1}>
-                  <Typography.Text strong>#</Typography.Text>
-                </Col>
-                <Col span={18}>
-                  <Typography.Text strong>Component Name</Typography.Text>
-                </Col>
-                <Col span={5}>
-                  <Typography.Text strong>Part Code</Typography.Text>
-                </Col>
-                <Col span={24}>
-                  <Row>
-                    <Col
-                      span={24}
-                      style={{ maxHeight: 150, overflowY: "auto" }}
-                    >
-                      {existingComponents.map((row, index) => (
-                        <Col span={24}>
-                          <Row>
-                            <Col span={1}>{index + 1}.</Col>
-                            <Col span={18}>{row.name}</Col>
-                            <Col span={5}>{row.partCode}</Col>
-                          </Row>
-                        </Col>
-                      ))}
-                    </Col>
-                  </Row>
-                </Col>
-                <Divider />
+          </Card>
+        </Col>
+        <Col span={12}>
+          {loading === "fetch" && <Loading />}
+          {stage === 0 && (
+            <Card size="small">
+              <Form form={form} layout="vertical">
+                <Row gutter={10}>
+                  {fields
+                    .sort((a, b) => a.order - b.order)
+                    .filter((row) => row.order !== 0)
+                    .map((row) => (
+                      <Col span={24}>
+                        <Flex>
+                          <div></div>
+                          {row.hasValue !== "" && (
+                            <Form.Item
+                              style={{ textTransform: "capitalize", flex: 1 }}
+                              name={`${row.name}value`}
+                              label={row.hasValue + " Value"}
+                            >
+                              <Input />
+                            </Form.Item>
+                          )}
+                          <Form.Item
+                            style={{ textTransform: "capitalize", flex: 1.5 }}
+                            name={row.name}
+                            label={row.label.replaceAll("_", " ")}
+                          >
+                            {row.type === "select" && (
+                              <MySelect
+                                style={{ textTransform: "none" }}
+                                labelInValue
+                                // disabled={row.label === "multiplier"}
+                                options={
+                                  fieldSelectOptions.find(
+                                    (field) => field.name === row.name
+                                  )?.options || []
+                                }
+                              />
+                            )}
+                            {row.type === "text" &&
+                              row.name !== "353453454" && <Input />}
+                            {row.name === "353453454" && (
+                              <InputNumber
+                                // maxLength={5}
+                                style={{ width: "100%" }}
+                              />
+                            )}
+                          </Form.Item>
+                        </Flex>
+                      </Col>
+                    ))}
+                </Row>
+              </Form>
+            </Card>
+          )}
 
+          {stage === 1 && (
+            <Row>
+              <Col span={24}>
                 <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                  <Typography.Text
-                    style={{ textAlign: "center" }}
-                    strong
-                    type="secondary"
-                  >
-                    Are you sure you want to create this component?
-                  </Typography.Text>
+                  <Typography.Text strong>Unique ID: </Typography.Text>
+                  <Typography.Text>{uniqueId} </Typography.Text>
                 </Flex>
-              </Row>
-            )}
-            {existingComponents.length === 0 && (
-              <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                <Typography.Text
-                  style={{ textAlign: "center" }}
-                  strong
-                  type="secondary"
-                >
-                  No Component found with this unique ID
-                </Typography.Text>
-              </Flex>
-            )}
-          </Col>
-        </Row>
-      )}
+                {existingComponents.length > 0 && (
+                  <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
+                    <Typography.Text
+                      style={{ textAlign: "center" }}
+                      strong
+                      type="secondary"
+                    >
+                      There are <strong>{existingComponents.length}</strong>{" "}
+                      components which are already assigned with the same unique
+                      ID{" "}
+                    </Typography.Text>
+                  </Flex>
+                )}
+                {existingComponents.length > 0 && (
+                  <Row gutter={[6, 6]}>
+                    <Col span={1}>
+                      <Typography.Text strong>#</Typography.Text>
+                    </Col>
+                    <Col span={18}>
+                      <Typography.Text strong>Component Name</Typography.Text>
+                    </Col>
+                    <Col span={5}>
+                      <Typography.Text strong>Part Code</Typography.Text>
+                    </Col>
+                    <Col span={24}>
+                      <Row>
+                        <Col
+                          span={24}
+                          style={{ maxHeight: 150, overflowY: "auto" }}
+                        >
+                          {existingComponents.map((row, index) => (
+                            <Col span={24}>
+                              <Row>
+                                <Col span={1}>{index + 1}.</Col>
+                                <Col span={18}>{row.name}</Col>
+                                <Col span={5}>{row.partCode}</Col>
+                              </Row>
+                            </Col>
+                          ))}
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Divider />
+
+                    <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
+                      <Typography.Text
+                        style={{ textAlign: "center" }}
+                        strong
+                        type="secondary"
+                      >
+                        Are you sure you want to create this component?
+                      </Typography.Text>
+                    </Flex>
+                  </Row>
+                )}
+                {existingComponents.length === 0 && (
+                  <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
+                    <Typography.Text
+                      style={{ textAlign: "center" }}
+                      strong
+                      type="secondary"
+                    >
+                      No Component found with this unique ID
+                    </Typography.Text>
+                  </Flex>
+                )}
+              </Col>
+            </Row>
+          )}
+        </Col>
+      </Row>
+    </Modal>
+  );
+};
+
+const UpdatedCategoryModal = ({
+  show,
+  hide,
+  uniqueCode,
+  setUniqueCode,
+  category,
+  componentName,
+  updateNameAndCode,
+  headerForm,
+}) => {
+  const [form] = Form.useForm();
+
+  const handleHide = async () => {
+    form
+      .validateFields()
+      .then(() => {})
+      .catch((error) => {
+        headerForm.setFieldValue("attrCategory", undefined);
+        headerForm.setFieldValue("componentname", undefined);
+      });
+
+    hide();
+  };
+  return (
+    <Modal
+      width={800}
+      open={show}
+      onCancel={handleHide}
+      title="Assign Attributed"
+    >
+      <CategoryForm
+        uniqueCode={uniqueCode}
+        setUniqueCode={setUniqueCode}
+        category={category}
+        componentName={componentName}
+        updateNameAndCode={updateNameAndCode}
+        form={form}
+      />
     </Modal>
   );
 };

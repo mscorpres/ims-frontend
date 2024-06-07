@@ -144,7 +144,6 @@ const AlternatePartCode = ({ open, hide }) => {
     }
   }, [open]);
 
-  console.log("this is the component key", open);
   return (
     <Drawer
       width={600}

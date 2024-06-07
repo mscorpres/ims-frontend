@@ -79,3 +79,53 @@ export const downloadElectronicReport = async () => {
 
   return response;
 };
+
+interface GetCategoryFieldsType {
+  text: string;
+  id: string;
+  inp_type: "text" | "select";
+  hasValue: string;
+  order: number;
+}
+export const getCategoryFields = async (category: string) => {
+  const response: ResponseType = await imsAxios.post(
+    "/mfgcategory/getAttributeListByCategory",
+    {
+      category,
+    }
+  );
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row: GetCategoryFieldsType) => ({
+      name: row.id,
+      label: row.text,
+      type: row.inp_type,
+      valueLabel: row.hasValue,
+      order: row.order,
+    }));
+  }
+
+  response.data = arr;
+  return response;
+};
+
+export const getCategoryOptions = async (name: string) => {
+  const response: ResponseType = await imsAxios.post(
+    "/mfgcategory/getAttributeValue",
+    {
+      attribute: name,
+    }
+  );
+
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row) => ({
+      text: row.attr_value,
+      value: row.code,
+      name: name,
+    }));
+  }
+
+  response.data = arr;
+  return response;
+};

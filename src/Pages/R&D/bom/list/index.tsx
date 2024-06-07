@@ -14,6 +14,7 @@ import useApi from "@/hooks/useApi";
 import { BOMTypeExtended } from "@/types/r&d";
 import BOMApproval from "@/Pages/R&D/bom/list/approval";
 import Attachments from "@/Pages/R&D/bom/list/attachments";
+import { useParams } from "react-router-dom";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
@@ -21,6 +22,10 @@ const BOMList = () => {
   const [showComponents, setShowComponents] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
+
+  const { pathname: pathName } = useParams();
+
+  console.log("this is the pathname", pathName);
 
   const { executeFun, loading } = useApi();
 
