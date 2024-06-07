@@ -273,11 +273,20 @@ function InvoiceRegister() {
   //   setShipmentList(arr);
   // };
   const handlePrintOrder = async (orderId) => {
+    let response;
+    if (type == "eway") {
+      response = await executeFun(
+        () => printEwayBill(orderId.eBillnum),
+        "print"
+      );
+    } else {
+      response = await executeFun(
+        () => printOrderForChallan(orderId.challanId),
+        "print"
+      );
+    }
     console.log("order", orderId);
-    const response = await executeFun(
-      () => printEwayBill(orderId.eBillnum),
-      "print"
-    );
+
     let { data } = response;
     if (response.success) {
       // console.log("response", data.buffer.data);
@@ -388,6 +397,8 @@ function InvoiceRegister() {
         confirmLoading={loading("cancel")}
         onCancel={() => setCancelRowSelected(false)}
         onOk={() => validate()}
+        okText="Yes"
+        cancelText="No"
       >
         {/* <>
           <Form
