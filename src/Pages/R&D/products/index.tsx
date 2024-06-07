@@ -157,7 +157,11 @@ export default function Products() {
               <Col span={24}>
                 <Row gutter={4}>
                   <Col span={12}>
-                    <Form.Item name="sku" label="Product SKU" rules={rules.sku}>
+                    <Form.Item
+                      name="sku"
+                      label="Product Code"
+                      rules={rules.sku}
+                    >
                       <Input />
                     </Form.Item>
                   </Col>
