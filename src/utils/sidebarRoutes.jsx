@@ -31,6 +31,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import routeConstants from "../Routes/routeConstants";
+import { FaFileInvoiceDollar } from "react-icons/fa6";
 export const items = (user) => [
   getItem(
     "Favorites",
@@ -704,9 +705,23 @@ export const items = (user) => [
   ]),
   getItem(<Link to="/sop">SOP's</Link>, "/sop", <FormOutlined />),
   getItem(
-    <Link to="/invoice/create">Sales & Distribution</Link>,
-    "/invoice/create",
-    <UnorderedListOutlined />
+    "Sales & Distribution",
+    "H",
+
+    <UnorderedListOutlined />,
+    [
+      getItem("Sales Order", "G1", <TbReportAnalytics />, [
+        getItem(
+          <Link to="/sales/order/create">Create order</Link>,
+          "H52"
+          // <AiOutlineMinus />
+        ),
+        getItem(<Link to="/sales/order/register">Register</Link>, "H51"),
+      ]),
+      getItem("Invoice", "H2", <FaFileInvoiceDollar />, [
+        getItem(<Link to="/invoice/create">Create</Link>, "H21"),
+      ]),
+    ]
   ),
   getItem(
     "Research and Development",

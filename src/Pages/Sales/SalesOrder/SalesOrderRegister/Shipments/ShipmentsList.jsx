@@ -50,6 +50,12 @@ const rules = {
       message: "This field is required",
     },
   ],
+  nos_of_boxes: [
+    {
+      required: true,
+      message: "Number of Boxes is required",
+    },
+  ],
 };
 
 function ShipmentsList() {
@@ -113,6 +119,14 @@ function ShipmentsList() {
       icon: <ExclamationCircleOutlined />,
       content: (
         <Form form={ModalForm} layout="vertical">
+          {" "}
+          <Form.Item
+            name="nos_of_boxes"
+            label="No of Boxes"
+            rules={rules.nos_of_boxes}
+          >
+            <Input />
+          </Form.Item>
           <Form.Item name="remark" label="Remark">
             <Input.TextArea rows={3} placeholder="Please input the remark" />
           </Form.Item>
@@ -169,7 +183,7 @@ function ShipmentsList() {
     }
   };
   const createShipmentChallan = async (singleRow) => {
-    ModalForm.resetFields();
+    // ModalForm.resetFields();
     let mins = [];
     if (singleRow) {
       mins = [singleRow].map((row) => rows.filter((r) => r.id === row.id)[0]);
@@ -177,10 +191,9 @@ function ShipmentsList() {
       mins = selectedRows.map((row) => rows.filter((r) => r.id === row)[0]);
     }
     const values = await ModalForm.validateFields();
-    let remark = values.remark;
 
     const response = await executeFun(
-      () => createChallanFromSo(mins, remark),
+      () => createChallanFromSo(mins, values),
       "select"
     );
 
@@ -189,6 +202,7 @@ function ShipmentsList() {
       ModalForm.setFieldValue("remark", "");
       getRows();
     }
+    ModalForm.resetFields();
   };
 
   const handleExcelDownload = () => {

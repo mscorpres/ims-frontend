@@ -8,6 +8,22 @@ export const getSalesOrders = async (wise, data) => {
 
   return response;
 };
+export const fetchEwayBill = async (wise, data) => {
+  const response = await imsAxios.post("/so_challan_shipment/getEwayBillList", {
+    wise,
+    data,
+  });
+
+  return response;
+};
+export const fetchEInv = async (wise, data) => {
+  const response = await imsAxios.post("/so_challan_shipment/getEinvoiceList", {
+    wise,
+    data,
+  });
+
+  return response;
+};
 
 export const getOrderDetails = async (orderId) => {
   const response = await imsAxios.post("/sellRequest/fetchData4Update", {
@@ -31,6 +47,20 @@ export const updateOrder = async (payload) => {
 };
 export const cancelTheSelectedSo = async (payload) => {
   const response = await imsAxios.post("/sellRequest/CancelSO", payload);
+  return response;
+};
+export const canceleInv = async (payload) => {
+  const response = await imsAxios.post(
+    "/so_challan_shipment/cancel_einvoice",
+    payload
+  );
+  return response;
+};
+export const canceleway = async (payload) => {
+  const response = await imsAxios.post(
+    "/so_challan_shipment/cancelEwayBill",
+    payload
+  );
   return response;
 };
 export const listOfShipment = async (searchTerm, wise) => {
@@ -123,8 +153,7 @@ export const printOrderForChallan = async (orderId) => {
   return response;
 };
 
-export const createChallanFromSo = async (shipments, remark) => {
-  console.log("shipments", shipments);
+export const createChallanFromSo = async (shipments, values, componentList) => {
   let payload = {
     shipment_id: shipments.map((r) => r.shipmentId),
     so_id: shipments.map((r) => r.soId),
@@ -132,7 +161,26 @@ export const createChallanFromSo = async (shipments, remark) => {
     client_addr_id: shipments[0].clientAddressId,
     bill_id: shipments[0].billing_id,
     ship_id: shipments[0].shippingId,
-    remark: remark,
+    remark: values.remark,
+    nos_of_boxes: values.nos_of_boxes,
+  };
+  const response = await imsAxios.post(
+    "/so_challan_shipment/createDeliveryChallan",
+    payload
+  );
+  return response;
+};
+export const createInvoiceFromSo = async (shipments, values, rows) => {
+  console.log("rows", rows);
+  let payload = {
+    shipment_id: shipments.map((r) => r.shipmentId),
+    so_id: shipments.map((r) => r.soId),
+    client_id: shipments[0].clientCode,
+    client_addr_id: shipments[0].clientAddressId,
+    bill_id: shipments[0].billing_id,
+    ship_id: shipments[0].shippingId,
+    remark: values.remark,
+    nos_of_boxes: values.nos_of_boxes,
   };
   const response = await imsAxios.post(
     "/so_challan_shipment/createDeliveryChallan",
@@ -161,7 +209,7 @@ export const createShipment = async (values, open, details) => {
   // return;
   const payload = {
     header: {
-      bill_id: values.billingId,
+      bill_id: values.billingId.value,
       bill_addr: values.billingAddress,
       so_id: open,
       ship_id: values.shippingId,
@@ -240,6 +288,7 @@ export const getChallanDetails = async (challanId) => {
     arr = response.data.map((row, index) => ({
       id: index + 1,
       orderId: row.so_id,
+      invoiceNo: row.invoiceNo,
       shipmentId: row.shipment_id,
       partCode: row.item_part_no,
       component: row.item_name,

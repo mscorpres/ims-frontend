@@ -1065,6 +1065,11 @@ const links = [
       routeName: "Create Sales Order",
       routePath: "/sales/order/create",
     },
+    // {
+    //   routeName: "Sales Register",
+    //   routePath: "/sales/order/salesregister",
+    // },
+    ///ims
     {
       routeName: "Sales Order Register",
       routePath: "/sales/order/register",
@@ -1080,6 +1085,10 @@ const links = [
     {
       routeName: "Allocated Invoices",
       routePath: "/sales/order/allocated",
+    },
+    {
+      routeName: "E Transaction Register ",
+      routePath: "/sales/order/registered",
     },
   ],
   // mes links

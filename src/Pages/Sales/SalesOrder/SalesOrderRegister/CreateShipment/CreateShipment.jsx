@@ -70,6 +70,7 @@ function CreateShipment({
   const navigate = useNavigate();
 
   const billingId = Form.useWatch("billingId", shipmentForm);
+  // console.log("billingId", billingId);
   var chunk;
   var result;
   let params = useParams();
@@ -78,6 +79,7 @@ function CreateShipment({
   const calculation = (id, row) => {
     const exchangeRate = row.exchangeRate ?? 1;
     const oldbillqty = row.oldbillqty;
+    const gstTypeLabel = row.gstTypeLabel;
     const rate = row.rate;
     const inrValue =
       +Number(oldbillqty) * +Number(rate) * +Number(exchangeRate).toFixed(2);
@@ -86,7 +88,7 @@ function CreateShipment({
     let cgst;
     let sgst;
     let igst;
-    if (row.gstTypeLabel == "LOCAL") {
+    if (gstTypeLabel == "LOCAL") {
       cgst = (inrValue * row.gstRate) / 100;
       sgst = (inrValue * row.gstRate) / 100;
       igst = 0;
@@ -125,6 +127,16 @@ function CreateShipment({
     values.products = newArr.flat();
     if (editId) {
     }
+    // if (isAnother) {
+    //   let createdEntry = shipmentForm.getFieldValue("components");
+    //   paginate[current - 1] = createdEntry;
+    //   setNewArr(paginate);
+    //   const creatingComp = Array.prototype.concat(...newArr);
+    //   console.log("creatingComp ->", creatingComp);
+    //   values.products = creatingComp;
+    //   // shipmentForm.setFieldValue("products", creatingComp);
+    // }
+    // return;
     // let response;
     if (updateShipmentRow || editId) {
       let response = await executeFun(
@@ -158,6 +170,7 @@ function CreateShipment({
     console.log("response", response);
     if (response.success) {
       const { client, bill, materials, ship } = response.data;
+      // console.log("bill", bill);
       const detailsObj = {
         clientName: client[0].clientname,
         clientCode: client[0].clientcode.value,
@@ -181,7 +194,11 @@ function CreateShipment({
         docNo: "",
         vehicleNo: "",
         otherRef: "",
-        billingId: bill.addrbillid,
+        billingId: {
+          value: bill.addrbillid,
+          label: bill.addrbillname,
+        },
+        // billingId: bill.addrbillid,
         billingAddress: bill.billaddress,
         shippingId: ship.addrshipid,
         shippingAddress: detailsObj?.shipping_info?.address,
@@ -213,6 +230,7 @@ function CreateShipment({
         })),
       };
       let arr = obj.products;
+      // console.log("obj", obj);
       if (arr.length > 25) {
         setIsAnother(true);
         chunk = arr.length / 25;
@@ -424,6 +442,7 @@ function CreateShipment({
       shipmentForm.setFieldValue("billPan", data?.data?.pan);
       shipmentForm.setFieldValue("billGST", data.data.gstin);
       let newStringaddress = removeHtml(data.data.address);
+
       shipmentForm.setFieldValue("billingAddress", newStringaddress);
     }
   };
@@ -514,7 +533,7 @@ function CreateShipment({
   useEffect(() => {
     if (billingId) {
       // console.log("billingId-------", billingId);
-      getBillingAddress(billingId);
+      getBillingAddress(billingId.label);
     }
   }, [billingId]);
   useEffect(() => {
@@ -686,9 +705,16 @@ const Product = ({
         "sgst",
         "gstTypeLabel",
         "gstRate",
+        "gstTypeLabel",
       ]}
       nonListWatchKeys={["gstTypeLabel"]}
-      componentRequiredRef={["rate", "qty", "pickLocation", "oldbillqty"]}
+      componentRequiredRef={[
+        "rate",
+        "qty",
+        "pickLocation",
+        "gstTypeLabel",
+        "oldbillqty",
+      ]}
       form={form}
       calculation={calculation}
       rules={{
