@@ -16,7 +16,7 @@ export { default as DocNumbering } from "./Master/DocNumbering";
 export { default as Vendor } from "./Master/Vendor/Vendor";
 export { default as CPMMaster } from "./Master/projects/CPMMaster";
 export { default as R19Master } from "./Master/reports/R19/R19Master";
-export { default as CategoryMaster } from "./Master/Components/material/categoryMaster";
+export { default as CategoryMaster } from "./Master/Components/material/categoryMaster/index.tsx";
 export { default as AddVendor } from "./Master/Vendor/AddVendor";
 
 export { default as RmtoRm } from "./Store/MaterialTransfer/RmtoRm";

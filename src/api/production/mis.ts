@@ -2,6 +2,7 @@ import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
 import { MISType } from "@/types/production";
 import { convertSelectOptions } from "@/utils/general";
+import dayjs from "dayjs";
 
 export const getDepartmentOptions = async (search: string) => {
   const response: ResponseType = await imsAxios.post("/backend/misDepartment", {
@@ -36,10 +37,15 @@ export const createEntry = async (values: MISType) => {
     lineNo: values.shifts.map((row) => row.lineCount),
     output: values.shifts.map((row) => row.output),
     remarks: values.shifts.map((row) => row.remarks ?? ""),
-    shiftIn: values.shifts.map((row) => row.shiftStart),
-    shiftEnd: values.shifts.map((row) => row.shiftEnd),
+    shiftIn: values.shifts.map((row) => row.shiftHours[0].format("HH:mm")),
+    shiftEnd: values.shifts.map((row) => row.shiftHours[1].format("HH:mm")),
     overTime: values.shifts.map((row) => row.overTime.format("HH:mm")),
-    workHours: values.shifts.map((row) => row.workingHours.format("HH:mm")),
+    workHoursIn: values.shifts.map((row) =>
+      row.workingTimings[0].format("HH:mm")
+    ),
+    workHoursEnd: values.shifts.map((row) =>
+      row.workingTimings[1].format("HH:mm")
+    ),
     department: values.department,
   };
 

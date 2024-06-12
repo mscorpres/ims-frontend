@@ -21,14 +21,15 @@ interface PropTypes {
   category: SelectOptionType;
   componentName: string;
   updateNameAndCode: (code: string, name: string) => void;
-  form;
+  form: any;
+  setAttributes: (values: any) => void;
+  setAllAttributeOptions: React.Dispatch<React.SetStateAction<never[]>>;
 }
 const CategoryForm = (props: PropTypes) => {
   const [stage, setStage] = useState(1);
   const [fields, setFields] = useState<FieldType[]>([]);
   const [selectOptions, setSelectOptions] = useState<OptionType[]>([]);
 
-  const value = Form.useWatch("value", props.form);
   const values = Form.useWatch([], props.form);
   const { executeFun, loading } = useApi();
 
@@ -55,7 +56,11 @@ const CategoryForm = (props: PropTypes) => {
     allResponse = allResponse.map((row) => {
       allOptions = [...allOptions, ...row.data];
     });
+
     setSelectOptions(allOptions);
+    if (props.setAllAttributeOptions) {
+      props.setAllAttributeOptions(allOptions);
+    }
 
     setFields(response.data);
   };
@@ -69,9 +74,21 @@ const CategoryForm = (props: PropTypes) => {
   useEffect(() => {
     let generatedCode = "";
     let generatedName = "";
-    console.log("selected category", props.category);
+
     if (values) {
-      //   setAttributeValues(values);
+      if (props.setAttributes) {
+        let udpatedFields = {};
+        for (let key in values) {
+          const current = values[key];
+          const found = fields.find((field) => field.name === key);
+          if (found) {
+            udpatedFields[found?.name] = current?.value ?? current;
+          }
+        }
+        console.log("updateFields", udpatedFields);
+        props.setAttributes(udpatedFields);
+      }
+
       const mounting = values["12312"];
       const packageSize = values["434092"];
       const value =
@@ -171,60 +188,64 @@ const CategoryForm = (props: PropTypes) => {
 
       props.updateNameAndCode(generatedCode, generatedName);
     }
-  }, [values]);
+  }, [values, props.category]);
 
-  console.log("these are the fields", fields);
   return (
-    <Row gutter={6}>
-      <Col span={12}>
-        <Card
-          size="small"
-          style={{ height: "100%" }}
-          bodyStyle={{ height: "98%" }}
-        >
-          <Flex vertical gap={20}>
-            <div>
-              <Typography.Text strong>
-                Selected Category: {props.category?.text}
-              </Typography.Text>
-            </div>
-            <Divider style={{ margin: "-5px 0px" }} />
-            <div>
-              <Typography.Text strong>
-                Unique Id: <br />
-                <span style={{ color: "#04b0a8" }}>{props.uniqueCode}</span>
-              </Typography.Text>
-            </div>
-            <div>
-              <Divider style={{ margin: "-5px 0px" }} />
-              <Typography.Text strong>
-                Component Name: <br />
-                <span style={{ color: "#04b0a8" }}>{props.componentName}</span>
-              </Typography.Text>
-            </div>
-            <Divider style={{ margin: "-5px 0px" }} />
-            {/* <div>
-                <Input
-                  placeholder="Manufacturing Code"
-                  onChange={(e) => setManfCode(e.target.value)}
-                />
-              </div> */}
-          </Flex>
-        </Card>
-      </Col>
-      <Col span={12}>
-        {/* {loading === "fetch" && <Loading />} */}
-        {stage === 1 && (
-          <Card size="small" style={{ height: "100%" }}>
-            {loading("fetch") && (
-              <Flex justify="center" style={{ marginTop: 50 }}>
-                <Typography.Text strong type="secondary">
-                  Fetching Fields...
+    <Form form={props.form} layout="vertical">
+      <Row gutter={6}>
+        <Col span={12}>
+          <Card
+            size="small"
+            style={{ height: "100%" }}
+            bodyStyle={{ height: "98%" }}
+          >
+            <Flex vertical gap={20}>
+              <div>
+                <Typography.Text strong>
+                  Selected Category: {props.category?.text}
                 </Typography.Text>
-              </Flex>
-            )}
-            {!loading("fetch") && (
-              <Form form={props.form} layout="vertical">
+              </div>
+              <Divider style={{ margin: "-5px 0px" }} />
+              <div>
+                <Typography.Text strong>
+                  Unique Id: <br />
+                  <span style={{ color: "#04b0a8" }}>{props.uniqueCode}</span>
+                </Typography.Text>
+              </div>
+              <div>
+                <Divider style={{ margin: "-5px 0px" }} />
+                <Typography.Text strong>
+                  Component Name: <br />
+                  <span style={{ color: "#04b0a8" }}>
+                    {props.componentName}
+                  </span>
+                </Typography.Text>
+              </div>
+              <Divider style={{ margin: "-5px 0px" }} />
+              <div>
+                <Form.Item
+                  rules={[{ required: true }]}
+                  name="mfgCode"
+                  label="Manufacturing Code"
+                >
+                  <Input placeholder="Manufacturing Code" />
+                </Form.Item>
+              </div>
+            </Flex>
+          </Card>
+        </Col>
+        <Col span={12}>
+          {/* {loading === "fetch" && <Loading />} */}
+          {stage === 1 && (
+            <Card size="small" style={{ height: "100%" }}>
+              {loading("fetch") && (
+                <Flex justify="center" style={{ marginTop: 50 }}>
+                  <Typography.Text strong type="secondary">
+                    Fetching Fields...
+                  </Typography.Text>
+                </Flex>
+              )}
+              {!loading("fetch") && (
                 <Row gutter={10}>
                   {fields
                     .sort((a, b) => a.order - b.order)
@@ -245,7 +266,7 @@ const CategoryForm = (props: PropTypes) => {
                           )}
                           <Form.Item
                             rules={[{ required: true }]}
-                            style={{ textTransform: "capitalize", flex: 1.5 }}
+                            style={{ flex: 1.5 }}
                             name={row.name}
                             label={row.label.replaceAll("_", " ")}
                           >
@@ -274,12 +295,11 @@ const CategoryForm = (props: PropTypes) => {
                       </Col>
                     ))}
                 </Row>
-              </Form>
-            )}
-          </Card>
-        )}
+              )}
+            </Card>
+          )}
 
-        {/* {stage === 1 && (
+          {/* {stage === 1 && (
             <Row>
               <Col span={24}>
                 <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
@@ -355,8 +375,9 @@ const CategoryForm = (props: PropTypes) => {
               </Col>
             </Row>
           )} */}
-      </Col>
-    </Row>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

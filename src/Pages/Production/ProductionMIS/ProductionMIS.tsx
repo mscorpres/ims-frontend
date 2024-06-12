@@ -53,28 +53,7 @@ function ProductionMIS() {
 
   const handleCreateEntry = async () => {
     const values = await misForm.validateFields();
-    console.log("values", values);
-    const arr = values.shifts.map((row) => {
-      // work timing
-      let obj = row.workingHours;
 
-      let diff = obj[1].diff(obj[0], "m");
-      if (diff < 0) {
-        diff = 24 * 60 + diff;
-      }
-
-      let workObj = row.shiftStart;
-
-      let workDdiff = workObj[1].diff(workObj[0], "m");
-      if (workDdiff < 0) {
-        workDdiff = 24 + workDdiff;
-      }
-      const final = `${Math.floor((workDdiff - diff) / 60)}:${
-        (workDdiff - diff) % 60
-      }`;
-    });
-
-    return;
     const response = await executeFun(() => createEntry(values), "submit");
     if (response.success) {
       resetHandler();

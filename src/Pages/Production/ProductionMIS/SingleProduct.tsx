@@ -32,7 +32,7 @@ export default function SingleProduct({
   shiftLabelOptions,
 }) {
   const format = "HH";
-  const workingHours = Form.useWatch(["shifts", field.name, "shiftStart"]);
+  const workingHours = Form.useWatch(["shifts", field.name, "shiftHours"]);
   const workingTimings = Form.useWatch([
     "shifts",
     field.name,
@@ -40,6 +40,7 @@ export default function SingleProduct({
   ]);
 
   useEffect(() => {
+    console.log("working hours", workingHours);
     if (
       workingHours?.length > 0 &&
       (workingTimings?.length === 0 || !workingTimings)
@@ -69,6 +70,7 @@ export default function SingleProduct({
         (workDdiff - diff) % 60
       }`;
 
+      console.log("final overtime", final);
       form.setFieldValue(
         ["shifts", field.name, "overTime"],
         dayjs(final, "HH:mm")
@@ -140,7 +142,7 @@ export default function SingleProduct({
         <div style={{ width: 150 }}>
           <Form.Item
             label="Shift Hours"
-            name={[field.name, "ShiftHours"]}
+            name={[field.name, "shiftHours"]}
             rules={rules.shiftStart}
           >
             <TimePicker.RangePicker format={"HH:mm"} order={false} />
