@@ -33,6 +33,12 @@ const Qctest = () => {
   const [manualCount, setManualCount] = useState("");
   const [manualType, setManualType] = useState("");
   const [manualRemarks, setManualRemarks] = useState("");
+  const [previousDetails, setPreviousDetails] = useState({
+    passedQty: "--",
+    failedQty: "--",
+    remainingQty: "--",
+    scannedQty: "--",
+  });
 
   const showModal = (e) => {
     e === "AUTO" ? setModalType(e) : setModalType(e.target.id);
@@ -161,10 +167,10 @@ const Qctest = () => {
       productName: data.data[0].product_name,
     });
     setProductDetails({
-      scannedQuantity: "",
-      passedQuantity: "",
-      failedQuantity: "",
-      remainingQuantity: "",
+      scannedQuantity: data.data[0].scanned_qty,
+      passedQuantity: data.data[0].passed_qty,
+      failedQuantity: data.data[0].failed_qty,
+      remainingQuantity: data.data[0].remaining_qty,
       totalQuantity: data.data[0].total_qty,
     });
     setAccesstoken(data.data[0].access_token);
@@ -347,6 +353,14 @@ const Qctest = () => {
   useEffect(() => {
     getfaillist();
   }, []);
+  useEffect(() => {
+    setScanData([]);
+
+    setCurrentScan(0);
+    setPassedScan(0);
+    setFailedScan(0);
+    setTotalLotScan(0);
+  }, [pprNo]);
 
   //4)generate QR AUTO AND MANUAL
   const lottransfer = async (e) => {
@@ -714,10 +728,10 @@ const Qctest = () => {
                 <p>{locationDetails.failedLocation}</p>
               </Card>
               <Card size="small" title={"Product Details"}>
-                <p>Scanned Quantity</p>
-                <p>Passed Quantity</p>
-                <p>Failed Quantity</p>
-                <p>Remaning Quantity</p>
+                <p>Scanned Quantity: {productDetails.scannedQuantity}</p>
+                <p>Passed Quantity: {productDetails.passedQuantity}</p>
+                <p>Failed Quantity: {productDetails.failedQuantity}</p>
+                <p>Remaning Quantity: {productDetails.remainingQuantity}</p>
                 <p>
                   <b>Total Quantity : {productDetails.totalQuantity}</b>
                 </p>
