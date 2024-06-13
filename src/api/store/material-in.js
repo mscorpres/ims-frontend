@@ -165,7 +165,7 @@ export const downloadConsumptionList = async (minId, columns) => {
     }));
 
     response.data = arr;
-    downloadCSV(arr, col, "MIN Consumption List");
+    downloadCSV(arr, columns, "MIN Consumption List");
   }
 };
 
