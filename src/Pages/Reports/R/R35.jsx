@@ -37,10 +37,16 @@ function R35() {
   const columns = [
     { field: "id", headerName: "Sr. No.", width: 8 },
     {
+      field: "component",
+      headerName: "Part Code",
+      width: 150,
+    },
+    {
       field: "opening",
       headerName: "Opening Stock",
       width: 150,
     },
+
     {
       field: "inward",
       headerName: "Total Inward",
