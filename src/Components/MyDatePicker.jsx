@@ -2,7 +2,13 @@ import React, { useEffect } from "react";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 
-const MyDatePicker = ({ format = "DD-MM-YYYY", value, setDateRange, size }) => {
+const MyDatePicker = ({
+  format = "DD-MM-YYYY",
+  value,
+  setDateRange,
+  size,
+  disabledtheDate,
+}) => {
   useEffect(() => {
     if (value) {
       setDateRange(value);
@@ -25,6 +31,19 @@ const MyDatePicker = ({ format = "DD-MM-YYYY", value, setDateRange, size }) => {
       }
     }, 1000);
   });
+  const date1 = dayjs("2024-03-31");
+  const date2 = dayjs();
+  let hours = date2.diff(date1, "hours");
+  const days = Math.floor(hours / 24);
+  hours = hours - days * 24;
+
+  ///for R35 since the  date selected should no be of before 1 april 2024
+  const disabledDate = (current) => {
+    // Can not select days before today and today
+    return current && current < dayjs().subtract(days, "d");
+  };
+
+  console.log("disabledDate: ", disabledtheDate);
   return (
     <DatePicker.RangePicker
       size={size ? size : "default"}
@@ -38,6 +57,7 @@ const MyDatePicker = ({ format = "DD-MM-YYYY", value, setDateRange, size }) => {
           : [dayjs().subtract(89, "d"), dayjs()]
       }
       format={format}
+      disabledDate={disabledtheDate == "true" ? disabledDate : ""}
       onChange={(e) => {
         setDateRange(getDateFormatted(e));
       }}
