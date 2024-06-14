@@ -161,9 +161,6 @@ export const verifyAttributes = async (
   attributes: any,
   allAttributeOptions: never[]
 ) => {
-  console.log("header values", values);
-  console.log("attr values", attributes);
-
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
 
@@ -185,7 +182,7 @@ export const verifyAttributes = async (
 
   console.log("foundattr", attrName);
   console.log("foundattr 1", attrValueKey);
-  return;
+  // return;
 
   const payload: VerifyAttributesType = {
     attr_category: values.attrCategory?.value,
@@ -204,11 +201,83 @@ export const verifyAttributes = async (
     manufacturing_code: "",
     attributeKey: Array.from(attrName),
     attributeValue: Array.from(attrValueKey),
+    pia_status: values.piaEnable ? "Y" : "N",
   };
 
   const response = await imsAxios.post(
     "/component/addComponent/verify",
     payload
   );
+  return response;
+};
+
+interface CreatePropType {
+  part: string;
+  uom: string;
+  component: string;
+  new_partno: string;
+  comp_type: string;
+  notes: string;
+  group: string;
+  attr_category: string;
+  attr_code: "RES1(0402)1020074A";
+  hsns: [];
+  taxs: [];
+  attr_raw: any;
+  manufacturing_code: string;
+  pia_status: string;
+  attributeKey: string[];
+  attributeValue: string[];
+}
+
+export const createComponent = async (
+  values: any,
+  attributes: any,
+  allAttributeOptions: never[]
+) => {
+  const attrName = new Set<string>();
+  const attrValueKey = new Set<string>();
+
+  for (let key in attributes) {
+    const current = attributes[key];
+    const foundAttr = allAttributeOptions.find(
+      (row) => row.name === key && row.value === current
+    );
+
+    if (foundAttr) {
+      attrName.add(foundAttr?.name);
+      attrValueKey.add(foundAttr?.valueKey);
+    }
+    if (!foundAttr) {
+      attrName.add(key);
+      attrValueKey.add(current);
+    }
+  }
+
+  console.log("foundattr", attrName);
+  console.log("foundattr 1", attrValueKey);
+  // return;
+
+  const payload: VerifyAttributesType = {
+    attr_category: values.attrCategory?.value,
+    attr_code: values.uniqueId,
+    attr_raw: attributes,
+    c_category: "C", //confirm
+    comp_type: "R", //confirm
+    component: values.componentname,
+    group: values.group,
+    hsns: [],
+    new_partno: values.newPart,
+    notes: values.description,
+    part: values.code,
+    taxs: [],
+    uom: values.unit,
+    manufacturing_code: "",
+    attributeKey: Array.from(attrName),
+    attributeValue: Array.from(attrValueKey),
+    pia_status: values.piaEnable ? "Y" : "N",
+  };
+
+  const response = await imsAxios.post("/component/addComponent/save", payload);
   return response;
 };

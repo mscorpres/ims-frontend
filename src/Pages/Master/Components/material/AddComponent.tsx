@@ -20,6 +20,7 @@ import TableActions from "@/Components/TableActions.jsx/TableActions.jsx";
 import MyButton from "@/Components/MyButton/index.jsx";
 import useApi from "@/hooks/useApi";
 import {
+  createComponent,
   downloadComponentMaster,
   downloadElectronicReport,
   verifyAttributes,
@@ -43,6 +44,7 @@ const AddComponent = () => {
   const [generatedCompName, setGeneratedCompName] = useState(null);
   const [attributes, setAttributes] = useState({});
   const [allAttributeOptions, setAllAttributeOptions] = useState([]);
+  const [stage, setStage] = useState(1);
 
   const { loading, executeFun } = useApi();
   const [headerForm] = Form.useForm();
@@ -142,6 +144,7 @@ const AddComponent = () => {
 
   const handleVerify = async () => {
     const values = await headerForm.validateFields();
+    console.log("these are the values", values);
     // const hsnValues = await hsnForm.validateFields();
 
     // console.log("hsn values", hsnValues);
@@ -155,6 +158,30 @@ const AddComponent = () => {
         ),
       "submit"
     );
+    if (response.success) {
+      setStage(2);
+    }
+  };
+  const handleCreate = async () => {
+    const values = await headerForm.validateFields();
+    console.log("these are the values", values);
+    // const hsnValues = await hsnForm.validateFields();
+
+    // console.log("hsn values", hsnValues);
+
+    const response = await executeFun(
+      () =>
+        createComponent(
+          { ...values, uniqueId },
+          attributes,
+          allAttributeOptions
+        ),
+      "submit"
+    );
+    if (response.success) {
+      setStage(1);
+      headerForm.resetFields();
+    }
   };
 
   const handleDownloadMaster = async () => {
@@ -324,19 +351,23 @@ const AddComponent = () => {
               </Col>
             )}
             <Col span={24}>
-              <Form.Item name="piaEnable">
+              <Form.Item
+                name="piaEnable"
+                label="Enable PIA"
+                valuePropName="checked"
+              >
                 <Checkbox
-                  checked={isEnabled}
-                  onChange={(e) => setIsEnabled(e.target.checked)}
+
+                // onChange={(e) => setIsEnabled(e.target.checked)}
                 />
-                <Typography.Text
+                {/* <Typography.Text
                   style={{
                     fontSize: "10px",
                     marginLeft: "4px",
                   }}
                 >
                   Enable PIA
-                </Typography.Text>
+                </Typography.Text> */}
               </Form.Item>
             </Col>
             <Col span={24}>
@@ -366,8 +397,8 @@ const AddComponent = () => {
                   <MyButton variant="reset" onClick={resetConfirmHandler} />
                   <MyButton
                     variant="submit"
-                    text="Create"
-                    onClick={handleVerify}
+                    text={stage === 1 ? "Verify" : "Create"}
+                    onClick={stage === 1 ? handleVerify : handleCreate}
                     // onClick={modalConfirmMaterial}
                   />
                 </Flex>
