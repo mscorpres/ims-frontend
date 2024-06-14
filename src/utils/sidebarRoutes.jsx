@@ -518,7 +518,7 @@ export const items = (user) => [
         //   // <AiOutlineMinus />
         // ),
         getItem(
-          <Link to="/r1">Reports R1 - R32 </Link>,
+          <Link to="/r1">Reports R1 - R35 </Link>,
 
           "B413"
           // <AiOutlineMinus />
@@ -635,7 +635,7 @@ export const items = (user) => [
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
 
         getItem(
-          <Link to="/r1">Reports R1 - R32</Link>,
+          <Link to="/r1">Reports R1 - R35</Link>,
 
           "C413"
           // <AiOutlineMinus />

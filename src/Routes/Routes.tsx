@@ -249,7 +249,7 @@ import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReve
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
-import FARUpload from "@/Pages/far/index.js";
+import FARUpload from "@/Pages/far/index.js";import R35 from "@/Pages/Reports/R/R35.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -723,6 +723,11 @@ const Routes = [
     path: "/r34",
 
     main: () => <R34 />,
+  },
+  {
+    path: "/r35",
+
+    main: () => <R35 />,
   },
   {
     path: "/reqWithBom",

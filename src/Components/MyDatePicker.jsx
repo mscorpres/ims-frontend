@@ -1,79 +1,98 @@
-import React, { useEffect, useState } from "react";
-
-// import dayjs from "dayjs";
-import dayjs from "dayjs";
+import React, { useEffect } from "react";
 import { DatePicker } from "antd";
-const { RangePicker } = DatePicker;
+import dayjs from "dayjs";
 
-const format = "DD-MM-YYYY";
-
-export default function MyDatePicker({
+const MyDatePicker = ({
+  format = "DD-MM-YYYY",
+  value,
   setDateRange,
   size,
-  spacedFormat,
-  startingDate,
-}) {
-  const [searchDateRange, setSearchDateRange] = useState([
-    startingDate ? dayjs() : dayjs().subtract(89, "d"),
-    dayjs(),
-  ]);
-
+  disabledtheDate,
+}) => {
   useEffect(() => {
-    if (searchDateRange[0] && searchDateRange[1]) {
-      const from = searchDateRange[0];
-      const to = searchDateRange[1];
-      let dash = spacedFormat ? " - " : "-";
-      const formattedDate = from + dash + to;
-      setDateRange(formattedDate);
+    if (value) {
+      setDateRange(value);
+    } else if (value === "") {
+      setDateRange(getDateFormatted([dayjs().subtract(89, "d"), dayjs()]));
+    } else {
+      setDateRange(getDateFormatted([dayjs().subtract(89, "d"), dayjs()]));
     }
-  }, [searchDateRange]);
-  useEffect(() => {
-    const from = startingDate
-      ? dayjs().subtract(1, "d").format(format)
-      : dayjs().subtract(89, "d").format(format);
-    const to = dayjs().format(format);
-
-    const formattedDate = from + "-" + to;
-    setSearchDateRange([from, to]);
   }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      if (value === "") {
+        console.log("it is coming here");
+        const formatted = getDateFormatted([
+          dayjs().subtract(89, "d"),
+          dayjs(),
+        ]);
 
+        setDateRange(formatted);
+      }
+    }, 1000);
+  });
+  const date1 = dayjs("2024-03-31");
+  const date2 = dayjs();
+  let hours = date2.diff(date1, "hours");
+  const days = Math.floor(hours / 24);
+  hours = hours - days * 24;
+
+  ///for R35 since the  date selected should no be of before 1 april 2024
   const disabledDate = (current) => {
-    return current && current > dayjs().endOf("day");
+    // Can not select days before today and today
+    return current && current < dayjs().subtract(days, "d");
   };
+
+  console.log("disabledDate: ", disabledtheDate);
   return (
-    <RangePicker
-      // className="date-picker"
+    <DatePicker.RangePicker
       size={size ? size : "default"}
       style={{
         width: "100%",
         fontSize: window.innerWidth <= 1600 ? "0.7rem" : "0.9rem",
       }}
-      defaultValue={searchDateRange}
-      disabledDate={disabledDate}
+      value={
+        value !== ""
+          ? getDateFormatted(value)
+          : [dayjs().subtract(89, "d"), dayjs()]
+      }
       format={format}
+      disabledDate={disabledtheDate == "true" ? disabledDate : ""}
+      onChange={(e) => {
+        setDateRange(getDateFormatted(e));
+      }}
       ranges={{
         Today: [dayjs(), dayjs()],
         Yesterday: [dayjs().subtract(1, "day"), dayjs().subtract(1, "day")],
         "Last 7 Days": [dayjs().subtract(7, "d"), dayjs().subtract(1, "d")],
-        "This Month": [dayjs().startOf("month"), dayjs().endOf("month")],
+        "This Month": [dayjs().startOf("month"), dayjs()],
         "Last Month": [
           dayjs().startOf("month").subtract(1, "month"),
           dayjs().startOf("month").subtract(1, "d"),
         ],
-        "Last 90 Days": [
-          dayjs().subtract(89, "d"),
-          dayjs(),
-          // dayjs().endOf("month").subtract(1, "month"),
-        ],
-      }}
-      // style={{ height: "38px" }}
-      onChange={(e) => {
-        setSearchDateRange(
-          e.map((item) => {
-            return dayjs(item).format(format);
-          })
-        );
+        "Last 90 Days": [dayjs().subtract(89, "d"), dayjs()],
       }}
     />
   );
-}
+};
+
+export default MyDatePicker;
+
+const getDateFormatted = (value) => {
+  if (typeof value === "string") {
+    if (value.length > 0) {
+      return [
+        dayjs(value.substring(0, 10), "DD-MM-YYYY"),
+        dayjs(value.substring(11, 21), "DD-MM-YYYY"),
+      ];
+    } else {
+      return [dayjs().subtract(89, "d"), dayjs()];
+      // return undefined;
+    }
+  }
+  if (typeof value === "object" && value?.length) {
+    return `${dayjs(value[0]).format("DD-MM-YYYY")}-${dayjs(value[1]).format(
+      "DD-MM-YYYY"
+    )}`;
+  }
+};
