@@ -12,6 +12,7 @@ import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 import MyDatePicker from "../../../Components/MyDatePicker";
+import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
 function R35() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [search, setSearch] = useState("");
@@ -40,6 +41,17 @@ function R35() {
       field: "component",
       headerName: "Part Code",
       width: 150,
+    },
+    {
+      field: "new_part_no",
+      headerName: "New Part Code",
+      width: 150,
+    },
+    {
+      field: "name",
+      headerName: "Part Name",
+      width: 250,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.name} copy={true} />,
     },
     {
       field: "opening",
