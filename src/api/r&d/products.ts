@@ -7,7 +7,7 @@ interface GetProductListType {
   name: string;
   sku: string;
   description: string;
-  unit: string;
+  // unit: string;
   images: { url: string; fileName: string }[];
   documents: { url: string; fileName: string }[];
   isActive: boolean;
@@ -51,7 +51,7 @@ export const createProduct = async (values: ProductType) => {
 
   formData.append("name", values.name);
   formData.append("sku", values.sku);
-  formData.append("unit", values.unit);
+  // formData.append("unit", values.unit);/
   formData.append("description", values.description);
   formData.append("projectCode", values.project);
   formData.append("costCenter", values.costCenter);

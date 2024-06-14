@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
 import MySelect from "@/Components/MySelect.jsx";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
-
+import TableActions from "@/Components/TableActions.jsx/TableActions";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
 import { ModalType, SelectOptionType } from "@/types/general";
@@ -61,6 +61,9 @@ const BOMCreate = () => {
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
+  const [isEditing, setIsEditing] = useState<string | number | boolean>(false);
+
+  console.log("isEditing is", isEditing);
   const [version, setVersion] = useState("");
   const [vendorType, setVendorType] = useState(false);
 
@@ -84,6 +87,8 @@ const BOMCreate = () => {
       "substituteOf",
       "locations",
       "type",
+      "vendor",
+      "remarks",
     ]);
     console.log("add values", values);
     const newComponent = {
@@ -118,6 +123,37 @@ const BOMCreate = () => {
     ]);
   };
 
+  const handleUpdateCompnent = async () => {
+    const values = await form.validateFields([
+      "component",
+      "qty",
+      "type",
+      "substituteOf",
+      "locations",
+      "type",
+      "vendor",
+      "remarks",
+    ]);
+    console.log("add values", values);
+    const newComponent = {
+      ...values,
+
+      value: values.component.value,
+      text: values.component.label,
+    };
+
+    if (values.type === "main") {
+      setMainComponents((curr, index) => {
+        let arr = curr;
+        arr.splice(isEditing, 1);
+        arr[isEditing] = newComponent;
+        console.log("updated arr", arr);
+        return arr;
+      });
+    } else {
+      setSubComponents((curr) => [...curr, newComponent]);
+    }
+  };
   const handleDeleteComponent = (
     componentkey: string,
     type: ComponentType["type"]
@@ -196,6 +232,10 @@ const BOMCreate = () => {
     form.resetFields();
     setMainComponents([]);
     setSubComponents([]);
+  };
+
+  const handleSetComponentForEditing = (component: ComponentType) => {
+    form.setFieldsValue(component);
   };
   return (
     <Form
@@ -312,6 +352,7 @@ const BOMCreate = () => {
               >
                 {!vendorType && (
                   <MyAsyncSelect
+                    labelInValue={true}
                     optionsState={asyncOptions}
                     loadOptions={handleFetchVendorOptions}
                     selectLoading={loading("select")}
@@ -334,7 +375,15 @@ const BOMCreate = () => {
               </Form.Item>
               <Flex justify="center" gap={5}>
                 <MyButton variant="reset" />
-                <MyButton variant="add" onClick={handleAddComponents} />
+                <MyButton
+                  variant="add"
+                  text={isEditing !== false ? "Update" : "Add"}
+                  onClick={
+                    isEditing !== false
+                      ? handleUpdateCompnent
+                      : handleAddComponents
+                  }
+                />
               </Flex>
               <Divider />
               <Flex align="center" vertical gap={10}>
@@ -386,6 +435,8 @@ const BOMCreate = () => {
                     rows={mainComponents}
                     type="main"
                     handleDeleteComponent={handleDeleteComponent}
+                    handleSetComponentForEditing={handleSetComponentForEditing}
+                    setIsEditing={setIsEditing}
                   />
                 </div>
               </Card>
@@ -411,6 +462,8 @@ const BOMCreate = () => {
                     rows={subComponents}
                     type="substitute"
                     handleDeleteComponent={handleDeleteComponent}
+                    handleSetComponentForEditing={handleSetComponentForEditing}
+                    setIsEditing={setIsEditing}
                   />
                 </div>
               </Card>
@@ -429,6 +482,8 @@ const Components = ({
   rows,
   type,
   handleDeleteComponent,
+  setIsEditing,
+  handleSetComponentForEditing,
 }: {
   rows: ComponentType[];
   type?: "main" | "substitute";
@@ -436,6 +491,8 @@ const Components = ({
     componentKey: string,
     type: ComponentType["type"]
   ) => void;
+  setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
+  handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
@@ -513,10 +570,21 @@ const Components = ({
                     </Typography.Text>
                   </Col>
                   <Col span={1}>
-                    <CommonIcons
-                      action="deleteButton"
-                      onClick={() => handleDeleteComponent(row.value, row.type)}
-                    />
+                    <Flex gap={2}>
+                      <TableActions
+                        action="edit"
+                        onClick={() => {
+                          handleSetComponentForEditing(row);
+                          setIsEditing(index);
+                        }}
+                      />
+                      <CommonIcons
+                        action="deleteButton"
+                        onClick={() =>
+                          handleDeleteComponent(row.value, row.type)
+                        }
+                      />
+                    </Flex>
                   </Col>
                 </>
               ))}

@@ -156,7 +156,7 @@ export default function Products() {
             <Row gutter={[0, 6]}>
               <Col span={24}>
                 <Row gutter={4}>
-                  <Col span={12}>
+                  <Col span={24}>
                     <Form.Item
                       name="sku"
                       label="Product Code"
@@ -165,11 +165,11 @@ export default function Products() {
                       <Input />
                     </Form.Item>
                   </Col>
-                  <Col span={12}>
+                  {/* <Col span={12}>
                     <Form.Item name="unit" label="UOM" rules={rules.uom}>
                       <MySelect options={uomOptions} />
                     </Form.Item>
-                  </Col>
+                  </Col> */}
                 </Row>
               </Col>
               <Col span={24}>
@@ -192,6 +192,7 @@ export default function Products() {
                     loadOptions={handleCostCenterOptions}
                     selectLoading={loading("select")}
                     onBlur={() => setAsyncOptions([])}
+                    fetchDefault={true}
                   />
                 </Form.Item>
               </Col>
@@ -206,6 +207,7 @@ export default function Products() {
                     loadOptions={handleProjectOptions}
                     selectLoading={loading("select")}
                     onBlur={() => setAsyncOptions([])}
+                    fetchDefault={true}
                   />
                 </Form.Item>
               </Col>
