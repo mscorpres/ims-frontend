@@ -41,7 +41,7 @@ export default function MyAsyncSelect({
       value={value}
       // onFocus={}
       placeholder={placeholder}
-      onFocus={() => fetchDefault && loadOptions("")}
+      onFocus={() => loadOptions("")}
       // suffixIcon={<SearchOutlined />}
       // allowClear
       defaultValue={defaultValue}
