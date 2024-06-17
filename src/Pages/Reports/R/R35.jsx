@@ -13,6 +13,8 @@ import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions.jsx";
+import { downloadCSV } from "../../../Components/exportToCSV.jsx";
 function R35() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [search, setSearch] = useState("");
@@ -29,6 +31,8 @@ function R35() {
   const [resData, setResData] = useState([]);
   const [form] = Form.useForm();
   const prod = Form.useWatch("product", form);
+  const bomVal = Form.useWatch("bom", form);
+  const dateVal = Form.useWatch("date", form);
   console.log("prod", prod);
   const bomOptions = [
     { text: "Date Wise", value: "date" },
@@ -70,8 +74,8 @@ function R35() {
       width: 180,
     },
     {
-      field: "totalRejections (D)",
-      headerName: "Net Rejection",
+      field: "totalRejections",
+      headerName: "Net Rejection (D)",
       width: 150,
     },
     {
@@ -92,7 +96,7 @@ function R35() {
     {
       field: "closingStock",
       headerName: "Closing Stock (H)=(A+B)-(C+D+E+F+G)",
-      width: 150,
+      width: 240,
     },
     {
       field: "currentStock",
@@ -147,7 +151,9 @@ function R35() {
     }
     setLoading(false);
   };
-
+  const downloadHandler = () => {
+    downloadCSV(rows, columns, `R35 Report`);
+  };
   useEffect(() => {
     if (prod) {
       getBom();
@@ -160,7 +166,8 @@ function R35() {
       setRows([]);
     }
   }, [prod]);
-
+  console.log("bomVal", bomVal);
+  console.log("dateVal", dateVal);
   return (
     <div>
       {" "}
@@ -230,12 +237,7 @@ function R35() {
                   name="date"
                   // rules={[{ required: true }]}
                   label="Date"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter a Date!",
-                    },
-                  ]}
+                  rules={rules.date}
                 >
                   {" "}
                   <MyDatePicker
@@ -250,8 +252,14 @@ function R35() {
                   variant="search"
                   style={{ margin: "18px" }}
                   onClick={fetchSearch}
+                  disabled={bomVal?.length == 0}
                   // loading={loading}
-                ></MyButton>
+                ></MyButton>{" "}
+                <CommonIcons
+                  action="downloadButton"
+                  onClick={downloadHandler}
+                  disabled={rows.length === 0}
+                />
               </Col>
             </Row>
           </Form>{" "}
@@ -302,3 +310,9 @@ const columns = [
     ),
   },
 ];
+const rules = {
+  ppr: [{ required: true, message: "Please select PPR Number" }],
+  process: [{ required: true, message: "Please select Process" }],
+  status: [{ required: true, message: "Please select Status" }],
+  date: [{ required: true, message: "Please select Date" }],
+};
