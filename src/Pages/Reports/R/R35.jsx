@@ -91,7 +91,7 @@ function R35() {
     },
     {
       field: "closingStock",
-      headerName: "Closing Stock (H)=(A+B)-(C+D+E+F+G)", 
+      headerName: "Closing Stock (H)=(A+B)-(C+D+E+F+G)",
       width: 150,
     },
     {
@@ -142,6 +142,8 @@ function R35() {
       console.log("arr", arr);
       setRows(arr);
       setLoading(false);
+    } else {
+      toast.error(response.message);
     }
     setLoading(false);
   };
@@ -149,6 +151,13 @@ function R35() {
   useEffect(() => {
     if (prod) {
       getBom();
+    }
+  }, [prod]);
+  useEffect(() => {
+    if (prod) {
+      form.setFieldValue("bom", "");
+      // form.setFieldValue("date", "");
+      setRows([]);
     }
   }, [prod]);
 
@@ -206,6 +215,7 @@ function R35() {
                   <MySelect
                     placeholder="Select Bom"
                     options={bomName}
+                    loading={loading == "fetch"}
                     // value={allData.selectBom.value}
                     // onChange={(e) =>
                     //   setAllData((allData) => {
