@@ -13,6 +13,8 @@ import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions.jsx";
+import { downloadCSV } from "../../../Components/exportToCSV.jsx";
 function R35() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [search, setSearch] = useState("");
@@ -149,7 +151,9 @@ function R35() {
     }
     setLoading(false);
   };
-
+  const downloadHandler = () => {
+    downloadCSV(rows, columns, `R35 Report`);
+  };
   useEffect(() => {
     if (prod) {
       getBom();
@@ -250,7 +254,12 @@ function R35() {
                   onClick={fetchSearch}
                   disabled={bomVal?.length == 0}
                   // loading={loading}
-                ></MyButton>
+                ></MyButton>{" "}
+                <CommonIcons
+                  action="downloadButton"
+                  onClick={downloadHandler}
+                  disabled={rows.length === 0}
+                />
               </Col>
             </Row>
           </Form>{" "}
