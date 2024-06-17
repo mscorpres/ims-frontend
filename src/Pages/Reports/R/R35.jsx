@@ -55,48 +55,48 @@ function R35() {
     },
     {
       field: "opening",
-      headerName: "Opening Stock",
+      headerName: "Opening Stock (A)",
       width: 150,
     },
 
     {
       field: "inward",
-      headerName: "Total Inward",
+      headerName: "Net Purchase (B)",
       width: 150,
     },
     {
       field: "consumptionQty",
-      headerName: "Total Consuption",
+      headerName: "Net Consumption (C)",
       width: 180,
     },
     {
-      field: "totalRejections",
-      headerName: "Total Rejection",
+      field: "totalRejections (D)",
+      headerName: "Net Rejection",
       width: 150,
     },
     {
       field: "rmCons",
-      headerName: "Raw Material Sale & Consumption",
+      headerName: "Raw Material Sale & Other Cons. (E)",
       width: 260,
     },
     {
       field: "jwCons",
-      headerName: "Job Worker Consumption ",
+      headerName: "Job Worker Consumption (F)",
       width: 210,
     },
     {
       field: "jwStock",
-      headerName: "Job Worker stock",
+      headerName: "Job Worker stock (G)",
       width: 160,
     },
     {
       field: "closingStock",
-      headerName: "Closing Stock",
+      headerName: "Closing Stock (H)=(A+B)-(C+D+E+F+G)", 
       width: 150,
     },
     {
       field: "currentStock",
-      headerName: "Total Current Stock",
+      headerName: "Total Current Stock (I)",
       width: 180,
     },
   ];
