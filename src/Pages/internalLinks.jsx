@@ -795,6 +795,12 @@ const links = [
 
       placeholder: "FG Return Report(NG)",
     },
+    {
+      routeName: "R35",
+      routePath: "/r35",
+
+      placeholder: "SKUs Raw Material transaction Reco",
+    },
   ],
   // MIN label links
 
