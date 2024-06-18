@@ -220,15 +220,21 @@ const BOMCreate = () => {
       () => getExistingBom(sku.value ?? sku),
       "fetch"
     );
-    console.log("existing response", response);
+    console.log("existing response", response.data.length);
     if (response.success) {
-      console.log("it is here up");
       if (response.data.length) {
-        form.setFieldValue("name", sku.label ?? sku + "V-00.00");
-        form.setFieldValue("product", sku);
-        console.log("it is here up");
+        // console.log("it was here on the top");
+        form.setFieldsValue({
+          product: sku,
+          name: sku.label ?? sku + "V-00.00",
+          description: undefined,
+          document: [],
+        });
+        setMainComponents([]);
+        setSubComponents([]);
+
         return;
-      } else if (response.data) {
+      } else if (response.data && response.data.length === undefined) {
         console.log("it is here down");
         form.setFieldsValue(response.data);
         form.setFieldValue("name", sku.label ?? sku + "V-00.00");
