@@ -216,12 +216,15 @@ const BOMCreate = () => {
   };
 
   const handleFetchExistingBom = async (sku: string) => {
-    const response = await executeFun(() => getExistingBom(sku.value), "fetch");
+    const response = await executeFun(
+      () => getExistingBom(sku.value ?? sku),
+      "fetch"
+    );
     console.log("existing response", response);
     if (response.success) {
       if (response.data) {
         form.setFieldsValue(response.data);
-        form.setFieldValue("name", sku.label + "V-00.00");
+        form.setFieldValue("name", sku.label ?? sku + "V-00.00");
         setVersion(response.data.version);
         setMainComponents(
           response.data.components.filter((row) => row.type === "main")

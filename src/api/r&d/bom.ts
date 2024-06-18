@@ -43,10 +43,10 @@ export const createBOM = async (values: BOMType, action: "final" | "draft") => {
           : row.vendor,
       location: row.locations,
     })),
-    ecnVersion: "00",
     version: values.version,
     description: values.description,
     name: values.name,
+    ecnVersion: "00.00",
     sku: values.product.value ?? values.product,
   };
 
@@ -271,9 +271,10 @@ export const getExistingBom = async (sku: string) => {
 
     if (values) {
       let obj: BOMTypeExtended = {
-        name: sku.label + "00.00",
+        name: values.name + "00.00",
         description: values.description,
         product: sku,
+        ecnVersion: "00.00",
         version: values.version,
         id: values.bomID,
         components: values.components.map((row) => ({
