@@ -222,7 +222,14 @@ const BOMCreate = () => {
     );
     console.log("existing response", response);
     if (response.success) {
-      if (response.data) {
+      console.log("it is here up");
+      if (response.data.length) {
+        form.setFieldValue("name", sku.label ?? sku + "V-00.00");
+        form.setFieldValue("product", sku);
+        console.log("it is here up");
+        return;
+      } else if (response.data) {
+        console.log("it is here down");
         form.setFieldsValue(response.data);
         form.setFieldValue("name", sku.label ?? sku + "V-00.00");
         setVersion(response.data.version);
@@ -373,9 +380,9 @@ const BOMCreate = () => {
                     justify="space-between"
                   >
                     <p>Vendor</p>
-                    <Button onClick={toggleVendorType} size="small" type="link">
+                    {/* <Button onClick={toggleVendorType} size="small" type="link">
                       {!vendorType ? "Type" : "Select"} Vendor
-                    </Button>
+                    </Button> */}
                   </Flex>
                 }
               >
