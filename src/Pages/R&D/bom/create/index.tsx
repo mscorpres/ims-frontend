@@ -219,7 +219,7 @@ const BOMCreate = () => {
     if (response.success) {
       if (response.data) {
         form.setFieldsValue(response.data);
-        form.setFieldValue("name", sku.label);
+        form.setFieldValue("name", sku.label + "V-00.00");
         setVersion(response.data.version);
         setMainComponents(
           response.data.components.filter((row) => row.type === "main")
@@ -255,7 +255,7 @@ const BOMCreate = () => {
       console.log("selected", selectedProduct);
       if (selectedProduct && selectedProduct?.value) {
         handleFetchExistingBom(selectedProduct);
-        form.setFieldValue("name", selectedProduct?.label);
+        form.setFieldValue("name", selectedProduct?.label + "V-00.00");
       }
     }
   }, [selectedProduct]);
