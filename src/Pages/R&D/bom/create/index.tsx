@@ -174,6 +174,8 @@ const BOMCreate = () => {
     }
   };
 
+  console.log("main components upated", mainComponents);
+
   const handleFetchProductOptions = async (search: string) => {
     const response = await executeFun(
       () => getProductOptions(search),
