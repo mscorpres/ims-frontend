@@ -222,13 +222,14 @@ const BOMCreate = () => {
     );
     console.log("existing response", response.data.length);
     if (response.success) {
-      if (response.data.length) {
-        // console.log("it was here on the top");
+      console.log("it was here on the top");
+      if (Array.isArray(response.data)) {
         form.setFieldsValue({
           product: sku,
           name: sku.label ?? sku + "V-00.00",
           description: undefined,
           document: [],
+          version: "00.00",
         });
         setMainComponents([]);
         setSubComponents([]);
