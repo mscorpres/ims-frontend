@@ -21,3 +21,5 @@ const routeConstants = {
 };
 // to trigger
 export default routeConstants;
+// navigate(`${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}`)
+// import routeConstants from "@/Routes/routeConstants.js";

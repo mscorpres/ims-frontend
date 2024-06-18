@@ -165,11 +165,6 @@ export default function Products() {
                       <Input />
                     </Form.Item>
                   </Col>
-                  {/* <Col span={12}>
-                    <Form.Item name="unit" label="UOM" rules={rules.uom}>
-                      <MySelect options={uomOptions} />
-                    </Form.Item>
-                  </Col> */}
                 </Row>
               </Col>
               <Col span={24}>

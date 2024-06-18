@@ -270,9 +270,9 @@ export const getExistingBom = async (sku: string) => {
 
     if (values) {
       let obj: BOMTypeExtended = {
-        name: values.name,
+        name: sku.label,
         description: values.description,
-        product: { label: values.sku.text, value: values.sku.text },
+        product: sku,
         version: values.version,
         id: values.bomID,
         components: values.components.map((row) => ({

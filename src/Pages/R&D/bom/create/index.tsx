@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -30,6 +30,8 @@ import {
 } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import { createBOM, getExistingBom } from "@/api/r&d/bom";
+import { useSearchParams } from "react-router-dom";
+import Loading from "@/Components/Loading.jsx";
 
 const typeOptions: SelectOptionType[] = [
   {
@@ -63,6 +65,8 @@ const BOMCreate = () => {
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [isEditing, setIsEditing] = useState<string | number | boolean>(false);
 
+  const [queryParams] = useSearchParams();
+
   console.log("isEditing is", isEditing);
   const [version, setVersion] = useState("");
   const [vendorType, setVendorType] = useState(false);
@@ -70,6 +74,7 @@ const BOMCreate = () => {
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
   const type = Form.useWatch("type", form);
+  const selectedProduct = Form.useWatch("product", form);
 
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
@@ -209,19 +214,21 @@ const BOMCreate = () => {
   };
 
   const handleFetchExistingBom = async (sku: string) => {
-    // const response = await executeFun(() => getExistingBom(sku), "fetch");
-    // if (response.success) {
-    //   if (response.data) {
-    //     form.setFieldsValue(response.data);
-    //     setVersion(response.data.version);
-    //     setMainComponents(
-    //       response.data.components.filter((row) => row.type === "main")
-    //     );
-    //     setSubComponents(
-    //       response.data.components.filter((row) => row.type === "substitute")
-    //     );
-    //   }
-    // }
+    const response = await executeFun(() => getExistingBom(sku.value), "fetch");
+    console.log("existing response", response);
+    if (response.success) {
+      if (response.data) {
+        form.setFieldsValue(response.data);
+        form.setFieldValue("name", sku.label);
+        setVersion(response.data.version);
+        setMainComponents(
+          response.data.components.filter((row) => row.type === "main")
+        );
+        setSubComponents(
+          response.data.components.filter((row) => row.type === "substitute")
+        );
+      }
+    }
   };
 
   const toggleVendorType = () => {
@@ -237,6 +244,21 @@ const BOMCreate = () => {
   const handleSetComponentForEditing = (component: ComponentType) => {
     form.setFieldsValue(component);
   };
+
+  useEffect(() => {
+    if (queryParams.get("sku")) {
+      handleFetchExistingBom(queryParams.get("sku"));
+    }
+  }, [queryParams]);
+  useEffect(() => {
+    if (selectedProduct !== undefined) {
+      console.log("selected", selectedProduct);
+      if (selectedProduct && selectedProduct?.value) {
+        handleFetchExistingBom(selectedProduct);
+        form.setFieldValue("name", selectedProduct?.label);
+      }
+    }
+  }, [selectedProduct]);
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -244,6 +266,7 @@ const BOMCreate = () => {
       layout="vertical"
       initialValues={initialValues}
     >
+      {loading("fetch") && <Loading />}
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
         <Col span={4} style={{ height: "100%", overflow: "auto" }}>
           <Flex vertical gap={5}>
@@ -252,22 +275,23 @@ const BOMCreate = () => {
               title="Header Details"
               extra={<Typography.Text strong>V{version}</Typography.Text>}
             >
-              <Form.Item name="name" label="BOM Name" rules={rules.name}>
-                <Input />
-              </Form.Item>
-              <Form.Item name="version" label="Version" rules={rules.version}>
-                <Input />
-              </Form.Item>
               <Form.Item name="product" label="Product" rules={rules.product}>
                 <MyAsyncSelect
                   loadOptions={handleFetchProductOptions}
                   selectLoading={loading("select")}
                   onBlur={() => setAsyncOptions([])}
                   optionsState={asyncOptions}
-                  onChange={(value) => handleFetchExistingBom(value)}
                   fetchDefault={true}
+                  labelInValue
                 />
               </Form.Item>
+              <Form.Item name="name" label="BOM Name" rules={rules.name}>
+                <Input />
+              </Form.Item>
+              <Form.Item name="version" label="Version" rules={rules.version}>
+                <Input />
+              </Form.Item>
+
               <Form.Item name="description" label="Remarks">
                 <Input.TextArea rows={3} />
               </Form.Item>

@@ -15,6 +15,7 @@ import { BOMTypeExtended } from "@/types/r&d";
 import BOMApproval from "@/Pages/R&D/bom/list/approval";
 import Attachments from "@/Pages/R&D/bom/list/attachments";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import routeConstants from "@/Routes/routeConstants.js";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
@@ -89,10 +90,11 @@ const BOMList = () => {
           showInMenu
           placeholder="Continue"
           label={"Continue"}
-          // onClick={() => {
-          //   setShowComponents(true);
-          //   setSelectedBOM(row);
-          // }}
+          onClick={() => {
+            navigate(
+              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}`
+            );
+          }}
         />,
         // <GridActionsCellItem
         //   showInMenu
