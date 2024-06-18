@@ -83,17 +83,12 @@ function ViewBranchTransfer() {
   ];
 
   const getVendors = async (search) => {
-    if (search?.length > 2) {
-      const response = await executeFun(
-        () => getVendorOptions(search),
-        "select"
-      );
-      let arr = [];
-      if (response.success) {
-        arr = convertSelectOptions(response.data);
-      }
-      setAsyncOptions(arr);
+    const response = await executeFun(() => getVendorOptions(search), "select");
+    let arr = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
     }
+    setAsyncOptions(arr);
   };
   const getPPRDetails = async (ppr) => {
     try {

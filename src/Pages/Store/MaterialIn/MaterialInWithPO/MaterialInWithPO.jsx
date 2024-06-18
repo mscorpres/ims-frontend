@@ -478,7 +478,6 @@ export default function MaterialInWithPO({}) {
     setMaterialInward(null);
   };
   const getVendors = async (search) => {
-    // if (search?.length > 2) {
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
     console.log("this is the vendor options", response.data);
@@ -487,7 +486,6 @@ export default function MaterialInWithPO({}) {
       console.log("this is the arr options", arr);
     }
     setAsyncOptions(arr);
-    // }
   };
   const resetFunction = () => {
     setPoData(resetPoData);

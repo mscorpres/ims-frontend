@@ -261,6 +261,7 @@ import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import FARUpload from "@/Pages/far";
 import SalesOrderRegisterWithShipment from "../Pages/Sales/SalesOrder/SalesOrderRegister/SalesOrderRegisterWithShipment.jsx";
+import Q7 from "@/Pages/Query/Q7";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -492,6 +493,10 @@ const Routes = [
   {
     path: "/q6",
     main: () => <Index />,
+  },
+  {
+    path: "/q7",
+    main: () => <Q7 />,
   },
   // production MIS
   {

@@ -271,17 +271,12 @@ export default function MaterialInWithoutPO() {
     }
   };
   const getVendors = async (search) => {
-    if (search?.length > 2) {
-      const response = await executeFun(
-        () => getVendorOptions(search),
-        "select"
-      );
-      let arr = [];
-      if (response.success) {
-        arr = convertSelectOptions(response.data);
-      }
-      setAsyncOptions(arr);
+    const response = await executeFun(() => getVendorOptions(search), "select");
+    let arr = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
     }
+    setAsyncOptions(arr);
   };
   const handleFetchComponentDetails = async (row, rowId, value) => {
     const response = await executeFun(

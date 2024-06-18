@@ -33,3 +33,5 @@ export const fetchQ4 = async (componentId) => {
 
   return response;
 };
+
+export const fetchQ7 = async () => {};

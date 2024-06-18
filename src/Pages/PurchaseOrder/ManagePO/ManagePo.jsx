@@ -283,17 +283,12 @@ const ManagePO = () => {
   };
   //getting vendors list for filter by vendors
   const getVendors = async (search) => {
-    if (search?.length > 2) {
-      const response = await executeFun(
-        () => getVendorOptions(search),
-        "select"
-      );
-      let arr = [];
-      if (response.success) {
-        arr = convertSelectOptions(response.data);
-      }
-      setAsyncOptions(arr);
+    const response = await executeFun(() => getVendorOptions(search), "select");
+    let arr = [];
+    if (response.success) {
+      arr = convertSelectOptions(response.data);
     }
+    setAsyncOptions(arr);
   };
   //getting component view data
   const getComponentData = async (poid, status) => {

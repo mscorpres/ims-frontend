@@ -41,7 +41,10 @@ export default function MyAsyncSelect({
       value={value}
       // onFocus={}
       placeholder={placeholder}
-      onFocus={() => loadOptions("")}
+      onFocus={() => {
+        console.log("this is focusing");
+        loadOptions("");
+      }}
       // suffixIcon={<SearchOutlined />}
       // allowClear
       defaultValue={defaultValue}

@@ -1,6 +1,7 @@
 import { HSNType } from "@/types/master";
 import { imsAxios } from "../../axiosInterceptor";
 import { ResponseType } from "@/types/general";
+import { message } from "antd";
 
 interface GetComponentsType {
   approvers: string[];
@@ -217,16 +218,12 @@ export const verifyAttributes = async (
     }
   }
 
-  console.log("foundattr", attrName);
-  console.log("foundattr 1", attrValueKey);
-  // return;
-
   const payload: VerifyAttributesType = {
-    attr_category: values.attrCategory?.value,
+    attr_category: getCategoryLabel(values.attrCategory?.value),
     attr_code: values.uniqueId,
     attr_raw: attributes,
-    c_category: "C", //confirm
-    comp_type: "R", //confirm
+    c_category: values.attrCategory?.value, //confirm
+    comp_type: getCategoryLabel(values.attrCategory?.value), //confirm
     component: values.componentname,
     group: values.group,
     hsns: [],
@@ -247,25 +244,6 @@ export const verifyAttributes = async (
   );
   return response;
 };
-
-interface CreatePropType {
-  part: string;
-  uom: string;
-  component: string;
-  new_partno: string;
-  comp_type: string;
-  notes: string;
-  group: string;
-  attr_category: string;
-  attr_code: "RES1(0402)1020074A";
-  hsns: [];
-  taxs: [];
-  attr_raw: any;
-  manufacturing_code: string;
-  pia_status: string;
-  attributeKey: string[];
-  attributeValue: string[];
-}
 
 export const createComponent = async (
   values: any,
@@ -291,16 +269,13 @@ export const createComponent = async (
     }
   }
 
-  console.log("foundattr", attrName);
-  console.log("foundattr 1", attrValueKey);
-  // return;
-
   const payload: VerifyAttributesType = {
-    attr_category: values.attrCategory?.value,
+    attr_category: getCategoryLabel(values.attrCategory?.value),
+
     attr_code: values.uniqueId,
     attr_raw: attributes,
-    c_category: "C", //confirm
-    comp_type: "R", //confirm
+    c_category: values.attrCategory?.value, //confirm
+    comp_type: getCategoryLabel(values.attrCategory?.value), //confirm
     component: values.componentname,
     group: values.group,
     hsns: [],
@@ -325,4 +300,43 @@ export const approve = async (key: string) => {
   });
 
   return response;
+};
+
+export const getCategoryTypeOptions = async () => {
+  const response = await imsAxios.get("/mfgcategory/listCategories");
+  if (response.data.code === 200) {
+    return {
+      success: true,
+      data: response.data.data,
+      message: null,
+    };
+  } else {
+    return {
+      success: false,
+      message: response.data.message.msg,
+      data: [],
+    };
+  }
+};
+
+const getCategoryLabel = (key?: string) => {
+  let compTypeLabel;
+  switch (key) {
+    case "20231025864820945":
+      compTypeLabel = "R";
+      break;
+    case "20231028142920945":
+      compTypeLabel = "C";
+      break;
+    case "348423983543":
+      compTypeLabel = "I";
+      break;
+    case "348423984423":
+      compTypeLabel = "O";
+      break;
+    case undefined:
+      compTypeLabel = "O";
+  }
+
+  return compTypeLabel;
 };
