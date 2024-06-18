@@ -38,12 +38,14 @@ const AddComponent = () => {
   const [uomOptions, setUomOptions] = useState([]);
   const [uniqueId, setUniqueId] = useState<string | null>(null);
   const [showAttributesModal, setShowAttributesModal] = useState(false);
-  const [isEnabled, setIsEnabled] = useState(false);
   const [hsnRows, setHsnRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [generatedCompName, setGeneratedCompName] = useState(null);
   const [attributes, setAttributes] = useState({});
   const [allAttributeOptions, setAllAttributeOptions] = useState([]);
+  const [similarComponents, setSimilarComponents] = useState([]);
+  const [showSimilarPartCodeModal, setShowSimilarPartCodeModal] =
+    useState(false);
   const [stage, setStage] = useState(1);
 
   const { loading, executeFun } = useApi();
@@ -158,16 +160,16 @@ const AddComponent = () => {
         ),
       "submit"
     );
+
     if (response.success) {
+      setSimilarComponents(response.data);
+      setShowSimilarPartCodeModal(true);
+
       setStage(2);
     }
   };
   const handleCreate = async () => {
     const values = await headerForm.validateFields();
-    console.log("these are the values", values);
-    // const hsnValues = await hsnForm.validateFields();
-
-    // console.log("hsn values", hsnValues);
 
     const response = await executeFun(
       () =>
@@ -181,6 +183,8 @@ const AddComponent = () => {
     if (response.success) {
       setStage(1);
       headerForm.resetFields();
+      setShowSimilarPartCodeModal(false);
+      setSimilarComponents([]);
     }
   };
 
@@ -268,6 +272,13 @@ const AddComponent = () => {
         headerForm={headerForm}
         setAttributes={handleUpdateAttributes}
         setAllAttributeOptions={setAllAttributeOptions}
+      />
+      <SimilarPartCodesModal
+        show={showSimilarPartCodeModal}
+        hide={() => setShowSimilarPartCodeModal(false)}
+        similarPartCodes={similarComponents}
+        submitHandler={handleCreate}
+        loading={loading("submit")}
       />
       <Card size="small" title="Add New Component">
         <Form
@@ -645,3 +656,56 @@ interface SimilarUniqueCodeModalType extends ModalType {
 // const SimilarUniqueCodeModal = (props: SimilarUniqueCodeModalType) => {
 //   return <Modal open={}></Modal>;
 // };
+
+interface SimilarPartCodesModalType extends ModalType {
+  similarPartCodes: any[];
+}
+const SimilarPartCodesModal = ({
+  show,
+  hide,
+  similarPartCodes,
+  submitHandler,
+  loading,
+}: SimilarPartCodesModalType) => {
+  console.log("found components", similarPartCodes);
+  return (
+    <Modal
+      open={show}
+      onCancel={hide}
+      okText="Create"
+      onOk={submitHandler}
+      confirmLoading={loading}
+    >
+      <Typography.Text strong type="secondary">
+        We have found{" "}
+        <strong style={{ color: "black" }}>{similarPartCodes.length}</strong>{" "}
+        components with similar values.
+      </Typography.Text>
+
+      <Flex
+        vertical
+        style={{
+          marginTop: 20,
+          marginBottom: 20,
+          maxHeight: 700,
+          overflowY: "auto",
+        }}
+      >
+        {similarPartCodes?.map((row, index) => (
+          <Flex style={{ fontSize: 11 }} align="center" gap={20}>
+            <div>{index + 1}.</div>
+            <div>
+              <Typography.Text strong>{row.partCode}</Typography.Text>
+            </div>
+            <div>
+              <Typography.Text strong>{row.componentName}</Typography.Text>
+            </div>
+          </Flex>
+        ))}
+      </Flex>
+      <Typography.Text strong type="secondary">
+        Are you sure you want to create a new component with these values?
+      </Typography.Text>
+    </Modal>
+  );
+};

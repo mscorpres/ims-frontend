@@ -24,10 +24,11 @@ imsAxios.interceptors.response.use(
   },
   (error) => {
     if (typeof error.response?.data === "object") {
+      console.log("api error", error);
       if (error.response.data?.data?.logout) {
-        toast.error(error.response.data.message);
-        localStorage.clear();
-        window.location.reload();
+        // toast.error(error.response.data.message);
+        // localStorage.clear();
+        // window.location.reload();
         return error;
       }
       if (error?.response.data.success !== undefined) {

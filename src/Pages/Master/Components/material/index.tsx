@@ -1,50 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Col, Row } from "antd";
+import { Col, Modal, Row, Typography } from "antd";
 
-import MaterialUpdate from "../../Modal/MaterialUpdate";
+import MaterialUpdate from "../../Modal/MaterialUpdate.jsx";
 
-import ComponentImages from "./ComponentImages";
-import { imsAxios } from "../../../../axiosInterceptor";
-import AddPhoto from "./AddPhoto";
-import ComponentsTable from "./ComponentsTable";
+import ComponentImages from "./ComponentImages.jsx";
+
+import AddPhoto from "./AddPhoto.jsx";
+import ComponentsTable from "./ComponentsTable.jsx";
 
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import AddComponent from "./AddComponent.tsx";
+import { useSelector } from "react-redux";
+import useApi from "@/hooks/useApi";
+import { approve, getComponentList } from "@/api/master/component.js";
+import { ModalType } from "@/types/general.js";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
-  const [loading, setLoading] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
   const [materialModal, setMaterialModal] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-
   const [components, setComponents] = useState([]);
+  const [selectedComponent, setSelectedComponent] = useState(null);
+
+  const { user } = useSelector((state) => state.login);
+  const { executeFun, loading } = useApi();
 
   const getRows = async () => {
-    setLoading("fetch");
-    try {
-      setComponents([]);
-      const response = await imsAxios.get("/component");
-      const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          const arr = data.data.map((row, index) => ({
-            id: index + 1,
-            componentName: row.c_name,
-            partCode: row.c_part_no,
-            key: row.component_key,
-            unit: row.units_name,
-          }));
+    setComponents([]);
+    const response = await executeFun(
+      () => getComponentList(user?.id),
+      "fetch"
+    );
 
-          setComponents(arr);
-        } else {
-          toast.error(data.message.msg);
-        }
+    setComponents(response.data);
+  };
+
+  const handleApprove = async () => {
+    if (selectedComponent) {
+      const response = await executeFun(
+        () => approve(selectedComponent.key),
+        "approve"
+      );
+      if (response.success) {
+        setShowApproveModal(false);
+        setSelectedComponent(null);
+        getRows();
       }
-    } catch (error) {
-    } finally {
-      setLoading(false);
     }
   };
   useEffect(() => {
@@ -88,9 +92,19 @@ const Material = () => {
         onClick={() =>
           setUploadingImage({
             key: row.key,
-            label: row.componentName,
+            label: row.name,
           })
         }
+      />,
+      <GridActionsCellItem
+        showInMenu
+        disabled={!row.isApprover || row.isApproved}
+        // hidden={true}
+        label="Approve Component"
+        onClick={() => {
+          setSelectedComponent(row);
+          setShowApproveModal(true);
+        }}
       />,
     ],
   };
@@ -98,6 +112,12 @@ const Material = () => {
   return (
     <div style={{ height: "90%" }}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
+      <ApproveModal
+        show={showApproveModal}
+        hide={() => setShowApproveModal(false)}
+        submitHandler={handleApprove}
+        loading={loading("approve")}
+      />
       <AddPhoto
         updatingImage={uploadingImage}
         setUpdatingImage={setUploadingImage}
@@ -120,8 +140,7 @@ const Material = () => {
             getRows={getRows}
             components={components}
             setComponents={setComponents}
-            setLoading={setLoading}
-            loading={loading}
+            loading={loading("fetch")}
           />
         </Col>
       </Row>
@@ -130,3 +149,25 @@ const Material = () => {
 };
 
 export default Material;
+
+interface ApproveModalType extends ModalType {}
+const ApproveModal = ({
+  show,
+  hide,
+  submitHandler,
+  loading,
+}: ApproveModalType) => {
+  return (
+    <Modal
+      open={show}
+      onCancel={hide}
+      onOk={submitHandler}
+      confirmLoading={loading}
+      okText="Approve"
+    >
+      <Typography.Text strong>
+        Are you sure you want to approve this component?
+      </Typography.Text>
+    </Modal>
+  );
+};

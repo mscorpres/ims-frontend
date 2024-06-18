@@ -2,7 +2,44 @@ import { HSNType } from "@/types/master";
 import { imsAxios } from "../../axiosInterceptor";
 import { ResponseType } from "@/types/general";
 
-export const getComponentList = async () => {};
+interface GetComponentsType {
+  approvers: string[];
+  components: {
+    c_attr_category: string;
+    c_name: string;
+    c_new_part_no: string;
+    c_part_no: string;
+    component_key: string;
+    is_enabled: "PENDING" | "YES" | "NO" | "NA";
+    units_name: string;
+  }[];
+}
+export const getComponentList = async (crn: string) => {
+  console.log("this is the passed crn", crn);
+  const response: ResponseType = await imsAxios.get("/component");
+  let arr = [];
+  if (response.success) {
+    const values: GetComponentsType = response.data;
+    arr = values.components.map((row, index) => ({
+      id: index + 1,
+      category: row.c_attr_category,
+      name: row.c_name,
+      newPartCode: row.c_new_part_no,
+      partCode: row.c_part_no,
+      key: row.component_key,
+      isEnabled: row.is_enabled === "YES",
+      isApproved:
+        row.is_enabled === "YES" || row.is_enabled === "NO"
+          ? true
+          : row.is_enabled === "PENDING" && false,
+      unit: row.units_name,
+      isApprover: values.approvers.includes(crn),
+    }));
+    response.data = arr;
+  }
+
+  return response;
+};
 
 export const downloadComponentMaster = async () => {
   const response = await imsAxios.get("/component/compMasterReport");
@@ -279,5 +316,13 @@ export const createComponent = async (
   };
 
   const response = await imsAxios.post("/component/addComponent/save", payload);
+  return response;
+};
+
+export const approve = async (key: string) => {
+  const response = await imsAxios.patch(`/component/approve/${key}`, {
+    status: "Y",
+  });
+
   return response;
 };

@@ -1,21 +1,10 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../../Components/MyDataTable";
-import { imsAxios } from "../../../../axiosInterceptor";
 
-export default function ComponentsTable({
-  actionColumn,
-  getRows,
-  components,
-  setComponents,
-  loading,
-  setLoading,
-}) {
-
+export default function ComponentsTable({ actionColumn, components, loading }) {
   return (
     <MyDataTable
-      loading={loading === "fetch"}
+      loading={loading}
       data={components}
       columns={[actionColumn, ...columns]}
     />
@@ -30,19 +19,35 @@ const columns = [
   },
   {
     headerName: "Name",
-    field: "componentName",
+    field: "name",
     minWidth: 150,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.componentName} />,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
     flex: 1,
+  },
+  {
+    headerName: "Is Approved?",
+    field: "isApproved",
+    width: 100,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.isApproved ? "Yes" : "No"} />
+    ),
+  },
+  {
+    headerName: "Is Enabled?",
+    field: "isEnabled",
+    width: 100,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.isEnabled ? "Yes" : "No"} />
+    ),
   },
   {
     headerName: "Part Code",
     field: "partCode",
-    width: 150,
+    width: 120,
   },
   {
     headerName: "UoM",
     field: "unit",
-    width: 150,
+    width: 120,
   },
 ];

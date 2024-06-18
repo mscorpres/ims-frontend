@@ -38,7 +38,7 @@ export { default as ProductMIN } from "./Store/MaterialIn/ProductMIN";
 
 export { default as Rejection } from "./Store/Rejection/Rejection";
 
-export { default as Material } from "./Master/Components/material/index.jsx";
+export { default as Material } from "./Master/Components/material/index.tsx";
 
 export { default as UpdateComponent } from "./Master/Components/material/UpdateComponent.jsx";
 // export { default as UpdateComponent } from "./Master/Components/UpdateComponent.jsx";
