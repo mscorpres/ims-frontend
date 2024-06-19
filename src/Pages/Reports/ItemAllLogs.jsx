@@ -10,7 +10,7 @@ import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import MyDatePicker from "../../Components/MyDatePicker";
 import { FileImageOutlined } from "@ant-design/icons";
-import ComponentImages from "../Master/Components/material/ComponentImages";
+import ComponentImages from "../Master/Components/material/list/ComponentImages";
 import useApi from "../../hooks/useApi.ts";
 import { getComponentOptions } from "../../api/general.ts";
 import MyButton from "../../Components/MyButton";

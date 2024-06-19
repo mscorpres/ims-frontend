@@ -17,19 +17,19 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router";
-import { imsAxios } from "../../../../axiosInterceptor";
+import { imsAxios } from "../../../../../axiosInterceptor.tsx";
 import { toast } from "react-toastify";
-import MySelect from "../../../../Components/MySelect";
-import MyButton from "../../../../Components/MyButton";
+import MySelect from "../../../../../Components/MySelect.jsx";
+import MyButton from "../../../../../Components/MyButton/index.jsx";
 
-import Loading from "../../../../Components/Loading";
+import Loading from "../../../../../Components/Loading.jsx";
 import { Link } from "react-router-dom";
 import CategoryDrawer from "./CategoryDrawer";
 
-import useApi from "../../../../hooks/useApi.ts";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import MyDataTable from "../../../gstreco/myDataTable";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+import useApi from "../../../../../hooks/useApi.ts";
+import MyAsyncSelect from "../../../../../Components/MyAsyncSelect.jsx";
+import MyDataTable from "../../../../gstreco/myDataTable.jsx";
+import ToolTipEllipses from "../../../../../Components/ToolTipEllipses.jsx";
 
 import AlternatePartCode from "./AlternatePartCode";
 

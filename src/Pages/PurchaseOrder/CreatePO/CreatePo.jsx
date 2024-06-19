@@ -350,21 +350,19 @@ export default function CreatePo() {
   ];
   //getting users list
   const getusers = async (s) => {
-    if (s?.length > 2) {
-      setSelectLoading(true);
-      const { data } = await imsAxios.post("/backend/fetchAllUser", {
-        search: s,
+    setSelectLoading(true);
+    const { data } = await imsAxios.post("/backend/fetchAllUser", {
+      search: s,
+    });
+    setSelectLoading(false);
+    let arr = [];
+    if (!data.msg) {
+      arr = data.map((d) => {
+        return { text: d.text, value: d.id };
       });
-      setSelectLoading(false);
-      let arr = [];
-      if (!data.msg) {
-        arr = data.map((d) => {
-          return { text: d.text, value: d.id };
-        });
-        setAsyncOptions(arr);
-      } else {
-        setAsyncOptions([]);
-      }
+      setAsyncOptions(arr);
+    } else {
+      setAsyncOptions([]);
     }
   };
   //getting vendors in the vendor select list

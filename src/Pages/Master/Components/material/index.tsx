@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { Col, Modal, Row, Typography } from "antd";
-
+import { Button, Col, Flex, Modal, Row, Typography } from "antd";
 import MaterialUpdate from "../../Modal/MaterialUpdate.jsx";
-
-import ComponentImages from "./ComponentImages.jsx";
-
-import AddPhoto from "./AddPhoto.jsx";
-import ComponentsTable from "./ComponentsTable.jsx";
-
+import ComponentImages from "./list/ComponentImages.jsx";
+import AddPhoto from "./list/AddPhoto.jsx";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
-import AddComponent from "./AddComponent.tsx";
 import { useSelector } from "react-redux";
 import useApi from "@/hooks/useApi";
-import { approve, getComponentList } from "@/api/master/component.js";
-import { ModalType } from "@/types/general.js";
+import { getComponentList } from "@/api/master/component.js";
+
+import List from "@/Pages/Master/Components/material/list/index.js";
+import AddComponent from "@/Pages/Master/Components/material/create/index.js";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
@@ -96,28 +91,22 @@ const Material = () => {
           })
         }
       />,
-      <GridActionsCellItem
-        showInMenu
-        disabled={!row.isApprover || row.isApproved}
-        // hidden={true}
-        label="Approve Component"
-        onClick={() => {
-          setSelectedComponent(row);
-          setShowApproveModal(true);
-        }}
-      />,
+      // <GridActionsCellItem
+      //   showInMenu
+      //   disabled={!row.isApprover || row.isApproved}
+      //   label="Approve Component"
+      //   onClick={() => {
+      //     setSelectedComponent(row);
+      //     setShowApproveModal(true);
+      //   }}
+      // />,
     ],
   };
 
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "95%" }}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
-      <ApproveModal
-        show={showApproveModal}
-        hide={() => setShowApproveModal(false)}
-        submitHandler={handleApprove}
-        loading={loading("approve")}
-      />
+
       <AddPhoto
         updatingImage={uploadingImage}
         setUpdatingImage={setUploadingImage}
@@ -132,14 +121,12 @@ const Material = () => {
           span={8}
           style={{ height: "100%", overflow: "auto", overflowX: "hidden" }}
         >
-          <AddComponent />
+          <AddComponent rows={components} />
         </Col>
         <Col span={16} style={{ height: "100%" }}>
-          <ComponentsTable
+          <List
             actionColumn={actionColumn}
-            getRows={getRows}
             components={components}
-            setComponents={setComponents}
             loading={loading("fetch")}
           />
         </Col>
@@ -149,25 +136,3 @@ const Material = () => {
 };
 
 export default Material;
-
-interface ApproveModalType extends ModalType {}
-const ApproveModal = ({
-  show,
-  hide,
-  submitHandler,
-  loading,
-}: ApproveModalType) => {
-  return (
-    <Modal
-      open={show}
-      onCancel={hide}
-      onOk={submitHandler}
-      confirmLoading={loading}
-      okText="Approve"
-    >
-      <Typography.Text strong>
-        Are you sure you want to approve this component?
-      </Typography.Text>
-    </Modal>
-  );
-};

@@ -3,7 +3,7 @@ import Dragger from "antd/lib/upload/Dragger";
 import { InboxOutlined } from "@ant-design/icons";
 import React from "react";
 import { useState } from "react";
-import { imsAxios } from "../../../../axiosInterceptor";
+import { imsAxios } from "../../../../../axiosInterceptor";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 

@@ -32,6 +32,7 @@ const CategoryForm = (props: PropTypes) => {
   const [selectOptions, setSelectOptions] = useState<OptionType[]>([]);
 
   const values = Form.useWatch([], props.form);
+  const mfgCode = Form.useWatch("mfgCode", props.form);
   const { executeFun, loading } = useApi();
 
   const handleFetchCategoryFields = async (categoryKey: string) => {
@@ -192,63 +193,64 @@ const CategoryForm = (props: PropTypes) => {
     }
   }, [values, props.category]);
 
+  console.log("updaging mfgcode", mfgCode);
   return (
     <Form form={props.form} layout="vertical">
       <Row gutter={6}>
-        {!props.hideExtra && (
-          <Col span={12}>
-            <Card
-              size="small"
-              style={{ height: "100%" }}
-              bodyStyle={{ height: "98%" }}
-            >
-              <Flex vertical gap={20}>
-                <div>
-                  <Typography.Text strong>
-                    Selected Category: {props.category?.text}
-                  </Typography.Text>
-                </div>
+        {/* {!props.hideExtra && ( */}
+        <Col span={12}>
+          <Card
+            size="small"
+            style={{ height: "100%" }}
+            bodyStyle={{ height: "98%" }}
+          >
+            <Flex vertical gap={20}>
+              <div>
+                <Typography.Text strong>
+                  Selected Category: {props.category?.text}
+                </Typography.Text>
+              </div>
+              <Divider style={{ margin: "-5px 0px" }} />
+              <div>
+                <Typography.Text strong>
+                  Unique Id: <br />
+                  <span style={{ color: "#04b0a8" }}>{props.uniqueCode}</span>
+                </Typography.Text>
+              </div>
+              <div>
                 <Divider style={{ margin: "-5px 0px" }} />
-                <div>
-                  <Typography.Text strong>
-                    Unique Id: <br />
-                    <span style={{ color: "#04b0a8" }}>{props.uniqueCode}</span>
-                  </Typography.Text>
-                </div>
-                <div>
-                  <Divider style={{ margin: "-5px 0px" }} />
-                  <Typography.Text strong>
-                    Component Name: <br />
-                    <span style={{ color: "#04b0a8" }}>
-                      {props.componentName}
-                    </span>
-                  </Typography.Text>
-                </div>
-                <Divider style={{ margin: "-5px 0px" }} />
-                <div>
-                  <Form.Item
-                    rules={[{ required: true }]}
-                    name="mfgCode"
-                    label="Manufacturing Code"
-                  >
-                    <Input placeholder="Manufacturing Code" />
-                  </Form.Item>
-                </div>
-              </Flex>
-            </Card>
-          </Col>
-        )}
+                <Typography.Text strong>
+                  Component Name: <br />
+                  <span style={{ color: "#04b0a8" }}>
+                    {props.componentName}
+                  </span>
+                </Typography.Text>
+              </div>
+              <Divider style={{ margin: "-5px 0px" }} />
+              <div>
+                <Form.Item
+                  rules={[{ required: true }]}
+                  name="mfgCode"
+                  preserve={true}
+                  label="Manufacturing Code"
+                >
+                  <Input placeholder="Manufacturing Code" />
+                </Form.Item>
+              </div>
+            </Flex>
+          </Card>
+        </Col>
+
         <Col span={props.hideExtra ? 24 : 12}>
-          {/* {loading === "fetch" && <Loading />} */}
           {stage === 1 && (
             <Card size="small" style={{ height: "100%" }}>
-              {loading("fetch") && (
-                <Flex justify="center" style={{ marginTop: 50 }}>
-                  <Typography.Text strong type="secondary">
-                    Fetching Fields...
+              <Flex justify="center" align="center" style={{ marginTop: 20 }}>
+                {loading("fetch") && (
+                  <Typography.Text type="secondary" strong>
+                    Fetching attributes...
                   </Typography.Text>
-                </Flex>
-              )}
+                )}
+              </Flex>
               {!loading("fetch") && (
                 <Row gutter={10}>
                   {fields

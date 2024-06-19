@@ -10,13 +10,13 @@ import {
   Typography,
 } from "antd";
 import React from "react";
-import MyButton from "../../../../Components/MyButton";
+import MyButton from "../../../../../Components/MyButton";
 import { useParams } from "react-router";
 import { useState } from "react";
 import { useEffect } from "react";
-import { imsAxios } from "../../../../axiosInterceptor";
+import { imsAxios } from "../../../../../axiosInterceptor";
 import { toast } from "react-toastify";
-import MySelect from "../../../../Components/MySelect";
+import MySelect from "../../../../../Components/MySelect";
 import { Numbers } from "@mui/icons-material";
 
 export default function CategoryDrawer({
