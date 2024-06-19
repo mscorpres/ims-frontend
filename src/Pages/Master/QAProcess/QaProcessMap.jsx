@@ -57,6 +57,7 @@ const QaProcessMap = () => {
   const [processListOptions, setProcessListOptions] = useState([]);
   const [locationlist, setLocationList] = useState([]);
   const [skuList, setskulist] = useState([]);
+  const [loading1, setLoading1] = useState(false);
 
   const { executeFun, loading } = useApi();
   //get sku data
@@ -474,9 +475,11 @@ const QaProcessMap = () => {
   };
 
   const handleFetchPreviousEntries = async () => {
+    setLoading1("prev");
     const response = await imsAxios.post("/qaProcessmaster/fetchQAProcess", {
       sku: qaProcessData.sku,
     });
+    setLoading1(false);
     let arr = [];
     if (response.data.code === 200) {
       arr = response.data.data.map((row, index) => ({
@@ -758,6 +761,7 @@ const QaProcessMap = () => {
             columns={columns}
             data={qaProcessInputs}
             hideHeaderMenu
+            loading={loading1 === "prev"}
           />
         </Col>
       </Row>
