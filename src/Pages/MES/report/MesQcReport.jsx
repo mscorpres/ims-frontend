@@ -14,9 +14,7 @@ import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
+import printFunction from "../../../Components/printFunction";
 import MyButton from "../../../Components/MyButton";
 
 function MesQcaReport() {
@@ -31,8 +29,6 @@ function MesQcaReport() {
   const [qcReportForm] = Form.useForm();
   const ppr = Form.useWatch("ppr", qcReportForm);
   const status = Form.useWatch("status", qcReportForm);
-  const processName = Form.useWatch("process", qcReportForm);
-  const [searchInput, setSearchInput] = useState("");
 
   const Generateqrforlot = async (row) => {
     try {
@@ -93,10 +89,12 @@ function MesQcaReport() {
   ];
   const getPprOptions = async (search) => {
     try {
+      setAsyncOptions([]);
       setLoading("select");
       const response = await imsAxios.post("/createqca/getPprNo", {
         searchTerm: search,
       });
+      setLoading("false");
       const { data } = response;
       if (data) {
         const arr = data.map((row) => ({
@@ -133,10 +131,11 @@ function MesQcaReport() {
       );
 
       const { data: processData } = processResponse;
-      if (processData) {
-        const arr = processData.data.map((row) => ({
-          text: row.process.name,
-          value: row.process.key,
+
+      if (processResponse.success) {
+        const arr = processData.map((row) => ({
+          text: row.process?.name,
+          value: row.process?.key,
         }));
 
         setProcessOptions(arr);
