@@ -142,13 +142,17 @@ const Qctest = () => {
   const [selected, setSelected] = useState([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
+  const [selectLoading, setSelectLoading] = useState(false);
   console.log("set process data", processData);
   //API FUNCTIONS
   //1) PPR SEARCH API
   const getAllPPR = async (e) => {
+    setPproptions([]);
+    setSelectLoading(true);
     const response = await imsAxios.post("/createqca/getPprNo", {
       searchTerm: e,
     });
+    setSelectLoading(false);
     const data = response.data;
     let arr = [];
     arr = data.map((d) => {
@@ -544,6 +548,7 @@ const Qctest = () => {
                       onChange={(e) => {
                         fetchSinglePPR(e);
                       }}
+                      selectLoading={selectLoading}
                       placeholder="Enter the PPR NO."
                     />
                   </Form.Item>
