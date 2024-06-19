@@ -132,8 +132,8 @@ function MesQcaReport() {
 
       const { data: processData } = processResponse;
 
-      if (processResponse.success) {
-        const arr = processData.map((row) => ({
+      if (processResponse.data) {
+        const arr = processData.data.map((row) => ({
           text: row.process?.name,
           value: row.process?.key,
         }));
