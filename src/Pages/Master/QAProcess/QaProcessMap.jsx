@@ -162,17 +162,31 @@ const QaProcessMap = () => {
     let passLoc = [];
     let FailLoc = [];
     let sku = [];
+    let qa_process_key = [];
     //extracting data from inputs to send
     qaProcessInputs.map((item) => processLevelarr.push(item.processLevel));
     qaProcessInputs.map((item) => processRemarkarr.push(item.processRemark));
     qaProcessInputs.map((item) => lotSizearr.push(item.lot_size));
-    qaProcessInputs.map((item) => process.push(item.process));
-    qaProcessInputs.map((item) => subject.push(item.bom));
-    qaProcessInputs.map((item) => bomrequired.push(item.bomRequired));
-    qaProcessInputs.map((item) => processLoc.push(item.ProcessLocation));
-    qaProcessInputs.map((item) => passLoc.push(item.passLocation));
-    qaProcessInputs.map((item) => FailLoc.push(item.failLocation));
-    qaProcessInputs.map((item) => sku.push(item.sku));
+    qaProcessInputs.map((item) =>
+      process.push(item.process?.value ?? item.process)
+    );
+    qaProcessInputs.map((item) => subject.push(item.bom?.value ?? item.bom));
+    qaProcessInputs.map((item) =>
+      bomrequired.push(item.bomRequired?.value ?? item.bomRequired)
+    );
+    qaProcessInputs.map((item) =>
+      processLoc.push(item.ProcessLocation?.value ?? item.ProcessLocation)
+    );
+    qaProcessInputs.map((item) =>
+      passLoc.push(item.passLocation?.value ?? item.passLocation)
+    );
+    qaProcessInputs.map((item) =>
+      FailLoc.push(item.failLocation?.value ?? item.failLocation)
+    );
+    qaProcessInputs.map((item) =>
+      qa_process_key.push(item.qa_process_key ?? null)
+    );
+    qaProcessInputs.map((item) => sku.push(item.sku?.value ?? item.sku));
     //adding arrays in Payload
     qaProcessData.processLevel = processLevelarr;
     qaProcessData.lot_size = lotSizearr;
@@ -184,9 +198,10 @@ const QaProcessMap = () => {
     qaProcessData.subject = subject;
     qaProcessData.process = process;
     qaProcessData.sfg_sku = sku;
+    qaProcessData.qa_process_key = qa_process_key;
     console.log(qaProcessData);
     const response = await imsAxios.post(
-      "/qaProcessmaster/createQAProcess",
+      "/qaProcessmaster/updateMappedQAProcess",
       qaProcessData
     );
     if (response.data.status === "success") {
@@ -458,6 +473,52 @@ const QaProcessMap = () => {
     });
   };
 
+  const handleFetchPreviousEntries = async () => {
+    const response = await imsAxios.post("/qaProcessmaster/fetchQAProcess", {
+      sku: qaProcessData.sku,
+    });
+    let arr = [];
+    if (response.data.code === 200) {
+      arr = response.data.data.map((row, index) => ({
+        id: index + 1,
+        qa_process_key: row.qa_process_key,
+        bomRequired: { text: row.bomrequired, value: row.bomrequired },
+        bom: {
+          text: row.bom.name,
+          value: row.bom.id,
+        },
+        sku: {
+          text: qaProcessData.sku,
+          value: qaProcessData.sku,
+        },
+        process: {
+          text: row.process.name,
+          value: row.process.key,
+        },
+        processLevel: row.qa_process_level,
+        ProcessLocation: {
+          text: row.process_loc.name,
+          value: row.process_loc.key,
+        },
+        passLocation: {
+          text: row.pass_loc.name,
+          value: row.pass_loc.key,
+        },
+        failLocation: {
+          text: row.fail_loc.name,
+          value: row.fail_loc.key,
+        },
+        lot_size: row.qa_lot_size,
+        processRemark: row.qa_process_remark,
+      }));
+      setQaProcessInput(arr);
+      return {
+        success: true,
+        data: arr,
+      };
+    }
+  };
+
   const columns = [
     {
       renderHeader: () => (
@@ -487,6 +548,7 @@ const QaProcessMap = () => {
       renderCell: ({ row }) => (
         <MyAsyncSelect
           value={row.bomRequired}
+          labelInValue={true}
           optionsState={bomRequiredOptions}
           onChange={(e, selectedValue) =>
             qaProcessDataHandler("bomRequired", e, row.id, selectedValue)
@@ -504,6 +566,7 @@ const QaProcessMap = () => {
         <MyAsyncSelect
           loadOptions={bom}
           value={row.bom}
+          labelInValue={true}
           optionsState={bomoptions}
           placeholder="Select Bom"
           onChange={(e, selectedValue) =>
@@ -523,6 +586,7 @@ const QaProcessMap = () => {
           value={row.sku}
           loadOptions={getskulist}
           optionsState={skuList}
+          labelInValue={true}
           onChange={(e, selectedValue) =>
             qaProcessDataHandler("sku", e, row.id, selectedValue)
           }
@@ -540,6 +604,7 @@ const QaProcessMap = () => {
           loadOptions={processList}
           optionsState={processListOptions}
           value={row.process}
+          labelInValue={true}
           placeholder="Select Process"
           onChange={(e, selectedValue) =>
             qaProcessDataHandler("process", e, row.id, selectedValue)
@@ -571,6 +636,7 @@ const QaProcessMap = () => {
         <MyAsyncSelect
           loadOptions={locationList}
           optionsState={locationlist}
+          labelInValue={true}
           value={row.ProcessLocation}
           placeholder="Select Location"
           onChange={(e, selectedValue) =>
@@ -587,6 +653,7 @@ const QaProcessMap = () => {
       renderCell: ({ row }) => (
         <MyAsyncSelect
           loadOptions={locationList}
+          labelInValue={true}
           optionsState={locationlist}
           value={row.passLocation}
           placeholder="Select pass Location"
@@ -603,6 +670,7 @@ const QaProcessMap = () => {
       sortable: false,
       renderCell: ({ row }) => (
         <MyAsyncSelect
+          labelInValue={true}
           loadOptions={locationList}
           optionsState={locationlist}
           value={row.failLocation}
@@ -643,21 +711,20 @@ const QaProcessMap = () => {
     },
   ];
 
+  useEffect(() => {
+    if (qaProcessData.sku) {
+      handleFetchPreviousEntries(qaProcessData.sku);
+    }
+  }, [qaProcessData.sku]);
+
   return (
     <div style={{ height: "90%", width: "100%" }}>
       <Row
-        gutter={15}
+        gutter={6}
         style={{ padding: "0px 10px", height: "100%", width: "100%" }}
       >
         <Col span={4}>
-          <Card
-            style={{
-              height: "100%",
-              maxHeight: "10rem",
-              overflowY: "scroll",
-              width: "100%",
-            }}
-          >
+          <Card size="small">
             <Form
               style={{ width: "100%", height: "100%" }}
               size="small"
