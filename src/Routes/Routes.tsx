@@ -262,6 +262,7 @@ import BOMList from "@/Pages/R&D/bom/list/index.js";
 import FARUpload from "@/Pages/far";
 import SalesOrderRegisterWithShipment from "../Pages/Sales/SalesOrder/SalesOrderRegister/SalesOrderRegisterWithShipment.jsx";
 import Q7 from "@/Pages/Query/Q7";
+import ComponentApproval from "@/Pages/Master/Components/material/approval/index.js";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -288,6 +289,10 @@ const Routes = [
   {
     path: "/material",
     main: () => <Material />,
+  },
+  {
+    path: "/material/pending-approval",
+    main: () => <ComponentApproval />,
   },
   {
     path: "/master/component/category",

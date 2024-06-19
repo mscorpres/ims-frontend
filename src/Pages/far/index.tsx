@@ -23,11 +23,17 @@ const FARUpload = () => {
 
     //uploading logic
     const response = await executeFun(() => uploadFile(file), "submit");
-    if (response.success) {
-      downloadFunction(response.data.buffer.data, response.data.filename);
-      setShowConfirm(false);
-      form.resetFields();
-    }
+
+    const newBlob = new Blob([response.data], {
+      type: "application/pdf",
+    });
+
+    const url = window.URL.createObjectURL(newBlob);
+
+    console.log("this is response", response);
+    window.open(url, "_blank", "noreferrer");
+    setShowConfirm(false);
+    form.resetFields();
   };
   const normFile = (e) => {
     console.log("Upload event:", e);

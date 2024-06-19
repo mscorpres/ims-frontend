@@ -1,4 +1,4 @@
-import { ResponseType } from "@/types/general";
+import { ResponseType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { imsAxios } from "../axiosInterceptor";
 
@@ -196,6 +196,26 @@ export const getComponentStock = async (componentKey: string, type: "rm") => {
   if (response.success) {
     response.data = response.data.stock;
   }
+
+  return response;
+};
+
+export const getUserOptions = async (search: string) => {
+  const response = await imsAxios.post("/backend/fetchAllUser", {
+    search,
+  });
+
+  if (Array.isArray(response.data)) {
+    response.data = convertSelectOptions(response.data);
+  }
+
+  return response;
+};
+export const getUomOptions = async () => {
+  const response: Response = await imsAxios.get("/uom/uomSelect2");
+  let arr: SelectOptionType = [];
+  if (response.success) arr = convertSelectOptions(response.data);
+  response.data = arr;
 
   return response;
 };

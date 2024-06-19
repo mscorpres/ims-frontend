@@ -1,16 +1,16 @@
 import { Drawer, Row, Col, Form, Button } from "antd";
-import useApi from "../../../../hooks/useApi.ts";
+import useApi from "../../../../../hooks/useApi.ts";
 import {
   getComponentOptions,
   updateAlternatePartCode,
-} from "../../../../api/general.ts";
+} from "../../../../../api/general.ts";
 import { useEffect, useState } from "react";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import MyDataTable from "../../../gstreco/myDataTable";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import { imsAxios } from "../../../../axiosInterceptor";
-import { getAlternativePartCodes } from "../../../../api/master/component.ts";
-import TableActions from "../../../../Components/TableActions.jsx/TableActions";
+import MyAsyncSelect from "../../../../../Components/MyAsyncSelect.jsx";
+import MyDataTable from "../../../../gstreco/myDataTable.jsx";
+import ToolTipEllipses from "../../../../../Components/ToolTipEllipses.jsx";
+import { imsAxios } from "../../../../../axiosInterceptor.tsx";
+import { getAlternativePartCodes } from "../../../../../api/master/component.ts";
+import TableActions from "../../../../../Components/TableActions.jsx/TableActions.jsx";
 import { toast } from "react-toastify";
 import { CheckOutlined } from "@ant-design/icons";
 

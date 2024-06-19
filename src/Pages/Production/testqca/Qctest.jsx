@@ -8,6 +8,7 @@ import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import printFunction from "../../../Components/printFunction";
+import Loading from "../../../Components/Loading";
 
 const statusOptions = [
   {
@@ -33,6 +34,7 @@ const Qctest = () => {
   const [manualCount, setManualCount] = useState("");
   const [manualType, setManualType] = useState("");
   const [manualRemarks, setManualRemarks] = useState("");
+  const [loading, setLoading] = useState(false);
   const [previousDetails, setPreviousDetails] = useState({
     passedQty: "--",
     failedQty: "--",
@@ -142,13 +144,17 @@ const Qctest = () => {
   const [selected, setSelected] = useState([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [generateLoading, setGenerateLoading] = useState(false);
+  const [selectLoading, setSelectLoading] = useState(false);
   console.log("set process data", processData);
   //API FUNCTIONS
   //1) PPR SEARCH API
   const getAllPPR = async (e) => {
+    setPproptions([]);
+    setSelectLoading(true);
     const response = await imsAxios.post("/createqca/getPprNo", {
       searchTerm: e,
     });
+    setSelectLoading(false);
     const data = response.data;
     let arr = [];
     arr = data.map((d) => {
@@ -383,10 +389,13 @@ const Qctest = () => {
       accesstoken: accesstoken,
       result: lotstatusid,
     };
+    setLoading("transfer");
+
     const response = await imsAxios.post(
       "/createqca/lot_transfer",
       lottransferdata
     );
+    setLoading(false);
     const { data } = response;
     setbuttonloading("");
     setbuttonstyle("pointer");
@@ -544,6 +553,7 @@ const Qctest = () => {
                       onChange={(e) => {
                         fetchSinglePPR(e);
                       }}
+                      selectLoading={selectLoading}
                       placeholder="Enter the PPR NO."
                     />
                   </Form.Item>
@@ -628,6 +638,7 @@ const Qctest = () => {
               bodyStyle={{ height: "10%" }}
               title={"SCAN DETAILS"}
             >
+              {loading === "transfer" && <Loading />}
               <div
                 style={{
                   // padding: "10px",
@@ -756,7 +767,25 @@ const Qctest = () => {
         centered
         closable={closetype}
         maskClosable={closetype}
+        loading={loading}
       >
+        {" "}
+        {loading === "transfer" && (
+          <div
+            style={{
+              position: "absolute",
+              height: "100%",
+              width: "100%",
+              background: "black",
+              opacity: 0.7,
+              top: 0,
+              borderRadius: 8,
+              left: 0,
+            }}
+          >
+            <Loading />
+          </div>
+        )}
         {(() => {
           switch (modaltype) {
             case "GenerateQR":
@@ -764,6 +793,7 @@ const Qctest = () => {
                 <>
                   <h2>Generate QR Code:</h2>
                   <button
+                    // loading="transfer_pass"
                     id="PASS"
                     disabled={buttonloading}
                     onClick={(e) => {

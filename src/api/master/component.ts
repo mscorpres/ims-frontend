@@ -176,66 +176,17 @@ export const getAllCategoryFields = async () => {
 };
 
 interface VerifyAttributesType {
-  part: string;
-  uom: string;
-  component: string;
-  new_partno: string;
-  comp_type: string;
-  c_category: string;
-  notes: string;
-  group: string;
   attr_category: string;
   attr_code: string;
-  hsns: [];
-  taxs: [];
-  attr_raw: any;
-  manufacturing_code: string;
-  pia_status: "Y" | "N";
-  attributeKey: string[];
-  attributeValue: string[];
 }
 export const verifyAttributes = async (
-  values: any,
-  attributes: any,
-  allAttributeOptions: never[]
+  attrCategory: string,
+  uniqueId: string
 ) => {
-  const attrName = new Set<string>();
-  const attrValueKey = new Set<string>();
-
-  for (let key in attributes) {
-    const current = attributes[key];
-    const foundAttr = allAttributeOptions.find(
-      (row) => row.name === key && row.value === current
-    );
-
-    if (foundAttr) {
-      attrName.add(foundAttr?.name);
-      attrValueKey.add(foundAttr?.valueKey);
-    }
-    if (!foundAttr) {
-      attrName.add(key);
-      attrValueKey.add(current);
-    }
-  }
-
   const payload: VerifyAttributesType = {
-    attr_category: getCategoryLabel(values.attrCategory?.value),
-    attr_code: values.uniqueId,
-    attr_raw: attributes,
-    c_category: values.attrCategory?.value, //confirm
-    comp_type: getCategoryLabel(values.attrCategory?.value), //confirm
-    component: values.componentname,
-    group: values.group,
-    hsns: [],
-    new_partno: values.newPart,
-    notes: values.description,
-    part: values.code,
-    taxs: [],
-    uom: values.unit,
-    manufacturing_code: "123",
-    attributeKey: Array.from(attrName),
-    attributeValue: Array.from(attrValueKey),
-    pia_status: values.piaEnable ? "Y" : "N",
+    attr_code: uniqueId,
+
+    attr_category: attrCategory,
   };
 
   const response = await imsAxios.post(
@@ -288,15 +239,21 @@ export const createComponent = async (
     attributeKey: Array.from(attrName),
     attributeValue: Array.from(attrValueKey),
     pia_status: values.piaEnable ? "Y" : "N",
+    request_by: values.requestBy,
   };
 
   const response = await imsAxios.post("/component/addComponent/save", payload);
   return response;
 };
 
-export const approve = async (key: string) => {
+export const updateApprovalStatus = async (
+  key: string,
+  type: "approve" | "reject",
+  remarks: string
+) => {
   const response = await imsAxios.patch(`/component/approve/${key}`, {
-    status: "Y",
+    status: type === "approve" ? "Y" : "N",
+    remarks,
   });
 
   return response;
@@ -319,6 +276,37 @@ export const getCategoryTypeOptions = async () => {
   }
 };
 
+interface GetPendingApprovalListType {
+  componentName: string;
+  componentKey: string;
+  partCode: string;
+  type: string;
+  attributeCode: string;
+  manufacturingCode: string;
+  requestedBy: string;
+  createdAt: string;
+}
+export const getPendingApprovalList = async () => {
+  const response: ResponseType = await imsAxios.get(
+    "/component/pendingApproval"
+  );
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row: GetPendingApprovalListType, index) => ({
+      id: index + 1,
+      key: row.componentKey,
+      name: row.componentName,
+      partCode: row.partCode,
+      type: row.type,
+      uniqueCode: row.attributeCode,
+      mfgCode: row.manufacturingCode,
+      requestedBy: row.requestedBy,
+      createdAt: row.createdAt,
+    }));
+  }
+  response.data = arr;
+  return response;
+};
 const getCategoryLabel = (key?: string) => {
   let compTypeLabel;
   switch (key) {

@@ -1,7 +1,8 @@
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import MyDataTable from "../../../../Components/MyDataTable";
+import ToolTipEllipses from "@/Components/ToolTipEllipses";
+import MyDataTable from "@/Components/MyDataTable";
+import { GridActionsCellItem } from "@mui/x-data-grid";
 
-export default function ComponentsTable({ actionColumn, components, loading }) {
+export default function List({ actionColumn, components, loading }) {
   return (
     <MyDataTable
       loading={loading}
@@ -16,6 +17,11 @@ const columns = [
     headerName: "#",
     field: "id",
     width: 30,
+  },
+  {
+    headerName: "Part Code",
+    field: "partCode",
+    width: 120,
   },
   {
     headerName: "Name",
@@ -40,11 +46,7 @@ const columns = [
       <ToolTipEllipses text={row.isEnabled ? "Yes" : "No"} />
     ),
   },
-  {
-    headerName: "Part Code",
-    field: "partCode",
-    width: 120,
-  },
+
   {
     headerName: "UoM",
     field: "unit",

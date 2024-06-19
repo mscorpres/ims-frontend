@@ -3,14 +3,11 @@ import {
   Card,
   Checkbox,
   Col,
-  Divider,
   Flex,
   Form,
   Input,
-  InputNumber,
   Modal,
   Row,
-  Space,
   Typography,
 } from "antd";
 import { useEffect, useState } from "react";
@@ -23,16 +20,22 @@ import {
   createComponent,
   downloadComponentMaster,
   downloadElectronicReport,
+  getCategoryTypeOptions,
   verifyAttributes,
 } from "@/api/master/component";
 import { imsAxios } from "@/axiosInterceptor";
 import { v4 } from "uuid";
-import { CloseOutlined } from "@ant-design/icons";
-import CategoryForm from "@/Pages/Master/Components/material/CategoryForm";
+import { CloseOutlined, LoadingOutlined } from "@ant-design/icons";
+import CategoryForm from "@/Pages/Master/Components/material/list/CategoryForm";
 import { toast } from "react-toastify";
 import { ModalType } from "@/types/general";
+import { getComponentOptions, getUserOptions } from "@/api/general";
+import useDebounce from "@/hooks/useDebounce";
 
-const AddComponent = () => {
+interface PropType {
+  rows: any[];
+}
+const AddComponent = ({ rows }: PropType) => {
   const [attrCategoryOptions, setAttrCategoryOptions] = useState([]);
   const [groupOptions, setGroupOptions] = useState([]);
   const [uomOptions, setUomOptions] = useState([]);
@@ -46,12 +49,18 @@ const AddComponent = () => {
   const [similarComponents, setSimilarComponents] = useState([]);
   const [showSimilarPartCodeModal, setShowSimilarPartCodeModal] =
     useState(false);
-  const [stage, setStage] = useState(1);
+  const [isVerified, setIsVerified] = useState(false);
 
   const { loading, executeFun } = useApi();
   const [headerForm] = Form.useForm();
   const [hsnForm] = Form.useForm();
   const selectedCategory = Form.useWatch("attrCategory", headerForm);
+
+  const enteredPartCode = useDebounce(Form.useWatch("code", headerForm), 1500);
+  const [partCodeError, setPartCodeError] = useState({
+    status: "success",
+    message: "",
+  });
 
   const getHsnOptions = async (search) => {
     try {
@@ -72,25 +81,27 @@ const AddComponent = () => {
     }
   };
 
-  const getUomOptions = async () => {
-    try {
-      const response = await imsAxios.post("uom/uomSelect2");
-      const { data } = response;
-      if (data) {
-        // if (data.code === 200) {
-        let arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
+  const handleComponentOptions = async (search: string) => {
+    if (search.length < 4) return;
+    const response = await executeFun(
+      () => getComponentOptions(search),
+      "validate"
+    );
 
-        setUomOptions(arr);
-      } else {
-        toast.error(data.message.msg);
-      }
-      // }
-    } catch (error) {
-    } finally {
+    if (response.data?.length > 0) {
+      setPartCodeError({
+        status: "error",
+        message: "Part Code already in use",
+      });
+    } else {
+      setPartCodeError({
+        status: "success",
+        message: "",
+      });
     }
+  };
+  const handleGetUomOptions = async () => {
+    //  setUomOptions(response.data ?? [])
   };
 
   const getGroupOptions = async () => {
@@ -115,19 +126,8 @@ const AddComponent = () => {
   };
 
   const getAttrCategoryOptions = async () => {
-    try {
-      const response = await imsAxios.get("/mfgcategory/listCategories");
-      const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          setAttrCategoryOptions(data.data);
-        } else {
-          setAttrCategoryOptions([]);
-        }
-      }
-    } catch (error) {
-    } finally {
-    }
+    const response = await executeFun(() => getCategoryTypeOptions(), "fetch");
+    setAttrCategoryOptions(response.data ?? []);
   };
   const resetConfirmHandler = (async) => {
     Modal.confirm({
@@ -142,50 +142,6 @@ const AddComponent = () => {
     headerForm.resetFields();
     hsnForm.resetFields();
     setHsnRows([]);
-  };
-
-  const handleVerify = async () => {
-    const values = await headerForm.validateFields();
-    console.log("these are the values", values);
-    // const hsnValues = await hsnForm.validateFields();
-
-    // console.log("hsn values", hsnValues);
-
-    const response = await executeFun(
-      () =>
-        verifyAttributes(
-          { ...values, uniqueId },
-          attributes,
-          allAttributeOptions
-        ),
-      "submit"
-    );
-
-    if (response.success) {
-      setSimilarComponents(response.data);
-      setShowSimilarPartCodeModal(true);
-
-      setStage(2);
-    }
-  };
-  const handleCreate = async () => {
-    const values = await headerForm.validateFields();
-
-    const response = await executeFun(
-      () =>
-        createComponent(
-          { ...values, uniqueId },
-          attributes,
-          allAttributeOptions
-        ),
-      "submit"
-    );
-    if (response.success) {
-      setStage(1);
-      headerForm.resetFields();
-      setShowSimilarPartCodeModal(false);
-      setSimilarComponents([]);
-    }
   };
 
   const handleDownloadMaster = async () => {
@@ -227,6 +183,45 @@ const AddComponent = () => {
   const handleUpdateAttributes = (values: any) => {
     setAttributes(values);
   };
+
+  const handleFetchUsersOptions = async (search: string) => {
+    const response = await executeFun(() => getUserOptions(search), "select");
+    setAsyncOptions(response.data);
+  };
+
+  const handleVerify = async () => {
+    const values = await headerForm.validateFields(["attrCategory"]);
+
+    const response = await executeFun(
+      () => verifyAttributes(values.attrCategory, uniqueId),
+      "verify"
+    );
+
+    if (response.success) {
+      setSimilarComponents(response.data);
+      setShowSimilarPartCodeModal(true);
+      setShowAttributesModal(false);
+    }
+  };
+  const handleCreate = async () => {
+    const values = await headerForm.validateFields();
+
+    const response = await executeFun(
+      () =>
+        createComponent(
+          { ...values, uniqueId },
+          attributes,
+          allAttributeOptions
+        ),
+      "submit"
+    );
+    if (response.success) {
+      headerForm.resetFields();
+      setShowSimilarPartCodeModal(false);
+      setSimilarComponents([]);
+    }
+  };
+
   useEffect(() => {
     setUniqueId(null);
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
@@ -255,9 +250,12 @@ const AddComponent = () => {
   }, [generatedCompName]);
   useEffect(() => {
     getAttrCategoryOptions();
-    getUomOptions();
+    handleGetUomOptions();
     getGroupOptions();
   }, []);
+  useEffect(() => {
+    handleComponentOptions(enteredPartCode);
+  }, [enteredPartCode]);
   console.log("these are all options", allAttributeOptions);
   return (
     <Flex vertical>
@@ -272,6 +270,9 @@ const AddComponent = () => {
         headerForm={headerForm}
         setAttributes={handleUpdateAttributes}
         setAllAttributeOptions={setAllAttributeOptions}
+        submitHandler={handleVerify}
+        loading={loading("verify")}
+        setIsVerified={setIsVerified}
       />
       <SimilarPartCodesModal
         show={showSimilarPartCodeModal}
@@ -279,15 +280,25 @@ const AddComponent = () => {
         similarPartCodes={similarComponents}
         submitHandler={handleCreate}
         loading={loading("submit")}
+        setShowAttributesModal={setShowAttributesModal}
+        setIsVerified={setIsVerified}
       />
-      <Card size="small" title="Add New Component">
+      <Card
+        size="small"
+        title="Add New Component"
+        extra={
+          <Typography.Text strong style={{ fontSize: 13 }}>
+            Last Part Code: {rows[0]?.partCode ?? "--"}
+          </Typography.Text>
+        }
+      >
         <Form
           form={headerForm}
           initialValues={headerInitialValues}
           layout="vertical"
         >
           <Row gutter={6}>
-            <Col span={12}>
+            <Col span={6}>
               <Form.Item
                 label="Type"
                 name="attrCategory"
@@ -296,7 +307,7 @@ const AddComponent = () => {
                 <MySelect labelInValue={true} options={attrCategoryOptions} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={18}>
               <Form.Item
                 rules={headerRules.name}
                 label="Component Name"
@@ -325,8 +336,10 @@ const AddComponent = () => {
                 rules={headerRules.partCode}
                 label="Part Code"
                 name="code"
+                validateStatus={partCodeError.status}
+                help={partCodeError.message}
               >
-                <Input />
+                <Input suffix={loading("validate") && <LoadingOutlined />} />
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -361,7 +374,22 @@ const AddComponent = () => {
                 </Row>
               </Col>
             )}
-            <Col span={24}>
+            <Col span={12}>
+              <Form.Item
+                label="Requested By"
+                name="raisedBy"
+                // rules={rules.raisedBy}
+              >
+                <MyAsyncSelect
+                  selectLoading={loading("select")}
+                  size="default"
+                  onBlur={() => setAsyncOptions([])}
+                  optionsState={asyncOptions}
+                  loadOptions={handleFetchUsersOptions}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
               <Form.Item
                 name="piaEnable"
                 label="Enable PIA"
@@ -372,13 +400,13 @@ const AddComponent = () => {
                 // onChange={(e) => setIsEnabled(e.target.checked)}
                 />
                 {/* <Typography.Text
-                  style={{
-                    fontSize: "10px",
-                    marginLeft: "4px",
-                  }}
-                >
-                  Enable PIA
-                </Typography.Text> */}
+                    style={{
+                      fontSize: "10px",
+                      marginLeft: "4px",
+                    }}
+                  >
+                    Enable PIA
+                  </Typography.Text> */}
               </Form.Item>
             </Col>
             <Col span={24}>
@@ -408,9 +436,11 @@ const AddComponent = () => {
                   <MyButton variant="reset" onClick={resetConfirmHandler} />
                   <MyButton
                     variant="submit"
-                    text={stage === 1 ? "Verify" : "Create"}
-                    onClick={stage === 1 ? handleVerify : handleCreate}
-                    // onClick={modalConfirmMaterial}
+                    text={"Create"}
+                    disabled={
+                      selectedCategory?.value !== "348423984423" && !isVerified
+                    }
+                    onClick={handleCreate}
                   />
                 </Flex>
               </Row>
@@ -605,36 +635,46 @@ const UpdatedCategoryModal = ({
   headerForm,
   setAttributes,
   setAllAttributeOptions,
+  submitHandler,
+  loading,
+  setIsVerified,
+  isVerified,
 }) => {
   const [form] = Form.useForm();
 
   const handleHide = async () => {
-    // form.resetFields();
+    form.resetFields();
+    headerForm.setFieldValue("attrCategory", undefined);
+    updateNameAndCode("", "");
     hide();
   };
 
-  const handleOk = async () => {
-    form
-      .validateFields()
-      .then(() => {})
-      .catch((error) => {
-        headerForm.setFieldValue("attrCategory", undefined);
-        headerForm.setFieldValue("componentname", undefined);
-      });
+  const values = Form.useWatch([], form);
 
-    hide();
+  const handleOk = async () => {
+    form.validateFields().then((values) => {
+      submitHandler(values.mfgCode);
+    });
   };
 
   useEffect(() => {
     form.resetFields();
+    setIsVerified(false);
   }, [category]);
+  useEffect(() => {
+    if (isVerified) {
+      setIsVerified(false);
+    }
+  }, [values]);
   return (
     <Modal
       width={800}
       open={show}
       onCancel={handleHide}
+      okText="Verify"
       onOk={handleOk}
       title="Assign Attributed"
+      confirmLoading={loading}
     >
       <CategoryForm
         uniqueCode={uniqueCode}
@@ -650,15 +690,14 @@ const UpdatedCategoryModal = ({
   );
 };
 
-interface SimilarUniqueCodeModalType extends ModalType {
-  list: [];
-}
 // const SimilarUniqueCodeModal = (props: SimilarUniqueCodeModalType) => {
 //   return <Modal open={}></Modal>;
 // };
 
 interface SimilarPartCodesModalType extends ModalType {
   similarPartCodes: any[];
+  setShowAttributesModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsVerified: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const SimilarPartCodesModal = ({
   show,
@@ -666,14 +705,22 @@ const SimilarPartCodesModal = ({
   similarPartCodes,
   submitHandler,
   loading,
+  setShowAttributesModal,
+  setIsVerified,
 }: SimilarPartCodesModalType) => {
   console.log("found components", similarPartCodes);
   return (
     <Modal
       open={show}
-      onCancel={hide}
-      okText="Create"
-      onOk={submitHandler}
+      onCancel={() => {
+        hide();
+        setShowAttributesModal(true);
+      }}
+      okText="Continue"
+      onOk={() => {
+        setIsVerified(true);
+        hide();
+      }}
       confirmLoading={loading}
     >
       <Typography.Text strong type="secondary">

@@ -40,7 +40,7 @@ export { default as Rejection } from "./Store/Rejection/Rejection";
 
 export { default as Material } from "./Master/Components/material/index.tsx";
 
-export { default as UpdateComponent } from "./Master/Components/material/UpdateComponent.jsx";
+export { default as UpdateComponent } from "./Master/Components/material/list/UpdateComponent.jsx";
 // export { default as UpdateComponent } from "./Master/Components/UpdateComponent.jsx";
 export { default as Services } from "../Pages/Master/Components/services/index.jsx";
 export { default as StockControl } from "../Pages/Master/Components/stockControl/index.jsx";

@@ -4,6 +4,7 @@ import HeaderDetails from "./HeaderDetails";
 import ProcessTable from "./ProcessTable";
 import { processApi } from "../../api";
 import { toast } from "react-toastify";
+import useApi from "@/hooks/useApi.ts";
 
 const MapProcesses = () => {
   const [loading, setLoading] = useState(false);
@@ -13,6 +14,7 @@ const MapProcesses = () => {
 
   const [locationOptions, setLocationOptions] = useState([]);
   const [mapProcessForm] = Form.useForm();
+  const { execFun, loading: loading1 } = useApi();
 
   const sku = Form.useWatch("sku", mapProcessForm);
   //   for header details
@@ -45,6 +47,12 @@ const MapProcesses = () => {
     handleLocationOptions();
   };
 
+  const handleFetchPreviousEntry = async (sku) => {
+    const response = await execFun(() => processApi.getPreviousEntries(sku));
+
+    console.log("response prev entry", response);
+  };
+
   const validateHandler = async () => {
     const values = await mapProcessForm.validateFields();
     Modal.confirm({
@@ -64,6 +72,7 @@ const MapProcesses = () => {
   useEffect(() => {
     if (sku) {
       getAllOptionsWithSkyu(sku);
+      handleFetchPreviousEntry(sku);
     }
   }, [sku]);
   useEffect(() => {

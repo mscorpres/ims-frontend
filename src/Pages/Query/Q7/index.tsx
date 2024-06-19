@@ -1,6 +1,6 @@
 import { getCategoryTypeOptions } from "@/api/master/component";
 import useApi from "@/hooks/useApi";
-import CategoryForm from "@/Pages/Master/Components/material/CategoryForm";
+import CategoryForm from "@/Pages/Master/Components/material/list/CategoryForm";
 import { SelectOptionType } from "@/types/general";
 import MySelect from "@/Components/MySelect.jsx";
 

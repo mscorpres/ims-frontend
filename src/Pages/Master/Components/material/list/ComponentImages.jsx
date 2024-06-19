@@ -13,7 +13,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { imsAxios } from "../../../../axiosInterceptor";
+import { imsAxios } from "../../../../../axiosInterceptor";
 import { DeleteOutlined } from "@ant-design/icons";
 
 export default function ComponentImages({ showImages, setShowImages }) {

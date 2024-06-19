@@ -318,6 +318,10 @@ const links = [
   // components links
   [
     { routeName: "Materials", routePath: "/material" },
+    {
+      routeName: "Pending For Approval",
+      routePath: "/material/pending-approval",
+    },
     { routeName: "Services", routePath: "/services" },
     {
       routeName: "Component Category",
