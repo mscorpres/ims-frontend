@@ -201,10 +201,12 @@ const QaProcessMap = () => {
     qaProcessData.sfg_sku = sku;
     qaProcessData.qa_process_key = qa_process_key;
     console.log(qaProcessData);
+    setLoading1("submit");
     const response = await imsAxios.post(
       "/qaProcessmaster/updateMappedQAProcess",
       qaProcessData
     );
+    setLoading1(false);
     if (response.data.status === "success") {
       toast.success(response.data.message.msg);
       setQaProcessInput([
@@ -222,7 +224,8 @@ const QaProcessMap = () => {
           processRemark: "",
         },
       ]);
-      qaProcessData.sku = "";
+
+      setQaProcessData({ sku: "" });
     } else if (response.status === 403) {
       toast.error(response.data?.message?.msg);
     } else {
@@ -783,6 +786,8 @@ const QaProcessMap = () => {
         }}
         // loading={submitLoading}
         submitFunction={createQaProcess}
+        loading={loading1 === "submit"}
+        disabled={qaProcessInputs?.length === 0}
         nextLabel={"Create Process Map"}
       />
     </div>
