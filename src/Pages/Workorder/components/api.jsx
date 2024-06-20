@@ -264,6 +264,59 @@ const getScrapeInViewChallan = async (wise, searchInput) => {
     return [];
   }
 };
+////generic api for all the challantype in view challan
+const getViewChallan = async (challantype, wise, searchInput) => {
+  console.log("challantype, wise, searchInput", challantype, wise, searchInput);
+  let term;
+  if (challantype == "Delivery Challan") {
+    term = "delivery";
+  } else if (challantype == "RM Challan") {
+    term = "return";
+  } else if (challantype == "Scrape Challan") {
+    term = "scrape";
+  } else {
+    term = "all";
+  }
+  console.log("term", term);
+  // return;
+  const response = await imsAxios.get(
+    `/wo_challan/woViewChallan/${term}?data=${searchInput}&wise=${wise}&download=no`
+  );
+  // wo_challan/woViewChallan/all?data=01-03-2024-01-04-2024&wise=datewise&download=no
+  // console.log("data", data);
+  let { data } = response;
+  if (response.success) {
+    const arr = data.map((row, index) => ({
+      ...row,
+      id: index + 1,
+    }));
+    return arr;
+  } else {
+    toast.error(data.message.msg);
+    return [];
+  }
+};
+const downloadAllViewChallan = async (challantype, wise, searchInput) => {
+  console.log("challantype, wise, searchInput", challantype, wise, searchInput);
+  let term;
+  if (challantype == "Delivery Challan") {
+    term = "delivery";
+  } else if (challantype == "RM Challan") {
+    term = "return";
+  } else if (challantype == "Scrape Challan") {
+    term = "scrape";
+  } else {
+    term = "all";
+  }
+  console.log("term", term);
+  // return;
+  const response = await imsAxios.get(
+    `/wo_challan/woViewChallan/${term}?data=${searchInput}&wise=${wise}&download=yes`
+  );
+  // wo_challan/woViewChallan/all?data=01-03-2024-01-04-2024&wise=datewise&download=no
+  // console.log("data", data);
+  return response;
+};
 
 const createWorkOrderShipmentChallan = async (payload) => {
   const { data } = await imsAxios.post(
@@ -532,4 +585,6 @@ export {
   printreturnChallan,
   submitScrapreChallan,
   getScrapeInViewChallan,
+  getViewChallan,
+  downloadAllViewChallan,
 };
