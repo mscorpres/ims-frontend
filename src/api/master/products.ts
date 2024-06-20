@@ -112,7 +112,7 @@ export const getProductDetails = async (key: string) => {
       packingCost: values.packingcost,
       category: values.productcategory,
       name: values.productname,
-      type: values.producttype_name === "default" ? "fg" : "sfg",
+      type: values.producttype_name === "default" ? "default" : "sfg",
       sku: values.sku,
       taxType: values.tax_type_name,
       uom: values.uomid,
