@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
 
@@ -8,7 +8,15 @@ const MyDatePicker = ({
   setDateRange,
   size,
   disabledtheDate,
+  startingDate,
+  select,
 }) => {
+  const [searchDateRange, setSearchDateRange] = useState(
+    select && select == "This Month"
+      ? [startingDate ? dayjs() : dayjs().subtract(31, "d"), dayjs()]
+      : [startingDate ? dayjs() : dayjs().subtract(89, "d"), dayjs()]
+  );
+
   useEffect(() => {
     if (value) {
       setDateRange(value);
@@ -46,6 +54,7 @@ const MyDatePicker = ({
   console.log("disabledDate: ", disabledtheDate);
   return (
     <DatePicker.RangePicker
+      defaultValue={searchDateRange}
       size={size ? size : "default"}
       style={{
         width: "100%",
