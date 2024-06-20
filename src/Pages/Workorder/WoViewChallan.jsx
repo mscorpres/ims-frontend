@@ -303,7 +303,7 @@ const WoViewChallan = () => {
   };
   const getdownloadedAllRows = async () => {
     // setRows([]);
-    setLoading("fetch");
+    setLoading("download");
     let response = await downloadAllViewChallan(challantype, wise, searchInput);
     let { data } = response;
     if (response.success) {
@@ -549,6 +549,12 @@ const WoViewChallan = () => {
     }
   }, [challantype]);
 
+  useEffect(() => {
+    if (searchInput) {
+      getAllRows(challantype);
+    }
+  }, [searchInput]);
+
   return (
     <>
       <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
@@ -609,7 +615,7 @@ const WoViewChallan = () => {
 
                   <MyButton
                     variant="search"
-                    onClick={getRows}
+                    onClick={() => getAllRows(challantype)}
                     loading={loading === "fetch"}
                     type="primary"
                   >
@@ -620,6 +626,7 @@ const WoViewChallan = () => {
                     type="primary"
                     disabled={!rows.length}
                     onClick={getdownloadedAllRows}
+                    loading={loading === "download"}
                   />
                 </Space>
               </div>
