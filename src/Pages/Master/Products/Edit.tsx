@@ -25,9 +25,10 @@ const enabledOptions = [
   { text: "Yes", value: true },
   { text: "No", value: false },
 ];
+///option value changed As suggested by shic sir duw to keshav sir's ticket #384685
 const productTypeOptions = [
-  { text: "FG", value: "fg" },
-  { text: "SFG", value: "sfg" },
+  { text: "FG", value: "default" },
+  { text: "SFG", value: "semi" },
 ];
 
 const category = [
