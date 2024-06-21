@@ -747,6 +747,9 @@ const SimilarPartCodesModal = ({
             <div>
               <Typography.Text strong>{row.componentName}</Typography.Text>
             </div>
+            <div>
+              <Typography.Text strong>Stock {row.rmStock}</Typography.Text>
+            </div>
           </Flex>
         ))}
       </Flex>
