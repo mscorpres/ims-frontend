@@ -441,10 +441,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     // let filedata = modalForm.getFieldValue("fileComponents");
     let value = await modalForm.validateFields();
     let filedata = value.fileComponents;
-    setModalUploadLoad(true);
     console.log("bomList", bomList);
     console.log("values", value);
-    console.log("isScan", isScan);
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
@@ -466,23 +464,30 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       qrScan: isScan == true ? "Y" : "N",
     };
     console.log("payload", payload);
+    setModalUploadLoad(true);
     const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     const minNum = response.message;
     const { data } = response;
 
     if (response.success) {
+      setModalUploadLoad(false);
       const pattern = /\[(.*?)\]/;
       let getMin;
       // Using match() method to find the first match of the pattern in the input string
       const match = minNum.match(pattern);
       if (match) {
+        setModalUploadLoad(false);
         // console.log(); // Output the text inside square brackets
         getMin = match[1];
       } else {
+        setModalUploadLoad(false);
       }
+      setModalUploadLoad(false);
       toast.success(response.message);
       // setEditModal(false);
+      setModalUploadLoad(false);
       setShowBomList(false);
+      modalForm.resetFields();
       setBomList([]);
       setMaterialInSuccess({
         materialInId: getMin,
@@ -503,37 +508,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         }),
       });
     } else {
-      toast.error(data.message);
+      setModalUploadLoad(false);
+      toast.error(response.message);
     }
-    // if (data.code == 200) {
-    //   if (all == "datewise") {
-    //     console.log("Called");
-    //     setModalUploadLoad(false);
-    //     setEditModal(false);
-    //     fetchDatewise();
-    //     toast.success(data.message);
-    //   } else if (all == "jw_transaction_wise") {
-    //     setEditModal(false);
-    //     setModalUploadLoad(false);
-    //     fetchJWwise();
-    //     toast.success(data.message);
-    //   } else if (all == "jw_sfg_wise") {
-    //     setEditModal(false);
-    //     setModalUploadLoad(false);
-    //     fetchSKUwise();
-    //     toast.success(data.message);
-    //   } else if (all == "vendorwise") {
-    //     setEditModal(false);
-    //     setModalUploadLoad(false);
-    //     // fetchJWwise();
-    //     fetchVendorwise();
-    //     toast.success(data.message);
-    //   }
-    // } else if (data.code == 500) {
-    //   toast.error(data.message.msg);
-    //   setModalUploadLoad(false);
-    // }
-    //  console.log(data);
   };
   const getBomList = async () => {
     setLoading(true);
@@ -562,7 +539,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setBomList(arr);
       setLoading(false);
       setShowBomList(true);
-    }
+ // if (arr[0]?.piaStatus == "Y") {
+      //   setLoading(false);
+      //   toast.info(`PIA Status is enabled for ${arr[0]?.partName} Part Code.`);
+      // }    }
 
     setLoading(false);
   };
@@ -661,6 +641,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     setEditModal(false);
     setShowBomList(false);
     setBomList([]);
+    modalForm.resetFields();
   };
   return (
     <Space>
@@ -860,6 +841,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                           style={{ marginLeft: 4 }}
                           type="primary"
                           onClick={() => setUploadClicked(true)}
+                          // loading={loading}
+                          loading={modalUploadLoad}
                         >
                           Save
                         </Button>
@@ -915,6 +898,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
             title={"Upload Document"}
             // destroyOnClose={true}
             onOk={() => submitHandler()}
+            onCancel={() => setUploadClicked(false)}
             // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
           >
             {" "}
