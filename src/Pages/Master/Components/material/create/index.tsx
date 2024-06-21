@@ -189,11 +189,11 @@ const AddComponent = ({ rows }: PropType) => {
     setAsyncOptions(response.data);
   };
 
-  const handleVerify = async () => {
-    const values = await headerForm.validateFields(["attrCategory"]);
-
+  const handleVerify = async (mfgCode) => {
+    const values = await headerForm.validateFields(["attrCategory", "mfgCode"]);
+    console.log("mfg code", values);
     const response = await executeFun(
-      () => verifyAttributes(values.attrCategory, uniqueId),
+      () => verifyAttributes(values.attrCategory, uniqueId, mfgCode),
       "verify"
     );
 

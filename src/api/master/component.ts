@@ -178,14 +178,16 @@ export const getAllCategoryFields = async () => {
 interface VerifyAttributesType {
   attr_category: string;
   attr_code: string;
+  manufacturing_code: string;
 }
 export const verifyAttributes = async (
   attrCategory: string,
-  uniqueId: string
+  uniqueId: string,
+  mfgCode: string
 ) => {
   const payload: VerifyAttributesType = {
     attr_code: uniqueId,
-
+    manufacturing_code: mfgCode,
     attr_category: attrCategory,
   };
 
