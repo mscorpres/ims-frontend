@@ -539,10 +539,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setBomList(arr);
       setLoading(false);
       setShowBomList(true);
- // if (arr[0]?.piaStatus == "Y") {
-      //   setLoading(false);
-      //   toast.info(`PIA Status is enabled for ${arr[0]?.partName} Part Code.`);
-      // }    }
+    }
 
     setLoading(false);
   };
