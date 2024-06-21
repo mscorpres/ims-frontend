@@ -77,10 +77,12 @@ function ProductModal({ productModal, setProductModal, fetchProductData }) {
   ];
 
   const getFetchExistingProduct = async () => {
+    setLoading(true);
     const { data } = await imsAxios.post("/products/getProductForUpdate", {
       product_key: productModal?.product_key,
     });
     data.data.map((a) => setProduct(a));
+    setLoading(false);
   };
 
   const inputHandler = (name, value) => {

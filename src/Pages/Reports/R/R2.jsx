@@ -226,7 +226,7 @@ const R2 = () => {
         toast.success(response.message);
         setLoading(false);
       } else {
-        toast.error(response.error);
+        toast.error(response.message);
         setLoading(false);
       }
       setLoading(false);
