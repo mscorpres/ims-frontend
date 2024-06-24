@@ -27,9 +27,7 @@ export default function MyAsyncSelect({
   const updatedValue = useDebounce(searchValue);
 
   useEffect(() => {
-    if (updatedValue.length >= 3) {
-      loadOptions(updatedValue);
-    }
+    loadOptions(updatedValue);
   }, [updatedValue]);
   return (
     <Select
