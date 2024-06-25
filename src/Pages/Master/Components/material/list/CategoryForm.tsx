@@ -25,6 +25,7 @@ interface PropTypes {
   setAttributes: (values: any) => void;
   setAllAttributeOptions: React.Dispatch<React.SetStateAction<never[]>>;
   hideExtra?: boolean;
+  valuesNotRequired?: boolean;
 }
 const CategoryForm = (props: PropTypes) => {
   const [stage, setStage] = useState(1);
@@ -197,49 +198,50 @@ const CategoryForm = (props: PropTypes) => {
   return (
     <Form form={props.form} layout="vertical">
       <Row gutter={6}>
-        {/* {!props.hideExtra && ( */}
-        <Col span={12}>
-          <Card
-            size="small"
-            style={{ height: "100%" }}
-            bodyStyle={{ height: "98%" }}
-          >
-            <Flex vertical gap={20}>
-              <div>
-                <Typography.Text strong>
-                  Selected Category: {props.category?.text}
-                </Typography.Text>
-              </div>
-              <Divider style={{ margin: "-5px 0px" }} />
-              <div>
-                <Typography.Text strong>
-                  Unique Id: <br />
-                  <span style={{ color: "#04b0a8" }}>{props.uniqueCode}</span>
-                </Typography.Text>
-              </div>
-              <div>
+        {!props.hideExtra && (
+          <Col span={12}>
+            <Card
+              size="small"
+              style={{ height: "100%" }}
+              bodyStyle={{ height: "98%" }}
+            >
+              <Flex vertical gap={20}>
+                <div>
+                  <Typography.Text strong>
+                    Selected Category: {props.category?.text}
+                  </Typography.Text>
+                </div>
                 <Divider style={{ margin: "-5px 0px" }} />
-                <Typography.Text strong>
-                  Component Name: <br />
-                  <span style={{ color: "#04b0a8" }}>
-                    {props.componentName}
-                  </span>
-                </Typography.Text>
-              </div>
-              <Divider style={{ margin: "-5px 0px" }} />
-              <div>
-                <Form.Item
-                  rules={[{ required: true }]}
-                  name="mfgCode"
-                  preserve={true}
-                  label="Manufacturing Code"
-                >
-                  <Input placeholder="Manufacturing Code" />
-                </Form.Item>
-              </div>
-            </Flex>
-          </Card>
-        </Col>
+                <div>
+                  <Typography.Text strong>
+                    Unique Id: <br />
+                    <span style={{ color: "#04b0a8" }}>{props.uniqueCode}</span>
+                  </Typography.Text>
+                </div>
+                <div>
+                  <Divider style={{ margin: "-5px 0px" }} />
+                  <Typography.Text strong>
+                    Component Name: <br />
+                    <span style={{ color: "#04b0a8" }}>
+                      {props.componentName}
+                    </span>
+                  </Typography.Text>
+                </div>
+                <Divider style={{ margin: "-5px 0px" }} />
+                <div>
+                  <Form.Item
+                    rules={[{ required: true }]}
+                    name="mfgCode"
+                    preserve={true}
+                    label="Manufacturing Code"
+                  >
+                    <Input placeholder="Manufacturing Code" />
+                  </Form.Item>
+                </div>
+              </Flex>
+            </Card>
+          </Col>
+        )}
 
         <Col span={props.hideExtra ? 24 : 12}>
           {stage === 1 && (
@@ -262,7 +264,7 @@ const CategoryForm = (props: PropTypes) => {
                           <div></div>
                           {row.valueLabel !== "" && (
                             <Form.Item
-                              rules={[{ required: true }]}
+                              rules={[{ required: !props.valuesNotRequired }]}
                               style={{ textTransform: "capitalize", flex: 1 }}
                               name={`${row.name}value`}
                               label={row.valueLabel + " Value"}
@@ -271,7 +273,7 @@ const CategoryForm = (props: PropTypes) => {
                             </Form.Item>
                           )}
                           <Form.Item
-                            rules={[{ required: true }]}
+                            rules={[{ required: !props.valuesNotRequired }]}
                             style={{ flex: 1.5 }}
                             name={row.name}
                             label={row.label.replaceAll("_", " ")}
@@ -304,83 +306,6 @@ const CategoryForm = (props: PropTypes) => {
               )}
             </Card>
           )}
-
-          {/* {stage === 1 && (
-            <Row>
-              <Col span={24}>
-                <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                  <Typography.Text strong>Unique ID: </Typography.Text>
-                  <Typography.Text>{uniqueId} </Typography.Text>
-                </Flex>
-                {existingComponents.length > 0 && (
-                  <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                    <Typography.Text
-                      style={{ textAlign: "center" }}
-                      strong
-                      type="secondary"
-                    >
-                      There are <strong>{existingComponents.length}</strong>{" "}
-                      components which are already assigned with the same unique
-                      ID{" "}
-                    </Typography.Text>
-                  </Flex>
-                )}
-                {existingComponents.length > 0 && (
-                  <Row gutter={[6, 6]}>
-                    <Col span={1}>
-                      <Typography.Text strong>#</Typography.Text>
-                    </Col>
-                    <Col span={18}>
-                      <Typography.Text strong>Component Name</Typography.Text>
-                    </Col>
-                    <Col span={5}>
-                      <Typography.Text strong>Part Code</Typography.Text>
-                    </Col>
-                    <Col span={24}>
-                      <Row>
-                        <Col
-                          span={24}
-                          style={{ maxHeight: 150, overflowY: "auto" }}
-                        >
-                          {existingComponents.map((row, index) => (
-                            <Col span={24}>
-                              <Row>
-                                <Col span={1}>{index + 1}.</Col>
-                                <Col span={18}>{row.name}</Col>
-                                <Col span={5}>{row.partCode}</Col>
-                              </Row>
-                            </Col>
-                          ))}
-                        </Col>
-                      </Row>
-                    </Col>
-                    <Divider />
-
-                    <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                      <Typography.Text
-                        style={{ textAlign: "center" }}
-                        strong
-                        type="secondary"
-                      >
-                        Are you sure you want to create this component?
-                      </Typography.Text>
-                    </Flex>
-                  </Row>
-                )}
-                {existingComponents.length === 0 && (
-                  <Flex justify="center" gap={5} style={{ marginBottom: 10 }}>
-                    <Typography.Text
-                      style={{ textAlign: "center" }}
-                      strong
-                      type="secondary"
-                    >
-                      No Component found with this unique ID
-                    </Typography.Text>
-                  </Flex>
-                )}
-              </Col>
-            </Row>
-          )} */}
         </Col>
       </Row>
     </Form>

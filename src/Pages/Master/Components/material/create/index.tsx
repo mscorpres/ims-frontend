@@ -67,7 +67,7 @@ const AddComponent = ({ rows }: PropType) => {
     message: "",
   });
 
-  const getHsnOptions = async (search) => {
+  const getHsnOptions = async (search: string) => {
     try {
       const response = await imsAxios.post("/backend/searchHsn", {
         searchTerm: search,
@@ -85,6 +85,8 @@ const AddComponent = ({ rows }: PropType) => {
     } finally {
     }
   };
+
+  console.log("attributes are", allAttributeOptions);
 
   const handleComponentOptions = async (search: string) => {
     if (search.length < 4) return;
@@ -767,9 +769,9 @@ const SimilarPartCodesModal = ({
             <div>
               <Typography.Text strong>{row.partCode}</Typography.Text>
             </div>
-            <div>
+            {/* <div>
               <Typography.Text strong>{row.componentName}</Typography.Text>
-            </div>
+            </div> */}
             <div>
               <Typography.Text strong>Stock {row.rmStock}</Typography.Text>
             </div>

@@ -147,7 +147,7 @@ export const getCategoryFields = async (category: string) => {
   return response;
 };
 
-export const getCategoryOptions = async (name: string) => {
+export const getCategoryOptions = async (name: string, id: string) => {
   const response: ResponseType = await imsAxios.post(
     "/mfgcategory/getAttributeValue",
     {
@@ -205,7 +205,6 @@ export const createComponent = async (
 ) => {
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
-  console.log("here are the valus", values);
 
   for (let key in attributes) {
     const current = attributes[key];
