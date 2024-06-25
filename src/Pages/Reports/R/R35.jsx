@@ -103,6 +103,11 @@ function R35() {
       headerName: "Total Current Stock (I)",
       width: 180,
     },
+    {
+      field: "diffrence",
+      headerName: "Difference (H-I)",
+      width: 180,
+    },
   ];
   const { executeFun, loading1 } = useApi();
   const getDataBySearch = async (searchInput) => {
