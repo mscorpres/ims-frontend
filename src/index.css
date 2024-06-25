@@ -50,6 +50,7 @@
   z-index: 1;
   top: 0;
 }
+
 .remove-table-footer .MuiDataGrid-footerContainer {
   display: none;
 }

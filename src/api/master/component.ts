@@ -1,6 +1,6 @@
 import { HSNType } from "@/types/master";
 import { imsAxios } from "../../axiosInterceptor";
-import { ResponseType } from "@/types/general";
+import { ResponseType, SelectOptionType } from "@/types/general";
 import { message } from "antd";
 
 interface GetComponentsType {
@@ -205,6 +205,7 @@ export const createComponent = async (
 ) => {
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
+  console.log("here are the valus", values);
 
   for (let key in attributes) {
     const current = attributes[key];
@@ -223,7 +224,7 @@ export const createComponent = async (
   }
 
   const payload: VerifyAttributesType = {
-    attr_category: getCategoryLabel(values.attrCategory?.value),
+    attr_category: values.attrCategory?.value,
 
     attr_code: values.uniqueId,
     attr_raw: attributes,
@@ -241,7 +242,7 @@ export const createComponent = async (
     attributeKey: Array.from(attrName),
     attributeValue: Array.from(attrValueKey),
     pia_status: values.piaEnable ? "Y" : "N",
-    request_by: values.requestBy,
+    request_by: values.raisedBy,
   };
 
   const response = await imsAxios.post("/component/addComponent/save", payload);
@@ -287,6 +288,7 @@ interface GetPendingApprovalListType {
   manufacturingCode: string;
   requestedBy: string;
   createdAt: string;
+  attributeCategory: SelectOptionType;
 }
 export const getPendingApprovalList = async () => {
   const response: ResponseType = await imsAxios.get(
@@ -304,6 +306,8 @@ export const getPendingApprovalList = async () => {
       mfgCode: row.manufacturingCode,
       requestedBy: row.requestedBy,
       createdAt: row.createdAt,
+      category: row.attributeCategory.text,
+      categoryKey: row.attributeCategory.value,
     }));
   }
   response.data = arr;
