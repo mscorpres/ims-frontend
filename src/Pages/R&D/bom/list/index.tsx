@@ -16,6 +16,8 @@ import BOMApproval from "@/Pages/R&D/bom/list/approval";
 import Attachments from "@/Pages/R&D/bom/list/attachments";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import routeConstants from "@/Routes/routeConstants.js";
+import IconButton from "@/Components/IconButton";
+import { ArrowRightOutlined, CheckCircleFilled } from "@ant-design/icons";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
@@ -87,15 +89,24 @@ const BOMList = () => {
       width: 30,
       getActions: ({ row }: { row: BOMTypeExtended }) => [
         <GridActionsCellItem
-          showInMenu
-          placeholder="Continue"
-          label={"Continue"}
+          icon={
+            <IconButton
+              icon={
+                <ArrowRightOutlined
+                  style={{ color: "#04B0A8", fontSize: 16 }}
+                />
+              }
+              tooltip="Approve"
+            />
+          }
+          label="View Images"
           onClick={() => {
             navigate(
               `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}`
             );
           }}
         />,
+
         // <GridActionsCellItem
         //   showInMenu
         //   placeholder="Attachments"
@@ -154,10 +165,10 @@ const BOMList = () => {
       <Col sm={20} lg={16} xxl={14}>
         <MyDataTable
           columns={[
+            ...columns,
             ...(pathName.includes("draft")
               ? [...draftActionColumns]
               : [...actionColumns]),
-            ...columns,
           ]}
           data={rows}
           loading={loading("fetch")}
