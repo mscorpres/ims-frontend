@@ -4,9 +4,12 @@ import CategoryForm from "@/Pages/Master/Components/material/list/CategoryForm";
 import { SelectOptionType } from "@/types/general";
 import MySelect from "@/Components/MySelect.jsx";
 
-import { Card, Col, Flex, Form, Input, Row } from "antd";
+import { Card, Col, Collapse, Flex, Form, Input, Row, Typography } from "antd";
 import React, { useEffect, useState } from "react";
-import { q7 } from "@/api/reports/inventoryReport";
+import { q5, q7 } from "@/api/reports/inventoryReport";
+import { RowType } from "@/Pages/Query/Q7/type";
+import dayjs from "dayjs";
+import Loading from "@/Components/Loading.jsx";
 
 type Props = {};
 
@@ -15,6 +18,8 @@ const Q7 = (props: Props) => {
     SelectOptionType[]
   >([]);
   const [allAttributeOptions, setAllAttributeOptions] = useState([]);
+  const [rows, setRows] = useState<RowType[]>([]);
+  const [active, setActive] = useState<string[]>([]);
 
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
@@ -28,18 +33,62 @@ const Q7 = (props: Props) => {
   };
 
   const handleFetchReport = async (values) => {
-    const response = await executeFun(
-      () => q7(values, allAttributeOptions),
-      "fetch"
-    );
+    setRows([]);
+    let isValid = false;
+    for (let key in values) {
+      if (key !== "category" && values[key]) {
+        isValid = true;
+      }
+    }
+
+    if (!isValid) {
+      return;
+    }
+    if (values && values?.category && allAttributeOptions) {
+      const response = await executeFun(
+        () => q7(values, allAttributeOptions),
+        "fetch"
+      );
+
+      setRows(response.data ?? []);
+    }
   };
 
-  console.log("all attributes", allAttributeOptions);
+  const handleFetchStock = async (key: string) => {
+    const response = await executeFun(
+      () => q5(key, dayjs().format("DD-MM-YYYY"), "RM"),
+      `fetchStock-${key}`
+    );
+
+    if (response.success) {
+      setRows((curr) =>
+        curr.map((row) => {
+          if (row.key === key) {
+            return {
+              ...row,
+              stock: response.data,
+            };
+          } else {
+            return row;
+          }
+        })
+      );
+    }
+  };
+
+  const handleOpen = (values: string[]) => {
+    const lastKey = values[values.length - 1];
+    const isOpen = values.length > active.length;
+
+    if (isOpen) {
+      handleFetchStock(lastKey);
+    }
+    setActive(values);
+  };
   useEffect(() => {
     handleFetchCategoryTypeOptions();
   }, []);
   useEffect(() => {
-    console.log("these are the values", values);
     handleFetchReport(values);
   }, [values]);
   return (
@@ -64,7 +113,52 @@ const Q7 = (props: Props) => {
           </Flex>
         </Form>
       </Col>
-      <Col span={20}></Col>
+      <Col
+        span={20}
+        style={{ position: "relative", height: "100%", overflowY: "auto" }}
+      >
+        <div style={{ marginBottom: 5, marginLeft: 5 }}>
+          <Typography.Text strong>
+            {rows.length} Components Found
+          </Typography.Text>
+        </div>
+        {loading("fetch") && <Loading />}
+        <Collapse
+          items={rows.map((row) => ({
+            key: row.key,
+            extra: row.stock?.total?.closing && (
+              <Typography.Text strong>
+                Total: {row.stock?.total?.closing}
+              </Typography.Text>
+            ),
+            label: row.partCode,
+            children: (
+              <Flex vertical gap={5} style={{ position: "relative" }}>
+                {loading(`fetchStock-${row.key}`) && <Loading />}
+                <Typography.Text strong>
+                  Total Closing: {row.stock?.total?.closing}
+                </Typography.Text>
+
+                <Flex wrap="wrap" gap={5}>
+                  {row.stock?.stock?.map((stockRow) => (
+                    <Card size="small">
+                      <Flex vertical align="center">
+                        <Typography.Text strong>
+                          {stockRow.name}
+                        </Typography.Text>
+                        <Typography.Text strong>
+                          {stockRow.closing}
+                        </Typography.Text>
+                      </Flex>
+                    </Card>
+                  ))}
+                </Flex>
+              </Flex>
+            ),
+          }))}
+          onChange={handleOpen}
+        />
+      </Col>
     </Row>
   );
 };

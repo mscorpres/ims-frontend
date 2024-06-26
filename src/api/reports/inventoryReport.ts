@@ -1,3 +1,5 @@
+import { RowType } from "@/Pages/Query/Q7/type";
+import { RowType as Q5RowType } from "@/Pages/Query/Q5/type";
 import { imsAxios } from "../../axiosInterceptor";
 import { ResponseType } from "../../types/general";
 import { R33Type, R34ComponentType, R34Type } from "../../types/reports";
@@ -117,6 +119,71 @@ export const getR34Details = async (
   return response;
 };
 
+interface q5Type {
+  component: string;
+  date: string;
+  for_location: string;
+}
+
+interface Q5ResponseType {
+  stock: {
+    loc_name: string;
+    loc_owner: string;
+    loc_address: string;
+    opening: number;
+    closing: number;
+  }[];
+
+  total_closing: number;
+  total_opening: number;
+  component: {
+    part_code: string;
+    name: string;
+    unit: string;
+    unique_id: string;
+  };
+  last_audit_remark: string;
+  last_audit_date: string;
+  last_audit_by: string;
+}
+export const q5 = async (
+  componentKey: string,
+  date: string,
+  location: "RM" | "VENDOR" | "SF"
+) => {
+  const payload: q5Type = {
+    component: componentKey,
+    date: date,
+    for_location: location,
+  };
+  const response: ResponseType = await imsAxios.post("/q5", payload);
+  if (response.success) {
+    const values: Q5ResponseType = response.data;
+
+    const final: Q5RowType = {
+      stock: values.stock.map((row) => ({
+        address: row.loc_address,
+        closing: row.closing,
+        name: row.loc_name,
+        opening: row.opening,
+        owner: row.loc_owner,
+      })),
+      total: {
+        closing: values.total_closing,
+        opening: values.total_opening,
+      },
+    };
+
+    response.data = final;
+  }
+  return response;
+};
+
+interface Q7RowType {
+  componentKey: string;
+  componentName: string;
+  partCode: string;
+}
 export const q7 = async (attributes: any, allAttributeOptions: any[]) => {
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
@@ -144,10 +211,27 @@ export const q7 = async (attributes: any, allAttributeOptions: any[]) => {
       }
     }
   }
+  if (Array.from(attrName).length > 0 && Array.from(attrValueKey).length > 0) {
+    const response: ResponseType = await imsAxios.post("/q7", {
+      type: attributes.category.value,
+      attributeKey: Array.from(attrName),
+      attributeValue: Array.from(attrValueKey),
+    });
 
-  const response = await imsAxios.post("/q7", {
-    type: attributes.category.value,
-    attributeKey: Array.from(attrName),
-    attributeValue: Array.from(attrValueKey),
-  });
+    let arr: RowType[] = [];
+    if (response.success) {
+      arr = response.data.map(
+        (row: Q7RowType): RowType => ({
+          key: row.componentKey,
+          name: row.componentName,
+          partCode: row.partCode,
+          stock: [],
+        })
+      );
+
+      response.data = arr;
+    }
+
+    return response;
+  }
 };
