@@ -19,6 +19,7 @@ import {
   ReadOutlined,
   UploadOutlined,
   ContainerOutlined,
+  QrcodeOutlined,
 } from "@ant-design/icons";
 
 const MyButton = (props) => {
@@ -203,6 +204,17 @@ const MyButton = (props) => {
         icon={<ContainerOutlined />}
       >
         {props.text ?? "Download PDF"}
+      </Button>
+    );
+  }
+  if (props.variant === "qr") {
+    return (
+      <Button
+        {...props}
+        type={props.type ?? "primary"}
+        icon={<QrcodeOutlined />}
+      >
+        {props.text ?? "QR Code"}
       </Button>
     );
   }

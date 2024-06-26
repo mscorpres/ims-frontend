@@ -5,6 +5,7 @@ import {
   headerType,
   PPRDetailsType,
   ProcessDetailsType,
+  scanRowType,
 } from "@/Pages/Production/mes/qca/scan/types";
 import { ResponseType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
@@ -157,20 +158,20 @@ interface InsertQRType {
 }
 
 export const insertQr = async (values: {
-  barCode: EntryFormType["qr"];
+  qr: EntryFormType["qr"];
   ppr: headerType["ppr"];
-  proccess: headerType["process"];
-  result: EntryFormType["status"];
+  process: headerType["process"];
+  status: EntryFormType["status"];
   reason: EntryType["reason"];
   correction: string;
 }) => {
   const payload: InsertQRType = {
-    bar_code: values.barCode,
-    correction: values.correction,
+    bar_code: values.qr,
+    correction: values.correction ?? "--",
     failReason: values.reason,
     qca_ppr: values.ppr.value.toString(),
-    qca_process: values.proccess.value.toString(),
-    qca_result: values.result,
+    qca_process: values.process.value.toString(),
+    qca_result: values.status,
   };
   const response = await imsAxios.post(
     "/createqca/insert_qca_process",
@@ -243,6 +244,53 @@ export const InsertSingleScan = async (values: InsertSingleScanValueType) => {
     "/createqca/insert_qca_process",
     payload
   );
+
+  return response;
+};
+
+interface ValueProps {
+  ppr: string;
+  process: string;
+  status: "PASS" | "FAIL";
+  count: number | string;
+  reason: string;
+}
+export const insertScanWithCount = async (values: ValueProps) => {
+  const response = await imsAxios.post("/createqca/bulk_insert_qca_Process", {
+    qca_ppr: values.ppr,
+    qca_process: values.process,
+    qca_result: values.status,
+    numberRows: values.count,
+    remark: values.reason,
+  });
+
+  return response;
+};
+
+interface TransferLotType {
+  qca_barcode: string[];
+  skucode: string;
+  ppr_transaction: string;
+  process: string;
+  accesstoken: string;
+  result: "PASS" | "FAIL";
+}
+export const transferLot = async (
+  pprDetails: PPRDetailsType,
+  values: headerType,
+  rows: scanRowType[],
+  status: "PASS" | "FAIL"
+) => {
+  const payload: TransferLotType = {
+    qca_barcode: rows.map((row) => row.qr),
+    skucode: values.sku,
+    ppr_transaction: values.ppr.value as string,
+    process: values.process.value as string,
+    accesstoken: pprDetails?.token,
+    result: status,
+  };
+
+  const response = await imsAxios.post("/createqca/lot_transfer", payload);
 
   return response;
 };

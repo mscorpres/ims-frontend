@@ -50,3 +50,17 @@ export interface ProcessDetailsType {
   remarks: string;
   rowKey: string; //used in update
 }
+export interface currentScanDetails {
+  currentScanned: number | string;
+  passed: number | string;
+  failed: number | string;
+  total: number | string;
+}
+
+export interface scanRowType {
+  id: string | number;
+  time: string;
+  date: string;
+  qr: string;
+  status: "FAIL" | "PASS";
+}

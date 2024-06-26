@@ -40,7 +40,7 @@ export const getR33 = async (date: string, wise: string, data: string) => {
         shiftStart: row.shiftStart,
         sku: row.sku,
         uom: row.unit,
-        workHours: row.workHrs,
+        workHours: `${row.workHrsEnd} - ${row.workHrsIn}`,
       })
     );
   }
@@ -121,25 +121,32 @@ export const q7 = async (attributes: any, allAttributeOptions: any[]) => {
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
 
+  console.log("functions running");
+
   console.log("values", attributes);
   console.log("attrValueKey", allAttributeOptions);
   for (let key in attributes) {
     const current = attributes[key];
-    const foundAttr = allAttributeOptions.find(
-      (row) => row.name === key && row.value === current
-    );
 
-    if (foundAttr) {
-      attrName.add(foundAttr?.name);
-      attrValueKey.add(foundAttr?.valueKey);
-    }
-    if (!foundAttr) {
-      attrName.add(key);
-      attrValueKey.add(current);
+    if (key !== "category" && current) {
+      const foundAttr = allAttributeOptions.find(
+        (row) => row.name === key && row.value === current?.value
+      );
+
+      if (foundAttr) {
+        if (foundAttr?.name !== "category") attrName.add(foundAttr?.name);
+
+        attrValueKey.add(foundAttr?.valueKey);
+      }
+      if (!foundAttr) {
+        attrName.add(key);
+        attrValueKey.add(current);
+      }
     }
   }
 
-  console.log("q7", {
+  const response = await imsAxios.post("/q7", {
+    type: attributes.category.value,
     attributeKey: Array.from(attrName),
     attributeValue: Array.from(attrValueKey),
   });

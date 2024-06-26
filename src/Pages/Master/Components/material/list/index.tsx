@@ -1,14 +1,45 @@
 import ToolTipEllipses from "@/Components/ToolTipEllipses";
 import MyDataTable from "@/Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
+import { useState } from "react";
+import { Flex, Switch } from "antd";
 
 export default function List({ actionColumn, components, loading }) {
+  const [showRejected, setShowRejected] = useState(false);
+  const [includeDisabled, setIncludeDisabled] = useState(false);
   return (
-    <MyDataTable
-      loading={loading}
-      data={components}
-      columns={[actionColumn, ...columns]}
-    />
+    <Flex vertical style={{ height: "100%" }}>
+      <Flex gap={20} justify="flex-end" style={{ marginBottom: 10 }}>
+        <Flex align="middle" gap={5}>
+          <label style={{ fontSize: 13 }} htmlFor="showRejected">
+            Show Rejected
+          </label>
+          <Switch
+            id="showRejected"
+            checked={showRejected}
+            onChange={setShowRejected}
+          />
+        </Flex>
+
+        <Flex align="middle" gap={5}>
+          <label style={{ fontSize: 13 }} htmlFor="includeDisabled">
+            Include Disabled
+          </label>
+          <Switch
+            id="includeDisabled"
+            checked={showRejected ? true : includeDisabled}
+            onChange={setIncludeDisabled}
+            disabled={showRejected}
+          />
+        </Flex>
+      </Flex>
+      <Flex style={{ height: "100%" }}>
+        <MyDataTable
+          loading={loading}
+          data={filteredCompnents(components, showRejected, includeDisabled)}
+          columns={[actionColumn, ...columns]}
+        />
+      </Flex>
+    </Flex>
   );
 }
 
@@ -53,3 +84,13 @@ const columns = [
     width: 120,
   },
 ];
+
+const filteredCompnents = (components, showRejected, includeDisabled) => {
+  let arr = components;
+
+  return arr
+    .filter((row) => (showRejected ? !row.isApproved : row.isApproved))
+    .filter((row) =>
+      showRejected ? row : includeDisabled ? row : row.isEnabled
+    );
+};
