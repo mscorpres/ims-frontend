@@ -149,17 +149,31 @@ const BOMCreate = () => {
     };
 
     if (values.type === "main") {
-      setMainComponents((curr, index) => {
+      setMainComponents((curr) => {
         let arr = curr;
-        arr.splice(isEditing, 1);
-        arr[isEditing] = newComponent;
-        console.log("updated arr", arr);
+        arr = arr.map((row, index) => {
+          if (index === isEditing) {
+            return newComponent;
+          } else return row;
+        });
+
         return arr;
       });
     } else {
-      setSubComponents((curr) => [...curr, newComponent]);
+      setSubComponents((curr) => {
+        let arr = curr;
+        arr = arr.map((row, index) => {
+          if (index === isEditing) {
+            return newComponent;
+          } else return row;
+        });
+
+        return arr;
+      });
     }
+    handleCancelEditing();
   };
+
   const handleDeleteComponent = (
     componentkey: string,
     type: ComponentType["type"]
@@ -263,6 +277,11 @@ const BOMCreate = () => {
 
   const handleSetComponentForEditing = (component: ComponentType) => {
     form.setFieldsValue(component);
+  };
+
+  const handleCancelEditing = () => {
+    setIsEditing(false);
+    form.resetFields();
   };
 
   useEffect(() => {
@@ -429,7 +448,17 @@ const BOMCreate = () => {
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Flex justify="center" gap={5}>
-                <MyButton variant="reset" />
+                {isEditing !== false ? (
+                  <MyButton
+                    onClick={handleCancelEditing}
+                    variant="clear"
+                    type="default"
+                    text="Cancel"
+                  />
+                ) : (
+                  <MyButton variant="reset" />
+                )}
+
                 <MyButton
                   variant="add"
                   text={isEditing !== false ? "Update" : "Add"}
@@ -486,6 +515,7 @@ const BOMCreate = () => {
                     height: "100%",
                   }}
                 >
+                  First main: {mainComponents[0]?.remarks}
                   <Components
                     rows={mainComponents}
                     type="main"
@@ -549,6 +579,7 @@ const Components = ({
   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
   handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
+  console.log("components in table", rows);
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
       {rows.length === 0 && <Empty />}
