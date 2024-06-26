@@ -31,7 +31,7 @@ const R2 = () => {
   ];
   const optionsJW = [
     { text: "All", value: "A" },
-    { text: "Pending", value: "P" },
+    // { text: "Pending", value: "P" },
     // { text: "Project", value: "PROJECT" },
   ];
   const typeoptions = [
