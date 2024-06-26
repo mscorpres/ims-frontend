@@ -75,6 +75,7 @@ const BOMCreate = () => {
   const { executeFun, loading } = useApi();
   const type = Form.useWatch("type", form);
   const selectedProduct = Form.useWatch("product", form);
+  const selectedSubstituteOf = Form.useWatch("substituteOf", form);
 
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
@@ -278,6 +279,17 @@ const BOMCreate = () => {
       }
     }
   }, [selectedProduct]);
+
+  useEffect(() => {
+    if (selectedSubstituteOf) {
+      const found = mainComponents.find(
+        (row) => row.component.value === selectedSubstituteOf.value
+      );
+      if (found) {
+        form.setFieldValue("locations", found.locations);
+      }
+    }
+  }, [selectedSubstituteOf]);
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -308,7 +320,7 @@ const BOMCreate = () => {
                 <Input />
               </Form.Item>
               <Form.Item name="version" label="Version" rules={rules.version}>
-                <Input />
+                <Input disabled />
               </Form.Item>
 
               <Form.Item name="description" label="Remarks">
