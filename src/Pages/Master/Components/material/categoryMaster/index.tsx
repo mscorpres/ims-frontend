@@ -7,7 +7,9 @@ import {
   getCategoryOptions,
 } from "@/api/master/component";
 import MyButton from "@/Components/MyButton";
+import { v4 } from "uuid";
 import AddCategoryModal from "@/Pages/Master/Components/material/categoryMaster/AddCategoryModal";
+import { ConsoleSqlOutlined } from "@ant-design/icons";
 
 const CategoryMaster = () => {
   const [fields, setFields] = useState([]);
@@ -26,6 +28,7 @@ const CategoryMaster = () => {
       const arr = response.data.message.map((row) => ({
         label: row.text,
         name: row.id,
+        id: v4(),
         type: row.inp_type,
         isAddable: row.isAddable === "true",
         regex: row.regex,
@@ -35,6 +38,7 @@ const CategoryMaster = () => {
 
       const categorySet = new Set();
       arr.map((row) => categorySet.add(row.componentType));
+      console.log("this is the cateogry set", categorySet);
       categorySet.forEach((row) => {
         const foundArr = arr.filter(
           (fieldRow) => fieldRow.componentType === row
@@ -53,20 +57,32 @@ const CategoryMaster = () => {
       const fieldNames = arr
         .filter((row) => row.type === "select")
         .map((row) => row.name);
+
+      console.log("these are the fieldNames", fieldNames);
       const requestPromises = fieldNames.map((row) =>
         executeFun(() => getCategoryOptions(row), "values")
       );
 
       const allResponse = await Promise.all(requestPromises);
+      console.log("all response1", allResponse);
       allResponse.map((row) => {
-        if (typeof row.data === "object" && row?.data) {
+        if (
+          typeof row.data === "object" &&
+          row?.data &&
+          !allOptions.find((row1) => row1.name === row.data[0].name)
+        ) {
           allOptions = [...allOptions, ...row.data];
         }
       });
       setSelectOptions(allOptions);
-      console.log("all response", allOptions);
+      console.log(
+        "all response",
+        allOptions.filter((row) => row.name === "12312")
+      );
     }
   };
+
+  console.log("select options 123", selectOptions);
 
   const handleSelectField = (field: any) => {
     setSelectedField(field);

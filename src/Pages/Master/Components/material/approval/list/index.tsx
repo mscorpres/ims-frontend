@@ -85,7 +85,7 @@ const columns = [
   },
   {
     headerName: "Type",
-    field: "type",
+    field: "category",
     width: 120,
   },
   {

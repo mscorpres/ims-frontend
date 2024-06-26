@@ -5,7 +5,8 @@ export interface ResponseType {
   error?: boolean;
 }
 export interface SelectOptionType {
-  text: string | number | boolean;
+  text?: string | number | boolean;
+  label?: string | number | boolean;
   value: string | number | boolean;
 }
 

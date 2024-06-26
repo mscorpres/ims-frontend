@@ -6,6 +6,7 @@ import MySelect from "@/Components/MySelect.jsx";
 
 import { Card, Col, Flex, Form, Input, Row } from "antd";
 import React, { useEffect, useState } from "react";
+import { q7 } from "@/api/reports/inventoryReport";
 
 type Props = {};
 
@@ -13,6 +14,8 @@ const Q7 = (props: Props) => {
   const [categoryTypeOptions, setCategoryTypeOptions] = useState<
     SelectOptionType[]
   >([]);
+  const [allAttributeOptions, setAllAttributeOptions] = useState([]);
+
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
@@ -23,11 +26,21 @@ const Q7 = (props: Props) => {
     const response = await executeFun(() => getCategoryTypeOptions(), "fetch");
     setCategoryTypeOptions(response.data);
   };
+
+  const handleFetchReport = async (values) => {
+    const response = await executeFun(
+      () => q7(values, allAttributeOptions),
+      "fetch"
+    );
+  };
+
+  console.log("all attributes", allAttributeOptions);
   useEffect(() => {
     handleFetchCategoryTypeOptions();
   }, []);
   useEffect(() => {
     console.log("these are the values", values);
+    handleFetchReport(values);
   }, [values]);
   return (
     <Row style={{ height: "90%", padding: 10 }} gutter={6}>
@@ -40,7 +53,13 @@ const Q7 = (props: Props) => {
               </Form.Item>
             </Card>
             {category && category?.value !== "348423984423" && (
-              <CategoryForm category={category} form={form} hideExtra={true} />
+              <CategoryForm
+                valuesNotRequired={true}
+                category={category}
+                form={form}
+                hideExtra={true}
+                setAllAttributeOptions={setAllAttributeOptions}
+              />
             )}
           </Flex>
         </Form>

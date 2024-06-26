@@ -116,3 +116,31 @@ export const getR34Details = async (
   response.data = arr;
   return response;
 };
+
+export const q7 = async (attributes: any, allAttributeOptions: any[]) => {
+  const attrName = new Set<string>();
+  const attrValueKey = new Set<string>();
+
+  console.log("values", attributes);
+  console.log("attrValueKey", allAttributeOptions);
+  for (let key in attributes) {
+    const current = attributes[key];
+    const foundAttr = allAttributeOptions.find(
+      (row) => row.name === key && row.value === current
+    );
+
+    if (foundAttr) {
+      attrName.add(foundAttr?.name);
+      attrValueKey.add(foundAttr?.valueKey);
+    }
+    if (!foundAttr) {
+      attrName.add(key);
+      attrValueKey.add(current);
+    }
+  }
+
+  console.log("q7", {
+    attributeKey: Array.from(attrName),
+    attributeValue: Array.from(attrValueKey),
+  });
+};

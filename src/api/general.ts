@@ -212,10 +212,18 @@ export const getUserOptions = async (search: string) => {
   return response;
 };
 export const getUomOptions = async () => {
-  const response: Response = await imsAxios.get("/uom/uomSelect2");
-  let arr: SelectOptionType = [];
-  if (response.success) arr = convertSelectOptions(response.data);
-  response.data = arr;
+  const response: ResponseType = await imsAxios.post("/uom/uomSelect2");
+
+  response.data = convertSelectOptions(response.data ?? []);
+
+  return response;
+};
+export const getPprOptions = async (search: string) => {
+  const response = await imsAxios.post("/createqca/getPprNo", {
+    searchTerm: search,
+  });
+
+  response.data = convertSelectOptions(response.data ?? []);
 
   return response;
 };

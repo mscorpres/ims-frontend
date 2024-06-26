@@ -29,8 +29,13 @@ import { CloseOutlined, LoadingOutlined } from "@ant-design/icons";
 import CategoryForm from "@/Pages/Master/Components/material/list/CategoryForm";
 import { toast } from "react-toastify";
 import { ModalType } from "@/types/general";
-import { getComponentOptions, getUserOptions } from "@/api/general";
+import {
+  getComponentOptions,
+  getUomOptions,
+  getUserOptions,
+} from "@/api/general";
 import useDebounce from "@/hooks/useDebounce";
+import { convertSelectOptions } from "@/utils/general";
 
 interface PropType {
   rows: any[];
@@ -62,7 +67,7 @@ const AddComponent = ({ rows }: PropType) => {
     message: "",
   });
 
-  const getHsnOptions = async (search) => {
+  const getHsnOptions = async (search: string) => {
     try {
       const response = await imsAxios.post("/backend/searchHsn", {
         searchTerm: search,
@@ -80,6 +85,8 @@ const AddComponent = ({ rows }: PropType) => {
     } finally {
     }
   };
+
+  console.log("attributes are", allAttributeOptions);
 
   const handleComponentOptions = async (search: string) => {
     if (search.length < 4) return;
@@ -101,7 +108,9 @@ const AddComponent = ({ rows }: PropType) => {
     }
   };
   const handleGetUomOptions = async () => {
-    //  setUomOptions(response.data ?? [])
+    const response = await executeFun(() => getUomOptions(), "fetch");
+
+    setUomOptions(response.data);
   };
 
   const getGroupOptions = async () => {
@@ -228,6 +237,7 @@ const AddComponent = ({ rows }: PropType) => {
       setShowAttributesModal({
         selectedCategory: selectedCategory,
       });
+      headerForm.setFieldValue("group", "GRP1718883669000");
     }
     if (selectedCategory?.value === "348423984423") {
       Modal.confirm({
@@ -238,6 +248,7 @@ const AddComponent = ({ rows }: PropType) => {
           setGeneratedCompName("");
           //   setAttributeValues(null);
           headerForm.setFieldValue("componentname", "");
+          headerForm.setFieldValue("group", undefined);
         },
       });
     }
@@ -256,6 +267,14 @@ const AddComponent = ({ rows }: PropType) => {
   useEffect(() => {
     handleComponentOptions(enteredPartCode);
   }, [enteredPartCode]);
+
+  useEffect(() => {
+    if (!showAttributesModal) {
+      if (!selectedCategory || selectedCategory?.value === "348423984423") {
+        headerForm.setFieldValue("group", undefined);
+      }
+    }
+  }, [showAttributesModal]);
   console.log("these are all options", allAttributeOptions);
   return (
     <Flex vertical>
@@ -349,7 +368,13 @@ const AddComponent = ({ rows }: PropType) => {
             </Col>
             <Col span={10}>
               <Form.Item label="Group" name="group" rules={headerRules.group}>
-                <MySelect options={groupOptions} />
+                <MySelect
+                  disabled={
+                    selectedCategory &&
+                    selectedCategory?.value !== "348423984423"
+                  }
+                  options={groupOptions}
+                />
               </Form.Item>
             </Col>
 
@@ -744,9 +769,9 @@ const SimilarPartCodesModal = ({
             <div>
               <Typography.Text strong>{row.partCode}</Typography.Text>
             </div>
-            <div>
+            {/* <div>
               <Typography.Text strong>{row.componentName}</Typography.Text>
-            </div>
+            </div> */}
             <div>
               <Typography.Text strong>Stock {row.rmStock}</Typography.Text>
             </div>
