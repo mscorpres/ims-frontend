@@ -13,7 +13,7 @@ const MyDatePicker = ({
 }) => {
   const [searchDateRange, setSearchDateRange] = useState(
     select && select == "This Month"
-      ? [startingDate ? dayjs() : dayjs().subtract(31, "d"), dayjs()]
+      ? [startingDate ? dayjs() : dayjs().startOf("month"), dayjs()]
       : [startingDate ? dayjs() : dayjs().subtract(89, "d"), dayjs()]
   );
 

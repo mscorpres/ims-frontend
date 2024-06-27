@@ -292,7 +292,7 @@ const getViewChallan = async (challantype, wise, searchInput) => {
     }));
     return arr;
   } else {
-    toast.error(data.message.msg);
+    toast.error(response.message);
     return [];
   }
 };
