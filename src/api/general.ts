@@ -199,3 +199,13 @@ export const getComponentStock = async (componentKey: string, type: "rm") => {
 
   return response;
 };
+
+export const getPprOptions = async (search: string) => {
+  const response = await imsAxios.post("/createqca/getPprNo", {
+    searchTerm: search,
+  });
+
+  response.data = convertSelectOptions(response.data ?? []);
+
+  return response;
+};

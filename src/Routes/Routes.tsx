@@ -249,7 +249,10 @@ import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReve
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
-import FARUpload from "@/Pages/far/index.js";import R35 from "@/Pages/Reports/R/R35.jsx";
+import FARUpload from "@/Pages/far/index.js";
+import R35 from "@/Pages/Reports/R/R35.jsx";
+import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
+
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -498,7 +501,7 @@ const Routes = [
   {
     path: "/qccheck",
     exact: true,
-    main: () => <Qctest />,
+    main: () => <QcScan />,
   },
   // QCA
   {
