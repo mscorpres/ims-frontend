@@ -29,9 +29,15 @@ import {
   getVendorOptions,
 } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
-import { createBOM, getExistingBom } from "@/api/r&d/bom";
+import {
+  createBOM,
+  getComponentsFromFile,
+  getExistingBom,
+} from "@/api/r&d/bom";
 import { useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
+import { UploadOutlined } from "@ant-design/icons";
+import { downloadCSV } from "@/Components/exportToCSV.jsx";
 
 const typeOptions: SelectOptionType[] = [
   {
@@ -64,10 +70,10 @@ const BOMCreate = () => {
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [isEditing, setIsEditing] = useState<string | number | boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>();
 
   const [queryParams] = useSearchParams();
 
-  console.log("isEditing is", isEditing);
   const [version, setVersion] = useState("");
   const [vendorType, setVendorType] = useState(false);
 
@@ -76,6 +82,13 @@ const BOMCreate = () => {
   const type = Form.useWatch("type", form);
   const selectedProduct = Form.useWatch("product", form);
   const selectedSubstituteOf = Form.useWatch("substituteOf", form);
+  const props = {
+    maxCount: 1,
+    fileList: selectedFile ? [selectedFile] : [],
+    beforeUpload: () => false,
+    onChange: (info) =>
+      info.file ? setSelectedFile(info.file) : setSelectedFile(null),
+  };
 
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
@@ -85,6 +98,45 @@ const BOMCreate = () => {
     setAsyncOptions(convertSelectOptions(response.data ?? []));
   };
 
+  const handleFetchComponentsFromFile = async () => {
+    if (selectedFile) {
+      const response = await executeFun(
+        () => getComponentsFromFile(selectedFile),
+        "upload"
+      );
+      if (!response.success) {
+        return;
+      }
+      setSelectedFile(null);
+
+      const updatedArr = response.data.map((row) => ({
+        component: { ...row.partCode, label: row.partCode.text },
+        qty: row.quantity,
+        type: row.type === "main" ? "main" : "substitute",
+        locations: row.location,
+        vendor: {
+          ...row.make,
+          label: row.make.text,
+        },
+        remarks: row.remarks,
+        value: row.partCode.value,
+        text: row.partCode.text,
+        substituteOf: row.alternateOfPartCode
+          ? {
+              ...row.alternateOfPartCode,
+              label: row.alternateOfPartCode.text,
+            }
+          : null,
+      }));
+      const mainComponents = updatedArr.filter((row) => row.type === "main");
+      const alternateComponents = updatedArr.filter(
+        (row) => row.type === "substitute"
+      );
+
+      setMainComponents(mainComponents);
+      setSubComponents(alternateComponents);
+    }
+  };
   const handleAddComponents = async () => {
     const values = await form.validateFields([
       "component",
@@ -103,6 +155,8 @@ const BOMCreate = () => {
       value: values.component.value,
       text: values.component.label,
     };
+
+    console.log("new component", newComponent);
 
     let verifyArr = [...mainComponents, ...subComponents];
     const found = verifyArr.find((row) => row.value === values.component.value);
@@ -269,6 +323,7 @@ const BOMCreate = () => {
     setVendorType((curr) => !curr);
     form.setFieldValue("vendor", undefined);
   };
+
   const resetHandler = () => {
     form.resetFields();
     setMainComponents([]);
@@ -371,7 +426,27 @@ const BOMCreate = () => {
               </Flex> */}
             </Card>
             {/* Component add card */}
-            <Card size="small" title="Add Component">
+            <Card size="small" title="Add Components">
+              <Flex vertical align="center" gap={10}>
+                <MyButton
+                  variant="downloadSample"
+                  onClick={handleDownloadComponentSampleFile}
+                />
+                <Upload {...props}>
+                  <Button block icon={<UploadOutlined />}>
+                    Select File
+                  </Button>
+                </Upload>
+                {selectedFile && (
+                  <MyButton
+                    onClick={handleFetchComponentsFromFile}
+                    loading={loading("upload")}
+                    block
+                    variant="upload"
+                  />
+                )}
+              </Flex>
+              <Divider>OR</Divider>
               <Form.Item
                 name="component"
                 label="Component"
@@ -764,3 +839,82 @@ const rules = {
     },
   ],
 };
+
+const handleDownloadComponentSampleFile = async () => {
+  const columns = [
+    {
+      headerName: "S.No",
+      field: "S.No",
+    },
+    {
+      headerName: "Part No",
+      field: "Part No",
+    },
+    // {
+    //   headerName: "Description in IMS",
+    //   field:"Description in IMS"
+    // },
+    {
+      headerName: "Type",
+      field: "Type",
+    },
+    {
+      headerName: "Location",
+      field: "Location",
+    },
+    {
+      headerName: "Scale",
+      field: "Scale",
+    },
+    {
+      headerName: "Make",
+      field: "Make",
+    },
+    {
+      headerName: "Alternate of Part No",
+      field: "Alternate of Part No",
+    },
+    {
+      headerName: "Remark",
+      field: "Remark",
+    },
+  ];
+  const rows = [];
+
+  downloadCSV(rows, columns, "Sample BOM File");
+};
+
+// {
+//   "partCode": {
+//       "text": "CH9102F- QFN-24-EP(4x4) USB Converters ROHS - P4576",
+//       "value": "202454111729182"
+//   },
+//   "type": "main",
+//   "alternateOfPartCode": null,
+//   "make": {
+//       "text": "SHRI SAI SHAKTI PRINTERS - VEN0004",
+//       "value": "VEN0004"
+//   },
+//   "quantity": 1,
+//   "location": "c1,c2",
+//   "remarks": "test"
+// }
+
+// {
+//   "component": {
+//       "label": "(\tElectric Weighing Machine Capacity 5kg) P2678",
+//       "value": "1673438387251",
+//       "key": "1673438387251"
+//   },
+//   "qty": 10,
+//   "type": "main",
+//   "locations": "c1",
+//   "vendor": {
+//       "label": "(VEN0116) NAVS INTERNATIONAL",
+//       "value": "VEN0116",
+//       "key": "VEN0116"
+//   },
+//   "remarks": "remars",
+//   "value": "1673438387251",
+//   "text": "(\tElectric Weighing Machine Capacity 5kg) P2678"
+// }

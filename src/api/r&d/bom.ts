@@ -34,7 +34,7 @@ export const createBOM = async (values: BOMType, action: "final" | "draft") => {
       status: "active",
       substitute:
         typeof row.substituteOf === "object"
-          ? row.substituteOf.value
+          ? row.substituteOf?.value
           : row.substituteOf,
       type: row.type,
       vendor:
@@ -310,5 +310,13 @@ export const downloadBom = async (bomId: string) => {
     window.open(response.data.url, "_blank", "noreferrer");
   }
 
+  return response;
+};
+
+export const getComponentsFromFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response: ResponseType = await imsAxios.post("/bom/getData", formData);
   return response;
 };
