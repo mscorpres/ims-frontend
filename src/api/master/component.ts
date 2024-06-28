@@ -40,9 +40,7 @@ export const getComponentList = async (crn: string) => {
         row.approval_status === "APPROVED" ||
         row.approval_status === "ENABLED" ||
         row.approval_status === "DISABLED",
-      // row.is_enabled === "YES" || row.is_enabled === "NO"
-      //   ? true
-      //   : row.is_enabled === "PENDING" && false,
+
       unit: row.units_name,
       isApprover: values.approvers.includes(crn),
     }));

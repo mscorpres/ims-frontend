@@ -2,10 +2,13 @@ import IconButton from "@/Components/IconButton";
 import MyDataTable from "@/Components/MyDataTable.jsx";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 interface Props {
   rows: any[];
   loading: boolean;
+  type?: "approve" | "reject";
   setShowApproveModal: React.Dispatch<
     React.SetStateAction<false | "approve" | "reject">
   >;
@@ -17,11 +20,13 @@ const ApprovalList = ({
   loading,
   setSelectedComponent,
   setShowApproveModal,
+  type,
 }: Props) => {
   const handleSelect = (row: any, type: "approve" | "reject") => {
     setSelectedComponent(row);
     setShowApproveModal(type);
   };
+
   const actionColumn = {
     field: "actions",
     headerName: "",
@@ -55,6 +60,7 @@ const ApprovalList = ({
       />,
     ],
   };
+
   return (
     <MyDataTable
       loading={loading}

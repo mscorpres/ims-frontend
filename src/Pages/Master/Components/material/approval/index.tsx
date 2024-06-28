@@ -9,6 +9,7 @@ import { ModalType } from "@/types/general";
 import { Col, Divider, Flex, Form, Input, Modal, Row, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import Loading from "@/Components/Loading.jsx";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type Props = {};
 
@@ -18,10 +19,26 @@ const ComponentApproval = ({ getRows }: Props) => {
   const [showApproveModal, setShowApproveModal] = useState<
     false | "approve" | "reject"
   >(false);
+  let [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { executeFun, loading } = useApi();
 
   const handleFetchList = async () => {
     const response = await executeFun(() => getPendingApprovalList(), "fetch");
+    if (preSelectedComponent && preSelectedStatus) {
+      console.log("preselectedcmpnoent", preSelectedComponent);
+      console.log("preselected status", preSelectedStatus);
+      console.log(
+        "presetting",
+        preSelectedStatus === "approve" ? "approve" : "reject"
+      );
+      setSelectedComponent(
+        response.data.find((row) => row.key === preSelectedComponent)
+      );
+      setShowApproveModal(
+        preSelectedStatus === "approve" ? "approve" : "reject"
+      );
+    }
     setRows(response.data);
   };
 
@@ -39,9 +56,14 @@ const ComponentApproval = ({ getRows }: Props) => {
         setSelectedComponent(null);
         setShowApproveModal(false);
         handleFetchList();
+        navigate("/material/pending-approval");
       }
     }
   };
+
+  const preSelectedComponent = searchParams.get("component");
+  const preSelectedStatus = searchParams.get("status");
+
   useEffect(() => {
     handleFetchList();
   }, []);
@@ -136,7 +158,12 @@ const ApproveModal = ({
       </Typography.Text>
       <Row>
         <Col span={24}>
-          <Form form={form} layout="vertical" style={{ marginTop: 15 }}>
+          <Form
+            disabled={loading1("fetch")}
+            form={form}
+            layout="vertical"
+            style={{ marginTop: 15 }}
+          >
             <Form.Item
               name="remarks"
               label="Remarks"

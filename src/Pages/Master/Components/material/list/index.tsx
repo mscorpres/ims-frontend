@@ -90,8 +90,9 @@ const columns = [
 const filteredCompnents = (components, showRejected, includeDisabled) => {
   let arr = components;
 
-  return arr.filter((row) => (showRejected ? !row.isApproved : row.isApproved));
-  // .filter((row) =>
-  //   showRejected ? row : includeDisabled ? row : row.isEnabled
-  // );
+  return arr
+    .filter((row) => (showRejected ? !row.isApproved : row.isApproved))
+    .filter((row) =>
+      showRejected ? row : includeDisabled ? row : row.isEnabled
+    );
 };
