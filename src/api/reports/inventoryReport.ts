@@ -183,15 +183,13 @@ interface Q7RowType {
   componentKey: string;
   componentName: string;
   partCode: string;
+  manufacturingCode: string;
+  uniqueID: string;
 }
 export const q7 = async (attributes: any, allAttributeOptions: any[]) => {
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
 
-  console.log("functions running");
-
-  console.log("values", attributes);
-  console.log("attrValueKey", allAttributeOptions);
   for (let key in attributes) {
     const current = attributes[key];
 
@@ -225,6 +223,8 @@ export const q7 = async (attributes: any, allAttributeOptions: any[]) => {
           key: row.componentKey,
           name: row.componentName,
           partCode: row.partCode,
+          uniqueId: row.uniqueID,
+          mfgCode: row.manufacturingCode,
           stock: [],
         })
       );

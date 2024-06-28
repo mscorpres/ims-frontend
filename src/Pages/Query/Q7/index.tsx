@@ -132,15 +132,18 @@ const Q7 = (props: Props) => {
               <Col span={5}>
                 <Typography.Text strong>Part Code</Typography.Text>
               </Col>
-              <Col span={10}>
+              <Col span={6}>
                 <Typography.Text strong>Component Name</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Typography.Text strong>Unique Code</Typography.Text>
               </Col>
               <Col span={4}>
                 <Typography.Text strong>MFG Code</Typography.Text>
               </Col>
-              <Col span={4}>
+              {/* <Col span={4}>
                 <Typography.Text strong>RM Stock</Typography.Text>
-              </Col>
+              </Col> */}
             </Row>
           </Col>
           <Col span={24}>
@@ -149,16 +152,17 @@ const Q7 = (props: Props) => {
                 key: row.key,
                 extra: row.stock?.total?.closing && (
                   <Typography.Text strong>
-                    Total: {row.stock?.total?.closing}
+                    RM Stock: {row.stock?.total?.closing}
                   </Typography.Text>
                 ),
                 label: (
                   <Row>
                     <Col span={1}>{index + 1}</Col>
                     <Col span={5}>{row.partCode}</Col>
-                    <Col span={10}>Component Name</Col>
-                    <Col span={4}>MFG Code</Col>
-                    <Col span={4}>RM Stock</Col>
+                    <Col span={6}>{row.name}</Col>
+                    <Col span={4}>{row.uniqueId}</Col>
+                    <Col span={4}>{row.mfgCode}</Col>
+                    {/* <Col span={4}>RM Stock</Col> */}
                   </Row>
                 ),
                 children: (
