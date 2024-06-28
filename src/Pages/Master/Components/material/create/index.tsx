@@ -3,6 +3,7 @@ import {
   Card,
   Checkbox,
   Col,
+  Divider,
   Flex,
   Form,
   Input,
@@ -55,6 +56,7 @@ const AddComponent = ({ rows }: PropType) => {
   const [showSimilarPartCodeModal, setShowSimilarPartCodeModal] =
     useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [enteredMfgCode, setEnteredMfgCode] = useState(null);
 
   const { loading, executeFun } = useApi();
   const [headerForm] = Form.useForm();
@@ -207,6 +209,7 @@ const AddComponent = ({ rows }: PropType) => {
     );
 
     if (response.success) {
+      setEnteredMfgCode(mfgCode);
       setSimilarComponents(response.data);
       setShowSimilarPartCodeModal(true);
       setShowAttributesModal(false);
@@ -301,6 +304,7 @@ const AddComponent = ({ rows }: PropType) => {
         loading={loading("submit")}
         setShowAttributesModal={setShowAttributesModal}
         setIsVerified={setIsVerified}
+        mfgCode={enteredMfgCode}
       />
       <Card
         size="small"
@@ -732,11 +736,13 @@ const SimilarPartCodesModal = ({
   loading,
   setShowAttributesModal,
   setIsVerified,
+  mfgCode,
 }: SimilarPartCodesModalType) => {
   console.log("found components", similarPartCodes);
   return (
     <Modal
       open={show}
+      width={900}
       onCancel={() => {
         hide();
         setShowAttributesModal(true);
@@ -763,20 +769,45 @@ const SimilarPartCodesModal = ({
           overflowY: "auto",
         }}
       >
-        {similarPartCodes?.map((row, index) => (
-          <Flex style={{ fontSize: 11 }} align="center" gap={20}>
-            <div>{index + 1}.</div>
-            <div>
-              <Typography.Text strong>{row.partCode}</Typography.Text>
-            </div>
-            {/* <div>
-              <Typography.Text strong>{row.componentName}</Typography.Text>
-            </div> */}
-            <div>
-              <Typography.Text strong>Stock {row.rmStock}</Typography.Text>
-            </div>
-          </Flex>
-        ))}
+        <Row style={{ fontSize: 11 }}>
+          <Col span={1}>
+            <Typography.Text strong>#</Typography.Text>
+          </Col>
+          <Col span={4}>
+            <Typography.Text strong>Part Code</Typography.Text>
+          </Col>
+          <Col span={10}>
+            <Typography.Text strong>Component</Typography.Text>
+          </Col>
+          <Col span={4}>
+            <Typography.Text strong>MFG Code</Typography.Text>
+          </Col>
+          <Col span={5}>
+            <Typography.Text strong>RM Stock</Typography.Text>
+          </Col>
+          <Col span={24}>
+            <Divider />
+          </Col>
+          {similarPartCodes?.map((row, index) => (
+            <>
+              <Col span={1}>{index + 1}</Col>
+              <Col span={4}>{row.partCode}</Col>
+              <Col span={10}>{row.componentName}</Col>
+              <Col
+                span={4}
+                style={{
+                  color: mfgCode === row.manufacturingCode ? "red" : "black",
+                }}
+              >
+                {row.manufacturingCode}
+              </Col>
+              <Col span={5}>{row.rmStock}</Col>
+              <Col span={24}>
+                <Divider />
+              </Col>
+            </>
+          ))}
+        </Row>
       </Flex>
       <Typography.Text strong type="secondary">
         Are you sure you want to create a new component with these values?
