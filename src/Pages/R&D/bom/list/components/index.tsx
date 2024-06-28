@@ -105,7 +105,7 @@ const columns = [
   },
 
   {
-    headerName: "Sub. Part Code",
+    headerName: "Alt. Part Code",
     width: 120,
     field: "subPartCode",
     valueGetter: ({ row }: { row: BOMType["components"][0] }) => {

@@ -5,6 +5,7 @@ import { Flex, Switch } from "antd";
 
 export default function List({ actionColumn, components, loading }) {
   const [showRejected, setShowRejected] = useState(false);
+  console.log("this is the components", components);
   const [includeDisabled, setIncludeDisabled] = useState(false);
   return (
     <Flex vertical style={{ height: "100%" }}>
@@ -35,7 +36,8 @@ export default function List({ actionColumn, components, loading }) {
       <Flex style={{ height: "100%" }}>
         <MyDataTable
           loading={loading}
-          data={filteredCompnents(components, showRejected, includeDisabled)}
+          data={components}
+          // data={filteredCompnents(components, showRejected, includeDisabled)}
           columns={[actionColumn, ...columns]}
         />
       </Flex>
@@ -88,9 +90,8 @@ const columns = [
 const filteredCompnents = (components, showRejected, includeDisabled) => {
   let arr = components;
 
-  return arr
-    .filter((row) => (showRejected ? !row.isApproved : row.isApproved))
-    .filter((row) =>
-      showRejected ? row : includeDisabled ? row : row.isEnabled
-    );
+  return arr.filter((row) => (showRejected ? !row.isApproved : row.isApproved));
+  // .filter((row) =>
+  //   showRejected ? row : includeDisabled ? row : row.isEnabled
+  // );
 };

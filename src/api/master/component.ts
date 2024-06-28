@@ -1,7 +1,7 @@
 import { HSNType } from "@/types/master";
 import { imsAxios } from "../../axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
-import { message } from "antd";
+import { message, Row } from "antd";
 
 interface GetComponentsType {
   approvers: string[];
@@ -13,6 +13,12 @@ interface GetComponentsType {
     component_key: string;
     is_enabled: "PENDING" | "YES" | "NO" | "NA";
     units_name: string;
+    approval_status:
+      | "PENDING"
+      | "APPROVED"
+      | "REJECTED"
+      | "ENABLED"
+      | "DISABLED";
   }[];
 }
 export const getComponentList = async (crn: string) => {
@@ -29,10 +35,14 @@ export const getComponentList = async (crn: string) => {
       partCode: row.c_part_no,
       key: row.component_key,
       isEnabled: row.is_enabled === "YES",
+      isApprovalPending: row.approval_status === "PENDING",
       isApproved:
-        row.is_enabled === "YES" || row.is_enabled === "NO"
-          ? true
-          : row.is_enabled === "PENDING" && false,
+        row.approval_status === "APPROVED" ||
+        row.approval_status === "ENABLED" ||
+        row.approval_status === "DISABLED",
+      // row.is_enabled === "YES" || row.is_enabled === "NO"
+      //   ? true
+      //   : row.is_enabled === "PENDING" && false,
       unit: row.units_name,
       isApprover: values.approvers.includes(crn),
     }));

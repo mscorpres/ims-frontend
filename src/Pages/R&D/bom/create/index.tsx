@@ -45,7 +45,7 @@ const typeOptions: SelectOptionType[] = [
     value: "main",
   },
   {
-    text: "Substitute",
+    text: "Alternate",
     value: "substitute",
   },
 ];
@@ -479,7 +479,7 @@ const BOMCreate = () => {
                 </Form.Item>
               </Flex>
               {type === "substitute" && (
-                <Form.Item name="substituteOf" label="Substitute Of">
+                <Form.Item name="substituteOf" label="Alternate Of">
                   <MySelect options={mainComponents} labelInValue={true} />
                 </Form.Item>
               )}
@@ -678,7 +678,7 @@ const Components = ({
           </Col>
           {type === "substitute" && (
             <Col span={4}>
-              <Typography.Text strong>Substitute of</Typography.Text>
+              <Typography.Text strong>Alternate Of</Typography.Text>
             </Col>
           )}
           <Col span={type === "substitute" ? 3 : 7}>
