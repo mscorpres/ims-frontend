@@ -123,41 +123,72 @@ const Q7 = (props: Props) => {
           </Typography.Text>
         </div>
         {loading("fetch") && <Loading />}
-        <Collapse
-          items={rows.map((row) => ({
-            key: row.key,
-            extra: row.stock?.total?.closing && (
-              <Typography.Text strong>
-                Total: {row.stock?.total?.closing}
-              </Typography.Text>
-            ),
-            label: row.partCode,
-            children: (
-              <Flex vertical gap={5} style={{ position: "relative" }}>
-                {loading(`fetchStock-${row.key}`) && <Loading />}
-                <Typography.Text strong>
-                  Total Closing: {row.stock?.total?.closing}
-                </Typography.Text>
+        <Row style={{ width: "100%" }}>
+          <Col span={24}>
+            <Row style={{ paddingLeft: 35 }}>
+              <Col span={1}>
+                <Typography.Text strong>#</Typography.Text>
+              </Col>
+              <Col span={5}>
+                <Typography.Text strong>Part Code</Typography.Text>
+              </Col>
+              <Col span={10}>
+                <Typography.Text strong>Component Name</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Typography.Text strong>MFG Code</Typography.Text>
+              </Col>
+              <Col span={4}>
+                <Typography.Text strong>RM Stock</Typography.Text>
+              </Col>
+            </Row>
+          </Col>
+          <Col span={24}>
+            <Collapse
+              items={rows.map((row, index) => ({
+                key: row.key,
+                extra: row.stock?.total?.closing && (
+                  <Typography.Text strong>
+                    Total: {row.stock?.total?.closing}
+                  </Typography.Text>
+                ),
+                label: (
+                  <Row>
+                    <Col span={1}>{index + 1}</Col>
+                    <Col span={5}>{row.partCode}</Col>
+                    <Col span={10}>Component Name</Col>
+                    <Col span={4}>MFG Code</Col>
+                    <Col span={4}>RM Stock</Col>
+                  </Row>
+                ),
+                children: (
+                  <Flex vertical gap={5} style={{ position: "relative" }}>
+                    {loading(`fetchStock-${row.key}`) && <Loading />}
+                    <Typography.Text strong>
+                      Total Closing: {row.stock?.total?.closing}
+                    </Typography.Text>
 
-                <Flex wrap="wrap" gap={5}>
-                  {row.stock?.stock?.map((stockRow) => (
-                    <Card size="small">
-                      <Flex vertical align="center">
-                        <Typography.Text strong>
-                          {stockRow.name}
-                        </Typography.Text>
-                        <Typography.Text strong>
-                          {stockRow.closing}
-                        </Typography.Text>
-                      </Flex>
-                    </Card>
-                  ))}
-                </Flex>
-              </Flex>
-            ),
-          }))}
-          onChange={handleOpen}
-        />
+                    <Flex wrap="wrap" gap={5}>
+                      {row.stock?.stock?.map((stockRow) => (
+                        <Card size="small">
+                          <Flex vertical align="center">
+                            <Typography.Text strong>
+                              {stockRow.name}
+                            </Typography.Text>
+                            <Typography.Text strong>
+                              {stockRow.closing}
+                            </Typography.Text>
+                          </Flex>
+                        </Card>
+                      ))}
+                    </Flex>
+                  </Flex>
+                ),
+              }))}
+              onChange={handleOpen}
+            />
+          </Col>
+        </Row>
       </Col>
     </Row>
   );
