@@ -36,8 +36,8 @@ export default function List({ actionColumn, components, loading }) {
       <Flex style={{ height: "100%" }}>
         <MyDataTable
           loading={loading}
-          data={components}
-          // data={filteredCompnents(components, showRejected, includeDisabled)}
+          // data={components}
+          data={filteredCompnents(components, showRejected, includeDisabled)}
           columns={[actionColumn, ...columns]}
         />
       </Flex>
