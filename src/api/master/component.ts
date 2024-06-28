@@ -224,20 +224,13 @@ export const createComponent = async (
 
     if (foundAttr) {
       attrName.add(foundAttr?.name);
-      attrValueKey.add(foundAttr?.valueKey);
+      attrValueKey.add(foundAttr?.valueKey ?? current);
     }
     if (!foundAttr) {
       attrName.add(key);
-      attrValueKey.add(current.value);
+      attrValueKey.add(current.value ?? current);
     }
   }
-
-  console.log("create", {
-    attributeKey: Array.from(attrName),
-    attributeValue: Array.from(attrValueKey),
-  });
-
-  return;
 
   const payload: VerifyAttributesType = {
     attr_category: values.attrCategory?.value,
