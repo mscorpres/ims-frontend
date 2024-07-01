@@ -23,7 +23,7 @@ export default function List({ actionColumn, components, loading }) {
 
         <Flex align="middle" gap={5}>
           <label style={{ fontSize: 13 }} htmlFor="includeDisabled">
-            Include Disabled
+            Show Disabled
           </label>
           <Switch
             id="includeDisabled"
@@ -49,7 +49,7 @@ const columns = [
   {
     headerName: "#",
     field: "id",
-    width: 30,
+    width: 60,
   },
   {
     headerName: "Part Code",
@@ -93,6 +93,6 @@ const filteredCompnents = (components, showRejected, includeDisabled) => {
   return arr
     .filter((row) => (showRejected ? !row.isApproved : row.isApproved))
     .filter((row) =>
-      showRejected ? row : includeDisabled ? row : row.isEnabled
+      showRejected ? row : includeDisabled ? !row.isEnabled : row.isEnabled
     );
 };
