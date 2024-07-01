@@ -12,6 +12,7 @@ import {
   Flex,
   Form,
   Input,
+  Modal,
   Row,
   Typography,
 } from "antd";
@@ -125,7 +126,20 @@ const QcScan = (props: Props) => {
 
     setRows(response.data ?? []);
   };
-
+  const confirmRemove = () => {
+    Modal.confirm({
+      // title: "Remove Qr Component",
+      content: (
+        <Typography.Text>
+          Are you sure you want to delete the selected entries?
+        </Typography.Text>
+      ),
+      confirmLoading: loading === "remove",
+      okText: "Delete",
+      cancelText: "Back",
+      onOk: () => deleteSelected(),
+    });
+  };
   const handleSingleScanInsert = async (
     reason: string,
     status: "PASS" | "FAIL"
@@ -346,7 +360,7 @@ const QcScan = (props: Props) => {
             </Form>{" "}
             <div>
               <MyButton
-                onClick={() => deleteSelected()}
+                onClick={() => confirmRemove()}
                 variant="delete"
                 danger
                 disabled={!deleteRow.length}
@@ -459,6 +473,7 @@ const QcScan = (props: Props) => {
               // setSelectedPo(selected);
               filterTheCheckedRows(selected, rows);
             }}
+            loading={loading("select")}
           />{" "}
         </Card>
       </Col>
