@@ -209,3 +209,13 @@ export const getPprOptions = async (search: string) => {
 
   return response;
 };
+export const deleteQcaRows = async (payload) => {
+  const response = await imsAxios.post(
+    "/createqca/delete_testing_data",
+    payload
+  );
+
+  response.data = convertSelectOptions(response.data ?? []);
+
+  return response;
+};

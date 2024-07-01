@@ -1,10 +1,20 @@
-import { getPprOptions } from "@/api/general";
+import { deleteQcaRows, getPprOptions } from "@/api/general";
 import useApi from "@/hooks/useApi";
 import CurrentDetails from "@/Pages/Production/mes/qca/scan/CurrentDetails";
 import CustomerName from "@/Pages/Production/mes/qca/scan/customerDetails";
 import LocationDetails from "@/Pages/Production/mes/qca/scan/locationDetails";
 import ProductDetails from "@/Pages/Production/mes/qca/scan/productDetails";
-import { Card, Col, Divider, Flex, Form, Input, Row, Typography } from "antd";
+import {
+  Card,
+  Checkbox,
+  Col,
+  Divider,
+  Flex,
+  Form,
+  Input,
+  Row,
+  Typography,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import MyButton from "@/Components/MyButton";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
@@ -29,6 +39,7 @@ import { SelectOptionType } from "@/types/general";
 import InsertModal from "@/Pages/Production/mes/qca/scan/InsertModal";
 import TransferModal from "@/Pages/Production/mes/qca/scan/TransferModal";
 import Loading from "@/Components/Loading.jsx";
+import MyDataTable from "@/Components/MyDataTable.jsx";
 
 type Props = {};
 interface RowType {
@@ -37,6 +48,7 @@ interface RowType {
   date: string;
   qr: string;
   status: "FAIL" | "PASS";
+  checked: false;
 }
 
 const QcScan = (props: Props) => {
@@ -61,6 +73,7 @@ const QcScan = (props: Props) => {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [isInsertingWithCount, setisInsertingWithCount] = useState(false);
   const [scanReady, setScanReady] = useState(false);
+  const [deleteRow, setDeleteRow] = useState([]);
 
   const { executeFun, loading } = useApi();
   const [form] = Form.useForm<headerType>();
@@ -202,6 +215,57 @@ const QcScan = (props: Props) => {
       );
     }
   };
+  const filterTheCheckedRows = (selected, rows) => {
+    let arr = [];
+    let matched = [];
+    selected.map((row) => {
+      matched = rows.filter((r) => r.id === row)[0];
+
+      if (matched) {
+        arr.push(matched);
+      }
+    });
+    setDeleteRow(arr);
+    return arr;
+  };
+  const deleteSelected = async () => {
+    let payload = {
+      sku: form.getFieldValue("sku"),
+      qca_process: selectedProcess.key,
+      bar_code: deleteRow.map((r) => r?.qr),
+      result: deleteRow.map((r) => r?.status),
+    };
+
+    const response = await executeFun(() => deleteQcaRows(payload), "select");
+    handleFetchPreviousRows(selectedPpr.key, selectedProcess.key);
+  };
+  const columns = [
+    {
+      headerName: "#",
+      field: "id",
+      width: 30,
+    },
+    {
+      headerName: "Date",
+      field: "date",
+      width: 120,
+    },
+    {
+      headerName: "Time",
+      field: "time",
+      width: 120,
+    },
+    {
+      headerName: "QR No.",
+      field: "qr",
+      width: 180,
+    },
+    {
+      headerName: "Status",
+      field: "status",
+      width: 120,
+    },
+  ];
   useEffect(() => {
     if (selectedPpr) {
       handleFetchPPRDetails(selectedPpr.value.toString());
@@ -279,7 +343,18 @@ const QcScan = (props: Props) => {
                   </Form.Item>
                 </Col>
               </Row>
-            </Form>
+            </Form>{" "}
+            <div>
+              <MyButton
+                onClick={() => deleteSelected()}
+                variant="delete"
+                danger
+                disabled={!deleteRow.length}
+                text="Delete Selected"
+                block
+                loading={loading("transfer")}
+              />
+            </div>
           </Card>
 
           {/* scan card */}
@@ -374,74 +449,17 @@ const QcScan = (props: Props) => {
           bodyStyle={{ height: "95%", overflow: "auto" }}
         >
           {loading("fetchRows") && <Loading />}
-          <Flex
-            gap={5}
-            style={{ borderBottom: "1px solid #eee", paddingBottom: 5 }}
-          >
-            <div style={{ width: 30 }}>
-              <Typography.Text strong type="secondary">
-                #
-              </Typography.Text>
-            </div>
-            <div style={{ flex: 1 }}>
-              <Typography.Text strong type="secondary">
-                Date
-              </Typography.Text>
-            </div>
-            <div style={{ flex: 1 }}>
-              <Typography.Text strong type="secondary">
-                Time
-              </Typography.Text>
-            </div>
-            <div style={{ flex: 1 }}>
-              <Typography.Text strong type="secondary">
-                QR No.
-              </Typography.Text>
-            </div>
-            <div style={{ flex: 1 }}>
-              <Typography.Text strong type="secondary">
-                Status
-              </Typography.Text>
-            </div>
-          </Flex>
-          <Flex vertical gap={5}>
-            {rows.map((row) => (
-              <Flex
-                gap={5}
-                style={{
-                  borderBottom: "1px solid #eee",
-                  paddingBottom: 5,
-                  paddingTop: 5,
-                }}
-              >
-                <div style={{ width: 30 }}>
-                  <Typography.Text style={{ fontSize: 13 }}>
-                    {row.id}
-                  </Typography.Text>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <Typography.Text style={{ fontSize: 13 }}>
-                    {row.date}
-                  </Typography.Text>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <Typography.Text style={{ fontSize: 13 }}>
-                    {row.time}
-                  </Typography.Text>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <Typography.Text style={{ fontSize: 13 }}>
-                    {row.qr}
-                  </Typography.Text>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <Typography.Text style={{ fontSize: 13 }}>
-                    {row.status}
-                  </Typography.Text>
-                </div>
-              </Flex>
-            ))}
-          </Flex>
+          <MyDataTable
+            checkboxSelection
+            rows={rows}
+            columns={columns}
+            onSelectionModelChange={(selected) => {
+              console.log(selected);
+              console.log(rows);
+              // setSelectedPo(selected);
+              filterTheCheckedRows(selected, rows);
+            }}
+          />{" "}
         </Card>
       </Col>
       <Col lg={6} xl={4} span={4}>
