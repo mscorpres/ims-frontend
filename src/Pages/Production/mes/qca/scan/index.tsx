@@ -251,6 +251,7 @@ const QcScan = (props: Props) => {
     };
 
     const response = await executeFun(() => deleteQcaRows(payload), "select");
+    handleFetchPPRDetails(selectedPpr.value.toString());
     handleFetchPreviousRows(selectedPpr.key, selectedProcess.key);
   };
   const columns = [
