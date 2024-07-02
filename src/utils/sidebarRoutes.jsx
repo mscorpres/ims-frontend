@@ -729,10 +729,10 @@ export const items = (user) => [
     <ExperimentOutlined />,
     [
       getItem(
-        <Link to={routeConstants.researchAndDevelopment.products}>
+        <Link to={routeConstants.researchAndDevelopment.products.create}>
           Products
         </Link>,
-        routeConstants.researchAndDevelopment.products
+        routeConstants.researchAndDevelopment.products.create
       ),
       getItem(
         <Link to={routeConstants.researchAndDevelopment.bom.create}>
