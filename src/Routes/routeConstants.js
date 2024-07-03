@@ -8,7 +8,10 @@ const routeConstants = {
     },
   },
   researchAndDevelopment: {
-    products: "/research-and-development/products",
+    products: {
+      create: "/research-and-development/products",
+      approval: "/research-and-development/products/approval",
+    },
     bom: {
       create: "/research-and-development/bom/create",
       list: "/research-and-development/bom/list",

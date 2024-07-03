@@ -264,6 +264,7 @@ import SalesOrderRegisterWithShipment from "../Pages/Sales/SalesOrder/SalesOrder
 import Q7 from "@/Pages/Query/Q7";
 import ComponentApproval from "@/Pages/Master/Components/material/approval/index.js";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
+import ApprovalList from "@/Pages/R&D/products/approvalList.js";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -1424,8 +1425,12 @@ const Routes = [
   // },
   //research and development
   {
-    path: routeConstants.researchAndDevelopment.products,
+    path: routeConstants.researchAndDevelopment.products.create,
     main: () => <Products />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.products.approval,
+    main: () => <ApprovalList />,
   },
   {
     path: routeConstants.researchAndDevelopment.bom.create,
@@ -1444,12 +1449,6 @@ const Routes = [
   {
     path: "/controlPanel/registeredUsers",
     main: () => <RegisteredUser />,
-  },
-
-  //research and development
-  {
-    path: routeConstants.researchAndDevelopment.products,
-    main: () => <Products />,
   },
 
   // far upload

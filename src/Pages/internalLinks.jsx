@@ -1206,7 +1206,11 @@ const links = [
   [
     {
       routeName: "Products",
-      routePath: routeConstants.researchAndDevelopment.products,
+      routePath: routeConstants.researchAndDevelopment.products.create,
+    },
+    {
+      routeName: "Pending Approval List",
+      routePath: routeConstants.researchAndDevelopment.products.approval,
     },
   ],
   [
