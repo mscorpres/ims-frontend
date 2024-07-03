@@ -108,6 +108,16 @@ function R35() {
       headerName: "Difference (H-I)",
       width: 180,
     },
+    {
+      field: "prod_rtn_min",
+      headerName: "Prod Return MIN",
+      width: 180,
+    },
+    {
+      field: "part_conversion",
+      headerName: "Part Conversion",
+      width: 180,
+    },
   ];
   const { executeFun, loading1 } = useApi();
   const getDataBySearch = async (searchInput) => {
