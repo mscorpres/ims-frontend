@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import useApi from "../../../../hooks/useApi";
 import { getProductsOptions } from "../../../../api/general.ts";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import { getPendingReturns } from "../../../../api/store/fgReturn.ts";
+import { getPendingReturns } from "../../../../api/store/fgReturn";
 
 const wiseOptions = [
   { value: "datewise", text: "Date Wise" },
@@ -81,7 +81,7 @@ function PendingReversal() {
           onClick={() => {
             getExecuteDetails(row);
           }}
-          label="Execute PPR"
+          label="Execute"
         />,
       ],
       // style: { backgroundColor: "transparent" },

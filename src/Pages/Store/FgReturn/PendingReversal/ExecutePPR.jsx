@@ -240,14 +240,15 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
     arr = arr.reduce((r, c) => {
       return [...r, ...c];
     });
-    console.log("header", headerData);
+    // console.log("header", headerData);
+
     const finalObj = {
       bom: headerData.bom_id,
       fg_return_txn: headerData.fg_return_txn,
       qty: headerData.mfgQty,
       product_id: headerData.product_id,
       location: headerData.location,
-
+      comment: headerData.remark,
       component: arr.map((row) => row.key),
       comp_qty: arr.map((row) => row.actQty),
       remark: arr.map((row) => row.rem),
@@ -461,7 +462,10 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
                         >
                           <Input.TextArea
                             // disabled={true}
-                            // value={headerData?.remark}
+                            onChange={(e) =>
+                              headerInputhandler("remark", e.target.value)
+                            }
+                            value={headerData?.remark}
                             style={{ resize: "none" }}
                             rows={4}
                           />
