@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Col,
   Drawer,
+  Flex,
   Form,
   Input,
   Modal,
@@ -18,6 +19,7 @@ import FormTable from "../../../../Components/FormTable";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyButton from "../../../../Components/MyButton";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
+import { InfoCircleFilled, InfoCircleOutlined } from "@ant-design/icons";
 
 export default function ExecutePPR({ editPPR, setEditPPR }) {
   const [tabItems, setTabItems] = useState([]);
@@ -572,7 +574,15 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
           hideAdd={true}
         />
       )}
-
+      {activeKey !== "1" && (
+        <Flex align="center" gap={5}>
+          <InfoCircleOutlined />
+          <Typography.Text strong>
+            If you do not want to execute a component then leave the quantity
+            field blank, Entering 0 is not a valid input.
+          </Typography.Text>
+        </Flex>
+      )}
       {activeKey != 1 && (
         <NavFooter
           loading={submitLoading}
