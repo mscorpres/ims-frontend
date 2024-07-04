@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Col,
   Drawer,
@@ -17,6 +17,7 @@ import NavFooter from "../../../../Components/NavFooter";
 import FormTable from "../../../../Components/FormTable";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyButton from "../../../../Components/MyButton";
+import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 
 export default function ExecutePPR({ editPPR, setEditPPR }) {
   const [tabItems, setTabItems] = useState([]);
@@ -27,6 +28,8 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
   const [tableData, setTableData] = useState([]);
   const [headerData, setHeaderData] = useState({});
   const [locationOptions, setLocationOptions] = useState([]);
+
+  const locationOptionsRef = useRef(null);
   console.log("here in open draer", editPPR);
   const onChange = (newActiveKey) => {
     setActiveKey(newActiveKey);
@@ -177,20 +180,30 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
       ),
     },
   ];
+
   const getLocations = async (search) => {
-    // const { data } = await imsAxios.get("/ppr/mfg_locations");
-    // const arr = [];
-    // data.data.map((a) => arr.push({ text: a.text, value: a.id }));
-    // setLocationOptions(arr);
-    const { data } = await imsAxios.post("/backend/fetchLocation", {
+    // setLoading("select");
+    const response = await imsAxios.post("/backend/fetchLocation", {
       searchTerm: search,
     });
-    let locArr = [];
-    locArr = data.map((d) => {
-      return { text: d.text, value: d.id };
-    });
-    setLocationOptions(locArr);
+    getData(response);
   };
+  const getData = (response) => {
+    const { data } = response;
+    if (data) {
+      if (data.length) {
+        const arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
+        // console.log("location options", arr);
+
+        setLocationOptions(arr);
+        locationOptionsRef.current = arr;
+      }
+    }
+  };
+  // console.log("location ref", locationOptionsRef);
   const compInputHandler = async (name, value, id) => {
     let arr = tableData;
     arr = arr.map((row) => {
@@ -308,7 +321,6 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
     setTableData(arr);
   };
   useEffect(() => {
-    getLocations();
     if (!editPPR) {
       setHeaderData({});
       setTableData([]);
@@ -395,16 +407,18 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
                             },
                           ]}
                         >
-                          <MySelect
+                          <MyAsyncSelect
+                            ref={locationOptionsRef}
+                            onBlur={() => setLocationOptions([])}
                             value={headerData?.location}
                             onChange={(value) =>
                               setHeaderData((d) => {
                                 return { ...d, location: value };
                               })
                             }
-                            options={locationOptions}
+                            loadOptions={getLocations}
+                            optionsState={locationOptions}
                           />
-                          {/* <Input value={headerData?.location} /> */}
                         </Form.Item>
                       </Form>
                     </Col>
@@ -515,7 +529,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
     });
 
     setTabItems(arr);
-  }, [tableData, headerData]);
+  }, [tableData, headerData, locationOptions]);
   return (
     <Drawer
       title={

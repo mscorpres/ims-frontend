@@ -24,6 +24,7 @@ export default function MyAsyncSelect({
   onFocus,
   onMouseEnter,
   optionsList,
+  ref,
 }) {
   const [searchValue, setSearchValue] = useState("");
   const updatedValue = useDebounce(searchValue);
@@ -35,6 +36,7 @@ export default function MyAsyncSelect({
   }, [updatedValue]);
   return (
     <Select
+      ref={ref}
       onMouseEnter={onMouseEnter}
       onBlur={onBlur}
       disabled={disabled}
