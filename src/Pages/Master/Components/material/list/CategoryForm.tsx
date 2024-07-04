@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi";
 import { SelectOptionType } from "@/types/general";
 import {
+  Button,
   Card,
   Col,
   Divider,
@@ -11,9 +12,13 @@ import {
   InputNumber,
   Row,
   Typography,
+  Upload,
 } from "antd";
 import MySelect from "@/Components/MySelect.jsx";
 import { getCategoryFields, getCategoryOptions } from "@/api/master/component";
+import { UploadOutlined } from "@ant-design/icons";
+import { imsAxios } from "@/axiosInterceptor";
+import { downloadCSV } from "@/Components/exportToCSV";
 
 interface PropTypes {
   uniqueCode: string;
@@ -31,6 +36,8 @@ const CategoryForm = (props: PropTypes) => {
   const [stage, setStage] = useState(1);
   const [fields, setFields] = useState<FieldType[]>([]);
   const [selectOptions, setSelectOptions] = useState<OptionType[]>([]);
+  const [demoFile, setDemoFile] = useState<File | null>(null);
+  const [codeRows, setCodeRows] = useState([]);
 
   const values = Form.useWatch([], props.form);
   const mfgCode = Form.useWatch("mfgCode", props.form);
@@ -68,6 +75,62 @@ const CategoryForm = (props: PropTypes) => {
     setFields(response.data);
   };
 
+  const uploadProps = {
+    maxCount: 1,
+    fileList: demoFile ? [demoFile] : [],
+    beforeUpload: () => false,
+    onChange: (info) =>
+      info.file ? setDemoFile(info.file) : setDemoFile(null),
+  };
+
+  const handleFetchJSON = async () => {
+    if (demoFile) {
+      const formData = new FormData();
+      formData.append("file", demoFile);
+      let arr = [];
+      const response = await imsAxios.post("/component/readData", formData);
+      // return;
+      if (response.success) {
+        response.data.map((row) => {
+          let updatedValues = {};
+          for (let key in row.values) {
+            const newObj = {
+              label: row.values[key].attr_value,
+              text: row.values[key].attr_value,
+              value: row.values[key].code ?? row.values[key].selectedvalues,
+            };
+
+            updatedValues[key] = newObj;
+            // updatedValues["label"] = row.values[key].attr_value;
+            // updatedValues["text"] = row.values[key].attr_value;
+            // updatedValues["value"] = row.values[key].code;
+          }
+          const code = generateCode(updatedValues);
+          console.log("generate", code);
+          arr = [
+            ...arr,
+            {
+              partCode: row.partCode,
+              code,
+            },
+          ];
+        });
+      }
+      console.log("code arr", arr);
+      const columns = [
+        {
+          headerName: "Part Code",
+          field: "partCode",
+        },
+        {
+          headerName: "Code",
+          field: "code",
+        },
+      ];
+
+      downloadCSV(arr, columns, "Updated Code");
+    }
+  };
   useEffect(() => {
     if (props.category) {
       handleFetchCategoryFields(props.category.value);
@@ -78,14 +141,19 @@ const CategoryForm = (props: PropTypes) => {
     let generatedCode = "";
     let generatedName = "";
 
+    console.log("values ", values);
+
     if (values) {
       if (props.setAttributes) {
         let udpatedFields = {};
         for (let key in values) {
           const current = values[key];
           const found = fields.find((field) => field.name === key);
+          console.log("field name", values);
           if (found) {
             udpatedFields[found?.name] = current?.value ?? current;
+          } else {
+            udpatedFields[key] = current;
           }
         }
         console.log("updateFields", udpatedFields);
@@ -238,6 +306,12 @@ const CategoryForm = (props: PropTypes) => {
                     <Input placeholder="Manufacturing Code" />
                   </Form.Item>
                 </div>
+                <Upload {...uploadProps}>
+                  <Button block icon={<UploadOutlined />}>
+                    Select File
+                  </Button>
+                </Upload>
+                <Button onClick={handleFetchJSON}>Fetch JSON</Button>
               </Flex>
             </Card>
           </Col>
@@ -388,7 +462,7 @@ const getValue = (value) => {
     return "__";
   } else if (value?.value) {
     return value.value;
-  } else if (typeof value === "string") {
+  } else if (typeof value === "string" || typeof value === "number") {
     return value;
   }
 };
@@ -398,11 +472,12 @@ const getLabel = (value) => {
     return "__";
   } else if (value?.label) {
     return value.label;
-  } else if (typeof value === "string") {
+  } else if (typeof value === "string" || typeof value === "number") {
     return value;
   }
 };
 const getComponentValueForName = (value, category) => {
+  console.log("valye in component value", value);
   let componentVal;
   let categorSnip = category?.toUpperCase();
 
@@ -420,4 +495,132 @@ const getComponentValueForName = (value, category) => {
   }
   // setValForName(componentVal);
   return componentVal;
+};
+
+const generateCode = (values) => {
+  let generatedCode = "";
+  let generatedName = "";
+
+  console.log("values for generate ", values);
+  if (values) {
+    // if (props.setAttributes) {
+    //   let udpatedFields = {};
+    //   for (let key in values) {
+    //     const current = values[key];
+    //     const found = fields.find((field) => field.name === key);
+    //     console.log("field name", values);
+    //     if (found) {
+    //       udpatedFields[found?.name] = current?.value ?? current;
+    //     } else {
+    //       udpatedFields[key] = current;
+    //     }
+    //   }
+    //   console.log("updateFields", udpatedFields);
+    //   props.setAttributes(udpatedFields);
+    // }
+
+    const mounting = values["12312"];
+    const packageSize = values["434092"];
+    const value = values["574954523value"];
+    // props.category?.value === "20231025864820945"
+    //   ? values["353453454"]
+    //   : props.category?.value === "20231028142920945"
+    //   ? values["574954523value"]
+    //   : values["574954524value"];
+    const multiplier = values["65490895"];
+    const tolerance = values["89768575"];
+    const powerRating = values["7876567"];
+    const frequency = values["5749534324"];
+    const freequencyValue = values["5749534324value"];
+    const capacitorType = values["49431234739"];
+    const voltage = values["453940492"];
+
+    const siUnit = values["574954523"];
+    const currentSiUnitInd = values["5749532987"];
+    const currentSiUnitIndValue = values["5749532987value"]; //this one
+    const dcResistance = values["98789537458"];
+    const dcResistanceValue = values["98789537458value"];
+    const siUnitInd = values["574954524"];
+    const siUnitIndValue = values["574954524value"]; //this one
+    const siUnitCap = values["574954523"];
+    const siUnitCapValue = values["574954523value"].value;
+    console.log(
+      "convertValue(value?.toString()) generate",
+      convertValue(value?.toString())
+    );
+    let zeroes = [1];
+    const valueArr = value
+      ?.toString()
+      .replaceAll(".", "")
+      .split(".")[0]
+      .split("");
+    for (let i = valueArr?.length - 1; i >= 0; i--) {
+      const current = valueArr[i];
+
+      if (current === "0") {
+        zeroes.push(0);
+        valueArr.pop();
+      } else {
+        break;
+      }
+    }
+    const broken = convertValue(value?.toString());
+    let valueLetter = "";
+    if (broken.length > 0) {
+      if (!value?.toString().includes(".")) {
+        valueLetter = getLetterFromNumber(zeroes?.join(""));
+      } else {
+        valueLetter = getLetterFromNumber(convertValue(value?.toString()));
+      }
+    }
+
+    // if (props.category?.value === "20231025864820945") {
+    //resistor
+    // generatedCode = `RES${getValue(mounting)}(${getValue(
+    //   packageSize
+    // )})${getValue(tolerance)}${getValue(powerRating)}${
+    //   valueArr?.join("")?.length > 4
+    //     ? "Invalid Value"
+    //     : valueArr?.join("")?.padStart(4, "0") ?? "__"
+    // }${valueLetter}`;
+
+    // generatedName = `${getValue(packageSize)}-${
+    //   getComponentValueForName(value?.value ?? value, "Resistor") ?? "__"
+    // }-${getLabel(tolerance)}-${getLabel(powerRating)}W-${
+    //   getLabel(mounting) === "Thru Hole" ? "MI" : getLabel(mounting)
+    // }-Resistor`;
+    // }
+    // else if (props.category?.value === "20231028142920945") {
+    //capacitor
+    generatedCode = `CAP${getValue(mounting)}${getValue(
+      capacitorType
+    )}(${getValue(packageSize)})${getValue(tolerance)}${getValue(voltage)}${
+      valueArr?.join("")?.length > 4
+        ? "Invalid Value"
+        : valueArr?.join("")?.padStart(4, "0") ?? "__"
+    }${valueLetter}${getValue(siUnit)}`;
+
+    generatedName = `${getValue(packageSize)}-${getLabel(
+      siUnitCapValue
+    )}${getLabel(siUnitCap)}-${getLabel(tolerance)}-${getLabel(voltage)}V-${
+      getLabel(mounting) === "Thru Hole" ? "MI" : getLabel(mounting)
+    }-${getLabel(capacitorType)}`;
+    // }
+    //  else if (props.category?.value === "348423983543") {
+    //   //inductor
+    //   generatedCode = `(${getValue(packageSize)})-${getValue(
+    //     siUnitIndValue
+    //   )}${getLabel(siUnitInd)}-${getValue(freequencyValue)}${getLabel(
+    //     frequency
+    //   )}-${getValue(currentSiUnitIndValue)}${getLabel(
+    //     currentSiUnitInd
+    //   )}-${getValue(dcResistanceValue)}${getLabel(dcResistance)}-${getLabel(
+    //     tolerance
+    //   )}-${
+    //     getLabel(mounting) === "Thru Hole" ? "MI" : getLabel(mounting)
+    //   }-Inductor`;
+    //   generatedName = generatedCode;
+    // }
+    return generatedName;
+  }
 };

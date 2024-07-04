@@ -2,11 +2,24 @@ import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
 import { BOMApprovalType, BOMType, BOMTypeExtended } from "@/types/r&d";
 
+[
+  { stage: 1, user: "" },
+  { stage: 2, user: "" },
+  { stage: 3, user: "" },
+];
+
 interface CreateBOMType {
   name: string;
   sku: string;
   description: string;
   version: string;
+  approvalMetrics: {
+    stage: number;
+    approvers: {
+      line: number;
+      user: string;
+    }[];
+  }[];
   components: {
     component: string;
     qty: string;
@@ -318,5 +331,28 @@ export const getComponentsFromFile = async (file: File) => {
   formData.append("file", file);
 
   const response: ResponseType = await imsAxios.post("/bom/getData", formData);
+  return response;
+};
+
+interface GetFixedApproversType {
+  crnID: string;
+  name: string;
+  email: string;
+  stage: string;
+}
+export const getFixedApprovers = async () => {
+  const response: ResponseType = await imsAxios.get("/bom/fetchApprover");
+
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row: GetFixedApproversType) => ({
+      crn: row.crnID,
+      email: row.email,
+      name: row.name,
+      stage: row.stage,
+    }));
+  }
+
+  response.data = arr;
   return response;
 };

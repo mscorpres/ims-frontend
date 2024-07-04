@@ -95,3 +95,15 @@ export interface BOMApprovalType {
     date: string | null;
   }[];
 }
+
+export interface MultiStageApproverType 
+  {
+    stage: number,
+    approvers: {
+      line: number,
+      user?: SelectOptionType,
+      fixed?: boolean
+      new?: boolean
+    }[]
+      
+  }

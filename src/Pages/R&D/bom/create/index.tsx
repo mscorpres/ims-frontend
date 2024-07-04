@@ -38,6 +38,8 @@ import { useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
 import { UploadOutlined } from "@ant-design/icons";
 import { downloadCSV } from "@/Components/exportToCSV.jsx";
+import SettingsDropdown from "@/Pages/R&D/bom/create/SettingsDropdown";
+import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
 
 const typeOptions: SelectOptionType[] = [
   {
@@ -71,6 +73,7 @@ const BOMCreate = () => {
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [isEditing, setIsEditing] = useState<string | number | boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>();
+  const [showApproversMetrics, setShowApproverMetrics] = useState(false);
 
   const [queryParams] = useSearchParams();
 
@@ -148,15 +151,13 @@ const BOMCreate = () => {
       "vendor",
       "remarks",
     ]);
-    console.log("add values", values);
+
     const newComponent = {
       ...values,
 
       value: values.component.value,
       text: values.component.label,
     };
-
-    console.log("new component", newComponent);
 
     let verifyArr = [...mainComponents, ...subComponents];
     const found = verifyArr.find((row) => row.value === values.component.value);
@@ -194,7 +195,7 @@ const BOMCreate = () => {
       "vendor",
       "remarks",
     ]);
-    console.log("add values", values);
+
     const newComponent = {
       ...values,
 
@@ -243,8 +244,6 @@ const BOMCreate = () => {
     }
   };
 
-  console.log("main components upated", mainComponents);
-
   const handleFetchProductOptions = async (search: string) => {
     const response = await executeFun(
       () => getProductOptions(search),
@@ -289,9 +288,8 @@ const BOMCreate = () => {
       () => getExistingBom(sku.value ?? sku),
       "fetch"
     );
-    console.log("existing response", response.data.length);
+
     if (response.success) {
-      console.log("it was here on the top");
       if (Array.isArray(response.data)) {
         form.setFieldsValue({
           product: sku,
@@ -305,7 +303,6 @@ const BOMCreate = () => {
 
         return;
       } else if (response.data && response.data.length === undefined) {
-        console.log("it is here down");
         form.setFieldsValue(response.data);
         form.setFieldValue("name", sku.label ?? sku + "V-00.00");
         setVersion(response.data.version);
@@ -346,7 +343,6 @@ const BOMCreate = () => {
   }, [queryParams]);
   useEffect(() => {
     if (selectedProduct !== undefined) {
-      console.log("selected", selectedProduct);
       if (selectedProduct && selectedProduct?.value) {
         handleFetchExistingBom(selectedProduct);
         form.setFieldValue("name", selectedProduct?.label + "V-00.00");
@@ -371,6 +367,10 @@ const BOMCreate = () => {
       layout="vertical"
       initialValues={initialValues}
     >
+      <ApproverMetrics
+        show={showApproversMetrics}
+        hide={() => setShowApproverMetrics(false)}
+      />
       {loading("fetch") && <Loading />}
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
         <Col span={4} style={{ height: "100%", overflow: "auto" }}>
@@ -378,7 +378,11 @@ const BOMCreate = () => {
             <Card
               size="small"
               title="Header Details"
-              extra={<Typography.Text strong>V{version}</Typography.Text>}
+              extra={
+                <SettingsDropdown
+                  setShowApproverMetrics={setShowApproverMetrics}
+                />
+              }
             >
               <Form.Item name="product" label="Product" rules={rules.product}>
                 <MyAsyncSelect
@@ -590,7 +594,6 @@ const BOMCreate = () => {
                     height: "100%",
                   }}
                 >
-                  First main: {mainComponents[0]?.remarks}
                   <Components
                     rows={mainComponents}
                     type="main"
@@ -654,7 +657,6 @@ const Components = ({
   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
   handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
-  console.log("components in table", rows);
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
       {rows.length === 0 && <Empty />}
