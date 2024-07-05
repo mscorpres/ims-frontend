@@ -48,7 +48,7 @@ export const createBOM = async (
     obj.stage = `L${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({
       ...app,
-      user: app.user.value,
+      user: app.user?.value,
       fixed: undefined,
     }));
 
