@@ -9,15 +9,21 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import { getUserOptions } from "@/api/general";
 import { getFixedApprovers } from "@/api/r&d/bom";
 
-interface Props extends ModalType {}
+interface Props extends ModalType {
+  approvers: MultiStageApproverType[];
+  setApprovers: React.Dispatch<React.SetStateAction<MultiStageApproverType[]>>;
+}
 
-const ApproverMetrics = ({ hide, show, submitHandler }: Props) => {
+const ApproverMetrics = ({
+  hide,
+  show,
+  submitHandler,
+  approvers,
+  setApprovers,
+}: Props) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
 
   const { executeFun, loading } = useApi();
-
-  const [approvers, setApprovers] =
-    useState<MultiStageApproverType[]>(initialApprovers);
 
   const handleFetchUserOptions = async (search: string) => {
     const response = await executeFun(() => getUserOptions(search), "select");
@@ -30,7 +36,7 @@ const ApproverMetrics = ({ hide, show, submitHandler }: Props) => {
     let arr = approvers;
     arr = arr.map((row) => {
       const found = response.data.find((resRow) => resRow.stage === row.stage);
-      console.log("after found", found);
+
       if (found) {
         let obj = row;
         obj.approvers[obj.approvers.length - 1].user = {
@@ -59,13 +65,15 @@ const ApproverMetrics = ({ hide, show, submitHandler }: Props) => {
             return lineRow.line !== line;
           }),
         };
+
+        //decreasing line number of last approver
+        obj.approvers[obj.approvers.length - 1].line =
+          obj.approvers[obj.approvers.length - 1].line - 1;
       }
       return obj;
     });
 
     setApprovers(arr);
-    // setApprovers(
-    // );
   };
 
   const handleUpdateApprover = (
@@ -98,24 +106,37 @@ const ApproverMetrics = ({ hide, show, submitHandler }: Props) => {
   };
 
   const handleAddApprover = (stage: number) => {
-    const found = approvers.find((row) => row.stage === stage);
-    const newApprover: MultiStageApproverType["approvers"][0] = {
-      line: found?.approvers.length - 1,
-      user: undefined,
-      new: true,
-    };
     let arr = approvers;
-    arr = arr.map((row) => {
-      let obj = row;
-      if (obj.stage === stage) {
-        obj.approvers.push(obj.approvers[obj.approvers.length - 1]);
-        obj.approvers[obj.approvers.length - 2] = newApprover;
-      }
+    let found = approvers.find((row) => row.stage === stage);
+    let last = found?.approvers[found.approvers.length - 1];
 
-      return obj;
+    if (!found || !last) return;
+    //pushing last approver again with updated line
+    found?.approvers.push({
+      ...last,
+      line: last?.line + 1,
     });
 
+    //udpating second last
+    const secondLastIndex = found.approvers.length - 2;
+    let secondLast = found.approvers[secondLastIndex];
+    console.log("this is second last", secondLastIndex);
+    found.approvers[secondLastIndex] = {
+      ...secondLast,
+      fixed: false,
+      user: undefined,
+    };
+
+    arr = approvers.map((row) => {
+      if (row.stage === stage) {
+        return found;
+      }
+      {
+        return row;
+      }
+    });
     setApprovers(arr);
+    // console.log("this is arr", arr);
   };
 
   useEffect(() => {
@@ -248,7 +269,7 @@ const Stage = ({
       <Flex vertical gap={10}>
         {stage.approvers.map((approver, index) => (
           <div style={{ margin: "0 30px" }}>
-            <label style={{ fontSize: 12 }}>S-{index + 1}</label>
+            <label style={{ fontSize: 12 }}>S-{approver.line}</label>
             <Flex gap={10} align="center">
               <MyAsyncSelect
                 disabled={approver.fixed}

@@ -36,6 +36,7 @@ const BOMApproval = (props: PropTypes) => {
     setLogs(response.data);
   };
 
+  console.log("these are the logs", logs);
   useEffect(() => {
     if (props.selectedBom && props.selectedBom?.key) {
       handleFetchLogs(props.selectedBom.key);
@@ -69,34 +70,77 @@ const BOMApproval = (props: PropTypes) => {
       {logs.logs?.map((row) => (
         <Flex
           vertical
-          style={{
-            marginBottom: 10,
-            opacity:
-              row.stage > logs?.currentStage + 1 && row.date === "" ? 0.5 : 1,
-          }}
+          // style={{
+          //   marginBottom: 10,
+          //   opacity:
+          //     row.stage > logs?.currentStage + 1 && row.date === "" ? 0.5 : 1,
+          // }}
           gap={"0px 0px"}
         >
           <div>
             <Typography.Title level={5}>
-              {row.formattedStage}
-              {row.isRejected && (
+              {row.stage}
+              {/* {row.isRejected && (
                 <span
                   style={{ color: "brown", marginLeft: 10, marginBottom: 0 }}
                 >
                   Rejected
                 </span>
-              )}
+              )} */}
             </Typography.Title>
           </div>
+          {row.approvers.map((approver) => (
+            <div
+              style={{
+                opacity:
+                  approver.remarksDate === null && approver.remarks === null
+                    ? 0.5
+                    : 1,
+                pointerEvents:
+                  approver.remarksDate === null && approver.remarks === null
+                    ? "none"
+                    : "all",
+              }}
+            >
+              <Flex justify="space-between">
+                <Typography.Text strong>S-{approver.line}</Typography.Text>
+                <Flex vertical style={{ textAlign: "end" }}>
+                  <Typography.Text strong>{approver.name}</Typography.Text>
+                  <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                    {approver.email}
+                  </Typography.Text>
+                </Flex>
+              </Flex>
+              <Flex justify="space-between">
+                <SingleDetail
+                  label="Status"
+                  value={
+                    logs.stage === approver.approvalNumber
+                      ? logs.isRejected
+                        ? "Rejected"
+                        : "Current"
+                      : "pending"
+                  }
+                />
+                <SingleDetail
+                  label="Updated Date"
+                  value={approver.remarksDate ?? "--"}
+                />
+              </Flex>
+              <SingleDetail label="Remarks" value={approver.remarks ?? "--"} />
+              <Divider />
+            </div>
+          ))}
           <Flex wrap="wrap" justify="space-between">
-            <Flex vertical>
-              <SingleDetail label="Approver" value={row.approver?.name} />
-              <Typography.Text style={{ fontSize: 11 }} type="secondary">
+            {/* <Flex vertical>
+              <SingleDetail label="Approver" value={row.stage} /> */}
+            {/* <Typography.Text style={{ fontSize: 11 }} type="secondary">
                 {row.approver?.department}, {row.approver?.designation}
-              </Typography.Text>
-            </Flex>
+              </Typography.Text> */}
+            {/* </Flex> */}
 
-            {logs.currentStage + 1 === row.stage &&
+            {/* TODO */}
+            {/* {logs.currentStage + 1 === row.stage &&
               user.id === row.approver?.crn &&
               !row.date && (
                 <Space>
@@ -132,11 +176,11 @@ const BOMApproval = (props: PropTypes) => {
                 label={row.isRejected ? "Rejected Date" : "Approval Date"}
                 value={row.date ?? "--"}
               />
-            )}
+            )} */}
           </Flex>
 
-          <SingleDetail label="Remarks" value={row.remarks ?? "--"} />
-          <Divider />
+          {/*  */}
+          {/* <Divider /> */}
         </Flex>
       ))}
     </>
@@ -153,7 +197,7 @@ const SingleDetail = ({
   value?: string | null;
 }) => {
   return (
-    <Flex vertical gap={3}>
+    <Flex vertical gap={1} style={{ marginTop: 3 }}>
       <Typography.Text style={{ fontSize: "0.8rem" }} strong>
         {label}
       </Typography.Text>

@@ -40,6 +40,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { downloadCSV } from "@/Components/exportToCSV.jsx";
 import SettingsDropdown from "@/Pages/R&D/bom/create/SettingsDropdown";
 import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
+import { MultiStageApproverType } from "@/types/r&d";
 
 const typeOptions: SelectOptionType[] = [
   {
@@ -74,6 +75,8 @@ const BOMCreate = () => {
   const [isEditing, setIsEditing] = useState<string | number | boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>();
   const [showApproversMetrics, setShowApproverMetrics] = useState(false);
+  const [approvers, setApprovers] =
+    useState<MultiStageApproverType[]>(initialApprovers);
 
   const [queryParams] = useSearchParams();
 
@@ -268,7 +271,7 @@ const BOMCreate = () => {
 
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
-      () => createBOM({ ...values, components: combined }, action),
+      () => createBOM({ ...values, components: combined }, approvers, action),
       action
     );
 
@@ -368,6 +371,8 @@ const BOMCreate = () => {
       initialValues={initialValues}
     >
       <ApproverMetrics
+        approvers={approvers}
+        setApprovers={setApprovers}
         show={showApproversMetrics}
         hide={() => setShowApproverMetrics(false)}
       />
@@ -920,3 +925,51 @@ const handleDownloadComponentSampleFile = async () => {
 //   "value": "1673438387251",
 //   "text": "(\tElectric Weighing Machine Capacity 5kg) P2678"
 // }
+
+const initialApprovers = [
+  {
+    stage: 1,
+    approvers: [
+      {
+        line: 1,
+        user: undefined,
+      },
+
+      {
+        line: 2,
+        user: undefined,
+        fixed: true,
+      },
+    ],
+  },
+  {
+    stage: 2,
+    approvers: [
+      {
+        line: 1,
+        user: undefined,
+      },
+
+      {
+        line: 2,
+        user: undefined,
+        fixed: true,
+      },
+    ],
+  },
+  {
+    stage: 3,
+    approvers: [
+      {
+        line: 1,
+        user: undefined,
+      },
+
+      {
+        line: 2,
+        user: undefined,
+        fixed: true,
+      },
+    ],
+  },
+];

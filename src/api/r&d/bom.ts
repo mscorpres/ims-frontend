@@ -1,12 +1,11 @@
 import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
-import { BOMApprovalType, BOMType, BOMTypeExtended } from "@/types/r&d";
-
-[
-  { stage: 1, user: "" },
-  { stage: 2, user: "" },
-  { stage: 3, user: "" },
-];
+import {
+  BOMApprovalType,
+  BOMType,
+  BOMTypeExtended,
+  MultiStageApproverType,
+} from "@/types/r&d";
 
 interface CreateBOMType {
   name: string;
@@ -14,7 +13,7 @@ interface CreateBOMType {
   description: string;
   version: string;
   approvalMetrics: {
-    stage: number;
+    stage: string;
     approvers: {
       line: number;
       user: string;
@@ -31,13 +30,30 @@ interface CreateBOMType {
     location?: string;
   }[];
 }
-export const createBOM = async (values: BOMType, action: "final" | "draft") => {
+export const createBOM = async (
+  values: BOMType,
+  approvals: MultiStageApproverType[],
+  action: "final" | "draft"
+) => {
   let url = "";
   if (action === "draft") {
     url = "/bom/saveAsDraft";
   } else {
     url = "/bom/tempProduct";
   }
+
+  //parsing approvers
+  let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
+    let obj: CreateBOMType["approvalMetrics"][0] = row;
+    obj.stage = `L${obj.stage}`;
+    obj.approvers = obj.approvers.map((app) => ({
+      ...app,
+      user: app.user.value,
+      fixed: undefined,
+    }));
+
+    return obj;
+  });
   const payload: CreateBOMType = {
     components: values.components.map((row) => ({
       component:
@@ -61,11 +77,12 @@ export const createBOM = async (values: BOMType, action: "final" | "draft") => {
     name: values.name,
     ecnVersion: "00.00",
     sku: values.product.value ?? values.product,
+    approvalMetrics: arr,
   };
 
   const formData = new FormData();
   for (let key in payload) {
-    if (key === "components") {
+    if (key === "components" || key === "approvalMetrics") {
       formData.append(key, JSON.stringify(payload[key]));
     } else {
       formData.append(key, payload[key]);
@@ -178,16 +195,21 @@ interface GetLogsType {
     createdBy: string;
     createdOn: string;
     stage: number;
+    isRejected: boolean;
   };
   logs: {
-    approverCrn: string;
-    approverName: string;
-    department: string;
-    designation: string;
     stage: number;
-    remarks: string | null;
-    date: string | null;
-    isRejected: boolean;
+    approvers: {
+      Email_ID: string;
+      approvalNumber: string;
+      approverName: string;
+      currentApprover: boolean;
+      insertedAt: null | string;
+      line: number;
+      remarks: null | string;
+      user: string;
+      remarksDate: null | string;
+    }[];
   }[];
 }
 export const getLogs = async (bomKey: string) => {
@@ -199,24 +221,24 @@ export const getLogs = async (bomKey: string) => {
   if (response.success) {
     const values: GetLogsType = response.data;
     arr = {
+      createdBy: values.details.createdBy,
+      createdOn: values.details.createdOn,
       currentStage: values.details.stage,
+      isRejected: values.details.isRejected,
       logs: values.logs.map((row) => ({
-        approver: {
-          crn: row.approverCrn,
-          name: row.approverName,
-          department: row.department,
-          designation: row.designation,
-        },
-        isRejected: row.isRejected,
-        remarks: row.remarks,
         stage: row.stage,
-        formattedStage: (row.stage <= 3
-          ? `L1-S${row.stage}`
-          : row.stage > 3 && row.stage <= 6
-          ? `L2-S${row.stage - 3}`
-          : row.stage > 6 && row.stage <= 9 && `L3-S${row.stage - 6}`
-        ).toString(),
-        date: row.date,
+        approvers: row.approvers.map(
+          (app): MultiStageApproverType["approvers"][0] => ({
+            approvalNumber: app.approvalNumber,
+            line: app.line,
+            currentApprover: app.currentApprover,
+            email: app.Email_ID,
+            name: app.approverName,
+            remarks: app.remarks,
+            user: app.user,
+            remarksDate: app.remarksDate,
+          })
+        ),
       })),
     };
   }

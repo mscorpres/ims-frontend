@@ -79,21 +79,18 @@ export interface BOMTypeExtended extends BOMType {
 
 export interface BOMApprovalType {
   currentStage: number;
-  logs: {
-    approver: null | {
-      crn: string;
-      name?: string;
-      email?: string;
-      department?: string;
-      designation?: string;
-    };
-    currentStage: number;
-    remarks: string | null;
-    stage: number;
-    formattedStage: string;
-    isRejected: boolean;
-    date: string | null;
-  }[];
+  createdBy: string,
+  createdOn: string
+  logs: MultiStageApproverType[]
+  // logs: {
+  //   approver: MultiStageApproverType[];
+  //   currentStage: number;
+  //   remarks: string | null;
+  //   stage: number;
+  //   formattedStage: string;
+  //   isRejected: boolean;
+  //   date: string | null;
+  // }[];
 }
 
 export interface MultiStageApproverType 
@@ -101,9 +98,16 @@ export interface MultiStageApproverType
     stage: number,
     approvers: {
       line: number,
-      user?: SelectOptionType,
+      user?: SelectOptionType | string,
       fixed?: boolean
       new?: boolean
+      email?: string,
+      approvalNumber: number,
+      name?: string
+      remarks?: string,
+      currentApprover?: boolean
+      remarksDate: string | null
+      isRejected?:boolean
     }[]
       
   }
