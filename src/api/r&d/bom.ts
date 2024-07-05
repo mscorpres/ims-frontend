@@ -256,7 +256,8 @@ export const updateStatus = async (
   bomKey: string,
   status: "approve" | "reject",
   remarks: string,
-  stage: number
+  stage: number,
+  line: number
 ) => {
   const payload: updateStatusType = {
     bomID: bomKey,
@@ -264,7 +265,10 @@ export const updateStatus = async (
     status: status === "approve",
   };
 
-  const response = await imsAxios.patch(`/bom/approve/temp/L${stage}`, payload);
+  const response = await imsAxios.patch(
+    `/bom/approve/temp/${stage}/${line}`,
+    payload
+  );
 
   return response;
 };
