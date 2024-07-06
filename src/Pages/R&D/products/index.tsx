@@ -85,7 +85,6 @@ export default function Products() {
     return e?.fileList;
   };
   useEffect(() => {
-    handleFetchUomOptions();
     handleFetchProductList();
   }, []);
 

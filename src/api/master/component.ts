@@ -214,6 +214,8 @@ export const createComponent = async (
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
 
+  console.log("crete payload", attributes);
+
   for (let key in attributes) {
     const current = attributes[key];
     const foundAttr = allAttributeOptions.find(
@@ -252,6 +254,8 @@ export const createComponent = async (
     request_by: values.raisedBy,
   };
 
+  console.log("crete payload 123", payload);
+  return;
   const response = await imsAxios.post("/component/addComponent/save", payload);
   return response;
 };

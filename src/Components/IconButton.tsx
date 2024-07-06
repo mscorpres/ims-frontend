@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 
 type Props = {
   icon: ReactNode;
-  tooltip: string;
+  tooltip?: string;
 };
 
 const IconButton = ({ icon, tooltip, ...props }: Props) => {

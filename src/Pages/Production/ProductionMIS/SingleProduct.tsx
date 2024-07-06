@@ -30,27 +30,30 @@ export default function SingleProduct({
   loading,
   rules,
   shiftLabelOptions,
+  shiftLabelOptionsRaw,
 }) {
   const format = "HH";
+  const format1 = "HH:mm";
   const workingHours = Form.useWatch(["shifts", field.name, "shiftHours"]);
+  const shift = Form.useWatch(["shifts", field.name, "shiftLabel"]);
   const workingTimings = Form.useWatch([
     "shifts",
     field.name,
     "workingTimings",
   ]);
 
-  useEffect(() => {
-    console.log("working hours", workingHours);
-    if (
-      workingHours?.length > 0 &&
-      (workingTimings?.length === 0 || !workingTimings)
-    ) {
-      console.log("here is", workingHours);
-      form.setFieldValue(
-        ["shifts", field.name, "workingTimings"],
-        workingHours
-      );
+  const handleShiftUpdate = (id: string) => {
+    const found = shiftLabelOptionsRaw.find((row) => row.id === id);
+    const arr = [];
+    if (found) {
+      arr.push(dayjs(found.start, format1));
+      arr.push(dayjs(found.end, format1));
     }
+
+    form.setFieldValue(["shifts", field.name, "shiftHours"], arr);
+  };
+
+  useEffect(() => {
     if (workingHours?.length === 2 && workingTimings?.length === 2) {
       // work timing
       let obj = workingTimings;
@@ -64,19 +67,38 @@ export default function SingleProduct({
 
       let workDdiff = workObj[1].diff(workObj[0], "m");
       if (workDdiff < 0) {
-        workDdiff = 24 + workDdiff;
+        workDdiff = 24 * 60 + workDdiff;
       }
       const final = `${Math.floor((workDdiff - diff) / 60)}:${
         (workDdiff - diff) % 60
       }`;
 
-      console.log("final overtime", final);
-      form.setFieldValue(
-        ["shifts", field.name, "overTime"],
-        dayjs(final, "HH:mm")
-      );
+      if (workDdiff < diff) {
+        form.setFieldValue(
+          ["shifts", field.name, "overTime"],
+          dayjs(final, "HH:mm")
+        );
+      } else {
+        form.setFieldValue(
+          ["shifts", field.name, "overTime"],
+          dayjs("00:00", "HH:mm")
+        );
+      }
     }
   }, [workingHours, workingTimings]);
+  useEffect(() => {
+    if (workingHours?.length > 0) {
+      form.setFieldValue(
+        ["shifts", field.name, "workingTimings"],
+        workingHours
+      );
+    }
+  }, [workingHours]);
+  useEffect(() => {
+    if (shift) {
+      handleShiftUpdate(shift);
+    }
+  }, [shift]);
   return (
     <Card size="small" style={{ marginBottom: 5 }}>
       <Flex gap={5} wrap="wrap" justify="space-bewteen">

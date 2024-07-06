@@ -1,5 +1,15 @@
-import { useState } from "react";
-import { Card, Col, Form, Row, Space, Typography } from "antd";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Flex,
+  Form,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 //components
 import SingleProduct from "@/Pages/Production/ProductionMIS/SingleProduct";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
@@ -9,29 +19,21 @@ import useApi from "@/hooks/useApi.js";
 // apis
 import { getProductsOptions } from "@/api/general.js";
 import { getDepartmentOptions } from "@/api/master/department.js";
-import { createEntry } from "@/api/production/mis";
+import { createEntry, fetchShiftLabels } from "@/api/production/mis";
 import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
 import dayjs from "dayjs";
-
-const shiftLabelOptions = [
-  {
-    text: "A",
-    value: "a",
-  },
-  {
-    text: "B",
-    value: "b",
-  },
-  {
-    text: "C",
-    value: "c",
-  },
-];
+import { SelectOptionType } from "@/types/general";
+import UpdateShiftLabel from "@/Pages/Production/ProductionMIS/UpdateShiftLabelt";
 
 function ProductionMIS() {
   const [misForm] = Form.useForm();
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showAddDepartment, setShowAddDepartment] = useState(false);
+  const [shiftLabelOptions, setShiftLabelOptions] = useState<
+    SelectOptionType[]
+  >([]);
+  const [shiftLabelOptionsRaw, setShiftLabelOptionsRaw] = useState([]);
+  const [showLabelModal, setShowLabelModal] = useState(false);
 
   const { executeFun, loading } = useApi();
 
@@ -59,10 +61,22 @@ function ProductionMIS() {
       resetHandler();
     }
   };
+
+  const handleFetchLabelOptions = async () => {
+    const response = await executeFun(() => fetchShiftLabels(), "fetch");
+    if (response.success) {
+      setShiftLabelOptions(response.data.data);
+      setShiftLabelOptionsRaw(response.data.raw);
+    }
+  };
+
   const resetHandler = async () => {
     misForm.resetFields();
   };
 
+  useEffect(() => {
+    handleFetchLabelOptions();
+  }, []);
   return (
     <Form
       form={misForm}
@@ -70,27 +84,13 @@ function ProductionMIS() {
       style={{ padding: 10, height: "95%", overflowY: "hidden" }}
       initialValues={initialValues}
     >
-      <AddDepartmentModal
-        show={showAddDepartment}
-        hide={() => setShowAddDepartment(false)}
-      />
       <Row
         justify="center"
         gutter={4}
         style={{ height: "100%", overflowY: "hidden" }}
       >
         <Col span={4}>
-          <Card
-            size="small"
-            title="Add MIS"
-            extra={
-              <MyButton
-                variant="add"
-                type="link"
-                onClick={() => setShowAddDepartment(true)}
-              />
-            }
-          >
+          <Card size="small" title="Add MIS">
             <Form.Item
               name="department"
               label="Department"
@@ -117,7 +117,7 @@ function ProductionMIS() {
           </Card>
         </Col>
         <Col
-          span={16}
+          span={12}
           style={{ paddingBottom: 20, height: "100%", overflow: "auto" }}
         >
           <Form.List name="shifts">
@@ -137,6 +137,7 @@ function ProductionMIS() {
                       asyncOptions={asyncOptions}
                       rules={rules}
                       shiftLabelOptions={shiftLabelOptions}
+                      shiftLabelOptionsRaw={shiftLabelOptionsRaw}
                     />
                   </Form.Item>
                 ))}
@@ -149,6 +150,29 @@ function ProductionMIS() {
             )}
           </Form.List>
         </Col>
+        <Col span={4}>
+          <Card size="small">
+            <Collapse
+              items={[
+                {
+                  key: "1",
+                  label: "Add Department",
+                  children: <AddDepartmentModal />,
+                },
+                {
+                  key: "2",
+                  label: "Update Shift Label",
+                  children: (
+                    <UpdateShiftLabel
+                      fetchLabels={handleFetchLabelOptions}
+                      options={shiftLabelOptionsRaw}
+                    />
+                  ),
+                },
+              ]}
+            />{" "}
+          </Card>
+        </Col>
       </Row>
     </Form>
   );
@@ -160,7 +184,6 @@ const initialValues = {
   department: undefined,
   shifts: [
     {
-      shiftLabel: "A",
       // ShiftHours:[dayjs("09")]
     },
   ],

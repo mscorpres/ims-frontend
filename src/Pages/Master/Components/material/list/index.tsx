@@ -1,7 +1,7 @@
 import ToolTipEllipses from "@/Components/ToolTipEllipses";
 import MyDataTable from "@/Components/MyDataTable";
 import { useState } from "react";
-import { Flex, Switch } from "antd";
+import { Card, Flex, Switch } from "antd";
 
 export default function List({ actionColumn, components, loading }) {
   const [showRejected, setShowRejected] = useState(false);
@@ -9,38 +9,41 @@ export default function List({ actionColumn, components, loading }) {
   const [includeDisabled, setIncludeDisabled] = useState(false);
   return (
     <Flex vertical style={{ height: "100%" }}>
-      <Flex gap={20} justify="flex-end" style={{ marginBottom: 10 }}>
-        <Flex align="middle" gap={5}>
-          <label style={{ fontSize: 13 }} htmlFor="showRejected">
-            Show Rejected
-          </label>
-          <Switch
-            id="showRejected"
-            checked={showRejected}
-            onChange={setShowRejected}
-          />
-        </Flex>
+      <Card size="small" style={{ flex: 1 }} bodyStyle={{ height: "100%" }}>
+        <Flex vertical style={{ height: "100%" }}>
+          <Flex gap={20} justify="flex-end" style={{ marginBottom: 10 }}>
+            <Flex align="middle" gap={5}>
+              <label style={{ fontSize: 13 }} htmlFor="showRejected">
+                Show Rejected
+              </label>
+              <Switch
+                id="showRejected"
+                checked={showRejected}
+                onChange={setShowRejected}
+              />
+            </Flex>
 
-        <Flex align="middle" gap={5}>
-          <label style={{ fontSize: 13 }} htmlFor="includeDisabled">
-            Show Disabled
-          </label>
-          <Switch
-            id="includeDisabled"
-            checked={showRejected ? true : includeDisabled}
-            onChange={setIncludeDisabled}
-            disabled={showRejected}
+            <Flex align="middle" gap={5}>
+              <label style={{ fontSize: 13 }} htmlFor="includeDisabled">
+                Show Disabled
+              </label>
+              <Switch
+                id="includeDisabled"
+                checked={showRejected ? true : includeDisabled}
+                onChange={setIncludeDisabled}
+                disabled={showRejected}
+              />
+            </Flex>
+          </Flex>
+
+          <MyDataTable
+            loading={loading}
+            // data={components}
+            data={filteredCompnents(components, showRejected, includeDisabled)}
+            columns={[actionColumn, ...columns]}
           />
         </Flex>
-      </Flex>
-      <Flex style={{ height: "100%" }}>
-        <MyDataTable
-          loading={loading}
-          // data={components}
-          data={filteredCompnents(components, showRejected, includeDisabled)}
-          columns={[actionColumn, ...columns]}
-        />
-      </Flex>
+      </Card>
     </Flex>
   );
 }

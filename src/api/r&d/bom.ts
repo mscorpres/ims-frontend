@@ -1,12 +1,24 @@
 import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
-import { BOMApprovalType, BOMType, BOMTypeExtended } from "@/types/r&d";
+import {
+  BOMApprovalType,
+  BOMType,
+  BOMTypeExtended,
+  MultiStageApproverType,
+} from "@/types/r&d";
 
 interface CreateBOMType {
   name: string;
   sku: string;
   description: string;
   version: string;
+  approvalMetrics: {
+    stage: string;
+    approvers: {
+      line: number;
+      user: string;
+    }[];
+  }[];
   components: {
     component: string;
     qty: string;
@@ -18,13 +30,30 @@ interface CreateBOMType {
     location?: string;
   }[];
 }
-export const createBOM = async (values: BOMType, action: "final" | "draft") => {
+export const createBOM = async (
+  values: BOMType,
+  approvals: MultiStageApproverType[],
+  action: "final" | "draft"
+) => {
   let url = "";
   if (action === "draft") {
     url = "/bom/saveAsDraft";
   } else {
     url = "/bom/tempProduct";
   }
+
+  //parsing approvers
+  let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
+    let obj: CreateBOMType["approvalMetrics"][0] = row;
+    obj.stage = `L${obj.stage}`;
+    obj.approvers = obj.approvers.map((app) => ({
+      ...app,
+      user: app.user?.value,
+      fixed: undefined,
+    }));
+
+    return obj;
+  });
   const payload: CreateBOMType = {
     components: values.components.map((row) => ({
       component:
@@ -48,11 +77,12 @@ export const createBOM = async (values: BOMType, action: "final" | "draft") => {
     name: values.name,
     ecnVersion: "00.00",
     sku: values.product.value ?? values.product,
+    approvalMetrics: arr,
   };
 
   const formData = new FormData();
   for (let key in payload) {
-    if (key === "components") {
+    if (key === "components" || key === "approvalMetrics") {
       formData.append(key, JSON.stringify(payload[key]));
     } else {
       formData.append(key, payload[key]);
@@ -165,16 +195,21 @@ interface GetLogsType {
     createdBy: string;
     createdOn: string;
     stage: number;
+    isRejected: boolean;
   };
   logs: {
-    approverCrn: string;
-    approverName: string;
-    department: string;
-    designation: string;
     stage: number;
-    remarks: string | null;
-    date: string | null;
-    isRejected: boolean;
+    approvers: {
+      Email_ID: string;
+      approvalNumber: string;
+      approverName: string;
+      currentApprover: boolean;
+      insertedAt: null | string;
+      line: number;
+      remarks: null | string;
+      user: string;
+      remarksDate: null | string;
+    }[];
   }[];
 }
 export const getLogs = async (bomKey: string) => {
@@ -186,24 +221,24 @@ export const getLogs = async (bomKey: string) => {
   if (response.success) {
     const values: GetLogsType = response.data;
     arr = {
+      createdBy: values.details.createdBy,
+      createdOn: values.details.createdOn,
       currentStage: values.details.stage,
+      isRejected: values.details.isRejected,
       logs: values.logs.map((row) => ({
-        approver: {
-          crn: row.approverCrn,
-          name: row.approverName,
-          department: row.department,
-          designation: row.designation,
-        },
-        isRejected: row.isRejected,
-        remarks: row.remarks,
         stage: row.stage,
-        formattedStage: (row.stage <= 3
-          ? `L1-S${row.stage}`
-          : row.stage > 3 && row.stage <= 6
-          ? `L2-S${row.stage - 3}`
-          : row.stage > 6 && row.stage <= 9 && `L3-S${row.stage - 6}`
-        ).toString(),
-        date: row.date,
+        approvers: row.approvers.map(
+          (app): MultiStageApproverType["approvers"][0] => ({
+            approvalNumber: app.approvalNumber,
+            line: app.line,
+            currentApprover: app.currentApprover,
+            email: app.Email_ID,
+            name: app.approverName,
+            remarks: app.remarks,
+            user: app.user,
+            remarksDate: app.remarksDate,
+          })
+        ),
       })),
     };
   }
@@ -221,7 +256,8 @@ export const updateStatus = async (
   bomKey: string,
   status: "approve" | "reject",
   remarks: string,
-  stage: number
+  stage: number,
+  line: number
 ) => {
   const payload: updateStatusType = {
     bomID: bomKey,
@@ -229,7 +265,10 @@ export const updateStatus = async (
     status: status === "approve",
   };
 
-  const response = await imsAxios.patch(`/bom/approve/temp/L${stage}`, payload);
+  const response = await imsAxios.patch(
+    `/bom/approve/temp/${stage}/${line}`,
+    payload
+  );
 
   return response;
 };
@@ -318,5 +357,28 @@ export const getComponentsFromFile = async (file: File) => {
   formData.append("file", file);
 
   const response: ResponseType = await imsAxios.post("/bom/getData", formData);
+  return response;
+};
+
+interface GetFixedApproversType {
+  crnID: string;
+  name: string;
+  email: string;
+  stage: string;
+}
+export const getFixedApprovers = async () => {
+  const response: ResponseType = await imsAxios.get("/bom/fetchApprover");
+
+  let arr = [];
+  if (response.success) {
+    arr = response.data.map((row: GetFixedApproversType) => ({
+      crn: row.crnID,
+      email: row.email,
+      name: row.name,
+      stage: row.stage,
+    }));
+  }
+
+  response.data = arr;
   return response;
 };

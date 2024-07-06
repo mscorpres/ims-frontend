@@ -18,6 +18,10 @@ import { getProductsOptions } from "@/api/general";
 
 const wiseOptions = [
   {
+    text: "Date Wise",
+    value: "all",
+  },
+  {
     text: "Product Wise",
     value: "product",
   },
@@ -78,7 +82,7 @@ function R33() {
             <Form.Item name="wise" label="Wise">
               <MySelect options={wiseOptions} />
             </Form.Item>
-            {wise !== "consolidated" && (
+            {wise !== "consolidated" && wise !== "all" && (
               <Form.Item
                 label={wise === "product" ? "Product" : "Department"}
                 name="data"
@@ -108,7 +112,7 @@ function R33() {
                   onClick={() =>
                     downloadCSV(
                       rows,
-                      wise === "singleDate" ? singleColumns : rangeColumns,
+                      wise === "consolidated" ? rangeColumns : singleColumns,
                       "R33 Report",
                       [
                         {
@@ -307,5 +311,5 @@ const rangeColumns = [
 ];
 
 const initialValues = {
-  wise: "product",
+  wise: "all",
 };

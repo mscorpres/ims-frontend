@@ -10,24 +10,20 @@ import {
   InputNumber,
   Modal,
   Row,
+  Tabs,
   Typography,
   Upload,
 } from "antd";
 import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
-import MySelect from "@/Components/MySelect.jsx";
+
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import TableActions from "@/Components/TableActions.jsx/TableActions";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
 import { ModalType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
-import {
-  getComponentOptions,
-  getCostCentresOptions,
-  getProjectOptions,
-  getVendorOptions,
-} from "@/api/general";
+import { getComponentOptions, getVendorOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
@@ -36,19 +32,13 @@ import {
 } from "@/api/r&d/bom";
 import { useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
-import { UploadOutlined } from "@ant-design/icons";
 import { downloadCSV } from "@/Components/exportToCSV.jsx";
+import SettingsDropdown from "@/Pages/R&D/bom/create/SettingsDropdown";
+import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
+import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
+import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
+import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
 
-const typeOptions: SelectOptionType[] = [
-  {
-    text: "Main",
-    value: "main",
-  },
-  {
-    text: "Alternate",
-    value: "substitute",
-  },
-];
 interface ComponentType {
   component: {
     label: string;
@@ -71,24 +61,20 @@ const BOMCreate = () => {
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const [isEditing, setIsEditing] = useState<string | number | boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>();
+  const [showApproversMetrics, setShowApproverMetrics] = useState(false);
+  const [isBomUpdating, setIsBomUpdating] = useState(false);
+  const [updateType, setUpdateType] = useState<bomUpdateType | null>(null);
+  const [showUpdateTypeModal, setShowUpdateTypeModal] = useState(false);
+  const [approvers, setApprovers] =
+    useState<MultiStageApproverType[]>(initialApprovers);
 
   const [queryParams] = useSearchParams();
 
-  const [version, setVersion] = useState("");
-  const [vendorType, setVendorType] = useState(false);
-
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
-  const type = Form.useWatch("type", form);
+
   const selectedProduct = Form.useWatch("product", form);
   const selectedSubstituteOf = Form.useWatch("substituteOf", form);
-  const props = {
-    maxCount: 1,
-    fileList: selectedFile ? [selectedFile] : [],
-    beforeUpload: () => false,
-    onChange: (info) =>
-      info.file ? setSelectedFile(info.file) : setSelectedFile(null),
-  };
 
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
@@ -148,15 +134,13 @@ const BOMCreate = () => {
       "vendor",
       "remarks",
     ]);
-    console.log("add values", values);
+
     const newComponent = {
       ...values,
 
       value: values.component.value,
       text: values.component.label,
     };
-
-    console.log("new component", newComponent);
 
     let verifyArr = [...mainComponents, ...subComponents];
     const found = verifyArr.find((row) => row.value === values.component.value);
@@ -194,7 +178,7 @@ const BOMCreate = () => {
       "vendor",
       "remarks",
     ]);
-    console.log("add values", values);
+
     const newComponent = {
       ...values,
 
@@ -243,8 +227,6 @@ const BOMCreate = () => {
     }
   };
 
-  console.log("main components upated", mainComponents);
-
   const handleFetchProductOptions = async (search: string) => {
     const response = await executeFun(
       () => getProductOptions(search),
@@ -253,23 +235,12 @@ const BOMCreate = () => {
     setAsyncOptions(response.data ?? []);
   };
 
-  const handleFetchVendorOptions = async (search: string) => {
-    const response = await executeFun(() => getVendorOptions(search), "select");
-
-    let arr: SelectOptionType[] = [];
-    if (response.success) {
-      arr = convertSelectOptions(response.data);
-    }
-
-    setAsyncOptions(arr);
-  };
-
   const validateHandler = async (action: "final" | "draft") => {
     const values = await form.validateFields(["name", "version", "product"]);
 
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
-      () => createBOM({ ...values, components: combined }, action),
+      () => createBOM({ ...values, components: combined }, approvers, action),
       action
     );
 
@@ -289,9 +260,10 @@ const BOMCreate = () => {
       () => getExistingBom(sku.value ?? sku),
       "fetch"
     );
-    console.log("existing response", response.data.length);
+
     if (response.success) {
-      console.log("it was here on the top");
+      setShowUpdateTypeModal(true);
+      // return;
       if (Array.isArray(response.data)) {
         form.setFieldsValue({
           product: sku,
@@ -305,7 +277,6 @@ const BOMCreate = () => {
 
         return;
       } else if (response.data && response.data.length === undefined) {
-        console.log("it is here down");
         form.setFieldsValue(response.data);
         form.setFieldValue("name", sku.label ?? sku + "V-00.00");
         setVersion(response.data.version);
@@ -346,7 +317,6 @@ const BOMCreate = () => {
   }, [queryParams]);
   useEffect(() => {
     if (selectedProduct !== undefined) {
-      console.log("selected", selectedProduct);
       if (selectedProduct && selectedProduct?.value) {
         handleFetchExistingBom(selectedProduct);
         form.setFieldValue("name", selectedProduct?.label + "V-00.00");
@@ -364,6 +334,11 @@ const BOMCreate = () => {
       }
     }
   }, [selectedSubstituteOf]);
+  useEffect(() => {
+    if (!showUpdateTypeModal && !isBomUpdating) {
+      resetHandler();
+    }
+  }, [showUpdateTypeModal]);
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -371,14 +346,24 @@ const BOMCreate = () => {
       layout="vertical"
       initialValues={initialValues}
     >
+      <UpdateTypeModal
+        setIsBomUpdating={setIsBomUpdating}
+        hide={() => setShowUpdateTypeModal(false)}
+        setUpdateType={setUpdateType}
+        show={showUpdateTypeModal}
+      />
       {loading("fetch") && <Loading />}
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
-        <Col span={4} style={{ height: "100%", overflow: "auto" }}>
+        <Col span={5} style={{ height: "100%", overflow: "auto" }}>
           <Flex vertical gap={5}>
             <Card
               size="small"
               title="Header Details"
-              extra={<Typography.Text strong>V{version}</Typography.Text>}
+              extra={
+                <SettingsDropdown
+                  setShowApproverMetrics={setShowApproverMetrics}
+                />
+              }
             >
               <Form.Item name="product" label="Product" rules={rules.product}>
                 <MyAsyncSelect
@@ -426,152 +411,56 @@ const BOMCreate = () => {
               </Flex> */}
             </Card>
             {/* Component add card */}
-            <Card size="small" title="Add Components">
-              <Flex vertical align="center" gap={10}>
-                <MyButton
-                  variant="downloadSample"
-                  onClick={handleDownloadComponentSampleFile}
-                />
-                <Upload {...props}>
-                  <Button block icon={<UploadOutlined />}>
-                    Select File
-                  </Button>
-                </Upload>
-                {selectedFile && (
-                  <MyButton
-                    onClick={handleFetchComponentsFromFile}
-                    loading={loading("upload")}
-                    block
-                    variant="upload"
-                  />
-                )}
-              </Flex>
-              <Divider>OR</Divider>
-              <Form.Item
-                name="component"
-                label="Component"
-                rules={rules.component}
-              >
-                <MyAsyncSelect
-                  loadOptions={handleFetchComponentOptions}
-                  optionsState={asyncOptions}
-                  onBlur={() => setAsyncOptions([])}
-                  labelInValue={true}
-                  selectLoading={loading("select")}
-                />
-              </Form.Item>
-              <Flex wrap="wrap" gap={5}>
-                <Form.Item
-                  style={{ flex: 1, minWidth: 100 }}
-                  name="qty"
-                  label="Qty"
-                  rules={rules.qty}
-                >
-                  <InputNumber style={{ width: "100%" }} />
-                </Form.Item>
-                <Form.Item
-                  style={{ flex: 1, minWidth: 100 }}
-                  name="type"
-                  label="Type"
-                  rules={rules.type}
-                >
-                  <MySelect options={typeOptions} />
-                </Form.Item>
-              </Flex>
-              {type === "substitute" && (
-                <Form.Item name="substituteOf" label="Alternate Of">
-                  <MySelect options={mainComponents} labelInValue={true} />
-                </Form.Item>
-              )}
-              <Form.Item
-                style={{ flex: 1, minWidth: 100 }}
-                name="vendor"
-                label={
-                  <Flex
-                    align="center"
-                    style={{ width: 500 }}
-                    justify="space-between"
-                  >
-                    <p>Vendor</p>
-                    {/* <Button onClick={toggleVendorType} size="small" type="link">
-                      {!vendorType ? "Type" : "Select"} Vendor
-                    </Button> */}
-                  </Flex>
-                }
-              >
-                {!vendorType && (
-                  <MyAsyncSelect
-                    labelInValue={true}
-                    optionsState={asyncOptions}
-                    loadOptions={handleFetchVendorOptions}
-                    selectLoading={loading("select")}
-                    onBlur={() => setAsyncOptions([])}
-                  />
-                )}
-                {vendorType && <Input />}
-              </Form.Item>
-              <Form.Item
-                style={{ flex: 1, minWidth: 100 }}
-                name="locations"
-                label="PCB Locations"
-                rules={rules.locations}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item name="remarks" label="Remarks">
-                <Input.TextArea rows={3} />
-              </Form.Item>
-              <Flex justify="center" gap={5}>
-                {isEditing !== false ? (
-                  <MyButton
-                    onClick={handleCancelEditing}
-                    variant="clear"
-                    type="default"
-                    text="Cancel"
-                  />
-                ) : (
-                  <MyButton variant="reset" />
-                )}
-
-                <MyButton
-                  variant="add"
-                  text={isEditing !== false ? "Update" : "Add"}
-                  onClick={
-                    isEditing !== false
-                      ? handleUpdateCompnent
-                      : handleAddComponents
-                  }
-                />
-              </Flex>
-              <Divider />
-              <Flex align="center" vertical gap={10}>
-                <Typography.Text
-                  strong
-                  type="secondary"
-                  style={{ textAlign: "center", fontSize: 13 }}
-                >
-                  After adding the components and header details, click on
-                  Create BOM
-                </Typography.Text>
-                <MyButton
-                  variant="submit"
-                  text="Create BOM"
-                  loading={loading("final")}
-                  onClick={() => validateHandler("final")}
-                />
-                <MyButton
-                  variant="save"
-                  type="default"
-                  text="Save As Draft"
-                  loading={loading("draft")}
-                  onClick={() => validateHandler("draft")}
-                />
-              </Flex>
-            </Card>
+            <Tabs
+              defaultActiveKey="1"
+              items={[
+                {
+                  key: "1",
+                  label: "Components",
+                  children: (
+                    <AddComponent
+                      asyncOptions={asyncOptions}
+                      form={form}
+                      handleAddComponents={handleAddComponents}
+                      handleCancelEditing={handleCancelEditing}
+                      handleDownloadComponentSampleFile={
+                        handleDownloadComponentSampleFile
+                      }
+                      handleFetchComponentOptions={handleFetchComponentOptions}
+                      handleFetchComponentsFromFile={
+                        handleFetchComponentsFromFile
+                      }
+                      handleUpdateCompnent={handleUpdateCompnent}
+                      isBomUpdating={isBomUpdating}
+                      isEditing={isEditing}
+                      loading={loading}
+                      mainComponents={mainComponents}
+                      rules={rules}
+                      selectedFile={selectedFile}
+                      setAsyncOptions={setAsyncOptions}
+                      setSelectedFile={setSelectedFile}
+                      subComponents={subComponents}
+                      validateHandler={validateHandler}
+                    />
+                  ),
+                },
+                {
+                  key: "2",
+                  label: "Approval Metrics",
+                  children: (
+                    <ApproverMetrics
+                      approvers={approvers}
+                      setApprovers={setApprovers}
+                      show={showApproversMetrics}
+                      hide={() => setShowApproverMetrics(false)}
+                    />
+                  ),
+                },
+              ]}
+            />
           </Flex>
         </Col>
-        <Col span={20} style={{ height: "100%", overflow: "hidden" }}>
+        <Col span={19} style={{ height: "100%", overflow: "hidden" }}>
           <Row gutter={[6, 6]} style={{ height: "100%" }}>
             <Col span={24} style={{ height: "50%", overflow: "hidden" }}>
               <Card
@@ -590,7 +479,6 @@ const BOMCreate = () => {
                     height: "100%",
                   }}
                 >
-                  First main: {mainComponents[0]?.remarks}
                   <Components
                     rows={mainComponents}
                     type="main"
@@ -654,7 +542,6 @@ const Components = ({
   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
   handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
-  console.log("components in table", rows);
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
       {rows.length === 0 && <Empty />}
@@ -918,3 +805,51 @@ const handleDownloadComponentSampleFile = async () => {
 //   "value": "1673438387251",
 //   "text": "(\tElectric Weighing Machine Capacity 5kg) P2678"
 // }
+
+const initialApprovers = [
+  {
+    stage: 1,
+    approvers: [
+      {
+        line: 1,
+        user: undefined,
+      },
+
+      {
+        line: 2,
+        user: undefined,
+        fixed: true,
+      },
+    ],
+  },
+  {
+    stage: 2,
+    approvers: [
+      {
+        line: 1,
+        user: undefined,
+      },
+
+      {
+        line: 2,
+        user: undefined,
+        fixed: true,
+      },
+    ],
+  },
+  {
+    stage: 3,
+    approvers: [
+      {
+        line: 1,
+        user: undefined,
+      },
+
+      {
+        line: 2,
+        user: undefined,
+        fixed: true,
+      },
+    ],
+  },
+];
