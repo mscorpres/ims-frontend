@@ -108,7 +108,7 @@ function R33() {
                   onClick={() =>
                     downloadCSV(
                       rows,
-                      wise === "singleDate" ? singleColumns : rangeColumns,
+                      wise === "consolidated" ? rangeColumns : singleColumns,
                       "R33 Report",
                       [
                         {
