@@ -111,7 +111,7 @@ const QaProcessMap = () => {
     });
     const { data } = response;
     let skuarr = [];
-    skuarr = data.data.map((d) => {
+    skuarr = data?.data?.map((d) => {
       return { text: d.sfgid, value: d.sfgsku };
     });
     setskulist(skuarr);
@@ -482,10 +482,11 @@ const QaProcessMap = () => {
     const response = await imsAxios.post("/qaProcessmaster/fetchQAProcess", {
       sku: qaProcessData.sku,
     });
+    console.log("process response", response);
     setLoading1(false);
     let arr = [];
-    if (response.data.code === 200) {
-      arr = response.data.data.map((row, index) => ({
+    if (response?.success) {
+      arr = response.data.map((row, index) => ({
         id: index + 1,
         qa_process_key: row.qa_process_key,
         bomRequired: { text: row.bomrequired, value: row.bomrequired },
@@ -552,10 +553,10 @@ const QaProcessMap = () => {
       sortable: false,
       width: 120,
       renderCell: ({ row }) => (
-        <MyAsyncSelect
+        <MySelect
           value={row.bomRequired}
           labelInValue={true}
-          optionsState={bomRequiredOptions}
+          options={bomRequiredOptions}
           onChange={(e, selectedValue) =>
             qaProcessDataHandler("bomRequired", e, row.id, selectedValue)
           }
@@ -569,11 +570,11 @@ const QaProcessMap = () => {
       width: 180,
       sortable: false,
       renderCell: ({ row }) => (
-        <MyAsyncSelect
+        <MySelect
           loadOptions={bom}
           value={row.bom}
           labelInValue={true}
-          optionsState={bomoptions}
+          options={bomoptions}
           placeholder="Select Bom"
           onChange={(e, selectedValue) =>
             qaProcessDataHandler("bom", e, row.id, selectedValue)
@@ -588,10 +589,10 @@ const QaProcessMap = () => {
       sortable: false,
       width: 120,
       renderCell: ({ row }) => (
-        <MyAsyncSelect
+        <MySelect
           value={row.sku}
           loadOptions={getskulist}
-          optionsState={skuList}
+          options={skuList}
           labelInValue={true}
           onChange={(e, selectedValue) =>
             qaProcessDataHandler("sku", e, row.id, selectedValue)
