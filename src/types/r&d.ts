@@ -11,10 +11,10 @@ export interface ProductType {
   documents?: { url: string; fileName: string }[];
   approvalStage: "0" | "1" | "2";
   isActive: boolean;
-  createdBy?: string,
-  createdDate?: string
-  project: string,
-  costCenter: string,
+  createdBy?: string;
+  createdDate?: string;
+  project: string;
+  costCenter: string;
 }
 
 export interface ApprovalType {
@@ -41,12 +41,12 @@ export interface ApprovalType {
 
 export interface BOMType {
   name: string;
-  product?: SelectOptionType | string;;
+  product?: SelectOptionType | string;
   key?: string;
   sku?: string;
   description: string;
   version?: string;
-  documents: File[] | {fileName: string, url: string}[];
+  documents: File[] | { fileName: string; url: string }[];
 
   components: {
     id?: string | number;
@@ -67,21 +67,21 @@ export interface BOMType {
           name: string;
         };
     status: "active" | "inactive";
-    uniqueCode?: string
+    uniqueCode?: string;
   }[];
   createdOn?: string;
 }
 
 export interface BOMTypeExtended extends BOMType {
   currentApprover?: string;
-  id: string
+  id: string;
 }
 
 export interface BOMApprovalType {
   currentStage: number;
-  createdBy: string,
-  createdOn: string
-  logs: MultiStageApproverType[]
+  createdBy: string;
+  createdOn: string;
+  logs: MultiStageApproverType[];
   // logs: {
   //   approver: MultiStageApproverType[];
   //   currentStage: number;
@@ -93,21 +93,21 @@ export interface BOMApprovalType {
   // }[];
 }
 
-export interface MultiStageApproverType 
-  {
-    stage: number,
-    approvers: {
-      line: number,
-      user?: SelectOptionType | string,
-      fixed?: boolean
-      new?: boolean
-      email?: string,
-      approvalNumber: number,
-      name?: string
-      remarks?: string,
-      currentApprover?: boolean
-      remarksDate: string | null
-      isRejected?:boolean
-    }[]
-      
-  }
+export interface MultiStageApproverType {
+  stage: number;
+  approvers: {
+    line: number;
+    user?: SelectOptionType | string;
+    fixed?: boolean;
+    new?: boolean;
+    email?: string;
+    approvalNumber: number;
+    name?: string;
+    remarks?: string;
+    currentApprover?: boolean;
+    remarksDate: string | null;
+    isRejected?: boolean;
+  }[];
+}
+
+export type bomUpdateType = "main" | "ecn";
