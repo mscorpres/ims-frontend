@@ -74,7 +74,6 @@ function ProductionMIS() {
     misForm.resetFields();
   };
 
-  console.log("raw shifts", shiftLabelOptionsRaw);
   useEffect(() => {
     handleFetchLabelOptions();
   }, []);
@@ -91,22 +90,7 @@ function ProductionMIS() {
         style={{ height: "100%", overflowY: "hidden" }}
       >
         <Col span={4}>
-          <Card
-            size="small"
-            title="Add MIS"
-            extra={
-              <Flex align="center">
-                <MyButton
-                  variant="add"
-                  type="link"
-                  onClick={() => setShowAddDepartment(true)}
-                />
-                <Button type="link" onClick={() => setShowAddDepartment(true)}>
-                  Shift Labels
-                </Button>
-              </Flex>
-            }
-          >
+          <Card size="small" title="Add MIS">
             <Form.Item
               name="department"
               label="Department"
