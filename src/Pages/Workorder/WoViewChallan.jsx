@@ -276,6 +276,7 @@ const WoViewChallan = () => {
               showInMenu
               // disabled={loading}
               onClick={() => {
+                setViewChallanData([]);
                 setViewChallan(row);
                 viewChallanRow(row);
                 // printwoChallan(row);
@@ -415,7 +416,7 @@ const WoViewChallan = () => {
     }
   };
   const viewChallanRow = async (row) => {
-    setViewChallanData([]);
+   
     // console.log("row", row);
     let challanID = row.challan_id;
     let challantype = row.challan_type;
@@ -423,7 +424,7 @@ const WoViewChallan = () => {
     let response;
     let arr;
     if (challantype === "RM Challan" || challantype == "return") {
-      setViewChallanData([]);
+   
       setLoading("fetch");
 
       let arr = await fetchReturnChallanDetails(challanID);
@@ -438,14 +439,12 @@ const WoViewChallan = () => {
       challantype === "Delivery Challan" ||
       challantype == "delivery"
     ) {
-      setViewChallanData([]);
       setLoading("fetch");
       response = await imsAxios.post("/wo_challan/getDeliveryChallanDetails", {
         challan_id: challanID,
       });
       const { data } = response;
       if (data.code === 200) {
-        setViewChallanData([]);
         let arr = data.data.map((row, index) => ({
           id: index + 1,
           ...row,
@@ -495,11 +494,11 @@ const WoViewChallan = () => {
       field: "wo_sku_name",
       width: 300,
     },
-    {
-      headerName: "Qty",
-      field: "wo_order_qty",
-      width: 150,
-    },
+    // {
+    //   headerName: "Qty",
+    //   field: "wo_order_qty",
+    //   width: 150,
+    // },
     {
       headerName: "SKU Code",
       field: "sku_code",
@@ -608,9 +607,9 @@ const WoViewChallan = () => {
     }
   }, [challantype]);
   useEffect(() => {
-    if (challantype) {
+    if (allChallanType) {
       let arr = [];
-      if (challantype) {
+      if (allChallanType) {
         console.log("here");
         setViewChallanData([]);
       }
