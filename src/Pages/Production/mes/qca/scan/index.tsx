@@ -216,13 +216,13 @@ const QcScan = (props: Props) => {
   const handleLotTransfer = async (status: "PASS" | "FAIL") => {
     const values = await form.validateFields();
     if (!pprDetails || !values) return;
+    setShowTransferModal(false);
 
     const response = await executeFun(
       () => transferLot(pprDetails, values, rows, status),
       "transfer"
     );
     if (response.success) {
-      setShowTransferModal(false);
       handleFetchPreviousRows(
         values.ppr.value as string,
         values.process.value as string
@@ -312,7 +312,7 @@ const QcScan = (props: Props) => {
     <Row style={{ padding: 10, height: "95%" }} justify={"center"} gutter={6}>
       <TransferModal
         show={showTransferModal}
-        hide={() => setShowInsertModal(false)}
+        hide={() => setShowTransferModal(false)}
         submitHandler={handleLotTransfer}
         loading={loading}
       />
