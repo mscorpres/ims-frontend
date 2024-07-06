@@ -63,3 +63,36 @@ export const createDepartment = async (name: string) => {
 
   return response;
 };
+
+export const fetchShiftLabels = async () => {
+  const response: ResponseType = await imsAxios.get(
+    "/production/mis/shiftList"
+  );
+
+  let arr = [];
+  if (response.success) {
+    arr = convertSelectOptions(response.data, "name", "id");
+
+    const final = {
+      data: arr,
+      raw: response.data,
+    };
+    response.data = final;
+  }
+
+  return response;
+};
+
+export const updateShiftLabels = async (id: string, range: []) => {
+  const payload = {
+    shift: id,
+    start: dayjs(range[0]).format("HH:mm"),
+    end: dayjs(range[1]).format("HH:mm"),
+  };
+
+  const response = await imsAxios.post(
+    "/production/mis/updateShiftTime",
+    payload
+  );
+  return response;
+};

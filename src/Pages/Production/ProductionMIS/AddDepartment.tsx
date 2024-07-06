@@ -1,13 +1,11 @@
 import { createDepartment } from "@/api/production/mis";
 import useApi from "@/hooks/useApi";
-import { Form, Input, Modal } from "antd";
+import { Flex, Form, Input, Modal } from "antd";
+import MyButton from "@/Components/MyButton/index.jsx";
 
-interface ModalProps {
-  show: boolean;
-  hide: () => void;
-}
+interface ModalProps {}
 
-const AddDepartmentModal = ({ show, hide }: ModalProps) => {
+const AddDepartmentModal = ({}: ModalProps) => {
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
@@ -19,25 +17,32 @@ const AddDepartmentModal = ({ show, hide }: ModalProps) => {
       "submit"
     );
     if (response.success) {
-      hide();
+      form.setFieldValue("name", undefined);
     }
   };
   return (
-    <Modal
-      open={show}
-      onCancel={hide}
-      title="Add Department"
-      width={400}
-      okText="Add"
-      onOk={handleCreateDepartment}
-      confirmLoading={loading("submit")}
-    >
-      <Form form={form} layout="vertical">
-        <Form.Item name="name" label="Department Name">
-          <Input />
-        </Form.Item>
-      </Form>
-    </Modal>
+    // <Modal
+    //   open={show}
+    //   onCancel={hide}
+    //   title="Add Department"
+    //   width={400}
+    //   okText="Add"
+    //   onOk={handleCreateDepartment}
+    //   confirmLoading={loading("submit")}
+    // >
+    <Form form={form} layout="vertical">
+      <Form.Item name="name" label="Department Name">
+        <Input />
+      </Form.Item>
+      <Flex justify="end">
+        <MyButton
+          onClick={handleCreateDepartment}
+          loading={loading("submit")}
+          variant="add"
+        />
+      </Flex>
+    </Form>
+    // </Modal>
   );
 };
 
