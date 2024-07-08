@@ -44,6 +44,7 @@ const WoViewChallan = () => {
   const [detaildata, setDetailData] = useState("");
   const [challantype, setchallantype] = useState(challanoptions[0].value);
   const [cancelRemark, setCancelRemark] = useState("");
+  const [allChallanType, setAllChallanType] = useState("");
   const [viewChallan, setViewChallan] = useState(false);
   const [viewChallanData, setViewChallanData] = useState([]);
   const [scrapeChallan, setScrapeChallan] = useState("");
@@ -71,7 +72,9 @@ const WoViewChallan = () => {
 
   const printwoChallan = async (row) => {
     setLoading("fetch");
-    if (challantype === "RM Challan") {
+    // console.log("for proitn", row);
+    let challanAllType = row.challan_type;
+    if (challantype === "RM Challan" || challanAllType == "return") {
       let payload = {
         challan_id: row.challan_id,
         ref_id: "--",
@@ -79,7 +82,10 @@ const WoViewChallan = () => {
       const arr = await printreturnChallan(payload);
       printFunction(arr.data.buffer.data);
       setLoading(false);
-    } else if (challantype === "Delivery Challan") {
+    } else if (
+      challantype === "Delivery Challan" ||
+      challanAllType == "delivery"
+    ) {
       const response = await imsAxios.post(
         "/wo_challan/printWorkorderDeliveryChallan",
         {
@@ -100,7 +106,8 @@ const WoViewChallan = () => {
   };
 
   const downloadwochallan = async (row) => {
-    if (challantype === "RM Challan") {
+    let challanAllType = row.challan_type;
+    if (challantype === "RM Challan" || challanAllType == "return") {
       let payload = {
         challan_id: row.challan_id,
         ref_id: "--",
@@ -109,7 +116,10 @@ const WoViewChallan = () => {
       // console.log("console.log(response);", arr);
       downloadFunction(arr.data.buffer.data, row.challan_id);
       setLoading(false);
-    } else if (challantype === "Delivery Challan") {
+    } else if (
+      challantype === "Delivery Challan" ||
+      challanAllType == "delivery"
+    ) {
       setLoading("fetch");
       const response = await imsAxios.post(
         "/wo_challan/printWorkorderDeliveryChallan",
@@ -230,12 +240,43 @@ const WoViewChallan = () => {
             />,
           ]
         : challantype === "All"
-        ? []
+        ? [
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setViewChallan(row);
+                viewChallanRow(row);
+                // printwoChallan(row);
+              }}
+              label="View"
+            />,
+
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                printwoChallan(row);
+              }}
+              label="Print"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                downloadwochallan(row);
+              }}
+              label="Download"
+            />,
+          ]
         : [
             <GridActionsCellItem
               showInMenu
               // disabled={loading}
               onClick={() => {
+                setViewChallanData([]);
                 setViewChallan(row);
                 viewChallanRow(row);
                 // printwoChallan(row);
@@ -363,6 +404,7 @@ const WoViewChallan = () => {
     }
     setLoading(false);
   };
+  // console.log("allChallanType", allChallanType);
   const handleClientOptions = async (search) => {
     try {
       setLoading("select");
@@ -374,19 +416,29 @@ const WoViewChallan = () => {
     }
   };
   const viewChallanRow = async (row) => {
+   
+    // console.log("row", row);
     let challanID = row.challan_id;
+    let challantype = row.challan_type;
+    setAllChallanType(row.challan_type);
     let response;
     let arr;
-    if (challantype === "RM Challan") {
+    if (challantype === "RM Challan" || challantype == "return") {
+   
       setLoading("fetch");
+
       let arr = await fetchReturnChallanDetails(challanID);
       arr = arr.map((row, index) => ({
         id: index + 1,
         ...row,
       }));
+      // console.log("arrrrr", arr);
       setViewChallanData(arr);
       setLoading(false);
-    } else if (challantype === "Delivery Challan") {
+    } else if (
+      challantype === "Delivery Challan" ||
+      challantype == "delivery"
+    ) {
       setLoading("fetch");
       response = await imsAxios.post("/wo_challan/getDeliveryChallanDetails", {
         challan_id: challanID,
@@ -403,6 +455,7 @@ const WoViewChallan = () => {
       }
     } else {
       setLoading("fetch");
+
       response = await imsAxios.post("/wo_challan/fetchScrapChallanDetails", {
         challan_id: challanID,
       });
@@ -441,11 +494,11 @@ const WoViewChallan = () => {
       field: "wo_sku_name",
       width: 300,
     },
-    {
-      headerName: "Qty",
-      field: "wo_order_qty",
-      width: 150,
-    },
+    // {
+    //   headerName: "Qty",
+    //   field: "wo_order_qty",
+    //   width: 150,
+    // },
     {
       headerName: "SKU Code",
       field: "sku_code",
@@ -543,11 +596,25 @@ const WoViewChallan = () => {
       width: 100,
     },
   ];
+  const closeDrawer = () => {
+    setViewChallan(false);
+    setViewChallanData([]);
+    setAllChallanType("");
+  };
   useEffect(() => {
     if (challantype) {
       setRows([]);
     }
   }, [challantype]);
+  useEffect(() => {
+    if (allChallanType) {
+      let arr = [];
+      if (allChallanType) {
+        console.log("here");
+        setViewChallanData([]);
+      }
+    }
+  }, [allChallanType]);
 
   useEffect(() => {
     if (searchInput) {
@@ -663,7 +730,7 @@ const WoViewChallan = () => {
       </div>
       <Drawer
         title={
-          challantype === "Scrape Challan"
+          challantype === "Scrape Challan" || allChallanType == "scrape"
             ? "Scrape Challan"
             : `${viewChallanData[0]?.client}`
         }
@@ -672,7 +739,7 @@ const WoViewChallan = () => {
         // centered
         // confirmLoading={submitLoading}
         open={viewChallan}
-        onClose={() => setViewChallan(false)}
+        onClose={() => closeDrawer()}
         width={950}
         // width={450}
         // title="Map Invoice"
@@ -680,13 +747,13 @@ const WoViewChallan = () => {
         // onClose={setViewChallan}
         // open={viewChallan}
       >
-        {challantype === "Delivery Challan" ? (
+        {challantype === "Delivery Challan" || allChallanType == "delivery" ? (
           <MyDataTable
             loading={loading === "fetch"}
             data={viewChallanData}
             columns={colms}
           />
-        ) : challantype === "RM Challan" ? (
+        ) : challantype === "RM Challan" || allChallanType == "return" ? (
           <MyDataTable
             loading={loading === "fetch"}
             data={viewChallanData}
