@@ -11,6 +11,7 @@ import {
   Modal,
   Row,
   Tabs,
+  Tooltip,
   Typography,
   Upload,
 } from "antd";
@@ -23,7 +24,11 @@ import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
 import { ModalType, ResponseType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions, downloadFromLink } from "@/utils/general";
-import { getComponentOptions, getVendorOptions } from "@/api/general";
+import {
+  getComponentMfgCodeAndType,
+  getComponentOptions,
+  getVendorOptions,
+} from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
@@ -138,9 +143,14 @@ const BOMCreate = () => {
       "vendor",
       "remarks",
     ]);
+    const mfgCodesResponse = await handleFetchMfgCodeAndCategory(
+      values.component.value
+    );
 
     const newComponent = {
       ...values,
+      mfgCode: mfgCodesResponse.data[0].mfgCode,
+      smtType: mfgCodesResponse.data[0].category,
 
       value: values.component.value,
       text: values.component.label,
@@ -169,6 +179,15 @@ const BOMCreate = () => {
       "vendor",
       "locations",
     ]);
+  };
+
+  const handleFetchMfgCodeAndCategory = async (components: string[]) => {
+    const response = await executeFun(
+      () => getComponentMfgCodeAndType(components),
+      "fetch"
+    );
+    return response;
+    console.log("this is the response 123", response);
   };
 
   const handleUpdateCompnent = async () => {
@@ -244,7 +263,14 @@ const BOMCreate = () => {
 
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
-      () => createBOM({ ...values, components: combined }, approvers, action),
+      () =>
+        createBOM(
+          { ...values, components: combined },
+          approvers,
+          action,
+          isBomUpdating,
+          updateType
+        ),
       action
     );
 
@@ -266,24 +292,36 @@ const BOMCreate = () => {
     );
 
     if (response.success) {
-      setShowUpdateTypeModal(true);
-      // return;
-      if (Array.isArray(response.data)) {
-        form.setFieldsValue({
-          product: sku,
-          name: sku.label ?? sku + "V-00.00",
-          description: undefined,
-          document: [],
-          version: "00.00",
-        });
-        setMainComponents([]);
-        setSubComponents([]);
-
+      if (response.data === null) {
+        form.setFieldValue("version", "1.0");
+        form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
         return;
+      }
+      if (response.data.isDraft === false) {
+        setShowUpdateTypeModal(true);
+      }
+      // return;
+      if (response.data && Array.isArray(response.data)) {
+        // console.log("it should be here");
+        // form.setFieldsValue({
+        //   product: sku,
+        //   name: sku.label ?? sku + response.data[0].version,
+        //   description: undefined,
+        //   document: [],
+        //   version: "00.00",
+        // });
+        // setMainComponents([]);
+        // setSubComponents([]);
+        // return;
       } else if (response.data && response.data.length === undefined) {
+        console.log("it is here down", response.data);
         form.setFieldsValue(response.data);
-        form.setFieldValue("name", sku.label ?? sku + "V-00.00");
-        setVersion(response.data.version);
+        form.setFieldValue(
+          "name",
+          sku.label + " V-" + response.data.version ??
+            sku + " V-" + response.data.version
+        );
+        // setVersion(response.data.version);
         setMainComponents(
           response.data.components.filter((row) => row.type === "main")
         );
@@ -292,11 +330,6 @@ const BOMCreate = () => {
         );
       }
     }
-  };
-
-  const toggleVendorType = () => {
-    setVendorType((curr) => !curr);
-    form.setFieldValue("vendor", undefined);
   };
 
   const resetHandler = () => {
@@ -328,7 +361,6 @@ const BOMCreate = () => {
     if (selectedProduct !== undefined) {
       if (selectedProduct && selectedProduct?.value) {
         handleFetchExistingBom(selectedProduct);
-        form.setFieldValue("name", selectedProduct?.label + "V-00.00");
       }
     }
   }, [selectedProduct]);
@@ -560,6 +592,9 @@ const Components = ({
           <Col span={1}>
             <Typography.Text strong>#</Typography.Text>
           </Col>
+          <Col span={1}>
+            <Typography.Text strong>Type</Typography.Text>
+          </Col>
           <Col span={8}>
             <Typography.Text strong>Component</Typography.Text>
           </Col>
@@ -577,7 +612,7 @@ const Components = ({
               <Typography.Text strong>Alternate Of</Typography.Text>
             </Col>
           )}
-          <Col span={type === "substitute" ? 3 : 7}>
+          <Col span={type === "substitute" ? 2 : 6}>
             <Typography.Text strong>Remarks</Typography.Text>
           </Col>
 
@@ -594,8 +629,37 @@ const Components = ({
                       {index + 1}
                     </Typography.Text>
                   </Col>
-                  <Col span={8}>
+                  <Col span={1}>
                     <Typography.Text style={{ fontSize: 13 }}>
+                      {row.smtType}
+                    </Typography.Text>
+                  </Col>
+                  <Col span={8}>
+                    <Tooltip
+                      title={
+                        row.mfgCode?.length === 0
+                          ? "No Mfg Code found."
+                          : "Mfg Code: " + row.mfgCode
+                      }
+                    >
+                      <Typography.Text
+                        style={{
+                          fontSize: 13,
+                          color:
+                            row.smtType !== "Other" && row.mfgCode?.length === 0
+                              ? "red"
+                              : "black",
+                        }}
+                      >
+                        {row.component.label ?? row.component.text}
+                      </Typography.Text>
+                    </Tooltip>
+                    <Typography.Text
+                      style={{
+                        fontSize: 13,
+                        color: row.mfgCode?.length === 0 ? "red" : "black",
+                      }}
+                    >
                       {row.component.label ?? row.component.text}
                     </Typography.Text>
                   </Col>
@@ -621,7 +685,7 @@ const Components = ({
                       </Typography.Text>
                     </Col>
                   )}
-                  <Col span={type === "substitute" ? 2 : 6}>
+                  <Col span={type === "substitute" ? 1 : 5}>
                     <Typography.Text style={{ fontSize: 13 }}>
                       {row.remarks}
                     </Typography.Text>
@@ -735,86 +799,6 @@ const rules = {
     },
   ],
 };
-
-// const handleDownloadComponentSampleFile = async () => {
-
-//   // const columns = [
-//   //   {
-//   //     headerName: "S.No",
-//   //     field: "S.No",
-//   //   },
-//   //   {
-//   //     headerName: "Part No",
-//   //     field: "Part No",
-//   //   },
-//   //   // {
-//   //   //   headerName: "Description in IMS",
-//   //   //   field:"Description in IMS"
-//   //   // },
-//   //   {
-//   //     headerName: "Type",
-//   //     field: "Type",
-//   //   },
-//   //   {
-//   //     headerName: "Location",
-//   //     field: "Location",
-//   //   },
-//   //   {
-//   //     headerName: "Scale",
-//   //     field: "Scale",
-//   //   },
-//   //   {
-//   //     headerName: "Make",
-//   //     field: "Make",
-//   //   },
-//   //   {
-//   //     headerName: "Alternate of Part No",
-//   //     field: "Alternate of Part No",
-//   //   },
-//   //   {
-//   //     headerName: "Remark",
-//   //     field: "Remark",
-//   //   },
-//   // ];
-//   // const rows = [];
-
-//   // downloadCSV(rows, columns, "Sample BOM File");
-// };
-
-// {
-//   "partCode": {
-//       "text": "CH9102F- QFN-24-EP(4x4) USB Converters ROHS - P4576",
-//       "value": "202454111729182"
-//   },
-//   "type": "main",
-//   "alternateOfPartCode": null,
-//   "make": {
-//       "text": "SHRI SAI SHAKTI PRINTERS - VEN0004",
-//       "value": "VEN0004"
-//   },
-//   "quantity": 1,
-//   "location": "c1,c2",
-//   "remarks": "test"
-// }
-
-// {
-//   "component": {
-//       "label": "(\tElectric Weighing Machine Capacity 5kg) P2678",
-//       "value": "1673438387251",
-//       "key": "1673438387251"
-//   },
-//   "qty": 10,
-//   "type": "main",
-//   "locations": "c1",
-//   "vendor": {
-//       "label": "(VEN0116) NAVS INTERNATIONAL",
-//       "value": "VEN0116",
-//       "key": "VEN0116"
-//   },
-//   "remarks": "remars",
-//   "value": "1673438387251",
-//   "text": "(\tElectric Weighing Machine Capacity 5kg) P2678"
-// }
 
 const initialApprovers = [
   {

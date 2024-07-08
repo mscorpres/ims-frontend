@@ -237,3 +237,24 @@ export const deleteQcaRows = async (payload) => {
 
   return response;
 };
+export const getComponentMfgCodeAndType = async (components: string[]) => {
+  const response: ResponseType = await imsAxios.post("/backend/checkMPN", {
+    search: components,
+  });
+
+  let arr = [];
+
+  if (response.success) {
+    arr = response.data.map((row) => ({
+      mfgCode: row.manufacturingCode,
+      category: row.category,
+      key: row.componentKey,
+    }));
+  }
+
+  response.data = arr;
+  return response;
+};
+
+//1.0
+//

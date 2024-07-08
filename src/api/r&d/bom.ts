@@ -4,6 +4,7 @@ import {
   BOMApprovalType,
   BOMType,
   BOMTypeExtended,
+  bomUpdateType,
   MultiStageApproverType,
 } from "@/types/r&d";
 import { downloadFromLink } from "@/utils/general";
@@ -34,13 +35,27 @@ interface CreateBOMType {
 export const createBOM = async (
   values: BOMType,
   approvals: MultiStageApproverType[],
-  action: "final" | "draft"
+  action: "final" | "draft",
+  isUpdating: boolean,
+  updateType: bomUpdateType
 ) => {
   let url = "";
   if (action === "draft") {
     url = "/bom/saveAsDraft";
   } else {
     url = "/bom/tempProduct";
+  }
+
+  let version = +Number(values.version).toFixed();
+  if (isUpdating) {
+    if (updateType === "ecn") {
+      version = version + 0.1;
+    } else if (updateType === "main") {
+      version = +(version + 1);
+      version = version + ".0";
+    }
+  } else {
+    version = version + ".0";
   }
 
   //parsing approvers
@@ -73,14 +88,15 @@ export const createBOM = async (
           : row.vendor,
       location: row.locations,
     })),
-    version: values.version,
+    version: version,
     description: values.description,
     name: values.name,
-    ecnVersion: "00.00",
     sku: values.product.value ?? values.product,
     approvalMetrics: arr,
   };
 
+  console.log("payload is", payload);
+  // return;
   const formData = new FormData();
   for (let key in payload) {
     if (key === "components" || key === "approvalMetrics") {
@@ -280,6 +296,7 @@ interface GetExistingBom {
   sku: string;
   version: string;
   bomID: string;
+  isDraft: boolean;
   components: {
     component: {
       text: string;
@@ -307,34 +324,37 @@ export const getExistingBom = async (sku: string) => {
   );
 
   if (response.success) {
-    let values: GetExistingBom = response.data[0];
+    if (response.data) {
+      let values: GetExistingBom = response.data[0];
 
-    if (values) {
-      let obj: BOMTypeExtended = {
-        name: values.name + "00.00",
-        description: values.description,
-        product: sku,
-        ecnVersion: "00.00",
-        version: values.version,
-        id: values.bomID,
-        components: values.components.map((row) => ({
-          component: { ...row.component, label: row.component.text },
-          qty: row.quantity,
-          remarks: row.remarks,
-          status: row.status,
-          substituteOf: {
-            label: row.substituteOf?.text,
-            partCode: row.substituteOf?.partCode,
-            value: row.substituteOf?.value,
-          },
-          type: row.type,
-          locations: row.location,
-          vendor: row.vendor,
-          text: row.component.text,
-          value: row.component.value,
-        })),
-      };
-      response.data = obj;
+      if (values) {
+        let obj: BOMTypeExtended = {
+          name: values.name + "00.00",
+          description: values.description,
+          product: sku,
+          isDraft: values.isDraft,
+          ecnVersion: "00.00",
+          version: values.version,
+          id: values.bomID,
+          components: values.components.map((row) => ({
+            component: { ...row.component, label: row.component.text },
+            qty: row.quantity,
+            remarks: row.remarks,
+            status: row.status,
+            substituteOf: {
+              label: row.substituteOf?.text,
+              partCode: row.substituteOf?.partCode,
+              value: row.substituteOf?.value,
+            },
+            type: row.type,
+            locations: row.location,
+            vendor: row.vendor,
+            text: row.component.text,
+            value: row.component.value,
+          })),
+        };
+        response.data = obj;
+      }
     }
   }
 
