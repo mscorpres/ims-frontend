@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Col, Input, Row, Space, Button, Modal } from "antd";
+import { Col, Input, Row, Space, Button, Modal, Form } from "antd";
 import MySelect from "../../Components/MySelect";
 import MyDatePicker from "../../Components/MyDatePicker";
 import MyDataTable from "../../Components/MyDataTable";
@@ -49,18 +49,18 @@ const WoViewChallan = () => {
   const [viewChallanData, setViewChallanData] = useState([]);
   const [scrapeChallan, setScrapeChallan] = useState("");
   const navigate = useNavigate();
+  const [cancelform] = Form.useForm();
   const showSubmitConfirmationModal = (f) => {
     // submit confirm modal
     Modal.confirm({
       title: "Do you Want to Cancel the Challan?",
       icon: <ExclamationCircleOutlined />,
       content: (
-        <Input
-          onChange={(e) => {
-            setCancelRemark(e.target.value);
-          }}
-          placeholder="please input the cancel Reason"
-        />
+        <Form form={cancelform}>
+          <Form.Item name="remark">
+            <Input placeholder="Please input the cancel Reason" />
+          </Form.Item>
+        </Form>
       ),
       okText: "Yes",
       cancelText: "No",
@@ -144,11 +144,16 @@ const WoViewChallan = () => {
   };
 
   const cancelwochallan = async (f) => {
+    const values = await cancelform.validateFields();
+    console.log("here", values);
     try {
       setLoading("select" / "fetch");
-      console.log(challanoptions);
+      console.log("challanoptions", challanoptions);
+      console.log("cancelRemark", cancelRemark);
+      console.log("f", f);
       let link;
-      if (challantype === "Scrape Challan") {
+      // return;
+      if (challantype === "Scrape Challan" || f.challan_type == "scrape") {
         link = "/wo_challan/woScrapChallanCancel";
       }
       const response = await imsAxios.post(
@@ -156,7 +161,7 @@ const WoViewChallan = () => {
         {
           // wo_id: woid,
           challan_id: f.challan_id,
-          remark: cancelRemark,
+          remark: values.remark,
         }
         // const response = await imsAxios.post(
         //   challantype === "Delivery Challan"
@@ -168,7 +173,10 @@ const WoViewChallan = () => {
         //     remark: cancelRemark,
         //   }
       );
+      console.log("response", response);
       toast.success(response.data.message);
+      cancelform.resetFields();
+      getAllRows();
       // toast.error
     } catch (error) {
       toast.error(error);
@@ -181,6 +189,7 @@ const WoViewChallan = () => {
       navigate(`/wocreatescrapechallan?challan=${scrapeChallan}`);
     }
   }, [scrapeChallan]);
+  console.log("allChallanType", allChallanType);
 
   const actionColumn = {
     headerName: "",
@@ -239,39 +248,8 @@ const WoViewChallan = () => {
               label="Cancel Challan"
             />,
           ]
-        : challantype === "All"
+        : challantype === "RM Challan"
         ? [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setViewChallan(row);
-                viewChallanRow(row);
-                // printwoChallan(row);
-              }}
-              label="View"
-            />,
-
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                printwoChallan(row);
-              }}
-              label="Print"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                downloadwochallan(row);
-              }}
-              label="Download"
-            />,
-          ]
-        : [
             <GridActionsCellItem
               showInMenu
               // disabled={loading}
@@ -310,6 +288,87 @@ const WoViewChallan = () => {
             //   }}
             //   label="Cancel Challan"
             // />,
+          ]
+        : row.challan_type == "scrape"
+        ? [
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setViewChallan(row);
+                viewChallanRow(row);
+                // printwoChallan(row);
+              }}
+              label="View"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                // setViewChallan/(row);
+                setScrapeChallan(row.challan_id);
+                // printwoChallan(row);
+              }}
+              label="Edit"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                printwoChallan(row);
+              }}
+              label="Print"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                downloadwochallan(row);
+              }}
+              label="Download"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading
+              onClick={() => {
+                setDetailData(row);
+                showSubmitConfirmationModal(row);
+              }}
+              label="Cancel Challan"
+            />,
+          ]
+        : [
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setViewChallan(row);
+                viewChallanRow(row);
+                // printwoChallan(row);
+              }}
+              label="View"
+            />,
+
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                printwoChallan(row);
+              }}
+              label="Print"
+            />,
+            <GridActionsCellItem
+              showInMenu
+              // disabled={loading}
+              onClick={() => {
+                setDetailData(row);
+                downloadwochallan(row);
+              }}
+              label="Download"
+            />,
           ],
   };
 
@@ -416,7 +475,6 @@ const WoViewChallan = () => {
     }
   };
   const viewChallanRow = async (row) => {
-   
     // console.log("row", row);
     let challanID = row.challan_id;
     let challantype = row.challan_type;
@@ -424,7 +482,6 @@ const WoViewChallan = () => {
     let response;
     let arr;
     if (challantype === "RM Challan" || challantype == "return") {
-   
       setLoading("fetch");
 
       let arr = await fetchReturnChallanDetails(challanID);
