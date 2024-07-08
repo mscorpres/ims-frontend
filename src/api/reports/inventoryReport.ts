@@ -42,7 +42,7 @@ export const getR33 = async (date: string, wise: string, data: string) => {
         shiftStart: row.shiftStart,
         sku: row.sku,
         uom: row.unit,
-        workHours: `${row.workHrsEnd} - ${row.workHrsIn}`,
+        workHours: row.workHrs,
       })
     );
   }
