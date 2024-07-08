@@ -6,6 +6,7 @@ import {
   BOMTypeExtended,
   MultiStageApproverType,
 } from "@/types/r&d";
+import { downloadFromLink } from "@/utils/general";
 
 interface CreateBOMType {
   name: string;
@@ -380,5 +381,13 @@ export const getFixedApprovers = async () => {
   }
 
   response.data = arr;
+  return response;
+};
+
+export const downloadSampleComponentFile = async () => {
+  const response: ResponseType = await imsAxios.get("/bom/sampleFile");
+  if (response.success) {
+    downloadFromLink(response.data.url);
+  }
   return response;
 };

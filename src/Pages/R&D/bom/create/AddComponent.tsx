@@ -118,6 +118,7 @@ const AddComponent = ({
     <Card size="small" title="Add Components">
       <Flex vertical align="center" gap={10}>
         <MyButton
+          loading={loading("sample")}
           variant="downloadSample"
           onClick={handleDownloadComponentSampleFile}
         />

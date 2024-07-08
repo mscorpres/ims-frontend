@@ -21,12 +21,13 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import TableActions from "@/Components/TableActions.jsx/TableActions";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
-import { ModalType, SelectOptionType } from "@/types/general";
-import { convertSelectOptions } from "@/utils/general";
+import { ModalType, ResponseType, SelectOptionType } from "@/types/general";
+import { convertSelectOptions, downloadFromLink } from "@/utils/general";
 import { getComponentOptions, getVendorOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
+  downloadSampleComponentFile,
   getComponentsFromFile,
   getExistingBom,
 } from "@/api/r&d/bom";
@@ -38,6 +39,7 @@ import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
 import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
 import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
 import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
+import { imsAxios } from "@/axiosInterceptor";
 
 interface ComponentType {
   component: {
@@ -49,6 +51,8 @@ interface ComponentType {
   qty: string;
   remarks: string;
   type: "main" | "substitute";
+  mfgCode: null | string;
+  smtType: string;
   substituteOf: {
     label: string;
     value: string;
@@ -308,6 +312,11 @@ const BOMCreate = () => {
   const handleCancelEditing = () => {
     setIsEditing(false);
     form.resetFields();
+  };
+
+  // downloadSampleComponentFile
+  const handleDownloadComponentSampleFile = () => {
+    executeFun(() => downloadSampleComponentFile(), "sample");
   };
 
   useEffect(() => {
@@ -727,49 +736,50 @@ const rules = {
   ],
 };
 
-const handleDownloadComponentSampleFile = async () => {
-  const columns = [
-    {
-      headerName: "S.No",
-      field: "S.No",
-    },
-    {
-      headerName: "Part No",
-      field: "Part No",
-    },
-    // {
-    //   headerName: "Description in IMS",
-    //   field:"Description in IMS"
-    // },
-    {
-      headerName: "Type",
-      field: "Type",
-    },
-    {
-      headerName: "Location",
-      field: "Location",
-    },
-    {
-      headerName: "Scale",
-      field: "Scale",
-    },
-    {
-      headerName: "Make",
-      field: "Make",
-    },
-    {
-      headerName: "Alternate of Part No",
-      field: "Alternate of Part No",
-    },
-    {
-      headerName: "Remark",
-      field: "Remark",
-    },
-  ];
-  const rows = [];
+// const handleDownloadComponentSampleFile = async () => {
 
-  downloadCSV(rows, columns, "Sample BOM File");
-};
+//   // const columns = [
+//   //   {
+//   //     headerName: "S.No",
+//   //     field: "S.No",
+//   //   },
+//   //   {
+//   //     headerName: "Part No",
+//   //     field: "Part No",
+//   //   },
+//   //   // {
+//   //   //   headerName: "Description in IMS",
+//   //   //   field:"Description in IMS"
+//   //   // },
+//   //   {
+//   //     headerName: "Type",
+//   //     field: "Type",
+//   //   },
+//   //   {
+//   //     headerName: "Location",
+//   //     field: "Location",
+//   //   },
+//   //   {
+//   //     headerName: "Scale",
+//   //     field: "Scale",
+//   //   },
+//   //   {
+//   //     headerName: "Make",
+//   //     field: "Make",
+//   //   },
+//   //   {
+//   //     headerName: "Alternate of Part No",
+//   //     field: "Alternate of Part No",
+//   //   },
+//   //   {
+//   //     headerName: "Remark",
+//   //     field: "Remark",
+//   //   },
+//   // ];
+//   // const rows = [];
+
+//   // downloadCSV(rows, columns, "Sample BOM File");
+// };
 
 // {
 //   "partCode": {
