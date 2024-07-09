@@ -1,4 +1,4 @@
-import { Button, Col, Input, Row, Space } from "antd";
+import { Button, Col, Drawer, Input, Row, Space } from "antd";
 import React, { useEffect, useState } from "react";
 import MySelect from "../../../Components/MySelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
@@ -9,12 +9,22 @@ import { v4 } from "uuid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyButton from "../../../Components/MyButton";
+import { GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  EyeFilled,
+  EyeInvisibleFilled,
+  EyeInvisibleOutlined,
+  EyeInvisibleTwoTone,
+  EyeOutlined,
+} from "@ant-design/icons";
 
 function SalesRegister() {
   const [wise, setWise] = useState("created_date_wise");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
+  const [modalVals, setModalVals] = useState([]);
+  const [open, setOpen] = useState([]);
   const wiseOptions = [
     { value: "created_date_wise", text: "Created Date Wise" },
     { value: "invoice_date_wise", text: "Invoice Date wise" },
@@ -45,7 +55,120 @@ function SalesRegister() {
   // useEffect(() => {
   //   getData();
   // }, []);
+  const getDetials = async (row) => {
+    setOpen(row);
+    setLoading(true);
+    console.log("row", row);
+    const response = await imsAxios.post("/invoice/getSalesData", {
+      invoiceID: row.invoiceID,
+    });
+    // console.log("response", response);
+    if (response.status == 200) {
+      let arr = response.data;
+      arr = arr.map((row, index) => {
+        return {
+          ...row,
+          id: v4(),
+          index: index + 1,
+        };
+      });
+      setModalVals(arr);
+      setLoading(false);
+    }
+    setLoading(false);
+  };
+  const modalcol = [
+    {
+      headerName: "Sr No.",
+      field: "index",
+      width: 80,
+    },
+    {
+      headerName: "Product Name",
+      field: "name",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+      width: 250,
+    },
+    {
+      headerName: "SKU",
+      field: "sku",
+      width: 80,
+    },
+    {
+      headerName: "Qty",
+      field: "qty",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 100,
+    },
+    {
+      headerName: "UOM",
+      field: "uom",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 80,
+    },
+    {
+      headerName: "Rate",
+      field: "rate",
+      width: 80,
+    },
+    {
+      headerName: "HSN",
+      field: "hsn",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 140,
+    },
+    {
+      headerName: "GST Rate",
+      field: "gstRate",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 80,
+    },
+    {
+      headerName: "GST Type",
+      field: "gstType",
+      width: 120,
+    },
+    {
+      headerName: "SGST",
+      field: "sgst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.sgst == "" ? 0 : row.sgst} />
+      ),
+      width: 80,
+    },
+    {
+      headerName: "CGST",
+      field: "cgst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.cgst == "" ? 0 : row.cgst} />
+      ),
+      width: 80,
+    },
+    {
+      headerName: "IGST",
+      field: "igst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.igst == "" ? 0 : row.igst} />
+      ),
+      width: 80,
+    },
+  ];
   const columns = [
+    {
+      headerName: "",
+
+      type: "actions",
+      field: "action",
+      width: 65,
+      getActions: ({ row }) => [
+        <GridActionsCellItem
+          showInMenu
+          // icon={<EyeOutlined />}
+          onClick={() => getDetials(row)}
+          label="View"
+        />,
+      ],
+    },
     {
       headerName: "Sr No.",
       field: "index",
@@ -207,6 +330,21 @@ function SalesRegister() {
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
       >
+        <Drawer
+          open={open?.invoiceID}
+          title={`Invoice ${open?.invoiceID}`}
+          width={1800}
+          onClose={() => setOpen(false)}
+        >
+          <div style={{ height: "95%", padding: "0px 5px" }}>
+            <MyDataTable
+              // loading={loading === "fetch"}
+              data={modalVals}
+              columns={modalcol}
+              loading={loading}
+            />
+          </div>
+        </Drawer>
         <Col span={24}>
           <Row
             justify="space-between"
