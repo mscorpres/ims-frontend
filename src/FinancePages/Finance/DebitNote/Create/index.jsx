@@ -147,14 +147,19 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
     // console.log("val", val);
     if (roundOffSign.toString() === "+") {
       a = val -= +Number(roundOffValue.toString());
+      // console.log("roundoff", a);
     } else if (roundOffSign.toString() === "-") {
       a = val + +Number(roundOffValue.toString());
+      // console.log("roundoff", a);
     } else {
       a = val;
+      // console.log("roundoff", a);
     }
     // console.log("a", a);
     const modifiedArray =
-      roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
+      roundarr.length > 0
+        ? [...roundarr.slice(0, -1), Number(a).toFixed(3)]
+        : roundarr;
     // console.log("modifiedArray", modifiedArray);
 
     const tdsCodes = values.components.filter(

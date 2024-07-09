@@ -104,7 +104,6 @@ const HeaderDetails = ({
               onChange={(e) => setRoundOffValue(e.target.value)}
             />
           </div>
-        
         </Card>
       </Col>
 
