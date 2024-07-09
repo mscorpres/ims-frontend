@@ -146,10 +146,12 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
     // val = +Number(val).toFixed(3);
     // console.log("val", val);
     if (roundOffSign.toString() === "+") {
-      a = val -= +Number(roundOffValue.toString());
+      a = val + +Number(roundOffValue.toString());
+
       // console.log("roundoff", a);
     } else if (roundOffSign.toString() === "-") {
-      a = val + +Number(roundOffValue.toString());
+      a = val -= +Number(roundOffValue.toString());
+
       // console.log("roundoff", a);
     } else {
       a = val;
