@@ -240,6 +240,8 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
         if (data.code === 200) {
           toast.success(data.message);
           setDebitNoteDrawer(null);
+          setRoundOffValue(0);
+          setRoundOffSign("+");
         } else {
           setLoading(false);
           toast.error(data.message.msg ?? data);
