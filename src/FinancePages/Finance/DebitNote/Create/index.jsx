@@ -143,7 +143,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
 
     let a;
     let val = roundarr[roundarr.length - 1];
-    val = +Number(val);
+    val = +Number(val).toFixed(3);
     // console.log("val", val);
     if (roundOffSign.toString() === "+") {
       a = val -= +Number(roundOffValue.toString());
@@ -156,10 +156,10 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
       // console.log("roundoff", a);
     }
     // console.log("a", a);
+    // console.log("val.toFixed(2)", a.toFixed(3));
+    // a = Number(a).toFixed(3);
     const modifiedArray =
-      roundarr.length > 0
-        ? [...roundarr.slice(0, -1), Number(a).toFixed(3)]
-        : roundarr;
+      roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
     // console.log("modifiedArray", modifiedArray);
 
     const tdsCodes = values.components.filter(
