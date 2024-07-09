@@ -137,6 +137,31 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
 
   const validatehandler = async () => {
     const values = await debitNoteForm.validateFields();
+
+    const roundarr = getArrayValues("vendorAmount", values.components);
+    // console.log("roundarr ->", roundarr);
+
+    let a;
+    let val = roundarr[roundarr.length - 1];
+    // val = +Number(val).toFixed(3);
+    // console.log("val", val);
+    if (roundOffSign.toString() === "+") {
+      a = val -= +Number(roundOffValue.toString());
+      // console.log("roundoff", a);
+    } else if (roundOffSign.toString() === "-") {
+      a = val + +Number(roundOffValue.toString());
+      // console.log("roundoff", a);
+    } else {
+      a = val;
+      // console.log("roundoff", a);
+    }
+    // console.log("a", a);
+    // console.log("val.toFixed(2)", a.toFixed(3));
+    a = +Number(a).toFixed(3);
+    const modifiedArray =
+      roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
+    // console.log("modifiedArray", modifiedArray);
+
     const tdsCodes = values.components.filter(
       (component) =>
         !component.tdsCode ||
@@ -153,6 +178,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
     )[0]
       ? [0]
       : values.components.map((component) => component.tdsglCode);
+
     const finalObj = {
       bill_qty: getArrayValues("qty", values.components),
       cgsts: getArrayValues("cgst", values.components),
@@ -184,12 +210,14 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
       vbt_code: getArrayValues("vbtKey", values.components),
       vbt_gstin: vendorDetails.gstin,
       ven_address: vendorDetails.address,
-      ven_amounts: getArrayValues("vendorAmount", values.components),
+      ven_amounts: modifiedArray,
       ven_code: vendorDetails.vendorCode,
       round_type: roundOffSign,
       round_value: roundOffValue,
     };
+    // console.log("finalObj", finalObj);
     // showing a submit confirm
+    // return;
     Modal.confirm({
       title: "Are you sure you want to submit this debit Note?",
       content:
