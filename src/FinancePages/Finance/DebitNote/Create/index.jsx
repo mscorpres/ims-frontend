@@ -157,7 +157,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
     }
     // console.log("a", a);
     // console.log("val.toFixed(2)", a.toFixed(3));
-    // a = Number(a).toFixed(3);
+    a = +Number(a).toFixed(3);
     const modifiedArray =
       roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
     // console.log("modifiedArray", modifiedArray);
@@ -215,9 +215,9 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
       round_type: roundOffSign,
       round_value: roundOffValue,
     };
-    // console.log("finalObj", finalObj);
+    console.log("finalObj", finalObj);
     // showing a submit confirm
-    // return;
+    return;
     Modal.confirm({
       title: "Are you sure you want to submit this debit Note?",
       content:
