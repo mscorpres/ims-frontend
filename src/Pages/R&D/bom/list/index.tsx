@@ -12,12 +12,11 @@ import { getBOMList } from "@/api/r&d/bom";
 import useApi from "@/hooks/useApi";
 
 import { BOMTypeExtended } from "@/types/r&d";
-import BOMApproval from "@/Pages/R&D/bom/list/approval";
 import Attachments from "@/Pages/R&D/bom/list/attachments";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import routeConstants from "@/Routes/routeConstants.js";
 import IconButton from "@/Components/IconButton";
-import { ArrowRightOutlined, CheckCircleFilled } from "@ant-design/icons";
+import { ArrowRightOutlined } from "@ant-design/icons";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
@@ -66,22 +65,10 @@ const BOMList = () => {
             setSelectedBOM(row);
           }}
         />,
-        // <GridActionsCellItem
-        //   showInMenu
-        //   placeholder="See Logs"
-        //   label={"Logs"}
-        //   onClick={() => {
-        //     setShowLogs(true);
-        //     setSelectedBOM(row);
-        //   }}
-        // />,
       ],
     },
   ];
 
-  // const handleContinue = () => {
-  //   navigate()
-  // }
   const draftActionColumns = [
     {
       headerName: "",
@@ -106,25 +93,6 @@ const BOMList = () => {
             );
           }}
         />,
-
-        // <GridActionsCellItem
-        //   showInMenu
-        //   placeholder="Attachments"
-        //   label={"Attachments"}
-        //   onClick={() => {
-        //     setShowAttachments(true);
-        //     setSelectedBOM(row);
-        //   }}
-        // />,
-        // <GridActionsCellItem
-        //   showInMenu
-        //   placeholder="See Logs"
-        //   label={"Logs"}
-        //   onClick={() => {
-        //     setShowLogs(true);
-        //     setSelectedBOM(row);
-        //   }}
-        // />,
       ],
     },
   ];
@@ -170,7 +138,7 @@ const BOMList = () => {
               ? [...draftActionColumns]
               : [...actionColumns]),
           ]}
-          data={rows}
+          data={rows.reverse()}
           loading={loading("fetch")}
         />
       </Col>

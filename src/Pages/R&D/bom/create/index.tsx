@@ -38,8 +38,7 @@ import {
 } from "@/api/r&d/bom";
 import { useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
-import { downloadCSV } from "@/Components/exportToCSV.jsx";
-import SettingsDropdown from "@/Pages/R&D/bom/create/SettingsDropdown";
+
 import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
 import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
 import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
@@ -397,15 +396,7 @@ const BOMCreate = () => {
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
         <Col span={5} style={{ height: "100%", overflow: "auto" }}>
           <Flex vertical gap={5}>
-            <Card
-              size="small"
-              title="Header Details"
-              extra={
-                <SettingsDropdown
-                  setShowApproverMetrics={setShowApproverMetrics}
-                />
-              }
-            >
+            <Card size="small" title="Header Details">
               <Form.Item name="product" label="Product" rules={rules.product}>
                 <MyAsyncSelect
                   loadOptions={handleFetchProductOptions}
