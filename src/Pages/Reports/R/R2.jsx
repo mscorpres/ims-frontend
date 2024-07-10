@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Row, Space } from "antd";
 import { downloadCSV } from "../../../Components/exportToCSV";
@@ -19,6 +19,7 @@ const R2 = () => {
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [wise, setWise] = useState("A");
+  const [type, setType] = useState("PO");
   const [searchTerm, setSearchTerm] = useState("");
 
   const { executeFun, loading: loading1 } = useApi();
@@ -27,6 +28,15 @@ const R2 = () => {
     { text: "Pending", value: "P" },
     { text: "Project", value: "PROJECT" },
     { text: "Requested By", value: "by" },
+  ];
+  const optionsJW = [
+    { text: "All", value: "A" },
+    // { text: "Pending", value: "P" },
+    // { text: "Project", value: "PROJECT" },
+  ];
+  const typeoptions = [
+    { text: "PO", value: "PO" },
+    { text: "JW", value: "JW" },
   ];
 
   const columns = [
@@ -114,6 +124,82 @@ const R2 = () => {
       width: 100,
     },
   ];
+  const columnsJW = [
+    { field: "i", headerName: "Sr. No.", width: 8 },
+    {
+      field: "reg_date",
+      headerName: "Po Date",
+      width: 100,
+    },
+    {
+      field: "reg_by",
+      headerName: "Create By",
+      width: 130,
+    },
+
+    {
+      field: "po_order_id",
+      headerName: "Po Order Id",
+      width: 120,
+    },
+    { field: "part_no", headerName: "Part", width: 100 },
+    { field: "new_partno", headerName: "Cat Part Code", width: 150 },
+    {
+      field: "component_name",
+      headerName: "Component",
+      width: 350,
+    },
+    { field: "unit_name", headerName: "UoM", width: 80 },
+    { field: "po_rate", headerName: "Rate", width: 100 },
+    {
+      field: "ordered_qty",
+      headerName: "Order Qty",
+      width: 120,
+    },
+    {
+      field: "ordered_pending",
+      headerName: "Pending Qty",
+      width: 150,
+    },
+    {
+      field: "vendor_code",
+      headerName: "Vendor Code",
+      width: 100,
+    },
+    {
+      field: "vendor_name",
+      headerName: "Vendor Name",
+      width: 280,
+    },
+    {
+      field: "due_date",
+      headerName: "Due Date",
+      width: 100,
+    },
+    {
+      field: "po_cost_center",
+      headerName: "Cost Center",
+      width: 150,
+    },
+    {
+      field: "po_project",
+      headerName: "Project Name",
+      width: 120,
+    },
+    {
+      field: "branch",
+      headerName: "Branch-In",
+      width: 120,
+    },
+    {
+      field: "po_status",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.po_status ? "Active" : "Closed"} />
+      ),
+      headerName: "Status",
+      width: 100,
+    },
+  ];
 
   const handleDownloadCSV = () => {
     downloadCSV(rows, columns, "PO Report");
@@ -122,25 +208,51 @@ const R2 = () => {
   const fetch = async () => {
     setRows([]);
     setLoading(true);
-    const { data } = await imsAxios.post("/report2", {
-      data: searchTerm,
-      wise: wise,
-    });
-    if (data.code == 200) {
-      // setLoading(true);
-      toast.success(data.message);
-      let arr = data.response.data.map((row, index) => {
-        return {
-          ...row,
-          id: v4(),
-          i: index + 1,
-        };
-      });
-      setRows(arr);
-      console.log("rows", rows);
+    let response;
+    if (type == "JW") {
+      response = await imsAxios.get(
+        `/JWReport?wise=${wise}&data=${searchTerm}`
+      );
+      if (response.success) {
+        let arr = response.data.map((row, index) => {
+          return {
+            ...row,
+            id: v4(),
+            i: index + 1,
+          };
+        });
+        // console.log("arr", arr);
+        setRows(arr);
+        toast.success(response.message);
+        setLoading(false);
+      } else {
+        toast.error(response.message);
+        setLoading(false);
+      }
       setLoading(false);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
+    } else {
+      response = await imsAxios.post("/report2", {
+        data: searchTerm,
+        wise: wise,
+      });
+      const { data } = response;
+      if (data.code == 200) {
+        // setLoading(true);
+        toast.success(data.message);
+        let arr = data.response.data.map((row, index) => {
+          return {
+            ...row,
+            id: v4(),
+            i: index + 1,
+          };
+        });
+        setRows(arr);
+        // console.log("rows", rows);
+        setLoading(false);
+      } else if (data.code == 500) {
+        toast.error(data.message.msg);
+        setLoading(false);
+      }
       setLoading(false);
     }
   };
@@ -161,12 +273,23 @@ const R2 = () => {
     let arr = data.map((row) => ({ text: row.text, value: row.id }));
     setAsyncOptions(arr);
   };
+  useEffect(() => {
+    setRows([]);
+  }, [type]);
+
   return (
     <div style={{ height: "90%" }}>
       <Row justify="space-between" style={{ padding: "0 5px" }}>
         <Space>
           <div style={{ width: 200 }}>
-            <MySelect options={options} value={wise} onChange={setWise} />
+            <MySelect options={typeoptions} value={type} onChange={setType} />
+          </div>
+          <div style={{ width: 200 }}>
+            <MySelect
+              options={type == "JW" ? optionsJW : options}
+              value={wise}
+              onChange={setWise}
+            />
           </div>
           <div style={{ width: 300 }}>
             {wise === "A" || wise === "P" ? (
@@ -218,7 +341,7 @@ const R2 = () => {
         <MyDataTable
           loading={loading}
           data={rows}
-          columns={columns}
+          columns={type == "JW" ? columnsJW : columns}
           checkboxSelection={true}
         />
       </div>
