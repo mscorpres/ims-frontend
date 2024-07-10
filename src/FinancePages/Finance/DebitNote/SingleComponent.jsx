@@ -177,6 +177,9 @@ const SingleComponent = ({
     tdsAmount,
     rateDiff,
     effectiveDate,
+    rate,
+    newValue,
+
     ///
   ]);
   // useEffect(() => {
