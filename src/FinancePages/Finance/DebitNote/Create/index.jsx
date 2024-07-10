@@ -227,9 +227,9 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
 
   useEffect(() => {
     if (debitNoteDrawer) {
-      if (debitNoteDrawer?.length > 1) {
-        getDetails(debitNoteDrawer);
-        getFreightGlOptions(debitNoteDrawer[0]?.split("/")[0]?.toLowerCase());
+      if (debitNoteDrawer?.length >= 1) {
+        getDetails([debitNoteDrawer[0]]);
+        getFreightGlOptions([debitNoteDrawer[0]]);
       } else {
         getDetails([debitNoteDrawer.vbt_code]);
         getFreightGlOptions(
@@ -244,7 +244,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
       open={debitNoteDrawer}
       width="100vw"
       title={
-        debitNoteDrawer?.length > 1
+        debitNoteDrawer?.length >= 1
           ? `VBT Number: ${debitNoteDrawer}`
           : `VBT Number: ${debitNoteDrawer?.vbt_code}`
       }
