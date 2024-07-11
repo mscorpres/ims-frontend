@@ -192,75 +192,7 @@ function SalesRegister() {
       field: "refDate",
       width: 100,
     },
-    {
-      headerName: "Product Name",
-      field: "name",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
-      width: 250,
-    },
-    {
-      headerName: "SKU",
-      field: "sku",
-      width: 80,
-    },
-    {
-      headerName: "Qty",
-      field: "qty",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
-      width: 100,
-    },
-    {
-      headerName: "UOM",
-      field: "uom",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
-      width: 80,
-    },
-    {
-      headerName: "Rate",
-      field: "rate",
-      width: 80,
-    },
-    {
-      headerName: "HSN",
-      field: "hsn",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
-      width: 140,
-    },
-    {
-      headerName: "GST Rate",
-      field: "gstRate",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
-      width: 80,
-    },
-    {
-      headerName: "GST Type",
-      field: "gstType",
-      width: 120,
-    },
-    {
-      headerName: "SGST",
-      field: "sgst",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.sgst == "" ? 0 : row.sgst} />
-      ),
-      width: 80,
-    },
-    {
-      headerName: "CGST",
-      field: "cgst",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.cgst == "" ? 0 : row.cgst} />
-      ),
-      width: 80,
-    },
-    {
-      headerName: "IGST",
-      field: "igst",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.igst == "" ? 0 : row.igst} />
-      ),
-      width: 80,
-    },
+
     {
       headerName: "Client Code",
       field: "clientCode",
@@ -334,6 +266,7 @@ function SalesRegister() {
       renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceType} />,
       width: 130,
     },
+
     {
       headerName: "Destination",
       field: "destination",
@@ -345,6 +278,75 @@ function SalesRegister() {
       field: "invoiceTotal",
       renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceTotal} />,
       width: 100,
+    },
+    {
+      headerName: "Product Name",
+      field: "name",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+      width: 250,
+    },
+    {
+      headerName: "SKU",
+      field: "sku",
+      width: 80,
+    },
+    {
+      headerName: "Qty",
+      field: "qty",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 100,
+    },
+    {
+      headerName: "UOM",
+      field: "uom",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 80,
+    },
+    {
+      headerName: "Rate",
+      field: "rate",
+      width: 80,
+    },
+    {
+      headerName: "HSN",
+      field: "hsn",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 140,
+    },
+    {
+      headerName: "GST Rate",
+      field: "gstRate",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 80,
+    },
+    {
+      headerName: "GST Type",
+      field: "gstType",
+      width: 120,
+    },
+    {
+      headerName: "SGST",
+      field: "sgst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.sgst == "" ? 0 : row.sgst} />
+      ),
+      width: 80,
+    },
+    {
+      headerName: "CGST",
+      field: "cgst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.cgst == "" ? 0 : row.cgst} />
+      ),
+      width: 80,
+    },
+    {
+      headerName: "IGST",
+      field: "igst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.igst == "" ? 0 : row.igst} />
+      ),
+      width: 80,
     },
     {
       headerName: "Inserted By",
