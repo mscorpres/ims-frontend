@@ -274,12 +274,6 @@ function SalesRegister() {
       width: 80,
     },
     {
-      headerName: "Invoice Total",
-      field: "invoiceTotal",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceTotal} />,
-      width: 100,
-    },
-    {
       headerName: "Product Name",
       field: "name",
       renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
@@ -348,6 +342,13 @@ function SalesRegister() {
       ),
       width: 80,
     },
+    {
+      headerName: "Invoice Total",
+      field: "invoiceTotal",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceTotal} />,
+      width: 100,
+    },
+
     {
       headerName: "Inserted By",
       field: "insertedBy",
