@@ -192,6 +192,7 @@ function SalesRegister() {
       field: "refDate",
       width: 100,
     },
+
     {
       headerName: "Client Code",
       field: "clientCode",
@@ -208,7 +209,7 @@ function SalesRegister() {
       headerName: "Client Address",
       field: "clientAddress",
       renderCell: ({ row }) => <ToolTipEllipses text={row.clientAddress} />,
-      width: 150,
+      width: 250,
     },
     {
       headerName: "Shipping Name",
@@ -220,19 +221,19 @@ function SalesRegister() {
       headerName: "Shipping Address",
       field: "shippingAddress",
       renderCell: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
-      width: 80,
+      width: 250,
     },
     {
       headerName: "Shipping State",
       field: "shippingState",
       renderCell: ({ row }) => <ToolTipEllipses text={row.shippingState} />,
-      width: 80,
+      width: 150,
     },
     {
       headerName: "Shipping Gst",
       field: "shippingGst",
       renderCell: ({ row }) => <ToolTipEllipses text={row.shippingGst} />,
-      width: 80,
+      width: 150,
     },
     {
       headerName: "Shipping Pan",
@@ -244,7 +245,7 @@ function SalesRegister() {
       headerName: "Shippping City",
       field: "shipppingCity",
       renderCell: ({ row }) => <ToolTipEllipses text={row.shipppingCity} />,
-      width: 80,
+      width: 150,
     },
     {
       headerName: "Shipping PinCode",
@@ -265,10 +266,80 @@ function SalesRegister() {
       renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceType} />,
       width: 130,
     },
+
     {
       headerName: "Destination",
       field: "destination",
       renderCell: ({ row }) => <ToolTipEllipses text={row.destination} />,
+      width: 80,
+    },
+    {
+      headerName: "Product Name",
+      field: "name",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+      width: 250,
+    },
+    {
+      headerName: "SKU",
+      field: "sku",
+      width: 80,
+    },
+    {
+      headerName: "Qty",
+      field: "qty",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 100,
+    },
+    {
+      headerName: "UOM",
+      field: "uom",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 80,
+    },
+    {
+      headerName: "Rate",
+      field: "rate",
+      width: 80,
+    },
+    {
+      headerName: "HSN",
+      field: "hsn",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 140,
+    },
+    {
+      headerName: "GST Rate",
+      field: "gstRate",
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      width: 80,
+    },
+    {
+      headerName: "GST Type",
+      field: "gstType",
+      width: 120,
+    },
+    {
+      headerName: "SGST",
+      field: "sgst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.sgst == "" ? 0 : row.sgst} />
+      ),
+      width: 80,
+    },
+    {
+      headerName: "CGST",
+      field: "cgst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.cgst == "" ? 0 : row.cgst} />
+      ),
+      width: 80,
+    },
+    {
+      headerName: "IGST",
+      field: "igst",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.igst == "" ? 0 : row.igst} />
+      ),
       width: 80,
     },
     {
@@ -277,6 +348,7 @@ function SalesRegister() {
       renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceTotal} />,
       width: 100,
     },
+
     {
       headerName: "Inserted By",
       field: "insertedBy",
@@ -293,7 +365,7 @@ function SalesRegister() {
       headerName: "Transport Mode",
       field: "transportMode",
       renderCell: ({ row }) => <ToolTipEllipses text={row.transportMode} />,
-      width: 80,
+      width: 150,
     },
     {
       headerName: "Vehicle No",
