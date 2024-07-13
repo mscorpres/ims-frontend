@@ -1,6 +1,6 @@
 import IconButton from "@/Components/IconButton";
 import useApi from "@/hooks/useApi";
-import { SelectOptionType } from "@/types/general";
+import { ModalType, SelectOptionType } from "@/types/general";
 import { MultiStageApproverType } from "@/types/r&d";
 import { CloseCircleFilled, PlusCircleFilled } from "@ant-design/icons";
 import { Divider, Flex, Input, Modal, Typography } from "antd";
@@ -9,12 +9,20 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import { getUserOptions } from "@/api/general";
 import { getFixedApprovers } from "@/api/r&d/bom";
 
-interface Props {
+interface Props extends ModalType {
   approvers: MultiStageApproverType[];
   setApprovers: React.Dispatch<React.SetStateAction<MultiStageApproverType[]>>;
+  submitLoading: boolean;
 }
 
-const ApproverMetrics = ({ approvers, setApprovers }: Props) => {
+const ApproverMetrics = ({
+  approvers,
+  setApprovers,
+  show,
+  hide,
+  submitHandler,
+  submitLoading,
+}: Props) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
 
   const { executeFun, loading } = useApi();
@@ -137,28 +145,31 @@ const ApproverMetrics = ({ approvers, setApprovers }: Props) => {
     handleFetchFixedApprovers();
   }, []);
   return (
-    // <Modal
-    //   style={{ minWidth: "30vw" }}
-    //   open={show}
-    //   onCancel={hide}
-    //   title="Approver Metrics"
-    // >
-    <Flex vertical style={{ minHeight: "70vh" }}>
-      {approvers.map((approver) => (
-        <Stage
-          asyncOptions={asyncOptions}
-          handleFetchUserOptions={handleFetchUserOptions}
-          setAsyncOptions={setAsyncOptions}
-          stage={approver}
-          key={approver.stage}
-          selectLoading={loading("select")}
-          handleDeleteApprover={handleDeleteApprover}
-          handleAddApprover={handleAddApprover}
-          handleUpdateApprover={handleUpdateApprover}
-        />
-      ))}
-    </Flex>
-    // </Modal>
+    <Modal
+      style={{ minWidth: "30vw" }}
+      open={show}
+      onCancel={hide}
+      title="Approver Metrics"
+      okText="Create BOM"
+      confirmLoading={submitLoading}
+      onOk={submitHandler}
+    >
+      <Flex vertical style={{ minHeight: "70vh" }}>
+        {approvers.map((approver) => (
+          <Stage
+            asyncOptions={asyncOptions}
+            handleFetchUserOptions={handleFetchUserOptions}
+            setAsyncOptions={setAsyncOptions}
+            stage={approver}
+            key={approver.stage}
+            selectLoading={loading("select")}
+            handleDeleteApprover={handleDeleteApprover}
+            handleAddApprover={handleAddApprover}
+            handleUpdateApprover={handleUpdateApprover}
+          />
+        ))}
+      </Flex>
+    </Modal>
   );
 };
 

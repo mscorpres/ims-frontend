@@ -73,6 +73,7 @@ const BOMCreate = () => {
   const [isBomUpdating, setIsBomUpdating] = useState(false);
   const [updateType, setUpdateType] = useState<bomUpdateType | null>(null);
   const [showUpdateTypeModal, setShowUpdateTypeModal] = useState(false);
+
   const [approvers, setApprovers] =
     useState<MultiStageApproverType[]>(initialApprovers);
 
@@ -257,9 +258,30 @@ const BOMCreate = () => {
     setAsyncOptions(response.data ?? []);
   };
 
-  const validateHandler = async (action: "final" | "draft") => {
-    const values = await form.validateFields(["name", "version", "product"]);
+  const validateHandler = async () => {
+    await form.validateFields(["name", "version", "product"]);
+    setShowApproverMetrics(true);
+    // let combined = [...mainComponents, ...subComponents];
+    // const response = await executeFun(
+    //   () =>
+    //     createBOM(
+    //       { ...values, components: combined },
+    //       approvers,
+    //       action,
+    //       isBomUpdating,
+    //       updateType
+    //     ),
+    //   action
+    // );
 
+    // if (response.success) {
+    //   resetHandler();
+    // }
+  };
+
+  const submitHandler = async (action: "final" | "draft") => {
+    const values = await form.validateFields(["name", "version", "product"]);
+    setShowApproverMetrics(true);
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
       () =>
@@ -443,52 +465,36 @@ const BOMCreate = () => {
               </Flex> */}
             </Card>
             {/* Component add card */}
-            <Tabs
-              defaultActiveKey="1"
-              items={[
-                {
-                  key: "1",
-                  label: "Components",
-                  children: (
-                    <AddComponent
-                      asyncOptions={asyncOptions}
-                      form={form}
-                      handleAddComponents={handleAddComponents}
-                      handleCancelEditing={handleCancelEditing}
-                      handleDownloadComponentSampleFile={
-                        handleDownloadComponentSampleFile
-                      }
-                      handleFetchComponentOptions={handleFetchComponentOptions}
-                      handleFetchComponentsFromFile={
-                        handleFetchComponentsFromFile
-                      }
-                      handleUpdateCompnent={handleUpdateCompnent}
-                      isBomUpdating={isBomUpdating}
-                      isEditing={isEditing}
-                      loading={loading}
-                      mainComponents={mainComponents}
-                      rules={rules}
-                      selectedFile={selectedFile}
-                      setAsyncOptions={setAsyncOptions}
-                      setSelectedFile={setSelectedFile}
-                      subComponents={subComponents}
-                      validateHandler={validateHandler}
-                    />
-                  ),
-                },
-                {
-                  key: "2",
-                  label: "Approval Metrics",
-                  children: (
-                    <ApproverMetrics
-                      approvers={approvers}
-                      setApprovers={setApprovers}
-                      show={showApproversMetrics}
-                      hide={() => setShowApproverMetrics(false)}
-                    />
-                  ),
-                },
-              ]}
+            <AddComponent
+              asyncOptions={asyncOptions}
+              form={form}
+              handleAddComponents={handleAddComponents}
+              handleCancelEditing={handleCancelEditing}
+              handleDownloadComponentSampleFile={
+                handleDownloadComponentSampleFile
+              }
+              handleFetchComponentOptions={handleFetchComponentOptions}
+              handleFetchComponentsFromFile={handleFetchComponentsFromFile}
+              handleUpdateCompnent={handleUpdateCompnent}
+              isBomUpdating={isBomUpdating}
+              isEditing={isEditing}
+              loading={loading}
+              mainComponents={mainComponents}
+              rules={rules}
+              selectedFile={selectedFile}
+              setAsyncOptions={setAsyncOptions}
+              setSelectedFile={setSelectedFile}
+              subComponents={subComponents}
+              validateHandler={validateHandler}
+              submitHandler={submitHandler}
+            />
+            <ApproverMetrics
+              approvers={approvers}
+              setApprovers={setApprovers}
+              show={showApproversMetrics}
+              hide={() => setShowApproverMetrics(false)}
+              submitHandler={submitHandler}
+              submitLoading={loading("final")}
             />
           </Flex>
         </Col>

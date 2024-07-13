@@ -70,7 +70,8 @@ interface Props {
   handleAddComponents: () => Promise<void>;
   handleUpdateCompnent: () => Promise<void>;
   isBomUpdating: boolean;
-  validateHandler: (action: "final" | "draft") => Promise<void>;
+  validateHandler: () => Promise<void>;
+  submitHandler: (action: "final" | "draft") => Promise<void>;
 }
 
 const AddComponent = ({
@@ -91,6 +92,7 @@ const AddComponent = ({
   handleUpdateCompnent,
   isBomUpdating,
   validateHandler,
+  submitHandler,
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
@@ -234,14 +236,14 @@ const AddComponent = ({
           variant="submit"
           text={isBomUpdating ? "Update BOM" : "Create BOM"}
           loading={loading("final")}
-          onClick={() => validateHandler("final")}
+          onClick={() => validateHandler()}
         />
         <MyButton
           variant="save"
           type="default"
           text="Save As Draft"
           loading={loading("draft")}
-          onClick={() => validateHandler("draft")}
+          onClick={() => submitHandler("draft")}
         />
       </Flex>
     </Card>
