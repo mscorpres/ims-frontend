@@ -56,6 +56,7 @@ const Q3 = () => {
         const detailsObj = {
           stock: data1.closingqty,
           product: data1.product,
+          pending: data1.pendingfgReturnQty,
           sku: data1.sku,
           uom: data1.uom,
         };
@@ -148,6 +149,24 @@ const Q3 = () => {
                         {loading !== "fetch" && (
                           <Typography.Text style={{ fontSize: "0.8rem" }}>
                             {details.stock} {details.uom}
+                          </Typography.Text>
+                        )}
+                        {loading === "fetch" && (
+                          <Skeleton.Input size="small" block active />
+                        )}
+                      </Col>
+                    </Row>
+                    <Divider style={{ marginTop: 5, marginBottom: 5 }} />
+                    <Row>
+                      <Col span={24}>
+                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                          Not Okay Pending Stock :
+                        </Typography.Text>
+                      </Col>
+                      <Col span={24}>
+                        {loading !== "fetch" && (
+                          <Typography.Text style={{ fontSize: "0.8rem" }}>
+                            {details.pending} {details.uom}
                           </Typography.Text>
                         )}
                         {loading === "fetch" && (
