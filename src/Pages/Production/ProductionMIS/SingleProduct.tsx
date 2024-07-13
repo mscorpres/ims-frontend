@@ -163,7 +163,7 @@ export default function SingleProduct({
         </Form.Item>
         <div style={{ width: 150 }}>
           <Form.Item
-            label="Shift Hours"
+            label="Shift Timing"
             name={[field.name, "shiftHours"]}
             rules={rules.shiftStart}
           >
@@ -173,7 +173,7 @@ export default function SingleProduct({
 
         <div style={{ width: 150 }}>
           <Form.Item
-            label="Work Timing"
+            label="Shift Start - End"
             name={[field.name, "workingTimings"]}
             rules={rules.workingHoursHours}
           >
