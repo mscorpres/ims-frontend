@@ -16,7 +16,8 @@ interface GetR33Type {
   shiftStart: string;
   shiftEnd: string;
   overTm: string;
-  workHrs: string;
+  workHrsEnd: string;
+  workHrsIn: string;
   remark: string;
 }
 export const getR33 = async (date: string, wise: string, data: string) => {
@@ -42,7 +43,7 @@ export const getR33 = async (date: string, wise: string, data: string) => {
         shiftStart: row.shiftStart,
         sku: row.sku,
         uom: row.unit,
-        workHours: row.workHrs,
+        workHours: `${row.workHrsIn} - ${row.workHrsEnd}`,
       })
     );
   }
