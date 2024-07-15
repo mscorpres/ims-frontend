@@ -24,22 +24,28 @@ const HeaderDetails = ({
 }) => {
   const [taxDetails, setTaxDetails] = useState([]);
   useEffect(() => {
-    const value = components?.reduce(
+    const values = components?.reduce(
       (a, b) => a + +Number(b.value).toFixed(3),
       0
     );
-    const cgst = components?.reduce(
+    // console.log("values", values);
+    let value = +Number(values).toFixed(3);
+    const cgsts = components?.reduce(
       (a, b) => a + +Number(b.cgst).toFixed(3),
       0
     );
-    const sgst = components?.reduce(
+    let cgst = +Number(cgsts).toFixed(3);
+    const sgsts = components?.reduce(
       (a, b) => a + +Number(b.sgst).toFixed(3),
       0
     );
-    const igst = components?.reduce(
+    let sgst = +Number(sgsts).toFixed(3);
+
+    const igsts = components?.reduce(
       (a, b) => a + +Number(b.igst).toFixed(3),
       0
     );
+    let igst = +Number(igsts).toFixed(3);
     const freight = components?.reduce(
       (a, b) => a + +Number(b.freight).toFixed(3),
       0
@@ -104,7 +110,6 @@ const HeaderDetails = ({
               onChange={(e) => setRoundOffValue(e.target.value)}
             />
           </div>
-        
         </Card>
       </Col>
 
