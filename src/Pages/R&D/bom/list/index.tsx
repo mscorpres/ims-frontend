@@ -26,7 +26,6 @@ const BOMList = () => {
 
   const { pathname: pathName } = useLocation();
   const navigate = useNavigate();
-  console.log("this is the pathname", pathName);
 
   const { executeFun, loading } = useApi();
 
@@ -63,6 +62,16 @@ const BOMList = () => {
           onClick={() => {
             setShowAttachments(true);
             setSelectedBOM(row);
+          }}
+        />,
+        <GridActionsCellItem
+          showInMenu
+          placeholder="Update"
+          label={"Update"}
+          onClick={() => {
+            navigate(
+              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}&version=${row.version}`
+            );
           }}
         />,
       ],
@@ -130,7 +139,7 @@ const BOMList = () => {
         }}
         selectedBom={selectedBOM}
       /> */}
-      <Col sm={20} lg={16} xxl={14}>
+      <Col sm={20} lg={18} xxl={14}>
         <MyDataTable
           columns={[
             ...columns,

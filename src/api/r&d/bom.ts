@@ -46,7 +46,8 @@ export const createBOM = async (
     url = "/bom/tempProduct";
   }
 
-  let version = +Number(values.version).toFixed();
+  console.log("this is the values", values);
+  let version = +Number(values.latestVersion).toFixed();
   if (isUpdating) {
     if (updateType === "ecn") {
       version = version + 0.1;
@@ -294,7 +295,8 @@ interface GetExistingBom {
   name: string;
   description: string;
   sku: string;
-  version: string;
+  selectedversion: string;
+  latestVersion: string;
   bomID: string;
   isDraft: boolean;
   components: {
@@ -318,9 +320,9 @@ interface GetExistingBom {
     componentUniqueID: string;
   }[];
 }
-export const getExistingBom = async (sku: string) => {
+export const getExistingBom = async (sku: string, version: string) => {
   const response: ResponseType = await imsAxios.get(
-    `/bom/checkExisting?sku=${sku}`
+    `/bom/checkExisting?sku=${sku}&version=${version}`
   );
 
   if (response.success) {
@@ -333,8 +335,8 @@ export const getExistingBom = async (sku: string) => {
           description: values.description,
           product: sku,
           isDraft: values.isDraft,
-          ecnVersion: "00.00",
-          version: values.version,
+          latestVersion: values.latestVersion,
+          version: values.selectedversion,
           id: values.bomID,
           components: values.components.map((row) => ({
             component: { ...row.component, label: row.component.text },

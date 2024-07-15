@@ -306,9 +306,9 @@ const BOMCreate = () => {
     return e?.fileList;
   };
 
-  const handleFetchExistingBom = async (sku: string) => {
+  const handleFetchExistingBom = async (sku: string, version: string) => {
     const response = await executeFun(
-      () => getExistingBom(sku.value ?? sku),
+      () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
 
@@ -339,7 +339,7 @@ const BOMCreate = () => {
         form.setFieldsValue(response.data);
         form.setFieldValue(
           "name",
-          sku.label + " V-" + response.data.version ??
+          sku + " V-" + response.data.version ??
             sku + " V-" + response.data.version
         );
         // setVersion(response.data.version);
@@ -375,7 +375,10 @@ const BOMCreate = () => {
 
   useEffect(() => {
     if (queryParams.get("sku")) {
-      handleFetchExistingBom(queryParams.get("sku"));
+      handleFetchExistingBom(
+        queryParams.get("sku"),
+        queryParams.get("version")
+      );
     }
   }, [queryParams]);
   useEffect(() => {

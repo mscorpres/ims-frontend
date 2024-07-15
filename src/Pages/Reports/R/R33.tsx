@@ -158,17 +158,23 @@ const singleColumns = [
     width: 100,
   },
   {
-    headerName: " Shift Start",
-    field: "shiftStart",
+    headerName: "Shift",
+    field: "shift",
     width: 140,
   },
   {
-    headerName: "Shift End",
-    field: "shiftEnd",
-    width: 140,
+    headerName: "Work Start",
+    field: "workStart",
+    width: 100,
   },
   {
-    headerName: " Department",
+    headerName: "Work End",
+    field: "workEnd",
+    width: 140,
+  },
+
+  {
+    headerName: "Department",
     field: "department",
     renderCell: ({ row }: { row: R33Type }) => (
       <ToolTipEllipses text={row.department} />
@@ -205,7 +211,7 @@ const singleColumns = [
   },
 
   {
-    headerName: "No Of Lines",
+    headerName: "Line Number",
     field: "lineCount",
     width: 110,
   },
@@ -280,7 +286,7 @@ const rangeColumns = [
   },
 
   {
-    headerName: "No Of Lines",
+    headerName: "Line Number",
     field: "lineCount",
     width: 110,
   },

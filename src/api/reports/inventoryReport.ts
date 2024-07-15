@@ -39,11 +39,12 @@ export const getR33 = async (date: string, wise: string, data: string) => {
         overTime: row.overTm,
         product: row.product,
         remarks: row.remark,
-        shiftEnd: row.shiftEnd,
-        shiftStart: row.shiftStart,
+        shift: `${row.shiftStart} - ${row.shiftEnd}`,
         sku: row.sku,
         uom: row.unit,
-        workHours: `${row.workHrsIn} - ${row.workHrsEnd}`,
+        workHours: row.totalWorkHrs.days,
+        workStart: row.workHrsIn,
+        workEnd: row.workHrsEnd,
       })
     );
   }
