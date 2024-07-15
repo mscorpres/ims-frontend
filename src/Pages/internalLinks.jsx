@@ -1227,5 +1227,24 @@ const links = [
       routePath: routeConstants.researchAndDevelopment.bom.list,
     },
   ],
+  //production physical stoc
+  [
+    {
+      routeName: "Create",
+      routePath: "/production/physical-stock/create",
+    },
+    {
+      routeName: "Pending",
+      routePath: "/production/physical-stock/pending",
+    },
+    {
+      routeName: "Rejected",
+      routePath: "/production/physical-stock/rejected",
+    },
+    {
+      routeName: "Completed",
+      routePath: "/production/physical-stock/view",
+    },
+  ],
 ];
 export default links;

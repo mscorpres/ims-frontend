@@ -265,6 +265,10 @@ import Q7 from "@/Pages/Query/Q7";
 import ComponentApproval from "@/Pages/Master/Components/material/approval/index.js";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import ApprovalList from "@/Pages/R&D/products/approvalList.js";
+import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
+import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
+import RejectedPhysicalProduction from "@/Pages/Production/PhysicalStock/Rejected.jsx";
+import ViewPhysicalProduction from "@/Pages/Production/PhysicalStock/ViewPhysical.jsx";
 
 // import CreateAsset from "@/Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "@/Pages/fixeassetmodule/ViewAsset";
@@ -509,6 +513,24 @@ const Routes = [
   {
     path: "/production/prodMis",
     main: () => <ProductionMIS />,
+  },
+
+  //production physical stock
+  {
+    path: "/production/physical-stock/create",
+    main: () => <CreatePhysicalProduction />,
+  },
+  {
+    path: "/production/physical-stock/pending",
+    main: () => <PendingPhysicalProduction />,
+  },
+  {
+    path: "/production/physical-stock/rejected",
+    main: () => <RejectedPhysicalProduction />,
+  },
+  {
+    path: "/production/physical-stock/view",
+    main: () => <ViewPhysicalProduction />,
   },
   // MES QCA
   {

@@ -24,7 +24,7 @@ import {
 } from "@ant-design/icons";
 import { RiBillFill } from "react-icons/ri";
 import { BiMoney, BiTransfer } from "react-icons/bi";
-import { FaWarehouse } from "react-icons/fa";
+import { FaBoxes, FaWarehouse } from "react-icons/fa";
 import { TbReportAnalytics } from "react-icons/tb";
 import { SiPaytm } from "react-icons/si";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -638,6 +638,11 @@ export const items = (user) => [
       <Link to="/production/prodMis">Production MIS</Link>,
       "C5",
       <MdQueryStats />
+    ),
+    getItem(
+      <Link to="/production/physical-stock/create">Physical Stock</Link>,
+      "C6",
+      <FaBoxes />
     ),
   ]),
   //Legal
