@@ -106,10 +106,23 @@ export const updateAlternatePartCode = async (alternativeArr, basePartCode) => {
   });
   return response;
 };
-export const fetchLocations = async (search) => {
-  const response = await imsAxios.post("/backend/fetchLocation", {
+export const fetchLocations = async (search, type?: "sf") => {
+  let url = "/backend/fetchLocation";
+  switch (type) {
+    case "sf":
+      url = "/godown/fetchLocationForSF2SF_from";
+      break;
+  }
+  const response = await imsAxios.post(url, {
     searchTerm: search,
   });
+
+  if (response.data.code === 200) {
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  }
   return response;
 };
 export const getProductsOptions = async (search: string, sku?: boolean) => {

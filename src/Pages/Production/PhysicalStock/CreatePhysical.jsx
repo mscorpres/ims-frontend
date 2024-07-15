@@ -42,7 +42,10 @@ function CreatePhysical() {
   };
 
   const handleFetchLocations = async (search) => {
-    const response = await executeFun(() => fetchLocations(search), "select");
+    const response = await executeFun(
+      () => fetchLocations(search, "sf"),
+      "select"
+    );
 
     const arr = convertSelectOptions(response.data);
     setAsyncOptions(arr);
