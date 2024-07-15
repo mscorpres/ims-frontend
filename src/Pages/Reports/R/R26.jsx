@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row, Space } from "antd";
 import React from "react";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
@@ -16,8 +16,10 @@ const R26 = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterForm] = Form.useForm();
+  const wiseOption = Form.useWatch("wise", filterForm);
 
   const getRows = async () => {
+    let arr;
     try {
       const filter = await filterForm.validateFields();
       setLoading("fetch");
@@ -25,21 +27,41 @@ const R26 = () => {
         wise: filter.wise,
         data: filter.date,
       });
+      // console.log("response", response);
       const { data } = response;
       if (data) {
         if (data.code === 200) {
-          const arr = data.data.data.map((row, index) => ({
-            id: index + 1,
-            date: row.DATE,
-            component: row.COMPONENT,
-            partCode: row.PART,
-            outLoc: row.FROMLOCATION,
-            inLoc: row.TOLOCATION,
-            qty: row.OUTQTY,
-            unit: row.UNIT,
-            type: row.UNIT,
-            lastPurchasePrice: row.LPP,
-          }));
+          if (wiseOption == "ven-cons") {
+            arr = data.data.map((row, index) => ({
+              id: index + 1,
+              createDate: row.create_dt,
+              component: row.part_name,
+              partCode: row.part_no,
+              consumedQty: row.consumedQty,
+              createBy: row.create_by,
+              docDate: row.doc_date,
+              docRef: row.doc_ref,
+              hsn: row.hsn,
+              qty: row.qty,
+              remark: row.remark,
+              txnId: row.txn_id,
+              type: row.type,
+              unit: row.unit,
+            }));
+          } else {
+            arr = data.data.data.map((row, index) => ({
+              id: index + 1,
+              date: row.DATE,
+              component: row.COMPONENT,
+              partCode: row.PART,
+              outLoc: row.FROMLOCATION,
+              inLoc: row.TOLOCATION,
+              qty: row.OUTQTY,
+              unit: row.UNIT,
+              type: row.UNIT,
+              lastPurchasePrice: row.LPP,
+            }));
+          }
 
           setRows(arr);
         } else {
@@ -58,6 +80,7 @@ const R26 = () => {
   };
 
   const handleDownload = async () => {
+    // console.log("gere");
     const filter = await filterForm.validateFields();
     const otherdata = JSON.stringify({
       type: filter.wise,
@@ -68,9 +91,26 @@ const R26 = () => {
       notificationId: v4(),
     });
   };
+  const searchVendor = async () => {
+    const filter = await filterForm.validateFields();
+    const otherdata = JSON.stringify({
+      type: filter.wise,
+      date: filter.date,
+    });
+    socket.emit("generate_xml_report", {
+      otherdata,
+      notificationId: v4(),
+    });
+  };
+  useEffect(() => {
+    if (wiseOption) {
+      setRows([]);
+    }
+  }, [wiseOption]);
+
   return (
     <Row gutter={6} style={{ height: "90%", padding: "0px 5px" }}>
-      <Col span={4}>
+      <Col span={5}>
         <Card title="Filters" size="small">
           <Form
             initialValues={defaultValues}
@@ -80,11 +120,13 @@ const R26 = () => {
             <Form.Item rules={rules.wise} name="wise" label="Transaction Type">
               <MySelect options={wiseOptions} />
             </Form.Item>
+            {/* {wiseOption !== "ven-cons" && ( */}
             <Form.Item rules={rules.date} name="date" label="Date">
               <SingleDatePicker
                 setDate={(date) => filterForm.setFieldValue("date", date)}
               />
             </Form.Item>
+            {/* )} */}
           </Form>
           <Row justify="end">
             <Col>
@@ -103,8 +145,12 @@ const R26 = () => {
           </Row>
         </Card>
       </Col>
-      <Col span={20}>
-        <MyDataTable columns={columns} data={rows} />
+      <Col span={19}>
+        <MyDataTable
+          columns={wiseOption == "ven-cons" ? vencolumns : columns}
+          data={rows}
+          loading={loading === "fetch"}
+        />
       </Col>
     </Row>
   );
@@ -134,6 +180,10 @@ const wiseOptions = [
   {
     text: "MFG XML",
     value: "mfg-xml",
+  },
+  {
+    text: "Vendor Consumption",
+    value: "ven-cons",
   },
 ];
 
@@ -185,6 +235,83 @@ const columns = [
     headerName: "UoM",
     width: 60,
     field: "unit",
+  },
+];
+const vencolumns = [
+  {
+    headerName: "#",
+    width: 30,
+    field: "id",
+  },
+  {
+    headerName: "TransactionId",
+    width: 130,
+    field: "txnId",
+  },
+  {
+    headerName: "Document Date",
+    width: 120,
+    field: "docDate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.docDate} />,
+  },
+  {
+    headerName: "Create By",
+    width: 160,
+    field: "createBy",
+  },
+  {
+    headerName: "Create Date",
+    width: 160,
+    field: "createDate",
+  },
+  {
+    headerName: "Document Ref",
+    width: 120,
+    field: "docRef",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.docRef} />,
+  },
+  {
+    headerName: "Type",
+    width: 120,
+    field: "type",
+  },
+  {
+    headerName: "Part Code",
+    width: 100,
+    field: "partCode",
+  },
+  {
+    headerName: "Component",
+    minWidth: 200,
+    flex: 1,
+    field: "component",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.component} />,
+  },
+
+  {
+    headerName: "Consumed Qty",
+    width: 180,
+    field: "consumedQty",
+  },
+  {
+    headerName: "Qty",
+    width: 100,
+    field: "qty",
+  },
+  {
+    headerName: "UoM",
+    width: 60,
+    field: "unit",
+  },
+  {
+    headerName: "HSN",
+    width: 160,
+    field: "hsn",
+  },
+  {
+    headerName: "Remark",
+    width: 260,
+    field: "remark",
   },
 ];
 
