@@ -269,5 +269,22 @@ export const getComponentMfgCodeAndType = async (components: string[]) => {
   return response;
 };
 
-//1.0
+export const getComponenentAndProduct = async (search: string) => {
+  const response: ResponseType = await imsAxios.post(
+    "/backend/getFGRMByNameAndNo",
+    {
+      search,
+      searchTerm: search,
+    }
+  );
+
+  let arr: SelectOptionType[] = [];
+  if (response.success) {
+    arr = convertSelectOptions(response.data);
+  }
+
+  response.data = arr;
+
+  return response;
+};
 //

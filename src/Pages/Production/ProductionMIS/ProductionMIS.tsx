@@ -17,7 +17,11 @@ import MyButton from "@/Components/MyButton/index.jsx";
 //hooks
 import useApi from "@/hooks/useApi.js";
 // apis
-import { getComponentOptions, getProductsOptions } from "@/api/general.js";
+import {
+  getComponenentAndProduct,
+  getComponentOptions,
+  getProductsOptions,
+} from "@/api/general.js";
 import { getDepartmentOptions } from "@/api/master/department.js";
 import { createEntry, fetchShiftLabels } from "@/api/production/mis";
 import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
@@ -56,23 +60,13 @@ function ProductionMIS() {
     setAsyncOptions(response.data);
   };
 
-  const handleFetchProductOptions = async (searchInput, type: "FG" | "RM") => {
-    let fun;
-    switch (type) {
-      case "FG":
-        fun = getProductsOptions;
-        break;
-      case "RM":
-        fun = getComponentOptions;
-        break;
-    }
-    const response = await executeFun(() => fun(searchInput), "select");
-    console.log("this is response", response);
-    setAsyncOptions(
-      type === "FG"
-        ? response.data
-        : convertSelectOptions(response?.data ?? []) ?? []
+  const handleFetchProductOptions = async (searchInput) => {
+    const response = await executeFun(
+      () => getComponenentAndProduct(searchInput),
+      "select"
     );
+
+    setAsyncOptions(response.data);
   };
 
   const handleCreateEntry = async () => {

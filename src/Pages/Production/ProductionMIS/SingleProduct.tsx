@@ -37,7 +37,7 @@ export default function SingleProduct({
   const format1 = "HH:mm";
   const workingHours = Form.useWatch(["shifts", field.name, "shiftHours"]);
   const shift = Form.useWatch(["shifts", field.name, "shiftLabel"]);
-  const productType = Form.useWatch(["shifts", field.name, "productType"]);
+
   const workingTimings = Form.useWatch([
     "shifts",
     field.name,
@@ -101,9 +101,7 @@ export default function SingleProduct({
       handleShiftUpdate(shift);
     }
   }, [shift]);
-  useEffect(() => {
-    form.setFieldValue(["shifts", field.name, "product"], workingHours);
-  }, [productType]);
+
   return (
     <Card size="small" style={{ marginBottom: 5 }}>
       <Flex gap={5} wrap="wrap" justify="space-bewteen">
@@ -136,14 +134,12 @@ export default function SingleProduct({
         </Form.Item>
         <div style={{ width: 250 }}>
           <Form.Item
-            label={productType === "FG" ? "Product" : "Component"}
+            label="Product/Component"
             name={[field.name, "product"]}
             rules={rules.product}
           >
             <MyAsyncSelect
-              loadOptions={(search: string) =>
-                handleFetchProductOptions(search, productType)
-              }
+              loadOptions={handleFetchProductOptions}
               optionsState={asyncOptions}
               selectLoading={loading("select")}
               onBlur={() => setAsyncOptions([])}
