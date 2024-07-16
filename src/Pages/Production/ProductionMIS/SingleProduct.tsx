@@ -37,6 +37,7 @@ export default function SingleProduct({
   const format1 = "HH:mm";
   const workingHours = Form.useWatch(["shifts", field.name, "shiftHours"]);
   const shift = Form.useWatch(["shifts", field.name, "shiftLabel"]);
+  const product = Form.useWatch(["shifts", field.name, "product"]);
 
   const workingTimings = Form.useWatch([
     "shifts",
@@ -102,6 +103,13 @@ export default function SingleProduct({
     }
   }, [shift]);
 
+  useEffect(() => {
+    const found = asyncOptions.find((row) => row.value === product);
+
+    if (found) {
+      form.setFieldValue(["shifts", field.name, "productType"], found.type);
+    }
+  }, [product]);
   return (
     <Card size="small" style={{ marginBottom: 5 }}>
       <Flex gap={5} wrap="wrap" justify="space-bewteen">
@@ -116,14 +124,14 @@ export default function SingleProduct({
         >
           <MySelect options={shiftLabelOptions} />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           style={{ width: 140 }}
           label="Product Type"
           name={[field.name, "productType"]}
           rules={rules.shiftLabel}
         >
           <MySelect options={typeOptions} />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           style={{ width: 100 }}
           label="Line No."

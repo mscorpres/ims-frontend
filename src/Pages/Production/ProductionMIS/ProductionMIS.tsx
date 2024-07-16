@@ -60,13 +60,13 @@ function ProductionMIS() {
     setAsyncOptions(response.data);
   };
 
-  const handleFetchProductOptions = async (searchInput) => {
+  const handleFetchProductOptions = async (searchInput, id: string) => {
     const response = await executeFun(
       () => getComponenentAndProduct(searchInput),
       "select"
     );
 
-    setAsyncOptions(response.data);
+    setAsyncOptions(response.data ?? []);
   };
 
   const handleCreateEntry = async () => {

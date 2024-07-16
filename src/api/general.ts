@@ -1,6 +1,7 @@
 import { ResponseType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { imsAxios } from "../axiosInterceptor";
+import { RowProps } from "antd";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -280,9 +281,12 @@ export const getComponenentAndProduct = async (search: string) => {
 
   let arr: SelectOptionType[] = [];
   if (response.success) {
-    arr = convertSelectOptions(response.data);
+    arr = response.data.map((row) => ({
+      text: row.text,
+      value: row.id,
+      type: row.type,
+    }));
   }
-
   response.data = arr;
 
   return response;
