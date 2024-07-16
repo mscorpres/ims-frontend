@@ -31,11 +31,13 @@ export default function SingleProduct({
   rules,
   shiftLabelOptions,
   shiftLabelOptionsRaw,
+  typeOptions,
 }) {
   const format = "HH";
   const format1 = "HH:mm";
   const workingHours = Form.useWatch(["shifts", field.name, "shiftHours"]);
   const shift = Form.useWatch(["shifts", field.name, "shiftLabel"]);
+  const productType = Form.useWatch(["shifts", field.name, "productType"]);
   const workingTimings = Form.useWatch([
     "shifts",
     field.name,
@@ -99,6 +101,9 @@ export default function SingleProduct({
       handleShiftUpdate(shift);
     }
   }, [shift]);
+  useEffect(() => {
+    form.setFieldValue(["shifts", field.name, "product"], workingHours);
+  }, [productType]);
   return (
     <Card size="small" style={{ marginBottom: 5 }}>
       <Flex gap={5} wrap="wrap" justify="space-bewteen">
@@ -114,6 +119,14 @@ export default function SingleProduct({
           <MySelect options={shiftLabelOptions} />
         </Form.Item>
         <Form.Item
+          style={{ width: 140 }}
+          label="Product Type"
+          name={[field.name, "productType"]}
+          rules={rules.shiftLabel}
+        >
+          <MySelect options={typeOptions} />
+        </Form.Item>
+        <Form.Item
           style={{ width: 100 }}
           label="Line No."
           name={[field.name, "lineCount"]}
@@ -123,12 +136,14 @@ export default function SingleProduct({
         </Form.Item>
         <div style={{ width: 250 }}>
           <Form.Item
-            label="Product"
+            label={productType === "FG" ? "Product" : "Component"}
             name={[field.name, "product"]}
             rules={rules.product}
           >
             <MyAsyncSelect
-              loadOptions={handleFetchProductOptions}
+              loadOptions={(search: string) =>
+                handleFetchProductOptions(search, productType)
+              }
               optionsState={asyncOptions}
               selectLoading={loading("select")}
               onBlur={() => setAsyncOptions([])}
@@ -226,22 +241,3 @@ export default function SingleProduct({
     </Card>
   );
 }
-// const gstRateOptions = [
-//   { value: "0", text: "00%" },
-//   { value: "5", text: "05%" },
-//   { value: "12", text: "12%" },
-//   { value: "18", text: "18%" },
-//   { value: "28", text: "28%" },
-// ];
-// const deptptions = [
-//   { text: "List", value: "List" },
-//   { text: "Paytm Sound Box", value: "Paytm Sound Box" },
-//   { text: "Paytm PCB Testing", value: "Paytm PCB Testing" },
-//   { text: "Paytm Adapter Testing ", value: "Paytm Adapter Testing " },
-//   { text: "Paytm VQC", value: "Paytm VQC" },
-//   { text: "Mini UPS", value: "Mini UPS" },
-//   { text: "Carvaan", value: "Carvaan" },
-//   { text: "Smart Meter", value: "Smart Meter" },
-//   { text: "Induction", value: "Induction" },
-//   { text: "PCB Repair", value: "PCB Repair" },
-// ];

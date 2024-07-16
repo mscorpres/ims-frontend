@@ -17,23 +17,34 @@ import MyButton from "@/Components/MyButton/index.jsx";
 //hooks
 import useApi from "@/hooks/useApi.js";
 // apis
-import { getProductsOptions } from "@/api/general.js";
+import { getComponentOptions, getProductsOptions } from "@/api/general.js";
 import { getDepartmentOptions } from "@/api/master/department.js";
 import { createEntry, fetchShiftLabels } from "@/api/production/mis";
 import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
 import dayjs from "dayjs";
 import { SelectOptionType } from "@/types/general";
 import UpdateShiftLabel from "@/Pages/Production/ProductionMIS/UpdateShiftLabelt";
+import { convertSelectOptions } from "@/utils/general";
+
+const typeOptions = [
+  {
+    text: "Product",
+    value: "FG",
+  },
+  {
+    text: "Component",
+    value: "RM",
+  },
+];
 
 function ProductionMIS() {
   const [misForm] = Form.useForm();
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [showAddDepartment, setShowAddDepartment] = useState(false);
+
   const [shiftLabelOptions, setShiftLabelOptions] = useState<
     SelectOptionType[]
   >([]);
   const [shiftLabelOptionsRaw, setShiftLabelOptionsRaw] = useState([]);
-  const [showLabelModal, setShowLabelModal] = useState(false);
 
   const { executeFun, loading } = useApi();
 
@@ -45,12 +56,23 @@ function ProductionMIS() {
     setAsyncOptions(response.data);
   };
 
-  const handleFetchProductOptions = async (searchInput) => {
-    const response = await executeFun(
-      () => getProductsOptions(searchInput),
-      "select"
+  const handleFetchProductOptions = async (searchInput, type: "FG" | "RM") => {
+    let fun;
+    switch (type) {
+      case "FG":
+        fun = getProductsOptions;
+        break;
+      case "RM":
+        fun = getComponentOptions;
+        break;
+    }
+    const response = await executeFun(() => fun(searchInput), "select");
+    console.log("this is response", response);
+    setAsyncOptions(
+      type === "FG"
+        ? response.data
+        : convertSelectOptions(response?.data ?? []) ?? []
     );
-    setAsyncOptions(response.data ?? []);
   };
 
   const handleCreateEntry = async () => {
@@ -128,7 +150,7 @@ function ProductionMIS() {
                     <SingleProduct
                       field={field}
                       index={index}
-                      add={add}
+                      add={() => add({ productType: "FG" })}
                       form={misForm}
                       loading={loading}
                       remove={remove}
@@ -138,6 +160,7 @@ function ProductionMIS() {
                       rules={rules}
                       shiftLabelOptions={shiftLabelOptions}
                       shiftLabelOptionsRaw={shiftLabelOptionsRaw}
+                      typeOptions={typeOptions}
                     />
                   </Form.Item>
                 ))}
@@ -184,6 +207,7 @@ const initialValues = {
   department: undefined,
   shifts: [
     {
+      productType: "FG",
       // ShiftHours:[dayjs("09")]
     },
   ],

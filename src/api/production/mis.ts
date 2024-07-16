@@ -2,6 +2,7 @@ import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType, SelectOptionType } from "@/types/general";
 import { MISType } from "@/types/production";
 import { convertSelectOptions } from "@/utils/general";
+import { Row } from "antd";
 import dayjs from "dayjs";
 
 export const getDepartmentOptions = async (search: string) => {
@@ -18,7 +19,7 @@ export const getDepartmentOptions = async (search: string) => {
 
 interface CreateEntryType {
   department: string;
-  sku: string[];
+  skcodeu: string[];
   date: string[];
   manPower: string[];
   lineNo: string[];
@@ -28,11 +29,13 @@ interface CreateEntryType {
   shiftEnd: string[];
   overTime: string[];
   workHours: string[];
+  shiftCode: string[];
 }
 export const createEntry = async (values: MISType) => {
   const payload: CreateEntryType = {
     date: values.shifts.map((row) => row.date),
-    sku: values.shifts.map((row) => row.product),
+    code: values.shifts.map((row) => row.product),
+    type: values.shifts.map((row) => row.productType),
     manPower: values.shifts.map((row) => row.manPower),
     lineNo: values.shifts.map((row) => row.lineCount),
     output: values.shifts.map((row) => row.output),
@@ -47,6 +50,7 @@ export const createEntry = async (values: MISType) => {
       row.workingTimings[1].format("HH:mm")
     ),
     department: values.department,
+    shiftCode: values.shifts.map((row) => row.shiftLabel),
   };
 
   const response = await imsAxios.post("/production/mis/add", payload);

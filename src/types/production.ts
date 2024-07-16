@@ -11,5 +11,7 @@ export interface MISType {
     overTime: string;
     workingHours: string;
     remarks?: string;
+    shiftLabel?: string;
+    productType: "RM" | "FG";
   }[];
 }
