@@ -32,11 +32,11 @@ import { convertSelectOptions } from "@/utils/general";
 
 const typeOptions = [
   {
-    text: "Product",
+    text: "FG",
     value: "FG",
   },
   {
-    text: "Component",
+    text: "RM",
     value: "RM",
   },
 ];
@@ -144,7 +144,7 @@ function ProductionMIS() {
                     <SingleProduct
                       field={field}
                       index={index}
-                      add={() => add({ productType: "FG" })}
+                      add={add}
                       form={misForm}
                       loading={loading}
                       remove={remove}
@@ -201,7 +201,7 @@ const initialValues = {
   department: undefined,
   shifts: [
     {
-      productType: "FG",
+      // productType: "FG",
       // ShiftHours:[dayjs("09")]
     },
   ],

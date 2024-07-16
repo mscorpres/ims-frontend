@@ -53,9 +53,6 @@ export const createEntry = async (values: MISType) => {
     shiftCode: values.shifts.map((row) => row.shiftLabel),
   };
 
-  console.log("this is payload", payload);
-  return;
-
   const response = await imsAxios.post("/production/mis/add", payload);
   return response;
 };

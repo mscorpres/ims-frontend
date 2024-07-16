@@ -124,14 +124,15 @@ export default function SingleProduct({
         >
           <MySelect options={shiftLabelOptions} />
         </Form.Item>
-        {/* <Form.Item
+
+        <Form.Item
           style={{ width: 140 }}
           label="Product Type"
           name={[field.name, "productType"]}
           rules={rules.shiftLabel}
         >
-          <MySelect options={typeOptions} />
-        </Form.Item> */}
+          <MySelect disabled options={typeOptions} />
+        </Form.Item>
         <Form.Item
           style={{ width: 100 }}
           label="Line No."
