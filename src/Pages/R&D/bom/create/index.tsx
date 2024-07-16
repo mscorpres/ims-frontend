@@ -36,14 +36,14 @@ import {
   getComponentsFromFile,
   getExistingBom,
 } from "@/api/r&d/bom";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
 
 import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
 import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
 import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
 import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
-import { imsAxios } from "@/axiosInterceptor";
+import routeConstants from "@/Routes/routeConstants.js";
 
 interface ComponentType {
   component: {
@@ -73,6 +73,11 @@ const BOMCreate = () => {
   const [isBomUpdating, setIsBomUpdating] = useState(false);
   const [updateType, setUpdateType] = useState<bomUpdateType | null>(null);
   const [showUpdateTypeModal, setShowUpdateTypeModal] = useState(false);
+  const [latestVersion, setLatestVersion] = useState(null);
+  const [saveType, setSaveType] = useState<null | "draft" | "final">(null);
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
+
+  const navigate = useNavigate();
 
   const [approvers, setApprovers] =
     useState<MultiStageApproverType[]>(initialApprovers);
@@ -258,25 +263,10 @@ const BOMCreate = () => {
     setAsyncOptions(response.data ?? []);
   };
 
-  const validateHandler = async () => {
+  const validateHandler = async (action: "final" | "draft") => {
     await form.validateFields(["name", "version", "product"]);
+    setSaveType(action);
     setShowApproverMetrics(true);
-    // let combined = [...mainComponents, ...subComponents];
-    // const response = await executeFun(
-    //   () =>
-    //     createBOM(
-    //       { ...values, components: combined },
-    //       approvers,
-    //       action,
-    //       isBomUpdating,
-    //       updateType
-    //     ),
-    //   action
-    // );
-
-    // if (response.success) {
-    //   resetHandler();
-    // }
   };
 
   const submitHandler = async (action: "final" | "draft") => {
@@ -286,7 +276,7 @@ const BOMCreate = () => {
     const response = await executeFun(
       () =>
         createBOM(
-          { ...values, components: combined },
+          { ...values, components: combined, latestVersion: latestVersion },
           approvers,
           action,
           isBomUpdating,
@@ -297,6 +287,11 @@ const BOMCreate = () => {
 
     if (response.success) {
       resetHandler();
+      if (action === "draft") {
+        navigate(routeConstants.researchAndDevelopment.bom.drafts);
+      } else {
+        navigate(routeConstants.researchAndDevelopment.bom.list);
+      }
     }
   };
   const normFile = (e) => {
@@ -306,7 +301,11 @@ const BOMCreate = () => {
     return e?.fileList;
   };
 
-  const handleFetchExistingBom = async (sku: string, version: string) => {
+  const handleFetchExistingBom = async (
+    sku: string,
+    version: string = "1.0"
+  ) => {
+    console.log("going version", version);
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
@@ -318,7 +317,11 @@ const BOMCreate = () => {
         form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
         return;
       }
-      if (response.data.isDraft === false) {
+      if (
+        response.data.isDraft === false &&
+        queryParams.get("sku") &&
+        queryParams.get("version")
+      ) {
         setShowUpdateTypeModal(true);
       }
       // return;
@@ -335,14 +338,15 @@ const BOMCreate = () => {
         // setSubComponents([]);
         // return;
       } else if (response.data && response.data.length === undefined) {
+        console.log("here it is");
+        if (!queryParams.get("sku") && !queryParams.get("version")) {
+          setShowRedirectModal(true);
+          return;
+        }
         console.log("it is here down", response.data);
         form.setFieldsValue(response.data);
-        form.setFieldValue(
-          "name",
-          sku + " V-" + response.data.version ??
-            sku + " V-" + response.data.version
-        );
-        // setVersion(response.data.version);
+        setLatestVersion(response.data.latestVersion);
+
         setMainComponents(
           response.data.components.filter((row) => row.type === "main")
         );
@@ -388,6 +392,11 @@ const BOMCreate = () => {
       }
     }
   }, [selectedProduct]);
+  useEffect(() => {
+    if (!showRedirectModal) {
+      resetHandler();
+    }
+  }, [showRedirectModal]);
 
   useEffect(() => {
     if (selectedSubstituteOf) {
@@ -411,6 +420,10 @@ const BOMCreate = () => {
       layout="vertical"
       initialValues={initialValues}
     >
+      <RedirectModal
+        show={showRedirectModal}
+        hide={() => setShowRedirectModal(false)}
+      />
       <UpdateTypeModal
         setIsBomUpdating={setIsBomUpdating}
         hide={() => setShowUpdateTypeModal(false)}
@@ -498,6 +511,7 @@ const BOMCreate = () => {
               hide={() => setShowApproverMetrics(false)}
               submitHandler={submitHandler}
               submitLoading={loading("final")}
+              saveType={saveType}
             />
           </Flex>
         </Col>
@@ -847,3 +861,29 @@ const initialApprovers = [
     ],
   },
 ];
+
+const RedirectModal = ({ hide, show }: ModalType) => {
+  const navigate = useNavigate();
+  return (
+    <Modal
+      open={show}
+      onCancel={hide}
+      title="Existing BOM found"
+      footer={<></>}
+    >
+      <Flex vertical align="center" gap={10}>
+        <Typography.Text strong>
+          It looks like BOM already exist for this product. Select the version
+          of the BOM you want to update from BOM List page.
+        </Typography.Text>
+        <MyButton
+          variant="next"
+          text="Bom List"
+          onClick={() =>
+            navigate(routeConstants.researchAndDevelopment.bom.list)
+          }
+        />
+      </Flex>
+    </Modal>
+  );
+};

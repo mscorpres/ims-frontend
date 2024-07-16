@@ -46,18 +46,24 @@ export const createBOM = async (
     url = "/bom/tempProduct";
   }
 
-  console.log("this is the values", values);
-  let version = +Number(values.latestVersion).toFixed();
+  let version = +Number(
+    values.latestVersion === "NaN" || !values.latestVersion
+      ? values.version
+      : values.latestVersion
+  ).toFixed(2);
+
   if (isUpdating) {
     if (updateType === "ecn") {
       version = version + 0.1;
     } else if (updateType === "main") {
-      version = +(version + 1);
+      version = +(version + 1).toFixed(0);
       version = version + ".0";
     }
   } else {
     version = version + ".0";
   }
+
+  version = Number(version).toFixed(2);
 
   //parsing approvers
   let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
@@ -91,12 +97,11 @@ export const createBOM = async (
     })),
     version: version,
     description: values.description,
-    name: values.name,
+    name: `${values.name} V-${version}`,
     sku: values.product.value ?? values.product,
     approvalMetrics: arr,
   };
 
-  console.log("payload is", payload);
   // return;
   const formData = new FormData();
   for (let key in payload) {

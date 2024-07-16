@@ -236,14 +236,14 @@ const AddComponent = ({
           variant="submit"
           text={isBomUpdating ? "Update BOM" : "Create BOM"}
           loading={loading("final")}
-          onClick={() => validateHandler()}
+          onClick={() => validateHandler("final")}
         />
         <MyButton
           variant="save"
           type="default"
           text="Save As Draft"
           loading={loading("draft")}
-          onClick={() => submitHandler("draft")}
+          onClick={() => validateHandler("draft")}
         />
       </Flex>
     </Card>

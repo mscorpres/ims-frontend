@@ -98,7 +98,7 @@ const BOMList = () => {
           label="View Images"
           onClick={() => {
             navigate(
-              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}`
+              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}&version=${row.version}`
             );
           }}
         />,
@@ -147,7 +147,7 @@ const BOMList = () => {
               ? [...draftActionColumns]
               : [...actionColumns]),
           ]}
-          data={rows.reverse()}
+          data={rows ?? []}
           loading={loading("fetch")}
         />
       </Col>

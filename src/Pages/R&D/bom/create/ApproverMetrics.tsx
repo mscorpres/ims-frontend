@@ -13,6 +13,8 @@ interface Props extends ModalType {
   approvers: MultiStageApproverType[];
   setApprovers: React.Dispatch<React.SetStateAction<MultiStageApproverType[]>>;
   submitLoading: boolean;
+  submitHandler: (action: "draft" | "final") => void;
+  saveType: "draft" | "final";
 }
 
 const ApproverMetrics = ({
@@ -22,6 +24,7 @@ const ApproverMetrics = ({
   hide,
   submitHandler,
   submitLoading,
+  saveType,
 }: Props) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
 
@@ -141,6 +144,8 @@ const ApproverMetrics = ({
     // console.log("this is arr", arr);
   };
 
+  console.log("save type", saveType);
+
   useEffect(() => {
     handleFetchFixedApprovers();
   }, []);
@@ -152,7 +157,7 @@ const ApproverMetrics = ({
       title="Approver Metrics"
       okText="Create BOM"
       confirmLoading={submitLoading}
-      onOk={submitHandler}
+      onOk={() => submitHandler(saveType)}
     >
       <Flex vertical style={{ minHeight: "70vh" }}>
         {approvers.map((approver) => (
