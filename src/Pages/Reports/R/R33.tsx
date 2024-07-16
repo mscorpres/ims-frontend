@@ -191,7 +191,7 @@ const singleColumns = [
     width: 100,
   },
   {
-    headerName: "Product",
+    headerName: "Product/Component",
     field: "product",
     renderCell: ({ row }: { row: R33Type }) => (
       <ToolTipEllipses text={row.product} />
@@ -266,7 +266,7 @@ const rangeColumns = [
     width: 100,
   },
   {
-    headerName: "Product",
+    headerName: "Product/Component",
     field: "product",
     renderCell: ({ row }: { row: R34Type }) => (
       <ToolTipEllipses text={row.product} />
@@ -286,7 +286,7 @@ const rangeColumns = [
   },
 
   {
-    headerName: "Line Number",
+    headerName: "No. of Lines",
     field: "lineCount",
     width: 110,
   },
