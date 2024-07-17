@@ -1,6 +1,6 @@
 import { RowType } from "@/Pages/Query/Q7/type";
 import { RowType as Q5RowType } from "@/Pages/Query/Q5/type";
-import { imsAxios } from "@/axiosInterceptor.js";
+import { imsAxios } from "@/axiosInterceptor";
 import { ResponseType } from "../../types/general";
 import { R33Type, R34ComponentType, R34Type } from "../../types/reports";
 
