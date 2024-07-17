@@ -1,4 +1,4 @@
-import { ResponseType } from "@/types/general";
+import { ResponseType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { imsAxios } from "../axiosInterceptor";
 
@@ -216,6 +216,27 @@ export const deleteQcaRows = async (payload) => {
   );
 
   response.data = convertSelectOptions(response.data ?? []);
+
+  return response;
+};
+export const getComponenentAndProduct = async (search: string) => {
+  const response: ResponseType = await imsAxios.post(
+    "/backend/getFGRMByNameAndNo",
+    {
+      search,
+      searchTerm: search,
+    }
+  );
+
+  let arr: SelectOptionType[] = [];
+  if (response.success) {
+    arr = response.data.map((row) => ({
+      text: row.text,
+      value: row.id,
+      type: row.type,
+    }));
+  }
+  response.data = arr;
 
   return response;
 };
