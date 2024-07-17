@@ -1,4 +1,4 @@
-import { imsAxios } from "../../axiosInterceptor";
+import { imsAxios } from "@/axiosInterceptor.js";
 import { ResponseType } from "../../types/general";
 import { R33Type, R34ComponentType, R34Type } from "../../types/reports";
 
@@ -14,13 +14,15 @@ interface GetR33Type {
   shiftStart: string;
   shiftEnd: string;
   overTm: string;
-  workHrs: string;
+  workHrsEnd: string;
+  workHrsIn: string;
   remark: string;
 }
-export const getR33 = async (date: string, wise: string) => {
+export const getR33 = async (date: string, wise: string, data: string) => {
   const response: ResponseType = await imsAxios.post("report33/", {
     date,
     type: wise,
+    data,
   });
   let arr = [];
   if (response.success) {
@@ -35,11 +37,12 @@ export const getR33 = async (date: string, wise: string) => {
         overTime: row.overTm,
         product: row.product,
         remarks: row.remark,
-        shiftEnd: row.shiftEnd,
-        shiftStart: row.shiftStart,
+        shift: `${row.shiftStart} - ${row.shiftEnd}`,
         sku: row.sku,
         uom: row.unit,
-        workHours: row.workHrs,
+        workHours: `${row.totalWorkHrs.hrs}:${row.totalWorkHrs.min}`,
+        workStart: row.workHrsIn,
+        workEnd: row.workHrsEnd,
       })
     );
   }
