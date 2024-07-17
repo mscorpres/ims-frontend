@@ -117,6 +117,7 @@ function ProductionMIS() {
                 selectLoading={loading("select")}
                 loadOptions={handleFetchDepartmentOptions}
                 onBlur={() => setAsyncOptions([])}
+                preventFetchingOnFocus={true}
               />
             </Form.Item>
             <Row justify="center">

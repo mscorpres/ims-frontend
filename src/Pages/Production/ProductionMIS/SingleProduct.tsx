@@ -151,6 +151,7 @@ export default function SingleProduct({
               loadOptions={handleFetchProductOptions}
               optionsState={asyncOptions}
               selectLoading={loading("select")}
+              preventFetchingOnFocus={true}
               onBlur={() => setAsyncOptions([])}
             />
           </Form.Item>

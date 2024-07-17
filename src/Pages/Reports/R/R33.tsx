@@ -96,6 +96,7 @@ function R33() {
                   selectLoading={loading("select")}
                   optionsState={asyncOptions}
                   onBlur={() => setAsyncOptions([])}
+                  preventFetchingOnFocus={true}
                 />
               </Form.Item>
             )}

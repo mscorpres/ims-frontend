@@ -23,12 +23,13 @@ export default function MyAsyncSelect({
   onMouseEnter,
   optionsList,
   ref,
+  preventFetchingOnFocus,
 }) {
   const [searchValue, setSearchValue] = useState("");
   const updatedValue = useDebounce(searchValue);
 
   useEffect(() => {
-    loadOptions(updatedValue);
+    if (updatedValue.length > 0) loadOptions(updatedValue);
   }, [updatedValue]);
   return (
     <Select
@@ -42,8 +43,7 @@ export default function MyAsyncSelect({
       // onFocus={}
       placeholder={placeholder}
       onFocus={() => {
-        console.log("this is focusing");
-        loadOptions("");
+        if (!preventFetchingOnFocus) loadOptions("");
       }}
       // suffixIcon={<SearchOutlined />}
       // allowClear
