@@ -14,7 +14,7 @@ import MyDatePicker from "@/Components/MyDatePicker";
 import MyAsyncSelect from "@/Components/MyAsyncSelect";
 import { getDepartmentOptions } from "@/api/master/department";
 import { SelectOptionType } from "@/types/general";
-import { getProductsOptions } from "@/api/general";
+import { getComponenentAndProduct, getProductsOptions } from "@/api/general";
 
 const wiseOptions = [
   {
@@ -64,9 +64,10 @@ function R33() {
 
   const handleFetchProductOptions = async (search: string) => {
     const response = await executeFun(
-      () => getProductsOptions(search),
+      () => getComponenentAndProduct(search),
       "select"
     );
+
     setAsyncOptions(response.data);
   };
   useEffect(() => {

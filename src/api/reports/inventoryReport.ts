@@ -1,6 +1,6 @@
 import { RowType } from "@/Pages/Query/Q7/type";
 import { RowType as Q5RowType } from "@/Pages/Query/Q5/type";
-import { imsAxios } from "../../axiosInterceptor";
+import { imsAxios } from "@/axiosInterceptor.js";
 import { ResponseType } from "../../types/general";
 import { R33Type, R34ComponentType, R34Type } from "../../types/reports";
 
@@ -42,7 +42,7 @@ export const getR33 = async (date: string, wise: string, data: string) => {
         shift: `${row.shiftStart} - ${row.shiftEnd}`,
         sku: row.sku,
         uom: row.unit,
-        workHours: row.totalWorkHrs.days,
+        workHours: `${row.totalWorkHrs.hrs}:${row.totalWorkHrs.min}`,
         workStart: row.workHrsIn,
         workEnd: row.workHrsEnd,
       })
