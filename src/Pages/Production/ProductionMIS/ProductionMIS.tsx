@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
-import { Card, Col, Collapse, Form, Row, Space, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Flex,
+  Form,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 //components
 import SingleProduct from "@/Pages/Production/ProductionMIS/SingleProduct";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
@@ -7,12 +17,18 @@ import MyButton from "@/Components/MyButton/index.jsx";
 //hooks
 import useApi from "@/hooks/useApi.js";
 // apis
-import { getComponenentAndProduct } from "@/api/general.js";
-import { getDepartmentOptions } from "@/api/master/department";
+import {
+  getComponenentAndProduct,
+  getComponentOptions,
+  getProductsOptions,
+} from "@/api/general.js";
+import { getDepartmentOptions } from "@/api/master/department.js";
 import { createEntry, fetchShiftLabels } from "@/api/production/mis";
 import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
+import dayjs from "dayjs";
 import { SelectOptionType } from "@/types/general";
 import UpdateShiftLabel from "@/Pages/Production/ProductionMIS/UpdateShiftLabelt";
+import { convertSelectOptions } from "@/utils/general";
 
 const typeOptions = [
   {
