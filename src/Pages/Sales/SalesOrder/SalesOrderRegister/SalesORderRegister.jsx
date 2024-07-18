@@ -23,6 +23,7 @@ import dayjs from "dayjs";
 import { getStringDate } from "../../../../utils/general.ts";
 function SalesORderRegister() {
   // const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [componentList, setComponentList] = useState(false);
   const [showShipmentDrawer, setShowShipmentDrawer] = useState(null);
   const [open, setOpen] = useState(false);
