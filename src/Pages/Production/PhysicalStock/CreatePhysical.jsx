@@ -9,15 +9,17 @@ import { imsAxios } from "@/axiosInterceptor";
 import { getComponentOptions } from "@/api/general.ts";
 import useApi from "@/hooks/useApi.ts";
 import MyButton from "@/Components/MyButton";
+import MySelect from "@/Components/MySelect.jsx";
 import { fetchLocations } from "@/api/general.ts";
 import { convertSelectOptions } from "@/utils/general";
 
 function CreatePhysical() {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [locationOpitons, setLocationOptions] = useState([]);
   const [datee, setDatee] = useState([]);
   // const [availData, setAvailData] = useState({});
-  const { executeFun, laoding: loading1 } = useApi();
+  const { executeFun, loading: loading1 } = useApi();
   const [searchInput, setSearchInput] = useState("");
   const [allData, setAllData] = useState({
     selType: "",
@@ -41,14 +43,11 @@ function CreatePhysical() {
     }
   };
 
-  const handleFetchLocations = async (search) => {
-    const response = await executeFun(
-      () => fetchLocations(search, "sf"),
-      "select"
-    );
+  const handleFetchLocations = async () => {
+    const response = await executeFun(() => fetchLocations("", "sf"), "select");
 
     const arr = convertSelectOptions(response.data);
-    setAsyncOptions(arr);
+    setLocationOptions(arr);
   };
 
   const [addrow, setAddRom] = useState([
@@ -253,6 +252,7 @@ function CreatePhysical() {
           onBlur={() => setAsyncOptions([])}
           onInputChange={(e) => setSearchInput(e)}
           loadOptions={getComponent}
+          selectLoading={loading1("select")}
           value={addrow?.comp}
           optionsState={asyncOptions}
           onChange={(e) => inputHandler("comp", row.id, e)} // value={addRowData.product}
@@ -265,13 +265,10 @@ function CreatePhysical() {
       flex: 1,
       sortable: false,
       renderCell: ({ row }) => (
-        <MyAsyncSelect
+        <MySelect
           style={{ width: "100%" }}
-          // onBlur={() => setAsyncOptions([])}
-          // onInputChange={(e) => setSearchInput(e)}
-          loadOptions={handleFetchLocations}
           value={addrow?.location}
-          optionsState={asyncOptions}
+          options={locationOpitons}
           onChange={(e) => inputHandler("location", row.id, e)} // value={addRowData.product}
         />
       ),
@@ -315,6 +312,9 @@ function CreatePhysical() {
     },
   ];
 
+  useEffect(() => {
+    handleFetchLocations();
+  }, []);
   return (
     <div>
       <div style={{ height: "79%" }}>
