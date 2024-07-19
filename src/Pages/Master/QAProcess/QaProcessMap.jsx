@@ -522,6 +522,8 @@ const QaProcessMap = () => {
         success: true,
         data: arr,
       };
+    } else {
+      toast.error(response.message);
     }
   };
 
