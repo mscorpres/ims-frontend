@@ -252,7 +252,10 @@ import R34 from "@/Pages/Reports/R/R34/index.js";
 import FARUpload from "@/Pages/far/index.js";
 import R35 from "@/Pages/Reports/R/R35.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
-
+import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
+import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
+import RejectedPhysicalProduction from "@/Pages/Production/PhysicalStock/Rejected.jsx";
+import ViewPhysicalProduction from "@/Pages/Production/PhysicalStock/ViewPhysical.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -487,6 +490,24 @@ const Routes = [
   {
     path: "/production/prodMis",
     main: () => <ProductionMIS />,
+  },
+
+  //production physical stock
+  {
+    path: "/production/physical-stock/create",
+    main: () => <CreatePhysicalProduction />,
+  },
+  {
+    path: "/production/physical-stock/pending",
+    main: () => <PendingPhysicalProduction />,
+  },
+  {
+    path: "/production/physical-stock/rejected",
+    main: () => <RejectedPhysicalProduction />,
+  },
+  {
+    path: "/production/physical-stock/view",
+    main: () => <ViewPhysicalProduction />,
   },
   // MES QCA
   {
@@ -1283,6 +1304,7 @@ const Routes = [
     path: "/warehouse/e-way/jw/:jwId",
     main: () => <EWayBill />,
   },
+
   {
     path: "/tasks/admin",
     main: () => <AdminTasks />,
@@ -1309,10 +1331,12 @@ const Routes = [
     path: "/sales/order/:orderId/edit",
     main: () => <EditSalesOrder />,
   },
+
   {
     path: "/sales/order/register",
     main: () => <SalesORderRegister />,
   },
+
   //
   {
     path: "/sales/order/shipments",
@@ -1384,6 +1408,7 @@ const Routes = [
     path: routeConstants.far.upload,
     main: () => <FARUpload />,
   },
+
   // should always be at the end
   {
     path: "*",

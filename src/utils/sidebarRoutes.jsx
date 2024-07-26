@@ -647,6 +647,11 @@ export const items = (user) => [
       "D1",
       <MdAccountBox />
     ),
+    getItem(
+      <Link to="/production/physical-stock/create">Physical Stock</Link>,
+      "D5",
+      <MdAccountBox />
+    ),
   ]),
   //Legal
   // user?.showlegal
