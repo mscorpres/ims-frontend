@@ -262,6 +262,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       width: 180,
       renderCell: ({ row }) => (
         <Input
+          type="number"
           //  value={row.orderqty}
           placeholder="Rate"
           onChange={(e) => inputHandler("rate", row.id, e.target.value)}
