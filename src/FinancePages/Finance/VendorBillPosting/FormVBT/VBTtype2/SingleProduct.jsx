@@ -407,7 +407,6 @@ export default function SingleComponent({
     // console.log("here");
     if (isCreate || totalFreight) {
       if (allRowFreight || totalFreight) {
-
         let freight =
           (totalFreight * Number(totalVenAm)) /
           +Number(totalbillAmmount).toFixed(2);
@@ -647,7 +646,7 @@ export default function SingleComponent({
       </Col> */}
           <Col span={2}>
             <Form.Item label="Invoice Qty" name={[field.name, "vbtBillQty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
@@ -674,7 +673,7 @@ export default function SingleComponent({
               }
               onFocus={() => showRateWarning()}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
@@ -698,31 +697,32 @@ export default function SingleComponent({
                 },
               ]}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="INR Value" name={[field.name, "value"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Misc Charges" name={[field.name, "miscCharges"]}>
               <Input
-              // onBlur={() => {
-              //   form.setFields([
-              //     {
-              //       name: ["components", field.name, "miscCharges"],
-              //       touched: false,
-              //     },
-              //   ]);
-              // }}
+                type="number"
+                // onBlur={() => {
+                //   form.setFields([
+                //     {
+                //       name: ["components", field.name, "miscCharges"],
+                //       touched: false,
+                //     },
+                //   ]);
+                // }}
               />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Add freight" name={[field.name, "addSumFreight"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           {/* <Col span={3}>
@@ -733,6 +733,7 @@ export default function SingleComponent({
           <Col span={3}>
             <Form.Item label="Freight" name={[field.name, "freightAmount"]}>
               <Input
+                type="number"
                 onBlur={() => {
                   form.setFields([
                     {
@@ -748,15 +749,16 @@ export default function SingleComponent({
             <Form.Item label="Insurance" name={[field.name, "insurance"]}>
               {/* {index === 0 ? ( */}
               <Input
-              // suffix={
-              //   <Tooltip title="Calculate Insrance for all rows">
-              //     <Button
-              //       onClick={() => setInrowInsur("inRowInsurance")}
-              //       // block
-              //       icon={<CalculatorOutlined style={{ fontSize: "0.8rem" }} />}
-              //     />
-              //   </Tooltip>
-              // }
+                type="number"
+                // suffix={
+                //   <Tooltip title="Calculate Insrance for all rows">
+                //     <Button
+                //       onClick={() => setInrowInsur("inRowInsurance")}
+                //       // block
+                //       icon={<CalculatorOutlined style={{ fontSize: "0.8rem" }} />}
+                //     />
+                //   </Tooltip>
+                // }
               />
               {/* ) : ( */}
               {/* <Input
@@ -779,17 +781,18 @@ export default function SingleComponent({
               label="Custom Ass.Value"
               name={[field.name, "customAssVal"]}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Custom Duty" name={[field.name, "customDuty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="sws" name={[field.name, "sws"]}>
               <Input
+                type="number"
                 onBlur={() => {
                   form.setFields([
                     {
@@ -803,7 +806,7 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="Other Duty" name={[field.name, "otherDuty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           {/* <Col span={3}>
@@ -816,17 +819,17 @@ export default function SingleComponent({
               label="GST Ass. Value"
               name={[field.name, "gstAssValue"]}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="GST Rate" name={[field.name, "gstRate"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="IGST" name={[field.name, "igstAmount"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={4}>
@@ -951,22 +954,22 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="Ven Amount" name={[field.name, "venAmmount"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="INR Price" name={[field.name, "inrPrice"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>{" "}
           <Col span={3}>
             <Form.Item label="CIF Value" name={[field.name, "cifValue"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="CIF Price" name={[field.name, "cifPrice"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -1012,7 +1015,7 @@ export default function SingleComponent({
       </Col> */}
           <Col span={2}>
             <Form.Item label="Invoice Qty" name={[field.name, "vbtBillQty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
@@ -1022,12 +1025,12 @@ export default function SingleComponent({
           </Col>
           <Col span={2}>
             <Form.Item label="Price" name={[field.name, "vbtInRate"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="Fx Value" name={[field.name, "foreignValue"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={1.5}>
@@ -1046,31 +1049,32 @@ export default function SingleComponent({
                 },
               ]}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="INR Value" name={[field.name, "value"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Misc Charges" name={[field.name, "miscCharges"]}>
               <Input
-              // onBlur={() => {
-              //   form.setFields([
-              //     {
-              //       name: ["components", field.name, "miscCharges"],
-              //       touched: false,
-              //     },
-              //   ]);
-              // }}
+                type="number"
+                // onBlur={() => {
+                //   form.setFields([
+                //     {
+                //       name: ["components", field.name, "miscCharges"],
+                //       touched: false,
+                //     },
+                //   ]);
+                // }}
               />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Add freight" name={[field.name, "addSumFreight"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           {/* <Col span={3}>
@@ -1081,6 +1085,7 @@ export default function SingleComponent({
           <Col span={3}>
             <Form.Item label="Freight" name={[field.name, "freightAmount"]}>
               <Input
+                type="number"
                 onBlur={() => {
                   form.setFields([
                     {
@@ -1096,15 +1101,16 @@ export default function SingleComponent({
             <Form.Item label="Insurance" name={[field.name, "insurance"]}>
               {/* {index === 0 ? ( */}
               <Input
-              // suffix={
-              //   <Tooltip title="Calculate Insrance for all rows">
-              //     <Button
-              //       onClick={() => setInrowInsur("inRowInsurance")}
-              //       // block
-              //       icon={<CalculatorOutlined style={{ fontSize: "0.8rem" }} />}
-              //     />
-              //   </Tooltip>
-              // }
+                type="number"
+                // suffix={
+                //   <Tooltip title="Calculate Insrance for all rows">
+                //     <Button
+                //       onClick={() => setInrowInsur("inRowInsurance")}
+                //       // block
+                //       icon={<CalculatorOutlined style={{ fontSize: "0.8rem" }} />}
+                //     />
+                //   </Tooltip>
+                // }
               />
               {/* ) : ( */}
               {/* <Input
@@ -1127,17 +1133,18 @@ export default function SingleComponent({
               label="Custom Ass.Value"
               name={[field.name, "customAssVal"]}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Custom Duty" name={[field.name, "customDuty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="sws" name={[field.name, "sws"]}>
               <Input
+                type="number"
                 onBlur={() => {
                   form.setFields([
                     {
@@ -1151,7 +1158,7 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="Other Duty" name={[field.name, "otherDuty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           {/* <Col span={3}>
@@ -1164,17 +1171,17 @@ export default function SingleComponent({
               label="GST Ass. Value"
               name={[field.name, "gstAssValue"]}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="GST Rate" name={[field.name, "gstRate"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
             <Form.Item label="IGST" name={[field.name, "igstAmount"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={4}>
@@ -1286,22 +1293,22 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="Ven Amount" name={[field.name, "venAmmount"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="INR Price" name={[field.name, "inrPrice"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>{" "}
           <Col span={3}>
             <Form.Item label="CIF Value" name={[field.name, "cifValue"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="CIF Price" name={[field.name, "cifPrice"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={6}>

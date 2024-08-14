@@ -33,6 +33,7 @@ export const componentSelect = (
 
 export const quantityCell = ({ row }, inputHandler) => (
   <Input
+    type="number"
     size="default"
     value={row.qty}
     onChange={(e) => inputHandler("qty", e.target.value, row.id)}
@@ -42,6 +43,7 @@ export const quantityCell = ({ row }, inputHandler) => (
 export const rateCell = ({ row }, inputHandler, currencies) => (
   <Input.Group compact>
     <Input
+      type="number"
       size="default"
       style={{ width: "65%" }}
       value={row.rate}

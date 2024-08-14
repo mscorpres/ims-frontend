@@ -191,6 +191,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
             <Col span={12} style={{ padding: "3px" }}>
               <Form.Item label="Pin Code">
                 <Input
+                  type="number"
                   size="default "
                   // placeholder="Branch Pincode"
                   value={addBilling.branch.pin}
@@ -213,6 +214,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
             <Col span={12} style={{ padding: "3px" }}>
               <Form.Item label="Mobile">
                 <Input
+                  type="number"
                   size="default "
                   value={addBilling.branch.mobile}
                   onChange={(e) => inputHandler("mobile", e.target.value)}

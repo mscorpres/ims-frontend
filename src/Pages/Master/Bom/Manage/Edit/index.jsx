@@ -243,6 +243,7 @@ const EditModal = ({ show, close, bomType }) => {
       width: 100,
       renderCell: ({ row }) => (
         <Input
+          type="number"
           value={row.priority}
           onChange={(e) => inputHandler("priority", e.target.value, row.id)}
         />
@@ -253,6 +254,7 @@ const EditModal = ({ show, close, bomType }) => {
       width: 100,
       renderCell: ({ row }) => (
         <Input
+          type="number"
           value={row.qty}
           onChange={(e) => inputHandler("qty", e.target.value, row.id)}
         />

@@ -298,6 +298,7 @@ const EditSFGModal = ({ sfgEditModal, setSfgEditModal }) => {
       sortable: false,
       renderCell: ({ row }) => (
         <Input
+          type="number"
           size="default"
           onChange={(e) =>
             selectInputHandler("priority", row.id, e.target.value)
@@ -313,6 +314,7 @@ const EditSFGModal = ({ sfgEditModal, setSfgEditModal }) => {
       sortable: false,
       renderCell: ({ row }) => (
         <Input
+          type="number"
           size="default"
           onChange={(e) =>
             selectInputHandler("requiredQty", row.id, e.target.value)

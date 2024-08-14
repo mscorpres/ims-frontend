@@ -100,7 +100,7 @@ const HsnMap = () => {
               loading
             )}
             addableRow={true}
-            newRow={initialValues.rows[0]}
+            newRow={initialValues?.rows[0]}
             removableRows={true}
             nonRemovableColumns={1}
           />

@@ -746,6 +746,7 @@ export default function CreateJW({}) {
                     size="default"
                     min={1}
                     max={999}
+                    type="number"
                   />
                 </Form.Item>
               </Col>

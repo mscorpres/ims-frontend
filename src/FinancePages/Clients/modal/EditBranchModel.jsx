@@ -212,12 +212,12 @@ function EditBranchModel({ setBranchId, branchId, setBranchModal, allBranch }) {
             <Row gutter={10}>
               <Col span={12}>
                 <Form.Item label="Pin" name="pinCode">
-                  <Input />
+                  <Input type="number" />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item label="Phone" name="phoneNo">
-                  <Input />
+                  <Input type="number" />
                 </Form.Item>
               </Col>
             </Row>

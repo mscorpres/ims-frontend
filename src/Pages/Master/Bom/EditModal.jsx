@@ -299,6 +299,7 @@ const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {
       renderCell: ({ row }) => (
         <Input
           size="default"
+          type="number"
           onChange={(e) =>
             selectInputHandler("priority", row.id, e.target.value)
           }
@@ -314,6 +315,7 @@ const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {
       renderCell: ({ row }) => (
         <Input
           size="default"
+          type="number"
           onChange={(e) =>
             selectInputHandler("requiredQty", row.id, e.target.value)
           }

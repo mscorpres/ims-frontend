@@ -30,6 +30,7 @@ export const componenetSelect = (
 
 export const quantityCell = ({ row }, inputHandler) => (
   <Input
+    type="number"
     style={{ border: row.qtyApproval && "1px solid red" }}
     value={row.qty}
     onChange={(e) => inputHandler("qty", e.target.value, row.id)}
@@ -40,6 +41,7 @@ export const quantityCell = ({ row }, inputHandler) => (
 export const rateCell = ({ row }, inputHandler, currencies) => (
   <Input.Group compact>
     <Input
+      type="number"
       style={{ width: "65%", border: row.rateAppr && "1px solid red" }}
       value={row.rate}
       onChange={(e) => inputHandler("rate", e.target.value, row.id)}

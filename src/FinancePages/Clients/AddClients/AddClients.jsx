@@ -258,7 +258,7 @@ export default function AddClients() {
                           label="Phone Number"
                           rules={rules.phone}
                         >
-                          <Input size="default" />
+                          <Input type="number" size="default" />
                         </Form.Item>
                       </Col>
 
@@ -269,7 +269,7 @@ export default function AddClients() {
                           label="Mobile Number"
                           rules={rules.mobileNo}
                         >
-                          <Input size="default" />
+                          <Input type="number" size="default" />
                         </Form.Item>
                       </Col>
                     </Row>

@@ -354,9 +354,10 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                       name="vendor_term_days"
                     >
                       <InputNumber
+                        type="number"
                         style={{ width: "100%" }}
                         size="default"
-                        min={1}
+                        min={1} 
                         max={999}
                       />
                     </Form.Item>

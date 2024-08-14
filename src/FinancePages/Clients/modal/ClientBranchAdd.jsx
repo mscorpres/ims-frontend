@@ -386,7 +386,7 @@ function ClientBranchAdd({ branchAddOpen, setBranchAddOpen }) {
                     },
                   ]}
                 >
-                  <Input size="default" />
+                  <Input type="number" size="default" />
                 </Form.Item>
               </Col>
 
@@ -402,7 +402,7 @@ function ClientBranchAdd({ branchAddOpen, setBranchAddOpen }) {
                     },
                   ]}
                 >
-                  <Input size="default" />
+                  <Input type="number"  size="default" />
                 </Form.Item>
               </Col>
 

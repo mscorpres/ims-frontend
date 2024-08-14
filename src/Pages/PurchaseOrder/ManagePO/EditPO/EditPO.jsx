@@ -452,6 +452,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                           style={{ width: "100%" }}
                           size="default"
                           min={1}
+                          type="number"
                           max={999}
                         />
                       </Form.Item>

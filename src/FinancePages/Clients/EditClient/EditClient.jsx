@@ -281,7 +281,7 @@ function EditClient({
                     },
                   ]}
                 >
-                  <Input />
+                  <Input type="number" />
                 </Form.Item>
               </Col>
             </Row>

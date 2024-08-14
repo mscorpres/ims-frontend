@@ -62,7 +62,7 @@ const FormTable2 = ({
               )}
             </td>
           )}
-          {columns.map((col) =>
+          {columns?.map((col) =>
             !col.conditional ? (
               <td style={columnHeaderStyle(col)}>
                 <Typography.Text style={{ fontSize: "0.8rem" }} strong>

@@ -922,6 +922,7 @@ export default function CreatePo() {
                               size="default"
                               min={1}
                               max={999}
+                              type="number"
                             />
                           </Form.Item>
                         </Col>

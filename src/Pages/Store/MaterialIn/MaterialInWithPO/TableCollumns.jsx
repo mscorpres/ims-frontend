@@ -24,6 +24,7 @@ export const QuantityCell = ({ row }, inputHandler) => (
 export const rateCell = ({ row }, inputHandler, currencies) => (
   <Input.Group compact>
     <Input
+      type="number"
       style={{ width: "65%" }}
       value={row.orderrate}
       onChange={(e) => inputHandler("orderrate", e.target.value, row.id)}

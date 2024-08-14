@@ -402,7 +402,7 @@ export default function SingleComponent({
       </Col> */}
           <Col span={3}>
             <Form.Item label="Invoice Qty" name={[field.name, "vbtBillQty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
@@ -430,7 +430,7 @@ export default function SingleComponent({
               }
               onFocus={() => showRateWarning()}
             >
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           {/* </Tooltip> */}
@@ -444,7 +444,7 @@ export default function SingleComponent({
           )} */}
           <Col span={3}>
             <Form.Item label="Value" name={[field.name, "taxableValue"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
@@ -459,7 +459,7 @@ export default function SingleComponent({
           </Col>
           <Col span={2}>
             <Form.Item label="GST Rate" name={[field.name, "gstRate"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
@@ -826,7 +826,7 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="Invoice Qty" name={[field.name, "vbtBillQty"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={2}>
@@ -836,7 +836,7 @@ export default function SingleComponent({
           </Col>
           <Col span={2} offset={allTdsOptions.length === 0 && 1}>
             <Form.Item label="Price" name={[field.name, "vbtInRate"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
@@ -856,7 +856,7 @@ export default function SingleComponent({
           </Col>
           <Col span={2}>
             <Form.Item label="GST Rate" name={[field.name, "gstRate"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           {/* <Col span={2}>
@@ -886,7 +886,7 @@ export default function SingleComponent({
               </Col>
               <Col span={2}>
                 <Form.Item label="Freight" name={[field.name, "freightAmount"]}>
-                  <Input />
+                  <Input type="number" />
                 </Form.Item>
               </Col>
 
@@ -1029,6 +1029,7 @@ export default function SingleComponent({
                   name={[field.name, "tdsAssValue"]}
                 >
                   <Input
+                    type="number"
                     onBlur={() => {
                       form.setFields([
                         {
@@ -1059,17 +1060,17 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="INR Price" name={[field.name, "inrPrice"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>{" "}
           <Col span={3}>
             <Form.Item label="CIF Value" name={[field.name, "cifValue"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="CIF Price" name={[field.name, "cifPrice"]}>
-              <Input />
+              <Input type="number" />
             </Form.Item>
           </Col>
           <Col offset={allTdsOptions.length === 0 && 1} span={6}>
