@@ -10,7 +10,7 @@ import MapVBTModal from "../Shared/MapVBTModal";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { Button, Input, Row, Space } from "antd";
+import { Button, Form, Input, Modal, Row, Space } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
 import ConfirmModal from "../Shared/ConfirmModal";
@@ -22,7 +22,9 @@ import useApi from "../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import { getVendorOptions } from "../../../../api/general.ts";
 import MyButton from "../../../../Components/MyButton";
-
+import { FaInfoCircle } from "react-icons/fa";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { RiProhibitedLine } from "react-icons/ri";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("MIN/24-25/");
@@ -47,6 +49,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const { executeFun, loading: loading1 } = useApi();
   const [url, setUrl] = useState("");
   const [apiUrl, setApiUrl] = useState("");
+  const [ModalForm] = Form.useForm();
   useEffect(() => {
     if (editVbtDrawer) {
       setEditVBTCode(true);
@@ -86,7 +89,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     }
   }, [url]);
 
-  const vbtTableColumns = [
+  const vbtTableColumnsonesix = [
     {
       headerName: "Sr. No.",
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
@@ -123,6 +126,91 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       id: "min date",
     },
+
+    {
+      headerName: "ACTIONS",
+      button: true,
+      field: "action",
+      type: "actions",
+      flex: 1,
+      getActions: ({ row }) =>
+        (apiUrl == "vbt06" && row.vbp_status == "PENDING") ||
+        (apiUrl === "vbt01" && row.vbp_status == "PENDING")
+          ? [
+              <>
+                <GridActionsCellItem
+                  icon={
+                    <FaInfoCircle
+                      style={{ color: "#003E7E" }}
+                      onClick={() => disableVbt(row)}
+                    />
+                  }
+                />
+                <GridActionsCellItem
+                  icon={<AiFillEdit />}
+                  onClick={() => setEditingVBT([row.min_transaction])}
+                  label="Edit"
+                />
+              </>,
+            ]
+          : [
+              <>
+                <GridActionsCellItem
+                  icon={
+                    <RiProhibitedLine
+                      style={{ color: "red" }}
+                      // onClick={() => disableVbt(row)}
+                    />
+                  }
+                />
+                <GridActionsCellItem
+                  icon={<AiFillEdit />}
+                  onClick={() => setEditingVBT([row.min_transaction])}
+                  label="Edit"
+                />
+              </>,
+            ],
+    },
+  ];
+  const vbtTableColumnselse = [
+    {
+      headerName: "Sr. No.",
+      renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
+      sortable: true,
+      flex: 1,
+      id: "serial-no",
+      width: "8vw",
+    },
+    {
+      headerName: "Vendor Code",
+      field: "ven_code",
+      sortable: true,
+      flex: 1,
+      id: "vendor code",
+    },
+    {
+      headerName: "MIN ID",
+      field: "min_transaction",
+      sortable: true,
+      flex: 1,
+      id: "min id",
+    },
+    {
+      headerName: "PART ID",
+      field: "part_code",
+      flex: 1,
+      sortable: true,
+      id: "part id",
+    },
+    {
+      headerName: "MIN DATE",
+      field: "min_in_date",
+      flex: 1,
+      sortable: true,
+      id: "min date",
+    },
+
+   
     {
       headerName: "ACTIONS",
       button: true,
@@ -237,6 +325,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           id: v4(),
         };
       });
+
       setVBTData(arr);
     } else {
       toast.error(data.message.msg);
@@ -260,6 +349,79 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     { value: "vendor_wise", text: "Vendor Wise" },
   ];
 
+  const disableVbt = async (singleRow) => {
+    if (singleRow) {
+      ModalForm.setFieldValue("min_transaction", singleRow.min_transaction);
+      ModalForm.setFieldValue("part_code", singleRow.part_code);
+    }
+
+    Modal.confirm({
+      title: "Are you sure you want to disbale this VBT?",
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <Form form={ModalForm} layout="vertical">
+          <Form.Item
+            name="min_transaction"
+            label="Min Transaction"
+            rules={[
+              {
+                required: true,
+                message: "Please Enter Min Transaction Number!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="part_code"
+            label="Part Code"
+            // rules={rules.nos_of_boxes}
+            rules={[
+              {
+                required: true,
+                message: "Please Enter Part Code!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="remark"
+            label="Remark"
+            rules={[
+              {
+                required: true,
+                message: "Please Enter Remark!",
+              },
+            ]}
+          >
+            <Input.TextArea rows={3} placeholder="Please input the remark" />
+          </Form.Item>
+        </Form>
+      ),
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        await disabletheSelelcted(singleRow);
+      },
+    });
+  };
+  const disabletheSelelcted = async (singleRow) => {
+    const values = await ModalForm.validateFields();
+    const response = await imsAxios.put("/tally/vbt/disable_vbtprocess", {
+      min_transaction: values.min_transaction,
+      part_code: values.part_code,
+      remark: values.remark,
+    });
+    if (response.data.code === 200) {
+      toast.success(response.data.data.status);
+      getRows();
+    } else {
+      toast.error(response.data.message);
+    }
+  };
+  // ----------------------------
   useEffect(() => {
     if (wise == "min_wise") {
       setSearchInput("MIN/24-25/");
@@ -413,7 +575,11 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           <MyDataTable
             checkboxSelection={wise == "vendor_wise"}
             loading={searchLoading}
-            columns={vbtTableColumns}
+            columns={
+              apiUrl == "vbt06" || apiUrl == "vbt01"
+                ? vbtTableColumnsonesix
+                : vbtTableColumnselse
+            }
             data={vbtData}
             onSelectionModelChange={(newSelectionModel) => {
               setSelectedRows(newSelectionModel);
