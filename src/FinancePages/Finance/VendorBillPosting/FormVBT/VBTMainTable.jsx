@@ -159,15 +159,15 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                   icon={
                     <RiProhibitedLine
                       style={{ color: "red" }}
-                      // onClick={() => disableVbt(row)}
+                      onClick={() => toast.info(row.remark)}
                     />
                   }
                 />
-                <GridActionsCellItem
+                {/* <GridActionsCellItem
                   icon={<AiFillEdit />}
                   onClick={() => setEditingVBT([row.min_transaction])}
                   label="Edit"
-                />
+                /> */}
               </>,
             ],
     },
@@ -210,7 +210,6 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       id: "min date",
     },
 
-   
     {
       headerName: "ACTIONS",
       button: true,
@@ -370,7 +369,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
               },
             ]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
           <Form.Item
             name="part_code"
@@ -383,7 +382,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
               },
             ]}
           >
-            <Input />
+            <Input disabled />
           </Form.Item>
 
           <Form.Item
