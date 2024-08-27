@@ -6,6 +6,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import useApi from "../../../hooks/useApi.ts";
 import { getMINOptions } from "../../../api/general.ts";
 import {
+  downloadAttachement,
   downloadConsumptionList,
   getMINLabelRows,
   printMIN,
@@ -18,6 +19,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { PrinterFilled } from "@ant-design/icons";
 import LabelDrawer from "./LabelDrawer";
+import { downloadFromLink } from "../../../utils/general.ts";
 
 const ViewMIN = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -59,6 +61,18 @@ const ViewMIN = () => {
       "print"
     );
   };
+  const handleDownloadAttachement = async (transactionId) => {
+    // console.log("transactionId", transactionId);
+
+    const response = await executeFun(
+      () => downloadAttachement(transactionId),
+      "download"
+    );
+    if (response.success) {
+      downloadFromLink(response.data.url);
+      // window.open(response.data.url, "_blank", "noreferrer");
+    }
+  };
   const actionColumns = [
     {
       headerName: "#",
@@ -74,7 +88,8 @@ const ViewMIN = () => {
         <GridActionsCellItem
           showInMenu
           // icon={<CloudDownloadOutlined className="view-icon" />}
-          onClick={() => handlePrintMIN(row.minId, "download")}
+          // onClick={() => handlePrintMIN(row.minId, "download")}
+          onClick={() => handleDownloadAttachement(row.minId)}
           disabled={row.invoiceStatus == false}
           label="Download Attachement"
         />,

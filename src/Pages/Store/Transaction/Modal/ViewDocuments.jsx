@@ -8,6 +8,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { downloadAttachement } from "../../../../api/store/material-in";
 import { downloadFromLink } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import { toast } from "react-toastify";
 
 function ViewDocuments() {
   const [minId, setMinId] = useState("");
@@ -31,7 +32,12 @@ function ViewDocuments() {
       console.log("arr", arr);
       setRows(arr);
       setLoading(false);
+    } else {
+      setLoading(false);
+
+      toast.error(response.message);
     }
+    setLoading(false);
   };
   const handleDownloadAttachement = async (transactionId) => {
     const response = await executeFun(
