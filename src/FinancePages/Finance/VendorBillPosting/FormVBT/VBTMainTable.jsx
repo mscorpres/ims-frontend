@@ -338,7 +338,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       setShowAllData(arr);
       setVBTData(arr);
       if (alldata) {
-        setCombinedDate([...arr, ...alldata]);
+        setCombinedDate(alldata);
         setExtracted(arr);
         // setVBTData(combinedData);
       }
