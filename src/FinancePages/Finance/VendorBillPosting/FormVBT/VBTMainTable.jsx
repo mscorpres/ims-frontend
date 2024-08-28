@@ -287,6 +287,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     // setLoading(false);
   };
   const getRows = async () => {
+    setPreviewdisData(false);
     let d;
     if (wise === "date_wise") {
       if (searchDateRange) {
@@ -443,7 +444,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     } else {
       setSearchInput(null);
     }
+
     setVBTData([]);
+    setPreviewdisData(false);
   }, [wise]);
   useEffect(() => {
     setToggleCleared((toggleCleared) => !toggleCleared);
@@ -596,8 +599,10 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           <Space>
             {(apiUrl == "vbt06" || apiUrl == "vbt01") && (
               <Checkbox
-                onClick={() => setPreviewdisData(!previewdisData)}
+                // onClick={() => setPreviewdisData(!previewdisData)}
                 disabled={vbtData.length == 0}
+                checked={previewdisData}
+                onChange={(e) => setPreviewdisData(e.target.checked)}
               >
                 Preview disabled data
               </Checkbox>
