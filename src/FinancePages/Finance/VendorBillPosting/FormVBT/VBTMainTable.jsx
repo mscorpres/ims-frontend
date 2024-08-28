@@ -10,7 +10,7 @@ import MapVBTModal from "../Shared/MapVBTModal";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { Button, Form, Input, Modal, Row, Space } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Row, Space, Switch } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
 import ConfirmModal from "../Shared/ConfirmModal";
@@ -38,6 +38,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [editingVBT, setEditingVBT] = useState(null);
   const [mapVBT, setMapVBT] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [previewdisData, setPreviewdisData] = useState(false);
   //////// confirm modal
   const [checkInvoiceId, setCheckInvoiceId] = useState("");
   const [confirmModal, setConfirmModal] = useState(false);
@@ -50,6 +51,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [url, setUrl] = useState("");
   const [apiUrl, setApiUrl] = useState("");
   const [ModalForm] = Form.useForm();
+  const [extracted, setExtracted] = useState([]);
+  const [combinedData, setCombinedDate] = useState([]);
+  const [showAllData, setShowAllData] = useState([]);
   useEffect(() => {
     if (editVbtDrawer) {
       setEditVBTCode(true);
@@ -283,6 +287,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     // setLoading(false);
   };
   const getRows = async () => {
+    setPreviewdisData(false);
     let d;
     if (wise === "date_wise") {
       if (searchDateRange) {
@@ -324,8 +329,20 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           id: v4(),
         };
       });
-
+      //for disable purpose
+      const alldata = data?.disable?.map((row) => {
+        return {
+          ...row,
+          id: v4(),
+        };
+      });
+      setShowAllData(arr);
       setVBTData(arr);
+      if (alldata) {
+        setCombinedDate(alldata);
+        setExtracted(arr);
+        // setVBTData(combinedData);
+      }
     } else {
       toast.error(data.message.msg);
       setVBTData([]);
@@ -427,7 +444,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     } else {
       setSearchInput(null);
     }
+
     setVBTData([]);
+    setPreviewdisData(false);
   }, [wise]);
   useEffect(() => {
     setToggleCleared((toggleCleared) => !toggleCleared);
@@ -435,6 +454,26 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   useEffect(() => {
     submitHandler();
   }, [createVBT, selectedVendors]);
+
+  useEffect(() => {
+    // console.log("previewdisData", previewdisData);
+    if (previewdisData) {
+      // console.log("combinedData", combinedData);
+      // console.log("extracted", extracted);
+      setVBTData(combinedData);
+    } else {
+      setVBTData(extracted);
+    }
+  }, [previewdisData]);
+  // useEffect(() => {
+  //   console.log("previewdisData", previewdisData);
+  //   if (previewdisData) {
+  //     console.log("combinedData", combinedData);
+  //     setShowAllData(combinedData);
+  //   } else {
+  //     setShowAllData(vbtData);
+  //   }
+  // }, [previewdisData]);
 
   return (
     <div style={{ height: "95%" }}>
@@ -515,7 +554,6 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                   )
                 )}
               </div>
-
               <MyButton
                 size="default"
                 disabled={
@@ -559,6 +597,16 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
             </Space>
           </div>
           <Space>
+            {(apiUrl == "vbt06" || apiUrl == "vbt01") && (
+              <Checkbox
+                // onClick={() => setPreviewdisData(!previewdisData)}
+                disabled={vbtData.length == 0}
+                checked={previewdisData}
+                onChange={(e) => setPreviewdisData(e.target.checked)}
+              >
+                Preview disabled data
+              </Checkbox>
+            )}
             <Button
               onClick={() => {
                 setMapVBT(apiUrl);
