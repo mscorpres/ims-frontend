@@ -595,7 +595,10 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           </div>
           <Space>
             {(apiUrl == "vbt06" || apiUrl == "vbt01") && (
-              <Checkbox onClick={() => setPreviewdisData(!previewdisData)}>
+              <Checkbox
+                onClick={() => setPreviewdisData(!previewdisData)}
+                disabled={vbtData.length == 0}
+              >
                 Preview disabled data
               </Checkbox>
             )}
