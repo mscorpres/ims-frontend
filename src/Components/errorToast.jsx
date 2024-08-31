@@ -9,5 +9,4 @@ const errorToast = (message) => {
   });
   return msg;
 };
-// 
 export default errorToast;
