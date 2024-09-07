@@ -108,6 +108,11 @@ const R1 = () => {
       headerName: "Last Purchase Price",
       width: 180,
     },
+    {
+      field: "currency",
+      headerName: "Currency",
+      width: 180,
+    },
   ];
 
   const handleDownloadingCSV = () => {
@@ -137,6 +142,7 @@ const R1 = () => {
         Closing: row.closing == 0 ? "0" : row.closing,
         "Order In Transit": row.transit_in == 0 ? "0" : row.transit_in,
         "Last Purchase Price": row.lastrate == 0 ? "0" : row.lastrate,
+        Currency: row.currency,
       };
     });
     downloadCSVCustomColumns(csvData, "Bom Wise Report");
