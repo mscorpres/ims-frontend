@@ -166,11 +166,7 @@ const R2 = () => {
       headerName: "Pending Qty",
       width: 150,
     },
-    {
-      field: "ordered_inward",
-      headerName: "Inward Qty",
-      width: 150,
-    },
+  
     {
       field: "vendor_code",
       headerName: "Vendor Code",
