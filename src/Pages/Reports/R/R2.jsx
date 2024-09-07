@@ -86,6 +86,11 @@ const R2 = () => {
       width: 150,
     },
     {
+      field: "ordered_inward",
+      headerName: "Inward Qty",
+      width: 150,
+    },
+    {
       field: "vendor_code",
       headerName: "Vendor Code",
       width: 100,
@@ -159,6 +164,11 @@ const R2 = () => {
     {
       field: "ordered_pending",
       headerName: "Pending Qty",
+      width: 150,
+    },
+    {
+      field: "ordered_inward",
+      headerName: "Inward Qty",
       width: 150,
     },
     {
