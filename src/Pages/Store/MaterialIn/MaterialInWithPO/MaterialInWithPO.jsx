@@ -44,11 +44,10 @@ import SuccessPage from "../SuccessPage";
 import { imsAxios } from "../../../../axiosInterceptor";
 import Loading from "../../../../Components/Loading";
 import { v4 } from "uuid";
-import { getVendorOptions } from "../../../../api/general";
-import { convertSelectOptions } from "../../../../utils/general";
+import { getVendorOptions } from "../../../../api/general.ts";
+import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
-import SingleDatePicker from "../../../../Components/SingleDatePicker";
 
 export default function MaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
@@ -82,12 +81,9 @@ export default function MaterialInWithPO({}) {
   const [codeCostCenter, setCodeCostCenter] = useState("");
   const [isScan, setIsScan] = useState(false);
   const [uplaoaClicked, setUploadClicked] = useState(false);
-  const [compDatalen, setCompDatalen] = useState([]);
-  const [compData, setCompData] = useState([]);
   const [form] = Form.useForm();
   const components = Form.useWatch("components", form);
   let costCode;
-  var componentData;
   const { executeFun, loading: loading1 } = useApi();
   const validateData = async () => {
     let validation = false;
@@ -96,8 +92,8 @@ export default function MaterialInWithPO({}) {
         row.c_partno &&
         row.currency &&
         row.gstrate &&
-        // row.invoiceDate &&
-        // row.invoiceId &&
+        row.invoiceDate &&
+        row.invoiceId &&
         row.location &&
         row.orderqty
       ) {
@@ -106,13 +102,13 @@ export default function MaterialInWithPO({}) {
         validation = false;
       }
     });
-    componentData = {
+    let componentData = {
       qty: [],
       rate: [],
       currency: [],
       exchange: [],
-      // invoice: [],
-      // invoiceDate: [],
+      invoice: [],
+      invoiceDate: [],
       hsncode: [],
       gsttype: [],
       gstrate: [],
@@ -127,11 +123,14 @@ export default function MaterialInWithPO({}) {
     if (validation == true) {
       let formData = new FormData();
       let values = await form.validateFields();
-      let a = values?.components;
+      let a = values.components;
       // let a = values.components.map((comp) => {
       //   formData.append("files", comp.file[0]?.originFileObj);
       // });
-      if (a?.length) {
+      if (a.length) {
+        if (!values.components[0]?.file) {
+          toast.info("Please upload Files");
+        }
         values.components.map((comp) => {
           formData.append("files", comp.file[0]?.originFileObj);
         });
@@ -145,8 +144,8 @@ export default function MaterialInWithPO({}) {
               ...componentData.exchange,
               row.exchange_rate == 0 ? 1 : row.exchange_rate,
             ],
-            // invoice: [...componentData.invoice, row.invoiceId],
-            // invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
+            invoice: [...componentData.invoice, row.invoiceId],
+            invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
             hsncode: [...componentData.hsncode, row.hsncode],
             gsttype: [...componentData.gsttype, row.gsttype],
             gstrate: [...componentData.gstrate, row.gstrate],
@@ -177,10 +176,7 @@ export default function MaterialInWithPO({}) {
           return toast.error("gst type of all components should be the same");
         }
         //uploading invoices
-        // console.log("this is the component data", componentData);
-        setCompData(componentData);
-        // console.log("thi=====================", componentData.gstrate.length);
-        setCompDatalen(componentData.component.length);
+        console.log("this is the component data", componentData);
         Modal.confirm({
           title: "Are you sure you want to submt this MIN",
           // icon: <ExclamationCircleFilled />,
@@ -199,25 +195,12 @@ export default function MaterialInWithPO({}) {
       toast.error("Please Provide all the values of all the components");
     }
   };
-  const validateInvoices = async (formData, componentData) => {
+  const validateInvoices = async (values) => {
     try {
-      // const invoices = values.componentData.invoice;
-      let values = await form.validateFields();
-      console.log("compData validateInvoices", compData);
-      // let newcompo = values.invoiceId;
-      var myArr = Array.from(
-        {
-          length: compDatalen,
-        },
-        () => values.invoiceId
-      );
-      // let obj = [{ invoice: myArr }];
-      // let compData = compData.concat(obj);
-      // let here = compData.push(obj);
-      console.log("here", compData);
+      const invoices = values.componentData.invoice;
       setSubmitLoading(true);
       const { data } = await imsAxios.post("/backend/checkInvoice", {
-        invoice: myArr,
+        invoice: invoices,
         vendor: searchData.vendor,
       });
       if (data) {
@@ -253,7 +236,6 @@ export default function MaterialInWithPO({}) {
         values.formData
       );
       if (fileData.code == "200") {
-        console.log("fileData", fileData);
         let final = {
           companybranch: "BRMSC012",
           invoices: fileData.data,
@@ -478,6 +460,7 @@ export default function MaterialInWithPO({}) {
     setMaterialInward(null);
   };
   const getVendors = async (search) => {
+    // if (search?.length > 2) {
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
     console.log("this is the vendor options", response.data);
@@ -486,6 +469,7 @@ export default function MaterialInWithPO({}) {
       console.log("this is the arr options", arr);
     }
     setAsyncOptions(arr);
+    // }
   };
   const resetFunction = () => {
     setPoData(resetPoData);
@@ -507,7 +491,6 @@ export default function MaterialInWithPO({}) {
 
     if (data.code == 200) {
       let obj = data.data;
-      console.log("obj", data?.data?.materials[0]?.pia_status);
       obj = {
         ...obj,
 
@@ -542,15 +525,11 @@ export default function MaterialInWithPO({}) {
         }),
       };
       costCode = obj.headers.cost_center_key;
+      // console.log("obj", costCode);
       setCodeCostCenter(costCode);
 
       setPoData(obj);
       setResetPoData(obj);
-      if (data.data.materials[0].pia_status == "Y") {
-        toast.info(
-          `PIA Status is enabled for ${data.data.materials[0].c_partno} Part Code.`
-        );
-      }
     } else {
       toast.error(data.message.msg);
       setPoData({ materials: [] });
@@ -635,20 +614,20 @@ export default function MaterialInWithPO({}) {
       renderCell: foreignCell,
       width: 120,
     },
-    // {
-    //   headerName: "Invoice ID",
-    //   field: "invoiceId",
-    //   sortable: false,
-    //   renderCell: (params) => invoiceIdCell(params, inputHandler),
-    //   width: 200,
-    // },
-    // {
-    //   headerName: "Invoice Date",
-    //   field: "invoiceDate",
-    //   sortable: false,
-    //   renderCell: (params) => invoiceDateCell(params, inputHandler),
-    //   width: 120,
-    // },
+    {
+      headerName: "Invoice ID",
+      field: "invoiceId",
+      sortable: false,
+      renderCell: (params) => invoiceIdCell(params, inputHandler),
+      width: 200,
+    },
+    {
+      headerName: "Invoice Date",
+      field: "invoiceDate",
+      sortable: false,
+      renderCell: (params) => invoiceDateCell(params, inputHandler),
+      width: 120,
+    },
     {
       headerName: "HSN Code",
       field: "hsncode",
@@ -1103,24 +1082,6 @@ export default function MaterialInWithPO({}) {
                           {poData?.headers?.gstin}
                         </Typography.Text>
                       )}
-                      <Form form={form} layout="vertical">
-                        <Row gutter={[6, 6]}>
-                          <Col span={12}>
-                            <Form.Item label="Invoice Date" name="invoiceDate">
-                              <SingleDatePicker
-                                setDate={(value) => {
-                                  form.setFieldValue("invoiceDate", value);
-                                }}
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={12}>
-                            <Form.Item label="Invoice Id" name="invoiceId">
-                              <Input />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Form>
                       <Col span={24}>
                         {/* <Form.Item name="QR"> */}
                         <Checkbox
