@@ -572,6 +572,20 @@ const App = () => {
       }
     }
   }, [navigate, user]);
+  useEffect(() => {
+    window.addEventListener("offline", (e) => {
+      console.log("offline", e);
+      toast(
+        "You are no longer connected to the Internet, please check your connection and try again."
+      );
+    });
+    window.addEventListener("online", (e) => {
+      toast(
+        "The internet has been restored. Kindly review your progress to ensure there is no duplication of data."
+      );
+      window.location.reload();
+    });
+  }, []);
 
   useEffect(() => {
     setModulesOptions([]);

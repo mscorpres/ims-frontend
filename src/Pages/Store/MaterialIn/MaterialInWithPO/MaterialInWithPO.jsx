@@ -128,6 +128,9 @@ export default function MaterialInWithPO({}) {
       //   formData.append("files", comp.file[0]?.originFileObj);
       // });
       if (a.length) {
+        if (!values?.components[0]?.file) {
+          toast.info("Please upload Files");
+        }
         values.components.map((comp) => {
           formData.append("files", comp.file[0]?.originFileObj);
         });
