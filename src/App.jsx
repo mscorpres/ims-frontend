@@ -603,6 +603,17 @@ const App = () => {
       }
     }
   }, [navigate, user]);
+  const handleClick = () => {
+    const result = window.confirm(
+      "The internet is back online. Would you like to reload to prevent any data duplication? Please note that this will result in the loss of your current progress."
+    );
+    if (result) {
+      console.log("User clicked OK");
+      window.location.reload();
+    } else {
+      console.log("User clicked Cancel");
+    }
+  };
   useEffect(() => {
     window.addEventListener("offline", (e) => {
       console.log("offline", e);
@@ -611,10 +622,11 @@ const App = () => {
       );
     });
     window.addEventListener("online", (e) => {
-      toast(
-        "The internet has been restored. Kindly review your progress to ensure there is no duplication of data."
-      );
-      window.location.reload();
+      handleClick();
+      // toast(
+      //   "The internet has been restored. Kindly review your progress to ensure there is no duplication of data."
+      // );
+      // window.location.reload();
     });
   }, []);
 
