@@ -206,8 +206,10 @@ const QaProcessMap = () => {
       qaProcessData
     );
     setLoading1(false);
-    if (response.data.status === "success") {
-      toast.success(response.data.message.msg);
+    console.log("response", response);
+
+    if (response?.data?.status === "success" || response?.success == true) {
+      toast.success(response.message);
       setQaProcessInput([
         {
           id: v4(),
@@ -503,20 +505,22 @@ const QaProcessMap = () => {
         },
         processLevel: row.qa_process_level,
         ProcessLocation: {
-          text: row.process_loc.name,
+          label: row.process_loc.name,
           value: row.process_loc.key,
         },
         passLocation: {
-          text: row.pass_loc.name,
+          label: row.pass_loc.name,
           value: row.pass_loc.key,
         },
         failLocation: {
-          text: row.fail_loc.name,
+          label: row.fail_loc.name,
           value: row.fail_loc.key,
         },
         lot_size: row.qa_lot_size,
         processRemark: row.qa_process_remark,
       }));
+      console.log("arr", arr);
+
       setQaProcessInput(arr);
       return {
         success: true,
