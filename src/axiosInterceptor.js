@@ -3,11 +3,23 @@ import { toast } from "react-toastify";
 
 let socketLink = import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const imsLink = import.meta.env.VITE_REACT_APP_API_BASE_URL; //for net
+const formatTimestamp = () => {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const year = String(now.getFullYear()).slice(-4); // Last 2 digits of the year
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
 
+  return `${day}${month}${year}${hours}${minutes}${seconds}`;
+};
+const timestamp = formatTimestamp();
 const imsAxios = axios.create({
   baseURL: imsLink,
   headers: {
-    "x-csrf-token": JSON.parse(localStorage.getItem("loggedInUser"))?.token,
+    "x-csrf-token": JSON.parse(localStorage.getItem("loggedInUser"))?.token,    
+    "timeStamp": timestamp,
   },
 });
 
