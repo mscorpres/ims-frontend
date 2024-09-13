@@ -114,6 +114,7 @@ export default function Products() {
         show={showConfirm}
         hide={() => setShowConfirm(false)}
         submitHandler={handleCreateProduct}
+        loading={loading("submit")}
       />
       {selectedProduct && selectedProduct?.key && (
         <ProductDocuments
@@ -237,7 +238,7 @@ export default function Products() {
                   </Form.Item>
                   <Form.Item>
                     <MyButton
-                      loading={loading("submit")}
+                      loading={loading("submit") || loading("fetch")}
                       type="primary"
                       variant="submit"
                       onClick={validateHandler}
@@ -253,7 +254,7 @@ export default function Products() {
         <MyDataTable
           columns={[...actionColumns, ...columns]}
           data={rows}
-          loading={loading("fetch")}
+          loading={loading("fetch") || loading("submit")}
         />
       </Col>
     </Row>

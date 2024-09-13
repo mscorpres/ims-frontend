@@ -78,10 +78,7 @@ const ApprovalList = (props: Props) => {
       )}
 
       <Col sm={24} md={20} xl={16}>
-        <MyDataTable
-          columns={[...actionColumns, ...columns]}
-          data={rows?.reverse()}
-        />
+        <MyDataTable columns={[...actionColumns, ...columns]} data={rows} />
       </Col>
     </Row>
   );

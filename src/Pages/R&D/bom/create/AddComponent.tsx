@@ -237,6 +237,7 @@ const AddComponent = ({
           text={isBomUpdating ? "Update BOM" : "Create BOM"}
           loading={loading("final")}
           onClick={() => validateHandler("final")}
+          disabled={mainComponents.length === 0}
         />
         <MyButton
           variant="save"
@@ -244,6 +245,7 @@ const AddComponent = ({
           text="Save As Draft"
           loading={loading("draft")}
           onClick={() => validateHandler("draft")}
+          disabled={mainComponents.length === 0}
         />
       </Flex>
     </Card>
