@@ -1,8 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from 'uuid';
 
 let socketLink = import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const imsLink = import.meta.env.VITE_REACT_APP_API_BASE_URL; //for net
+const newId = uuidv4();
+console.log("newId-----",newId);
+
 const formatTimestamp = () => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
@@ -20,6 +24,7 @@ const imsAxios = axios.create({
   headers: {
     "x-csrf-token": JSON.parse(localStorage.getItem("loggedInUser"))?.token,    
     "timeStamp": timestamp,
+    "newId":newId
   },
 });
 
