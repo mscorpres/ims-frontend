@@ -1,11 +1,15 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from 'uuid';
-
 let socketLink = import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const imsLink = import.meta.env.VITE_REACT_APP_API_BASE_URL; //for net
-const newId = uuidv4();
-console.log("newId-----",newId);
+const generateUniqueId = () => {
+  return uuidv4();
+};
+
+// Example usage
+const newId = generateUniqueId();
+console.log('Generated Unique ID:', newId );
 
 const formatTimestamp = () => {
   const now = new Date();
@@ -23,10 +27,31 @@ const imsAxios = axios.create({
   baseURL: imsLink,
   headers: {
     "x-csrf-token": JSON.parse(localStorage.getItem("loggedInUser"))?.token,    
-    "timeStamp": timestamp,
-    "newId":newId
+  
   },
 });
+imsAxios.interceptors.request.use(
+  (config) => {
+    // Generate a new UUID and timestamp for each request
+    const newId = uuidv4();
+    const timestamp = formatTimestamp();
+
+    // Add headers
+    config.headers["timeStamp"] = timestamp;
+    config.headers["newId"] = newId;
+
+    // Optionally add branch and session
+    let branch = JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "BRMSC012";
+    let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "24-25";
+    config.headers["Company-Branch"] = branch;
+    config.headers["Session"] = session;
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 imsAxios.interceptors.response.use(
   (response) => {
