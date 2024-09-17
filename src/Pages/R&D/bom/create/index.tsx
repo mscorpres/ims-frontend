@@ -512,7 +512,7 @@ const BOMCreate = () => {
               show={showApproversMetrics}
               hide={() => setShowApproverMetrics(false)}
               submitHandler={submitHandler}
-              submitLoading={loading("final")}
+              submitLoading={loading("final") || loading("draft")}
               saveType={saveType}
             />
           </Flex>

@@ -137,7 +137,6 @@ const ApproverMetrics = ({
     }
     // console.log("app in update", approvers);
     // return;
-
     //
   };
 
@@ -259,7 +258,7 @@ const ApproverMetrics = ({
               (approvers && !approvers[0]?.approvers[0]?.user?.value)
             }
           >
-            Create BOM
+            {saveType == "draft" ? "Save As Draft" : "Create BOM"}
           </Button>{" "}
         </Col>{" "}
       </Row>
