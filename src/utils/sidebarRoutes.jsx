@@ -20,18 +20,16 @@ import {
   DeploymentUnitOutlined,
   DeliveredProcedureOutlined,
   CheckCircleOutlined,
-  ExperimentOutlined,
 } from "@ant-design/icons";
 import { RiBillFill } from "react-icons/ri";
 import { BiMoney, BiTransfer } from "react-icons/bi";
-import { FaBoxes, FaWarehouse } from "react-icons/fa";
+import { FaWarehouse } from "react-icons/fa";
 import { TbReportAnalytics } from "react-icons/tb";
 import { SiPaytm } from "react-icons/si";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import routeConstants from "../Routes/routeConstants";
-import { FaFileInvoiceDollar } from "react-icons/fa6";
 export const items = (user) => [
   getItem(
     "Favorites",
@@ -188,7 +186,7 @@ export const items = (user) => [
     ]),
     getItem("Others", "D9", <IoJournalSharp />, [
       getItem(
-        <Link to={routeConstants.finance.vendor.reco.report}>
+        <Link to={routeConstants.finance.vendor.reco.create}>
           Vendor Reconciliation
         </Link>
         // <AiOutlineMinus />
@@ -218,7 +216,7 @@ export const items = (user) => [
   getItem("Material Management", "B", <BiTransfer />, [
     getItem("Master", "B1", <BsFillHddStackFill />, [
       getItem(
-        <Link to="/uom">UOM</Link>,
+        <Link to="/uom">UoM</Link>,
         "Material Management/B11"
         // <AiOutlineMinus />
       ),
@@ -343,7 +341,7 @@ export const items = (user) => [
       ///
       getItem(
         <Link to="/warehouse/prod-return-MIN">Prod. Return MIN</Link>,
-        "B32"
+        "B33"
         // <AiOutlineMinus />
       ),
       getItem("MIN Edit/Reverse", "warehouse/minedit", <MdDashboard />, [
@@ -489,6 +487,16 @@ export const items = (user) => [
         "C52"
         // <AiOutlineMinus />
       ),
+      getItem(
+        <Link to="/sales/order/challan">Challan</Link>,
+        "C53"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/sales/order/shipments">Shipment</Link>,
+        "C54"
+        // <AiOutlineMinus />
+      ),
     ]),
     getItem("Reports", "B4", <TbReportAnalytics />, [
       getItem("Inventory Reports", "B41", <MdDashboard />, [
@@ -510,7 +518,7 @@ export const items = (user) => [
         //   // <AiOutlineMinus />
         // ),
         getItem(
-          <Link to="/r1">Reports R1 - R36 </Link>,
+          <Link to="/r1">Reports R1 - R35 </Link>,
 
           "B413"
           // <AiOutlineMinus />
@@ -598,7 +606,7 @@ export const items = (user) => [
         // <AiOutlineMinus />
       ),
       getItem(
-        <Link to="/report-qc">QC Report</Link>
+        <Link to="/report-qc">QC Report</Link>,
         "C134"
         // <AiOutlineMinus />
       ),
@@ -627,7 +635,7 @@ export const items = (user) => [
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
 
         getItem(
-          <Link to="/r1">Reports R1 - R36</Link>,
+          <Link to="/r1">Reports R1 - R35</Link>,
 
           "C413"
           // <AiOutlineMinus />
@@ -636,13 +644,13 @@ export const items = (user) => [
     ]),
     getItem(
       <Link to="/production/prodMis">Production MIS</Link>,
-      "C5",
-      <MdQueryStats />
+      "D1",
+      <MdAccountBox />
     ),
     getItem(
       <Link to="/production/physical-stock/create">Physical Stock</Link>,
-      "C6",
-      <FaBoxes />
+      "D5",
+      <MdAccountBox />
     ),
   ]),
   //Legal
@@ -710,50 +718,10 @@ export const items = (user) => [
   ]),
   getItem(<Link to="/sop">SOP's</Link>, "/sop", <FormOutlined />),
   getItem(
-    "Sales & Distribution",
-    "H",
-
-    <UnorderedListOutlined />,
-    [
-      getItem("Sales Order", "G1", <TbReportAnalytics />, [
-        getItem(
-          <Link to="/sales/order/create">Create order</Link>,
-          "H52"
-          // <AiOutlineMinus />
-        ),
-        getItem(<Link to="/sales/order/register">Register</Link>, "H51"),
-      ]),
-      getItem("Invoice", "H2", <FaFileInvoiceDollar />, [
-        getItem(<Link to="/invoice/create">Create</Link>, "H21"),
-      ]),
-    ]
+    <Link to="/invoice/create">Sales & Distribution</Link>,
+    "/invoice/create",
+    <UnorderedListOutlined />
   ),
-  getItem(
-    "Research and Development",
-    "Research and Development",
-    <ExperimentOutlined />,
-    [
-      getItem(
-        <Link to={routeConstants.researchAndDevelopment.products.create}>
-          Products
-        </Link>,
-        routeConstants.researchAndDevelopment.products.create
-      ),
-      getItem(
-        <Link to={routeConstants.researchAndDevelopment.bom.create}>
-          Bill of Material
-        </Link>,
-        routeConstants.researchAndDevelopment.bom.create
-      ),
-    ]
-  ),
-  // getItem(
-  //   <Link to={routeConstants.researchAndDevelopment.products}>
-  //     Research and Development
-  //   </Link>,
-  //   routeConstants.researchAndDevelopment.products,
-  //   <ExperimentOutlined />
-  // ),
   // user?.type == "developer"
   //   ? getItem(
   //       <Link to="/controlPanel/registeredUsers">Control Panel</Link>,
