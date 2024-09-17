@@ -803,6 +803,12 @@ const links = [
       routeName: "R35",
       routePath: "/r35",
 
+      placeholder: "Duplicate MIN",
+    },
+    {
+      routeName: "R36",
+      routePath: "/r36",
+
       placeholder: "SKUs Raw Material transaction Reco",
     },
   ],

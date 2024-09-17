@@ -255,6 +255,7 @@ import ViewDocuments from "@/Pages/Store/Transaction/Modal/ViewDocuments.jsx";
 import CompletedFgReturn from "@/Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
 import R35 from "@/Pages/Reports/R/R35.jsx";
+import R36 from "@/Pages/Reports/R/R36.jsx";
 import PIAScan from "@/Pages/Store/MINLabel/PIAScan.js";
 import Products from "@/Pages/R&D/products/index.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
@@ -775,6 +776,11 @@ const Routes = [
     path: "/r35",
 
     main: () => <R35 />,
+  },
+  {
+    path: "/r36",
+
+    main: () => <R36 />,
   },
   {
     path: "/reqWithBom",
