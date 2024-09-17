@@ -68,7 +68,9 @@ export const createBOM = async (
   //parsing approvers
   let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
-    // obj.stage = `L${obj.stage}`;
+    // console.log("row in create bom", row);
+
+    obj.stage = `L${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({
       ...app,
       // user: app.user?.value,

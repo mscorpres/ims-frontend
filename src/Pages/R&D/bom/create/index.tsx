@@ -292,6 +292,8 @@ const BOMCreate = () => {
       } else {
         navigate(routeConstants.researchAndDevelopment.bom.list);
       }
+    } else {
+      // setShowApproverMetrics(false);
     }
   };
   const normFile = (e) => {

@@ -3,7 +3,16 @@ import useApi from "@/hooks/useApi";
 import { ModalType, SelectOptionType } from "@/types/general";
 import { MultiStageApproverType } from "@/types/r&d";
 import { CloseCircleFilled, PlusCircleFilled } from "@ant-design/icons";
-import { Divider, Flex, Input, Modal, Typography } from "antd";
+import {
+  Button,
+  Col,
+  Divider,
+  Flex,
+  Input,
+  Modal,
+  Row,
+  Typography,
+} from "antd";
 import { useEffect, useState } from "react";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import { getUserOptions } from "@/api/general";
@@ -29,7 +38,16 @@ const ApproverMetrics = ({
   const [asyncOptions, setAsyncOptions] = useState([]);
 
   const { executeFun, loading } = useApi();
-
+  function getLastDigit(input) {
+    // Match all digits in the string
+    const match = input.match(/\d+/g);
+    // If matches are found, return the last digit of the last match
+    if (match) {
+      const lastMatch = match[match.length - 1]; // Get the last numeric string
+      return lastMatch[lastMatch.length - 1]; // Return the last digit of the last numeric string
+    }
+    return null; // Return null if no digits are found
+  }
   const handleFetchUserOptions = async (search: string) => {
     const response = await executeFun(() => getUserOptions(search), "select");
     setAsyncOptions(response.data ?? []);
@@ -55,8 +73,11 @@ const ApproverMetrics = ({
         return row;
       }
     });
-
-    setApprovers(arr);
+    if (approvers) {
+      const updatedData = convertStageToNumber(arr);
+      setApprovers(updatedData);
+    }
+    // setApprovers(arr);
   };
 
   const handleDeleteApprover = (stage: number, line: number) => {
@@ -77,8 +98,11 @@ const ApproverMetrics = ({
       }
       return obj;
     });
-
-    setApprovers(arr);
+    if (approvers) {
+      const updatedData = convertStageToNumber(arr);
+      setApprovers(updatedData);
+    }
+    // setApprovers(arr);
   };
 
   const handleUpdateApprover = (
@@ -106,8 +130,15 @@ const ApproverMetrics = ({
         return row;
       }
     });
+    // setApprovers(arr);
+    if (approvers) {
+      const updatedData = convertStageToNumber(arr);
+      setApprovers(updatedData);
+    }
+    // console.log("app in update", approvers);
+    // return;
 
-    setApprovers(arr);
+    //
   };
 
   const handleAddApprover = (stage: number) => {
@@ -140,7 +171,12 @@ const ApproverMetrics = ({
         return row;
       }
     });
-    setApprovers(arr);
+    if (approvers) {
+      const updatedData = convertStageToNumber(arr);
+      setApprovers(updatedData);
+    }
+
+    // setApprovers(arr);
     // console.log("this is arr", arr);
   };
 
@@ -149,15 +185,47 @@ const ApproverMetrics = ({
   useEffect(() => {
     handleFetchFixedApprovers();
   }, []);
+  function getLastDigit(input) {
+    // Match all digits in the string
+    const match = input.match(/\d+/g);
+    // If matches are found, return the last digit of the last match
+    if (match) {
+      const lastMatch = match[match.length - 1]; // Get the last numeric string
+      return lastMatch[lastMatch.length - 1]; // Return the last digit of the last numeric string
+    }
+    return null; // Return null if no digits are found
+  }
+  function convertStageToNumber(data) {
+    // console.log("data ub ", data);
+
+    return data.map((item) => {
+      if (typeof item.stage === "string") {
+        // console.log(" item.stage", item.stage);
+
+        // Extract the numeric part from the string using a regular expression
+        const match = item.stage.match(/\d+/);
+        // console.log("match", match);
+
+        // Replace `stage` with the extracted number, if found
+        item.stage = match ? parseInt(match[0], 10) : item.stage;
+      }
+      return item;
+    });
+  }
+
+  // console.log("approvaers fr modal dsiable", approvers);
+
   return (
     <Modal
       style={{ minWidth: "30vw" }}
       open={show}
       onCancel={hide}
       title="Approver Metrics"
-      okText="Create BOM"
-      confirmLoading={submitLoading}
-      onOk={() => submitHandler(saveType)}
+      // okText="Create BOM"
+      // confirmLoading={submitLoading}
+      // onOk={() => submitHandler(saveType)}
+      // disa
+      footer={null}
     >
       <Flex vertical style={{ minHeight: "70vh" }}>
         {approvers.map((approver) => (
@@ -171,9 +239,30 @@ const ApproverMetrics = ({
             handleDeleteApprover={handleDeleteApprover}
             handleAddApprover={handleAddApprover}
             handleUpdateApprover={handleUpdateApprover}
+            convertStageToNumber={convertStageToNumber}
           />
         ))}
       </Flex>
+      <Row justify={"end"}>
+        {" "}
+        <Col span={3}>
+          <Button onClick={hide}>Cancel</Button>{" "}
+        </Col>
+        <Col span={5}>
+          <Button
+            loading={submitLoading}
+            onClick={() => submitHandler(saveType)}
+            type="primary"
+            disabled={
+              (approvers && !approvers[2]?.approvers[0]?.user?.value) ||
+              (approvers && !approvers[1]?.approvers[0]?.user?.value) ||
+              (approvers && !approvers[0]?.approvers[0]?.user?.value)
+            }
+          >
+            Create BOM
+          </Button>{" "}
+        </Col>{" "}
+      </Row>
     </Modal>
   );
 };
@@ -203,11 +292,12 @@ const Stage = ({
   handleDeleteApprover,
   handleAddApprover,
   handleUpdateApprover,
+  convertStageToNumber,
 }: StageProps) => {
   return (
     <Flex vertical>
       <Flex justify="space-between">
-        <Typography.Title level={5}>L-{stage.stage}</Typography.Title>
+        <Typography.Title level={5}>L-{stage?.stage}</Typography.Title>
         <IconButton
           onClick={() => handleAddApprover(stage.stage)}
           icon={
