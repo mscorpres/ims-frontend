@@ -805,11 +805,12 @@ const links = [
 
       placeholder: "Duplicate MIN",
     },
+    //
     {
       routeName: "R36",
       routePath: "/r36",
 
-      placeholder: "SKUs Raw Material transaction Reco",
+      placeholder: "Duplicate",
     },
   ],
   // MIN label links

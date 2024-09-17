@@ -28,7 +28,7 @@ function R36() {
     selectProduct: "",
     selectBom: "",
   });
-  const [resData, setResData] = useState([]);
+  //   const [resData, setResData] = useState([]);
   const [form] = Form.useForm();
   const prod = Form.useWatch("product", form);
   const bomVal = Form.useWatch("bom", form);
@@ -88,7 +88,7 @@ function R36() {
     setLoading(false);
   };
   const downloadHandler = () => {
-    downloadCSV(rows, columns, `R36 Report`);
+    // downloadCSV(rows, columns, `R36 Report`);
   };
   useEffect(() => {
     if (prod) {
