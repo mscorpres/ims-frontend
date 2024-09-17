@@ -265,10 +265,10 @@ const ManagePO = () => {
         }));
         setRows(arr);
       } else {
-        if (data.message) {
-          toast.error(data.message);
-        } else {
+        if (data.message.msg) {
           toast.error(data.message.msg);
+        } else {
+          toast.error(data.message);
         }
       }
     } else {

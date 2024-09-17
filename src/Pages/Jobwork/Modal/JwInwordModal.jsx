@@ -818,23 +818,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                 <Col span={24}>
                   <div style={{ textAlign: "end" }}>
                     {showBomList ? (
-                      // <NavFooter
-                      //   // loading={loading}
-                      //   submitFunction={saveFunction}
-                      //   backFunction={() => setEditModal(false)}
-                      //   // resetFunction={resetHandler}
-                      //   nextLabel="Submit"
-                      // />
                       <>
                         <Button onClick={prev}>Back</Button>
-                        {/* <Popconfirm
-                        placement="topLeft"
-                        title={text}
-                        onConfirm={saveFunction}
-                        loading={modalUploadLoad}
-                        okText="Yes"
-                        cancelText="No"
-                      > */}
+
                         <Button
                           style={{ marginLeft: 4 }}
                           type="primary"
@@ -844,7 +830,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                         >
                           Save
                         </Button>
-                        {/* </Popconfirm> */}
                       </>
                     ) : (
                       <NavFooter
@@ -855,27 +840,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                         nextLabel="Next"
                       />
                     )}
-
-                    {/* <Popconfirm
-                    placement="topLeft"
-                    title={text}
-                    // onConfirm={saveFunction}
-                    loading={modalUploadLoad}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button type="primary">Save</Button>
-                  </Popconfirm> */}
-                    {/* <Button
-                    onClick={() => setEditModal(false)}
-                    style={{ background: "red", color: "white", marginLeft: "5px" }}
-                  >
-                    Reset
-                  </Button> */}
-                    {/* 
-                  <Button type="primary" loading={modalUploadLoad} onClick={saveFunction}>
-                    Save
-                  </Button> */}
                   </div>
                 </Col>
               </Row>

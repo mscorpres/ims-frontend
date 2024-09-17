@@ -426,16 +426,19 @@ export default function CreateJW({}) {
     };
     setLoading("submitting", true);
     const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
-    setLoading("submitting", false);
+    // setLoading("submitting", false);
     const { data } = response;
     if (data) {
       if (data.code === 200) {
         toast.success(data.message);
         resetHandler();
+        setLoading("submitting", false);
       } else {
         toast.error(data.message.msg);
+        setLoading("submitting", false);
       }
     }
+    setLoading("submitting", false);
   };
   // reset handlerd
   const resetHandler = () => {

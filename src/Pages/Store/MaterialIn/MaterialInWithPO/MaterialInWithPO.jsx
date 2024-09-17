@@ -243,13 +243,14 @@ export default function MaterialInWithPO({}) {
         };
         final = { ...final, ...values.componentData };
         const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
-        setSubmitLoading(false);
+        // setSubmitLoading(false);
         if (data.code == "200") {
           setSearchData({
             vendor: "",
             poNumber: "",
           });
           setInvoices([]);
+          setSubmitLoading(false);
           setMaterialInSuccess({
             materialInId: data.transaction_id,
             poId: poData.headers.transaction,
@@ -269,9 +270,11 @@ export default function MaterialInWithPO({}) {
           });
           setIrnNum("");
         } else {
+          setSubmitLoading(false);
           toast.error(data.message.msg);
         }
       } else {
+        setSubmitLoading(false);
         toast.error(
           "Some error occured while uploading invoices, Please try again"
         );
