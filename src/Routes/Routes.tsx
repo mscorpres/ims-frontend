@@ -777,12 +777,12 @@ const Routes = [
 
     main: () => <R35 />,
   },
-  //
-  {
-    path: "/r36",
+  // //
+  // {
+  //   path: "/r36",
 
-    main: () => <R36 />,
-  },
+  //   main: () => <R36 />,
+  // },
   {
     path: "/reqWithBom",
     main: () => <ReqWithBom />,
