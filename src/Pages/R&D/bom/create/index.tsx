@@ -75,7 +75,7 @@ const BOMCreate = () => {
   const [showUpdateTypeModal, setShowUpdateTypeModal] = useState(false);
   const [latestVersion, setLatestVersion] = useState(null);
   const [saveType, setSaveType] = useState<null | "draft" | "final">(null);
-  const [showRedirectModal, setShowRedirectModal] = useState(false)
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -237,7 +237,17 @@ const BOMCreate = () => {
         return arr;
       });
     }
-    handleCancelEditing();
+    setIsEditing(false);
+    form.resetFields([
+      "component",
+      "type",
+      "qty",
+      "remarks",
+      "substituteOf",
+      "vendor",
+      "locations",
+    ]);
+    // handleCancelEditing();
   };
 
   const handleDeleteComponent = (
@@ -370,7 +380,6 @@ const BOMCreate = () => {
           // toast.info(
           //   " Kindly Approve that Previous Version of this BOM to create a new one"
           // );
-
         } else {
           console.log("here it is");
           if (!queryParams.get("sku") && !queryParams.get("version")) {
@@ -403,8 +412,8 @@ const BOMCreate = () => {
   };
 
   const handleCancelEditing = () => {
-    setIsEditing(false);
-    form.resetFields();
+    // setIsEditing(false);
+    // form.resetFields();
   };
 
   // downloadSampleComponentFile
