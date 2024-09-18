@@ -75,7 +75,7 @@ const BOMCreate = () => {
   const [showUpdateTypeModal, setShowUpdateTypeModal] = useState(false);
   const [latestVersion, setLatestVersion] = useState(null);
   const [saveType, setSaveType] = useState<null | "draft" | "final">(null);
-  const [showRedirectModal, setShowRedirectModal] = useState(false);
+  const [showRedirectModal, setShowRedirectModal] = useState(false)
 
   const navigate = useNavigate();
 
@@ -268,6 +268,23 @@ const BOMCreate = () => {
     setSaveType(action);
     setShowApproverMetrics(true);
   };
+  function convertStageToNumber(data) {
+    // console.log("data ub ", data);
+
+    return data.map((item) => {
+      if (typeof item.stage === "string") {
+        // console.log(" item.stage", item.stage);
+
+        // Extract the numeric part from the string using a regular expression
+        const match = item.stage.match(/\d+/);
+        // console.log("match", match);
+
+        // Replace `stage` with the extracted number, if found
+        item.stage = match ? parseInt(match[0], 10) : item.stage;
+      }
+      return item;
+    });
+  }
 
   const submitHandler = async (action: "final" | "draft") => {
     const values = await form.validateFields(["name", "version", "product"]);
@@ -286,6 +303,7 @@ const BOMCreate = () => {
     );
 
     if (response.success) {
+      setShowApproverMetrics(false);
       resetHandler();
       if (action === "draft") {
         navigate(routeConstants.researchAndDevelopment.bom.drafts);
@@ -293,6 +311,10 @@ const BOMCreate = () => {
         navigate(routeConstants.researchAndDevelopment.bom.list);
       }
     } else {
+      if (approvers) {
+        const updatedData = convertStageToNumber(approvers);
+        setApprovers(updatedData);
+      }
       // setShowApproverMetrics(false);
     }
   };
@@ -312,6 +334,7 @@ const BOMCreate = () => {
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
+    console.log("response", response);
 
     if (response.success) {
       if (response.data === null) {
@@ -319,6 +342,7 @@ const BOMCreate = () => {
         form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
         return;
       }
+
       if (
         response.data.isDraft === false &&
         queryParams.get("sku") &&
@@ -340,21 +364,30 @@ const BOMCreate = () => {
         // setSubComponents([]);
         // return;
       } else if (response.data && response.data.length === undefined) {
-        console.log("here it is");
-        if (!queryParams.get("sku") && !queryParams.get("version")) {
-          setShowRedirectModal(true);
-          return;
-        }
-        console.log("it is here down", response.data);
-        form.setFieldsValue(response.data);
-        setLatestVersion(response.data.latestVersion);
+        if (response.data.code == 417) {
+          // form.setFieldValue("version", "1.0");
+          // form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
+          // toast.info(
+          //   " Kindly Approve that Previous Version of this BOM to create a new one"
+          // );
 
-        setMainComponents(
-          response.data.components.filter((row) => row.type === "main")
-        );
-        setSubComponents(
-          response.data.components.filter((row) => row.type === "substitute")
-        );
+        } else {
+          console.log("here it is");
+          if (!queryParams.get("sku") && !queryParams.get("version")) {
+            setShowRedirectModal(true);
+            return;
+          }
+          console.log("it is here down", response.data);
+          form.setFieldsValue(response.data);
+          setLatestVersion(response.data.latestVersion);
+
+          setMainComponents(
+            response.data.components.filter((row) => row.type === "main")
+          );
+          setSubComponents(
+            response.data.components.filter((row) => row.type === "substitute")
+          );
+        }
       }
     }
   };

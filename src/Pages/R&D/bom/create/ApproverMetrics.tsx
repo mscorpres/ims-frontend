@@ -211,8 +211,14 @@ const ApproverMetrics = ({
       return item;
     });
   }
+  useEffect(() => {
+    if (approvers) {
+      const updatedData = convertStageToNumber(approvers);
+      setApprovers(updatedData);
+    }
+  }, [approvers]);
 
-  // console.log("approvaers fr modal dsiable", approvers);
+  console.log("approvaers fr modal dsiable", approvers);
 
   return (
     <Modal
@@ -244,10 +250,10 @@ const ApproverMetrics = ({
       </Flex>
       <Row justify={"end"}>
         {" "}
-        <Col span={3}>
+        <Col span={5}>
           <Button onClick={hide}>Cancel</Button>{" "}
         </Col>
-        <Col span={5}>
+        <Col span={6}>
           <Button
             loading={submitLoading}
             onClick={() => submitHandler(saveType)}
@@ -292,7 +298,10 @@ const Stage = ({
   handleAddApprover,
   handleUpdateApprover,
   convertStageToNumber,
+  
 }: StageProps) => {
+  console.log("stage", stage);
+
   return (
     <Flex vertical>
       <Flex justify="space-between">

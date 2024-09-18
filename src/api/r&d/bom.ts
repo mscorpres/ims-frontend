@@ -46,11 +46,10 @@ export const createBOM = async (
     url = "/bom/tempProduct";
   }
 
-  let version = +Number(
+  let version =
     values.latestVersion === "NaN" || !values.latestVersion
-      ? values.version
-      : values.latestVersion
-  ).toFixed(2);
+      ? +Number(values.version)
+      : +Number(values.latestVersion).toFixed(2);
 
   if (isUpdating) {
     if (updateType === "ecn") {
@@ -59,17 +58,17 @@ export const createBOM = async (
       version = +(version + 1).toFixed(0);
       version = version + ".0";
     }
+    version = Number(version).toFixed(2);
   } else {
     version = version + ".0";
+    version = Number(version).toFixed(1);
   }
 
-  version = Number(version).toFixed(2);
-
-  //parsing approvers
-  let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
+  // console.log("version", version);
+  let arr1: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
-    // console.log("row in create bom", row);
-
+    console.log("row in create bom", row);
+    // return;
     obj.stage = `L${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({
       ...app,
@@ -79,11 +78,31 @@ export const createBOM = async (
         value: app.user?.value,
         label: app.user?.label,
       },
-      fixed: undefined,
+      fixed: app.fixed,
     }));
 
     return obj;
   });
+  //parsing approvers
+  let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
+    let obj: CreateBOMType["approvalMetrics"][0] = row;
+    console.log("row in create bom", row);
+    // return;
+    obj.stage = `${obj.stage}`;
+    obj.approvers = obj.approvers.map((app) => ({
+      ...app,
+      // user: app.user?.value,
+      user: {
+        text: app.user?.label,
+        value: app.user?.value,
+        label: app.user?.label,
+      },
+      fixed: app.fixed,
+    }));
+
+    return obj;
+  });
+
   const payload: CreateBOMType = {
     components: values.components.map((row) => ({
       component:
@@ -106,7 +125,7 @@ export const createBOM = async (
     description: values.description,
     name: `${values.name} V-${version}`,
     sku: values.product.value ?? values.product,
-    approvalMetrics: arr,
+    approvalMetrics: arr1,
   };
 
   // return;
@@ -333,6 +352,11 @@ interface GetExistingBom {
   }[];
 }
 export const getExistingBom = async (sku: string, version: string) => {
+  console.log("version", version);
+  let v;
+  if (version == "1.0") {
+    v = "1.00";
+  }
   const response: ResponseType = await imsAxios.get(
     `/bom/checkExisting?sku=${sku}&version=${version}`
   );

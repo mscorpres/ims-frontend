@@ -93,6 +93,7 @@ const AddComponent = ({
   isBomUpdating,
   validateHandler,
   submitHandler,
+
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
@@ -217,6 +218,7 @@ const AddComponent = ({
 
         <MyButton
           variant="add"
+          disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
           onClick={
             isEditing !== false ? handleUpdateCompnent : handleAddComponents
