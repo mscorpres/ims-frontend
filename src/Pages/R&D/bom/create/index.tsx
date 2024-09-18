@@ -298,7 +298,7 @@ const BOMCreate = () => {
 
   const submitHandler = async (action: "final" | "draft") => {
     const values = await form.validateFields(["name", "version", "product"]);
-    setShowApproverMetrics(true);
+    setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
       () =>
@@ -474,7 +474,9 @@ const BOMCreate = () => {
         setUpdateType={setUpdateType}
         show={showUpdateTypeModal}
       />
-      {loading("fetch") && <Loading />}
+      {(loading("fetch") || loading("final") || loading("draft")) && (
+        <Loading />
+      )}
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
         <Col span={5} style={{ height: "100%", overflow: "auto" }}>
           <Flex vertical gap={5}>

@@ -179,7 +179,7 @@ const ApproverMetrics = ({
     // console.log("this is arr", arr);
   };
 
-  console.log("save type", saveType);
+  // console.log("save type", saveType);
 
   useEffect(() => {
     handleFetchFixedApprovers();
@@ -218,7 +218,7 @@ const ApproverMetrics = ({
     }
   }, [approvers]);
 
-  console.log("approvaers fr modal dsiable", approvers);
+  // console.log("approvaers fr modal dsiable", approvers);
 
   return (
     <Modal
@@ -255,7 +255,7 @@ const ApproverMetrics = ({
         </Col>
         <Col span={6}>
           <Button
-            loading={submitLoading}
+            // loading={submitLoading}
             onClick={() => submitHandler(saveType)}
             type="primary"
             disabled={
@@ -298,7 +298,6 @@ const Stage = ({
   handleAddApprover,
   handleUpdateApprover,
   convertStageToNumber,
-  
 }: StageProps) => {
   console.log("stage", stage);
 
