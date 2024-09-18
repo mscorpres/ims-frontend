@@ -72,13 +72,13 @@ export default function SuccessPage({
             <Col>
               <CommonIcons action={"refreshButton"} onClick={newMinFunction} />
             </Col>
-            <Col>
+            {/* <Col>
               <CommonIcons
                 loading={printLoading}
                 action={"printButton"}
                 onClick={printFun}
               />
-            </Col>
+            </Col> */}
             <Col>
               <CommonIcons
                 loading={downloadLoading}
