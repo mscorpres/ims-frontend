@@ -414,6 +414,7 @@ const BOMCreate = () => {
   const handleCancelEditing = () => {
     // setIsEditing(false);
     // form.resetFields();
+    // form.resetFields();
   };
 
   // downloadSampleComponentFile

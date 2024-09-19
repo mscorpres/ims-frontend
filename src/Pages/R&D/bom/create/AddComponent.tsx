@@ -120,7 +120,9 @@ const AddComponent = ({
   // useEffect(() => {
   //   if (!showUpdateTypeModal && !isBomUpdating) {
   //     resetHandler();
-  //   }
+  // }dateTypeModal && !isBomUpdating) {
+  //     resetHandler();
+  //
   // }, [mainComponents, subComponents]);
   return (
     <Card size="small" title="Add Components">

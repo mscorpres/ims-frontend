@@ -215,6 +215,7 @@ const ApproverMetrics = ({
   //   if (approvers) {
   //     const updatedData = convertStageToNumber(approvers);
   //     setApprovers(updatedData);
+  //     setApprovers(updatedData);
   //   }
   // }, [approvers]);
 

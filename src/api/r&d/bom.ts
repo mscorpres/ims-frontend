@@ -127,6 +127,7 @@ export const createBOM = async (
     sku: values.product.value ?? values.product,
     approvalMetrics: arr1,
   };
+  console.log("payload", payload);
 
   // return;
   const formData = new FormData();
