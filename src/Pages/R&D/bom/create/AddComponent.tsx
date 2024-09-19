@@ -116,7 +116,6 @@ const AddComponent = ({
     onChange: (info) =>
       info.file ? setSelectedFile(info.file) : setSelectedFile(null),
   };
-  // console.log("suvb ", subComponents?.length);
   // useEffect(() => {
   //   if (!showUpdateTypeModal && !isBomUpdating) {
   //     resetHandler();
