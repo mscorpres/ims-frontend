@@ -645,6 +645,8 @@ const Components = ({
   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
   handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
+  // console.log("rowsss", rows);
+
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
       {rows.length === 0 && <Empty />}
@@ -716,14 +718,15 @@ const Components = ({
                         {row.component.label ?? row.component.text}
                       </Typography.Text>
                     </Tooltip>
-                    <Typography.Text
+                    {/* //removed due to multiple showing  */}
+                    {/* <Typography.Text
                       style={{
                         fontSize: 13,
                         color: row.mfgCode?.length === 0 ? "red" : "black",
                       }}
                     >
                       {row.component.label ?? row.component.text}
-                    </Typography.Text>
+                    </Typography.Text> */}
                   </Col>
                   <Col span={2}>
                     <Typography.Text style={{ fontSize: 13 }}>
