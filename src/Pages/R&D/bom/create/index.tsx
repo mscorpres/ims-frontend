@@ -542,6 +542,7 @@ const BOMCreate = () => {
               isEditing={isEditing}
               loading={loading}
               mainComponents={mainComponents}
+              subComponents={subComponents}
               rules={rules}
               selectedFile={selectedFile}
               setAsyncOptions={setAsyncOptions}
@@ -759,12 +760,18 @@ const Components = ({
                           setIsEditing(index);
                         }}
                       />
-                      <CommonIcons
-                        action="deleteButton"
+                      <TableActions
+                        action="delete"
                         onClick={() =>
                           handleDeleteComponent(row.value, row.type)
                         }
                       />
+                      {/* <CommonIcons
+                        action="deleteButton"
+                        onClick={() =>
+                          handleDeleteComponent(row.value, row.type)
+                        }
+                      /> */}
                     </Flex>
                   </Col>
                 </>

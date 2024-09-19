@@ -211,12 +211,12 @@ const ApproverMetrics = ({
       return item;
     });
   }
-  useEffect(() => {
-    if (approvers) {
-      const updatedData = convertStageToNumber(approvers);
-      setApprovers(updatedData);
-    }
-  }, [approvers]);
+  // useEffect(() => {
+  //   if (approvers) {
+  //     const updatedData = convertStageToNumber(approvers);
+  //     setApprovers(updatedData);
+  //   }
+  // }, [approvers]);
 
   // console.log("approvaers fr modal dsiable", approvers);
 

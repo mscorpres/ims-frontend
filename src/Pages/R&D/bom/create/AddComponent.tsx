@@ -86,6 +86,7 @@ const AddComponent = ({
   rules,
   form,
   mainComponents,
+  subComponents,
   isEditing,
   handleCancelEditing,
   handleAddComponents,
@@ -93,7 +94,6 @@ const AddComponent = ({
   isBomUpdating,
   validateHandler,
   submitHandler,
-
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
@@ -116,7 +116,12 @@ const AddComponent = ({
     onChange: (info) =>
       info.file ? setSelectedFile(info.file) : setSelectedFile(null),
   };
-
+  // console.log("suvb ", subComponents?.length);
+  // useEffect(() => {
+  //   if (!showUpdateTypeModal && !isBomUpdating) {
+  //     resetHandler();
+  //   }
+  // }, [mainComponents, subComponents]);
   return (
     <Card size="small" title="Add Components">
       <Flex vertical align="center" gap={10}>
