@@ -34,6 +34,7 @@ const ApproverMetrics = ({
   submitHandler,
   submitLoading,
   saveType,
+  // initialApprovers,
 }: Props) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
 
@@ -54,11 +55,14 @@ const ApproverMetrics = ({
   };
 
   const handleFetchFixedApprovers = async () => {
+    // setApprovers(initialApprovers);
     const response = await executeFun(() => getFixedApprovers(), "fetch");
+    // console.log("response for fixed", response);
 
     let arr = approvers;
     arr = arr.map((row) => {
       const found = response.data.find((resRow) => resRow.stage === row.stage);
+      // console.log("response", found);
 
       if (found) {
         let obj = row;
@@ -73,6 +77,8 @@ const ApproverMetrics = ({
         return row;
       }
     });
+    // console.log("arr handleFetchFixedApprovers", arr);
+
     if (approvers) {
       const updatedData = convertStageToNumber(arr);
       setApprovers(updatedData);
@@ -83,6 +89,8 @@ const ApproverMetrics = ({
   const handleDeleteApprover = (stage: number, line: number) => {
     const arr = approvers.map((row) => {
       let obj = row;
+      // console.log("row in delate", obj);
+
       if (row.stage === stage) {
         //remove logic here
         obj = {
@@ -98,6 +106,8 @@ const ApproverMetrics = ({
       }
       return obj;
     });
+    // console.log("arr in deelte", arr);
+
     if (approvers) {
       const updatedData = convertStageToNumber(arr);
       setApprovers(updatedData);
@@ -300,8 +310,6 @@ const Stage = ({
   handleUpdateApprover,
   convertStageToNumber,
 }: StageProps) => {
-  console.log("stage", stage);
-
   return (
     <Flex vertical>
       <Flex justify="space-between">

@@ -126,7 +126,8 @@ const Approval = (props: PropTypes) => {
             )}
         </div>
       </Flex>
-      <Typography.Title level={5} style={{ marginTop: 10 }}>
+      {/* //asked by keshaav sir */}
+      {/* <Typography.Title level={5} style={{ marginTop: 10 }}>
         Stage 2 Approval
       </Typography.Title>
       <Divider />
@@ -169,7 +170,7 @@ const Approval = (props: PropTypes) => {
               <SingleDetail label="Approved On" value={"Not Approved"} />
             )}
         </div>
-      </Flex>
+      </Flex> */}
     </Modal>
   );
 };

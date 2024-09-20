@@ -183,7 +183,7 @@ const columns = [
     field: "createdOn",
   },
   {
-    headerName: "Version",
+    headerName: "RRN",
     width: 80,
     field: "version",
   },

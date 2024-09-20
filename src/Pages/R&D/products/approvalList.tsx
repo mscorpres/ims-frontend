@@ -7,16 +7,18 @@ import MyDataTable from "@/Components/MyDataTable.jsx";
 import { getProductsList } from "@/api/r&d/products";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import Approval from "@/Pages/R&D/products/approval";
+import AttachementList from "./AttachementList.jsx";
 
 type Props = {};
 
 const ApprovalList = (props: Props) => {
   const [rows, setRows] = useState([]);
+  const [showDocs, setShowDocs] = useState(false);
   const [showApprovalLogs, setShowApprovalLogs] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
     null
   );
-
+  const [attachlist, setAttachLsit] = useState([]);
   const { executeFun, loading } = useApi();
 
   const handleFetchProductList = async () => {
@@ -44,7 +46,7 @@ const ApprovalList = (props: Props) => {
           label={"Attachments"}
           onClick={() => {
             setShowDocs(true);
-            setSelectedProduct(row);
+            setAttachLsit(row);
           }}
         />,
         <GridActionsCellItem
@@ -63,6 +65,7 @@ const ApprovalList = (props: Props) => {
   useEffect(() => {
     handleFetchProductList();
   }, []);
+  // console.log("V", selectedProduct);
 
   return (
     <Row justify="center" style={{ padding: 10, height: "95%" }}>
@@ -75,9 +78,24 @@ const ApprovalList = (props: Props) => {
           }}
           productKey={selectedProduct.key ?? ""}
         />
-      )}
+      )}{" "}
+      {attachlist?.key && (
+        <AttachementList
+          attachlist={attachlist}
+          setAttachLsit={setAttachLsit}
+          showDocs={showDocs}
+          setShowDocs={setShowDocs}
 
-      <Col sm={24} md={20} xl={16}>
+          // setAttachLsit={setAttachLsit}
+          // attachlist={attachlist}
+          // hide={() => {
+          //   setShowDocs(false);
+          //   // setSelectedBOM(null);
+          // }}
+          // bom={selectedBOM}
+        />
+      )}
+      <Col sm={24} md={22} xl={20}>
         <MyDataTable columns={[...actionColumns, ...columns]} data={rows} />
       </Col>
     </Row>
@@ -91,7 +109,7 @@ const columns = [
   {
     headerName: "Product Name",
     field: "name",
-    flex: 1,
+    width: 200,
     renderCell: ({ row }: { row: ProductType }) => (
       <ToolTipEllipses text={row.name} />
     ),

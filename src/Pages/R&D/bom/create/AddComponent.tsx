@@ -247,14 +247,14 @@ const AddComponent = ({
           onClick={() => validateHandler("final")}
           disabled={mainComponents.length === 0}
         />
-        <MyButton
+        {/* <MyButton
           variant="save"
           type="default"
           text="Save As Draft"
           loading={loading("draft")}
-          onClick={() => validateHandler("draft")}
+          onClick={() => validateHandler("draft")} BOM Release Refrence No.(RRN)
           disabled={mainComponents.length === 0}
-        />
+        /> */}
       </Flex>
     </Card>
   );

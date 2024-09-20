@@ -138,6 +138,7 @@ const BOMCreate = () => {
     }
   };
   const handleAddComponents = async () => {
+    // setApprovers(initialApprovers);
     const values = await form.validateFields([
       "component",
       "qty",
@@ -196,6 +197,7 @@ const BOMCreate = () => {
   };
 
   const handleUpdateCompnent = async () => {
+    // setApprovers(initialApprovers);
     const values = await form.validateFields([
       "component",
       "qty",
@@ -275,6 +277,7 @@ const BOMCreate = () => {
 
   const validateHandler = async (action: "final" | "draft") => {
     await form.validateFields(["name", "version", "product"]);
+    // setApprovers(initialApprovers);
     setSaveType(action);
     setShowApproverMetrics(true);
   };
@@ -297,7 +300,12 @@ const BOMCreate = () => {
   }
 
   const submitHandler = async (action: "final" | "draft") => {
-    const values = await form.validateFields(["name", "version", "product"]);
+    const values = await form.validateFields([
+      "name",
+      "version",
+      "product",
+      "description",
+    ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
     const response = await executeFun(
@@ -313,13 +321,17 @@ const BOMCreate = () => {
     );
 
     if (response.success) {
+      window.location.reload();
+      // setApprovers(initialApprovers);
       setShowApproverMetrics(false);
       resetHandler();
-      if (action === "draft") {
-        navigate(routeConstants.researchAndDevelopment.bom.drafts);
-      } else {
-        navigate(routeConstants.researchAndDevelopment.bom.list);
-      }
+      // if (action === "draft") {
+      //   setApprovers(initialApprovers);
+      //   navigate(routeConstants.researchAndDevelopment.bom.drafts);
+      // } else {
+      //   setApprovers(initialApprovers);
+      //   navigate(routeConstants.researchAndDevelopment.bom.list);
+      // }
     } else {
       if (approvers) {
         const updatedData = convertStageToNumber(approvers);
@@ -334,19 +346,24 @@ const BOMCreate = () => {
     }
     return e?.fileList;
   };
+  // console.log("appppprovers in parent module", approvers);
 
   const handleFetchExistingBom = async (
     sku: string,
     version: string = "1.0"
   ) => {
+    // setApprovers(initialApprovers);
     console.log("going version", version);
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-    console.log("response", response);
+    console.log("response", response.data);
 
     if (response.success) {
+      // console.log("initialApprovers", initialApprovers);
+
+      // setApprovers(initialApprovers);
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
         form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
@@ -355,6 +372,7 @@ const BOMCreate = () => {
 
       if (
         response.data.isDraft === false &&
+        // response.data.isRejected === "false" &&
         queryParams.get("sku") &&
         queryParams.get("version")
       ) {
@@ -442,7 +460,16 @@ const BOMCreate = () => {
       resetHandler();
     }
   }, [showRedirectModal]);
-
+  // useEffect(() => {
+  //   if (
+  //     approvers &&
+  //     showApproversMetrics == false &&
+  //     (saveType == "draft" || saveType == "fianl")
+  //   ) {
+  //     console.log("here in useeefect");
+  //     setApprovers(initialApprovers);
+  //   }
+  // }, [showApproversMetrics]);
   useEffect(() => {
     if (selectedSubstituteOf) {
       const found = mainComponents.find(
@@ -458,6 +485,7 @@ const BOMCreate = () => {
       resetHandler();
     }
   }, [showUpdateTypeModal]);
+
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -495,7 +523,11 @@ const BOMCreate = () => {
               <Form.Item name="name" label="BOM Name" rules={rules.name}>
                 <Input />
               </Form.Item>
-              <Form.Item name="version" label="Version" rules={rules.version}>
+              <Form.Item
+                name="version"
+                label="BOM Release Refrence No.(RRN)"
+                rules={rules.version}
+              >
                 <Input disabled />
               </Form.Item>
 
@@ -560,6 +592,7 @@ const BOMCreate = () => {
               submitHandler={submitHandler}
               submitLoading={loading("final") || loading("draft")}
               saveType={saveType}
+              // initialApprovers={initialApprovers}
             />
           </Flex>
         </Col>

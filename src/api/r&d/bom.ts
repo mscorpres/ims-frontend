@@ -372,6 +372,7 @@ export const getExistingBom = async (sku: string, version: string) => {
           description: values.description,
           product: sku,
           isDraft: values.isDraft,
+          isRejected: values?.isRejected,
           latestVersion: values.latestVersion,
           version: values.selectedversion,
           id: values.bomID,
@@ -390,6 +391,8 @@ export const getExistingBom = async (sku: string, version: string) => {
             vendor: row.vendor,
             text: row.component.text,
             value: row.component.value,
+            mfgCode: row?.component?.manufacturingCode,
+            smtType: row?.component?.category,
           })),
         };
         response.data = obj;
