@@ -380,7 +380,6 @@ const BOMCreate = () => {
       }
       // return;
       if (response.data && Array.isArray(response.data)) {
-        // console.log("it should be here");
         // form.setFieldsValue({
         //   product: sku,
         //   name: sku.label ?? sku + response.data[0].version,
