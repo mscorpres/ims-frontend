@@ -372,7 +372,7 @@ const BOMCreate = () => {
 
       if (
         response.data.isDraft === false &&
-        // response.data.isRejected === "false" &&
+        response.data.isRejected === "false" &&
         queryParams.get("sku") &&
         queryParams.get("version")
       ) {
