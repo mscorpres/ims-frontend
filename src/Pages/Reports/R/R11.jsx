@@ -108,12 +108,18 @@ const R11 = () => {
       </Row>
 
       <div className="hide-select" style={{ height: "87%", margin: "10px" }}>
-        <MyDataTable
+        {/* <MyDataTable
           checkboxSelection={true}
           data={allData}
           columns={columns}
           loading={loading}
-        />
+        /> */}
+        <Row justify="center" span={24}>
+          <div style={{ justifyContent: "center" }}>
+            {" "}
+            This report is Disabled for the time being
+          </div>
+        </Row>
       </div>
     </div>
   );
