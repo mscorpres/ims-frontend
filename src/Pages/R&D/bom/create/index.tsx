@@ -361,8 +361,6 @@ const BOMCreate = () => {
     console.log("response", response.data);
 
     if (response.success) {
-      // console.log("initialApprovers", initialApprovers);
-
       // setApprovers(initialApprovers);
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
