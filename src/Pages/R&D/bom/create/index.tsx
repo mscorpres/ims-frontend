@@ -76,7 +76,8 @@ const BOMCreate = () => {
   const [latestVersion, setLatestVersion] = useState(null);
   const [saveType, setSaveType] = useState<null | "draft" | "final">(null);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
-
+  const [isBomRej, setIsBomRej] = useState(false);
+  const [bomId, setBomId] = useState("");
   const navigate = useNavigate();
 
   const [approvers, setApprovers] =
@@ -308,6 +309,7 @@ const BOMCreate = () => {
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
+
     const response = await executeFun(
       () =>
         createBOM(
@@ -315,7 +317,9 @@ const BOMCreate = () => {
           approvers,
           action,
           isBomUpdating,
-          updateType
+          updateType,
+          isBomRej,
+          bomId
         ),
       action
     );
@@ -396,6 +400,9 @@ const BOMCreate = () => {
           // );
         } else {
           console.log("here it is");
+          console.log("here it is", response.data?.id);
+          setBomId(response.data.id);
+          setIsBomRej(response.data.isRejected);
           if (!queryParams.get("sku") && !queryParams.get("version")) {
             setShowRedirectModal(true);
             return;

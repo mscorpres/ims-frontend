@@ -37,7 +37,9 @@ export const createBOM = async (
   approvals: MultiStageApproverType[],
   action: "final" | "draft",
   isUpdating: boolean,
-  updateType: bomUpdateType
+  updateType: bomUpdateType,
+  isBomRej,
+  bomId
 ) => {
   let url = "";
   if (action === "draft") {
@@ -64,7 +66,8 @@ export const createBOM = async (
     version = Number(version).toFixed(1);
   }
 
-  // console.log("version", version);
+  console.log("values", values);
+  console.log("isBomRej", bomId);
   let arr1: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
     console.log("row in create bom", row);
@@ -127,6 +130,30 @@ export const createBOM = async (
     sku: values.product.value ?? values.product,
     approvalMetrics: arr1,
   };
+  const RejBOMpayload: CreateBOMType = {
+    components: values.components.map((row) => ({
+      component:
+        typeof row.component === "object" ? row.component.value : row.component,
+      qty: row.qty,
+      remarks: row.remarks,
+      status: "active",
+      substitute:
+        typeof row.substituteOf === "object"
+          ? row.substituteOf?.value
+          : row.substituteOf,
+      type: row.type,
+      vendor:
+        typeof row.vendor === "object" && row.vendor
+          ? row.vendor?.value
+          : row.vendor,
+      location: row.locations,
+    })),
+    version: version,
+    description: values.description,
+    name: `${values.name} V-${version}`,
+    sku: values.product.value ?? values.product,
+    approvalMetrics: arr1,
+  };
   console.log("payload", payload);
 
   // return;
@@ -142,8 +169,12 @@ export const createBOM = async (
   values.documents?.map((row) => {
     formData.append("documents", row.originFileObj);
   });
-
-  const response = await imsAxios.post(url, formData);
+  let response;
+  if (isBomRej) {
+    response = await imsAxios.post(`/tempProduct/update/${bomId} `);
+  } else {
+    response = await imsAxios.post(url, formData);
+  }
   return response;
 };
 
