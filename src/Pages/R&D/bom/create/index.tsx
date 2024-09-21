@@ -376,7 +376,6 @@ const BOMCreate = () => {
       ) {
         setShowUpdateTypeModal(true);
       }
-      // return;
       if (response.data && Array.isArray(response.data)) {
         // form.setFieldsValue({
         //   product: sku,
