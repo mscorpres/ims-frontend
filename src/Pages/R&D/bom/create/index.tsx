@@ -391,7 +391,6 @@ const BOMCreate = () => {
         // });
         // setMainComponents([]);
         // setSubComponents([]);
-        // return;
       } else if (response.data && response.data.length === undefined) {
         if (response.data.code == 417) {
           // form.setFieldValue("version", "1.0");
