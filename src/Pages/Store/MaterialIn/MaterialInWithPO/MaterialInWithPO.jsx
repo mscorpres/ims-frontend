@@ -799,7 +799,7 @@ export default function MaterialInWithPO({}) {
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
       >
-        {pageLoading && <Loading />}
+        {(pageLoading || submitLoading == true) && <Loading />}
         <Col>
           <Space>
             <div style={{ width: 250 }}>
