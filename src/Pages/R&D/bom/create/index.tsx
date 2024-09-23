@@ -352,7 +352,6 @@ const BOMCreate = () => {
     }
     return e?.fileList;
   };
-  // console.log("appppprovers in parent module", approvers);
 
   const handleFetchExistingBom = async (
     sku: string,
