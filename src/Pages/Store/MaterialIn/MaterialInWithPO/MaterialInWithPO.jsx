@@ -229,6 +229,7 @@ export default function MaterialInWithPO({}) {
   const submitMIN = async (values, isScan) => {
     console.log("isScan", isScan);
     // return;
+    // log
     if (values.formData) {
       setSubmitLoading(true);
       const { data: fileData } = await imsAxios.post(
@@ -792,6 +793,7 @@ export default function MaterialInWithPO({}) {
     ];
     setTotalValues(obj);
   }, [poData]);
+  // log
   const { Text } = Typography;
   return (
     <div style={{ height: "90%", position: "relative" }}>
