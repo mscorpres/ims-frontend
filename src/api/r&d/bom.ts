@@ -171,7 +171,10 @@ export const createBOM = async (
   });
   let response;
   if (isBomRej) {
-    response = await imsAxios.post(`/tempProduct/update/${bomId}`, formData);
+    response = await imsAxios.post(
+      `/bom/tempProduct/update/${bomId}`,
+      formData
+    );
   } else {
     response = await imsAxios.post(url, formData);
   }
