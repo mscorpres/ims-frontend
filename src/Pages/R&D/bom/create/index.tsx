@@ -325,6 +325,8 @@ const BOMCreate = () => {
     );
 
     if (response.success) {
+      setBomId("");
+      setIsBomRej(false);
       window.location.reload();
       // setApprovers(initialApprovers);
       setShowApproverMetrics(false);
