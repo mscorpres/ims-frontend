@@ -71,6 +71,8 @@ export default function Products() {
       setShowConfirm(false);
       resetHandler();
       handleFetchProductList();
+    } else {
+      setShowConfirm(false);
     }
   };
 

@@ -254,7 +254,9 @@ const RemarksModal = (props: ModalProps) => {
     );
     if (response.success) {
       props.hide();
-      props.handleFetchLogs(props.details?.bom.key ?? "");
+      if (response?.data?.type == true) {
+        props.handleFetchLogs(props.details?.bom.key ?? "");
+      }
     }
   };
   useEffect(() => {
