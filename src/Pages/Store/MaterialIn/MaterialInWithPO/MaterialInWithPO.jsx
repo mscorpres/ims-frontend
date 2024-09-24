@@ -244,6 +244,8 @@ export default function MaterialInWithPO({}) {
         };
         final = { ...final, ...values.componentData };
         const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
+        console.log("data po min", data);
+
         // setSubmitLoading(false);
         if (data.code == "200") {
           setSearchData({
