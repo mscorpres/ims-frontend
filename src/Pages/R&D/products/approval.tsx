@@ -25,6 +25,7 @@ interface PropTypes extends ModalType {
 const Approval = (props: PropTypes) => {
   const [details, setDetails] = useState<ApprovalType | undefined>();
   const [showApprovingModal, setShowApprovingModal] = useState(false);
+  const [crns, setCrns] = useState([]);
   const [approveAction, setApproveAction] = useState<
     "approve" | "reject" | null
   >(null);
@@ -38,6 +39,11 @@ const Approval = (props: PropTypes) => {
     );
     if (response.success) {
       setDetails(response.data);
+
+      let crnString = response.data.approvalDetails1.crn;
+      let arr = crnString.split(", ").map((crn) => crn.trim());
+
+      setCrns(arr);
     }
   };
 
@@ -99,7 +105,7 @@ const Approval = (props: PropTypes) => {
         </Flex>
         <div>
           {details?.stage === "0" &&
-            user.id === details.approvalDetails1.crn && (
+            (user.id === crns[0] || user.id === crns[1]) && (
               <Space>
                 <MyButton
                   onClick={() => handleToggleApprovingModal("reject")}
@@ -121,7 +127,7 @@ const Approval = (props: PropTypes) => {
             />
           )}
           {details?.stage === "0" &&
-            user.id !== details.approvalDetails1.crn && (
+            (user.id !== crns[0] || user.id !== crns[1]) && (
               <SingleDetail label="Approved On" value={"Not Approved"} />
             )}
         </div>
