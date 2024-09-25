@@ -43,7 +43,7 @@ const BOMApproval = (props: PropTypes) => {
     setRejLogs({});
     const response = await executeFun(() => getRejLogs(bomKey), "fetch");
     let a = response.data[0].description;
-    
+
     const grouped = a.reduce((acc, item) => {
       if (!acc[item.stage]) {
         acc[item.stage] = [];
@@ -58,7 +58,6 @@ const BOMApproval = (props: PropTypes) => {
 
   console.log("these are the logs", logs);
   console.log("these are the user", user);
-  // console.log("props are the user", props);
   console.log(" rejlogs", rejlogs);
   useEffect(() => {
     // console.log("here");
