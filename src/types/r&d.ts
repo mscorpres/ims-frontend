@@ -41,6 +41,7 @@ export interface ApprovalType {
 
 export interface BOMType {
   name: string;
+  isAcive: boolean;
   product?: SelectOptionType | string;
   key?: string;
   sku?: string;
@@ -75,7 +76,7 @@ export interface BOMType {
 export interface BOMTypeExtended extends BOMType {
   currentApprover?: string;
   id: string;
-  latestVersion?: string;
+  isActive: string;
 }
 
 export interface BOMApprovalType {

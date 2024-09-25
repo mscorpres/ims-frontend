@@ -206,6 +206,7 @@ export const getBOMList = async (action: "final" | "draft") => {
     arr = obj.map((row, index: number) => ({
       currentApprover: row.currentApprover,
       description: row.description,
+      isActive: row?.isActive,
       name: row.name,
       sku: row.sku,
       key: row.bomID,
@@ -330,7 +331,41 @@ export const getLogs = async (bomKey: string) => {
   response.data = arr;
   return response;
 };
+export const getRejLogs = async (bomKey: string) => {
+  const response: ResponseType = await imsAxios.get(
+    `/bom/fetchRejection?bomID=${bomKey}`
+  );
+  let arr: BOMApprovalType | {} = {};
+  console.log("response rej bom ", response);
+  // return;
+  if (response.success) {
+    // const values: GetLogsType = response.data;
+    // arr = {
+    //   createdBy: values.details.createdBy,
+    //   createdOn: values.details.createdOn,
+    //   currentStage: values.details.stage,
+    //   isRejected: values.details.isRejected,
+    //   logs: values.logs.map((row) => ({
+    //     stage: row.stage,
+    //     approvers: row.approvers.map(
+    //       (app): MultiStageApproverType["approvers"][0] => ({
+    //         approvalNumber: app.approvalNumber,
+    //         line: app.line,
+    //         currentApprover: app.currentApprover,
+    //         email: app.Email_ID,
+    //         name: app.approverName,
+    //         remarks: app.remarks,
+    //         user: app.user,
+    //         remarksDate: app.remarksDate,
+    //       })
+    //     ),
+    //   })),
+    // };
+  }
 
+  // response.data[0] = arr;
+  return response;
+};
 interface updateStatusType {
   bomID: string;
   status: boolean;

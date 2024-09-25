@@ -40,6 +40,7 @@ const BOMList = () => {
     setRows(response.data);
   };
 
+  // console.log("selecteddddd", selectedBOM);
   const actionColumns = [
     {
       headerName: "",
@@ -48,7 +49,7 @@ const BOMList = () => {
       getActions: ({ row }: { row: BOMTypeExtended }) => [
         <GridActionsCellItem
           showInMenu
-          placeholder="Components and Logs"
+          placeholder="Components and Logss"
           label={"Components and Logs"}
           onClick={() => {
             setShowComponents(true);
@@ -191,6 +192,14 @@ const columns = [
     headerName: "Current Approver",
     width: 150,
     field: "currentApprover",
+  },
+  {
+    headerName: "Approved",
+    width: 150,
+    field: "isActive",
+    renderCell: ({ row }: { row: BOMTypeExtended }) => (
+      <ToolTipEllipses text={row?.isActive == true ? "Yes" : "No"} />
+    ),
   },
   {
     headerName: "Description",

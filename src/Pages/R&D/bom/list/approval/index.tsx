@@ -1,4 +1,4 @@
-import { getLogs, updateStatus } from "@/api/r&d/bom";
+import { getLogs, getRejLogs, updateStatus } from "@/api/r&d/bom";
 import useApi from "@/hooks/useApi";
 import { ModalType } from "@/types/general";
 import { BOMApprovalType, BOMTypeExtended } from "@/types/r&d";
@@ -26,6 +26,8 @@ interface PropTypes extends ModalType {
 }
 const BOMApproval = (props: PropTypes) => {
   const [logs, setLogs] = useState<BOMApprovalType | {}>({});
+  const [rejlogs, setRejLogs] = useState({});
+  const [isRejlen, setIsRejlen] = useState(false);
   const [approvalModalDetails, setApprovalModalDetails] = useState(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const { user } = useSelector((state) => state.login);
@@ -37,14 +39,65 @@ const BOMApproval = (props: PropTypes) => {
     console.log("logs response", response);
     setLogs(response.data);
   };
+  const handleRejectedFetchLogs = async (bomKey: string) => {
+    setRejLogs({});
+    const response = await executeFun(() => getRejLogs(bomKey), "fetch");
+    let a = response.data[0].description;
+    
+    const grouped = a.reduce((acc, item) => {
+      if (!acc[item.stage]) {
+        acc[item.stage] = [];
+      }
+      acc[item.stage].push(item);
+      return acc;
+    }, {});
+    // console.log("grop", grouped);
+
+    setRejLogs(grouped);
+    // setLogs(response.data);
+  };
 
   console.log("these are the logs", logs);
   console.log("these are the user", user);
+  // console.log("props are the user", props);
+  console.log(" rejlogs", rejlogs);
   useEffect(() => {
-    if (props.selectedBom && props.selectedBom?.key) {
+    // console.log("here");
+
+    if (
+      props.selectedBom &&
+      props.selectedBom?.key &&
+      props?.selectedBom?.isActive == true
+    ) {
       handleFetchLogs(props.selectedBom.key);
+    } else if (props?.selectedBom?.isActive == false) {
+      // console.log("props?.selectedBom?.isActive", props?.selectedBom?.isActive);
+
+      handleRejectedFetchLogs(props?.selectedBom?.key);
     }
   }, [props.show]);
+  const collapseItems = Object.entries(rejlogs).map(([stage, logs]) => ({
+    key: stage,
+    label: ` ${stage}`,
+    children: logs.map((log) => ({
+      key: log.id, // Unique key for each log
+      label: (
+        <div>
+          <Typography.Text strong>S-{log.line}</Typography.Text>{" "}
+          <div>{`Status: ${log?.status || "No status"} `}</div>{" "}
+          <div>{`Approver: ${log.userName} `}</div>{" "}
+          <div>{` Remark: ${log.remark || "No Remark"}`}</div>
+          <Divider />
+        </div>
+      ),
+    })),
+  }));
+
+  useEffect(() => {
+    if (collapseItems.length) {
+      setIsRejlen(true);
+    }
+  }, [collapseItems]);
   return (
     <>
       {loading("fetch") && <Loading />}
@@ -57,147 +110,162 @@ const BOMApproval = (props: PropTypes) => {
           setApprovalModalDetails(null);
         }}
       />
-      <Collapse
-        items={logs.logs?.map((log) => ({
-          key: log.stage,
-          label: `${log.stage}`,
-          children: (
-            <Collapse
-              items={log.approvers.map((row) => ({
-                key: row.line,
-                label: `S-${row.line}`,
-                children: (
-                  <Flex
-                    vertical
-                    gap={5}
-                    style={{
-                      opacity:
-                        row.remarksDate === null &&
-                        row.remarks === null &&
-                        !row.currentApprover
-                          ? 0.5
-                          : 1,
-                      pointerEvents:
-                        row.remarksDate === null &&
-                        row.remarks === null &&
-                        !row.currentApprover
-                          ? "none"
-                          : "all",
-                    }}
-                  >
-                    <Flex justify="space-between">
-                      <Flex vertical>
-                        <Typography.Text strong>{row.name}</Typography.Text>
-                        <Typography.Text
-                          type="secondary"
-                          style={{ fontSize: 13 }}
-                        >
-                          {row.email}
-                        </Typography.Text>
-                      </Flex>
-                    </Flex>
-                    {row.currentApprover &&
-                      !row.isRejected &&
-                      user?.id === row.user && (
-                        <Flex gap={5}>
-                          <MyButton
-                            onClick={() => {
-                              setShowApproveModal(true);
-                              setApprovalModalDetails({
-                                bom: props.selectedBom,
-                                stage: log.stage,
-                                line: row.line,
-                                type: "reject",
-                              });
-                            }}
-                            danger
-                            variant="clear"
-                            block
-                            text="Reject"
+      {isRejlen == true ? (
+        <Collapse>
+          {collapseItems?.map((item) => (
+            <Collapse.Panel header={item?.label} key={item?.key}>
+              {item.children.map((child) => (
+                <div key={child?.key}>{child?.label}</div>
+              ))}
+            </Collapse.Panel>
+          ))}
+        </Collapse>
+      ) : (
+        <Collapse
+          items={logs?.logs?.map((log) => ({
+            key: log.stage,
+            label: `${log.stage}`,
+            children: (
+              <Collapse
+                items={log.approvers.map((row) => ({
+                  key: row.line,
+                  label: `S-${row.line}`,
+                  children: (
+                    <Flex
+                      vertical
+                      gap={5}
+                      style={{
+                        opacity:
+                          row.remarksDate === null &&
+                          row.remarks === null &&
+                          !row.currentApprover
+                            ? 0.5
+                            : 1,
+                        pointerEvents:
+                          row.remarksDate === null &&
+                          row.remarks === null &&
+                          !row.currentApprover
+                            ? "none"
+                            : "all",
+                      }}
+                    >
+                      <Flex justify="space-between">
+                        <Flex vertical>
+                          <Typography.Text strong>{row.name}</Typography.Text>
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: 13 }}
                           >
-                            Reject
-                          </MyButton>
-                          <MyButton
-                            onClick={() => {
-                              setShowApproveModal(true);
-                              setApprovalModalDetails({
-                                bom: props.selectedBom,
-                                stage: log.stage,
-                                type: "approve",
-                                line: row.line,
-                              });
-                            }}
-                            variant="submit"
-                            block
-                            text="Approve"
-                          >
-                            Approve
-                          </MyButton>
+                            {row.email}
+                          </Typography.Text>
                         </Flex>
-                      )}
+                      </Flex>
+                      {row.currentApprover &&
+                        !row.isRejected &&
+                        user?.id === row.user && (
+                          <Flex gap={5}>
+                            <MyButton
+                              onClick={() => {
+                                setShowApproveModal(true);
+                                setApprovalModalDetails({
+                                  bom: props.selectedBom,
+                                  stage: log.stage,
+                                  line: row.line,
+                                  type: "reject",
+                                });
+                              }}
+                              danger
+                              variant="clear"
+                              block
+                              text="Reject"
+                            >
+                              Reject
+                            </MyButton>
+                            <MyButton
+                              onClick={() => {
+                                setShowApproveModal(true);
+                                setApprovalModalDetails({
+                                  bom: props.selectedBom,
+                                  stage: log.stage,
+                                  type: "approve",
+                                  line: row.line,
+                                });
+                              }}
+                              variant="submit"
+                              block
+                              text="Approve"
+                            >
+                              Approve
+                            </MyButton>
+                          </Flex>
+                        )}
 
-                    <Flex justify="space-between">
-                      <SingleDetail
-                        label="Status"
-                        value={
-                          row.currentApprover
-                            ? logs.isRejected
-                              ? "Rejected"
-                              : "Current"
-                            : row.remarksDate
-                            ? "Approved"
-                            : "pending"
-                        }
-                        style={
-                          {
-                            // color: row.currentApprover ? logs.isRejected :
+                      <Flex justify="space-between">
+                        <SingleDetail
+                          label="Status"
+                          value={
+                            row.currentApprover
+                              ? logs.isRejected
+                                ? "Rejected"
+                                : "Current"
+                              : row.remarksDate
+                              ? "Approved"
+                              : "pending"
                           }
-                        }
-                      />
+                          style={
+                            {
+                              // color: row.currentApprover ? logs.isRejected :
+                            }
+                          }
+                        />
+                        <SingleDetail
+                          label="Updated Date"
+                          value={row.remarksDate ?? "--"}
+                        />
+                      </Flex>
                       <SingleDetail
-                        label="Updated Date"
-                        value={row.remarksDate ?? "--"}
+                        label="Remarks"
+                        value={row.remarks ?? "--"}
                       />
+                      <Divider />
                     </Flex>
-                    <SingleDetail label="Remarks" value={row.remarks ?? "--"} />
-                    <Divider />
-                  </Flex>
-                ),
-                extra: (
-                  <div
-                    style={{
-                      height: 10,
-                      width: 10,
-                      marginTop: 7,
-                      borderRadius: "100%",
-                      background: row.currentApprover
-                        ? logs.isRejected
-                          ? "brown"
-                          : "green"
-                        : "transparent",
-                    }}
-                  />
-                ),
-              }))}
-            />
-          ),
-          extra: (
-            <div
-              style={{
-                height: 10,
-                width: 10,
-                marginTop: 7,
-                borderRadius: "100%",
-                background: log.approvers.find((row) => row.currentApprover)
-                  ? logs.isRejected
-                    ? "brown"
-                    : "green"
-                  : "transparent",
-              }}
-            />
-          ),
-        }))}
-      />
+                  ),
+                  extra: (
+                    <div
+                      style={{
+                        height: 10,
+                        width: 10,
+                        marginTop: 7,
+                        borderRadius: "100%",
+                        background: row.currentApprover
+                          ? logs.isRejected
+                            ? "brown"
+                            : "green"
+                          : "transparent",
+                      }}
+                    />
+                  ),
+                }))}
+              />
+            ),
+            extra: (
+              <div
+                style={{
+                  height: 10,
+                  width: 10,
+                  marginTop: 7,
+                  borderRadius: "100%",
+                  background: log.approvers.find((row) => row.currentApprover)
+                    ? logs.isRejected
+                      ? "brown"
+                      : "green"
+                    : "transparent",
+                }}
+              />
+            ),
+          }))}
+        />
+      )}
     </>
   );
 };
@@ -231,6 +299,7 @@ interface ModalProps extends ModalType {
     bom: BOMTypeExtended;
   } | null;
   handleFetchLogs: (bomKey: string) => void;
+  handleRejectedFetchLogs: (bomKey: string) => void;
 }
 
 const RemarksModal = (props: ModalProps) => {
@@ -254,8 +323,14 @@ const RemarksModal = (props: ModalProps) => {
     );
     if (response.success) {
       props.hide();
+      // console.log("esponse?.data?.type", response);
+
       if (response?.data?.type == true) {
         props.handleFetchLogs(props.details?.bom.key ?? "");
+      } else {
+        // console.log("here");
+
+        props.handleRejectedFetchLogs(props.details?.bom.key ?? "");
       }
     }
   };
