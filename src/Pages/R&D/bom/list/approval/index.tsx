@@ -53,11 +53,9 @@ const BOMApproval = (props: PropTypes) => {
     }, {});
 
     setRejLogs(grouped);
-    // setLogs(response.data);
   };
 
   console.log("these are the logs", logs);
-  console.log("these are the user", user);
   console.log(" rejlogs", rejlogs);
   useEffect(() => {
     // console.log("here");
