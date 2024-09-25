@@ -51,7 +51,6 @@ const BOMApproval = (props: PropTypes) => {
       acc[item.stage].push(item);
       return acc;
     }, {});
-    // console.log("grop", grouped);
 
     setRejLogs(grouped);
     // setLogs(response.data);
