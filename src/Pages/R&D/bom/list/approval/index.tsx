@@ -55,7 +55,6 @@ const BOMApproval = (props: PropTypes) => {
     setRejLogs(grouped);
   };
   console.log("these are the logs", logs);
-  console.log("these are the logs", logs);
   useEffect(() => {
     if (
       props.selectedBom &&
