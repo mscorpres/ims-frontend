@@ -56,7 +56,6 @@ const BOMApproval = (props: PropTypes) => {
   };
 
   console.log("these are the logs", logs);
-  console.log("these are the logs", logs);
   useEffect(() => {
     if (
       props.selectedBom &&
