@@ -194,11 +194,19 @@ const columns = [
     field: "currentApprover",
   },
   {
-    headerName: "Approved",
+    headerName: "Status",
     width: 150,
-    field: "isActive",
+    field: "status",
     renderCell: ({ row }: { row: BOMTypeExtended }) => (
-      <ToolTipEllipses text={row?.isActive == true ? "Yes" : "No"} />
+      <ToolTipEllipses
+        text={
+          row?.status == "REJECTED"
+            ? "Rejected"
+            : row?.status == "CLOSED"
+            ? "Closed"
+            : "Pending"
+        }
+      />
     ),
   },
   {

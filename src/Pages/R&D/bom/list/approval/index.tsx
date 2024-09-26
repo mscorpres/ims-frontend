@@ -55,13 +55,18 @@ const BOMApproval = (props: PropTypes) => {
     setRejLogs(grouped);
   };
   useEffect(() => {
+    console.log("props.selectedBom", props.selectedBom);
+
     if (
       props.selectedBom &&
       props.selectedBom?.key &&
-      props?.selectedBom?.isActive == true
+      (props?.selectedBom?.status == "PENDING" ||
+        props?.selectedBom?.status == "CLOSED")
     ) {
       handleFetchLogs(props.selectedBom.key);
-    } else if (props?.selectedBom?.isActive == false) {
+    }
+    // if (props?.selectedBom?.isActive == false)
+    else {
       // console.log("props?.selectedBom?.isActive", props?.selectedBom?.isActive);
 
       handleRejectedFetchLogs(props?.selectedBom?.key);

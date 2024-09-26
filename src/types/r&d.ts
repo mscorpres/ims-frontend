@@ -76,7 +76,7 @@ export interface BOMType {
 export interface BOMTypeExtended extends BOMType {
   currentApprover?: string;
   id: string;
-  isActive: string;
+  status: string;
 }
 
 export interface BOMApprovalType {

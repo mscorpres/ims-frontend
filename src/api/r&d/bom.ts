@@ -206,7 +206,7 @@ export const getBOMList = async (action: "final" | "draft") => {
     arr = obj.map((row, index: number) => ({
       currentApprover: row.currentApprover,
       description: row.description,
-      isActive: row?.isActive,
+      status: row?.status,
       name: row.name,
       sku: row.sku,
       key: row.bomID,
