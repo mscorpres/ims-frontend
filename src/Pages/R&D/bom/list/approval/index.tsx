@@ -58,8 +58,6 @@ const BOMApproval = (props: PropTypes) => {
   console.log("these are the logs", logs);
   console.log(" rejlogs", rejlogs);
   useEffect(() => {
-    // console.log("here");
-
     if (
       props.selectedBom &&
       props.selectedBom?.key &&
