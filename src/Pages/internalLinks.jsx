@@ -1165,6 +1165,7 @@ const links = [
     },
     // {
     //   routeName: "BOM Drafts",
+    //   routeName: "BOM Drafts",
     //   routePath: routeConstants.researchAndDevelopment.bom.drafts,
     // },
     {
