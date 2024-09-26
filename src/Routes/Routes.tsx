@@ -256,6 +256,10 @@ import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhy
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
 import RejectedPhysicalProduction from "@/Pages/Production/PhysicalStock/Rejected.jsx";
 import ViewPhysicalProduction from "@/Pages/Production/PhysicalStock/ViewPhysical.jsx";
+import Products from "@/Pages/R&D/products/index.js";
+import ApprovalList from "@/Pages/R&D/products/approvalList.js";
+import BOMCreate from "@/Pages/R&D/bom/create/index.js";
+import BOMList from "@/Pages/R&D/bom/list/index.js";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -1321,6 +1325,27 @@ const Routes = [
   {
     path: routeConstants.finance.vendor.reco.report,
     main: () => <ViewReconcilation />,
+  },
+  ///
+  {
+    path: routeConstants.researchAndDevelopment.products.create,
+    main: () => <Products />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.products.approval,
+    main: () => <ApprovalList />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.bom.create,
+    main: () => <BOMCreate />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.bom.list,
+    main: () => <BOMList />,
+  },
+  {
+    path: routeConstants.researchAndDevelopment.bom.drafts,
+    main: () => <BOMList />,
   },
   // CreateSalesOrder
   {

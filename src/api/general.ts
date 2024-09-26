@@ -1,6 +1,7 @@
 import { ResponseType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { imsAxios } from "../axiosInterceptor";
+import { RowProps } from "antd";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -200,6 +201,24 @@ export const getComponentStock = async (componentKey: string, type: "rm") => {
   return response;
 };
 
+export const getUserOptions = async (search: string) => {
+  const response = await imsAxios.post("/backend/fetchAllUser", {
+    search,
+  });
+
+  if (Array.isArray(response.data)) {
+    response.data = convertSelectOptions(response.data);
+  }
+
+  return response;
+};
+export const getUomOptions = async () => {
+  const response: ResponseType = await imsAxios.post("/uom/uomSelect2");
+
+  response.data = convertSelectOptions(response.data ?? []);
+
+  return response;
+};
 export const getPprOptions = async (search: string) => {
   const response = await imsAxios.post("/createqca/getPprNo", {
     searchTerm: search,
@@ -219,6 +238,25 @@ export const deleteQcaRows = async (payload) => {
 
   return response;
 };
+export const getComponentMfgCodeAndType = async (components: string[]) => {
+  const response: ResponseType = await imsAxios.post("/backend/checkMPN", {
+    search: components,
+  });
+
+  let arr = [];
+
+  if (response.success) {
+    arr = response.data.map((row) => ({
+      mfgCode: row.manufacturingCode,
+      category: row.category,
+      key: row.componentKey,
+    }));
+  }
+
+  response.data = arr;
+  return response;
+};
+
 export const getComponenentAndProduct = async (search: string) => {
   const response: ResponseType = await imsAxios.post(
     "/backend/getFGRMByNameAndNo",
@@ -240,3 +278,4 @@ export const getComponenentAndProduct = async (search: string) => {
 
   return response;
 };
+//

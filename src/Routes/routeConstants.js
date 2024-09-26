@@ -8,10 +8,14 @@ const routeConstants = {
     },
   },
   researchAndDevelopment: {
-    products: "/research-and-development/products",
+    products: {
+      create: "/research-and-development/products",
+      approval: "/research-and-development/products/approval",
+    },
     bom: {
       create: "/research-and-development/bom/create",
       list: "/research-and-development/bom/list",
+      drafts: "/research-and-development/bom/drafts",
     },
   },
   far: {
@@ -20,3 +24,5 @@ const routeConstants = {
 };
 // to trigger
 export default routeConstants;
+// navigate(`${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}`)
+// import routeConstants from "@/Routes/routeConstants.js";

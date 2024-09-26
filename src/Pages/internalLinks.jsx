@@ -1147,6 +1147,31 @@ const links = [
       routePath: routeConstants.finance.vendor.reco.report,
     },
   ],
+  [
+    {
+      routeName: "Products",
+      routePath: routeConstants.researchAndDevelopment.products.create,
+    },
+    {
+      routeName: "Pending Approval List",
+      routePath: routeConstants.researchAndDevelopment.products.approval,
+    },
+  ],
+  // r&d
+  [
+    {
+      routeName: "Create BOM",
+      routePath: routeConstants.researchAndDevelopment.bom.create,
+    },
+    // {
+    //   routeName: "BOM Drafts",
+    //   routePath: routeConstants.researchAndDevelopment.bom.drafts,
+    // },
+    {
+      routeName: "BOM List",
+      routePath: routeConstants.researchAndDevelopment.bom.list,
+    },
+  ],
   // task manager links
   [
     {
