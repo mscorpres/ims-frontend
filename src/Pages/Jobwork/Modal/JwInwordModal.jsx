@@ -64,6 +64,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         transaction: row.transaction_id,
       }
     );
+    console.log("data", data);
+
     if (data.code == 200) {
       console.log("data-------------------------", data.header.einvoice_status);
       getLocation(data.header.cost_center);
@@ -79,7 +81,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setMainData(arr);
       setHeaderData(data.header);
       setModalLoad("fetch", false);
+    } else if (data.code == 500) {
+      toast.error(data?.message?.msg);
     }
+    setModalLoad("fetch", false);
   };
   const getOption = async (e) => {
     if (e?.length > 2) {
