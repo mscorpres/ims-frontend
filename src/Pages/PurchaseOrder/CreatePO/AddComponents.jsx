@@ -44,6 +44,7 @@ export default function AddComponents({
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showCurrencyModal, setShowCurrencyModal] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [importes, setImport] = useState(false);
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
   const { executeFun, loading: loading1 } = useApi();
@@ -100,6 +101,8 @@ export default function AddComponents({
     setShowCurrencyUpdateConfirmModal(false);
     setRowCount(arr);
   };
+  console.log("Number(row.inrValue).toFixed(2)", rowCount);
+
   const inputHandler = async (name, value, id) => {
     let arr = rowCount;
 
@@ -455,6 +458,25 @@ export default function AddComponents({
         ),
       },
     ];
+    console.log("Sub-Total values after Taxes", obj);
+    console.log("totalValues values after Taxes", totalValues);
+    const cgst = obj.find((item) => item.label === "CGST").values[0];
+    const sgst = obj.find((item) => item.label === "SGST").values[0];
+    const igst = obj.find((item) => item.label === "IGST").values[0];
+
+    const totalTaxes = cgst + sgst + igst;
+    console.log("oho", totalTaxes);
+
+    // Check if total is greater than 0
+    if (totalTaxes > 0) {
+      console.log("--There are tax values:", totalTaxes);
+      //domestic
+      setImport(false);
+    } else {
+      console.log("----There No tax values present.");
+      setImport(true);
+    }
+
     setTotalValues(obj);
   }, [rowCount]);
   //getting currencies on page load
@@ -818,7 +840,7 @@ export default function AddComponents({
                               row.values?.reduce((partialSum, a) => {
                                 return partialSum + Number(a);
                               }, 0)
-                            ).toFixed(2)}
+                            ).toFixed(importes == true ? 4 : 2)}
                           </span>
                         </Col>
                       </Row>

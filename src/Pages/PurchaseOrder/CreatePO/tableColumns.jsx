@@ -67,8 +67,18 @@ export const disabledCell = ({ row }, value, inputHandler, suffix) => (
   />
 );
 export const taxableCell = ({ row }) => {
-  return <Input disabled={true} value={Number(row.inrValue).toFixed(2)} />;
+  return (
+    <Input
+      disabled={true}
+      value={
+        row.gstrate
+          ? Number(row.inrValue).toFixed(2)
+          : Number(row.inrValue).toFixed(4)
+      }
+    />
+  );
 };
+// };Number(row.inrValue).toFixed(2);
 export const foreignCell = ({ row }) => {
   return (
     <Input
