@@ -68,7 +68,6 @@ const ApprovalList = (props: Props) => {
   useEffect(() => {
     handleFetchProductList();
   }, []);
-  // console.log("V", selectedProduct);
 
   return (
     <Row justify="center" style={{ padding: 10, height: "95%" }}>
