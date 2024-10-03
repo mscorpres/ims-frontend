@@ -4,6 +4,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 
 import MyDataTable from "@/Components/MyDataTable.jsx";
 import ToolTipEllipses from "@/Components/ToolTipEllipses";
+import AttachementList from "./AttachementList.jsx";
 
 import Components from "@/Pages/R&D/bom/list/components";
 
@@ -24,6 +25,8 @@ const BOMList = () => {
   const [showComponents, setShowComponents] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
 
+  const [showDocs, setShowDocs] = useState(false);
+  const [attachlist, setAttachLsit] = useState([]);
   const { pathname: pathName } = useLocation();
   const navigate = useNavigate();
 
@@ -40,7 +43,7 @@ const BOMList = () => {
     setRows(response.data);
   };
 
-  // console.log("selecteddddd", selectedBOM);
+  console.log("attachlist", attachlist);
   const actionColumns = [
     {
       headerName: "",
@@ -60,10 +63,14 @@ const BOMList = () => {
           showInMenu
           placeholder="Attachments"
           label={"Attachments"}
+          // onClick={() => {
+          //   setShowAttachments(true);
+          //   setSelectedBOM(row);
           onClick={() => {
-            setShowAttachments(true);
-            setSelectedBOM(row);
+            setShowDocs(true);
+            setAttachLsit(row);
           }}
+          // }}
         />,
         <GridActionsCellItem
           showInMenu
@@ -112,14 +119,28 @@ const BOMList = () => {
   }, []);
   return (
     <Row justify="center" style={{ height: "95%", padding: 10 }}>
-      {selectedBOM && (
-        <Attachments
-          show={showAttachments}
-          hide={() => {
-            setShowAttachments(false);
-            setSelectedBOM(null);
-          }}
-          bom={selectedBOM}
+      {attachlist?.key && (
+        // <Attachments
+        //   show={showAttachments}
+        //   hide={() => {
+        //     setShowAttachments(false);
+        //     setSelectedBOM(null);
+        //   }}
+        //   bom={selectedBOM}
+        // />
+        <AttachementList
+          attachlist={attachlist}
+          setAttachLsit={setAttachLsit}
+          showDocs={showDocs}
+          setShowDocs={setShowDocs}
+
+          // setAttachLsit={setAttachLsit}
+          // attachlist={attachlist}
+          // hide={() => {
+          //   setShowDocs(false);
+          //   // setSelectedBOM(null);
+          // }}
+          // bom={selectedBOM}
         />
       )}
       {selectedBOM && (
@@ -129,6 +150,7 @@ const BOMList = () => {
           hide={() => {
             setShowComponents(false);
             setSelectedBOM(null);
+            handleFetchBOMList();
           }}
         />
       )}

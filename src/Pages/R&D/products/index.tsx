@@ -35,6 +35,8 @@ export default function Products() {
 
   const handleFetchProductList = async () => {
     const response = await executeFun(() => getProductsList(), "fetch");
+    console.log("response", response);
+
     setRows(response.data ?? []);
   };
 
@@ -342,6 +344,18 @@ const columns = [
   {
     headerName: "Approval Stage",
     field: "approvalStage",
+    renderCell: ({ row }: { row: ProductType }) => (
+      <ToolTipEllipses
+        text={
+          row?.approvalStage == "PEN"
+            ? "Pending"
+            : row?.approvalStage == "APR"
+            ? "Approved"
+            : "Rejected"
+        }
+        // copy={true}
+      />
+    ),
     width: 120,
   },
 

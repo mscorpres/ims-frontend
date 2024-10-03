@@ -25,7 +25,10 @@ const ApprovalList = (props: Props) => {
     const response = await executeFun(() => getProductsList(), "fetch");
     setRows(
       (response.data ?? [])
-        .filter((row) => row.approvalStage === "0" || row.approvalStage === "1")
+        .filter(
+          (row) => row.approvalStage === "PEN"
+          // || row.approvalStage === "1"
+        )
         .map((row, index) => ({
           ...row,
           id: index + 1,
@@ -77,6 +80,7 @@ const ApprovalList = (props: Props) => {
             setSelectedProduct(null);
           }}
           productKey={selectedProduct.key ?? ""}
+          setShowApprovalLogs={setShowApprovalLogs}
         />
       )}{" "}
       {attachlist?.key && (
@@ -96,7 +100,11 @@ const ApprovalList = (props: Props) => {
         />
       )}
       <Col sm={24} md={22} xl={20}>
-        <MyDataTable columns={[...actionColumns, ...columns]} data={rows} />
+        <MyDataTable
+          columns={[...actionColumns, ...columns]}
+          data={rows}
+          loading={loading("fetch") || loading("submit")}
+        />
       </Col>
     </Row>
   );
@@ -141,6 +149,18 @@ const columns = [
     headerName: "Approval Stage",
     field: "approvalStage",
     width: 120,
+    renderCell: ({ row }: { row: ProductType }) => (
+      <ToolTipEllipses
+        text={
+          row?.approvalStage == "PEN"
+            ? "Pending"
+            : row?.approvalStage == "APR"
+            ? "Approved"
+            : "Rejected"
+        }
+        // copy={true}
+      />
+    ),
   },
 
   {
