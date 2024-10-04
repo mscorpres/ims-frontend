@@ -18,14 +18,15 @@ const Sidebar = ({ showSideBar, setShowSideBar, items, items1, ...props }) => {
       <Menu
         theme="dark"
         // forceSubMenuRender
-        style={{ height: "70%", background: "#001529" }}
+        style={{ height: "90%", background: "#001529" }}
         defaultSelectedKeys={["1"]}
         mode="vertical"
         triggerSubMenuAction="hover"
         inlineCollapsed={!showSideBar}
-        items={items}
+        items={[...items, ...items1]}
       />
-      <Menu
+      {/* //item 2 removed  */}
+      {/* <Menu
         theme="dark"
         // forceSubMenuRender
         style={{
@@ -41,7 +42,7 @@ const Sidebar = ({ showSideBar, setShowSideBar, items, items1, ...props }) => {
         mode="vertical"
         inlineCollapsed={!showSideBar}
         items={items1}
-      />
+      /> */}
     </Sider>
   );
 };

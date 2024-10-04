@@ -25,7 +25,7 @@ const AttachementList = ({
     if (response.success) {
       //   setRows(response.data);
       let arr = response.data.documents;
-      let a = arr.map((r, index) => {
+      let a = arr?.map((r, index) => {
         return {
           id: v4(),
           type: "Document",
@@ -34,19 +34,9 @@ const AttachementList = ({
       });
       console.log("a", a);
       setDocumentRow(a);
-      let arrs = response.data.images;
-      let b = arrs.map((r, index) => {
-        return {
-          id: v4(),
-          type: "Image",
-          ...r,
-        };
-      });
-      console.log("a", b);
-      setImageRow(b);
-      let rowing = [...a, ...b];
-      console.log("rows", rowing);
-      setRows(rowing);
+
+      // console.log("rows", rowing);
+      setRows(a);
       toast.success(response.message);
       setLoading(false);
     } else {

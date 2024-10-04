@@ -61,7 +61,7 @@ const Components = (props: Proptypes) => {
     >
       <Row style={{ height: "100%", overflow: "hidden" }} gutter={8}>
         <Col span={6} style={{ overflow: "auto", height: "100%" }}>
-          <Card title="Approval Logs" size="small">
+          <Card title="Authorizer Logs" size="small">
             {props.selectedBOM && (
               <BOMApproval selectedBom={props.selectedBOM} />
             )}
