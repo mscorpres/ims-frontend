@@ -28,6 +28,7 @@ const Sidebar = ({ showSideBar, setShowSideBar, items, items1, ...props }) => {
       <Menu
         theme="dark"
         // forceSubMenuRender
+        // forceSubMenuRender
         style={{
           height: "30%",
           background: "#047780",
