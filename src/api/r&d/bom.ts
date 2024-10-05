@@ -126,7 +126,8 @@ export const createBOM = async (
     })),
     version: version,
     description: values.description,
-    name: `${values.name} V-${version}`,
+    name: `${values.name} `,
+    // name: `${values.name} V-${version}`,
     sku: values.product.value ?? values.product,
     approvalMetrics: arr1,
   };

@@ -35,6 +35,7 @@ const Components = (props: Proptypes) => {
   useEffect(() => {
     if (props.selectedBOM?.key) {
       handleFetchComponents(props.selectedBOM.key);
+      // handleFetchComponents(props.selectedBOM.key);
     }
   }, [props.selectedBOM]);
   useEffect(() => {

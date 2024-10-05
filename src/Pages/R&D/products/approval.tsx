@@ -21,6 +21,8 @@ import { useSelector } from "react-redux/es/exports";
 
 interface PropTypes extends ModalType {
   productKey: string;
+
+  setShowApprovalLogs: (productKey: string) => void;
 }
 const Approval = (props: PropTypes) => {
   const [details, setDetails] = useState<ApprovalType | undefined>();
@@ -37,6 +39,8 @@ const Approval = (props: PropTypes) => {
       () => getApprovalLogs(productKey),
       "fetch"
     );
+    // console.log("response", response);
+
     if (response.success) {
       setDetails(response.data);
 
@@ -74,6 +78,7 @@ const Approval = (props: PropTypes) => {
           name={details?.name}
           action={approveAction}
           productKey={props.productKey}
+          setShowApprovalLogs={props.setShowApprovalLogs}
           handleFetchDetails={handleFetchDetails}
         />
       )}
@@ -89,22 +94,33 @@ const Approval = (props: PropTypes) => {
       </Flex>
 
       <Typography.Title style={{ marginTop: 10 }} level={5}>
-        Stage 1 Approval
+        {/* Authorizer */}
       </Typography.Title>
       <Divider />
       <Flex justify="space-between" wrap="wrap">
         <Flex vertical gap={10}>
           <SingleDetail
-            label="Approver"
+            label="Authorizer"
             value={details?.approvalDetails1.by ?? "--"}
           />
           <SingleDetail
             label="Remarks"
             value={details?.approvalDetails1.remarks ?? "--"}
           />
+
+          <SingleDetail
+            label="Status"
+            value={
+              details?.currentStatus == "PENDING"
+                ? "Pending"
+                : details?.currentStatus == "REJECTED"
+                ? "Rejected"
+                : "Approved"
+            }
+          />
         </Flex>
         <div>
-          {details?.stage === "0" &&
+          {details?.stage == "0" &&
             (user.id === crns[0] || user.id === crns[1]) && (
               <Space>
                 <MyButton
@@ -120,15 +136,15 @@ const Approval = (props: PropTypes) => {
                 />
               </Space>
             )}
-          {details?.stage !== "0" && (
+          {details?.stage != "0" && (
             <SingleDetail
-              label="Approved On"
+              label="Authorized On"
               value={details?.approvalDetails1.date ?? "--"}
             />
           )}
-          {details?.stage === "0" &&
+          {details?.stage == "0" &&
             (user.id !== crns[0] || user.id !== crns[1]) && (
-              <SingleDetail label="Approved On" value={"Not Approved"} />
+              <SingleDetail label="Authorized On" value={"Not Approved"} />
             )}
         </div>
       </Flex>
@@ -200,6 +216,7 @@ interface ApprovingTypes extends ModalType {
   name: string;
   productKey: string;
   handleFetchDetails: (productKey: string) => void;
+  setShowApprovalLogs: (productKey: string) => void;
 }
 const ApprovingModal = (props: ApprovingTypes) => {
   const [form] = Form.useForm();

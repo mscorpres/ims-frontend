@@ -99,7 +99,6 @@ export default function Products() {
         <GridActionsCellItem
           showInMenu
           placeholder="See Attachments"
-          // disabled={disabled}
           label={"Attachments"}
           onClick={() => {
             setShowDocs(true);

@@ -52,7 +52,6 @@ const ApprovalList = (props: Props) => {
         <GridActionsCellItem
           showInMenu
           placeholder="Approval"
-          // disabled={disabled}
           label={"Approval"}
           onClick={() => {
             setShowApprovalLogs(true);

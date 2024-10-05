@@ -1,9 +1,9 @@
 import { Button, Card, Divider, Drawer, Flex, Modal, Typography } from "antd";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import React, { useEffect, useState } from "react";
-import { imsAxios } from "../../../axiosInterceptor";
-import MyDataTable from "../../../Components/MyDataTable";
-import TableActions from "../../../Components/TableActions.jsx/TableActions";
+import { imsAxios } from "../../../../axiosInterceptor";
+import MyDataTable from "../../../../Components/MyDataTable";
+import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 const AttachementList = ({
@@ -19,12 +19,12 @@ const AttachementList = ({
   const [imageRow, setImageRow] = useState([]);
   const handleFetchProductList = async (val) => {
     setLoading(true);
-    const response = await imsAxios.get(`/products/view/attachment/${val}`);
+    const response = await imsAxios.get(`/bom/view/attachment/${val}`);
     console.log("response", response);
     if (response.success) {
       //   setRows(response.data);
       let arr = response.data.documents;
-      let a = arr.map((r, index) => {
+      let a = arr?.map((r, index) => {
         return {
           id: v4(),
           type: "Document",
@@ -33,19 +33,9 @@ const AttachementList = ({
       });
       console.log("a", a);
       setDocumentRow(a);
-      let arrs = response.data.images;
-      let b = arrs.map((r, index) => {
-        return {
-          id: v4(),
-          type: "Image",
-          ...r,
-        };
-      });
-      console.log("a", b);
-      setImageRow(b);
-      let rowing = [...a, ...b];
-      console.log("rows", rowing);
-      setRows(rowing);
+
+      // console.log("rows", rowing);
+      setRows(a);
       toast.success(response.message);
       setLoading(false);
     } else {

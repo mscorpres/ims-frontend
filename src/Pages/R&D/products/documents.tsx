@@ -20,6 +20,7 @@ const ProductDocuments = (props: DrawerProps) => {
       title={props.product?.name}
     >
       <Typography.Title level={5}>Product Images</Typography.Title>
+      {/* <Typography.Title level={5}>Product Images</Typography.Title> */}
 
       <Flex wrap="wrap" gap={10}>
         {props.product.images?.map((row, index) => (
