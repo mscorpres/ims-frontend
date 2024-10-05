@@ -110,6 +110,7 @@ export const getApprovalLogs = async (productKey: string) => {
       name: obj.productName,
       product: productKey,
       stage: obj.status,
+      currentStatus: obj?.currentStatus,
       creationDetails: {
         by: obj.createdBy,
         date: obj.createdDate,
