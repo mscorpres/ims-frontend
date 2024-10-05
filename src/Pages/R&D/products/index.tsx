@@ -35,7 +35,17 @@ export default function Products() {
 
   const handleFetchProductList = async () => {
     const response = await executeFun(() => getProductsList(), "fetch");
-    setRows(response.data ?? []);
+    console.log("response", response);
+
+    setRows(response.data ?? [])
+      .filter(
+        (row) => row.approvalStage !== "PEN"
+        // || row.approvalStage === "1"
+      )
+      .map((row, index) => ({
+        ...row,
+        id: index + 1,
+      }));
   };
 
   const handleCostCenterOptions = async (search: string) => {
@@ -135,7 +145,17 @@ export default function Products() {
                     <Form.Item
                       name="sku"
                       label="Product Code"
-                      rules={rules.sku}
+                      // rules={rules.sku}
+                      rules={[
+                        {
+                          required: true,
+                          message: "SKU is required",
+                        },
+                        {
+                          pattern: /^\S*$/, // Pattern to ensure no spaces
+                          message: "SKU cannot contain spaces!",
+                        },
+                      ]}
                     >
                       <Input />
                     </Form.Item>
@@ -341,6 +361,18 @@ const columns = [
   {
     headerName: "Approval Stage",
     field: "approvalStage",
+    renderCell: ({ row }: { row: ProductType }) => (
+      <ToolTipEllipses
+        text={
+          row?.approvalStage == "PEN"
+            ? "Pending"
+            : row?.approvalStage == "APR"
+            ? "Approved"
+            : "Rejected"
+        }
+        // copy={true}
+      />
+    ),
     width: 120,
   },
 

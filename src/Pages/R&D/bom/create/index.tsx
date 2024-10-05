@@ -306,6 +306,8 @@ const BOMCreate = () => {
       "version",
       "product",
       "description",
+      "document",
+      "documents",
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];

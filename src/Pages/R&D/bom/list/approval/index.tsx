@@ -81,7 +81,7 @@ const BOMApproval = (props: PropTypes) => {
       label: (
         <div>
           <Typography.Text strong>S-{log.line}</Typography.Text>{" "}
-          {/* <div>{`Status: ${log?.status || "No status"} `}</div>{" "} */}
+          <div>{`Status: ${log?.status || "No status"} `}</div>{" "}
           <div>{`Approver: ${log.userName} `}</div>{" "}
           <div>{` Remark: ${log.remark || "No Remark"}`}</div>
           <Divider />

@@ -54,20 +54,23 @@ export const createBOM = async (
       : +Number(values.latestVersion).toFixed(2);
 
   if (isUpdating) {
+    console.log("updateType", updateType);
+    console.log("version", version);
+
     if (updateType === "ecn") {
-      version = version + 0.1;
+      version = version + 0.01;
     } else if (updateType === "main") {
       version = +(version + 1).toFixed(0);
-      version = version + ".0";
+      version = version + ".00";
     }
     version = Number(version).toFixed(2);
   } else {
     version = version + ".0";
     version = Number(version).toFixed(1);
   }
-
   console.log("values", values);
-  console.log("isBomRej", bomId);
+  console.log("isBomRej", isBomRej);
+  // return;
   let arr1: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
     console.log("row in create bom", row);
@@ -131,30 +134,7 @@ export const createBOM = async (
     sku: values.product.value ?? values.product,
     approvalMetrics: arr1,
   };
-  const RejBOMpayload: CreateBOMType = {
-    components: values.components.map((row) => ({
-      component:
-        typeof row.component === "object" ? row.component.value : row.component,
-      qty: row.qty,
-      remarks: row.remarks,
-      status: "active",
-      substitute:
-        typeof row.substituteOf === "object"
-          ? row.substituteOf?.value
-          : row.substituteOf,
-      type: row.type,
-      vendor:
-        typeof row.vendor === "object" && row.vendor
-          ? row.vendor?.value
-          : row.vendor,
-      location: row.locations,
-    })),
-    version: version,
-    description: values.description,
-    name: `${values.name} V-${version}`,
-    sku: values.product.value ?? values.product,
-    approvalMetrics: arr1,
-  };
+
   console.log("payload", payload);
 
   // return;
@@ -171,7 +151,7 @@ export const createBOM = async (
     formData.append("documents", row.originFileObj);
   });
   let response;
-  if (isBomRej) {
+  if (isBomRej == true || isBomRej == "true") {
     response = await imsAxios.post(
       `/bom/tempProduct/update/${bomId}`,
       formData
@@ -447,7 +427,10 @@ export const getExistingBom = async (sku: string, version: string) => {
           version: values.selectedversion,
           id: values.bomID,
           components: values.components.map((row) => ({
-            component: { ...row.component, label: row.component.text },
+            component: {
+              ...row.component,
+              label: row.component.text + " " + row?.component?.partCode,
+            },
             qty: row.quantity,
             remarks: row.remarks,
             status: row.status,
