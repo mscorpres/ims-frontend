@@ -372,7 +372,7 @@ const BOMCreate = () => {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
         // form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
-        form.setFieldValue("name", selectedProduct?.label);
+        // form.setFieldValue("name", selectedProduct?.label);
         return;
       }
 
