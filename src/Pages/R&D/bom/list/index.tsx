@@ -24,6 +24,7 @@ const BOMList = () => {
   const [selectedBOM, setSelectedBOM] = useState<BOMTypeExtended | null>(null);
   const [showComponents, setShowComponents] = useState(false);
   const [showAttachments, setShowAttachments] = useState(false);
+  // const [showAttachments, setShowAttachments] = useState(false);
 
   const [showDocs, setShowDocs] = useState(false);
   const [attachlist, setAttachLsit] = useState([]);

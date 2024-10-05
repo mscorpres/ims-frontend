@@ -145,9 +145,7 @@ const ApproverMetrics = ({
       const updatedData = convertStageToNumber(arr);
       setApprovers(updatedData);
     }
-    // console.log("app in update", approvers);
-    // return;
-    //
+ 
   };
 
   const handleAddApprover = (stage: number) => {

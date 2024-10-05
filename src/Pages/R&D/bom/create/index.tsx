@@ -371,7 +371,8 @@ const BOMCreate = () => {
       // setApprovers(initialApprovers);
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
-        form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
+        // form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
+        form.setFieldValue("name", selectedProduct?.label);
         return;
       }
 
@@ -385,11 +386,6 @@ const BOMCreate = () => {
       }
       if (response.data && Array.isArray(response.data)) {
         // form.setFieldsValue({
-        //   product: sku,
-        //   name: sku.label ?? sku + response.data[0].version,
-        //   description: undefined,
-        //   document: [],
-        //   version: "00.00",
         // });
         // setMainComponents([]);
         // setSubComponents([]);

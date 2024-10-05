@@ -68,6 +68,7 @@ const BOMApproval = (props: PropTypes) => {
     // if (props?.selectedBom?.isActive == false)
     else {
       // console.log("props?.selectedBom?.isActive", props?.selectedBom?.isActive);
+      // console.log("props?.selectedBom?.isActive", props?.selectedBom?.isActive);
 
       handleRejectedFetchLogs(props?.selectedBom?.key);
     }

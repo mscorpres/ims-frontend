@@ -17,7 +17,6 @@ const AttachementList = ({
   const [loading, setLoading] = useState(false);
 
   const [imageRow, setImageRow] = useState([]);
-  //   console.log("attachlist", sdhow);
   const handleFetchProductList = async (val) => {
     setLoading(true);
     const response = await imsAxios.get(`/products/view/attachment/${val}`);

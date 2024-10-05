@@ -39,7 +39,7 @@ const Approval = (props: PropTypes) => {
       () => getApprovalLogs(productKey),
       "fetch"
     );
-    console.log("response", response);
+    // console.log("response", response);
 
     if (response.success) {
       setDetails(response.data);

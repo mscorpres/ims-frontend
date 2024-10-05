@@ -9,6 +9,7 @@ interface PropTypes extends ModalType {
 const Attachments = (props: PropTypes) => {
   const handleDownloadDoc = async (url: string) => {
     window.open(url, "_blank", "noreferrer");
+    // window.open(url, "_blank", "noreferrer");
   };
   return (
     <Drawer title="Attachments" open={props.show} onClose={props.hide}>
