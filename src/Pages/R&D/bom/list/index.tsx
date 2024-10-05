@@ -195,6 +195,14 @@ const columns = [
       <ToolTipEllipses text={row.sku} copy={true} />
     ),
   },
+  //
+  {
+    headerName: "Product",
+    minWidth: 200,
+    flex: 1,
+    field: "productName",
+  },
+  //
   {
     headerName: "Name",
     minWidth: 200,

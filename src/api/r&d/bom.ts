@@ -191,6 +191,7 @@ export const getBOMList = async (action: "final" | "draft") => {
       description: row.description,
       status: row?.status,
       name: row.name,
+      productName: row.productName,
       sku: row.sku,
       key: row.bomID,
       createdOn: row.createdAt,
@@ -420,6 +421,7 @@ export const getExistingBom = async (sku: string, version: string) => {
 
       if (values) {
         let obj: BOMTypeExtended = {
+          // name: values.name + "00.00",
           name: values.name,
           description: values.description,
           product: sku,
