@@ -18,20 +18,21 @@ const Sidebar = ({ showSideBar, setShowSideBar, items, items1, ...props }) => {
       <Menu
         theme="dark"
         // forceSubMenuRender
-        style={{ height: "70%", background: "#047780" }}
+        style={{ height: "70%", background: "#047780", overflowY: "auto" }}
         defaultSelectedKeys={["1"]}
         mode="vertical"
         triggerSubMenuAction="hover"
         inlineCollapsed={!showSideBar}
         items={items}
       />
+      {/* //item 2 removed  */}
       <Menu
         theme="dark"
         // forceSubMenuRender
-        // forceSubMenuRender
         style={{
           height: "30%",
-          background: "#047780",
+          // background: "#047780",
+          background: " #047780",
           display: "flex",
           flexDirection: "column",
           paddingBottom: 50,
