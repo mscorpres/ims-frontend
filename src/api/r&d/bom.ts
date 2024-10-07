@@ -418,7 +418,8 @@ export const getExistingBom = async (sku: string, version: string) => {
 
       if (values) {
         let obj: BOMTypeExtended = {
-          name: values.name + "00.00",
+          // name: values.name + "00.00",
+          name: values.name,
           description: values.description,
           product: sku,
           isDraft: values.isDraft,
