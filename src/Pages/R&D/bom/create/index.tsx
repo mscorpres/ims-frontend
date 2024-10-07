@@ -299,6 +299,24 @@ const BOMCreate = () => {
       return item;
     });
   }
+  function showConfirmation() {
+    const userConfirmed = window.confirm(
+      "BOM has been created successfully,Do you wish to go to BOM List?"
+    );
+
+    if (userConfirmed) {
+      // User clicked OK
+      // console.log("User confirmed.");
+      navigate(routeConstants.researchAndDevelopment.bom.list);
+      window.location.reload();
+      // Place your logic for confirmation here
+    } else {
+      // User clicked Cancel
+      // console.log("User canceled.");
+      window.location.reload();
+      // Place your logic for cancellation here
+    }
+  }
 
   const submitHandler = async (action: "final" | "draft") => {
     const values = await form.validateFields([
@@ -312,6 +330,7 @@ const BOMCreate = () => {
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
 
+    // return
     const response = await executeFun(
       () =>
         createBOM(
@@ -329,10 +348,11 @@ const BOMCreate = () => {
     if (response.success) {
       setBomId("");
       setIsBomRej(false);
-      window.location.reload();
+      // window.location.reload();
       // setApprovers(initialApprovers);
       setShowApproverMetrics(false);
       resetHandler();
+      showConfirmation();
       // if (action === "draft") {
       //   setApprovers(initialApprovers);
       //   navigate(routeConstants.researchAndDevelopment.bom.drafts);
