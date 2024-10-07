@@ -68,6 +68,8 @@ export const createBOM = async (
     version = version + ".0";
     version = Number(version).toFixed(1);
   }
+  console.log("version", version);
+
   console.log("values", values);
   console.log("isBomRej", isBomRej);
   // return;
@@ -189,6 +191,7 @@ export const getBOMList = async (action: "final" | "draft") => {
       description: row.description,
       status: row?.status,
       name: row.name,
+      productName: row.productName,
       sku: row.sku,
       key: row.bomID,
       createdOn: row.createdAt,

@@ -196,6 +196,12 @@ const columns = [
     ),
   },
   {
+    headerName: "Product Name",
+    minWidth: 200,
+    flex: 1,
+    field: "productName",
+  },
+  {
     headerName: "Name",
     minWidth: 200,
     flex: 1,
