@@ -589,12 +589,12 @@ export default function CreateWO({}) {
               {/* gstin */}
               <Col span={6}>
                 <Form.Item name="gstin" label="GSTIN">
-                  <Input size="default" disabled />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
               <Col span={6}>
                 <Form.Item name="caddress" label="Address">
-                  <Input size="default" disabled />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
             </Row>
@@ -780,7 +780,7 @@ export default function CreateWO({}) {
                   ]}
                 >
                   {/* <Input size="default" value={newPurchaseOrder.billPan} /> */}
-                  <Input size="default" disabled />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
 
@@ -826,7 +826,7 @@ export default function CreateWO({}) {
                   ]}
                 >
                   {/* <Input size="default" value={newPurchaseOrder.billGST} /> */}
-                  <Input size="default" disabled />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
             </Row>
@@ -843,11 +843,7 @@ export default function CreateWO({}) {
                     },
                   ]}
                 >
-                  <Input.TextArea
-                    style={{ resize: "none" }}
-                    rows={3}
-                    disabled
-                  />
+                  <Input.TextArea style={{ resize: "none" }} rows={3} />
                 </Form.Item>
               </Col>
             </Row>
@@ -902,7 +898,7 @@ export default function CreateWO({}) {
                   ]}
                 >
                   {/* <Input size="default" value={newPurchaseOrder.shipPan} /> */}
-                  <Input size="default" disabled />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
               {/* gstin uin */}
@@ -947,7 +943,7 @@ export default function CreateWO({}) {
                   ]}
                 >
                   {/* <Input size="default" value={newPurchaseOrder.shipGST} /> */}
-                  <Input size="default" disabled />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
             </Row>
@@ -964,11 +960,7 @@ export default function CreateWO({}) {
                     },
                   ]}
                 >
-                  <Input.TextArea
-                    style={{ resize: "none" }}
-                    rows={3}
-                    disabled
-                  />
+                  <Input.TextArea style={{ resize: "none" }} rows={3} />
                 </Form.Item>
               </Col>
             </Row>
