@@ -127,8 +127,6 @@ export default function ItemLocationLog() {
           const arr = body.map((row, index) => ({
             index: index + 1,
             id: v4(),
-            qty_in_rate: row.qty_in_rate ?? "-",
-            weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
             ...row,
           }));
           let bomDetailsArr = [];
@@ -234,16 +232,6 @@ export default function ItemLocationLog() {
       headerName: "Qty Out",
       field: "qty_out",
       width: 120,
-    },
-    {
-      headerName: "Qty In Rate",
-      field: "qty_in_rate",
-      width: 120,
-    },
-    {
-      headerName: "Weighted Purchase Rate",
-      field: "weightedPurchaseRate",
-      width: 180,
     },
     {
       headerName: "Method",
