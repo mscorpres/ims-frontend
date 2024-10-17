@@ -45,7 +45,7 @@ const DetailsModal = ({ show, close }) => {
   return (
     <Drawer
       title={show}
-      width="50%"
+      width="80%"
       placement="right"
       onClose={close}
       open={show}
@@ -113,12 +113,12 @@ const columns = [
   {
     headerName: "Weighted Purchase Rate",
     field: "weightedPurchaseRate",
-    width: 120,
+    width: 150,
   },
   {
     headerName: "Weighted Total Cost",
     field: "weightedTotalCost",
-    width: 120,
+    width: 150,
   },
   {
     headerName: "Location",
