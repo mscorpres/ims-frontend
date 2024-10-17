@@ -111,6 +111,16 @@ const columns = [
     width: 120,
   },
   {
+    headerName: "Weighted Purchase Rate",
+    field: "weightedPurchaseRate",
+    width: 120,
+  },
+  {
+    headerName: "Weighted Total Cost",
+    field: "weightedTotalCost",
+    width: 120,
+  },
+  {
     headerName: "Location",
     field: "cons_loc",
     width: 120,
