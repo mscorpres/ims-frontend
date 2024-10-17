@@ -103,6 +103,11 @@ const R1 = () => {
     { field: "outward", headerName: "Outward", width: 100 },
     { field: "closing", headerName: "Closing", width: 100 },
     {
+      field: "weightedPurchaseRate",
+      headerName: "Weighted Purchase Rate",
+      width: 180,
+    },
+    {
       field: "transit_in",
       headerName: "Order In Transit",
       width: 150,
