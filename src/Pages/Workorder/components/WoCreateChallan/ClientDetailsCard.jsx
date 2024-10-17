@@ -94,7 +94,7 @@ const ClientDetailsCard = ({
                 { required: false, message: "Please input select address!" },
               ]}
             >
-              <Input disabled />
+              <Input />
             </Form.Item>
           </>
         )}

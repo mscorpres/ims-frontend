@@ -56,7 +56,7 @@ const DispatchDetailsCard = ({
           label="Complete Address"
           rules={[{ required: true }]}
         >
-          <Input.TextArea rows={3} disabled />
+          <Input.TextArea rows={3} />
         </Form.Item>
         {/* {rtnchallan && ( */}
         <>
@@ -65,14 +65,14 @@ const DispatchDetailsCard = ({
             label="Shipping Pin"
             // rules={[{ required: true }]}
           >
-            <Input disabled />
+            <Input />
           </Form.Item>
           <Form.Item
             name="dispatchfromgst"
             label="Shipping GST"
             // rules={[{ required: true }]}
           >
-            <Input disabled />
+            <Input />
           </Form.Item>
         </>
         {/* )} */}

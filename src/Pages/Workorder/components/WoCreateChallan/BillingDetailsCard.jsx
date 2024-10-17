@@ -44,7 +44,7 @@ const BillingDetailsCard = ({ form, code, setaddid, addoptions }) => {
           label="Complete Address"
           rules={[{ required: true }]}
         >
-          <Input.TextArea rows={3} disabled />
+          <Input.TextArea rows={3} />
         </Form.Item>
       </Card>
     </Col>
