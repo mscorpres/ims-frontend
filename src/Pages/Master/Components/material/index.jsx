@@ -937,8 +937,8 @@ const CategoryModal = ({
         let newNum = removeAndCountTrailingZeros(value);
         // console.log("newNum", newNum);
         getAlpha = removeTrailingZerosUsingSwitch(newNum.count);
-        // console.log("getAlpha", getAlpha);
         extractednum = newNum.stringWithoutTrailingZeros;
+        // console.log("extractednum", extractednum);
       }
     }
   };
@@ -982,6 +982,7 @@ const CategoryModal = ({
     } else {
       makingString = extractednum + alpha;
     }
+    // console.log("makingString", makingString);
 
     let categorSnip = selectedCategory.label.toUpperCase();
     let newSnip = categorSnip.substr(0, 3);
@@ -1057,6 +1058,8 @@ const CategoryModal = ({
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
+        // console.log("codeValue ", filledFields, codeValue);
+
         setUniqueId(filledFields + codeValue);
         // console.log("codeValue ", filledFields + codeValue);
       }
@@ -1150,9 +1153,19 @@ const CategoryModal = ({
     // form.setFieldValue("multiplier", alpha);
   }
   function removeAndCountTrailingZeros(number) {
+    // Convert number to string
     const numString = number.toString();
     let count = 0;
 
+    // Handle case when number is 0
+    if (numString === "0") {
+      return {
+        stringWithoutTrailingZeros: 0,
+        count: 1,
+      };
+    }
+
+    // Count trailing zeros
     for (let i = numString.length - 1; i >= 0; i--) {
       if (numString[i] === "0") {
         count++;
@@ -1161,12 +1174,14 @@ const CategoryModal = ({
       }
     }
 
+    // Remove trailing zeros
     const stringWithoutTrailingZeros = numString.slice(
       0,
       numString.length - count
     );
+
     return {
-      stringWithoutTrailingZeros: parseInt(stringWithoutTrailingZeros),
+      stringWithoutTrailingZeros: parseInt(stringWithoutTrailingZeros, 10),
       count,
     };
   }
