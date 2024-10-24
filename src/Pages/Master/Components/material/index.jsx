@@ -1157,7 +1157,7 @@ const CategoryModal = ({
     const numString = number.toString();
     let count = 0;
 
-    // Handle case when number is 0
+    // Handle case when number is 0  //add Zero in the starting ot create 4 number code value digit
     if (numString === "0") {
       return {
         stringWithoutTrailingZeros: 0,
