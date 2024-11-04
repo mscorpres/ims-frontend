@@ -93,30 +93,7 @@ const App = () => {
       navigate("/");
     }
   }, [user?.type]);
-  //paste prevent
-  useEffect(() => {
-    const handlePaste = (event) => {
-      event.preventDefault(); // Prevent the paste action
-    };
 
-    const handleKeyDown = (event) => {
-      // Check for Ctrl+V or Command+V
-      if ((event.ctrlKey || event.metaKey) && event.key === "v") {
-        event.preventDefault(); // Prevent pasting with keyboard shortcuts
-        alert("This appilcation prevents you from pasting.");
-      }
-    };
-
-    // Add global event listeners
-    document.addEventListener("paste", handlePaste);
-    document.addEventListener("keydown", handleKeyDown);
-
-    // Cleanup listeners on unmount
-    return () => {
-      document.removeEventListener("paste", handlePaste);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
   const handleFavPages = async (status) => {
     let favs = user.favPages;
 
