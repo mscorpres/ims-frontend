@@ -136,7 +136,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
           style={{ border: row.borderRed && "1px solid red" }}
           value={row.actQty}
           suffix={row.unit}
-          disabled
+          // disabled
           onChange={(e) => compInputHandler("actQty", e.target.value, row.id)}
         />
       ),
