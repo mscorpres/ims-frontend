@@ -49,7 +49,7 @@ function Services() {
     const { data } = await imsAxios.get("/uom");
     let u = [];
 
-    data.data.map((d) => u.push({ text: d.units_name, value: d.units_id }));
+    data.map((d) => u.push({ text: d.units_name, value: d.units_id }));
     setUnits(u);
   };
 
