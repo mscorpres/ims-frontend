@@ -152,9 +152,7 @@ export default function MaterialInWithoutPO() {
   const submitMIN = async () => {
     let fileName;
     const formData = new FormData();
-    console.log("submittinh min");
     const vendorType = form.getFieldValue("vendorType");
-    console.log("vvveeeeee", vendorType);
     const values = await form.validateFields();
     // console.log("values", values);
     values?.fileComponents?.map((comp) => {
@@ -290,9 +288,12 @@ export default function MaterialInWithoutPO() {
     );
     if (response.success) {
       const { data } = response;
-      form.setFieldValue(["components", rowId, "gstRate"], data.gstrate);
-      form.setFieldValue(["components", rowId, "hsn"], data.hsn);
-      form.setFieldValue(["components", rowId, "rate"], data.rate);
+      console.log("data,", data, rowId);
+      form.setFieldValue(["components", rowId, "gstRate"], data.data.gstrate);
+      form.setFieldValue(["components", rowId, "hsn"], data.data.hsn);
+      form.setFieldValue(["components", rowId, "rate"], data.data.rate);
+      form.setFieldValue(["components", rowId, "mfg"], data.data.mfgCode);
+      // form.setFieldValue(["components", rowId, "value"], getInt(inrValue));
     }
   };
   const handleFetchPreviousRate = async (component, rowId, vendor) => {
@@ -636,6 +637,218 @@ export default function MaterialInWithoutPO() {
   useEffect(() => {
     handleFetchVendorBranchDetails(vendorBranch);
   }, [vendorBranch]);
+  const columns = ({
+    loading,
+    asyncOptions,
+    setAsyncOptions,
+    handleFetchComponentOptions,
+    locationOptions,
+    autoConsumptionOptions,
+    handleFetchComponentDetails,
+    handleFetchPreviousRate,
+    compareRates,
+    form,
+    currencies,
+    setShowCurrenncy,
+  }) => [
+    {
+      headerName: "Part Component",
+      name: "component",
+      field: (row, index) => (
+        <MyAsyncSelect
+          onBlur={() => setAsyncOptions([])}
+          selectLoading={loading("select")}
+          labelInValue
+          loadOptions={handleFetchComponentOptions}
+          optionsState={asyncOptions}
+          onChange={(value) => {
+            handleFetchComponentDetails(row, index, value);
+
+            handleFetchPreviousRate(value, index);
+          }}
+        />
+      ),
+      width: 250,
+      flex: 1,
+    },
+    {
+      headerName: "MFG",
+      name: "mfg",
+      width: 100,
+      // renderCell: ({ row }) => ,
+      field: (_, index) => <Input disabled />,
+    },
+    {
+      headerName: "Qty",
+      name: "qty",
+      width: 100,
+      // renderCell: ({ row }) => ,
+      field: (_, index) => <Input type="number" />,
+    },
+    {
+      headerName: "Rate",
+      name: "rate",
+      rules: [
+        {
+          warningOnly: true,
+          validator: (first, value) => {
+            let fieldName = first.field.split(".");
+            fieldName = fieldName.map((row) => {
+              if (!isNaN(row)) {
+                return +row;
+              } else return row;
+            });
+            fieldName.pop();
+            const row = form.getFieldValue(fieldName);
+            const vendorType = form.getFieldValue("vendorType");
+
+            if (
+              row.previousRate != row.rate &&
+              row.previousRate &&
+              vendorType === "v01"
+            ) {
+              return Promise.reject(`Prev. rate was ${row.previousRate}`);
+            } else {
+              return Promise.resolve();
+            }
+          },
+        },
+      ],
+      field: (row, index) => (
+        <Input
+          onChange={(e) => compareRates(e.target.value, index)}
+          addonAfter={
+            <div style={{ width: 50 }}>
+              <Form.Item noStyle name={[index, "currency"]}>
+                <MySelect
+                  options={currencies}
+                  onChange={(value) => {
+                    value !== "364907247"
+                      ? setShowCurrenncy({
+                          currency: value,
+                          price: row.value,
+                          exchangeRate: row.exchangeRate,
+                          symbol: currencies.filter(
+                            (cur) => cur.value == value
+                          )[0].text,
+                          rowId: index,
+                          form: form,
+                        })
+                      : form.setFieldValue(
+                          ["components", index, "exchangeRate"],
+                          1
+                        );
+                  }}
+                />
+              </Form.Item>
+            </div>
+          }
+        />
+      ),
+      width: 200,
+    },
+
+    {
+      headerName: "Taxable Value",
+      name: "value",
+
+      field: () => <Input disabled />,
+      width: 120,
+    },
+    {
+      headerName: "Foreign Value",
+      name: "foreignValue",
+      field: () => <Input disabled />,
+      width: 120,
+    },
+    // {
+    //   headerName: "Invoice ID",
+    //   name: "invoiceId",
+    //   field: () => <Input />,
+    //   width: 200,
+    // },
+    // {
+    //   headerName: "Invoice Date",
+    //   name: "invoiceDate",
+    //   field: (first, second) => {
+    //     return (
+    //       <SingleDatePicker
+    //         setDate={(value) => {
+    //           {
+    //             console.log(["components", second, "invoiceDate"]);
+    //             form.setFieldValue(["components", second, "invoiceDate"], value);
+    //           }
+    //         }}
+    //       />
+    //     );
+    //   },
+
+    //   width: 150,
+    // },
+    {
+      headerName: "HSN Code",
+      name: "hsnCode",
+      field: () => <Input />,
+      width: 150,
+    },
+    {
+      headerName: "GST Type",
+      name: "gstType",
+      field: () => <MySelect options={gstTypeOptions} />,
+      // flex: 1,
+      width: 160,
+    },
+    {
+      headerName: "GST Rate",
+      name: "gstRate",
+      field: () => <Input />,
+      // flex: 1,
+      width: 100,
+    },
+    {
+      headerName: "CGST",
+      field: () => <Input disabled />,
+      // flex: 1,
+
+      name: "cgst",
+      width: 120,
+    },
+    {
+      headerName: "SGST",
+      field: () => <Input disabled />,
+      name: "sgst",
+
+      width: 120,
+    },
+    {
+      headerName: "IGST",
+
+      field: (row) => <Input disabled />,
+      name: "igst",
+
+      width: 120,
+    },
+    {
+      headerName: "Location",
+      name: "location",
+      field: () => <MySelect options={locationOptions} labelInValue={true} />,
+      width: 120,
+    },
+    {
+      headerName: "Auto Consump",
+      name: "autoConsumption",
+      field: () => <MySelect options={autoConsumptionOptions} />,
+
+      width: 150,
+    },
+    {
+      headerName: "Remarks",
+      name: "remarks",
+      field: () => <Input />,
+      width: 250,
+    },
+  ];
+
   return (
     <div style={{ height: "97%", overflow: "hidden", padding: 10 }}>
       {showCurrency != null && (
@@ -963,6 +1176,7 @@ export default function MaterialInWithoutPO() {
                     "gstType",
                     "exchangeRate",
                     "currency",
+                    "mfg",
                   ]}
                   calculation={calculation}
                   columns={columns({
@@ -1055,208 +1269,4 @@ export default function MaterialInWithoutPO() {
 const gstTypeOptions = [
   { value: "I", text: "INTER STATE" },
   { value: "L", text: "LOCAL" },
-];
-const columns = ({
-  loading,
-  asyncOptions,
-  setAsyncOptions,
-  handleFetchComponentOptions,
-  locationOptions,
-  autoConsumptionOptions,
-  handleFetchComponentDetails,
-  handleFetchPreviousRate,
-  compareRates,
-  form,
-  currencies,
-  setShowCurrenncy,
-}) => [
-  {
-    headerName: "Part Component",
-    name: "component",
-    field: (row, index) => (
-      <MyAsyncSelect
-        onBlur={() => setAsyncOptions([])}
-        selectLoading={loading("select")}
-        labelInValue
-        loadOptions={handleFetchComponentOptions}
-        optionsState={asyncOptions}
-        onChange={(value) => {
-          handleFetchComponentDetails(row, index, value);
-
-          handleFetchPreviousRate(value, index);
-        }}
-      />
-    ),
-    width: 250,
-    flex: 1,
-  },
-  {
-    headerName: "Qty",
-    name: "qty",
-    width: 100,
-    // renderCell: ({ row }) => ,
-    field: (_, index) => <Input type="number" />,
-  },
-  {
-    headerName: "Rate",
-    name: "rate",
-    rules: [
-      {
-        warningOnly: true,
-        validator: (first, value) => {
-          let fieldName = first.field.split(".");
-          fieldName = fieldName.map((row) => {
-            if (!isNaN(row)) {
-              return +row;
-            } else return row;
-          });
-          fieldName.pop();
-          const row = form.getFieldValue(fieldName);
-          const vendorType = form.getFieldValue("vendorType");
-
-          if (
-            row.previousRate != row.rate &&
-            row.previousRate &&
-            vendorType === "v01"
-          ) {
-            return Promise.reject(`Prev. rate was ${row.previousRate}`);
-          } else {
-            return Promise.resolve();
-          }
-        },
-      },
-    ],
-    field: (row, index) => (
-      <Input
-        onChange={(e) => compareRates(e.target.value, index)}
-        addonAfter={
-          <div style={{ width: 50 }}>
-            <Form.Item noStyle name={[index, "currency"]}>
-              <MySelect
-                options={currencies}
-                onChange={(value) => {
-                  value !== "364907247"
-                    ? setShowCurrenncy({
-                        currency: value,
-                        price: row.value,
-                        exchangeRate: row.exchangeRate,
-                        symbol: currencies.filter(
-                          (cur) => cur.value == value
-                        )[0].text,
-                        rowId: index,
-                        form: form,
-                      })
-                    : form.setFieldValue(
-                        ["components", index, "exchangeRate"],
-                        1
-                      );
-                }}
-              />
-            </Form.Item>
-          </div>
-        }
-      />
-    ),
-    width: 200,
-  },
-
-  {
-    headerName: "Taxable Value",
-    name: "value",
-
-    field: () => <Input disabled />,
-    width: 120,
-  },
-  {
-    headerName: "Foreign Value",
-    name: "foreignValue",
-    field: () => <Input disabled />,
-    width: 120,
-  },
-  // {
-  //   headerName: "Invoice ID",
-  //   name: "invoiceId",
-  //   field: () => <Input />,
-  //   width: 200,
-  // },
-  // {
-  //   headerName: "Invoice Date",
-  //   name: "invoiceDate",
-  //   field: (first, second) => {
-  //     return (
-  //       <SingleDatePicker
-  //         setDate={(value) => {
-  //           {
-  //             console.log(["components", second, "invoiceDate"]);
-  //             form.setFieldValue(["components", second, "invoiceDate"], value);
-  //           }
-  //         }}
-  //       />
-  //     );
-  //   },
-
-  //   width: 150,
-  // },
-  {
-    headerName: "HSN Code",
-    name: "hsnCode",
-    field: () => <Input />,
-    width: 150,
-  },
-  {
-    headerName: "GST Type",
-    name: "gstType",
-    field: () => <MySelect options={gstTypeOptions} />,
-    // flex: 1,
-    width: 160,
-  },
-  {
-    headerName: "GST Rate",
-    name: "gstRate",
-    field: () => <Input />,
-    // flex: 1,
-    width: 100,
-  },
-  {
-    headerName: "CGST",
-    field: () => <Input disabled />,
-    // flex: 1,
-
-    name: "cgst",
-    width: 120,
-  },
-  {
-    headerName: "SGST",
-    field: () => <Input disabled />,
-    name: "sgst",
-
-    width: 120,
-  },
-  {
-    headerName: "IGST",
-
-    field: (row) => <Input disabled />,
-    name: "igst",
-
-    width: 120,
-  },
-  {
-    headerName: "Location",
-    name: "location",
-    field: () => <MySelect options={locationOptions} labelInValue={true} />,
-    width: 120,
-  },
-  {
-    headerName: "Auto Consump",
-    name: "autoConsumption",
-    field: () => <MySelect options={autoConsumptionOptions} />,
-
-    width: 150,
-  },
-  {
-    headerName: "Remarks",
-    name: "remarks",
-    field: () => <Input />,
-    width: 250,
-  },
 ];
