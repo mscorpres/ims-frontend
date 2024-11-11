@@ -521,6 +521,7 @@ export default function MaterialInWithPO({}) {
             maxQty: mat?.orderqty,
             autoConsumption: 0,
             pendingqtybyorderqty: mat.orderqty + " /" + mat.po_order_qty,
+            mfg: mat.mfgCode,
           };
         }),
       };
@@ -576,6 +577,13 @@ export default function MaterialInWithPO({}) {
       headerName: "Part No.",
       field: "c_partno",
       renderCell: ({ row }) => <ToolTipEllipses text={row.c_partno} />,
+      sortable: false,
+      width: 80,
+    },
+    {
+      headerName: "MFG",
+      field: "mfg",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.mfg} />,
       sortable: false,
       width: 80,
     },
