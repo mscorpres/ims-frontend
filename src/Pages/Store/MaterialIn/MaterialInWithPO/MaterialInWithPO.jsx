@@ -587,11 +587,11 @@ export default function MaterialInWithPO({}) {
       width: 80,
     },
     {
-      headerName: "MFG",
+      headerName: "MFG Code ",
       field: "mfg",
       renderCell: ({ row }) => <ToolTipEllipses text={row.mfg} />,
       sortable: false,
-      width: 80,
+      width: 180,
     },
     {
       headerName: "QTY",

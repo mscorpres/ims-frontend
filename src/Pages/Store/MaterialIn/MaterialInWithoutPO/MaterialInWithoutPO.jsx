@@ -672,9 +672,9 @@ export default function MaterialInWithoutPO() {
       flex: 1,
     },
     {
-      headerName: "MFG",
+      headerName: "MFG Code ",
       name: "mfg",
-      width: 100,
+      width: 180,
       // renderCell: ({ row }) => ,
       field: (_, index) => <Input disabled />,
     },
