@@ -151,8 +151,9 @@ export default function ItemLocationLog() {
           setRows(arr);
           setSummaryData([
             { title: "Component", description: header.component },
-            { title: "Part Code", description: header.partno },
-            { title: "Unique Id", description: header.unique_id },
+            { title: "Part Code", description: header?.partno },
+            { title: "Attribute Code", description: header?.unique_id },
+            { title: "MFG Code", description: header?.mfgCode },
             {
               title: "Closing",
               description: header.closingqty + " " + header.uom,

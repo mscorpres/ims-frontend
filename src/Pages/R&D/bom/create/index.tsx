@@ -546,7 +546,7 @@ const BOMCreate = () => {
               </Form.Item>
               <Form.Item
                 name="version"
-                label="BOM Release Refrence No.(RRN)"
+                label="BRN [BOM ref. no.] "
                 rules={rules.version}
               >
                 <Input disabled />
