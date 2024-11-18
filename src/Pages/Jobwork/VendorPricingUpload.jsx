@@ -17,6 +17,7 @@ export default function VendorPricingUpload() {
 
   const previewFile = async () => {
     setPreviewLoading(true);
+    // setPreviewLoading(true);
     const api = "/purchaseorder/uploadVendorPricing?stage=1";
     let formData = new FormData();
     formData.append("uploadfile", file);
