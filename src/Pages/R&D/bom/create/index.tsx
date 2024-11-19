@@ -481,16 +481,7 @@ const BOMCreate = () => {
       resetHandler();
     }
   }, [showRedirectModal]);
-  // useEffect(() => {
-  //   if (
-  //     approvers &&
-  //     showApproversMetrics == false &&
-  //     (saveType == "draft" || saveType == "fianl")
-  //   ) {
-  //     console.log("here in useeefect");
-  //     setApprovers(initialApprovers);
-  //   }
-  // }, [showApproversMetrics]);
+
   useEffect(() => {
     if (selectedSubstituteOf) {
       const found = mainComponents.find(
