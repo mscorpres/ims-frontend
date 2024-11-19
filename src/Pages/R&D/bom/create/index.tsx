@@ -481,6 +481,11 @@ const BOMCreate = () => {
       resetHandler();
     }
   }, [showRedirectModal]);
+  // useEffect(() => {
+  //   if (!showRedirectModal) {
+  //     resetHandler();
+  //   }
+  // }, [showRedirectModal]);
 
   useEffect(() => {
     if (selectedSubstituteOf) {
