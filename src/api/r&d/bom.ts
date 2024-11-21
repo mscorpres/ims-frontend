@@ -39,7 +39,8 @@ export const createBOM = async (
   isUpdating: boolean,
   updateType: bomUpdateType,
   isBomRej,
-  bomId
+  bomId,
+  ogName
 ) => {
   let url = "";
   if (action === "draft") {
@@ -54,12 +55,18 @@ export const createBOM = async (
       : +Number(values.latestVersion).toFixed(2);
 
   if (isUpdating) {
-    console.log("updateType", updateType);
-    console.log("version", version);
+    // console.log("updateType", updateType);
+    // console.log("version", version);
+    // console.log("values", values);
+    // console.log("ogName", ogName);
 
     if (updateType === "ecn") {
       version = version + 0.01;
-    } else if (updateType === "main") {
+      if( values.name !== ogName){
+          version = +(version + 1).toFixed(0);
+          version = version + ".00";
+      }
+    } else if (updateType === "main" || values.name !== ogName) {
       version = +(version + 1).toFixed(0);
       version = version + ".00";
     }
@@ -68,14 +75,14 @@ export const createBOM = async (
     version = version + ".0";
     version = Number(version).toFixed(1);
   }
-  console.log("version", version);
+  // console.log("version", version);
 
-  console.log("values", values);
-  console.log("isBomRej", isBomRej);
+  // console.log("values", values);
+  // console.log("isBomRej", isBomRej);
   // return;
   let arr1: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
-    console.log("row in create bom", row);
+    // console.log("row in create bom", row);
     // return;
     obj.stage = `L${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({
@@ -94,7 +101,7 @@ export const createBOM = async (
   //parsing approvers
   let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
-    console.log("row in create bom", row);
+    // console.log("row in create bom", row);
     // return;
     obj.stage = `${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({
@@ -137,7 +144,7 @@ export const createBOM = async (
     approvalMetrics: arr1,
   };
 
-  console.log("payload", payload);
+  // console.log("payload", payload);
 
   // return;
   const formData = new FormData();
@@ -320,7 +327,7 @@ export const getRejLogs = async (bomKey: string) => {
     `/bom/fetchRejection?bomID=${bomKey}`
   );
   let arr: BOMApprovalType | {} = {};
-  console.log("response rej bom ", response);
+  // console.log("response rej bom ", response);
   // return;
   if (response.success) {
     // const values: GetLogsType = response.data;

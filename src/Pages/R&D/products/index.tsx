@@ -35,7 +35,7 @@ export default function Products() {
 
   const handleFetchProductList = async () => {
     const response = await executeFun(() => getProductsList(), "fetch");
-    console.log("response", response);
+    // console.log("response", response);
 
     setRows(response.data ?? [])
       .filter(
@@ -120,7 +120,11 @@ export default function Products() {
   ];
 
   return (
-    <Row gutter={6} style={{ padding: 5, height: "95%" }} justify="center">
+    <Row
+      gutter={6}
+      style={{ padding: 5, height: "95%", overflowY: "hidden" }}
+      justify="center"
+    >
       <ConfirmModal
         show={showConfirm}
         hide={() => setShowConfirm(false)}
@@ -135,13 +139,13 @@ export default function Products() {
         />
       )}
 
-      <Col span={6} xxl={4}>
+      <Col span={6} xxl={4} style={{ height: "95%", overflowY: "scroll" }}>
         <Card size="small" title={"Add New Product"}>
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
               <Col span={24}>
                 <Row gutter={4}>
-                  <Col span={24}>
+                  <Col span={8}>
                     <Form.Item
                       name="sku"
                       label="Product Code"
@@ -160,17 +164,18 @@ export default function Products() {
                       <Input />
                     </Form.Item>
                   </Col>
+                  <Col span={16}>
+                    <Form.Item
+                      name="name"
+                      label="Product Name"
+                      rules={rules.product}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
                 </Row>
               </Col>
-              <Col span={24}>
-                <Form.Item
-                  name="name"
-                  label="Product Name"
-                  rules={rules.product}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
+
               <Col span={24}>
                 <Form.Item
                   style={{ flex: 1, minWidth: 100 }}
@@ -272,11 +277,13 @@ export default function Products() {
         </Card>
       </Col>
       <Col span={20} xl={18} xxl={16}>
-        <MyDataTable
-          columns={[...actionColumns, ...columns]}
-          data={rows}
-          loading={loading("fetch") || loading("submit")}
-        />
+        <div style={{ overflowY: "scroll", height: "90%" }}>
+          <MyDataTable
+            columns={[...actionColumns, ...columns]}
+            data={rows}
+            loading={loading("fetch") || loading("submit")}
+          />
+        </div>
       </Col>
     </Row>
   );

@@ -77,6 +77,7 @@ const BOMCreate = () => {
   const [saveType, setSaveType] = useState<null | "draft" | "final">(null);
   const [showRedirectModal, setShowRedirectModal] = useState(false);
   const [isBomRej, setIsBomRej] = useState(false);
+  const [ogName, setOgName] = useState("");
   const [bomId, setBomId] = useState("");
   const navigate = useNavigate();
 
@@ -194,7 +195,7 @@ const BOMCreate = () => {
       "fetch"
     );
     return response;
-    console.log("this is the response 123", response);
+    
   };
 
   const handleUpdateCompnent = async () => {
@@ -340,7 +341,8 @@ const BOMCreate = () => {
           isBomUpdating,
           updateType,
           isBomRej,
-          bomId
+          bomId,
+          ogName
         ),
       action
     );
@@ -380,12 +382,12 @@ const BOMCreate = () => {
     version: string = "1.0"
   ) => {
     // setApprovers(initialApprovers);
-    console.log("going version", version);
+    // console.log("going version", version);
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-    console.log("response", response.data);
+    // console.log("response---------", response.data);
 
     if (response.success) {
       // setApprovers(initialApprovers);
@@ -417,15 +419,16 @@ const BOMCreate = () => {
           //   " Kindly Approve that Previous Version of this BOM to create a new one"
           // );
         } else {
-          console.log("here it is");
-          console.log("here it is", response.data?.id);
+          // console.log("here it is");
+          // console.log("here it is", response.data?.id);
           setBomId(response.data.id);
           setIsBomRej(response.data.isRejected);
           if (!queryParams.get("sku") && !queryParams.get("version")) {
             setShowRedirectModal(true);
             return;
           }
-          console.log("it is here down", response.data);
+          // console.log("it is here down", response.data);
+          setOgName(response.data.name);
           form.setFieldsValue(response.data);
           setLatestVersion(response.data.latestVersion);
 
