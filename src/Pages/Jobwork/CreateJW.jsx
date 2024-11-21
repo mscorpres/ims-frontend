@@ -24,6 +24,7 @@ import AddProjectModal from "../PurchaseOrder/CreatePO/AddProjectModal";
 import Loading from "../../Components/Loading";
 import useLoading from "../../hooks/useLoading";
 import {
+  createJobWorkReq,
   getCostCentresOptions,
   getProjectOptions,
   getVendorOptions,
@@ -425,7 +426,13 @@ export default function CreateJW({}) {
       sgst: [values.sgst],
     };
     setLoading("submitting", true);
-    const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
+    const response = await executeFun(
+      () => createJobWorkReq(finalObj),
+      "select"
+    );
+    // console.log("response", response);
+
+    // const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
     // setLoading("submitting", false);
     const { data } = response;
     if (data) {

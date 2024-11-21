@@ -7,12 +7,16 @@ import { imsAxios } from "../../../axiosInterceptor";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
 import useLoading from "../../../hooks/useLoading";
+import { saveJwMAterialIssue } from "../../../api/general";
+import useApi from "../../../hooks/useApi";
+import Loading from "../../../Components/Loading";
 
 const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
   const [loading, setLoading] = useLoading();
   const [closeLoading, setCloseLoading] = useLoading();
   const [view, setView] = useState([]);
   const [mainData, setMainData] = useState([]);
+  const { executeFun, loading: loading1 } = useApi();
 
   const getFecthData = async () => {
     setLoading("fetch", true);
@@ -128,13 +132,17 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
     let qtyArray = [];
     mainData.map((comKey) => componentKey.push(comKey.component_key));
     mainData.map((comKey) => qtyArray.push(comKey.qty ?? ""));
-
-    const response = await imsAxios.post("/jobwork/save_jw_material_issue", {
+    let finalObj = {
       jobwork_jw_trans_id: openModal.jw_transaction_id,
       jobwork_po_trans_id: openModal.sku_transaction_id,
       component: componentKey,
       issue_qty: qtyArray,
-    });
+    };
+    // const response = await imsAxios.post("/jobwork/save_jw_material_issue");
+    const response = await executeFun(
+      () => saveJwMAterialIssue(finalObj),
+      "select"
+    );
     const { data } = response;
     setCloseLoading("fetch", false);
     if (data.code == 200) {
@@ -218,6 +226,8 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
 
           <div style={{ height: "70%", marginTop: "20px" }}>
             <div style={{ height: "100%" }}>
+              {" "}
+              {loading1("select") && <Loading />}
               <FormTable
                 loading={loading("fetch")}
                 columns={columns}

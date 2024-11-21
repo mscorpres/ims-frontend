@@ -50,6 +50,7 @@ import {
   getCostCentresOptions,
   getProjectOptions,
   getVendorOptions,
+  savefginward,
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
@@ -274,8 +275,8 @@ export default function ProductMIN() {
             ...venDetails,
           };
           setSubmitLoading(true);
-
-          const { data } = await imsAxios.post("/fgMIN/savefginward", final);
+          let response = await executeFun(() => savefginward(final), "select");
+          const { data } = response
           setSubmitLoading(false);
           if (data.code == "200") {
             // setvalues(false);
@@ -1255,7 +1256,7 @@ export default function ProductMIN() {
           </Col>
           <Col style={{ height: "100%" }} span={18}>
             <div style={{ height: "98%", border: "1px solid #EEEEEE" }}>
-              {pageLoading && <Loading />}
+              {pageLoading ||loading1("select")&& <Loading />}
               <FormTable columns={columns} data={materialInward} />
             </div>
           </Col>

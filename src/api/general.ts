@@ -14,6 +14,73 @@ export const getVendorOptions = async (search) => {
     console.log("something happened wrong", error);
   }
 };
+export const createJobWorkReq = async (finalObj) => {
+  try {
+    const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const saveJwMAterialIssue = async (finalObj) => {
+  try {
+    const response = await imsAxios.post(
+      "/jobwork/save_jw_material_issue",
+      finalObj
+    );
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const checkInvoiceforMIN = async (payload) => {
+  try {
+    const response = await imsAxios.post("/backend/checkInvoice", payload);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const poMINforMIN = async (final) => {
+  try {
+    const response = await imsAxios.post("/purchaseOrder/poMIN", final);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const savefginward = async (final) => {
+  try {
+    const response = await imsAxios.post("/fgMIN/savefginward", final);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const getBomItem = async (finalObj) => {
+  try {
+    const response = await imsAxios.post("/jobwork/getBomItem", finalObj);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const savejwsfinward = async (finalObj) => {
+  try {
+    const response = await imsAxios.post("/jobwork/savejwsfinward", finalObj);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const saveCreateChallan = async (final) => {
+  try {
+    const response = await imsAxios.post("/jobwork/saveCreateChallan", final);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
 
 export const getVendorBranchOptions = async (vendorCode) => {
   const response = await imsAxios.post("/backend/vendorBranchList", {

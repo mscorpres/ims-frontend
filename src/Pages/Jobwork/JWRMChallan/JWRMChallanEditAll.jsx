@@ -28,6 +28,8 @@ import {
   DeleteTwoTone,
 } from "@ant-design/icons";
 import useLoading from "../../../hooks/useLoading";
+import { saveCreateChallan } from "../../../api/general";
+import useApi from "../../../hooks/useApi";
 
 function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   const [rows, setRows] = useState([]);
@@ -43,6 +45,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     otherRef: "",
   });
   const [createJobWorkChallanForm] = Form.useForm();
+  const { executeFun, loading: loading1 } = useApi();
 
   const getDetails = async () => {
     setLoading("fetchDetails", true);
@@ -140,7 +143,27 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     };
     // console.log(rows)
     setLoading("submit", true);
-    const response = await imsAxios.post("/jobwork/saveCreateChallan", {
+    // const response = await imsAxios.post("/jobwork/saveCreateChallan", {
+    //   header: {
+    //     billingaddrid: obj?.billingaddrid,
+    //     billingaddr: obj?.billingaddr,
+    //     reference_id: obj?.reference_id,
+    //     dispatchfromaddrid: obj?.dispatchfromaddrid,
+    //     dispatchfromaddr: obj?.dispatchfromaddr,
+    //     dispatchfrompincode: obj?.dispatchfrompincode,
+    //     dispatchfromgst: obj?.dispatchfromgst,
+    //     vehicle: obj?.vehicle,
+    //     transaction_id: editiJWAll?.saveTransactionId,
+    //     vendoraddress: obj?.vendor_address,
+    //     vendorbranch: obj?.vendorbranch.value,
+    //     nature: restCom?.nature,
+    //     duration: restCom?.duration,
+    //     other_ref: restCom?.otherRef,
+    //   },
+    //   material: finalObj,
+    //   // transaction_id: obj?.,
+    // });
+    let final = {
       header: {
         billingaddrid: obj?.billingaddrid,
         billingaddr: obj?.billingaddr,
@@ -159,7 +182,10 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       },
       material: finalObj,
       // transaction_id: obj?.,
-    });
+    };
+    const response = await executeFun(() => saveCreateChallan(final), "select");
+    // console.log("response", response);
+
     setLoading("submit", false);
     if (response.data.code === 200) {
       toast.success(response.data.message);
@@ -622,7 +648,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           </Card>
         </Col>
         <Col span={15} style={{ height: "95%" }}>
-          {loading("tableSpinner") && <Loading />}
+          {loading("tableSpinner") || (loading1("select") && <Loading />)}
           <FormTable data={rows} columns={columns} />
         </Col>
         <NavFooter

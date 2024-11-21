@@ -23,7 +23,11 @@ import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import FormTable from "../../../Components/FormTable";
 import useLoading from "../../../hooks/useLoading";
-import { getComponentOptions } from "../../../api/general.ts";
+import {
+  getBomItem,
+  getComponentOptions,
+  savejwsfinward,
+} from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import NavFooter from "../../../Components/NavFooter";
 import { GridActionsCellItem } from "@mui/x-data-grid";
@@ -471,7 +475,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     };
     console.log("payload", payload);
     setModalUploadLoad(true);
-    const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
+    const response = await executeFun(() => savejwsfinward(payload), "select");
+    // const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     const minNum = response.message;
     const { data } = response;
 
@@ -520,12 +525,14 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   };
   const getBomList = async () => {
     setLoading(true);
-    const response = await imsAxios.post("/jobwork/getBomItem", {
+    let final = {
       jwID: header?.jobwork_id,
       sfgCreateQty: mainData[0].orderqty,
-    });
-    console.log(response);
-    if (response.data.status === "success") {
+    };
+    const response = await executeFun(() => getBomItem(final), "select");
+    // const response = await imsAxios.post("/jobwork/getBomItem");
+    // console.log("response", response);
+    if (response.data.status === "success" || response.data.code == 200) {
       const { data } = response;
       let arr = data.data.map((r, id) => {
         return {
@@ -545,6 +552,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setBomList(arr);
       setLoading(false);
       setShowBomList(true);
+    } else {
+      toast.error(response.data.message.msg);
+      setLoading(false);
     }
 
     setLoading(false);

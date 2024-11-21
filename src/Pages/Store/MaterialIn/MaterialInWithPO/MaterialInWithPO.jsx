@@ -44,7 +44,11 @@ import SuccessPage from "../SuccessPage";
 import { imsAxios } from "../../../../axiosInterceptor";
 import Loading from "../../../../Components/Loading";
 import { v4 } from "uuid";
-import { getVendorOptions } from "../../../../api/general.ts";
+import {
+  checkInvoiceforMIN,
+  getVendorOptions,
+  poMINforMIN,
+} from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
@@ -199,10 +203,19 @@ export default function MaterialInWithPO({}) {
     try {
       const invoices = values.componentData.invoice;
       setSubmitLoading(true);
-      const { data } = await imsAxios.post("/backend/checkInvoice", {
+      let payload = {
         invoice: invoices,
         vendor: searchData.vendor,
-      });
+      };
+      const response = await executeFun(
+        () => checkInvoiceforMIN(payload),
+        "select"
+      );
+      // const { data } = await imsAxios.post("/backend/checkInvoice", {
+      //   invoice: invoices,
+      //   vendor: searchData.vendor,
+      // });
+      let { data } = response;
       if (data) {
         setSubmitLoading(false);
         if (data.invoicesFound) {
@@ -243,8 +256,10 @@ export default function MaterialInWithPO({}) {
           poid: poData.headers.transaction,
         };
         final = { ...final, ...values.componentData };
-        const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
-        console.log("data po min", data);
+        const response = await executeFun(() => poMINforMIN(final), "select");
+        // const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
+        // console.log("data po min", data);
+        let { data } = response;
 
         // setSubmitLoading(false);
         if (data.code == "200") {
@@ -1372,6 +1387,8 @@ export default function MaterialInWithPO({}) {
             span={18}
             style={{ height: "85%", padding: 0, border: "1px solid #eeeeee " }}
           >
+            {" "}
+            {pageLoading || (loading1("select") && <Loading />)}
             <FormTable columns={columns} data={poData?.materials} />
           </Col>
 
