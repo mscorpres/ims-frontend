@@ -3,7 +3,7 @@ import { Card, Col, Divider, Row, Typography } from "antd";
 import MyDatePicker from "../../Components/MyDatePicker";
 
 const Section3 = ({ columns, rows, title, date, setDate }) => {
-  console.log("section3 rows", rows);
+  // console.log("section3 rows", rows);
   return (
     <Col span={12} style={{ minHeight: "100%" }}>
       <Card

@@ -51,7 +51,7 @@ const MyDatePicker = ({
     return current && current < dayjs().subtract(days, "d");
   };
 
-  console.log("disabledDate: ", disabledtheDate);
+  // console.log("disabledDate: ", disabledtheDate);
   return (
     <DatePicker.RangePicker
       defaultValue={searchDateRange}
