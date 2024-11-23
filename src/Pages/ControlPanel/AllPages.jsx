@@ -171,7 +171,7 @@ const AddPageModal = ({ isModalOpen, setIsModalOpen, getRows }) => {
     },
   ];
 
-  const test = async () => {//test api 
+  const test = async () => {
     try {
       const values = await form.validateFields();
 
