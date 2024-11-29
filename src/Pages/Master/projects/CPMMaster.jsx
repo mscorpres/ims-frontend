@@ -26,12 +26,12 @@ import TableActions, {
   CommonIcons,
 } from "../../../Components/TableActions.jsx/TableActions";
 import EditProjectForm from "./EditProjectForm";
+import UpdateProjectModal from "./UpdateProjectModal";
 
 function CPMMaster() {
   const [rows, setRows] = useState([]);
   // const [asyncOptions, setAsyncOptions] = useState([]);
-  // const [selectLoading, setSelectLoading] = useState(false);
-  // const [submitLoading, setSubmitLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editProject, setEditProject] = useState(false);
 
@@ -56,6 +56,21 @@ function CPMMaster() {
     }
   };
 
+  const handleSubmit = async (updatedData) => {
+    try {
+      const response = await imsAxios.put('/ppr/update/project', updatedData);
+      if (response.data.code === 200) {
+        toast.success("Project updated successfully!");
+        setIsModalVisible(false);
+        getAllDetailFun(); // Refresh the data after successful update
+      } else {
+        toast.error(response.data.message.msg);
+      }
+    } catch (error) {
+      toast.error("Failed to update the project. Please try again.");
+    }
+  };
+
   const handleDownload = () => {
     downloadCSV(rows, columns, "All Projects");
   };
@@ -73,7 +88,10 @@ function CPMMaster() {
         // Edit icon
         <TableActions
           action="edit"
-          onClick={() => setEditProject(row.project)}
+          onClick={() => {
+            setIsModalVisible(true);
+            setEditProject(row);
+          }}
         />,
       ],
     },
@@ -126,6 +144,12 @@ function CPMMaster() {
         nextLabel="Submit"
         resetFunction={resetFunction}
       /> */}
+      <UpdateProjectModal
+        data={editProject}
+        setIsModalVisible={setIsModalVisible}
+        isModalVisible={isModalVisible}
+        onUpdate={handleSubmit}
+      />
     </Row>
   );
 }

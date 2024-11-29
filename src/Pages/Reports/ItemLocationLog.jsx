@@ -242,7 +242,7 @@ export default function ItemLocationLog() {
       width: 120,
     },
     {
-      headerName: "Weighted Purchase",
+      headerName: "Weighted Purchase Rate",
       field: "weightedPurchaseRate",
       width: 180,
     },
