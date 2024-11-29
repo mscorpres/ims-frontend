@@ -12,6 +12,7 @@ import useApi from "../../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../../api/general.ts";
 const CreateBom = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [projectData, setProjectData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [productSelected, setProductSelected] = useState(false);
   const [uploadType, setUploadType] = useState("table");
@@ -71,6 +72,7 @@ const CreateBom = () => {
         mapped_sfg: values.type === "Y" ? values.partCode.value : undefined,
         sku: values.sku,
         bom_level: values.level,
+        bom_project: values.project,
       };
       formData.append("excelFile", obj.file);
       formData.append("bom_recipe_type", obj.bom_recipe_type);
@@ -78,6 +80,7 @@ const CreateBom = () => {
       formData.append("mapped_sfg", obj.mapped_sfg);
       formData.append("sku", obj.sku);
       formData.append("bom_level", obj.bom_level);
+      formData.append("bom_project",obj.project)
 
       finalObj = formData;
     }
@@ -90,6 +93,7 @@ const CreateBom = () => {
         mapped_sfg: values.type === "Y" ? values.partCode.value : undefined,
         sku: values.sku,
         bom_level: values.level,
+        bom_project: values.project,
         bom_components: {
           component_key: values.components.map((row) => row.component.key),
           qty: values.components.map((row) => row.qty),
@@ -177,6 +181,29 @@ const CreateBom = () => {
     }
   };
 
+  const fetchProjects = async () => {
+    const response = await imsAxios.post("/ppr/allProjects");
+    const { data } = response?.data;
+    if (data) {
+      if (data.length) {
+        const arr = data.map((row) => ({
+          value: row.project,
+          text: row.description,
+        }));
+
+        setProjectData(arr);
+      } else {
+        setProjectData([]);
+      }
+    } else {
+      setProjectData([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+  },[])
+  
   useEffect(() => {
     if (files) {
       setStage("preview");
@@ -213,6 +240,7 @@ const CreateBom = () => {
               asyncOptions={asyncOptions}
               stage={stage}
               setAsyncOptions={setAsyncOptions}
+              projectData={projectData}
             />
           </Col>
           <Col span={18} style={{ height: "100%", overflow: "auto" }}>

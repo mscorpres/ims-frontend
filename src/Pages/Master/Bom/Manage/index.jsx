@@ -172,6 +172,11 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
+    headerName: "Project",
+    field: "bom_project",
+    minWidth: 150,
+  },
+  {
     headerName: "Level",
     field: "level",
     minWidth: 50,
