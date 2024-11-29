@@ -32,6 +32,7 @@ import {
   rateCell,
   autoConsumptionCell,
   gstRate,
+  manualMFGCode,
 } from "./TableCollumns";
 import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import CurrenceModal from "../CurrenceModal";
@@ -254,6 +255,7 @@ export default function MaterialInWithPO({}) {
           companybranch: "BRMSC012",
           invoices: fileData.data,
           poid: poData.headers.transaction,
+          manual_mfg_code: poData.materials.map((row) => row.mfgCode),
         };
         final = { ...final, ...values.componentData };
         const response = await executeFun(() => poMINforMIN(final), "select");
@@ -607,6 +609,13 @@ export default function MaterialInWithPO({}) {
       renderCell: ({ row }) => <ToolTipEllipses text={row.mfg} />,
       sortable: false,
       width: 180,
+    },
+    {
+      headerName: "Manual MFG",
+      name: "mfgCode",
+      width: 100,
+      // renderCell: ({ row }) => ,
+      renderCell: (params) => manualMFGCode(params, inputHandler),
     },
     {
       headerName: "QTY",

@@ -679,6 +679,13 @@ export default function MaterialInWithoutPO() {
       field: (_, index) => <Input disabled />,
     },
     {
+      headerName: "Manual MFG",
+      name: "mfgCode",
+      width: 100,
+      // renderCell: ({ row }) => ,
+      field: (_, index) => <Input type="string" />,
+    },
+    {
       headerName: "Qty",
       name: "qty",
       width: 100,

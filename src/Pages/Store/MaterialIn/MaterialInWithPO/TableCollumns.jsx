@@ -21,6 +21,13 @@ export const QuantityCell = ({ row }, inputHandler) => (
     suffix={row.unitsname}
   />
 );
+
+export const manualMFGCode = ({ row }, inputHandler) => (
+  <Input
+    value={row.mfgCode}
+    onChange={(e) => inputHandler("mfgCode", e.target.value, row.id)}
+  />
+);
 export const rateCell = ({ row }, inputHandler, currencies) => (
   <Input.Group compact>
     <Input
