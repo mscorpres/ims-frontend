@@ -75,6 +75,7 @@ export const materialInWithoutPo = async (values, fileName, vendorType) => {
     component: values?.components.map((row) => row.component?.value),
     qty: values.components.map((row) => row.qty),
     rate: values.components.map((row) => row.rate),
+    manual_mfg_code: values.components.map((row) => row.mfgCode),
     currency: values.components.map((row) => row.currency),
     exchange: values.components.map((row) => row.exchangeRate),
     invoice: values.components.map((row) => row.invoiceId),
