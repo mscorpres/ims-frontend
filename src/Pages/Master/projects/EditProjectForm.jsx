@@ -67,11 +67,11 @@ export default function EditProjectForm({
     }
   };
 
-  useEffect(() => {
-    if (editProject) {
-      getDetails();
-    }
-  }, [editProject]);
+  // useEffect(() => {
+  //   if (editProject) {
+  //     getDetails();
+  //   }
+  // }, [editProject]);
   return (
     <Form
       name="edit-project"
