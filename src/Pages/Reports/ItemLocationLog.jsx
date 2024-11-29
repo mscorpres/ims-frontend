@@ -242,7 +242,7 @@ export default function ItemLocationLog() {
       width: 120,
     },
     {
-      headerName: "Weighted Purchase Rate",
+      headerName: "Weighted Purchase",
       field: "weightedPurchaseRate",
       width: 180,
     },
@@ -286,6 +286,11 @@ export default function ItemLocationLog() {
       field: "doneby",
       minWidth: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
+    },
+    {
+      headerName: "Remark",
+      field: "remark",
+      width: 400,
     },
   ];
 
