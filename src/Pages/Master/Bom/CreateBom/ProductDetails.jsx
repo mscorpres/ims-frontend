@@ -19,12 +19,11 @@ const ProductDetails = ({
   selectLoading,
   setAsyncOptions,
   stage,
-  projectData,
 }) => {
   const toggleInputType = (e) => {
     setUploadType(e.target.value);
   };
-  
+  console.log(uploadType);
   const productType = Form.useWatch("type");
 
   return (
@@ -51,7 +50,7 @@ const ProductDetails = ({
           <Form.Item label="Product Type" name="type" rules={rules.type}>
             <MySelect options={typeOptions} />
           </Form.Item>
-        </Col>
+        </Col>{" "}
         <Col span={24}>
           <Row justify="end">
             <Space>
@@ -80,11 +79,6 @@ const ProductDetails = ({
         <Col span={24}>
           <Form.Item label="Product" name="product" rules={rules.product}>
             <Input disabled />
-          </Form.Item>
-        </Col>
-        <Col span={24}>
-          <Form.Item label="Project" name="project" rules={rules.project}>
-            <MySelect options={projectData} />
           </Form.Item>
         </Col>
         {productType === "Y" && (
@@ -206,12 +200,6 @@ const rules = {
     {
       required: true,
       message: "Please enter SFG Part Code",
-    },
-  ],
-  project: [
-    {
-      required: true,
-      message: "Please select a Project",
     },
   ],
 };

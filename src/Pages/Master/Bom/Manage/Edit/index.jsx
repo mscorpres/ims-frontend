@@ -426,13 +426,6 @@ const SummaryCard = ({ details, bomType }) => {
         </Col>
         <Divider style={{ margin: 7 }} />
         <Col span={24}>
-          <Typography.Text strong>Project</Typography.Text>
-        </Col>
-        <Col span={24}>
-          <Typography.Text>{details?.project || "--"}</Typography.Text>
-        </Col>
-        <Divider style={{ margin: 7 }} />
-        <Col span={24}>
           <Typography.Text strong>BOM</Typography.Text>
         </Col>
         <Col span={24}>
