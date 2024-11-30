@@ -34,7 +34,6 @@ export const getOrderDetails = async (orderId) => {
 };
 
 export const createOrder = async (payload) => {
-  console.log("payload", payload);
   const response = await imsAxios.post(
     "/sellRequest/createSellRequest",
     payload
@@ -106,7 +105,6 @@ export const getChallanList = async (wise, searchTerm) => {
   return response;
 };
 export const getCourierList = async (search) => {
-  console.log("search", search);
   const response = await imsAxios.post(
     "/so_challan_shipment/fetchCourierList",
     {
@@ -181,7 +179,6 @@ export const createChallanFromSo = async (shipments, values, componentList) => {
   return response;
 };
 export const createInvoiceFromSo = async (shipments, values, rows) => {
-  console.log("rows", rows);
   let payload = {
     shipment_id: shipments.map((r) => r.shipmentId),
     so_id: shipments.map((r) => r.soId),
@@ -199,13 +196,11 @@ export const createInvoiceFromSo = async (shipments, values, rows) => {
   return response;
 };
 export const cancelChallanFromSo = async (singleRow, remark) => {
-  console.log("singlerwo", singleRow);
   let payload = {
     so_shipment_id: singleRow.shipment_id,
     remark: remark,
   };
 
-  console.log("payload", remark);
   const response = await imsAxios.post(
     "/so_challan_shipment/cancelSOshipment",
     payload
@@ -214,9 +209,6 @@ export const cancelChallanFromSo = async (singleRow, remark) => {
 };
 
 export const createShipment = async (values, open, details) => {
-  // console.log("values", values);
-  // console.log("details", details);
-  // return;
   const payload = {
     header: {
       bill_id: values.billingId.value,
@@ -247,14 +239,12 @@ export const createShipment = async (values, open, details) => {
       updaterow: values.products.map((row) => row.updateid),
     },
   };
-  // console.log("payload", payload);
   // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/saveSOShipment",
     payload
   );
   return response;
-  // console.log("this is the values", payload);
 };
 
 export const fetchShipmentDetails = async (shipmentId) => {
@@ -367,7 +357,6 @@ export const updateShipment = async (
       igst: values.products.map((row) => row.igst),
     },
   };
-  console.log("payload", payload);
   // return;
   const response = await imsAxios.post(
     "/so_challan_shipment/updateSOshipment",

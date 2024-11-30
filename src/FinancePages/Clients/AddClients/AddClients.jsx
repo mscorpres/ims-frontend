@@ -73,7 +73,6 @@ export default function AddClients() {
     const response = await imsAxios.post("/client/add", newObj);
     setSubmitLoading(false);
     const { data } = response;
-    console.log("data", data);
     if (data) {
       if (data.code === 200) {
         toast.success(data.message);

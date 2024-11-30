@@ -20,7 +20,6 @@ const downloadFunction = (buffer, filename, type) => {
   ]);
   // const url = URL.createObjectURL(file);
   // return url;
-  console.log(filename);
   fileDownload(file, `${filename}.pdf`);
 };
 const downloadExcel = (buffer, filename, type) => {

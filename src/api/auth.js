@@ -2,7 +2,6 @@ import axios from "axios";
 import { imsAxios } from "../axiosInterceptor";
 
 export const verifyToken = async (token) => {
-  console.log("setting header auth otken", token);
   const response = await imsAxios.get(
     "/auth/isValid",
 
@@ -18,7 +17,6 @@ export const verifyToken = async (token) => {
 
 export const getDetails = async () => {
   const response = await imsAxios.get("/profile/userDetails");
-  console.log("getDetails response", response);
   if (response.data.code === 200) {
     const values = response.data.data;
     response.data = {

@@ -179,7 +179,6 @@ export const downloadCSVCustomColumns = (csvData, name) => {
 
 export function exportCSVFile(items, fileTitle) {
   let arr = items;
-  // console.log("items here it is", items);
   const wb = xlsx.utils.book_new();
   const ws = xlsx.utils.aoa_to_sheet(arr);
   xlsx.utils.book_append_sheet(wb, ws, "Sheet 1");

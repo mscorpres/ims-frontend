@@ -135,12 +135,10 @@ function EditClient({
   const getAllTcsCall = async () => {
     setTcsOptions([]);
     const { data } = await imsAxios.get("/tally/tcs/getAllTcs");
-    console.log(data);
 
     let tcsArr = data?.map((row) => {
       return { text: row.tcsName, value: row.tcsKey };
     });
-    console.log(tcsArr);
     setTcsOptions(tcsArr);
   };
 
@@ -166,9 +164,6 @@ function EditClient({
 
   const submitHandler = async () => {
     const values = await updateClientForm.validateFields();
-    console.log(values);
-    console.log(updatingClient?.code);
-    // console.log(clientStatus);
     let obj = {
       code: updatingClient?.code,
       clientName: values?.name,

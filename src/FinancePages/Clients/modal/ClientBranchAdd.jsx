@@ -54,7 +54,6 @@ function ClientBranchAdd({ branchAddOpen, setBranchAddOpen }) {
     }
   };
   const submitHandler = async () => {
-    console.log(showSubmitConfirm);
     if (!showSubmitConfirm) {
       return;
     }

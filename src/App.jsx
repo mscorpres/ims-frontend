@@ -183,7 +183,6 @@ const App = () => {
       () => verifyToken(token),
       "authenticating"
     );
-    console.log("this is the valid response", response);
     if (response.success) {
       setUser({ token: token });
       imsAxios.defaults.headers["x-csrf-token"] = token;
@@ -194,7 +193,6 @@ const App = () => {
       if (detailsResponse.success) {
         setUser({ ...detailsResponse.data, token });
       }
-      console.log("getDetails response", detailsResponse);
     }
   };
   useEffect(() => {
@@ -206,7 +204,6 @@ const App = () => {
   useEffect(() => {
     const otherData = JSON.parse(localStorage.getItem("otherData"));
     const paramsToken = queryParams.get("authToken")?.replaceAll(" ", "+");
-    console.log("this is the query params", queryParams.get("authToken"));
     if (Notification.permission == "default") {
       Notification.requestPermission();
     }
@@ -242,10 +239,6 @@ const App = () => {
       socket.on("all-notifications", (data) => {
         let arr = data.data;
         arr = arr.map((row) => {
-          console.log(
-            "this one in norification",
-            JSON.parse(row.other_data)?.message
-          );
           return {
             ...row,
             type: row.msg_type,
@@ -297,7 +290,6 @@ const App = () => {
 
       // event for starting detail
       socket.on("download_start_detail", (data) => {
-        console.log("start details arrived");
         toast.success("Your report has been started generating");
         if (data.title || data.details) {
           let arr = notificationsRef.current;
@@ -455,7 +447,6 @@ const App = () => {
       // getting all notifications
       socket.on("all-notifications", (data) => {
         let arr = data.data;
-        // console.log("allnotifications", arr);
         arr = arr.map((row) => {
           return {
             ...row,
@@ -608,15 +599,11 @@ const App = () => {
       "The internet is back online. Would you like to reload to prevent any data duplication? Please note that this will result in the loss of your current progress."
     );
     if (result) {
-      console.log("User clicked OK");
       window.location.reload();
-    } else {
-      console.log("User clicked Cancel");
     }
   };
   useEffect(() => {
     window.addEventListener("offline", (e) => {
-      console.log("offline", e);
       toast(
         "You are no longer connected to the Internet, please check your connection and try again."
       );
@@ -633,8 +620,6 @@ const App = () => {
   useEffect(() => {
     setModulesOptions([]);
     if (searchModule.length > 2) {
-      // console.log("Search module is here", searchModule);
-      // console.log("Search msearchHis", searchHis);
       let searching = searchHis.filter((i) => i.value === searchModule);
       // setHisList([...hisList,searching]);
       let a = hisList.push(...hisList, ...searching);
@@ -642,8 +627,6 @@ const App = () => {
       const filtered = hisList.filter(
         ({ text }, index) => !ids.includes(text, index + 1)
       );
-      // console.log("Search module Array after filtering in here", a);
-      // console.log("Search module Array after filtering in here", filtered);
       // setHisList(filtered);
       // localStorage.setItem("searchHistory", hisList);
       localStorage.setItem("searchHistory", JSON.stringify({ filtered }));
@@ -653,7 +636,6 @@ const App = () => {
   }, [searchModule]);
 
   const showRecentSearch = () => {
-    console.log("obj in fnc");
     let obj = JSON.parse(localStorage.getItem("searchHistory"));
     // localStorage.setItem("searchHistory", JSON.stringify({ filtered }));
 
