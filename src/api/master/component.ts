@@ -22,6 +22,7 @@ interface GetComponentsType {
   }[];
 }
 export const getComponentList = async (crn: string) => {
+  console.log("this is the passed crn", crn);
   const response: ResponseType = await imsAxios.get("/component");
   let arr = [];
   if (response.success) {
@@ -63,6 +64,7 @@ export const getAlternativePartCodes = async (componentKey) => {
     componentKey,
   });
 
+  console.log("aternate code response", response);
   let arr = [];
   if (response.success) {
     arr = response.data.map((row, index) => ({
@@ -212,6 +214,8 @@ export const createComponent = async (
   const attrName = new Set<string>();
   const attrValueKey = new Set<string>();
 
+  console.log("crete payload", attributes);
+
   for (let key in attributes) {
     const current = attributes[key];
     const foundAttr = allAttributeOptions.find(
@@ -250,6 +254,7 @@ export const createComponent = async (
     request_by: values.raisedBy,
   };
 
+  console.log("crete payload 123", payload);
   return;
   const response = await imsAxios.post("/component/addComponent/save", payload);
   return response;

@@ -46,6 +46,7 @@ function EditTCS({
     const { data } = await imsAxios.get(
       `/tally/tcs/tcsLedgerOptions?search=${search}`
     );
+    // console.log(data.data);
     setSelectLoading(false);
     let arr = [];
     if (!data.msg) {
@@ -98,6 +99,13 @@ function EditTCS({
   useEffect(() => {
     setTCSData(editingTCS);
   }, [editingTCS]);
+
+  // useEffect(() => {
+  //   console.log("Before Edit TCS-> ", editingTCS);
+  // }, [editingTCS]);
+  // useEffect(() => {
+  //   console.log("Afterv Edit TCS-> ", tcsData);
+  // }, [tcsData]);
 
   return (
     <Drawer

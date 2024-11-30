@@ -20,6 +20,7 @@ function NatureofTCS() {
     percentage: "",
     ledger: "",
   });
+  // console.log(newTCS);
   const [loading, setLoading] = useState(false);
   const [allGLDataa, setAllGLData] = useState([]);
   const [formLoading, setFormLoading] = useState(false);

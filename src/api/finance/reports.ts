@@ -11,6 +11,7 @@ export const getLedgerReport = async (vendorCode, dateRange) => {
   let summary = {};
 
   if (response.data.code === 200) {
+    console.log(response);
     arr = response.data.data.rows.map((row, index) => ({
       id: index + 1,
       creditAmount: row.credit,

@@ -55,6 +55,11 @@ export const createBOM = async (
       : +Number(values.latestVersion).toFixed(2);
 
   if (isUpdating) {
+    // console.log("updateType", updateType);
+    // console.log("version", version);
+    // console.log("values", values);
+    // console.log("ogName", ogName);
+
     if (updateType === "ecn") {
       version = version + 0.01;
       if( values.name !== ogName){
@@ -70,9 +75,14 @@ export const createBOM = async (
     version = version + ".0";
     version = Number(version).toFixed(1);
   }
+  // console.log("version", version);
 
+  // console.log("values", values);
+  // console.log("isBomRej", isBomRej);
+  // return;
   let arr1: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
+    // console.log("row in create bom", row);
     // return;
     obj.stage = `L${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({
@@ -91,6 +101,7 @@ export const createBOM = async (
   //parsing approvers
   let arr: CreateBOMType["approvalMetrics"] = approvals.map((row) => {
     let obj: CreateBOMType["approvalMetrics"][0] = row;
+    // console.log("row in create bom", row);
     // return;
     obj.stage = `${obj.stage}`;
     obj.approvers = obj.approvers.map((app) => ({

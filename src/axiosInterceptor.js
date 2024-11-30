@@ -9,6 +9,7 @@ const generateUniqueId = () => {
 
 // Example usage
 const newId = generateUniqueId();
+console.log("Generated Unique ID:", newId);
 
 const formatTimestamp = () => {
   const now = new Date();
@@ -57,6 +58,7 @@ imsAxios.interceptors.request.use(
 imsAxios.interceptors.response.use(
   (response) => {
     if (response.data?.success !== undefined) {
+      console.log("this is the response from axios interceptor", response.data);
       return response.data;
     }
     return response;
@@ -70,6 +72,7 @@ imsAxios.interceptors.response.use(
         return error;
       }
       if (error?.response.data.success !== undefined) {
+        console.log("this is the error response", error);
         toast.error(error.response.data.message);
       }
       //  else {
@@ -98,7 +101,7 @@ imsAxios.interceptors.response.use(
     return error.response;
   }
 );
-
+console.log("this is the company branch", localStorage.getItem("otherData"));
 let branch =
   JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "BRMSC012";
 let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "24-25";

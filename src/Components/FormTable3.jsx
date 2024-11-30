@@ -80,6 +80,7 @@ const FormTable3 = ({
     } else {
       // let newObj = data.find((row) => row.id === id);
       let newObj = editingRow;
+      console.log("this is the newobj", newObj);
       setEditingRow({ ...newObj, [name]: value });
     }
   };

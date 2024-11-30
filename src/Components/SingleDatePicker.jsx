@@ -25,9 +25,12 @@ export default function SingleDatePicker({
     }
 
     if (!pickerType && setDate) {
+      console.log("this is the date string", dateString);
       setDate(dateString);
     }
     if (pickerType && setDate) {
+      console.log("this is the date ", date);
+      console.log("this is the date string", dateString);
       setDate(date);
     }
   };

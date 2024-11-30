@@ -4,13 +4,14 @@ import { imsAxios } from "../axiosInterceptor";
 import { RowProps } from "antd";
 
 export const getVendorOptions = async (search) => {
+  console.log("here", search);
   try {
     const response = await imsAxios.post("/backend/vendorList", {
       search,
     });
     return response;
   } catch (error) {
-    console.error("something happened wrong", error);
+    console.log("something happened wrong", error);
   }
 };
 
