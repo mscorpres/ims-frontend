@@ -14,6 +14,7 @@ interface CreateBOMType {
   sku: string;
   description: string;
   version: string;
+  placements:[];
   approvalMetrics: {
     stage: string;
     approvers: {

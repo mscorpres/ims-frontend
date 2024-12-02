@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
 import {
-  Button,
   Card,
   Col,
-  Divider,
   Flex,
   Form,
   Input,
-  InputNumber,
   Modal,
   Row,
-  Tabs,
   Tooltip,
   Typography,
   Upload,
@@ -20,15 +16,10 @@ import MyButton from "@/Components/MyButton";
 
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import TableActions from "@/Components/TableActions.jsx/TableActions";
-import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
-import { ModalType, ResponseType, SelectOptionType } from "@/types/general";
-import { convertSelectOptions, downloadFromLink } from "@/utils/general";
-import {
-  getComponentMfgCodeAndType,
-  getComponentOptions,
-  getVendorOptions,
-} from "@/api/general";
+import { ModalType, SelectOptionType } from "@/types/general";
+import { convertSelectOptions } from "@/utils/general";
+import { getComponentMfgCodeAndType, getComponentOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
@@ -194,11 +185,9 @@ const BOMCreate = () => {
       "fetch"
     );
     return response;
-    console.log("this is the response 123", response);
   };
 
   const handleUpdateCompnent = async () => {
-    // setApprovers(initialApprovers);
     const values = await form.validateFields([
       "component",
       "qty",
@@ -250,7 +239,6 @@ const BOMCreate = () => {
       "vendor",
       "locations",
     ]);
-    // handleCancelEditing();
   };
 
   const handleDeleteComponent = (
@@ -278,7 +266,6 @@ const BOMCreate = () => {
 
   const validateHandler = async (action: "final" | "draft") => {
     await form.validateFields(["name", "version", "product"]);
-    // setApprovers(initialApprovers);
     setSaveType(action);
     setShowApproverMetrics(true);
   };
@@ -287,13 +274,7 @@ const BOMCreate = () => {
 
     return data.map((item) => {
       if (typeof item.stage === "string") {
-        // console.log(" item.stage", item.stage);
-
-        // Extract the numeric part from the string using a regular expression
         const match = item.stage.match(/\d+/);
-        // console.log("match", match);
-
-        // Replace `stage` with the extracted number, if found
         item.stage = match ? parseInt(match[0], 10) : item.stage;
       }
       return item;
@@ -303,18 +284,11 @@ const BOMCreate = () => {
     const userConfirmed = window.confirm(
       "BOM has been created successfully,Do you wish to go to BOM List?"
     );
-
     if (userConfirmed) {
-      // User clicked OK
-      // console.log("User confirmed.");
       navigate(routeConstants.researchAndDevelopment.bom.list);
       window.location.reload();
-      // Place your logic for confirmation here
     } else {
-      // User clicked Cancel
-      // console.log("User canceled.");
       window.location.reload();
-      // Place your logic for cancellation here
     }
   }
 
@@ -348,24 +322,14 @@ const BOMCreate = () => {
     if (response.success) {
       setBomId("");
       setIsBomRej(false);
-      // window.location.reload();
-      // setApprovers(initialApprovers);
       setShowApproverMetrics(false);
       resetHandler();
       showConfirmation();
-      // if (action === "draft") {
-      //   setApprovers(initialApprovers);
-      //   navigate(routeConstants.researchAndDevelopment.bom.drafts);
-      // } else {
-      //   setApprovers(initialApprovers);
-      //   navigate(routeConstants.researchAndDevelopment.bom.list);
-      // }
     } else {
       if (approvers) {
         const updatedData = convertStageToNumber(approvers);
         setApprovers(updatedData);
       }
-      // setShowApproverMetrics(false);
     }
   };
   const normFile = (e) => {
@@ -379,20 +343,14 @@ const BOMCreate = () => {
     sku: string,
     version: string = "1.0"
   ) => {
-    // setApprovers(initialApprovers);
-    console.log("going version", version);
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-    console.log("response", response.data);
 
     if (response.success) {
-      // setApprovers(initialApprovers);
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
-        // form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
-        // form.setFieldValue("name", selectedProduct?.label);
         return;
       }
 
@@ -405,27 +363,18 @@ const BOMCreate = () => {
         setShowUpdateTypeModal(true);
       }
       if (response.data && Array.isArray(response.data)) {
-        // form.setFieldsValue({
-        // });
-        // setMainComponents([]);
         // setSubComponents([]);
       } else if (response.data && response.data.length === undefined) {
         if (response.data.code == 417) {
           // form.setFieldValue("version", "1.0");
-          // form.setFieldValue("name", selectedProduct?.label + "-V-1.0");
-          // toast.info(
-          //   " Kindly Approve that Previous Version of this BOM to create a new one"
-          // );
         } else {
-          console.log("here it is");
-          console.log("here it is", response.data?.id);
           setBomId(response.data.id);
           setIsBomRej(response.data.isRejected);
           if (!queryParams.get("sku") && !queryParams.get("version")) {
             setShowRedirectModal(true);
             return;
           }
-          console.log("it is here down", response.data);
+          setOgName(response.data.name);
           form.setFieldsValue(response.data);
           setLatestVersion(response.data.latestVersion);
 
@@ -452,8 +401,6 @@ const BOMCreate = () => {
 
   const handleCancelEditing = () => {
     // setIsEditing(false);
-    // form.resetFields();
-    // form.resetFields();
   };
 
   // downloadSampleComponentFile
@@ -571,10 +518,6 @@ const BOMCreate = () => {
                   />
                 </Upload>
               </Form.Item>
-              {/* <Flex justify="center" gap={5}>
-                <MyButton variant="reset" />
-                <MyButton variant="submit" onClick={validateHandler} />
-              </Flex> */}
             </Card>
             {/* Component add card */}
             <AddComponent
@@ -597,7 +540,6 @@ const BOMCreate = () => {
               selectedFile={selectedFile}
               setAsyncOptions={setAsyncOptions}
               setSelectedFile={setSelectedFile}
-              subComponents={subComponents}
               validateHandler={validateHandler}
               submitHandler={submitHandler}
             />
@@ -609,7 +551,6 @@ const BOMCreate = () => {
               submitHandler={submitHandler}
               submitLoading={loading("final") || loading("draft")}
               saveType={saveType}
-              // initialApprovers={initialApprovers}
             />
           </Flex>
         </Col>
@@ -768,15 +709,6 @@ const Components = ({
                         {row.component.label ?? row.component.text}
                       </Typography.Text>
                     </Tooltip>
-                    {/* //removed due to multiple showing  */}
-                    {/* <Typography.Text
-                      style={{
-                        fontSize: 13,
-                        color: row.mfgCode?.length === 0 ? "red" : "black",
-                      }}
-                    >
-                      {row.component.label ?? row.component.text}
-                    </Typography.Text> */}
                   </Col>
                   <Col span={2}>
                     <Typography.Text style={{ fontSize: 13 }}>
@@ -820,12 +752,6 @@ const Components = ({
                           handleDeleteComponent(row.value, row.type)
                         }
                       />
-                      {/* <CommonIcons
-                        action="deleteButton"
-                        onClick={() =>
-                          handleDeleteComponent(row.value, row.type)
-                        }
-                      /> */}
                     </Flex>
                   </Col>
                 </>
