@@ -44,7 +44,7 @@ const BOMList = () => {
     setRows(response.data);
   };
 
-  console.log("attachlist", attachlist);
+  
   const actionColumns = [
     {
       headerName: "",
@@ -204,12 +204,6 @@ const columns = [
   },
   //
   {
-    headerName: "Name",
-    minWidth: 200,
-    flex: 1,
-    field: "name",
-  },
-  {
     headerName: "Created On",
     width: 150,
     field: "createdOn",
@@ -241,8 +235,8 @@ const columns = [
     ),
   },
   {
-    headerName: "Description",
+    headerName: "Created By",
     width: 250,
-    field: "description",
+    field: "createdBy",
   },
 ];

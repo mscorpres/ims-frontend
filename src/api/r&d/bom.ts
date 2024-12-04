@@ -166,21 +166,25 @@ export const createBOM = async (
 };
 
 interface GetBOMListType {
-  name: string;
-  description: string;
-  bomID: string;
+  product_name: string;
+  product_sku: string;
+  key: string;
   sku: string;
   createdAt: string;
   currentApprover: string;
   version: string;
   documents: [];
+  vendor_name: string;
+  createDate: string;
+  status: string;
+  createby: string;
 }
 export const getBOMList = async (action: "final" | "draft") => {
   let url = "";
   if (action === "draft") {
     url = "/bom/fetchBom/draft";
   } else {
-    url = "/bom/fetch";
+    url = "/bomRnd/bomList";
   }
   const response: ResponseType = await imsAxios.get(url);
   let arr: BOMTypeExtended[] = [];
@@ -189,18 +193,17 @@ export const getBOMList = async (action: "final" | "draft") => {
     const obj: GetBOMListType[] = response.data;
     arr = obj.map((row, index: number) => ({
       currentApprover: row.currentApprover,
-      description: row.description,
       status: row?.status,
-      name: row.name,
-      productName: row.productName,
-      sku: row.sku,
-      key: row.bomID,
-      createdOn: row.createdAt,
+      productName: row.product_name,
+      sku: row.product_sku,
+      key: row.key,
+      createdOn: row.createDate,
       components: [],
       id: index + 1,
-
+      createdBy: row.createby,
       version: row.version,
       documents: row.documents,
+      vendorName: row.vendor_name,
     }));
   }
 
@@ -227,31 +230,38 @@ interface GetBomComponentsType {
   location: string;
   vendor: string;
   componentUniqueID: string;
+  kay: string;
+  partno: string;
+  key: string;
+  name: string;
+
 }
+
 export const getComponents = async (bomKey: string) => {
-  const response: ResponseType = await imsAxios.get(`/bom/fetch/${bomKey}`);
+  const response: ResponseType = await imsAxios.get(`/bomRnd/bomDetails/${bomKey}`);
   let arr: BOMType["components"] = [];
 
   if (response.success) {
-    let values: GetBomComponentsType[] = response.data;
+    let values: GetBomComponentsType[] = response.data?.components;
 
+    // Map over each component and create a new structure
     arr = values.map((row, index: number) => ({
-      component: row.component.value,
-      partCode: row.component.partCode,
-      id: index + 1,
-      qty: row.quantity,
-      remarks: row.remarks,
-      status: row.status,
-      type: row.type,
-      name: row.component.text,
+      component: row.key,                    
+      partCode: row.partno,                
+      id: index + 1,               
+      qty: row.quantity,        
+      remarks: row.remarks || null,      
+      status: row.status,                     
+      type: row.type,                      
+      name: row.name,                     
       substituteOf: {
-        key: row.substituteOf?.value,
-        name: row.substituteOf?.text,
-        partCode: row.substituteOf?.partCode,
+        key: row.substituteOf?.value || '',
+        name: row.substituteOf?.text || '',   
+        partCode: row.substituteOf?.partCode || '', 
       },
-      vendor: row.vendor,
-      locations: row.location,
-      uniqueCode: row.componentUniqueID,
+      vendor: row.vendor || null,             
+      locations: row.location || null,         
+      uniqueCode: row.componentUniqueID || '',
     }));
   }
 
@@ -259,6 +269,7 @@ export const getComponents = async (bomKey: string) => {
 
   return response;
 };
+
 
 interface GetLogsType {
   details: {
@@ -282,40 +293,66 @@ interface GetLogsType {
     }[];
   }[];
 }
+
 export const getLogs = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(
-    `/bom/logs?bomID=${bomKey}`
+    `/bomRnd/bomDetails/${bomKey}`
   );
   let arr: BOMApprovalType | {} = {};
 
   if (response.success) {
-    const values: GetLogsType = response.data;
-    arr = {
-      createdBy: values.details.createdBy,
-      createdOn: values.details.createdOn,
-      currentStage: values.details.stage,
-      isRejected: values.details.isRejected,
-      logs: values.logs.map((row) => ({
-        stage: row.stage,
-        approvers: row.approvers.map(
-          (app): MultiStageApproverType["approvers"][0] => ({
-            approvalNumber: app.approvalNumber,
-            line: app.line,
-            currentApprover: app.currentApprover,
-            email: app.Email_ID,
-            name: app.approverName,
-            remarks: app.remarks,
-            user: app.user,
-            remarksDate: app.remarksDate,
-          })
-        ),
-      })),
-    };
+    const values = response.data.approvers; // Assuming the new approvers structure is in response.data.approvers
+    console.log(values, "Approver values");
+
+    // Create a grouped structure by line
+    const groupedLogs = values.reduce((acc, row) => {
+      const existing = acc.find(item => item.line === row.line);
+
+      if (existing) {
+        // If the line already exists, add the stage to the approvers array
+        existing.approvers.push({
+          approvalNumber: row.line,  
+          line: row.line,
+          stage: row.stage,         
+          currentApprover: row.currentApprover,
+          email: row.email,
+          name: row.name,
+          remarks: row.remark,
+          user: row.approver, 
+          remarksDate: row.updateTime || null, 
+          stageLabel:row.stageLable,
+        });
+      } else {
+        // If the line doesn't exist, create a new entry
+        acc.push({
+          line: row.line,
+          approvers: [{
+            approvalNumber: row.line,
+            line: row.line,
+            stage: row.stage,           
+            currentApprover: row.currentApprover,  
+            email: row.email,
+            name: row.name,
+            remarks: row.remark,
+            user: row.approver, 
+            remarksDate: row.updateTime || null,
+            stageLabel:row.stageLable,
+          }],
+        });
+      }
+
+      return acc;
+    }, []);
+
+    arr = { logs: groupedLogs , isRejected: response.data.details.isRejected };
   }
 
   response.data = arr;
   return response;
 };
+
+
+
 export const getRejLogs = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(
     `/bom/fetchRejection?bomID=${bomKey}`
@@ -352,25 +389,29 @@ export const getRejLogs = async (bomKey: string) => {
   return response;
 };
 interface updateStatusType {
-  bomID: string;
-  status: boolean;
-  remarks: string;
+  bom: string;
+  line: number;
+  stage: number;
+  status: string;
+  remark: string;
 }
 export const updateStatus = async (
-  bomKey: string,
-  status: "approve" | "reject",
-  remarks: string,
+  bom: string,
   stage: number,
-  line: number
+  line: number,
+  status: "Approved" | "Rejected",
+  remark: string,
 ) => {
   const payload: updateStatusType = {
-    bomID: bomKey,
-    remarks: remarks,
-    status: status === "approve",
+    bom: bom,
+    remark: remark,
+    status: status,
+    stage: stage,
+    line: line
   };
 
-  const response = await imsAxios.patch(
-    `/bom/approve/temp/${stage}/${line}`,
+  const response = await imsAxios.put(
+    "/bomRnd/updateBOMStatus",
     payload
   );
 
@@ -413,7 +454,7 @@ export const getExistingBom = async (sku: string, version: string) => {
     v = "1.00";
   }
   const response: ResponseType = await imsAxios.get(
-    `/bom/checkExisting?sku=${sku}&version=${version}`
+    `/bomRnd/validProduct/${sku}`
   );
 
   if (response.success) {
@@ -510,4 +551,42 @@ export const downloadSampleComponentFile = async () => {
     downloadFromLink(response.data.url);
   }
   return response;
+};
+
+interface BomComponent {
+  component: string;
+  quantity: number;
+  type: 'main' | 'alternate';
+  placement: string;
+}
+
+interface BomRequest {
+  product: string;
+  bomName: string;
+  brn: string;
+  bomDoc: string[];
+  bomRemark: string;
+  vendor: string;
+  components: BomComponent[];
+  approvers: string[][];
+}
+
+export const createBomRND = async (data: BomRequest) => {
+  const response: ResponseType = await imsAxios.post("/bomRnd/creatBom", data);
+  return response;
+};
+
+export const uploadDocs = async (formData) => {
+  try {
+    const response = await imsAxios.post("/bomRnd/uploadDocs", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Set content type for file uploads
+      },
+    });
+  
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error("API Upload Error:", error);
+    throw error; // You can handle the error here or rethrow it to be handled later
+  }
 };

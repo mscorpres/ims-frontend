@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Button,
   Card,
   Col,
   Flex,
@@ -23,9 +24,11 @@ import { getComponentMfgCodeAndType, getComponentOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
+  createBomRND,
   downloadSampleComponentFile,
   getComponentsFromFile,
   getExistingBom,
+  uploadDocs,
 } from "@/api/r&d/bom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
@@ -35,6 +38,7 @@ import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
 import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
 import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
 import routeConstants from "@/Routes/routeConstants.js";
+import UploadDocumentModal from "@/Pages/R&D/bom/create/UploadDocumentModal";
 
 interface ComponentType {
   component: {
@@ -55,6 +59,8 @@ interface ComponentType {
 }
 
 const BOMCreate = () => {
+  const [visible, setVisible] = useState(false);
+  const [fileList, setFileList] = useState([]);
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
@@ -303,21 +309,27 @@ const BOMCreate = () => {
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
-
     // return
-    const response = await executeFun(
-      () =>
-        createBOM(
-          { ...values, components: combined, latestVersion: latestVersion },
-          approvers,
-          action,
-          isBomUpdating,
-          updateType,
-          isBomRej,
-          bomId
-        ),
-      action
-    );
+    const payload = {
+      product: values.product?.key,
+      bomName: values.name,
+      brn: values.version,
+      bomDoc: values.document,
+      bomRemark: values.description,
+      approvers: approvers.map(
+        (stage) => stage.approvers.map((approver) => approver?.user?.value) // Extract the 'value' of each approver's user
+      ),
+      bomDocs: values.documents,
+      componets: combined.map((item: any) => ({
+        vendor: item?.vendor?.key,
+        component: item.component.value, // Extract the component value
+        quantity: item.qty.toString(), // Ensure quantity is a string
+        type: item.type, // Retain the type
+        placement: item.locations, // Add placement field
+        remark: item.remarks,
+      })),
+    };
+    const response = await executeFun(() => createBomRND(payload), action);
 
     if (response.success) {
       setBomId("");
@@ -352,6 +364,8 @@ const BOMCreate = () => {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
         return;
+      } else {
+        form.setFieldValue("version", response.data.version);
       }
 
       if (
@@ -371,7 +385,7 @@ const BOMCreate = () => {
           setBomId(response.data.id);
           setIsBomRej(response.data.isRejected);
           if (!queryParams.get("sku") && !queryParams.get("version")) {
-            setShowRedirectModal(true);
+            // setShowRedirectModal(true);
             return;
           }
           setOgName(response.data.name);
@@ -386,6 +400,26 @@ const BOMCreate = () => {
           );
         }
       }
+    }
+  };
+
+  const handleUpload = async (files) => {
+    // Create a FormData object
+    const formData = new FormData();
+
+    // Append each file to FormData
+    files.forEach((file) => {
+      formData.append("documents", file.originFileObj); // Use 'originFileObj' for actual file object
+    });
+
+    try {
+      const result = await uploadDocs(formData);
+      form.setFieldValue("documents", result);
+      // Show success toast
+      toast.success("Upload successful");
+      setVisible(false); // Close the modal
+    } catch (error) {
+      console.error("Error during upload:", error); // Handle error
     }
   };
 
@@ -407,7 +441,6 @@ const BOMCreate = () => {
   const handleDownloadComponentSampleFile = () => {
     executeFun(() => downloadSampleComponentFile(), "sample");
   };
-
   useEffect(() => {
     if (queryParams.get("sku")) {
       handleFetchExistingBom(
@@ -498,7 +531,7 @@ const BOMCreate = () => {
               <Form.Item name="description" label="Remarks">
                 <Input.TextArea rows={3} />
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 name="documents"
                 label="Documents"
                 valuePropName="fileList"
@@ -515,9 +548,18 @@ const BOMCreate = () => {
                     variant="upload"
                     text="Select"
                     style={{ width: "100%", marginBottom: 5 }}
+                    onClick={() => setVisible(true)} // Trigger the modal when clicked
                   />
                 </Upload>
-              </Form.Item>
+              </Form.Item> */}
+
+              <Button
+                type="primary"
+                style={{ width: "60%" }}
+                onClick={() => setVisible(true)}
+              >
+                Upload Documents
+              </Button>
             </Card>
             {/* Component add card */}
             <AddComponent
@@ -608,6 +650,13 @@ const BOMCreate = () => {
                     setIsEditing={setIsEditing}
                   />
                 </div>
+                <UploadDocumentModal
+                  open={visible}
+                  close={() => setVisible(false)}
+                  handleUpload={(files) => handleUpload(files)}
+                  fileList={fileList} // Pass the selected file list to the modal
+                  setFileList={setFileList}
+                />
               </Card>
             </Col>
           </Row>
