@@ -48,6 +48,7 @@ export interface BOMType {
   description: string;
   version?: string;
   documents: File[] | { fileName: string; url: string }[];
+  productName?: string;
 
   components: {
     id?: string | number;

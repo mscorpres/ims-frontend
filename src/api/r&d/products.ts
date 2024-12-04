@@ -72,7 +72,7 @@ export const createProduct = async (values: ProductType) => {
 
 export const getProductOptions = async (search: string) => {
   const response: ResponseType = await imsAxios.get(
-    `/products/search/temp?search=${search}`
+    `/bomRnd/search/product?search=${search}`
   );
 
   let arr: SelectOptionType[] = [];

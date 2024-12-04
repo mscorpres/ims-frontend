@@ -300,6 +300,7 @@ interface GetPendingApprovalListType {
   requestedBy: string;
   createdAt: string;
   attributeCategory: SelectOptionType;
+  placement: string;
 }
 export const getPendingApprovalList = async () => {
   const response: ResponseType = await imsAxios.get(
@@ -319,6 +320,7 @@ export const getPendingApprovalList = async () => {
       createdAt: row.createdAt,
       category: row.attributeCategory.text,
       categoryKey: row.attributeCategory.value,
+      locations: row.placement,
     }));
   }
   response.data = arr;

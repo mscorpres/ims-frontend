@@ -19,7 +19,6 @@ const Components = (props: Proptypes) => {
 
   const handleFetchComponents = async (bomKey: string) => {
     const response = await executeFun(() => getComponents(bomKey), "fetch");
-    console.log("compnent response", response);
     setRows(response.data ?? []);
   };
 
@@ -48,7 +47,7 @@ const Components = (props: Proptypes) => {
       open={props.show}
       onClose={props.hide}
       width="100%"
-      title={`BOM: ${props.selectedBOM.name}`}
+      title={`BOM: ${props.selectedBOM.productName}`}
       extra={
         <Flex align="center" gap={10}>
           {rows.length} Components
@@ -120,9 +119,9 @@ const columns = [
     headerName: "Placement",
     width: 100,
     field: "locations",
-    renderCell: ({ row }: { row: BOMType["components"][0] }) => (
-      <ToolTipEllipses text={row.locations?.toUpperCase()} />
-    ),
+    // renderCell: ({ row }: { row: BOMType["components"][0] }) => (
+    //   <ToolTipEllipses text={row.locations?.toUpperCase()} />
+    // ),
   },
   {
     headerName: "Qty",
