@@ -175,7 +175,18 @@ const App = () => {
       setModulesOptions(showHisList);
     }
   }, [modulesOptions]);
-  // notifications recieve handlers
+  // notifications recieve handlers  // Handle connection events
+  socket.on("connect", () => {
+    console.log("WebSocket connected!!!!!!!!!!!!!");
+  });
+
+  socket.on("connect_error", (error) => {
+    console.error("Connection error:", error);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("WebSocket disconnected:", reason);
+  });
   useEffect(() => {
     const otherData = JSON.parse(localStorage.getItem("otherData"));
 
