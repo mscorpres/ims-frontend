@@ -138,14 +138,14 @@ const SingleRow = memo(
     remove,
     index,
     columns,
-    watchKeys,
+    watchKeys=[],
     listName,
     form,
     calculation,
     nonListWatchKeys = [],
     componentRequiredRef = [],
   }) => {
-    const watchValues = watchKeys.map((val) =>
+    const watchValues = watchKeys?.map((val) =>
       form.getFieldValue([listName, field.name, val])
     );
     const nonListWatchValues = nonListWatchKeys?.map((val) =>
