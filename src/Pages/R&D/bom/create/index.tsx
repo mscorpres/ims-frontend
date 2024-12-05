@@ -328,7 +328,7 @@ const BOMCreate = () => {
         type: item.type==="substitute"?"alternate":item.type, // Retain the type
         placement: item.locations, // Add placement field
         remark: item.remarks,
-        altComp: item.substituteOf?.key?item.substituteOf.key:item.substituteOf,
+        altComp: item.substituteOf?.value?item.substituteOf.value:item.substituteOf,
         
       })),
     };

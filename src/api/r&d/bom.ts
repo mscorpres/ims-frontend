@@ -542,11 +542,11 @@ export const getExistingBom = async (sku: string, version: string) => {
             remarks: row.remark,  // Remarks are from the response
             status: row.status,  // Component status
             substituteOf: {  // If applicable, adjust based on available data
-              label: "",  // The original response has no substituteOf, this can be adjusted as per your logic
-              partCode: "",  // Adjust as per data availability
-              value: "",
+              label: row?.altName,  // The original response has no substituteOf, this can be adjusted as per your logic
+              partCode: row?.altPartNo,  // Adjust as per data availability
+              value: row?.altCompKey,
             },
-            type: row.type,  // The component type (main, etc.)
+            type: row.type==="alternate"?"substitute":row.type,  // The component type (main, etc.)
             locations: row.placement,  // Placement locations (p1, p2, etc.)
             vendor: row.vendor?.code,  // Vendor data (though it's "null - null" in your example)
             text: row.name,  // Text associated with the component
