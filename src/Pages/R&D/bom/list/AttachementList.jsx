@@ -20,10 +20,9 @@ const AttachementList = ({
   const handleFetchProductList = async (val) => {
     setLoading(true);
     const response = await imsAxios.get(`/bomRnd/attachment/${val}`);
-    console.log("response", response);
     if (response.success) {
       //   setRows(response.data);
-      let arr = response.data.documents;
+      let arr = response.data;
       let a = arr?.map((r, index) => {
         return {
           id: v4(),
@@ -31,7 +30,6 @@ const AttachementList = ({
           ...r,
         };
       });
-      console.log("a", a);
       setDocumentRow(a);
 
       // console.log("rows", rowing);

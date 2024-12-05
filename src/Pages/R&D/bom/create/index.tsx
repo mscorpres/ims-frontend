@@ -315,17 +315,17 @@ const BOMCreate = () => {
       product: values.product?.key?values?.product.key:values?.product,
       bomName: values.name,
       brn: values.version,
-      bomDoc: values.document,
+      bomDoc: values.documents,
       bomRemark: values.description,
       approvers: approvers.map(
         (stage) => stage.approvers.map((approver:any) => approver?.user?.value) // Extract the 'value' of each approver's user
       ),
-      bomDocs: values.documents,
+      // bomDoc: values.documents,
       componets: combined.map((item: any) => (console.log(item),{
         vendor: item?.vendor?.key?item?.vendor.key:item?.vendor,
         component: item.component.value?item.component.value:item.componentKey, // Extract the component value
         quantity: item.qty.toString(), // Ensure quantity is a string
-        type: item.type, // Retain the type
+        type: item.type==="substitute"?"alternate":item.type, // Retain the type
         placement: item.locations, // Add placement field
         remark: item.remarks,
         altComp: item.substituteOf?.key?item.substituteOf.key:item.substituteOf,
