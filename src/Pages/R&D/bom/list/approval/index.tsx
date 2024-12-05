@@ -352,7 +352,7 @@ const RemarksModal = (props: ModalProps) => {
             <CheckOutlined />
           ),
       }}
-      okText={props.details?.type === "Approved" ? "Approved" : "Rejected"}
+      okText={props.details?.type === "Approved" ? "Approve" : "Reject"}
       title={
         props.details?.type === "Approved"
           ? `Approving ${props.details?.bom?.productName}`
@@ -370,7 +370,7 @@ const RemarksModal = (props: ModalProps) => {
           }}
           strong
         >
-          Are you sure you want to {props.details?.type}{" "}
+          Are you sure you want to {props.details?.type === "Approved" ? "Approve" : "Reject"}
           <span>{props.details?.bom.name}</span>?
         </Typography.Text>
       </Flex>

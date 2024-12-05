@@ -19,11 +19,11 @@ import { getUserOptions } from "@/api/general";
 import { getFixedApprovers } from "@/api/r&d/bom";
 
 interface Props extends ModalType {
-  approvers: MultiStageApproverType[];
+  approvers: any[];
   setApprovers: React.Dispatch<React.SetStateAction<MultiStageApproverType[]>>;
   submitLoading: boolean;
   submitHandler: (action: "draft" | "final") => void;
-  saveType: "draft" | "final";
+  saveType: "draft" | "final" | null|any;
 }
 
 const ApproverMetrics = ({
@@ -36,7 +36,7 @@ const ApproverMetrics = ({
   saveType,
   // initialApprovers,
 }: Props) => {
-  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [asyncOptions, setAsyncOptions] = useState<any>([]);
 
   const { executeFun, loading } = useApi();
   function getLastDigit(input) {
@@ -192,16 +192,16 @@ const ApproverMetrics = ({
   useEffect(() => {
     handleFetchFixedApprovers();
   }, []);
-  function getLastDigit(input) {
-    // Match all digits in the string
-    const match = input.match(/\d+/g);
-    // If matches are found, return the last digit of the last match
-    if (match) {
-      const lastMatch = match[match.length - 1]; // Get the last numeric string
-      return lastMatch[lastMatch.length - 1]; // Return the last digit of the last numeric string
-    }
-    return null; // Return null if no digits are found
-  }
+  // function getLastDigit(input) {
+  //   // Match all digits in the string
+  //   const match = input.match(/\d+/g);
+  //   // If matches are found, return the last digit of the last match
+  //   if (match) {
+  //     const lastMatch = match[match.length - 1]; // Get the last numeric string
+  //     return lastMatch[lastMatch.length - 1]; // Return the last digit of the last numeric string
+  //   }
+  //   return null; // Return null if no digits are found
+  // }
   function convertStageToNumber(data) {
     // console.log("data ub ", data);
 

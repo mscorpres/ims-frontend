@@ -24,7 +24,7 @@ interface GetComponentsType {
 export const getComponentList = async (crn: string) => {
   console.log("this is the passed crn", crn);
   const response: ResponseType = await imsAxios.get("/component");
-  let arr = [];
+  let arr:any = [];
   if (response.success) {
     const values: GetComponentsType = response.data;
     arr = values.components.map((row, index) => ({
@@ -62,7 +62,7 @@ export const downloadServiceMaster = async () => {
 export const getAlternativePartCodes = async (componentKey) => {
   const response = await imsAxios.post("/component/fetchalternatePartcode", {
     componentKey,
-  });
+  }) as any;
 
   console.log("aternate code response", response);
   let arr = [];
@@ -187,6 +187,8 @@ interface VerifyAttributesType {
   attr_category: string;
   attr_code: string;
   manufacturing_code: string;
+  attr_raw?:any;
+  c_category?:any;
 }
 export const verifyAttributes = async (
   attrCategory: string,
@@ -218,8 +220,8 @@ export const createComponent = async (
 
   for (let key in attributes) {
     const current = attributes[key];
-    const foundAttr = allAttributeOptions.find(
-      (row) => row.name === key && row.value === current
+    const foundAttr:any = allAttributeOptions.find(
+      (row:any) => row.name === key && row.value === current
     );
 
     if (foundAttr) {
@@ -232,7 +234,7 @@ export const createComponent = async (
     }
   }
 
-  const payload: VerifyAttributesType = {
+  const payload: any = {
     attr_category: values.attrCategory?.value,
 
     attr_code: values.uniqueId,
@@ -301,6 +303,7 @@ interface GetPendingApprovalListType {
   createdAt: string;
   attributeCategory: SelectOptionType;
   placement: string;
+  remark:string;
 }
 export const getPendingApprovalList = async () => {
   const response: ResponseType = await imsAxios.get(
@@ -321,6 +324,7 @@ export const getPendingApprovalList = async () => {
       category: row.attributeCategory.text,
       categoryKey: row.attributeCategory.value,
       locations: row.placement,
+      remarks:row.remark,
     }));
   }
   response.data = arr;
