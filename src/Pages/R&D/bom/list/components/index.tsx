@@ -108,11 +108,11 @@ const columns = [
     headerName: "Alt. Part Code",
     width: 120,
     field: "subPartCode",
-    valueGetter: ({ row }: { row: BOMType["components"][0] }) => {
-      if (typeof row.substituteOf === "object" && row.substituteOf?.partCode) {
-        return row.substituteOf?.partCode;
-      }
-    },
+    // valueGetter: ({ row }: { row: BOMType["components"][0] }) => {
+    //   if (typeof row.substituteOf === "object" && row.substituteOf?.partCode) {
+    //     return row.substituteOf?.partCode;
+    //   }
+    // },
   },
   // placement here
   {

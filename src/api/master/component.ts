@@ -2,7 +2,52 @@ import { HSNType } from "@/types/master";
 import { imsAxios } from "../../axiosInterceptor";
 import { ResponseType } from "@/types/general";
 
-export const getComponentList = async () => {};
+interface GetComponentsType {
+  approvers: string[];
+  components: {
+    c_attr_category: string;
+    c_name: string;
+    c_new_part_no: string;
+    c_part_no: string;
+    component_key: string;
+    is_enabled: "PENDING" | "YES" | "NO" | "NA";
+    units_name: string;
+    approval_status:
+      | "PENDING"
+      | "APPROVED"
+      | "REJECTED"
+      | "ENABLED"
+      | "DISABLED";
+  }[];
+}
+export const getComponentList = async (crn: string) => {
+  console.log("this is the passed crn", crn);
+  const response: ResponseType = await imsAxios.get("/component");
+  let arr:any = [];
+  if (response.success) {
+    const values: GetComponentsType = response.data;
+    arr = values.components.map((row, index) => ({
+      id: index + 1,
+      category: row.c_attr_category,
+      name: row.c_name,
+      newPartCode: row.c_new_part_no,
+      partCode: row.c_part_no,
+      key: row.component_key,
+      isEnabled: row.is_enabled === "YES",
+      isApprovalPending: row.approval_status === "PENDING",
+      isApproved:
+        row.approval_status === "APPROVED" ||
+        row.approval_status === "ENABLED" ||
+        row.approval_status === "DISABLED",
+
+      unit: row.units_name,
+      isApprover: values.approvers.includes(crn),
+    }));
+    response.data = arr;
+  }
+
+  return response;
+};
 
 export const downloadComponentMaster = async () => {
   const response = await imsAxios.get("/component/compMasterReport");
@@ -16,7 +61,7 @@ export const downloadServiceMaster = async () => {
 export const getAlternativePartCodes = async (componentKey) => {
   const response = await imsAxios.post("/component/fetchalternatePartcode", {
     componentKey,
-  });
+  }) as any;
 
   console.log("aternate code response", response);
   let arr = [];
@@ -141,6 +186,8 @@ interface VerifyAttributesType {
   attr_category: string;
   attr_code: string;
   manufacturing_code: string;
+  attr_raw?:any;
+  c_category?:any;
 }
 export const verifyAttributes = async (
   attrCategory: string,
@@ -172,8 +219,8 @@ export const createComponent = async (
 
   for (let key in attributes) {
     const current = attributes[key];
-    const foundAttr = allAttributeOptions.find(
-      (row) => row.name === key && row.value === current
+    const foundAttr:any = allAttributeOptions.find(
+      (row:any) => row.name === key && row.value === current
     );
 
     if (foundAttr) {
@@ -186,7 +233,7 @@ export const createComponent = async (
     }
   }
 
-  const payload: VerifyAttributesType = {
+  const payload: any = {
     attr_category: values.attrCategory?.value,
 
     attr_code: values.uniqueId,
@@ -255,6 +302,7 @@ interface GetPendingApprovalListType {
   createdAt: string;
   attributeCategory: SelectOptionType;
   placement: string;
+  remark:string;
 }
 export const getPendingApprovalList = async () => {
   const response: ResponseType = await imsAxios.get(
@@ -275,6 +323,7 @@ export const getPendingApprovalList = async () => {
       category: row.attributeCategory.text,
       categoryKey: row.attributeCategory.value,
       locations: row.placement,
+      remarks:row.remark,
     }));
   }
   response.data = arr;

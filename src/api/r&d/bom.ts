@@ -178,6 +178,7 @@ interface GetBOMListType {
   createDate: string;
   status: string;
   createby: string;
+  product_key: string;
 }
 export const getBOMList = async (action: "final" | "draft") => {
   let url = "";
@@ -204,6 +205,7 @@ export const getBOMList = async (action: "final" | "draft") => {
       version: row.version,
       documents: row.documents,
       vendorName: row.vendor_name,
+      productKey: row.product_key,
     }));
   }
 
@@ -218,7 +220,7 @@ interface GetBomComponentsType {
     partCode: string;
   };
   quantity: string;
-  remarks: string;
+  remark: string;
   type: "main" | "substitute";
   substituteOf: {
     text: string;
@@ -227,13 +229,14 @@ interface GetBomComponentsType {
   } | null;
   status: "active" | "inactive";
   createdAt: string;
-  location: string;
+  placement: string;
   vendor: string;
-  componentUniqueID: string;
+  attributeCode: string;
   kay: string;
   partno: string;
   key: string;
   name: string;
+  altPartNo:string;
 
 }
 
@@ -250,7 +253,7 @@ export const getComponents = async (bomKey: string) => {
       partCode: row.partno,                
       id: index + 1,               
       qty: row.quantity,        
-      remarks: row.remarks || null,      
+      remarks: row.remark || null,      
       status: row.status,                     
       type: row.type,                      
       name: row.name,                     
@@ -260,8 +263,10 @@ export const getComponents = async (bomKey: string) => {
         partCode: row.substituteOf?.partCode || '', 
       },
       vendor: row.vendor || null,             
-      locations: row.location || null,         
-      uniqueCode: row.componentUniqueID || '',
+      locations: row.placement || null,         
+      uniqueCode: row.attributeCode || '',
+      subPartCode:row?.altPartNo||"--",
+
     }));
   }
 
@@ -447,53 +452,111 @@ interface GetExistingBom {
     componentUniqueID: string;
   }[];
 }
+// export const getExistingBom = async (sku: string, version: string) => {
+//   console.log("version", version);
+//   let v;
+//   if (version == "1.0") {
+//     v = "1.00";
+//   }
+//   const response: ResponseType = await imsAxios.get(
+//     `/bomRnd/validProduct/${sku}`
+//   );
+// console.log(response)
+//   if (response.success) {
+//     if (response.data) {
+//       let values: GetExistingBom = response.data.bomHeaderDetails;
+//       console.log(values,"vvaall")
+//       if (values) {
+//         let obj: BOMTypeExtended = {
+//           // name: values.name + "00.00",
+//           name: values.name,
+//           description: values.description,
+//           product: sku,
+//           isDraft: values.isDraft,
+//           isRejected: values?.isRejected,
+//           latestVersion: values.latestVersion,
+//           version: values.selectedversion,
+//           id: values.bomID,
+//           components: values.components.map((row) => ({
+//             component: {
+//               ...row.component,
+//               label: row.component.text + " " + row?.component?.partCode,
+//             },
+//             qty: row.quantity,
+//             remarks: row.remarks,
+//             status: row.status,
+//             substituteOf: {
+//               label: row.substituteOf?.text,
+//               partCode: row.substituteOf?.partCode,
+//               value: row.substituteOf?.value,
+//             },
+//             type: row.type,
+//             locations: row.location,
+//             vendor: row.vendor,
+//             text: row.component.text,
+//             value: row.component.value,
+//             mfgCode: row?.component?.manufacturingCode,
+//             smtType: row?.component?.category,
+//           })),
+//         };
+//         response.data = obj;
+//       }
+//     }
+//   }
+
+//   return response;
+// };
+
 export const getExistingBom = async (sku: string, version: string) => {
   console.log("version", version);
   let v;
-  if (version == "1.0") {
-    v = "1.00";
+  if (version === "1.0") {
+    v = "1.00";  // Update version if needed
   }
-  const response: ResponseType = await imsAxios.get(
-    `/bomRnd/validProduct/${sku}`
-  );
+
+  const response: ResponseType = await imsAxios.get(`/bomRnd/validProduct/${sku}`);
+  console.log(response);
 
   if (response.success) {
     if (response.data) {
-      let values: GetExistingBom = response.data[0];
+      let values: GetExistingBom = response.data.bomHeaderDetails;
+      console.log(values, "vvaall");
 
       if (values) {
         let obj: BOMTypeExtended = {
-          // name: values.name + "00.00",
-          name: values.name,
-          description: values.description,
+          name: values.bomName,  // Use bomName from the new response
+          description: values.bomRemark,  // Assuming remark is the description
           product: sku,
-          isDraft: values.isDraft,
-          isRejected: values?.isRejected,
-          latestVersion: values.latestVersion,
-          version: values.selectedversion,
-          id: values.bomID,
-          components: values.components.map((row) => ({
+          isDraft: false,  // You might need to adjust this depending on your BOM data
+          isRejected: false, // You might need to adjust this depending on your BOM data
+          latestVersion: values.bomRefNo,  // If this is the latest version
+          version: version,  // Use the passed version
+          id: values.bomKey,  // bomKey is used as the BOM ID
+          components: response.data.components.map((row) => ({
             component: {
-              ...row.component,
-              label: row.component.text + " " + row?.component?.partCode,
+              partno: row.partno,
+              name: row.name.trim(),  // Clean up any extra spaces
+              label: row.name.trim() + " " + row.partno,  // Assuming part number and name make up the label
             },
-            qty: row.quantity,
-            remarks: row.remarks,
-            status: row.status,
-            substituteOf: {
-              label: row.substituteOf?.text,
-              partCode: row.substituteOf?.partCode,
-              value: row.substituteOf?.value,
+            qty: row.quantity,  // Quantity as given in the response
+            remarks: row.remark,  // Remarks are from the response
+            status: row.status,  // Component status
+            substituteOf: {  // If applicable, adjust based on available data
+              label: "",  // The original response has no substituteOf, this can be adjusted as per your logic
+              partCode: "",  // Adjust as per data availability
+              value: "",
             },
-            type: row.type,
-            locations: row.location,
-            vendor: row.vendor,
-            text: row.component.text,
-            value: row.component.value,
-            mfgCode: row?.component?.manufacturingCode,
-            smtType: row?.component?.category,
+            type: row.type,  // The component type (main, etc.)
+            locations: row.placement,  // Placement locations (p1, p2, etc.)
+            vendor: row.vendor?.code,  // Vendor data (though it's "null - null" in your example)
+            text: row.name,  // Text associated with the component
+            value: "",  // You might need to adjust this if a value exists elsewhere
+            mfgCode: row.manufacturingCode || "",  // Manufacturing code, handle missing or empty cases
+            smtType: row.catType,  // Category type
+            componentKey: row.key,
           })),
         };
+
         response.data = obj;
       }
     }

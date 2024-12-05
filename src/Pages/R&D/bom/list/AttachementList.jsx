@@ -19,7 +19,7 @@ const AttachementList = ({
   const [imageRow, setImageRow] = useState([]);
   const handleFetchProductList = async (val) => {
     setLoading(true);
-    const response = await imsAxios.get(`/bom/view/attachment/${val}`);
+    const response = await imsAxios.get(`/bomRnd/attachment/${val}`);
     console.log("response", response);
     if (response.success) {
       //   setRows(response.data);

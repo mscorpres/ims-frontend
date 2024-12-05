@@ -78,8 +78,9 @@ const BOMList = () => {
           placeholder="Update"
           label={"Update"}
           onClick={() => {
+            console.log(row)
             navigate(
-              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}&version=${row.version}`
+              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.productKey}&version=${row.version}`
             );
           }}
         />,

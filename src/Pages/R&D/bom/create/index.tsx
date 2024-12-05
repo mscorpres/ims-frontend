@@ -45,6 +45,7 @@ interface ComponentType {
     label: string;
     value: string;
   };
+  locations: string;
   text: string;
   value: string;
   qty: string;
@@ -78,7 +79,7 @@ const BOMCreate = () => {
   const navigate = useNavigate();
 
   const [approvers, setApprovers] =
-    useState<MultiStageApproverType[]>(initialApprovers);
+    useState<MultiStageApproverType[]>(initialApprovers as any);
 
   const [queryParams] = useSearchParams();
 
@@ -86,7 +87,7 @@ const BOMCreate = () => {
   const { executeFun, loading } = useApi();
 
   const selectedProduct = Form.useWatch("product", form);
-  const selectedSubstituteOf = Form.useWatch("substituteOf", form);
+  const selectedSubstituteOf = Form.useWatch("altComp", form);
 
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
@@ -110,7 +111,7 @@ const BOMCreate = () => {
       const updatedArr = response.data.map((row) => ({
         component: { ...row.partCode, label: row.partCode.text },
         qty: row.quantity,
-        type: row.type === "main" ? "main" : "substitute",
+        type: row.type === "main"|| row.type==="Main" ? "main" : "substitute",
         locations: row.location,
         vendor: {
           ...row.make,
@@ -309,34 +310,36 @@ const BOMCreate = () => {
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
-    // return
+    console.log(values);
     const payload = {
-      product: values.product?.key,
+      product: values.product?.key?values?.product.key:values?.product,
       bomName: values.name,
       brn: values.version,
       bomDoc: values.document,
       bomRemark: values.description,
       approvers: approvers.map(
-        (stage) => stage.approvers.map((approver) => approver?.user?.value) // Extract the 'value' of each approver's user
+        (stage) => stage.approvers.map((approver:any) => approver?.user?.value) // Extract the 'value' of each approver's user
       ),
       bomDocs: values.documents,
-      componets: combined.map((item: any) => ({
-        vendor: item?.vendor?.key,
-        component: item.component.value, // Extract the component value
+      componets: combined.map((item: any) => (console.log(item),{
+        vendor: item?.vendor?.key?item?.vendor.key:item?.vendor,
+        component: item.component.value?item.component.value:item.componentKey, // Extract the component value
         quantity: item.qty.toString(), // Ensure quantity is a string
         type: item.type, // Retain the type
         placement: item.locations, // Add placement field
         remark: item.remarks,
+        altComp: item.substituteOf?.key?item.substituteOf.key:item.substituteOf,
+        
       })),
     };
-    const response = await executeFun(() => createBomRND(payload), action);
+    const response = await executeFun(() => createBomRND(payload as any), action);
 
     if (response.success) {
       setBomId("");
       setIsBomRej(false);
       setShowApproverMetrics(false);
       resetHandler();
-      showConfirmation();
+      // showConfirmation();
     } else {
       if (approvers) {
         const updatedData = convertStageToNumber(approvers);
@@ -352,14 +355,14 @@ const BOMCreate = () => {
   };
 
   const handleFetchExistingBom = async (
-    sku: string,
+    sku: any,
     version: string = "1.0"
   ) => {
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-
+console.log(response,"rrrrr")
     if (response.success) {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
@@ -369,8 +372,8 @@ const BOMCreate = () => {
       }
 
       if (
-        response.data.isDraft === false &&
-        response.data.isRejected === "false" &&
+        response.data.isDraft == false &&
+        response.data.isRejected == false &&
         queryParams.get("sku") &&
         queryParams.get("version")
       ) {
@@ -445,7 +448,7 @@ const BOMCreate = () => {
     if (queryParams.get("sku")) {
       handleFetchExistingBom(
         queryParams.get("sku"),
-        queryParams.get("version")
+        queryParams.get("version")??""
       );
     }
   }, [queryParams]);
@@ -483,6 +486,31 @@ const BOMCreate = () => {
     }
   }, [showUpdateTypeModal]);
 
+  useEffect(() => {
+    const currentVersion = form.getFieldValue("version");
+    let numericVersion = parseFloat(currentVersion); // Convert currentVersion to a number
+  
+    if (updateType === "ecn") {
+      // Increase by 0.1 and keep 2 decimal places
+      const updatedVersion = (numericVersion + 0.1).toFixed(2);
+      console.log(numericVersion, updatedVersion, "uuii");
+      form.setFieldValue("version", parseFloat(updatedVersion)); // Set value back as number
+    } else if(updateType==="main") {
+      // If it's a whole number like 1.0, it should start from 2.0
+      if (numericVersion % 1 === 0) {
+        // Increment by 1 if the number is a whole number
+        numericVersion += 1;
+      } else {
+        // If it's not a whole number, round up normally
+        numericVersion = Math.ceil(numericVersion);
+      }
+  
+      console.log(currentVersion, numericVersion, "uuii");
+      form.setFieldValue("version", numericVersion); // Set the updated version
+    }
+  }, [updateType]);
+  
+ console.log(form.getFieldsValue(),"form value")
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -517,8 +545,8 @@ const BOMCreate = () => {
                   labelInValue
                 />
               </Form.Item>
-              <Form.Item name="name" label="BOM Name" rules={rules.name}>
-                <Input />
+              <Form.Item name="name" label="BOM Name" rules={rules.name} >
+                <Input readOnly={updateType == "ecn"} />
               </Form.Item>
               <Form.Item
                 name="version"
@@ -565,7 +593,7 @@ const BOMCreate = () => {
             <AddComponent
               asyncOptions={asyncOptions}
               form={form}
-              handleAddComponents={handleAddComponents}
+              handleAddComponents={handleAddComponents as any}
               handleCancelEditing={handleCancelEditing}
               handleDownloadComponentSampleFile={
                 handleDownloadComponentSampleFile
@@ -582,7 +610,7 @@ const BOMCreate = () => {
               selectedFile={selectedFile}
               setAsyncOptions={setAsyncOptions}
               setSelectedFile={setSelectedFile}
-              validateHandler={validateHandler}
+              validateHandler={validateHandler as any}
               submitHandler={submitHandler}
             />
             <ApproverMetrics
@@ -726,7 +754,7 @@ const Components = ({
             style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
           >
             <Row gutter={[0, 4]}>
-              {rows.map((row, index: number) => (
+              {rows.map((row:any, index: number) => (
                 <>
                   <Col span={1}>
                     <Typography.Text style={{ fontSize: 13 }}>
