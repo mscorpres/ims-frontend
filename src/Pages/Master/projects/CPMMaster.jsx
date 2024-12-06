@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-  Button,
   Card,
   Col,
-  Descriptions,
-  Divider,
-  Form,
-  Input,
-  Modal,
   Row,
   Typography,
 } from "antd";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import NavFooter from "../../../Components/NavFooter";
-import validateResponse from "../../../Components/validateResponse";
-import Loading from "../../../Components/Loading";
+import ViewBomOfProject from "./ViewBomOfProject";
 import { imsAxios } from "../../../axiosInterceptor";
 
 import { v4 } from "uuid";
@@ -30,10 +21,11 @@ import UpdateProjectModal from "./UpdateProjectModal";
 
 function CPMMaster() {
   const [rows, setRows] = useState([]);
-  // const [asyncOptions, setAsyncOptions] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editProject, setEditProject] = useState(false);
+  const [viewProject , setViewProject] = useState(false);
 
   const getAllDetailFun = async () => {
     setLoading("table");
@@ -93,6 +85,14 @@ function CPMMaster() {
             setEditProject(row);
           }}
         />,
+        <TableActions
+          action="view"
+          onClick={() => {
+            console.log(row)
+            setIsViewModalVisible(true);
+            setViewProject(row);
+          }}
+        />,
       ],
     },
   ];
@@ -149,6 +149,11 @@ function CPMMaster() {
         setIsModalVisible={setIsModalVisible}
         isModalVisible={isModalVisible}
         onUpdate={handleSubmit}
+      />
+      <ViewBomOfProject
+        show={isViewModalVisible}
+        hide={() => setIsViewModalVisible(false)}
+        selectedBOM={viewProject}
       />
     </Row>
   );
