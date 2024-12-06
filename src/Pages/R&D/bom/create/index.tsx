@@ -14,7 +14,6 @@ import {
 } from "antd";
 import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
-
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import TableActions from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
@@ -32,7 +31,6 @@ import {
 } from "@/api/r&d/bom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
-
 import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
 import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
 import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
@@ -313,9 +311,8 @@ const BOMCreate = () => {
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
-    console.log(values);
     const payload = {
-      product: values.product?.key ? values?.product.key : values?.product,
+      product: values.product?.value ? values?.product.value : values?.product,
       bomName: values.name,
       brn: values.version,
       bomDoc: values.documents,
@@ -347,7 +344,6 @@ const BOMCreate = () => {
       () => createBomRND(payload as any),
       action
     );
-
     if (response.success) {
       setBomId("");
       setIsBomRej(false);
@@ -378,7 +374,7 @@ const BOMCreate = () => {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
         return;
-      } else if (response.data.id) {
+      } else if (response.data.id && !queryParams.get("sku")) {
         toast.error(
           "This BOM is already created! You can view it in the BOM List. and Update it."
         );
@@ -508,7 +504,6 @@ const BOMCreate = () => {
     if (updateType === "ecn") {
       // Increase by 0.1 and keep 2 decimal places
       const updatedVersion = (numericVersion + 0.1).toFixed(2);
-      console.log(numericVersion, updatedVersion, "uuii");
       form.setFieldValue("version", parseFloat(updatedVersion)); // Set value back as number
     } else if (updateType === "main") {
       // If it's a whole number like 1.0, it should start from 2.0

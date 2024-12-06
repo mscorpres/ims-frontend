@@ -49,7 +49,7 @@ export const createBOM = async (
     url = "/bom/tempProduct";
   }
 
-  let version =
+  let version:any =
     values.latestVersion === "NaN" || !values.latestVersion
       ? +Number(values.version)
       : +Number(values.latestVersion).toFixed(2);
@@ -224,6 +224,16 @@ interface GetComponentLogs {
   time: string;
   version: string;
 }
+
+interface BomAssociateProject {
+  bomType: string;
+  bomSKU: string;
+  projectName: string;
+  bomSubject: string;
+  bomStatus: string;
+  bomInsertBy: string;
+  bomInsertDt: string;
+}
 interface GetBomComponentsType {
   component: {
     text: string;
@@ -309,6 +319,41 @@ export const getComponentsLogs = async (bomKey: string) => {
 
   return response;
 };
+
+export const getBomOfProject = async (bomKey: string) => {
+  try {
+    const response: ResponseType = await imsAxios.get(`/ppr/list/bom/${bomKey}`);
+    
+    // Check if the response is successful or status is 200
+    if (response.success || response.status === 200) {
+      // Extract and transform data
+      const values: BomAssociateProject[] = response.data.data;
+
+      // Map over each component and create a new structure
+      const arr = values.map((row, index) => ({
+        bomType: row.bomType,
+        bomSKU: row.bomSKU,
+        projectName: row.projectName,
+        bomSubject: row.bomSubject,
+        bomStatus: row.bomStatus,
+        bomInsertBy: row.bomInsertBy,
+        bomInsertDt: row.bomInsertDt,
+        id: index + 1,
+      }));
+
+      // Assign the transformed data to response
+      response.data = arr;
+    } else {
+      console.error('Failed to fetch BOM data:', response);
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching BOM of project:', error);
+    throw "No Data Found"; // Re-throw the error if needed or return a default response
+  }
+};
+
 
 export const getLogs = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(
@@ -439,6 +484,14 @@ interface GetExistingBom {
   latestVersion: string;
   bomID: string;
   isDraft: boolean;
+  bomProduct: {
+    id: string;
+    text: string;
+  }
+  bomName: string;
+  bomRemark: string;
+  bomRefNo: string;
+  bomKey: string;
   components: {
     component: {
       text: string;
@@ -532,13 +585,13 @@ export const getExistingBom = async (sku: string, version: string) => {
 
 
       if (values) {
-        let obj: BOMTypeExtended = {
+        let obj: any = {
           name: values.bomName, // Use bomName from the new response
           description: values.bomRemark, // Assuming remark is the description
-          product: sku,
-          isDraft: false, // You might need to adjust this depending on your BOM data
+          product: { value: values.bomProduct.id, label: values.bomProduct.text },
           isRejected: false, // You might need to adjust this depending on your BOM data
           latestVersion: values.bomRefNo, // If this is the latest version
+          isDraft: false, // You might need to adjust this depending on your BOM data
           version: version, // Use the passed version
           id: values.bomKey, // bomKey is used as the BOM ID
           components: response.data.components.map((row) => ({
@@ -646,7 +699,7 @@ interface BomRequest {
 
 export const createBomRND = async (data: BomRequest) => {
   const response: ResponseType = await imsAxios.post("/bomRnd/creatBom", data);
-  return response;
+  return response;  
 };
 
 export const uploadDocs = async (formData) => {
