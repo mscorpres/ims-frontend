@@ -78,8 +78,9 @@ const BOMCreate = () => {
   const [bomId, setBomId] = useState("");
   const navigate = useNavigate();
 
-  const [approvers, setApprovers] =
-    useState<MultiStageApproverType[]>(initialApprovers as any);
+  const [approvers, setApprovers] = useState<MultiStageApproverType[]>(
+    initialApprovers as any
+  );
 
   const [queryParams] = useSearchParams();
 
@@ -111,7 +112,8 @@ const BOMCreate = () => {
       const updatedArr = response.data.map((row) => ({
         component: { ...row.partCode, label: row.partCode.text },
         qty: row.quantity,
-        type: row.type === "main"|| row.type==="Main" ? "main" : "substitute",
+        type:
+          row.type === "main" || row.type === "Main" ? "main" : "substitute",
         locations: row.location,
         vendor: {
           ...row.make,
@@ -313,29 +315,38 @@ const BOMCreate = () => {
     let combined = [...mainComponents, ...subComponents];
     console.log(values);
     const payload = {
-      product: values.product?.key?values?.product.key:values?.product,
+      product: values.product?.key ? values?.product.key : values?.product,
       bomName: values.name,
       brn: values.version,
       bomDoc: values.documents,
-      bomRef:values.bomRef,
+      bomRef: values.bomRef,
       bomRemark: values.description,
       approvers: approvers.map(
-        (stage) => stage.approvers.map((approver:any) => approver?.user?.value) // Extract the 'value' of each approver's user
+        (stage) => stage.approvers.map((approver: any) => approver?.user?.value) // Extract the 'value' of each approver's user
       ),
       // bomDoc: values.documents,
-      componets: combined.map((item: any) => (console.log(item),{
-        vendor: item?.vendor?.key?item?.vendor.key:item?.vendor,
-        component: item.component.value?item.component.value:item.componentKey, // Extract the component value
-        quantity: item.qty.toString(), // Ensure quantity is a string
-        type: item.type==="substitute"?"alternate":item.type, // Retain the type
-        placement: item.locations, // Add placement field
-        remark: item.remarks,
-        altComp: item.substituteOf?.value,
-        // ?item.substituteOf.value:item.substituteOf,
-        
-      })),
+      componets: combined.map(
+        (item: any) => (
+          console.log(item),
+          {
+            vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor,
+            component: item.component.value
+              ? item.component.value
+              : item.componentKey, // Extract the component value
+            quantity: item.qty.toString(), // Ensure quantity is a string
+            type: item.type === "substitute" ? "alternate" : item.type, // Retain the type
+            placement: item.locations, // Add placement field
+            remark: item.remarks,
+            altComp: item.substituteOf?.value,
+            // ?item.substituteOf.value:item.substituteOf,
+          }
+        )
+      ),
     };
-    const response = await executeFun(() => createBomRND(payload as any), action);
+    const response = await executeFun(
+      () => createBomRND(payload as any),
+      action
+    );
 
     if (response.success) {
       setBomId("");
@@ -357,19 +368,20 @@ const BOMCreate = () => {
     return e?.fileList;
   };
 
-  const handleFetchExistingBom = async (
-    sku: any,
-    version: string = "1.0"
-  ) => {
+  const handleFetchExistingBom = async (sku: any, version: string = "1.0") => {
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-
+    console.log(response.data);
     if (response.success) {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
         return;
+      } else if (response.data.id) {
+        toast.error(
+          "This BOM is already created! You can view it in the BOM List. and Update it."
+        );
       } else {
         form.setFieldValue("version", response.data.version);
       }
@@ -451,7 +463,7 @@ const BOMCreate = () => {
     if (queryParams.get("sku")) {
       handleFetchExistingBom(
         queryParams.get("sku"),
-        queryParams.get("version")??""
+        queryParams.get("version") ?? ""
       );
     }
   }, [queryParams]);
@@ -492,13 +504,13 @@ const BOMCreate = () => {
   useEffect(() => {
     const currentVersion = form.getFieldValue("version");
     let numericVersion = parseFloat(currentVersion); // Convert currentVersion to a number
-  
+
     if (updateType === "ecn") {
       // Increase by 0.1 and keep 2 decimal places
       const updatedVersion = (numericVersion + 0.1).toFixed(2);
       console.log(numericVersion, updatedVersion, "uuii");
       form.setFieldValue("version", parseFloat(updatedVersion)); // Set value back as number
-    } else if(updateType==="main") {
+    } else if (updateType === "main") {
       // If it's a whole number like 1.0, it should start from 2.0
       if (numericVersion % 1 === 0) {
         // Increment by 1 if the number is a whole number
@@ -507,12 +519,11 @@ const BOMCreate = () => {
         // If it's not a whole number, round up normally
         numericVersion = Math.ceil(numericVersion);
       }
-  
+
       console.log(currentVersion, numericVersion, "uuii");
       form.setFieldValue("version", numericVersion); // Set the updated version
     }
   }, [updateType]);
-  
 
   return (
     <Form
@@ -548,7 +559,7 @@ const BOMCreate = () => {
                   labelInValue
                 />
               </Form.Item>
-              <Form.Item name="name" label="BOM Name" rules={rules.name} >
+              <Form.Item name="name" label="BOM Name" rules={rules.name}>
                 <Input readOnly={updateType == "ecn"} />
               </Form.Item>
               <Form.Item
@@ -559,7 +570,7 @@ const BOMCreate = () => {
                 <Input disabled />
               </Form.Item>
 
-              <Form.Item name="bomRef" label="BOM Reference Number" >
+              <Form.Item name="bomRef" label="BOM Reference Number">
                 <Input />
               </Form.Item>
 
@@ -761,7 +772,7 @@ const Components = ({
             style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
           >
             <Row gutter={[0, 4]}>
-              {rows.map((row:any, index: number) => (
+              {rows.map((row: any, index: number) => (
                 <>
                   <Col span={1}>
                     <Typography.Text style={{ fontSize: 13 }}>
