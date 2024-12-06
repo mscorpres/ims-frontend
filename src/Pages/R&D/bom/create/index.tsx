@@ -307,6 +307,7 @@ const BOMCreate = () => {
       "description",
       "document",
       "documents",
+      "bomRef",
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
@@ -316,6 +317,7 @@ const BOMCreate = () => {
       bomName: values.name,
       brn: values.version,
       bomDoc: values.documents,
+      bomRef:values.bomRef,
       bomRemark: values.description,
       approvers: approvers.map(
         (stage) => stage.approvers.map((approver:any) => approver?.user?.value) // Extract the 'value' of each approver's user
@@ -328,7 +330,8 @@ const BOMCreate = () => {
         type: item.type==="substitute"?"alternate":item.type, // Retain the type
         placement: item.locations, // Add placement field
         remark: item.remarks,
-        altComp: item.substituteOf?.value?item.substituteOf.value:item.substituteOf,
+        altComp: item.substituteOf?.value,
+        // ?item.substituteOf.value:item.substituteOf,
         
       })),
     };
@@ -339,7 +342,7 @@ const BOMCreate = () => {
       setIsBomRej(false);
       setShowApproverMetrics(false);
       resetHandler();
-      // showConfirmation();
+      showConfirmation();
     } else {
       if (approvers) {
         const updatedData = convertStageToNumber(approvers);
@@ -362,7 +365,7 @@ const BOMCreate = () => {
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-console.log(response,"rrrrr")
+
     if (response.success) {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
@@ -510,7 +513,7 @@ console.log(response,"rrrrr")
     }
   }, [updateType]);
   
- console.log(form.getFieldsValue(),"form value")
+
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -554,6 +557,10 @@ console.log(response,"rrrrr")
                 rules={rules.version}
               >
                 <Input disabled />
+              </Form.Item>
+
+              <Form.Item name="bomRef" label="BOM Reference Number" >
+                <Input />
               </Form.Item>
 
               <Form.Item name="description" label="Remarks">

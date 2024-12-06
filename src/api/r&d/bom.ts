@@ -14,7 +14,7 @@ interface CreateBOMType {
   sku: string;
   description: string;
   version: string;
-  placements:[];
+  placements: [];
   approvalMetrics: {
     stage: string;
     approvers: {
@@ -60,7 +60,11 @@ export const createBOM = async (
 
     if (updateType === "ecn") {
       version = version + 0.01;
-    } else if (updateType === "main") {
+      if (values.name !== ogName) {
+        version = +(version + 1).toFixed(0);
+        version = version + ".00";
+      }
+    } else if (updateType === "main" || values.name !== ogName) {
       version = +(version + 1).toFixed(0);
       version = version + ".00";
     }
@@ -212,7 +216,14 @@ export const getBOMList = async (action: "final" | "draft") => {
   response.data = arr;
   return response;
 };
-
+interface GetComponentLogs {
+  label: string;
+  activityPersion: string;
+  remark: string;
+  summery: string;
+  time: string;
+  version: string;
+}
 interface GetBomComponentsType {
   component: {
     text: string;
@@ -236,12 +247,13 @@ interface GetBomComponentsType {
   partno: string;
   key: string;
   name: string;
-  altPartNo:string;
-
+  altPartNo: string;
 }
 
 export const getComponents = async (bomKey: string) => {
-  const response: ResponseType = await imsAxios.get(`/bomRnd/bomDetails/${bomKey}`);
+  const response: ResponseType = await imsAxios.get(
+    `/bomRnd/bomDetails/${bomKey}`
+  );
   let arr: BOMType["components"] = [];
 
   if (response.success) {
@@ -249,24 +261,23 @@ export const getComponents = async (bomKey: string) => {
 
     // Map over each component and create a new structure
     arr = values.map((row, index: number) => ({
-      component: row.key,                    
-      partCode: row.partno,                
-      id: index + 1,               
-      qty: row.quantity,        
-      remarks: row.remark || null,      
-      status: row.status,                     
-      type: row.type,                      
-      name: row.name,                     
+      component: row.key,
+      partCode: row.partno,
+      id: index + 1,
+      qty: row.quantity,
+      remarks: row.remark || null,
+      status: row.status,
+      type: row.type,
+      name: row.name,
       substituteOf: {
-        key: row.substituteOf?.value || '',
-        name: row.substituteOf?.text || '',   
-        partCode: row.substituteOf?.partCode || '', 
+        key: row.substituteOf?.value || "",
+        name: row.substituteOf?.text || "",
+        partCode: row.substituteOf?.partCode || "",
       },
-      vendor: row.vendor || null,             
-      locations: row.placement || null,         
-      uniqueCode: row.attributeCode || '',
-      subPartCode:row?.altPartNo||"--",
-
+      vendor: row.vendor || null,
+      locations: row.placement || null,
+      uniqueCode: row.attributeCode || "",
+      subPartCode: row?.altPartNo || "--",
     }));
   }
 
@@ -275,29 +286,29 @@ export const getComponents = async (bomKey: string) => {
   return response;
 };
 
+export const getComponentsLogs = async (bomKey: string) => {
+  const response: ResponseType = await imsAxios.get(`/bomRnd/log/${bomKey}`);
+  let arr: any = [];
 
-interface GetLogsType {
-  details: {
-    createdBy: string;
-    createdOn: string;
-    stage: number;
-    isRejected: boolean;
-  };
-  logs: {
-    stage: number;
-    approvers: {
-      Email_ID: string;
-      approvalNumber: string;
-      approverName: string;
-      currentApprover: boolean;
-      insertedAt: null | string;
-      line: number;
-      remarks: null | string;
-      user: string;
-      remarksDate: null | string;
-    }[];
-  }[];
-}
+  if (response.success) {
+    let values: GetComponentLogs[] = response.data;
+
+    // Map over each component and create a new structure
+    arr = values.map((row, index: number) => ({
+      label: row.label,
+      activityPerson: row.activityPersion,
+      remarks: row.remark,
+      summary: row.summery,
+      time: row.time,
+      version: row.version,
+      id: index + 1,
+    }));
+  }
+
+  response.data = arr;
+
+  return response;
+};
 
 export const getLogs = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(
@@ -311,52 +322,52 @@ export const getLogs = async (bomKey: string) => {
 
     // Create a grouped structure by line
     const groupedLogs = values.reduce((acc, row) => {
-      const existing = acc.find(item => item.line === row.line);
+      const existing = acc.find((item) => item.line === row.line);
 
       if (existing) {
         // If the line already exists, add the stage to the approvers array
         existing.approvers.push({
-          approvalNumber: row.line,  
+          approvalNumber: row.line,
           line: row.line,
-          stage: row.stage,         
+          stage: row.stage,
           currentApprover: row.currentApprover,
           email: row.email,
           name: row.name,
           remarks: row.remark,
-          user: row.approver, 
-          remarksDate: row.updateTime || null, 
-          stageLabel:row.stageLable,
+          user: row.approver,
+          remarksDate: row.updateTime || null,
+          stageLabel: row.stageLable,
         });
       } else {
         // If the line doesn't exist, create a new entry
         acc.push({
           line: row.line,
-          approvers: [{
-            approvalNumber: row.line,
-            line: row.line,
-            stage: row.stage,           
-            currentApprover: row.currentApprover,  
-            email: row.email,
-            name: row.name,
-            remarks: row.remark,
-            user: row.approver, 
-            remarksDate: row.updateTime || null,
-            stageLabel:row.stageLable,
-          }],
+          approvers: [
+            {
+              approvalNumber: row.line,
+              line: row.line,
+              stage: row.stage,
+              currentApprover: row.currentApprover,
+              email: row.email,
+              name: row.name,
+              remarks: row.remark,
+              user: row.approver,
+              remarksDate: row.updateTime || null,
+              stageLabel: row.stageLable,
+            },
+          ],
         });
       }
 
       return acc;
     }, []);
 
-    arr = { logs: groupedLogs , isRejected: response.data.details.isRejected };
+    arr = { logs: groupedLogs, isRejected: response.data.details.isRejected };
   }
 
   response.data = arr;
   return response;
 };
-
-
 
 export const getRejLogs = async (bomKey: string) => {
   const response: ResponseType = await imsAxios.get(
@@ -405,20 +416,17 @@ export const updateStatus = async (
   stage: number,
   line: number,
   status: "Approved" | "Rejected",
-  remark: string,
+  remark: string
 ) => {
   const payload: updateStatusType = {
     bom: bom,
     remark: remark,
     status: status,
     stage: stage,
-    line: line
+    line: line,
   };
 
-  const response = await imsAxios.put(
-    "/bomRnd/updateBOMStatus",
-    payload
-  );
+  const response = await imsAxios.put("/bomRnd/updateBOMStatus", payload);
 
   return response;
 };
@@ -511,48 +519,50 @@ export const getExistingBom = async (sku: string, version: string) => {
   console.log("version", version);
   let v;
   if (version === "1.0") {
-    v = "1.00";  // Update version if needed
+    v = "1.00"; // Update version if needed
   }
 
-  const response: ResponseType = await imsAxios.get(`/bomRnd/validProduct/${sku}`);
-  console.log(response);
+  const response: ResponseType = await imsAxios.get(
+    `/bomRnd/validProduct/${sku}`
+  );
 
   if (response.success) {
     if (response.data) {
       let values: GetExistingBom = response.data.bomHeaderDetails;
-      console.log(values, "vvaall");
+
 
       if (values) {
         let obj: BOMTypeExtended = {
-          name: values.bomName,  // Use bomName from the new response
-          description: values.bomRemark,  // Assuming remark is the description
+          name: values.bomName, // Use bomName from the new response
+          description: values.bomRemark, // Assuming remark is the description
           product: sku,
-          isDraft: false,  // You might need to adjust this depending on your BOM data
+          isDraft: false, // You might need to adjust this depending on your BOM data
           isRejected: false, // You might need to adjust this depending on your BOM data
-          latestVersion: values.bomRefNo,  // If this is the latest version
-          version: version,  // Use the passed version
-          id: values.bomKey,  // bomKey is used as the BOM ID
+          latestVersion: values.bomRefNo, // If this is the latest version
+          version: version, // Use the passed version
+          id: values.bomKey, // bomKey is used as the BOM ID
           components: response.data.components.map((row) => ({
             component: {
               partno: row.partno,
-              name: row.name.trim(),  // Clean up any extra spaces
-              label: row.name.trim() + " " + row.partno,  // Assuming part number and name make up the label
+              name: row.name.trim(), // Clean up any extra spaces
+              label: row.name.trim() + " " + row.partno, // Assuming part number and name make up the label
             },
-            qty: row.quantity,  // Quantity as given in the response
-            remarks: row.remark,  // Remarks are from the response
-            status: row.status,  // Component status
-            substituteOf: {  // If applicable, adjust based on available data
-              label: row?.altName,  // The original response has no substituteOf, this can be adjusted as per your logic
-              partCode: row?.altPartNo,  // Adjust as per data availability
+            qty: row.quantity, // Quantity as given in the response
+            remarks: row.remark, // Remarks are from the response
+            status: row.status, // Component status
+            substituteOf: {
+              // If applicable, adjust based on available data
+              label: row?.altName, // The original response has no substituteOf, this can be adjusted as per your logic
+              partCode: row?.altPartNo, // Adjust as per data availability
               value: row?.altCompKey,
             },
-            type: row.type==="alternate"?"substitute":row.type,  // The component type (main, etc.)
-            locations: row.placement,  // Placement locations (p1, p2, etc.)
-            vendor: row.vendor?.code,  // Vendor data (though it's "null - null" in your example)
-            text: row.name,  // Text associated with the component
-            value: "",  // You might need to adjust this if a value exists elsewhere
-            mfgCode: row.manufacturingCode || "",  // Manufacturing code, handle missing or empty cases
-            smtType: row.catType,  // Category type
+            type: row.type === "alternate" ? "substitute" : row.type, // The component type (main, etc.)
+            locations: row.placement, // Placement locations (p1, p2, etc.)
+            vendor: row.vendor?.code, // Vendor data (though it's "null - null" in your example)
+            text: row.name, // Text associated with the component
+            value: row.key, // You might need to adjust this if a value exists elsewhere
+            mfgCode: row.manufacturingCode || "", // Manufacturing code, handle missing or empty cases
+            smtType: row.catType, // Category type
             componentKey: row.key,
           })),
         };
@@ -619,7 +629,7 @@ export const downloadSampleComponentFile = async () => {
 interface BomComponent {
   component: string;
   quantity: number;
-  type: 'main' | 'alternate';
+  type: "main" | "alternate";
   placement: string;
 }
 
@@ -643,10 +653,10 @@ export const uploadDocs = async (formData) => {
   try {
     const response = await imsAxios.post("/bomRnd/uploadDocs", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', // Set content type for file uploads
+        "Content-Type": "multipart/form-data", // Set content type for file uploads
       },
     });
-  
+
     return response.data; // Return the response data
   } catch (error) {
     console.error("API Upload Error:", error);
