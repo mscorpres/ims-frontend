@@ -14,6 +14,22 @@ export const getVendorOptions = async (search) => {
     console.log("something happened wrong", error);
   }
 };
+export const uplaodFileInJWReturn = async (formdata) => {
+  try {
+    const response = await imsAxios.post("/jobwork/upload/item ", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const uplaodFileInMINInward = async (formdata) => {
+  try {
+    const response = await imsAxios.post("transaction/upload/item", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
 
 export const getVendorBranchOptions = async (vendorCode) => {
   const response = await imsAxios.post("/backend/vendorBranchList", {

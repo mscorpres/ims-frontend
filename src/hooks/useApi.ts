@@ -81,6 +81,8 @@ const useApi = () => {
         message = error;
       } else if (error instanceof Error) {
         message = error.message;
+      } else if (error?.message?.msg) {
+        message = error.message.msg;
       }
       console.log("Some error occured in the api", error);
       toast.error(message);

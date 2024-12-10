@@ -25,6 +25,10 @@ const Components = ({
   setSelectedRows,
   autoConsOptions,
   setAutoConsumptionOption,
+  setOpen,
+  open,
+  preview,
+  setPreview,
 }) => {
   const addComponent = async () => {
     const values = await form.validateFields();
@@ -45,7 +49,7 @@ const Components = ({
   };
 
   const [form] = Form.useForm();
-
+  const openDrawer = () => {};
   return (
     <Flex
       vertical
@@ -57,9 +61,19 @@ const Components = ({
         size="small"
         title={`Total : ${rows?.length} Components | Selected: ${selectedRows?.length} Components`}
         extra={
-          <Space>
-            <MyButton variant="add" onClick={addComponent} />
-          </Space>
+          <>
+            <Space>
+              <MyButton variant="upload" onClick={() => setOpen(true)} />
+            </Space>
+            <Space>
+              <MyButton
+                variant="add"
+                // disabled={selectedRows.length === 0}
+                onClick={addComponent}
+                style={{ marginLeft: 10 }}
+              />
+            </Space>
+          </>
         }
       >
         <Form form={form} initialValues={initialValues}>
@@ -77,8 +91,21 @@ const Components = ({
           style={{ height: "100%", paddingBottom: 10 }}
           bodyStyle={{ height: "100%" }}
         >
-          <div style={{ height: "100%", overflow: "hidden" }}>
-            <Row gutter={[0, 6]} style={{ height: "100%" }}>
+          <div
+            style={{
+              height: "100%",
+              overflow: "hidden",
+              justifyContent: "center",
+            }}
+          >
+            <Row
+              gutter={[0, 6]}
+              style={{
+                height: "100%",
+                justifyContent: "center",
+                display: "flex",
+              }}
+            >
               <Col span={24}>
                 <Row>
                   <Col span={1}></Col>
@@ -109,7 +136,7 @@ const Components = ({
                   <Col span={2}>
                     <Typography.Text strong>Auto Consmp</Typography.Text>
                   </Col>
-                  <Col span={5}>
+                  <Col span={4}>
                     <Typography.Text strong>Remark</Typography.Text>
                   </Col>
                 </Row>
@@ -124,7 +151,7 @@ const Components = ({
                   // backgroundColor: "red",
                 }}
               >
-                <Row bodyStyle="100%">
+                <Row bodyStyle="100%" style={{ justifyContent: "center" }}>
                   {selectedRows.map((row, index) => (
                     <Col span={24}>
                       <Row align="middle">
@@ -147,7 +174,7 @@ const Components = ({
                         <Col span={2}>
                           <ToolTipEllipses text={row.qty} />
                         </Col>
-                        <Col span={1}>
+                        <Col span={2}>
                           <ToolTipEllipses text={row.rate} />
                         </Col>
                         <Col span={2}>{row.hsn}</Col>
@@ -158,7 +185,7 @@ const Components = ({
                           <ToolTipEllipses text={row.invoiceId} copy={true} />
                         </Col>
                         <Col span={2}>{row.location?.label ?? "--"}</Col>
-                        <Col span={3}>{row.autoCons?.label ?? "--"}</Col>
+                        <Col span={2}>{row.autoCons?.label ?? "--"}</Col>
                         <Col span={4}>
                           <ToolTipEllipses text={row.remark} copy={true} />
                         </Col>
@@ -218,8 +245,8 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
     }
   }, [component]);
   return (
-    <Row gutter={[6, -6]}>
-      <Col span={4}>
+    <Row gutter={[6, -6]} style={{ marginBottom: "18px" }}>
+      <Col span={3}>
         <Form.Item label="Component" name="component">
           <MyAsyncSelect
             loadOptions={getComponent}
