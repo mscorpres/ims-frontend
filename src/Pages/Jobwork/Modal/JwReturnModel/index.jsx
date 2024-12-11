@@ -176,10 +176,10 @@ const JwReturnModel = ({ show, close }) => {
         toast.success(response.message.msg);
         setPreview(false);
         setPreviewRows([]);
+        setSelectedRows([]);
         close();
       }
     } catch (error) {
-      console.log("some error while submitting the data", error);
     } finally {
       setLoading("submit", false);
     }
