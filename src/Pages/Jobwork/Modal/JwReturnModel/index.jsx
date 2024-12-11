@@ -180,7 +180,6 @@ const JwReturnModel = ({ show, close }) => {
         close();
       }
     } catch (error) {
-      console.log("some error while submitting the data", error);
     } finally {
       setLoading("submit", false);
     }
