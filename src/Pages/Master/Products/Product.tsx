@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import { useLocation } from "react-router-dom";
-// import View from "./View";
 import View from "@/Pages/Master/Products/View";
 import Add from "@/Pages/Master/Products/Add";
 import Edit from "@/Pages/Master/Products/Edit";
@@ -10,7 +9,6 @@ import useApi from "@/hooks/useApi";
 import { getUOMList } from "@/api/master/uom";
 import { ResponseType } from "@/types/general";
 import { getProductsList } from "@/api/master/products";
-
 import ComponentImages from "./ComponentImages";
 import { ProductType } from "@/types/master";
 
@@ -53,6 +51,7 @@ const Product = () => {
   useEffect(() => {
     getProductRows(productType);
   }, [productType]);
+
   return (
     <Row
       gutter={6}

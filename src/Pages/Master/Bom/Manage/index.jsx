@@ -9,6 +9,11 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import ViewModal from "./ViewModal";
 import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
+import { downloadCSV } from "../../../../Components/exportToCSV";
+import{
+  CommonIcons,
+} from "../../../../Components/TableActions.jsx/TableActions";
+import { Row } from "antd";
 
 const ManageBOM = () => {
   const [rows, setRows] = useState([]);
@@ -132,8 +137,19 @@ const ManageBOM = () => {
   useEffect(() => {
     getRows();
   }, []);
+
+  const handleDownload = () => {
+    downloadCSV(rows, columns, "FG BOM");
+  };
   return (
     <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
+      <Row justify="end" style={{ margin: "5x 0" }}>
+        <CommonIcons
+          disabled={rows.length === 0}
+          onClick={handleDownload}
+          action="downloadButton"
+        />
+      </Row>
       <MyDataTable
         loading={loading === "fetch"}
         columns={[...actionColumns, ...columns]}

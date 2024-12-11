@@ -14,7 +14,7 @@ import { v4 } from "uuid";
 import MyDataTable from "../../../Components/MyDataTable";
 import NewProjectForm from "./NewProjectForm";
 import { toast } from "react-toastify";
-import { downloadCSV } from "../../../Components/exportToCSV";
+import { downloadCSVnested2 } from "../../../Components/exportToCSV";
 import TableActions, {
   CommonIcons,
 } from "../../../Components/TableActions.jsx/TableActions";
@@ -65,7 +65,7 @@ function CPMMaster() {
   };
 
   const handleDownload = () => {
-    downloadCSV(rows, columns, "All Projects");
+    downloadCSVnested2(rows, columns, "All Projects");
   };
 
   const disableValidateHandler = async (row,status) => {
@@ -108,7 +108,17 @@ function CPMMaster() {
     { field: "description", headerName: "Project Name", flex: 1 },
     { field: "insert_dt", headerName: "Insert Date", flex: 1 },
     {
-      headerName: "Is Blocked",
+      headerName: "Status",
+      field: "projectStatus",
+      width: 100,
+      renderCell: ({row}) => (
+        <>
+          {row.status === 1 ? "Active" : "InActive"}
+        </>
+      ),
+    },
+    {
+      headerName: "Modify Status",
       width: 180,
       field: "status",
       type: "actions",
@@ -140,7 +150,6 @@ function CPMMaster() {
         <TableActions
           action="view"
           onClick={() => {
-            console.log(row)
             setIsViewModalVisible(true);
             setViewProject(row);
           }}

@@ -82,7 +82,7 @@ export default function NewProjectForm() {
                 rules={[
                   {
                     required: true,
-                    message: "Please select a Project!",
+                    message: "Please enter a Project ID!",
                   },
                 ]}
                 label="Project Id"
@@ -107,12 +107,12 @@ export default function NewProjectForm() {
                   },
                 ]}
                 name="project_name"
-                label="New Name"
+                label="Project Name"
               >
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={24}>
+            {/* <Col span={24}>
               <Form.Item
                 // rules={[
                 //   {
@@ -125,7 +125,7 @@ export default function NewProjectForm() {
               >
                 <Input />
               </Form.Item>
-            </Col>
+            </Col> */}
           </Row>
         </Col>
       </Row>
