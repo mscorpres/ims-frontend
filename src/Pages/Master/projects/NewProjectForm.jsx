@@ -40,6 +40,7 @@ export default function NewProjectForm() {
     let obj = {
       project_id: "",
       project_name: "",
+      project_description: "",
     };
     newProjectForm.setFieldsValue(obj);
   };
@@ -107,6 +108,20 @@ export default function NewProjectForm() {
                 ]}
                 name="project_name"
                 label="New Name"
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Please Enter a new Project Name!",
+                //   },
+                // ]}
+                name="project_description"
+                label="Description"
               >
                 <Input />
               </Form.Item>
