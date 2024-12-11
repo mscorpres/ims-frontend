@@ -176,6 +176,7 @@ const JwReturnModel = ({ show, close }) => {
         toast.success(response.message.msg);
         setPreview(false);
         setPreviewRows([]);
+        setSelectedRows([]);
         close();
       }
     } catch (error) {

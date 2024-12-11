@@ -68,7 +68,7 @@ const Components = ({
             <Space>
               <MyButton
                 variant="add"
-                // disabled={selectedRows.length === 0}
+                disabled={selectedRows.length === 0}
                 onClick={addComponent}
                 style={{ marginLeft: 10 }}
               />
