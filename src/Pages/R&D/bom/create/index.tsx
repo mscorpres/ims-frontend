@@ -272,7 +272,7 @@ const BOMCreate = () => {
   };
 
   const validateHandler = async (action: "final" | "draft") => {
-    await form.validateFields(["name", "version", "product"]);
+    await form.validateFields(["name", "version", "product", "bomRef"]);
     setSaveType(action);
     setShowApproverMetrics(true);
   };
@@ -565,7 +565,7 @@ const BOMCreate = () => {
                 <Input disabled />
               </Form.Item>
 
-              <Form.Item name="bomRef" label="BOM Reference Number">
+              <Form.Item name="bomRef" label="BOM Reference Number" rules={rules.bomRef}>
                 <Input />
               </Form.Item>
 
@@ -897,6 +897,12 @@ const rules = {
     {
       required: true,
       message: "BOM Name is required",
+    },
+  ],
+  bomRef: [
+    {
+      required: true,
+      message: "BOM Reference is required",
     },
   ],
   version: [

@@ -2,6 +2,9 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
 import TableActions from "../../../Components/TableActions.jsx/TableActions.jsx";
 import { ProductType } from "@/types/master";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
+import { downloadCSVnested2 } from "../../../Components/exportToCSV";
+import { Row } from "antd";
 
 interface PropTypes {
   rows: ProductType[];
@@ -38,8 +41,18 @@ function View({
       ],
     },
   ];
+  const handleDownload = () => {
+    downloadCSVnested2(rows, columns, "Products");
+  };
   return (
     <div style={{ height: "100%" }}>
+      <Row justify="end" style={{ margin: "5x 0" }}>
+        <CommonIcons
+          disabled={rows.length === 0}
+          onClick={handleDownload}
+          action="downloadButton"
+        />
+      </Row>
       <MyDataTable
         loading={loading}
         data={rows}

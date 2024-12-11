@@ -484,6 +484,7 @@ interface GetExistingBom {
   latestVersion: string;
   bomID: string;
   isDraft: boolean;
+  bomRef: string;
   bomProduct: {
     id: string;
     text: string;
@@ -588,6 +589,7 @@ export const getExistingBom = async (sku: string, version: string) => {
         let obj: any = {
           name: values.bomName, // Use bomName from the new response
           description: values.bomRemark, // Assuming remark is the description
+          bomRef: values.bomRef,
           product: { value: values.bomProduct.id, label: values.bomProduct.text },
           isRejected: false, // You might need to adjust this depending on your BOM data
           latestVersion: values.bomRefNo, // If this is the latest version
