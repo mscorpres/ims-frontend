@@ -4,6 +4,8 @@ import {
   Col,
   Row,
   Typography,
+  Switch,
+  Modal,
 } from "antd";
 import ViewBomOfProject from "./ViewBomOfProject";
 import { imsAxios } from "../../../axiosInterceptor";
@@ -16,7 +18,6 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import TableActions, {
   CommonIcons,
 } from "../../../Components/TableActions.jsx/TableActions";
-import EditProjectForm from "./EditProjectForm";
 import UpdateProjectModal from "./UpdateProjectModal";
 
 function CPMMaster() {
@@ -66,11 +67,62 @@ function CPMMaster() {
   const handleDownload = () => {
     downloadCSV(rows, columns, "All Projects");
   };
+
+  const disableValidateHandler = async (row,status) => {
+    const payload = {
+      project: row.project,
+      status: status ? "1" : "0",
+    };
+
+    Modal.confirm({
+      title: "Changing Project Status",
+      content: `Are you sure you want to change the status of ${row.name}?`,
+      okText: "Continue",
+      onOk: () => disableSubmitHandler(payload),
+      cancelText: "Back",
+    });
+  };
+
+  const disableSubmitHandler = async (values) => {
+    console.log(values)
+    const response = await imsAxios.put(
+      `/backend/project/status/${values.project}`,
+      values
+    );
+    const { data } = response;
+    console.log(data)
+    if (data) {
+      if (data.code === 200) {
+        getAllDetailFun();
+        // getDataTree();
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    }
+  };
+
   const columns = [
     { field: "index", headerName: "Sr. No", width: 80 },
     { field: "project", headerName: "Project Id", width: 180 },
     { field: "description", headerName: "Project Name", flex: 1 },
     { field: "insert_dt", headerName: "Insert Date", flex: 1 },
+    {
+      headerName: "Is Blocked",
+      width: 180,
+      field: "status",
+      type: "actions",
+      renderCell: ({ row }) => (
+        <Switch
+          size="small"
+          checked={row.status === 1}
+          onChange={(e) => {
+            console.log(e)
+            disableValidateHandler(row,e);
+          }}
+        />
+      ),
+    },
     {
       field: "actions",
       headerName: "Actions",
@@ -100,27 +152,28 @@ function CPMMaster() {
   useEffect(() => {
     getAllDetailFun();
   }, []);
+
   return (
     <Row gutter={10} style={{ height: "90%", padding: 10 }}>
       <Col span={6}>
         <Card
           size="small"
           style={{ marginTop: "8%" }}
-          title={editProject ? "Edit Project" : "Add New Project"}
+          title={"Add New Project"}
         >
           <Typography.Title
             style={{ marginBottom: 30, marginTop: 10 }}
             level={4}
           ></Typography.Title>
-          {editProject ? (
+          {/* {editProject ? (
             <EditProjectForm
               editProject={editProject}
               setEditProject={setEditProject}
               getAllDetailFun={getAllDetailFun}
             />
-          ) : (
+          ) : ( */}
             <NewProjectForm />
-          )}
+          {/* )} */}
         </Card>
       </Col>
       <Col style={{ height: "95%" }} span={18}>
