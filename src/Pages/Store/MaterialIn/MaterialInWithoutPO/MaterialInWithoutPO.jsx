@@ -788,30 +788,6 @@ export default function MaterialInWithoutPO() {
       field: () => <Input disabled />,
       width: 120,
     },
-    // {
-    //   headerName: "Invoice ID",
-    //   name: "invoiceId",
-    //   field: () => <Input />,
-    //   width: 200,
-    // },
-    // {
-    //   headerName: "Invoice Date",
-    //   name: "invoiceDate",
-    //   field: (first, second) => {
-    //     return (
-    //       <SingleDatePicker
-    //         setDate={(value) => {
-    //           {
-    //             console.log(["components", second, "invoiceDate"]);
-    //             form.setFieldValue(["components", second, "invoiceDate"], value);
-    //           }
-    //         }}
-    //       />
-    //     );
-    //   },
-
-    //   width: 150,
-    // },
     {
       headerName: "HSN Code",
       name: "hsnCode",
