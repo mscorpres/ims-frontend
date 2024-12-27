@@ -799,7 +799,7 @@ export default function MaterialInWithoutPO() {
       name: "gstType",
       field: () => <MySelect options={gstTypeOptions} />,
       // flex: 1,
-      width: 160,
+      width: 160,//comment added
     },
     {
       headerName: "GST Rate",
