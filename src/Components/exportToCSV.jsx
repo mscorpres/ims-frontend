@@ -218,6 +218,14 @@ export const downloadCSVnested2 = (rows, columns, name, newRows) => {
         transformedRow.projectStatus = "Active";
       }
 
+      if (transformedRow.status === "") {
+        transformedRow.status = "--";
+      } else if (transformedRow.status === 0|| transformedRow.status === "DISABLE") {
+        transformedRow.status = "InActive";
+      } else {
+        transformedRow.status = "Active";
+      }
+
       // Convert row object to array based on columnsFields
       return columnsFields.map((field) => {
         // Ensure that we handle missing fields correctly

@@ -9,7 +9,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import ViewModal from "./ViewModal";
 import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
-import { downloadCSV } from "../../../../Components/exportToCSV";
+import { downloadCSVnested2 } from "../../../../Components/exportToCSV";
 import{
   CommonIcons,
 } from "../../../../Components/TableActions.jsx/TableActions";
@@ -139,7 +139,7 @@ const ManageBOM = () => {
   }, []);
 
   const handleDownload = () => {
-    downloadCSV(rows, columns, "FG BOM");
+    downloadCSVnested2(rows, columns, "FG BOM",actionColumns);
   };
   return (
     <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
