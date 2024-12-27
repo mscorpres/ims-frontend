@@ -14,6 +14,7 @@ const HeaderDetails = ({ headerDetails }) => {
         ))}
       </Row>
     </Card>
+    // </Card>
   );
 };
 
