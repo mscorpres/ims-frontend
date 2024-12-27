@@ -25,6 +25,10 @@ const Components = ({
   setSelectedRows,
   autoConsOptions,
   setAutoConsumptionOption,
+  setOpen,
+  open,
+  preview,
+  setPreview,
 }) => {
   const addComponent = async () => {
     const values = await form.validateFields();
@@ -35,7 +39,7 @@ const Components = ({
       alert("same component");
       return;
     }
-    form.resetFields(["component", "partCode", "qty", "rate", "hsn", "value"]);
+    form.resetFields();
     setSelectedRows((curr) => [values, ...curr]);
   };
   const deleteComponent = (key) => {
@@ -45,54 +49,62 @@ const Components = ({
   };
 
   const [form] = Form.useForm();
-
+  const openDrawer = () => {};
   return (
     <Flex
       vertical
       gutter={[0, 6]}
       gap="small"
-      style={{ height: "100%", overflow: "hidden" }}
+      style={{ position: "relative", height: "100%", overflow: "hidden" }}
     >
-      <div>
-        <Card
-          size="small"
-          title={`Total : ${rows?.length} Components | Selected: ${selectedRows?.length} Components`}
-          extra={
+      <Card
+        size="small"
+        title={`Total : ${rows?.length} Components | Selected: ${selectedRows?.length} Components`}
+        extra={
+          <>
             <Space>
-              <MyButton variant="add" onClick={addComponent} />
+              <MyButton variant="upload" onClick={() => setOpen(true)} />
             </Space>
-          }
-        >
-          {/* <Form form={form} initialValues={initialValues}> */}
+            <Space>
+              <MyButton
+                variant="add"
+                disabled={selectedRows.length === 0}
+                onClick={addComponent}
+                style={{ marginLeft: 10 }}
+              />
+            </Space>
+          </>
+        }
+      >
+        <Form form={form} initialValues={initialValues}>
           <SingleComponent
             rows={rows}
             form={form}
             locationOptions={locationOptions}
             autoConsOptions={autoConsOptions}
           />
-          {/* </Form> */}
-        </Card>
-      </div>
-      <Flex style={{ flex: 1, height: "100%" }}>
+        </Form>
+      </Card>
+      <div style={{ height: "83%" }}>
         <Card
           size="small"
-          style={{ flex: 1 }}
-          bodyStyle={{
-            height: "100%",
-            // width: "100%",
-            overflow: "scroll",
-          }}
+          style={{ height: "100%", paddingBottom: 10 }}
+          bodyStyle={{ height: "100%" }}
         >
           <div
             style={{
-              height: "70%",
-              overflowY: "scroll",
-              maxHeight: "70%",
+              height: "100%",
+              overflow: "hidden",
+              justifyContent: "center",
             }}
           >
             <Row
               gutter={[0, 6]}
-              // style={{ height: "100%" }}
+              style={{
+                height: "100%",
+                justifyContent: "center",
+                display: "flex",
+              }}
             >
               <Col span={24}>
                 <Row>
@@ -132,11 +144,14 @@ const Components = ({
               <Col
                 span={24}
                 style={{
-                  overflowY: "scroll",
-                  maxHeight: "20%",
+                  overflowY: "auto",
+                  height: "85%",
+                  bodyStyle: "100%",
+                  marginBottom: "10px",
+                  // backgroundColor: "red",
                 }}
               >
-                <Row>
+                <Row bodyStyle="100%" style={{ justifyContent: "center" }}>
                   {selectedRows.map((row, index) => (
                     <Col span={24}>
                       <Row align="middle">
@@ -183,7 +198,7 @@ const Components = ({
             </Row>
           </div>
         </Card>
-      </Flex>
+      </div>
     </Flex>
   );
 };
@@ -230,76 +245,63 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
     }
   }, [component]);
   return (
-    <Form
-      style={{ marginBottom: 20 }}
-      form={form}
-      initialValues={initialValues}
-    >
-      <Flex
-        justify="center"
-        style={{ flexWrap: "wrap", rowGap: 40, columnGap: 10 }}
-      >
-        <div style={{ width: 250 }}>
-          <Form.Item rules={rules.component} label="Component" name="component">
-            <MyAsyncSelect
-              loadOptions={getComponent}
-              optionsState={asyncOptions}
-              labelInValue={true}
-            />
-          </Form.Item>
-        </div>
-        <div style={{ width: 150 }}>
-          <Form.Item rules={rules.component} label="Part Code" name="partCode">
-            <Input disabled />
-          </Form.Item>
-        </div>
+    <Row gutter={[6, -6]} style={{ marginBottom: "18px" }}>
+      <Col span={3}>
+        <Form.Item label="Component" name="component">
+          <MyAsyncSelect
+            loadOptions={getComponent}
+            optionsState={asyncOptions}
+            labelInValue={true}
+          />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Part Code" name="partCode">
+          <Input disabled />
+        </Form.Item>
+      </Col>
 
-        <div style={{ width: 120 }}>
-          <Form.Item rules={rules.qty} label="Qty" name="qty">
-            <Input />
-          </Form.Item>
-        </div>
-        <div style={{ width: 120 }}>
-          <Form.Item rules={rules.rate} label="Rate" name="rate">
-            <Input />
-          </Form.Item>
-        </div>
-        <div style={{ width: 200 }}>
-          <Form.Item rules={rules.hsn} label="HSN" name="hsn">
-            <Input />
-          </Form.Item>
-        </div>
-        <div style={{ width: 150 }}>
-          <Form.Item rules={rules.value} label="Value" name="value">
-            <Input disabled />
-          </Form.Item>
-        </div>
-        <div style={{ width: 200 }}>
-          <Form.Item rules={rules.invoice} label="Invoice" name="invoiceId">
-            <Input />
-          </Form.Item>
-        </div>
-        <div style={{ width: 150 }}>
-          <Form.Item rules={rules.location} label="Location" name="location">
-            <MySelect labelInValue={true} options={locationOptions} />
-          </Form.Item>
-        </div>
-        <div style={{ width: 150 }}>
-          <Form.Item
-            rules={rules.autoConsump}
-            label="Auto Consump"
-            name="autoCons"
-          >
-            <MySelect labelInValue={true} options={autoConsOptions} />
-          </Form.Item>
-        </div>
-        <div style={{ width: 250 }}>
-          <Form.Item label="Remark" name="remark">
-            <Input />
-          </Form.Item>
-        </div>
-      </Flex>
-    </Form>
+      <Col span={2}>
+        <Form.Item label="Qty" name="qty">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Rate" name="rate">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="HSN" name="hsn">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Value" name="value">
+          <Input disabled />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Invoice" name="invoiceId">
+          <Input />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Location" name="location">
+          <MySelect labelInValue={true} options={locationOptions} />
+        </Form.Item>
+      </Col>
+      <Col span={2}>
+        <Form.Item label="Auto Consump" name="autoCons">
+          <MySelect labelInValue={true} options={autoConsOptions} />
+        </Form.Item>
+      </Col>
+      <Col span={5}>
+        <Form.Item label="Remark" name="remark">
+          <Input />
+        </Form.Item>
+      </Col>
+    </Row>
   );
 };
 
@@ -311,68 +313,6 @@ const initialValues = {
   value: 0,
   invoice: "",
   location: undefined,
-  autoCons: { label: "NO", value: 0 },
+  autoCons: { label: "NO", value: "0" },
   remarks: "",
-};
-const rules = {
-  component: [
-    {
-      required: true,
-      message: "Select a component",
-    },
-  ],
-  partCode: [
-    {
-      required: true,
-      message: "Select a part code",
-    },
-  ],
-  qty: [
-    {
-      required: true,
-      message: "Enter Qty",
-    },
-  ],
-  rate: [
-    {
-      required: true,
-      message: "Enter Rate",
-    },
-  ],
-  hsn: [
-    {
-      required: true,
-      message: "Enter HSN Code",
-    },
-  ],
-  value: [
-    {
-      required: true,
-      message: "Enter Value",
-    },
-  ],
-  invoice: [
-    {
-      required: true,
-      message: "Enter Invoice Number",
-    },
-  ],
-  location: [
-    {
-      required: true,
-      message: "Select a location",
-    },
-  ],
-  autoConsump: [
-    {
-      required: true,
-      message: "Select a auto consum location",
-    },
-  ],
-  remarks: [
-    {
-      required: true,
-      message: "Enter remarks",
-    },
-  ],
 };

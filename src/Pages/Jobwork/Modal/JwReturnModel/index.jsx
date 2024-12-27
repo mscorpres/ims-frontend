@@ -103,7 +103,7 @@ const JwReturnModel = ({ show, close }) => {
   };
   const validateHandler = async () => {
     const values = await form.validateFields();
-    console.log("selectedRows", selectedRows);
+    // console.log("selectedRows", selectedRows);
     const finalObj = {
       trans_id: show.transaction,
       component: selectedRows.map((row) => row.component.value),
