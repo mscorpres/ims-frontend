@@ -185,3 +185,81 @@ export function exportCSVFile(items, fileTitle) {
   xlsx.utils.book_append_sheet(wb, ws, "Sheet 1");
   xlsx.writeFile(wb, `${fileTitle}.xlsx`);
 }
+
+export const downloadCSVnested2 = (rows, columns, name, newRows) => {
+  try {
+    // Get the column headers and fields
+    const columnsArr = columns
+      .filter((row) => row.type !== "actions")
+      .map((row) => row.headerName);
+    const columnsFields = columns
+      .filter((row) => row.type !== "actions")
+      .map((row) => row.field);
+
+    // Transform rows into an array of arrays (AoA)
+    const rowsArr = rows.map((row) => {
+      const transformedRow = { ...row };
+
+      // Apply category transformation logic
+      if (transformedRow.category === "") {
+        transformedRow.category = "--";
+      } else if (transformedRow.category === "services") {
+        transformedRow.category = "Services";
+      } else {
+        transformedRow.category = "Goods";
+      }
+
+      // Transform status field correctly
+      if (transformedRow.projectStatus === "") {
+        transformedRow.projectStatus = "--";
+      } else if (transformedRow.projectStatus === 0) {
+        transformedRow.projectStatus = "InActive";
+      } else {
+        transformedRow.projectStatus = "Active";
+      }
+
+      if (transformedRow.status === "") {
+        transformedRow.status = "--";
+      } else if (transformedRow.status === 0|| transformedRow.status === "DISABLE") {
+        transformedRow.status = "InActive";
+      } else {
+        transformedRow.status = "Active";
+      }
+
+      // Convert row object to array based on columnsFields
+      return columnsFields.map((field) => {
+        // Ensure that we handle missing fields correctly
+        return transformedRow[field] !== undefined ? transformedRow[field] : "";
+      });
+    });
+
+    // Add the column headers as the first row
+    rowsArr.unshift(columnsArr);
+
+    // If newRows are provided, apply the same transformation and add to rowsArr
+    if (newRows) {
+      const newRowsTemp = newRows.map((row) => {
+        const transformedRow = { ...row };
+
+        if (transformedRow.category === "") {
+          transformedRow.category = "--";
+        } else if (transformedRow.category === "services") {
+          transformedRow.category = "Services";
+        } else {
+          transformedRow.category = "Goods";
+        }
+
+        return columnsFields.map((field) => transformedRow[field]);
+      });
+
+      newRowsTemp.forEach((row) => rowsArr.unshift(row));
+    }
+
+    // Call the function to export the CSV file
+    exportCSVFile(rowsArr, name ?? "File");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
