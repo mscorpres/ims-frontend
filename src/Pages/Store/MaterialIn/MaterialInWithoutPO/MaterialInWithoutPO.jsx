@@ -129,8 +129,6 @@ export default function MaterialInWithoutPO() {
       LOCATION: "RM021",
       AUTO_CONSUMP: "Y",
       REMARK: "test",
-      GST_TYPE: "LOCAL",
-      GST_RATE: "18",
     },
   ];
   // console.log("fileComponents", fileComponents);
@@ -956,21 +954,6 @@ export default function MaterialInWithoutPO() {
       minWidth: 150,
       flex: 1,
     },
-    {
-      headerName: "GST RATE",
-      field: "Gstrate",
-      flex: 1,
-      minWidth: 100,
-    },
-    {
-      headerName: "GST TYPE",
-      field: "Gsttype",
-      flex: 1,
-      minWidth: 100,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.gstType} copy={true} />
-      ),
-    },
   ];
   const callFileUpalod = async () => {
     setPreview(true);
@@ -1026,8 +1009,6 @@ export default function MaterialInWithoutPO() {
           value: r.Autoconsump == "Y" ? "Yes" : "No",
         },
         value: (r.Qty * r.Rate).toFixed(3),
-        gstRate: r.Gstrate,
-        gstType: r.Gsttype.text,
         ...r,
       }));
       setPreviewRows(arr);
