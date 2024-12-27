@@ -81,7 +81,22 @@ export const saveCreateChallan = async (final) => {
     console.log("something happened wrong", error);
   }
 };
-
+export const uplaodFileInJWReturn = async (formdata) => {
+  try {
+    const response = await imsAxios.post("/jobwork/upload/item ", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+export const uplaodFileInMINInward = async (formdata) => {
+  try {
+    const response = await imsAxios.post("transaction/upload/item", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
 export const getVendorBranchOptions = async (vendorCode) => {
   const response = await imsAxios.post("/backend/vendorBranchList", {
     vendorcode: vendorCode,
@@ -174,10 +189,23 @@ export const updateAlternatePartCode = async (alternativeArr, basePartCode) => {
   });
   return response;
 };
-export const fetchLocations = async (search) => {
-  const response = await imsAxios.post("/backend/fetchLocation", {
+export const fetchLocations = async (search, type?: "sf") => {
+  let url = "/backend/fetchLocation";
+  switch (type) {
+    case "sf":
+      url = "/godown/fetchLocationForSF2SF_from";
+      break;
+  }
+  const response = await imsAxios.post(url, {
     searchTerm: search,
   });
+
+  if (response.data.code === 200) {
+    return {
+      success: true,
+      data: response.data.data,
+    };
+  }
   return response;
 };
 export const getProductsOptions = async (search: string, sku?: boolean) => {
@@ -345,4 +373,3 @@ export const getComponenentAndProduct = async (search: string) => {
 
   return response;
 };
-//
