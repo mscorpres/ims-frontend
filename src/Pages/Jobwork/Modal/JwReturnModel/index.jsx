@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { Drawer, Row, Col, Form, Input, Card, Typography, Modal } from "antd";
+import {
+  Drawer,
+  Row,
+  Col,
+  Form,
+  Input,
+  Card,
+  Typography,
+  Modal,
+  Upload,
+  Button,
+} from "antd";
 import HeaderDetails from "./HeaderDetails";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { useEffect } from "react";
@@ -9,6 +20,14 @@ import { toast } from "react-toastify";
 import Loading from "../../../../Components/Loading";
 import useLoading from "../../../../hooks/useLoading";
 import { v4 } from "uuid";
+import { InboxOutlined } from "@ant-design/icons";
+import MyButton from "../../../../Components/MyButton";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
+import useApi from "../../../../hooks/useApi";
+import { uplaodFileInJWReturn } from "../../../../api/general";
+import MyDataTable from "../../../../Components/MyDataTable";
+import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+import axios from "axios";
 
 const JwReturnModel = ({ show, close }) => {
   const [headerDetails, setHeaderDetails] = useState([]);
@@ -18,9 +37,25 @@ const JwReturnModel = ({ show, close }) => {
   const [locationOptions, setLocationOptions] = useState([]);
   const [autoConsOptions, setAutoConsumptionOption] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
 
+  const { executeFun, loading: loading1 } = useApi();
   const [form] = Form.useForm();
-
+  const [uplaodForm] = Form.useForm();
+  const sampleData = [
+    {
+      PART_CODE: "p0001",
+      QTY: "1",
+      RATE: "12",
+      HSN: "123456",
+      INVOICE: "1",
+      LOCATION: "RM021",
+      AUTO_CONSUMP: "Y",
+      REMARK: "test",
+    },
+  ];
   const getLocationOptions = async () => {
     try {
       const { data } = await imsAxios.get("/jobwork/jw_rm_return_location");
@@ -50,7 +85,7 @@ const JwReturnModel = ({ show, close }) => {
           text: row.text,
         };
       });
-      arr = [{ text: "NO", value: 0 }, ...arr];
+      arr = [{ text: "NO", value: "0" }, ...arr];
       setAutoConsumptionOption(arr);
     }
   };
@@ -103,19 +138,20 @@ const JwReturnModel = ({ show, close }) => {
   };
   const validateHandler = async () => {
     const values = await form.validateFields();
-    // console.log("selectedRows", selectedRows);
     const finalObj = {
       trans_id: show.transaction,
       component: selectedRows.map((row) => row.component.value),
       qty: selectedRows.map((row) => row.qty),
       in_location: selectedRows.map((row) => row.location?.value ?? "--"),
-      out_location: selectedRows.map((row) => row.autoCons?.value ?? 0),
+      out_location: selectedRows.map((row) => row.autoCons?.value ?? "--"),
       rate: selectedRows.map((row) => row.rate),
       invoice: selectedRows.map((row) => row.invoiceId ?? ""),
       remark: selectedRows.map((row) => row.remark ?? "--"),
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
     };
+    // console.log("finalObj", finalObj);
+
     // return;
 
     Modal.confirm({
@@ -132,15 +168,17 @@ const JwReturnModel = ({ show, close }) => {
     try {
       setLoading("submit", true);
       const response = await imsAxios.post("/jobwork/saveJwRmReturn", values);
-      console.log("response", response);
+      // console.log("response is here->", response);
       let { data } = response;
       if (response.success) {
         // console.log("data.message", data.message.msg);
         toast.success(response.message.msg);
+        setPreview(false);
+        setPreviewRows([]);
+        setSelectedRows([]);
         close();
       }
     } catch (error) {
-      console.log("some error while submitting the data", error);
     } finally {
       setLoading("submit", false);
     }
@@ -159,78 +197,387 @@ const JwReturnModel = ({ show, close }) => {
       getLocationOptions();
     }
   }, [show]);
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+  const props = {
+    name: "file",
+    multiple: false,
+
+    maxCount: 1,
+
+    beforeUpload(file) {
+      return false;
+    },
+  };
+  const callFileUpalod = async () => {
+    setPreview(true);
+    const values = uplaodForm.getFieldsValue();
+
+    const file = values.files[0].originFileObj;
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await executeFun(
+      () => uplaodFileInJWReturn(formData),
+      "fetch"
+    );
+    if (response?.data?.status == "success") {
+      let { data } = response;
+      let rows = data.data;
+
+      const formattedHeaders = data.data.headers.map((header) =>
+        header
+          .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+            index === 0 ? match.toUpperCase() : match.toLowerCase()
+          )
+          .replace(/\s+/g, "")
+      );
+
+      // Map the row values to headers
+      const formattedRows = data.data.rows.map((row) => {
+        let rowObject = {};
+        formattedHeaders.forEach((header, index) => {
+          rowObject[header] = row[index];
+        });
+        return rowObject;
+      });
+
+      let arr = formattedRows.map((r, index) => ({
+        id: index + 1,
+        partCode: r.Partcode.partNo,
+        partName: r.Partcode.name,
+        location: { label: r.Location.text, value: r.Location.value },
+        locationName: r.Location.text,
+        component: { label: r.Partcode.name, value: r.Partcode.key },
+        qty: r.Qty,
+        rate: r.Rate,
+        hsn: r.Hsn,
+        autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
+        autoCons: {
+          label: r.Autoconsump == "Y" ? "Yes" : "No",
+          value: r.Autoconsump == "Y" ? "Yes" : "No",
+        },
+        value: (r.Qty * r.Rate).toFixed(3),
+        ...r,
+      }));
+      setPreviewRows(arr);
+    } else {
+      toast.error(response.message.msg);
+      setPreview(false);
+    }
+  };
+  const previewedcolumns = [
+    {
+      headerName: "#",
+      field: "id",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.id} />,
+      width: 50,
+    },
+    {
+      headerName: "Part Code",
+      field: "partCode",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.partCode} />,
+      minWidth: 110,
+    },
+    {
+      headerName: "Part Name",
+      field: "partName",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.partName} copy={true} />
+      ),
+      minWidth: 250,
+      flex: 1,
+    },
+    {
+      headerName: "Location",
+      field: "locationName",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.locationName} />,
+      width: 100,
+    },
+
+    {
+      headerName: "Hsn",
+      field: "hsn",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.Hsn} />,
+      width: 110,
+
+      // width: "12vw",
+    },
+    {
+      headerName: "Rate",
+      field: "rate",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Qty ",
+      field: "qty",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.Qty} copy={true} />,
+      // flex: 1,
+    },
+    {
+      headerName: "Auto Consumption",
+      field: "autoConsName",
+      minWidth: 150,
+      flex: 1,
+    },
+    {
+      headerName: "Remark",
+      field: "Remark",
+      minWidth: 150,
+      flex: 1,
+    },
+  ];
+  const saveTheData = async () => {
+    Modal.confirm({
+      title: "Are you sure you want to submit?",
+      content: "Please make sure that the values are correct",
+      onOk() {
+        closeDrawer();
+      },
+      onCancel() {},
+    });
+  };
+  const closeDrawer = () => {
+    setPreview(false);
+    setOpen(false);
+    setSelectedRows(previewRows);
+    setRows([]);
+  };
   return (
-    <Drawer
-      width="100%"
-      title="Vendor Name"
-      placement="right"
-      onClose={() => {
-        close();
-        setSelectedRows([]);
-      }}
-      destroyOnClose={true}
-      open={show}
-      bodyStyle={{
-        padding: 5,
-      }}
-    >
-      {loading("fetch") && <Loading />}
-      <Form form={form} layout="vertical" style={{ height: "100%" }}>
-        <Row style={{ height: "90%", overflow: "hidden" }} gutter={6}>
-          <Col span={6}>
-            <Row gutter={[0, 6]}>
-              <Col span={24}>
-                <HeaderDetails headerDetails={headerDetails} />
-              </Col>
+    <>
+      <Drawer
+        width="100%"
+        title="Vendor Name"
+        placement="right"
+        onClose={close}
+        destroyOnClose={true}
+        open={show}
+        bodyStyle={{
+          padding: 5,
+        }}
+      >
+        {loading("fetch") && <Loading />}
+        <Form form={form} layout="vertical" style={{ height: "100%" }}>
+          <Row style={{ height: "90%", overflow: "hidden" }} gutter={6}>
+            <Col span={5} style={{ height: "100%", overflowY: "scroll" }}>
+              <Row gutter={[0, 6]}>
+                <Col span={24}>
+                  <HeaderDetails headerDetails={headerDetails} />
+                </Col>
 
-              <Col span={24}>
-                <Card size="small" title="Header Details">
-                  <Form.Item name="ewayBill" label="E-Way Bill No.">
-                    <Input />
-                  </Form.Item>
-                </Card>
-              </Col>
+                <Col span={24}>
+                  <Card size="small" title="Header Details">
+                    <Form.Item name="ewayBill" label="E-Way Bill No.">
+                      <Input />
+                    </Form.Item>
+                  </Card>
+                </Col>
 
-              <Col span={24}>
-                <Card size="small">
-                  <Row justify="space-between">
-                    <Col>
-                      <Typography.Text strong>Total Value</Typography.Text>
-                    </Col>
-                    <Col>
-                      <Typography.Text>
-                        {!totalValue || totalValue === NaN ? 0 : totalValue}
-                      </Typography.Text>
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
-          </Col>
-          <Col span={18} style={{ height: "100%", overflow: "auto" }}>
-            <Components
-              form={form}
-              locationOptions={locationOptions}
-              autoConsOptions={autoConsOptions}
-              setAutoConsumptionOption={setAutoConsumptionOption}
-              formRules={formRules}
-              rows={rows}
-              setRows={setRows}
-              selectedRows={selectedRows}
-              setSelectedRows={setSelectedRows}
+                <Col span={24}>
+                  <Card size="small">
+                    <Row justify="space-between">
+                      <Col>
+                        <Typography.Text strong>Total Value</Typography.Text>
+                      </Col>
+                      <Col>
+                        <Typography.Text>
+                          {!totalValue || totalValue === NaN ? 0 : totalValue}
+                        </Typography.Text>
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
+            </Col>
+            <Col span={19} style={{ height: "100%", overflow: "auto" }}>
+              <Components
+                form={form}
+                locationOptions={locationOptions}
+                autoConsOptions={autoConsOptions}
+                setAutoConsumptionOption={setAutoConsumptionOption}
+                formRules={formRules}
+                rows={rows}
+                setRows={setRows}
+                selectedRows={selectedRows}
+                setSelectedRows={setSelectedRows}
+                setOpen={setOpen}
+                open={open}
+                preview={preview}
+                setPreview={setPreview}
+              />
+            </Col>
+          </Row>
+        </Form>
+        <NavFooter
+          submitFunction={validateHandler}
+          nextLabel="Submit"
+          backLabel="Back"
+          nextDisabled={selectedRows.length === 0}
+          loading={loading("submit")}
+          backFunction={close}
+        />
+      </Drawer>
+      <Drawer
+        width="100%"
+        title="Preview Data From Excel"
+        placement="right"
+        onClose={() => setPreview(false)}
+        destroyOnClose={true}
+        open={preview}
+        bodyStyle={{
+          padding: 5,
+        }}
+      >
+        {loading("fetch") && <Loading />}
+        <Row
+          style={{
+            height: "95%",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Col
+            style={{
+              height: "90%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+            span={23}
+          >
+            <MyDataTable
+              columns={previewedcolumns}
+              data={previewRows}
+              // pagination
+              loading={loading1("fetch")}
+              headText="center"
+              // export={true}
             />
           </Col>
+          <Row
+            span={24}
+            style={{
+              width: "100%",
+              height: "10%",
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <NavFooter
+              // submithtmlType="Save"
+              // resethtmlType="Back"
+              submitFunction={saveTheData}
+              nextLabel="Submit"
+              resetFunction={() => setPreview(false)}
+            >
+              {/* <Col
+                span={24}
+                style={{
+                  height: "10%",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  // marginRight: 35,
+                  marginTop: 10,
+                  padding: "25px",
+                  // background: "red",
+                }}
+              >
+                <MyButton
+                  style={{ marginLeft: 10 }}
+                  variant="reset"
+                  onClick={() => setPreview(false)}
+                >
+                  Close
+                </MyButton>
+                <MyButton
+                  style={{ marginLeft: 10 }}
+                  variant="next"
+                  onClick={() => setPreview(false)}
+                >
+                  Close
+                </MyButton>
+              </Col> */}
+            </NavFooter>
+          </Row>
         </Row>
-      </Form>
-      <NavFooter
-        submitFunction={validateHandler}
-        nextDisabled={selectedRows.length === 0}
-        nextLabel="Submit"
-        backLabel="Back"
-        loading={loading("submit")}
-        backFunction={close}
-      />
-    </Drawer>
+      </Drawer>
+      <Modal
+        title="Upload File Here"
+        open={open}
+        width={500}
+        onCancel={() => setOpen(false)}
+        footer={[
+          <Button key="back" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={callFileUpalod}>
+            Preview
+          </Button>,
+        ]}
+      >
+        {loading("fetch") && <Loading />}
+        <Card>
+          <Form
+            // initialValues={initialValues}
+            form={uplaodForm}
+            layout="vertical"
+          >
+            <Form.Item>
+              <Form.Item
+                name="files"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+                // rules={rules.file}
+                noStyle
+              >
+                <Upload.Dragger name="files" {...props}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Upload.Dragger>
+              </Form.Item>
+            </Form.Item>
+            {/* <Row justify="end" style={{ marginTop: 10 }}>
+                <Space>
+                  <MyButton variant="reset" onClick={validateResetHandler} />
+                  {stage === "preview" && (
+                    <MyButton
+                      loading={loading === "preview"}
+                      variant="next"
+                      text="Preview"
+                      onClick={previewFileHandler}
+                    />
+                  )}
+                  {stage === "submit" && (
+                    <MyButton
+                      loading={loading === "submit"}
+                      variant="submit"
+                      onClick={validateHandler}
+                    />
+                  )}
+                </Space>
+              </Row> */}
+            <Row justify="end" style={{ marginTop: 5 }}>
+              <MyButton
+                variant="downloadSample"
+                onClick={() =>
+                  downloadCSVCustomColumns(sampleData, "JW RM Return")
+                }
+              />
+            </Row>
+          </Form>
+        </Card>
+      </Modal>
+    </>
   );
 };
 
