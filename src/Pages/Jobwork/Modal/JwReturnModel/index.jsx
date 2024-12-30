@@ -350,6 +350,12 @@ const JwReturnModel = ({ show, close }) => {
     setSelectedRows(previewRows);
     setRows([]);
   };
+  useEffect(() => {
+    if (show == false && selectedRows.length > 0) {
+      setSelectedRows([]);
+    }
+  }, [show]);
+
   return (
     <>
       <Drawer
