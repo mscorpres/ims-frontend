@@ -39,7 +39,14 @@ const Components = ({
       alert("same component");
       return;
     }
-    form.resetFields();
+    // form.resetFields();
+    form.setFieldValue("value", "");
+    form.setFieldValue("hsn", "");
+    form.setFieldValue("rate", "");
+    form.setFieldValue("qty", "");
+    form.setFieldValue("partCode", "");
+    form.setFieldValue("component", "");
+    form.setFieldValue("component", "");
     setSelectedRows((curr) => [values, ...curr]);
   };
   const deleteComponent = (key) => {
