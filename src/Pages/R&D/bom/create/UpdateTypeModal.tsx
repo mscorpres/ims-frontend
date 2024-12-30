@@ -48,7 +48,7 @@ const UpdateTypeModal = ({
           ECN Update
         </Button>
         <Button block onClick={() => handleSelectType("main")}>
-          PCB Update
+          Major Update
         </Button>
       </Flex>
     </Modal>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Button,
   Card,
   Col,
   Flex,
@@ -13,7 +14,6 @@ import {
 } from "antd";
 import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
-
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import TableActions from "@/Components/TableActions.jsx/TableActions";
 import useApi from "@/hooks/useApi";
@@ -23,24 +23,27 @@ import { getComponentMfgCodeAndType, getComponentOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
+  createBomRND,
   downloadSampleComponentFile,
   getComponentsFromFile,
   getExistingBom,
+  uploadDocs,
 } from "@/api/r&d/bom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "@/Components/Loading.jsx";
-
 import ApproverMetrics from "@/Pages/R&D/bom/create/ApproverMetrics";
 import { bomUpdateType, MultiStageApproverType } from "@/types/r&d";
 import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
 import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
 import routeConstants from "@/Routes/routeConstants.js";
+import UploadDocumentModal from "@/Pages/R&D/bom/create/UploadDocumentModal";
 
 interface ComponentType {
   component: {
     label: string;
     value: string;
   };
+  locations: string;
   text: string;
   value: string;
   qty: string;
@@ -55,6 +58,8 @@ interface ComponentType {
 }
 
 const BOMCreate = () => {
+  const [visible, setVisible] = useState(false);
+  const [fileList, setFileList] = useState([]);
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
@@ -71,8 +76,9 @@ const BOMCreate = () => {
   const [bomId, setBomId] = useState("");
   const navigate = useNavigate();
 
-  const [approvers, setApprovers] =
-    useState<MultiStageApproverType[]>(initialApprovers);
+  const [approvers, setApprovers] = useState<MultiStageApproverType[]>(
+    initialApprovers as any
+  );
 
   const [queryParams] = useSearchParams();
 
@@ -80,7 +86,7 @@ const BOMCreate = () => {
   const { executeFun, loading } = useApi();
 
   const selectedProduct = Form.useWatch("product", form);
-  const selectedSubstituteOf = Form.useWatch("substituteOf", form);
+  const selectedSubstituteOf = Form.useWatch("altComp", form);
 
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
@@ -104,7 +110,8 @@ const BOMCreate = () => {
       const updatedArr = response.data.map((row) => ({
         component: { ...row.partCode, label: row.partCode.text },
         qty: row.quantity,
-        type: row.type === "main" ? "main" : "substitute",
+        type:
+          row.type === "main" || row.type === "Main" ? "main" : "substitute",
         locations: row.location,
         vendor: {
           ...row.make,
@@ -265,7 +272,7 @@ const BOMCreate = () => {
   };
 
   const validateHandler = async (action: "final" | "draft") => {
-    await form.validateFields(["name", "version", "product"]);
+    await form.validateFields(["name", "version", "product", "bomRef"]);
     setSaveType(action);
     setShowApproverMetrics(true);
   };
@@ -300,25 +307,43 @@ const BOMCreate = () => {
       "description",
       "document",
       "documents",
+      "bomRef",
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
-
-    // return
+    const payload = {
+      product: values.product?.value ? values?.product.value : values?.product,
+      bomName: values.name,
+      brn: values.version,
+      bomDoc: values.documents,
+      bomRef: values.bomRef,
+      bomRemark: values.description,
+      approvers: approvers.map(
+        (stage) => stage.approvers.map((approver: any) => approver?.user?.value) // Extract the 'value' of each approver's user
+      ),
+      // bomDoc: values.documents,
+      componets: combined.map(
+        (item: any) => (
+          console.log(item),
+          {
+            vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor,
+            component: item.component.value
+              ? item.component.value
+              : item.componentKey, // Extract the component value
+            quantity: item.qty.toString(), // Ensure quantity is a string
+            type: item.type === "substitute" ? "alternate" : item.type, // Retain the type
+            placement: item.locations, // Add placement field
+            remark: item.remarks,
+            altComp: item.substituteOf?.value,
+            // ?item.substituteOf.value:item.substituteOf,
+          }
+        )
+      ),
+    };
     const response = await executeFun(
-      () =>
-        createBOM(
-          { ...values, components: combined, latestVersion: latestVersion },
-          approvers,
-          action,
-          isBomUpdating,
-          updateType,
-          isBomRej,
-          bomId
-        ),
+      () => createBomRND(payload as any),
       action
     );
-
     if (response.success) {
       setBomId("");
       setIsBomRej(false);
@@ -339,24 +364,27 @@ const BOMCreate = () => {
     return e?.fileList;
   };
 
-  const handleFetchExistingBom = async (
-    sku: string,
-    version: string = "1.0"
-  ) => {
+  const handleFetchExistingBom = async (sku: any, version: string = "1.0") => {
     const response = await executeFun(
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-
+    console.log(response.data);
     if (response.success) {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
         return;
+      } else if (response.data.id && !queryParams.get("sku")) {
+        toast.error(
+          "This BOM is already created! You can view it in the BOM List. and Update it."
+        );
+      } else {
+        form.setFieldValue("version", response.data.version);
       }
 
       if (
-        response.data.isDraft === false &&
-        response.data.isRejected === "false" &&
+        response.data.isDraft == false &&
+        response.data.isRejected == false &&
         queryParams.get("sku") &&
         queryParams.get("version")
       ) {
@@ -371,7 +399,7 @@ const BOMCreate = () => {
           setBomId(response.data.id);
           setIsBomRej(response.data.isRejected);
           if (!queryParams.get("sku") && !queryParams.get("version")) {
-            setShowRedirectModal(true);
+            // setShowRedirectModal(true);
             return;
           }
           setOgName(response.data.name);
@@ -386,6 +414,26 @@ const BOMCreate = () => {
           );
         }
       }
+    }
+  };
+
+  const handleUpload = async (files) => {
+    // Create a FormData object
+    const formData = new FormData();
+
+    // Append each file to FormData
+    files.forEach((file) => {
+      formData.append("documents", file.originFileObj); // Use 'originFileObj' for actual file object
+    });
+
+    try {
+      const result = await uploadDocs(formData);
+      form.setFieldValue("documents", result);
+      // Show success toast
+      toast.success("Upload successful");
+      setVisible(false); // Close the modal
+    } catch (error) {
+      console.error("Error during upload:", error); // Handle error
     }
   };
 
@@ -407,12 +455,11 @@ const BOMCreate = () => {
   const handleDownloadComponentSampleFile = () => {
     executeFun(() => downloadSampleComponentFile(), "sample");
   };
-
   useEffect(() => {
     if (queryParams.get("sku")) {
       handleFetchExistingBom(
         queryParams.get("sku"),
-        queryParams.get("version")
+        queryParams.get("version") ?? ""
       );
     }
   }, [queryParams]);
@@ -450,6 +497,29 @@ const BOMCreate = () => {
     }
   }, [showUpdateTypeModal]);
 
+  useEffect(() => {
+    const currentVersion = form.getFieldValue("version");
+    let numericVersion = parseFloat(currentVersion); // Convert currentVersion to a number
+
+    if (updateType === "ecn") {
+      // Increase by 0.1 and keep 2 decimal places
+      const updatedVersion = (numericVersion + 0.1).toFixed(2);
+      form.setFieldValue("version", parseFloat(updatedVersion)); // Set value back as number
+    } else if (updateType === "main") {
+      // If it's a whole number like 1.0, it should start from 2.0
+      if (numericVersion % 1 === 0) {
+        // Increment by 1 if the number is a whole number
+        numericVersion += 1;
+      } else {
+        // If it's not a whole number, round up normally
+        numericVersion = Math.ceil(numericVersion);
+      }
+
+      console.log(currentVersion, numericVersion, "uuii");
+      form.setFieldValue("version", numericVersion); // Set the updated version
+    }
+  }, [updateType]);
+
   return (
     <Form
       style={{ padding: 10, height: "95%" }}
@@ -485,7 +555,7 @@ const BOMCreate = () => {
                 />
               </Form.Item>
               <Form.Item name="name" label="BOM Name" rules={rules.name}>
-                <Input />
+                <Input readOnly={updateType == "ecn"} />
               </Form.Item>
               <Form.Item
                 name="version"
@@ -495,10 +565,14 @@ const BOMCreate = () => {
                 <Input disabled />
               </Form.Item>
 
+              <Form.Item name="bomRef" label="BOM Reference Number" rules={rules.bomRef}>
+                <Input />
+              </Form.Item>
+
               <Form.Item name="description" label="Remarks">
                 <Input.TextArea rows={3} />
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 name="documents"
                 label="Documents"
                 valuePropName="fileList"
@@ -515,15 +589,24 @@ const BOMCreate = () => {
                     variant="upload"
                     text="Select"
                     style={{ width: "100%", marginBottom: 5 }}
+                    onClick={() => setVisible(true)} // Trigger the modal when clicked
                   />
                 </Upload>
-              </Form.Item>
+              </Form.Item> */}
+
+              <Button
+                type="primary"
+                style={{ width: "60%" }}
+                onClick={() => setVisible(true)}
+              >
+                Upload Documents
+              </Button>
             </Card>
             {/* Component add card */}
             <AddComponent
               asyncOptions={asyncOptions}
               form={form}
-              handleAddComponents={handleAddComponents}
+              handleAddComponents={handleAddComponents as any}
               handleCancelEditing={handleCancelEditing}
               handleDownloadComponentSampleFile={
                 handleDownloadComponentSampleFile
@@ -540,7 +623,7 @@ const BOMCreate = () => {
               selectedFile={selectedFile}
               setAsyncOptions={setAsyncOptions}
               setSelectedFile={setSelectedFile}
-              validateHandler={validateHandler}
+              validateHandler={validateHandler as any}
               submitHandler={submitHandler}
             />
             <ApproverMetrics
@@ -608,6 +691,13 @@ const BOMCreate = () => {
                     setIsEditing={setIsEditing}
                   />
                 </div>
+                <UploadDocumentModal
+                  open={visible}
+                  close={() => setVisible(false)}
+                  handleUpload={(files) => handleUpload(files)}
+                  fileList={fileList} // Pass the selected file list to the modal
+                  setFileList={setFileList}
+                />
               </Card>
             </Col>
           </Row>
@@ -677,7 +767,7 @@ const Components = ({
             style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
           >
             <Row gutter={[0, 4]}>
-              {rows.map((row, index: number) => (
+              {rows.map((row: any, index: number) => (
                 <>
                   <Col span={1}>
                     <Typography.Text style={{ fontSize: 13 }}>
@@ -807,6 +897,12 @@ const rules = {
     {
       required: true,
       message: "BOM Name is required",
+    },
+  ],
+  bomRef: [
+    {
+      required: true,
+      message: "BOM Reference is required",
     },
   ],
   version: [

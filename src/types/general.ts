@@ -3,6 +3,7 @@ export interface ResponseType {
   success: boolean;
   message?: string | null;
   error?: boolean;
+  status?: number;
 }
 export interface SelectOptionType {
   text: string | number | boolean;

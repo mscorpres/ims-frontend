@@ -18,13 +18,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import routeConstants from "@/Routes/routeConstants.js";
 import IconButton from "@/Components/IconButton";
 import { ArrowRightOutlined } from "@ant-design/icons";
+import ViewLogs from "@/Pages/R&D/bom/list/components/ViewLogs.js";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
   const [selectedBOM, setSelectedBOM] = useState<BOMTypeExtended | null>(null);
   const [showComponents, setShowComponents] = useState(false);
-  const [showAttachments, setShowAttachments] = useState(false);
-  // const [showAttachments, setShowAttachments] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
+  const [selectedLogs, setSelectedLogs] = useState<BOMTypeExtended | null>(null);
 
   const [showDocs, setShowDocs] = useState(false);
   const [attachlist, setAttachLsit] = useState([]);
@@ -44,7 +45,7 @@ const BOMList = () => {
     setRows(response.data);
   };
 
-  console.log("attachlist", attachlist);
+  
   const actionColumns = [
     {
       headerName: "",
@@ -53,7 +54,7 @@ const BOMList = () => {
       getActions: ({ row }: { row: BOMTypeExtended }) => [
         <GridActionsCellItem
           showInMenu
-          placeholder="Components and Logss"
+          placeholder="Components and Logs"
           label={"Components and Logs"}
           onClick={() => {
             setShowComponents(true);
@@ -78,11 +79,22 @@ const BOMList = () => {
           placeholder="Update"
           label={"Update"}
           onClick={() => {
+            console.log(row)
             navigate(
-              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.sku}&version=${row.version}`
+              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.productKey}&version=${row.version}`
             );
           }}
         />,
+        <GridActionsCellItem
+        showInMenu
+        placeholder="View Logs"
+        label={"View Logs"}
+        onClick={() => {
+          console.log(row)
+         setShowLogs(true)
+         setSelectedLogs(row);
+        }}
+      />,
       ],
     },
   ];
@@ -155,6 +167,14 @@ const BOMList = () => {
           }}
         />
       )}
+      {selectedLogs && <ViewLogs
+        show={showLogs}
+        hide={() => {
+          setShowLogs(false);
+          setSelectedBOM(null);
+        }}
+        selectedBOM={selectedLogs}
+      />}
       {/* <BOMApproval
         show={showLogs}
         hide={() => {
@@ -204,12 +224,6 @@ const columns = [
   },
   //
   {
-    headerName: "Name",
-    minWidth: 200,
-    flex: 1,
-    field: "name",
-  },
-  {
     headerName: "Created On",
     width: 150,
     field: "createdOn",
@@ -241,8 +255,8 @@ const columns = [
     ),
   },
   {
-    headerName: "Description",
+    headerName: "Created By",
     width: 250,
-    field: "description",
+    field: "createdBy",
   },
 ];

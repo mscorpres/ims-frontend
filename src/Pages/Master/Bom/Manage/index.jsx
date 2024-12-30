@@ -143,6 +143,13 @@ const ManageBOM = () => {
   };
   return (
     <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
+      <Row justify="end" style={{ margin: "5x 0" }}>
+        <CommonIcons
+          disabled={rows.length === 0}
+          onClick={handleDownload}
+          action="downloadButton"
+        />
+      </Row>
       <MyDataTable
         loading={loading === "fetch"}
         columns={[...actionColumns, ...columns]}

@@ -224,7 +224,7 @@ const AddComponent = ({
 
         <MyButton
           variant="add"
-          disabled={form.getFieldValue("version")?.length > 0 ? false : true}
+          // disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
           onClick={
             isEditing !== false ? handleUpdateCompnent : handleAddComponents

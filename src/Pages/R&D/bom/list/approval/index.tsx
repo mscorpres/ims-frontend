@@ -24,10 +24,12 @@ import { height } from "@mui/system";
 interface PropTypes extends ModalType {
   selectedBom: BOMTypeExtended | null;
 }
+
 const BOMApproval = (props: PropTypes) => {
   const [logs, setLogs] = useState<BOMApprovalType | {}>({});
   const [rejlogs, setRejLogs] = useState({});
   const [isRejlen, setIsRejlen] = useState(false);
+  const [isRejected, setIsRejected] = useState(false);
   const [approvalModalDetails, setApprovalModalDetails] = useState(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const { user } = useSelector((state) => state.login);
@@ -36,7 +38,7 @@ const BOMApproval = (props: PropTypes) => {
   const handleFetchLogs = async (bomKey: string) => {
     setLogs({});
     const response = await executeFun(() => getLogs(bomKey), "fetch");
-    console.log("logs response", response);
+    setIsRejected(response.data?.isRejected);
     setLogs(response.data);
   };
   const handleRejectedFetchLogs = async (bomKey: string) => {
@@ -44,18 +46,22 @@ const BOMApproval = (props: PropTypes) => {
     const response = await executeFun(() => getRejLogs(bomKey), "fetch");
     let a = response.data[0].description;
 
+    // Group the rejected logs by line, then by stage
     const grouped = a.reduce((acc, item) => {
-      if (!acc[item.stage]) {
-        acc[item.stage] = [];
+      if (!acc[item.line]) {
+        acc[item.line] = {};  // Group by line first
       }
-      acc[item.stage].push(item);
+      if (!acc[item.line][item.stage]) {
+        acc[item.line][item.stage] = [];
+      }
+      acc[item.line][item.stage].push(item);
       return acc;
     }, {});
 
     setRejLogs(grouped);
   };
+
   useEffect(() => {
-    console.log("props.selectedBom", props.selectedBom);
 
     if (
       props.selectedBom &&
@@ -64,29 +70,29 @@ const BOMApproval = (props: PropTypes) => {
         props?.selectedBom?.status == "CLOSED")
     ) {
       handleFetchLogs(props.selectedBom.key);
-    }
-    // if (props?.selectedBom?.isActive == false)
-    else {
-      // console.log("props?.selectedBom?.isActive", props?.selectedBom?.isActive);
-      // console.log("props?.selectedBom?.isActive", props?.selectedBom?.isActive);
-
+    } else {
       handleRejectedFetchLogs(props?.selectedBom?.key);
     }
   }, [props.show]);
-  const collapseItems = Object.entries(rejlogs).map(([stage, logs]) => ({
-    key: stage,
-    label: ` ${stage}`,
-    children: logs.map((log) => ({
-      key: log.id, // Unique key for each log
-      label: (
-        <div>
-          <Typography.Text strong>S-{log.line}</Typography.Text>{" "}
-          <div>{`Status: ${log?.status || "No status"} `}</div>{" "}
-          <div>{`Approver: ${log.userName} `}</div>{" "}
-          <div>{` Remark: ${log.remark || "No Remark"}`}</div>
-          <Divider />
-        </div>
-      ),
+
+  const collapseItems = Object.entries(rejlogs).map(([line, stages]) => ({
+    key: line,
+    label: `Line ${line}`,
+    children: Object.entries(stages).map(([stage, logs]) => ({
+      key: stage,
+      label: `Stage ${stage}`,
+      children: logs.map((log) => ({
+        key: log.id, // Unique key for each log
+        label: (
+          <div>
+            <Typography.Text strong>{`S-${log.line}`}</Typography.Text>{" "}
+            <div>{`Status: ${log?.status || "No status"} `}</div>{" "}
+            <div>{`Approver: ${log.userName} `}</div>{" "}
+            <div>{` Remark: ${log.remark || "No Remark"}`}</div>
+            <Divider />
+          </div>
+        ),
+      })),
     })),
   }));
 
@@ -95,6 +101,7 @@ const BOMApproval = (props: PropTypes) => {
       setIsRejlen(true);
     }
   }, [collapseItems]);
+
   return (
     <>
       {loading("fetch") && <Loading />}
@@ -107,7 +114,7 @@ const BOMApproval = (props: PropTypes) => {
           setApprovalModalDetails(null);
         }}
       />
-      {isRejlen == true ? (
+      {isRejlen ? (
         <Collapse>
           {collapseItems?.map((item) => (
             <Collapse.Panel header={item?.label} key={item?.key}>
@@ -120,13 +127,13 @@ const BOMApproval = (props: PropTypes) => {
       ) : (
         <Collapse
           items={logs?.logs?.map((log) => ({
-            key: log.stage,
-            label: `${log.stage}`,
+            key: log.line,
+            label: `L${log.line}`,
             children: (
               <Collapse
                 items={log.approvers.map((row) => ({
-                  key: row.line,
-                  label: `S-${row.line}`,
+                  key: row.stageLabel,
+                  label: `${row.stageLabel}`,
                   children: (
                     <Flex
                       vertical
@@ -159,16 +166,17 @@ const BOMApproval = (props: PropTypes) => {
                       </Flex>
                       {row.currentApprover &&
                         !row.isRejected &&
-                        user?.id === row.user && (
+                        user?.id === row.user && 
+                        (
                           <Flex gap={5}>
                             <MyButton
                               onClick={() => {
                                 setShowApproveModal(true);
                                 setApprovalModalDetails({
                                   bom: props.selectedBom,
-                                  stage: log.stage,
+                                  stage: row.stage,
                                   line: row.line,
-                                  type: "reject",
+                                  type: "Rejected",
                                 });
                               }}
                               danger
@@ -183,9 +191,10 @@ const BOMApproval = (props: PropTypes) => {
                                 setShowApproveModal(true);
                                 setApprovalModalDetails({
                                   bom: props.selectedBom,
-                                  stage: log.stage,
-                                  type: "approve",
+                                  stage: row.stage,
                                   line: row.line,
+                                  type: "Approved",
+                            
                                 });
                               }}
                               variant="submit"
@@ -202,17 +211,12 @@ const BOMApproval = (props: PropTypes) => {
                           label="Status"
                           value={
                             row.currentApprover
-                              ? logs.isRejected
+                              ? isRejected
                                 ? "Rejected"
                                 : "Current"
                               : row.remarksDate
                               ? "Approved"
                               : "pending"
-                          }
-                          style={
-                            {
-                              // color: row.currentApprover ? logs.isRejected :
-                            }
                           }
                         />
                         <SingleDetail
@@ -235,7 +239,7 @@ const BOMApproval = (props: PropTypes) => {
                         marginTop: 7,
                         borderRadius: "100%",
                         background: row.currentApprover
-                          ? logs.isRejected
+                          ? isRejected
                             ? "brown"
                             : "green"
                           : "transparent",
@@ -253,7 +257,7 @@ const BOMApproval = (props: PropTypes) => {
                   marginTop: 7,
                   borderRadius: "100%",
                   background: log.approvers.find((row) => row.currentApprover)
-                    ? logs.isRejected
+                    ? isRejected
                       ? "brown"
                       : "green"
                     : "transparent",
@@ -292,7 +296,7 @@ interface ModalProps extends ModalType {
   details: {
     stage: number;
     line: number;
-    type: "reject" | "approve";
+    type: "Rejected" | "Approved";
     bom: BOMTypeExtended;
   } | null;
   handleFetchLogs: (bomKey: string) => void;
@@ -303,57 +307,56 @@ const RemarksModal = (props: ModalProps) => {
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
 
-  console.log("these are the details", props.details);
   const handleUpdateStatus = async () => {
     const values = await form.validateFields();
-    console.log("these are the details", { ...props.details, ...values });
+
     const response = await executeFun(
       () =>
         updateStatus(
           props.details?.bom?.key ?? "",
+          props?.details?.stage,
+          props.details?.line,
           props.details?.type,
           values.remarks,
-          props.details?.stage,
-          props.details?.line
         ),
       "submit"
     );
+
     if (response.success) {
       props.hide();
-      // console.log("esponse?.data?.type", response);
 
-      if (response?.data?.type == true) {
+      // if (response?.data?.type == true) {
         props.handleFetchLogs(props.details?.bom.key ?? "");
-      } else {
-        // console.log("here");
-
-        props.handleRejectedFetchLogs(props.details?.bom.key ?? "");
-      }
+      // } else {
+      //   props.handleRejectedFetchLogs(props.details?.bom.key ?? "");
+      // }
     }
   };
+
   useEffect(() => {
     if (!props.show) {
       form.setFieldValue("remarks", undefined);
     }
   }, [props.show]);
+
   return (
     <Modal
       open={props.show}
       onCancel={props.hide}
       okButtonProps={{
-        danger: props.details?.type === "reject",
+        danger: props.details?.type === "Rejected",
         icon:
-          props.details?.type === "reject" ? (
+          props.details?.type === "Rejected" ? (
             <CloseOutlined />
           ) : (
             <CheckOutlined />
           ),
       }}
-      okText={props.details?.type === "approve" ? "Approve" : "Reject"}
+      okText={props.details?.type === "Approved" ? "Approve" : "Reject"}
       title={
-        props.details?.type === "approve"
-          ? `Approving ${props.details?.bom?.name}`
-          : `Rejecting ${props.details?.bom?.name}`
+        props.details?.type === "Approved"
+          ? `Approving ${props.details?.bom?.productName}`
+          : `Rejecting ${props.details?.bom?.productName}`
       }
       onOk={handleUpdateStatus}
       confirmLoading={loading("submit")}
@@ -367,7 +370,7 @@ const RemarksModal = (props: ModalProps) => {
           }}
           strong
         >
-          Are you sure you want to {props.details?.type}{" "}
+          Are you sure you want to {props.details?.type === "Approved" ? "Approve" : "Reject"}
           <span>{props.details?.bom.name}</span>?
         </Typography.Text>
       </Flex>
@@ -380,11 +383,12 @@ const RemarksModal = (props: ModalProps) => {
     </Modal>
   );
 };
+
 const rules = {
   remarks: [
     {
       required: true,
-      message: "Remarks are required while approving or rejecting of product",
+      message: "Remarks are required while approving or rejecting the product",
     },
   ],
 };
