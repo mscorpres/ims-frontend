@@ -50,7 +50,6 @@ const Components = ({
 
   const [form] = Form.useForm();
   const openDrawer = () => {};
-  console.log("selectedRows", selectedRows);
 
   return (
     <Flex
