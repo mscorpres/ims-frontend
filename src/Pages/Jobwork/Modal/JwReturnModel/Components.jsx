@@ -178,7 +178,7 @@ const Components = ({
                             </Typography.Text>
                           </Flex>
                         </Col>
-                        <Col span={3}>{row.component.label}</Col>
+                        <Col span={3}>{row?.component?.label}</Col>
                         <Col span={2}>{row.partCode}</Col>
 
                         <Col span={2}>
