@@ -418,7 +418,7 @@ const JwReturnModel = ({ show, close }) => {
           submitFunction={validateHandler}
           nextLabel="Submit"
           backLabel="Back"
-          nextDisabled={selectedRows.length === 0}
+          nextDisabled={selectedRows?.length === 0}
           loading={loading("submit")}
           backFunction={close}
         />
