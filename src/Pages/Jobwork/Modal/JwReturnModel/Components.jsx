@@ -50,6 +50,8 @@ const Components = ({
 
   const [form] = Form.useForm();
   const openDrawer = () => {};
+  console.log("selectedRows", selectedRows);
+
   return (
     <Flex
       vertical
@@ -68,7 +70,7 @@ const Components = ({
             <Space>
               <MyButton
                 variant="add"
-                disabled={selectedRows.length === 0}
+                // disabled={selectedRows.length === 0}
                 onClick={addComponent}
                 style={{ marginLeft: 10 }}
               />
