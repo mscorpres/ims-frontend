@@ -145,7 +145,7 @@ const JwReturnModel = ({ show, close }) => {
       in_location: selectedRows.map((row) => row.location?.value ?? "--"),
       out_location: selectedRows.map((row) => row.autoCons?.value ?? "--"),
       rate: selectedRows.map((row) => row.rate),
-      invoice: selectedRows.map((row) => row.invoiceNumber ?? ""),
+      invoice: selectedRows.map((row) => row.invoiceId ?? ""),
       remark: selectedRows.map((row) => row.remark ?? "--"),
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
@@ -252,17 +252,15 @@ const JwReturnModel = ({ show, close }) => {
         location: { label: r.Location.text, value: r.Location.value },
         locationName: r.Location.text,
         component: { label: r.Partcode.name, value: r.Partcode.key },
-        invoiceNumber: r.Invoice,
         qty: r.Qty,
         rate: r.Rate,
         hsn: r.Hsn,
-        autoConsName: r.Autoconsump?.text,
+        autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
         autoCons: {
-          label: r.Autoconsump?.text,
-          value: r.Autoconsump?.value,
+          label: r.Autoconsump == "Y" ? "Yes" : "No",
+          value: r.Autoconsump == "Y" ? "Yes" : "No",
         },
         value: (r.Qty * r.Rate).toFixed(3),
-        remark: r.Remark,
         ...r,
       }));
       setPreviewRows(arr);
@@ -304,14 +302,6 @@ const JwReturnModel = ({ show, close }) => {
       headerName: "Hsn",
       field: "hsn",
       renderCell: ({ row }) => <ToolTipEllipses text={row.Hsn} />,
-      width: 110,
-
-      // width: "12vw",
-    },
-    {
-      headerName: "Invoice Number",
-      field: "invoiceNumber",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceNumber} />,
       width: 110,
 
       // width: "12vw",
