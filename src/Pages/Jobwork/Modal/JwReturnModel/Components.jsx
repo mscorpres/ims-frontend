@@ -192,12 +192,12 @@ const Components = ({
                           <ToolTipEllipses text={row.value} />
                         </Col>
                         <Col span={2}>
-                          <ToolTipEllipses text={row.invoiceId} copy={true} />
+                          <ToolTipEllipses text={row.invoiceNumber} copy={true} />
                         </Col>
                         <Col span={2}>{row.location?.label ?? "--"}</Col>
                         <Col span={2}>{row.autoCons?.label ?? "--"}</Col>
                         <Col span={4}>
-                          <ToolTipEllipses text={row.remark} copy={true} />
+                          <ToolTipEllipses text={row.Remark} copy={true} />
                         </Col>
                       </Row>
                       <Divider style={{ margin: "5px 0" }} />
