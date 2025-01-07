@@ -112,7 +112,7 @@ const Components = ({
               gutter={[0, 6]}
               style={{
                 height: "100%",
-                justifyContent: "center",
+                justifyContent: "center",//comment added
                 display: "flex",
               }}
             >
