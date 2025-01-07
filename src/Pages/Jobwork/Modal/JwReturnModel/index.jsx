@@ -180,7 +180,7 @@ const JwReturnModel = ({ show, close }) => {
         close();
         setTimeout(() => {
           window.location.reload();
-        }, 1500); // 1500 milliseconds
+        }, 1500); // 1500 milliseconds  = 1.5 seconds
       }
     } catch (error) {
     } finally {
