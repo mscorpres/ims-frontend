@@ -164,6 +164,7 @@ const JwReturnModel = ({ show, close }) => {
       onCancel() {},
     });
   };
+
   const submitHandler = async (values) => {
     try {
       setLoading("submit", true);
@@ -177,6 +178,9 @@ const JwReturnModel = ({ show, close }) => {
         setPreviewRows([]);
         setSelectedRows([]);
         close();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500); // 1500 milliseconds
       }
     } catch (error) {
     } finally {

@@ -56,8 +56,6 @@ const Components = ({
   };
 
   const [form] = Form.useForm();
-  const openDrawer = () => {};
-  console.log("selectedRows", selectedRows);
 
   return (
     <Flex
@@ -112,7 +110,7 @@ const Components = ({
               gutter={[0, 6]}
               style={{
                 height: "100%",
-                justifyContent: "center",//comment added
+                justifyContent: "center",
                 display: "flex",
               }}
             >
@@ -233,7 +231,6 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
   };
   const selectingComponent = (key) => {
     const found = rows.find((row) => row.componentKey === key);
-    console.log(found);
     form.setFieldsValue({
       ...found,
       component: {
