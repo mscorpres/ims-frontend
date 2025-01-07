@@ -145,7 +145,7 @@ const JwReturnModel = ({ show, close }) => {
       in_location: selectedRows.map((row) => row.location?.value ?? "--"),
       out_location: selectedRows.map((row) => row.autoCons?.value ?? "--"),
       rate: selectedRows.map((row) => row.rate),
-      invoice: selectedRows.map((row) => row.invoiceId ?? ""),
+      invoice: selectedRows.map((row) => row.invoiceNumber ?? ""),
       remark: selectedRows.map((row) => row.remark ?? "--"),
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
@@ -256,7 +256,7 @@ const JwReturnModel = ({ show, close }) => {
         location: { label: r.Location.text, value: r.Location.value },
         locationName: r.Location.text,
         component: { label: r.Partcode.name, value: r.Partcode.key },
-        invoiceId: r.Invoice,
+        invoiceNumber: r.Invoice,
         qty: r.Qty,
         rate: r.Rate,
         hsn: r.Hsn,
@@ -314,8 +314,8 @@ const JwReturnModel = ({ show, close }) => {
     },
     {
       headerName: "Invoice Number",
-      field: "invoiceId",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceId} />,
+      field: "invoiceNumber",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceNumber} />,
       width: 110,
 
       // width: "12vw",
