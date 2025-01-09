@@ -402,7 +402,6 @@ const BOMCreate = () => {
             // setShowRedirectModal(true);
             return;
           }
-          setOgName(response.data.name);
           form.setFieldsValue(response.data);
           setLatestVersion(response.data.latestVersion);
 
@@ -475,12 +474,6 @@ const BOMCreate = () => {
       resetHandler();
     }
   }, [showRedirectModal]);
-  // useEffect(() => {
-  //   if (!showRedirectModal) {
-  //     resetHandler();
-  //   }
-  // }, [showRedirectModal]);
-
   useEffect(() => {
     if (selectedSubstituteOf) {
       const found = mainComponents.find(
