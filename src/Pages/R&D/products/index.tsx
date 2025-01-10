@@ -140,6 +140,29 @@ export default function Products() {
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
               <Col span={24}>
+                <Row gutter={4}>
+                  <Col span={24}>
+                    <Form.Item
+                      name="sku"
+                      label="Product Code"
+                      // rules={rules.sku}
+                      rules={[
+                        {
+                          required: true,
+                          message: "SKU is required",
+                        },
+                        {
+                          pattern: /^\S*$/, // Pattern to ensure no spaces
+                          message: "SKU cannot contain spaces!",
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={24}>
                 <Form.Item
                   name="name"
                   label="Product Name"

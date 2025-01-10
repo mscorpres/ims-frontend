@@ -1086,7 +1086,7 @@ export default function CreateJW({}) {
                     },
                   ]}
                 >
-                  <Input size="default" suffix={uom} type="number" />
+                  <Input size="default" suffix={uom} />
                 </Form.Item>
               </Col>
               {/* Rate */}
@@ -1101,7 +1101,7 @@ export default function CreateJW({}) {
                     },
                   ]}
                 >
-                  <Input size="default" type="number" />
+                  <Input size="default" />
                 </Form.Item>
               </Col>
               {/* Rate */}

@@ -290,7 +290,6 @@ function JWRMChallanEditMaterials({
             value={row.issue_qty}
             onChange={(e) => inputHandler("issue_qty", e.target.value, row.id)}
             suffix={row.unit_name}
-            type="number"
           />
         </div>
       ),
@@ -304,7 +303,6 @@ function JWRMChallanEditMaterials({
             style={{ width: "100%" }}
             value={row.part_rate}
             onChange={(e) => inputHandler("part_rate", e.target.value, row.id)}
-            type="number"
           />
         </div>
       ),
@@ -352,7 +350,7 @@ function JWRMChallanEditMaterials({
 
   return (
     <Drawer
-      title={`Editing Challan Number: ${editingJWMaterials}`}
+      title={`Editing Challan number: ${editingJWMaterials}`}
       width="100vw"
       open={editingJWMaterials}
       onClose={() => setEditingJWMaterials(false)}

@@ -50,6 +50,7 @@ export const createProduct = async (values: ProductType) => {
   const formData = new FormData();
 
   formData.append("name", values.name);
+  formData.append("sku", values.sku);
   // formData.append("unit", values.unit);/
   formData.append("description", values.description);
   formData.append("projectCode", values.project);
