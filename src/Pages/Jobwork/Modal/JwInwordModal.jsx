@@ -260,6 +260,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         <Input
           suffix={row.unitsname}
           value={row.orderqty}
+          type="number"
           placeholder="Qty"
           onChange={(e) => inputHandler("orderqty", row.id, e.target.value)}
         />

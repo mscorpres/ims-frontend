@@ -347,6 +347,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
             value={row.issue_qty}
             onChange={(e) => inputHandler("issue_qty", e.target.value, row.id)}
             suffix={row.unit_name}
+            type="number"
           />
         </div>
       ),
@@ -360,6 +361,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
             disabled
             style={{ width: "100%" }}
             value={row.availableQty}
+            type="number"
             // onChange={(e) => inputHandler("issue_qty", e.target.value, row.id)}
             // suffix={row.availableQty}
           />
@@ -374,6 +376,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           <Input
             style={{ width: "100%" }}
             value={row.assign_rate}
+            type="number"
             onChange={(e) =>
               inputHandler("assign_rate", e.target.value, row.id)
             }
