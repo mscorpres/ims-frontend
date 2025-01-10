@@ -270,12 +270,12 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
 
       <Col span={2}>
         <Form.Item label="Qty" name="qty">
-          <Input />
+          <Input type="number" />
         </Form.Item>
       </Col>
       <Col span={2}>
         <Form.Item label="Rate" name="rate">
-          <Input />
+          <Input type="number" />
         </Form.Item>
       </Col>
       <Col span={2}>
