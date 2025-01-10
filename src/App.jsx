@@ -642,10 +642,12 @@ const App = () => {
     { label: "Session 23-24", value: "23-24" },
     { label: "Session 24-25", value: "24-25" },
   ];
+  const path = window.location.hostname;
+  console.log("path", path);
   return (
     <div style={{ height: "100vh" }}>
       <ToastContainer
-        position="top-right"
+        position="bottom-center"
         autoClose={1500}
         hideProgressBar={false}
         newestOnTop={true}
@@ -662,6 +664,12 @@ const App = () => {
         }}
       >
         {/* header start */}
+
+       {/* {(path.includes("dev.mscorpres") || path.includes("localhost") ) && 
+      <div className="bg-yellow-300 text-center">
+      TEST SERVER
+    </div>} */}
+
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
             <Header
