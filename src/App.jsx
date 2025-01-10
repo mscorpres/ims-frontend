@@ -175,7 +175,7 @@ const App = () => {
       setModulesOptions(showHisList);
     }
   }, [modulesOptions]);
-  // notifications recieve handlers  // Handle connection events
+  // notifications recieve handlers
   socket.on("connect", () => {
     console.log("WebSocket connected!!!!");
   });
