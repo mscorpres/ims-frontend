@@ -106,6 +106,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
       renderCell: ({ row }) => (
         <Input
           value={row.qty}
+          type="number"
           placeholder="0"
           onChange={(e) => compInputHandler("qty", e.target.value, row.id)}
         />
