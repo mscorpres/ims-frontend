@@ -92,7 +92,6 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
       renderCell: ({ row }) => (
         <Input
           value={row.rate}
-          type="number"
           onChange={(e) => compInputHandler("rate", e.target.value, row.id)}
         />
       ),
@@ -106,7 +105,6 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
         <>
           <Input
             disabled={row?.recipeStatus == "PENDING"}
-            type="number"
             // value={row?.bom_req_qty}
             onChange={(e) =>
               compInputHandler("bom_req", e.target.value, row.id)
@@ -136,12 +134,7 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
   const updateFun = async () => {
     let allCompArray = [];
     let allQtyArray = [];
-    const invalidRates = mainData.filter((row) => !row.rate || row.rate <= 0);
 
-    if (invalidRates.length > 0) {
-      toast.error("Rate field cannot be empty for all rows.");
-      return;  // Prevent submission if validation fails
-    }
     mainData.map((a) => allCompArray.push(a.component_key));
     mainData.map((a) => allQtyArray.push(a.bom_req ?? ""));
 

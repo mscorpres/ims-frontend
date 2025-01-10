@@ -665,18 +665,11 @@ const App = () => {
       >
         {/* header start */}
 
-        {(path.includes("dev.mscorpres") || path.includes("localhost")) && (
-          <div
-            style={{
-              backgroundColor: "yellow",
-              height: "15px",
-              lineHeight: 1,
-              textAlign: "center",
-            }}
-          >
-            TEST SERVER
-          </div>
-        )}
+       {/* {(path.includes("dev.mscorpres") || path.includes("localhost") ) && 
+      <div className="bg-yellow-300 text-center">
+      TEST SERVER
+    </div>} */}
+
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
             <Header

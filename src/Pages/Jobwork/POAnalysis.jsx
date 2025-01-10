@@ -39,7 +39,7 @@ const POAnalysis = () => {
   const { executeFun, loading: loading1 } = useApi();
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [closeModalOpen, setCloseModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
