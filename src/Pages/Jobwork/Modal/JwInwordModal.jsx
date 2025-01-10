@@ -433,12 +433,12 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         />
       ),
     },
-    // {
-    //   field: "pendingStock",
-    //   headerName: "Pending Stock",
-    //   width: 180,
-    //   renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
-    // },
+    {
+      field: "pendingStock",
+      headerName: "Pending Stock",
+      width: 180,
+      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
+    },
   ];
   const prev = async () => {
     getFetchData();
@@ -542,7 +542,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           partName: r.part_name,
           catPartName: r.catPartName,
           partNo: r.part_no,
-          pendingStock: r.pendingStock,
+          pendingStock: r.pendingWithjobwork,
           rqdQty: r.rqd_qty,
           pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
