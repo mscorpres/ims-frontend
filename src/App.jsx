@@ -643,7 +643,7 @@ const App = () => {
     { label: "Session 24-25", value: "24-25" },
   ];
   const path = window.location.hostname;
-  console.log("path", path);
+
   return (
     <div style={{ height: "100vh" }}>
       <ToastContainer

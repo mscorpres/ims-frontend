@@ -68,10 +68,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         transaction: row.transaction_id,
       }
     );
-    console.log("data", data);
 
     if (data.code == 200) {
-      console.log("data-------------------------", data.header.einvoice_status);
       getLocation(data.header.cost_center);
       let arr = data.data.map((row, index) => {
         return {
@@ -452,8 +450,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     // let filedata = modalForm.getFieldValue("fileComponents");
     let value = await modalForm.validateFields();
     let filedata = value.fileComponents;
-    console.log("bomList", bomList);
-    console.log("values", value);
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
@@ -474,7 +470,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       remark: mainData[0].remark,
       qrScan: isScan == true ? "Y" : "N",
     };
-    console.log("payload", payload);
     setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
     // const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
@@ -532,7 +527,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     };
     const response = await executeFun(() => getBomItem(final), "select");
     // const response = await imsAxios.post("/jobwork/getBomItem");
-    // console.log("response", response);
     if (response.data.status === "success" || response.data.code == 200) {
       const { data } = response;
       let arr = data.data.map((r, id) => {
@@ -549,7 +543,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           key: r.key,
         };
       });
-      // console.log("arr,arr", arr);
       setBomList(arr);
       setLoading(false);
       setShowBomList(true);
@@ -618,7 +611,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     setUploadClicked(false);
     const formData = new FormData();
     const values = await modalForm.validateFields();
-    console.log("values", values);
     let fileName;
     values.fileComponents.map((comp) => {
       formData.append("files", comp.file[0]?.originFileObj);
@@ -627,14 +619,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       () => uploadMinInvoice(formData),
       "submit"
     );
-    console.log("fileResponse", fileResponse);
     if (fileResponse.success) {
       const { data } = fileResponse;
       let fetchAttachment = data.data;
       setAttachment(fetchAttachment);
-
-      console.log("fethc", fetchAttachment);
-
       saveFunction(fetchAttachment);
     }
   };
