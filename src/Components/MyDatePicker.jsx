@@ -29,6 +29,7 @@ const MyDatePicker = ({
   useEffect(() => {
     setTimeout(() => {
       if (value === "") {
+        console.log("it is coming here");
         const formatted = getDateFormatted([
           dayjs().subtract(89, "d"),
           dayjs(),
@@ -50,6 +51,7 @@ const MyDatePicker = ({
     return current && current < dayjs().subtract(days, "d");
   };
 
+  console.log("disabledDate: ", disabledtheDate);
   return (
     <DatePicker.RangePicker
       defaultValue={searchDateRange}

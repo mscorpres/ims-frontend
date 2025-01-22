@@ -47,7 +47,6 @@ const Components = ({
     form.setFieldValue("partCode", "");
     form.setFieldValue("component", "");
     form.setFieldValue("component", "");
-    form.setFieldValue("pendingQty","");
     setSelectedRows((curr) => [values, ...curr]);
   };
   const deleteComponent = (key) => {
@@ -128,9 +127,6 @@ const Components = ({
                     <Typography.Text strong>Qty</Typography.Text>
                   </Col>
                   <Col span={2}>
-                    <Typography.Text strong>Pending Qty</Typography.Text>
-                  </Col>
-                  <Col span={2}>
                     <Typography.Text strong>Rate</Typography.Text>
                   </Col>
                   <Col span={2}>
@@ -185,9 +181,6 @@ const Components = ({
 
                         <Col span={2}>
                           <ToolTipEllipses text={row.qty} />
-                        </Col>
-                        <Col span={2}>
-                          <ToolTipEllipses text={row.pendingQty??"--"} />
                         </Col>
                         <Col span={2}>
                           <ToolTipEllipses text={row.rate} />
@@ -250,20 +243,6 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
   const rate = Form.useWatch("rate", form);
 
   useEffect(() => {
-    if(rows){
-      const filtered = rows.filter(
-        (row) =>
-          row.component.toLowerCase() ||
-          row.partCode.toLowerCase()
-      );
-      setAsyncOptions(filtered.map((row) => ({
-        text: `${row.partCode} | ${row.component}`,
-        value: row.componentKey,
-      })))
-    }
-  }, [rows])
-
-  useEffect(() => {
     const value = +Number(rate).toFixed(3) * +Number(qty);
     form.setFieldValue("value", value == "NaN" ? 0 : value.toFixed(3));
   }, [qty, rate]);
@@ -292,11 +271,6 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
       <Col span={2}>
         <Form.Item label="Qty" name="qty">
           <Input type="number" />
-        </Form.Item>
-      </Col>
-      <Col span={2}>
-        <Form.Item label="Pending Qty" name="pendingQty">
-          <Input type="number" disabled />
         </Form.Item>
       </Col>
       <Col span={2}>
@@ -329,7 +303,7 @@ const SingleComponent = ({ form, locationOptions, rows, autoConsOptions }) => {
           <MySelect labelInValue={true} options={autoConsOptions} />
         </Form.Item>
       </Col>
-      <Col span={3}>
+      <Col span={5}>
         <Form.Item label="Remark" name="remark">
           <Input />
         </Form.Item>
