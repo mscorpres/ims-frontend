@@ -126,6 +126,7 @@ const JwReturnModel = ({ show, close }) => {
         hsn: row.hsncode,
         partCode: row.partcode,
         uom: row.unitsname,
+        pendingQty: row.pendingWithJw,
       }));
 
       setRows(componentArr);
