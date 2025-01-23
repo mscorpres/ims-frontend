@@ -23,7 +23,7 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
-
+  const [rdsfg, setRdsfg] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
@@ -35,8 +35,7 @@ export default function Products() {
 
   const handleFetchProductList = async () => {
     const response = await executeFun(() => getProductsList(), "fetch");
-    console.log("response", response);
-
+    setRdsfg(response.newSkuCode);
     setRows(response.data ?? [])
       .filter(
         (row) => row.approvalStage !== "PEN"
@@ -146,6 +145,13 @@ export default function Products() {
                   rules={rules.product}
                 >
                   <Input />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="Product SKU"
+                >
+                  <Input value={rdsfg} disabled/>
                 </Form.Item>
               </Col>
               <Col span={24}>
