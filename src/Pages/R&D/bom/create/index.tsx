@@ -37,6 +37,7 @@ import UpdateTypeModal from "@/Pages/R&D/bom/create/UpdateTypeModal";
 import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
 import routeConstants from "@/Routes/routeConstants.js";
 import UploadDocumentModal from "@/Pages/R&D/bom/create/UploadDocumentModal";
+import React from "react";
 
 interface ComponentType {
   component: {
@@ -132,8 +133,8 @@ const BOMCreate = () => {
         (row) => row.type === "substitute"
       );
 
-      setMainComponents(mainComponents);
-      setSubComponents(alternateComponents);
+      setMainComponents((curr) => [...curr, ...mainComponents]);
+      setSubComponents((curr) => [...curr, ...alternateComponents]);
     }
   };
   const handleAddComponents = async () => {
@@ -147,11 +148,12 @@ const BOMCreate = () => {
       "type",
       "vendor",
       "remarks",
+      "make",
+      "mpn",
     ]);
     const mfgCodesResponse = await handleFetchMfgCodeAndCategory(
       values.component.value
     );
-
     const newComponent = {
       ...values,
       mfgCode: mfgCodesResponse.data[0].mfgCode,
@@ -183,6 +185,8 @@ const BOMCreate = () => {
       "substituteOf",
       "vendor",
       "locations",
+      "make",
+      "mpn",
     ]);
   };
 
@@ -324,7 +328,6 @@ const BOMCreate = () => {
       // bomDoc: values.documents,
       componets: combined.map(
         (item: any) => (
-          console.log(item),
           {
             vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor,
             component: item.component.value
@@ -553,7 +556,7 @@ const BOMCreate = () => {
               <Form.Item
                 name="version"
                 label="BRN [BOM ref. no.] "
-                rules={rules.version}
+                // rules={rules.version}
               >
                 <Input disabled />
               </Form.Item>
@@ -719,136 +722,155 @@ const Components = ({
   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
   handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
-  // console.log("rowsss", rows);
 
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
-      {rows.length === 0 && <Empty />}
-      {rows.length > 0 && (
-        <Row gutter={[6, 6]} style={{ height: "100%" }}>
-          {/* headers */}
-          <Col span={1}>
-            <Typography.Text strong>#</Typography.Text>
-          </Col>
-          <Col span={1}>
-            <Typography.Text strong>Type</Typography.Text>
-          </Col>
-          <Col span={8}>
-            <Typography.Text strong>Component</Typography.Text>
-          </Col>
-          <Col span={2}>
-            <Typography.Text strong>Qty</Typography.Text>
-          </Col>
-          <Col span={3}>
-            <Typography.Text strong>Vendor</Typography.Text>
-          </Col>
-          <Col span={3}>
-            <Typography.Text strong>Placement</Typography.Text>
-          </Col>
-          {type === "substitute" && (
-            <Col span={4}>
-              <Typography.Text strong>Alternate Of</Typography.Text>
-            </Col>
-          )}
-          <Col span={type === "substitute" ? 2 : 6}>
-            <Typography.Text strong>Remarks</Typography.Text>
-          </Col>
-
-          {/* rows */}
-          <Col
-            span={24}
-            style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
-          >
-            <Row gutter={[0, 4]}>
-              {rows.map((row: any, index: number) => (
-                <>
-                  <Col span={1}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {index + 1}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={1}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.smtType}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={8}>
-                    <Tooltip
-                      title={
-                        row.mfgCode?.length === 0
-                          ? "No Mfg Code found."
-                          : "Mfg Code: " + row.mfgCode
-                      }
-                    >
-                      <Typography.Text
-                        style={{
-                          fontSize: 13,
-                          color:
-                            row.smtType !== "Other" && row.mfgCode?.length === 0
-                              ? "red"
-                              : "black",
-                        }}
-                      >
-                        {row.component.label ?? row.component.text}
-                      </Typography.Text>
-                    </Tooltip>
-                  </Col>
-                  <Col span={2}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.qty}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={3}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.vendor?.label ?? row.vendor}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={3}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.locations}
-                    </Typography.Text>
-                  </Col>
-                  {type === "substitute" && (
-                    <Col span={4}>
-                      <Typography.Text style={{ fontSize: 13 }}>
-                        {row.substituteOf?.label}
-                      </Typography.Text>
-                    </Col>
-                  )}
-                  <Col span={type === "substitute" ? 1 : 5}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.remarks}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={1}>
-                    <Flex gap={2}>
-                      <TableActions
-                        action="edit"
-                        onClick={() => {
-                          handleSetComponentForEditing(row);
-                          setIsEditing(index);
-                        }}
-                      />
-                      <TableActions
-                        action="delete"
-                        onClick={() =>
-                          handleDeleteComponent(row.value, row.type)
-                        }
-                      />
-                    </Flex>
-                  </Col>
-                </>
-              ))}
-            </Row>
-            <Flex justify="center">
-              <Typography.Text strong type="secondary">
-                --End of the list--
-              </Typography.Text>
-            </Flex>
-          </Col>
-        </Row>
+  {rows.length === 0 && <Empty />}
+  {rows.length > 0 && (
+    <Row gutter={[6, 6]} style={{ height: "100%" }}>
+      {/* headers */}
+      <Col span={1}>
+        <Typography.Text strong>#</Typography.Text>
+      </Col>
+      <Col span={1}>
+        <Typography.Text strong>PartCode</Typography.Text>
+      </Col>
+      <Col span={8}>
+        <Typography.Text strong>Component</Typography.Text>
+      </Col>
+      <Col span={2}>
+        <Typography.Text strong>Qty</Typography.Text>
+      </Col>
+      {/* <Col span={2}>
+        <Typography.Text strong>Make</Typography.Text>
+      </Col>
+      <Col span={2}>
+        <Typography.Text strong>MPN</Typography.Text>
+      </Col> */}
+      <Col span={3}>
+        <Typography.Text strong>Vendor</Typography.Text>
+      </Col>
+      <Col span={3}>
+        <Typography.Text strong>Placement</Typography.Text>
+      </Col>
+      {type === "substitute" && (
+        <Col span={4}>
+          <Typography.Text strong>Alternate Of</Typography.Text>
+        </Col>
       )}
-    </div>
+      <Col span={type === "substitute" ? 2 : 6}>
+        <Typography.Text strong>Remarks</Typography.Text>
+      </Col>
+
+      {/* rows */}
+      <Col
+        span={24}
+        style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
+      >
+        <Row gutter={[0, 4]} >
+          {rows.map((row: any, index: number) =>(
+            <React.Fragment key={row.value}>
+              <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {index + 1}
+                </Typography.Text>
+              </Col>
+              <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.component?.code}
+                </Typography.Text>
+              </Col>
+              <Col span={8} style={{ borderBottom: "1px solid #ddd" }}>
+                <Tooltip
+                  title={
+                    row.mfgCode?.length === 0
+                      ? "No Mfg Code found."
+                      : "Mfg Code: " + row.mfgCode
+                  }
+                >
+                  <Typography.Text
+                    style={{
+                      fontSize: 13,
+                      color:
+                        row.smtType !== "Other" && row.mfgCode?.length === 0
+                          ? "red"
+                          : "black",
+                    }}
+                  >
+                    {row.component.label ?? row.component.text}
+                  </Typography.Text>
+                </Tooltip>
+              </Col>
+              <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.qty}
+                </Typography.Text>
+              </Col>
+              {/* <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.make}
+                </Typography.Text>
+              </Col>
+              <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.mpn}
+                </Typography.Text>
+              </Col> */}
+              <Col span={3} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.vendor?.label ?? row.vendor}
+                </Typography.Text>
+              </Col>
+              <Col span={3} style={{ borderBottom: "1px solid #ddd" }}>
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.locations}
+                </Typography.Text>
+              </Col>
+              {type === "substitute" && (
+                <Col span={4} style={{ borderBottom: "1px solid #ddd" }}>
+                  <Typography.Text style={{ fontSize: 13 }}>
+                    {row.substituteOf?.label}
+                  </Typography.Text>
+                </Col>
+              )}
+              <Col
+                span={type === "substitute" ? 1 : 5}
+                style={{ borderBottom: "1px solid #ddd" }}
+              >
+                <Typography.Text style={{ fontSize: 13 }}>
+                  {row.remarks}
+                </Typography.Text>
+              </Col>
+              <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
+                <Flex gap={2}>
+                  <TableActions
+                    action="edit"
+                    onClick={() => {
+                      handleSetComponentForEditing(row);
+                      setIsEditing(index);
+                    }}
+                  />
+                  <TableActions
+                    action="delete"
+                    onClick={() =>
+                      handleDeleteComponent(row.value, row.type)
+                    }
+                  />
+                </Flex>
+              </Col>
+            </React.Fragment>
+          ))}
+        </Row>
+        <Flex justify="center" style={{ marginTop: 20 }}>
+          <Typography.Text strong type="secondary">
+            --End of the list--
+          </Typography.Text>
+        </Flex>
+      </Col>
+    </Row>
+  )}
+</div>
+
   );
 };
 const initialValues = {
@@ -933,6 +955,18 @@ const rules = {
       required: true,
       message: "PCB Locations is required",
     },
+  ],
+  make: [
+    {
+      required: true,
+      message: "Make is required",
+    },
+  ],
+  mpn: [
+    {
+    required: true,
+    message: "MPN is required",
+  },
   ],
 };
 
