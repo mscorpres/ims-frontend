@@ -189,11 +189,11 @@ function Location() {
     const values = await disableLocationForm.validateFields();
     const payload = {
       location_key: row.label,
-      status: values.status ? "ACTIVE" : "BLOCK",
+      status: row.status==="BLOCK" ? "ACTIVE" : "BLOCK",
     };
 
     Modal.confirm({
-      title: "Changing Location Status",
+      title: `Changing Location Status for ${row.name}`,
       content: `Are you sure you want to change the status of location ${row.name}?`,
       okText: "Continue",
       onOk: () => disableSubmitHandler(payload),
