@@ -263,7 +263,7 @@ const AddComponent = ({
           variant="add"
           // disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
-          onClick={
+          onClick={ 
             isEditing !== false ? handleUpdateCompnent : handleAddComponents
           }
         />
