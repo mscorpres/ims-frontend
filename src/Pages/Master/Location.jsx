@@ -189,7 +189,7 @@ function Location() {
     const values = await disableLocationForm.validateFields();
     const payload = {
       location_key: row.label,
-      status: row.status==="BLOCK" ? "ACTIVE" : "BLOCK",
+      status: values.status ? "ACTIVE" : "BLOCK",
     };
 
     Modal.confirm({
