@@ -118,18 +118,6 @@ export default function Products() {
     },
   ];
 
-  const showCofirmModal = () => {
-    Modal.confirm({
-      okText: "Reset",
-      title: "Are you sure?",
-      content:
-        "Are you sure you want to reset the data, all changes will be lost",
-      onOk() {
-        resetHandler();
-      },
-    });
-  };
-
   return (
     <Row gutter={6} style={{ padding: 5, height: "95%" }} justify="center">
       <ConfirmModal
@@ -146,7 +134,7 @@ export default function Products() {
         />
       )}
 
-      <Col span={6} xxl={4} style={{ height: "100%", overflow: "auto" }}>
+      <Col span={6} xxl={4}>
         <Card size="small" title={"Add New Product"}>
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
@@ -248,7 +236,7 @@ export default function Products() {
               <Col span={24}>
                 <Flex justify="center" gap={5}>
                   <Form.Item>
-                    <MyButton onClick={showCofirmModal} variant="reset">
+                    <MyButton onClick={resetHandler} variant="reset">
                       Reset
                     </MyButton>
                   </Form.Item>
