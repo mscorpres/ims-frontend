@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  Button,
+  Tooltip,
   Card,
   Col,
   Collapse,
@@ -129,6 +129,7 @@ export default function ItemLocationLog() {
             id: v4(),
             qty_in_rate: row.qty_in_rate ?? "-",
             weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
+            weightedPurchaseRateCurrency: row.weightedPurchaseRateCurrency ?? "-",
             ...row,
           }));
           let bomDetailsArr = [];
@@ -245,6 +246,13 @@ export default function ItemLocationLog() {
       headerName: "Weighted Purchase Rate",
       field: "weightedPurchaseRate",
       width: 180,
+      renderCell: ({ row }) => (
+        <Tooltip
+          title={row.weightedPurchaseRateCurrency}
+        >
+          {row.weightedPurchaseRate}
+        </Tooltip>
+      ),
     },
     {
       headerName: "Method",

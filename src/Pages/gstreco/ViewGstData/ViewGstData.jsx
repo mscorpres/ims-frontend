@@ -258,7 +258,7 @@ const ViewGstData = () => {
           marginTop: "1rem",
         }}
       >
-        <MyDataTable columns={columns} data={gstData} />
+        <MyDataTable columns={columns} data={gstData||[]} />
 
         {isSidebarOpen && (
           <GstSideBarForm

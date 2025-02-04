@@ -23,7 +23,7 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
-
+  const [rdsfg, setRdsfg] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
@@ -35,8 +35,7 @@ export default function Products() {
 
   const handleFetchProductList = async () => {
     const response = await executeFun(() => getProductsList(), "fetch");
-    console.log("response", response);
-
+    setRdsfg(response.newSkuCode);
     setRows(response.data ?? [])
       .filter(
         (row) => row.approvalStage !== "PEN"
@@ -119,6 +118,18 @@ export default function Products() {
     },
   ];
 
+  const showCofirmModal = () => {
+    Modal.confirm({
+      okText: "Reset",
+      title: "Are you sure?",
+      content:
+        "Are you sure you want to reset the data, all changes will be lost",
+      onOk() {
+        resetHandler();
+      },
+    });
+  };
+
   return (
     <Row gutter={6} style={{ padding: 5, height: "95%" }} justify="center">
       <ConfirmModal
@@ -135,7 +146,7 @@ export default function Products() {
         />
       )}
 
-      <Col span={6} xxl={4}>
+      <Col span={6} xxl={4} style={{ height: "100%", overflow: "auto" }}>
         <Card size="small" title={"Add New Product"}>
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
@@ -146,6 +157,13 @@ export default function Products() {
                   rules={rules.product}
                 >
                   <Input />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  label="Product SKU"
+                >
+                  <Input value={rdsfg} disabled/>
                 </Form.Item>
               </Col>
               <Col span={24}>
@@ -230,7 +248,7 @@ export default function Products() {
               <Col span={24}>
                 <Flex justify="center" gap={5}>
                   <Form.Item>
-                    <MyButton onClick={resetHandler} variant="reset">
+                    <MyButton onClick={showCofirmModal} variant="reset">
                       Reset
                     </MyButton>
                   </Form.Item>

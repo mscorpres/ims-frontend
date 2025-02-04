@@ -123,6 +123,26 @@ const AddComponent = ({
   //     resetHandler();
   //
   // }, [mainComponents, subComponents]);
+
+  const formResetHandler = () => {
+    form.resetFields();
+    setSelectedFile(null);
+    setAsyncOptions([]);
+  };
+
+  const showCofirmModal = () => {
+    Modal.confirm({
+      okText: "Reset",
+      title: "Are you sure?",
+      content:
+        "Are you sure you want to reset the data, all changes will be lost",
+      onOk() {
+        formResetHandler();
+      },
+    });
+  };
+  
+
   return (
     <Card size="small" title="Add Components">
       <Flex vertical align="center" gap={10}>
@@ -155,6 +175,14 @@ const AddComponent = ({
           selectLoading={loading("select")}
         />
       </Form.Item>
+      <Form.Item
+        style={{ flex: 1, minWidth: 100 }}
+        name="locations"
+        label="PCB Locations"
+        rules={rules.locations}
+      >
+        <Input />
+      </Form.Item>
       <Flex wrap="wrap" gap={5}>
         <Form.Item
           style={{ flex: 1, minWidth: 100 }}
@@ -178,6 +206,24 @@ const AddComponent = ({
           <MySelect options={mainComponents} labelInValue={true} />
         </Form.Item>
       )}
+       <Flex wrap="wrap" gap={5}>
+        <Form.Item
+          style={{ flex: 1, minWidth: 100 }}
+          name="make"
+          label="Make"
+          rules={rules.make}
+        >
+          <Input style={{ width: "100%" }} />
+        </Form.Item>
+        <Form.Item
+          style={{ flex: 1, minWidth: 100 }}
+          name="mpn"
+          label="MPN"
+          rules={rules.min}
+        >
+          <Input style={{ width: "100%" }} />
+        </Form.Item>
+      </Flex>
       <Form.Item
         style={{ flex: 1, minWidth: 100 }}
         name="vendor"
@@ -198,15 +244,6 @@ const AddComponent = ({
           onBlur={() => setAsyncOptions([])}
         />
       </Form.Item>
-      <Form.Item
-        style={{ flex: 1, minWidth: 100 }}
-        name="locations"
-        label="PCB Locations"
-        rules={rules.locations}
-      >
-        <Input />
-      </Form.Item>
-
       <Form.Item name="remarks" label="Remarks">
         <Input.TextArea rows={3} />
       </Form.Item>
@@ -219,14 +256,14 @@ const AddComponent = ({
             text="Cancel"
           />
         ) : (
-          <MyButton variant="reset" />
+          <MyButton variant="reset" onClick={() => showCofirmModal()} />
         )}
 
         <MyButton
           variant="add"
           // disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
-          onClick={
+          onClick={ 
             isEditing !== false ? handleUpdateCompnent : handleAddComponents
           }
         />

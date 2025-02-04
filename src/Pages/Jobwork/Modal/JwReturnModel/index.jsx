@@ -195,6 +195,7 @@ const JwReturnModel = ({ show, close }) => {
       setTotalValue(+Number(total).toFixed(3));
     }
   }, [selectedRows]);
+  
   useEffect(() => {
     if (show) {
       getData(show.sku, show.transaction);
