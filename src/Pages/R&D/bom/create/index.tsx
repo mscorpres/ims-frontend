@@ -52,6 +52,8 @@ interface ComponentType {
   type: "main" | "substitute";
   mfgCode: null | string;
   smtType: string;
+  make:string;
+  mpn:string;
   substituteOf: {
     label: string;
     value: string;
@@ -211,6 +213,8 @@ const BOMCreate = () => {
       "type",
       "vendor",
       "remarks",
+      "make",
+      "mpn",
     ]);
 
     const newComponent = {
@@ -252,6 +256,8 @@ const BOMCreate = () => {
       "substituteOf",
       "vendor",
       "locations",
+      "make",
+      "mpn",
     ]);
   };
 
@@ -315,6 +321,8 @@ const BOMCreate = () => {
       "document",
       "documents",
       "bomRef",
+      "mpn",
+      "make",
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
@@ -339,6 +347,8 @@ const BOMCreate = () => {
         placement: item.locations, // Add placement field
         remark: item.remarks,
         altComp: item.substituteOf?.value,
+        make:item?.make,
+        mpn:item?.mpn,
         // ?item.substituteOf.value:item.substituteOf,
       })),
     };

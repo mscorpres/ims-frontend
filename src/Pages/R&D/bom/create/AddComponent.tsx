@@ -219,7 +219,7 @@ const AddComponent = ({
           style={{ flex: 1, minWidth: 100 }}
           name="mpn"
           label="MPN"
-          rules={rules.min}
+          rules={rules.mpn}
         >
           <Input style={{ width: "100%" }} />
         </Form.Item>
