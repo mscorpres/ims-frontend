@@ -79,7 +79,6 @@ const BOMCreate = () => {
   const [isBomRej, setIsBomRej] = useState(false);
   const [bomId, setBomId] = useState("");
   const navigate = useNavigate();
-
   const [approvers, setApprovers] = useState<MultiStageApproverType[]>(
     initialApprovers as any
   );
@@ -380,7 +379,6 @@ const BOMCreate = () => {
       () => getExistingBom(sku.value ?? sku, version),
       "fetch"
     );
-    console.log(response.data);
     if (response.success) {
       if (response.data === null) {
         form.setFieldValue("version", "1.0");
@@ -397,7 +395,8 @@ const BOMCreate = () => {
         response.data.isDraft == false &&
         response.data.isRejected == false &&
         queryParams.get("sku") &&
-        queryParams.get("version")
+        queryParams.get("version")&&
+        !window.location.href.includes("draft")
       ) {
         setShowUpdateTypeModal(true);
       }
