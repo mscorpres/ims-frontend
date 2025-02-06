@@ -24,6 +24,7 @@ import { getProductOptions } from "@/api/r&d/products";
 import {
   createBOM,
   createBomRND,
+  createDraftBomRND,
   downloadSampleComponentFile,
   getComponentsFromFile,
   getExistingBom,
@@ -321,8 +322,6 @@ const BOMCreate = () => {
       "document",
       "documents",
       "bomRef",
-      "mpn",
-      "make",
     ]);
     setShowApproverMetrics(false);
     let combined = [...mainComponents, ...subComponents];
@@ -353,7 +352,7 @@ const BOMCreate = () => {
       })),
     };
     const response = await executeFun(
-      () => createBomRND(payload as any),
+      () => {action==="draft"? createDraftBomRND(payload as any):createBomRND(payload as any)},
       action
     );
     if (response.success) {

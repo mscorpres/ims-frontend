@@ -187,7 +187,7 @@ interface GetBOMListType {
 export const getBOMList = async (action: "final" | "draft") => {
   let url = "";
   if (action === "draft") {
-    url = "/bom/fetchBom/draft";
+    url = "/bomRnd/bomDraftList";
   } else {
     url = "/bomRnd/bomList";
   }
@@ -701,6 +701,11 @@ interface BomRequest {
 
 export const createBomRND = async (data: BomRequest) => {
   const response: ResponseType = await imsAxios.post("/bomRnd/creatBom", data);
+  return response;  
+};
+
+export const createDraftBomRND = async (data: BomRequest) => {
+  const response: ResponseType = await imsAxios.post("/bomRnd/createDraftBom", data);
   return response;  
 };
 
