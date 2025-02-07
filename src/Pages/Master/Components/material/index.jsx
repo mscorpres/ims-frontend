@@ -444,6 +444,8 @@ const Material = () => {
     getGroupOptions();
   }, []);
   useEffect(() => {
+    console.log("selectedCategorysssssssss", selectedCategory);
+
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
       setShowAttributesModal({
         selectedCategory: selectedCategory,

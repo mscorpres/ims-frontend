@@ -24,6 +24,7 @@ export default function CategoryDrawer({
   hide,
   getDetails,
   setUniqueIdData,
+  componentForm,
 }) {
   // console.log("show", show, hide, getDetails, setUniqueIdData);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,7 @@ export default function CategoryDrawer({
   const [fieldSelectOptions, setFieldSelectOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [materialType, setMaterialType] = useState("");
   const [manfCode, setManfCode] = useState(null);
   const params = useParams();
   const [form] = Form.useForm();
@@ -66,6 +68,7 @@ export default function CategoryDrawer({
       }
     } catch (error) {}
   };
+  console.log("catTypeCategory", componentForm.getFieldValue("catType"));
 
   const getieldSelectOptions = async (fields) => {
     try {
@@ -208,8 +211,25 @@ export default function CategoryDrawer({
     if (show?.value == "--") {
       setSelectedCategory("Other");
     }
+    if (
+      componentForm.getFieldValue("catType") &&
+      selectedCategory?.value?.length == undefined
+    ) {
+      let selected = categoryOptions.find(
+        (row) => row.text === componentForm.getFieldValue("catType")
+      );
+      console.log("selected------------", selected);
+      setSelectedCategory({
+        value: selected?.value,
+        label: selected?.text,
+      });
+    }
   }, [show]);
+  console.log("selectedCategory-----------", selectedCategory);
+  console.log("selectedCategory-----------", selectedCategory?.value?.length);
   useEffect(() => {
+    console.log("categoryOptions", categoryOptions);
+
     // console.log("selectedCategory?.value", selectedCategory?.value);
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
       if (
@@ -385,10 +405,12 @@ export default function CategoryDrawer({
     }
     return a.type.localeCompare(b.type);
   });
+  console.log("selectedCategory", selectedCategory);
+  console.log("uniqueId", uniqueId);
 
   return (
     <Drawer
-      title="Category Details"
+      title="Category Detailsssss"
       placement="right"
       onClose={hide}
       width={"40vw"}
@@ -417,10 +439,16 @@ export default function CategoryDrawer({
                   <div style={{ width: 130 }}>
                     <MySelect
                       labelInValue={true}
-                      value={selectedCategory}
+                      value={materialType}
                       onChange={setSelectedCategory}
                       options={categoryOptions}
                     />
+                    {/* <MySelect
+                      labelInValue={true}
+                      value={selectedCategory}
+                      onChange={setSelectedCategory}
+                      options={categoryOptions}
+                    /> */}
                   </div>
                 </Flex>
               </Col>
