@@ -46,6 +46,11 @@ export const getProductsList = async () => {
   return response;
 };
 
+export const getProductdata = async (id: string) => {
+  const response: ResponseType = await imsAxios.get(`products/fethProductUpdate/${id}`);
+  return response;
+}
+
 export const createProduct = async (values: ProductType) => {
   const formData = new FormData();
 

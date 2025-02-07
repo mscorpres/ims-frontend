@@ -1,31 +1,25 @@
 import { useEffect, useState } from "react";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Card, Col, Flex, Form, Input, Modal, Row, Upload } from "antd";
-
-import MySelect from "@/Components/MySelect";
 import MyButton from "@/Components/MyButton";
 import ToolTipEllipses from "@/Components/ToolTipEllipses.jsx";
 import MyDataTable from "@/Components/MyDataTable.jsx";
-
-import Approval from "@/Pages/R&D/products/approval";
 import ProductDocuments from "@/Pages/R&D/products/documents";
-
 import useApi from "@/hooks/useApi";
-
-import { getUOMList } from "@/api/master/uom";
 import { createProduct, getProductsList } from "@/api/r&d/products";
-
 import { ModalType, SelectOptionType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
 import { getCostCentresOptions, getProjectOptions } from "@/api/general";
 import { convertSelectOptions } from "@/utils/general";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
+import UpdateProduct from "@/Pages/R&D/products/UpdateProduct";
 
 export default function Products() {
   const [rows, setRows] = useState([]);
   const [rdsfg, setRdsfg] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
+  const [updateModal, setUpdateModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
     null
   );
@@ -38,7 +32,7 @@ export default function Products() {
     setRdsfg(response.newSkuCode);
     setRows(response.data ?? [])
       .filter(
-        (row) => row.approvalStage !== "PEN"
+        (row:any) => row.approvalStage !== "PEN"
         // || row.approvalStage === "1"
       )
       .map((row, index) => ({
@@ -52,7 +46,7 @@ export default function Products() {
       () => getCostCentresOptions(search),
       "select"
     );
-    let arr: SelectOptionType[] = [];
+    let arr: any = [];
     if (response.success) {
       arr = convertSelectOptions(response.data);
     }
@@ -89,7 +83,7 @@ export default function Products() {
     form.resetFields();
   };
 
-  const normFile = (e) => {
+  const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
     }
@@ -104,7 +98,16 @@ export default function Products() {
       headerName: "",
       type: "actions",
       width: 30,
-      getActions: ({ row }) => [
+      getActions: ({ row }: { row: ProductType }) => [
+        <GridActionsCellItem
+        showInMenu
+        placeholder="Update"
+        label={"Update"}
+        onClick={() => {
+          setUpdateModal(true);
+          setSelectedProduct(row);
+        }}
+      />,
         <GridActionsCellItem
           showInMenu
           placeholder="See Attachments"
@@ -145,6 +148,14 @@ export default function Products() {
           product={selectedProduct}
         />
       )}
+
+      <UpdateProduct
+        show={updateModal}
+        hide={() => setUpdateModal(false)}
+        product={selectedProduct}
+        id={selectedProduct?.key}
+        handleFetchProductList={handleFetchProductList}
+      />
 
       <Col span={6} xxl={4} style={{ height: "100%", overflow: "auto" }}>
         <Card size="small" title={"Add New Product"}>
