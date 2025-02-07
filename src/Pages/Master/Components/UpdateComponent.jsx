@@ -206,7 +206,7 @@ export default function UpdateComponent() {
 
   const submitHandler = async (payload) => {
     try {
-      console.log(payload);
+      console.log(payload)
       setLoading("submit");
       const response = await imsAxios.post(
         "/component/updateComponent",
@@ -303,7 +303,7 @@ export default function UpdateComponent() {
                   </Form.Item>
                 </Col>
                 <Col span={8}>
-                  <Form.Item label="Attribute Code">
+                <Form.Item label="Attribute Code">
                     <Row justify="space-between">
                       {categoryData && <Col>{categoryData.name}</Col>}
                       {categoryData && (

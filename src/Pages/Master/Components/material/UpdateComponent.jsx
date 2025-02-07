@@ -255,7 +255,7 @@ export default function UpdateComponent() {
     const values = await componentForm.validateFields();
     // console.log("attr_raw", attr_raw);
     // console.log("catType", componentForm.getFieldValue("catType"));
-    var catTypeCategory = componentForm.getFieldValue("catType");
+    let catTypeCategory = componentForm.getFieldValue("catType");
     let attrCat;
     if (catTypeCategory === "Resistor") {
       attrCat = "R";
@@ -557,7 +557,7 @@ export default function UpdateComponent() {
                             onClick={() => setShowCategoryDetails(categoryData)}
                             // disabled={categoryData?.value.length > 3}
                           >
-                            Detailsd
+                            Details
                           </Button>
                         </Col>
                         {/* )} */}
@@ -818,8 +818,6 @@ export default function UpdateComponent() {
           getDetails={getDetails}
           hide={() => setShowCategoryDetails(null)}
           setUniqueIdData={setUniqueIdData}
-          componentForm={componentForm}
-          // catTypeCategory={catTypeCategory}
         />
       </Form>
     </>
