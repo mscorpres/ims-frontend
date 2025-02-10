@@ -53,8 +53,8 @@ interface ComponentType {
   type: "main" | "substitute";
   mfgCode: null | string;
   smtType: string;
-  make:string;
-  mpn:string;
+  make: string;
+  mpn: string;
   substituteOf: {
     label: string;
     value: string;
@@ -300,9 +300,9 @@ const BOMCreate = () => {
       return item;
     });
   }
-  function showConfirmation() {
+  function showConfirmation(message: string) {
     const userConfirmed = window.confirm(
-      "BOM has been created successfully,Do you wish to go to BOM List?"
+      `${message} , Do you wish to go to BOM List?`
     );
     if (userConfirmed) {
       navigate(routeConstants.researchAndDevelopment.bom.list);
@@ -310,7 +310,7 @@ const BOMCreate = () => {
     } else {
       window.location.reload();
     }
-  }
+  } 
 
   const submitHandler = async (action: "final" | "draft") => {
     const values = await form.validateFields([
@@ -345,21 +345,27 @@ const BOMCreate = () => {
         placement: item.locations, // Add placement field
         remark: item.remarks,
         altComp: item.substituteOf?.value,
-        make:item?.make,
-        mpn:item?.mpn,
+        make: item?.make,
+        mpn: item?.mpn,
         // ?item.substituteOf.value:item.substituteOf,
       })),
     };
-    const response = await executeFun(
-      () => {action==="draft"? createDraftBomRND(payload as any):createBomRND(payload as any)},
-      action
-    );
-    if (response.success) {
+    let response;
+    if (action === "final") {
+      response = await executeFun(() => createBomRND(payload as any), action);
+    } else {
+      response = await executeFun(
+        () => createDraftBomRND(payload as any),
+        action
+      );
+    }
+    
+    if (response?.success) {
       setBomId("");
       setIsBomRej(false);
       setShowApproverMetrics(false);
       resetHandler();
-      showConfirmation();
+      showConfirmation(response?.message);
     } else {
       if (approvers) {
         const updatedData = convertStageToNumber(approvers);
@@ -395,7 +401,7 @@ const BOMCreate = () => {
         response.data.isDraft == false &&
         response.data.isRejected == false &&
         queryParams.get("sku") &&
-        queryParams.get("version")&&
+        queryParams.get("version") &&
         !window.location.href.includes("draft")
       ) {
         setShowUpdateTypeModal(true);
