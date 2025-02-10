@@ -287,7 +287,12 @@ const BOMCreate = () => {
   const validateHandler = async (action: "final" | "draft") => {
     await form.validateFields(["name", "version", "product", "bomRef"]);
     setSaveType(action);
-    setShowApproverMetrics(true);
+   if( action === "final"){
+     setShowApproverMetrics(true);
+   } 
+   else{
+    submitHandler(action);
+   }
   };
   function convertStageToNumber(data) {
     // console.log("data ub ", data);
