@@ -192,11 +192,11 @@ const columns = [
     field: "bom_project",
     minWidth: 150,
   },
-  {
-    headerName: "Level",
-    field: "level",
-    minWidth: 50,
-  },
+  // {
+  //   headerName: "Level",
+  //   field: "level",
+  //   minWidth: 50,
+  // },
   {
     headerName: "Created Date",
     field: "createdDate",
