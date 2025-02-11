@@ -54,8 +54,8 @@ const ProductDocuments = (props: DrawerProps) => {
       const data = response.data.data[0];
       form.setFieldsValue({
         name: data.productname,
-        costCenter: data.costcenter.value,
-        project: data.project,
+        costCenter: { value: data.costcenter.value, label: data.costcenter.text },
+        project: { value: data.project.value, label: data.project.text },
         description: data.productdesc,
         unit: data.unit,
         sku: data.productsku,
@@ -69,7 +69,7 @@ const ProductDocuments = (props: DrawerProps) => {
     console.log(values)
     const payload = {
       name: values.name,
-      costCenter: values.costCenter,
+      costCenter: values.costCenter?.value?values.costCenter?.value:values.costCenter,
       projectCode: values.project?.value?values.project?.value:values.project,
       description: values.description,
       unit: values.unit,

@@ -291,7 +291,16 @@ const BOMCreate = () => {
      setShowApproverMetrics(true);
    } 
    else{
-    submitHandler(action);
+    Modal.confirm({
+      title: "Are you sure you want to save this BOM as Draft?",
+      content:
+        "Please make sure that the values are correct, This process is irreversible",
+      onOk() {
+        submitHandler(action);
+      },
+      onCancel() {},
+    });
+    
    }
   };
   function convertStageToNumber(data) {
