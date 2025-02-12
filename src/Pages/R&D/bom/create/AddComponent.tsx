@@ -289,6 +289,7 @@ const AddComponent = ({
           loading={loading("draft")}
           onClick={() => validateHandler("draft")}
           disabled={mainComponents.length === 0}
+          text="Save as Draft"
         />
       </Flex>
     </Card>

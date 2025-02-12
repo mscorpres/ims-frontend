@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import MyButton from "@/Components/MyButton";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import TableActions from "@/Components/TableActions.jsx/TableActions";
+import MyDataTable from "../../../../Components/MyDataTable";
 import useApi from "@/hooks/useApi";
 import { ModalType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
@@ -39,6 +40,7 @@ import AddComponent from "@/Pages/R&D/bom/create/AddComponent";
 import routeConstants from "@/Routes/routeConstants.js";
 import UploadDocumentModal from "@/Pages/R&D/bom/create/UploadDocumentModal";
 import React from "react";
+import { Box } from "@mui/material";
 
 interface ComponentType {
   component: {
@@ -590,7 +592,7 @@ const BOMCreate = () => {
 
               <Form.Item
                 name="bomRef"
-                label="BOM Reference Number"
+                label="ECN Number"
                 rules={rules.bomRef}
               >
                 <Input />
@@ -737,6 +739,178 @@ const BOMCreate = () => {
 
 export default BOMCreate;
 
+// const Components = ({
+//   rows,
+//   type,
+//   handleDeleteComponent,
+//   setIsEditing,
+//   handleSetComponentForEditing,
+// }: {
+//   rows: ComponentType[];
+//   type?: "main" | "substitute";
+//   handleDeleteComponent: (
+//     componentKey: string,
+//     type: ComponentType["type"]
+//   ) => void;
+//   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
+//   handleSetComponentForEditing: (component: ComponentType) => void;
+// }) => {
+//   return (
+//     <div style={{ height: "100%", overflow: "hidden" }}>
+//       {rows.length === 0 && <Empty />}
+//       {rows.length > 0 && (
+//         <Row gutter={[6, 6]} style={{ height: "100%" }}>
+//           {/* headers */}
+//           <Col span={1}>
+//             <Typography.Text strong>#</Typography.Text>
+//           </Col>
+//           <Col span={2}>
+//             <Typography.Text strong>PartCode</Typography.Text>
+//           </Col>
+//           <Col span={8}>
+//             <Typography.Text strong>Component</Typography.Text>
+//           </Col>
+//           <Col span={2}>
+//             <Typography.Text strong>Qty</Typography.Text>
+//           </Col>
+//           <Col span={2}>
+//         <Typography.Text strong>Make</Typography.Text>
+//       </Col>
+//       <Col span={2}>
+//         <Typography.Text strong>MPN</Typography.Text>
+//       </Col>
+//           <Col span={3}>
+//             <Typography.Text strong>Vendor</Typography.Text>
+//           </Col>
+//           <Col span={2}>
+//             <Typography.Text strong>Placement</Typography.Text>
+//           </Col>
+//           {type === "substitute" && (
+//             <Col span={4}>
+//               <Typography.Text strong>Alternate Of</Typography.Text>
+//             </Col>
+//           )}
+//           <Col span={type === "substitute" ? 2 : 6}>
+//             <Typography.Text strong>Remarks</Typography.Text>
+//           </Col>
+
+//           {/* rows */}
+//           <Col
+//             span={24}
+//             style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
+//           >
+//             <Row gutter={[0, 4]}>
+//               {rows.map((row: any, index: number) => (
+//                 <React.Fragment key={row.value}>
+//                   <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {index + 1}
+//                     </Typography.Text>
+//                   </Col>
+//                   <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {row?.partCode}
+//                     </Typography.Text>
+//                   </Col>
+//                   {/* <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {row.component?.code}
+//                     </Typography.Text>
+//                   </Col> */}
+//                   <Col span={8} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Tooltip
+//                       title={
+//                         row.mfgCode?.length === 0
+//                           ? "No Mfg Code found."
+//                           : "Mfg Code: " + row.mfgCode
+//                       }
+//                     >
+//                       <Typography.Text
+//                         style={{
+//                           fontSize: 13,
+//                           color:
+//                             row.smtType !== "Other" && row.mfgCode?.length === 0
+//                               ? "red"
+//                               : "black",
+//                         }}
+//                       >
+//                         {row.component.label ?? row.component.text}
+//                       </Typography.Text>
+//                     </Tooltip>
+//                   </Col>
+//                   <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {row.qty}
+//                     </Typography.Text>
+//                   </Col>
+//                   <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+//                 <Typography.Text style={{ fontSize: 13 }}>
+//                   {row.make}
+//                 </Typography.Text>
+//               </Col>
+//               <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+//                 <Typography.Text style={{ fontSize: 13 }}>
+//                   {row.mpn}
+//                 </Typography.Text>
+//               </Col>
+//                   <Col span={3} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {row.vendor?.label ?? row.vendor}
+//                     </Typography.Text>
+//                   </Col>
+//                   <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {row.locations}
+//                     </Typography.Text>
+//                   </Col>
+//                   {type === "substitute" && (
+//                     <Col span={4} style={{ borderBottom: "1px solid #ddd" }}>
+//                       <Typography.Text style={{ fontSize: 13 }}>
+//                         {row.substituteOf?.label}
+//                       </Typography.Text>
+//                     </Col>
+//                   )}
+//                   <Col
+//                     span={type === "substitute" ? 1 : 5}
+//                     style={{ borderBottom: "1px solid #ddd" }}
+//                   >
+//                     <Typography.Text style={{ fontSize: 13 }}>
+//                       {row.remarks}
+//                     </Typography.Text>
+//                   </Col>
+//                   <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
+//                     <Flex gap={2}>
+//                       <TableActions
+//                         action="edit"
+//                         onClick={() => {
+//                           handleSetComponentForEditing(row);
+//                           setIsEditing(index);
+//                         }}
+//                       />
+//                       <TableActions
+//                         action="delete"
+//                         onClick={() =>
+//                           handleDeleteComponent(row.value, row.type)
+//                         }
+//                       />
+//                     </Flex>
+//                   </Col>
+//                 </React.Fragment>
+//               ))}
+//             </Row>
+//             <Flex justify="center" style={{ marginTop: 20 }}>
+//               <Typography.Text strong type="secondary">
+//                 --End of the list--
+//               </Typography.Text>
+//             </Flex>
+//           </Col>
+//         </Row>
+//       )}
+//     </div>
+//   );
+// };
+ // Assuming TableActions is a component for Edit/Delete actions
+
 const Components = ({
   rows,
   type,
@@ -753,160 +927,116 @@ const Components = ({
   setIsEditing: React.Dispatch<React.SetStateAction<string | number | boolean>>;
   handleSetComponentForEditing: (component: ComponentType) => void;
 }) => {
+  // Columns definition for MyDataTable
+  const columns = [
+    {
+      field: "id",
+      headerName: "ID",
+      width: 90,
+      sortable: true,
+    },
+    {
+      field: "partCode",
+      headerName: "PartCode",
+      width: 150,
+      sortable: true,
+    },
+    {
+      field: "text",
+      headerName: "Component",
+      width: 200,
+      sortable: true,
+      // renderCell: (params) => <span>{params.value?.label || params.value?.text}</span>,
+    },
+    {
+      field: "qty",
+      headerName: "Quantity",
+      width: 120,
+      sortable: true,
+    },
+    {
+      field: "make",
+      headerName: "Make",
+      width: 120,
+      sortable: true,
+    },
+    {
+      field: "mpn",
+      headerName: "MPN",
+      width: 150,
+      sortable: true,
+    },
+    {
+      field: "vendor",
+      headerName: "Vendor",
+      width: 180,
+      sortable: true,
+      renderCell: (params: any) => <Tooltip title={params.value?.label}>{params.value?.label }</Tooltip>,
+    },
+    {
+      field: "locations",
+      headerName: "Placement",
+      width: 180,
+      sortable: true,
+    },
+    ...(type === "substitute" 
+      ? [
+          {
+            field: "substituteOf",
+            headerName: "Alternate Of",
+            width: 200,
+            sortable: true,
+            renderCell: (params: any) => <Tooltip title={params.value.label}>{params.value.label}</Tooltip>, // Render substitute label
+          }
+        ]
+      : []),
+    {
+      field: "remarks",
+      headerName: "Remarks",
+      width: 250,
+      sortable: false,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 150,
+      sortable: false,
+      renderCell: (params: any) => (
+        <Flex gap={2}>
+          <TableActions
+            action="edit"
+            onClick={() => {
+              handleSetComponentForEditing(params.row);
+              setIsEditing(params.rowIndex);
+            }}
+          />
+          <TableActions
+            action="delete"
+            onClick={() =>
+              handleDeleteComponent(params.row.value, params.row.type)
+            }
+          />
+        </Flex>
+      ),
+    },
+  ];
+  const rowsWithId = rows?.map((row,index) => ({
+    ...row,
+    id: index+1,  // Add `id` using the `value` field as the unique identifier
+  }));
+  
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
-      {rows.length === 0 && <Empty />}
-      {rows.length > 0 && (
+      {rowsWithId?.length === 0 && <Empty />}
+      {rowsWithId?.length > 0 && (
         <Row gutter={[6, 6]} style={{ height: "100%" }}>
-          {/* headers */}
-          <Col span={1}>
-            <Typography.Text strong>#</Typography.Text>
-          </Col>
-          <Col span={2}>
-            <Typography.Text strong>PartCode</Typography.Text>
-          </Col>
-          <Col span={8}>
-            <Typography.Text strong>Component</Typography.Text>
-          </Col>
-          <Col span={2}>
-            <Typography.Text strong>Qty</Typography.Text>
-          </Col>
-          {/* <Col span={2}>
-        <Typography.Text strong>Make</Typography.Text>
-      </Col>
-      <Col span={2}>
-        <Typography.Text strong>MPN</Typography.Text>
-      </Col> */}
-          <Col span={3}>
-            <Typography.Text strong>Vendor</Typography.Text>
-          </Col>
-          <Col span={2}>
-            <Typography.Text strong>Placement</Typography.Text>
-          </Col>
-          {type === "substitute" && (
-            <Col span={4}>
-              <Typography.Text strong>Alternate Of</Typography.Text>
-            </Col>
-          )}
-          <Col span={type === "substitute" ? 2 : 6}>
-            <Typography.Text strong>Remarks</Typography.Text>
-          </Col>
-
-          {/* rows */}
-          <Col
-            span={24}
-            style={{ height: "100%", overflow: "auto", paddingBottom: 30 }}
-          >
-            <Row gutter={[0, 4]}>
-              {rows.map((row: any, index: number) => (
-                <React.Fragment key={row.value}>
-                  <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {index + 1}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row?.partCode}
-                    </Typography.Text>
-                  </Col>
-                  {/* <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.component?.code}
-                    </Typography.Text>
-                  </Col> */}
-                  <Col span={8} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Tooltip
-                      title={
-                        row.mfgCode?.length === 0
-                          ? "No Mfg Code found."
-                          : "Mfg Code: " + row.mfgCode
-                      }
-                    >
-                      <Typography.Text
-                        style={{
-                          fontSize: 13,
-                          color:
-                            row.smtType !== "Other" && row.mfgCode?.length === 0
-                              ? "red"
-                              : "black",
-                        }}
-                      >
-                        {row.component.label ?? row.component.text}
-                      </Typography.Text>
-                    </Tooltip>
-                  </Col>
-                  <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.qty}
-                    </Typography.Text>
-                  </Col>
-                  {/* <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
-                <Typography.Text style={{ fontSize: 13 }}>
-                  {row.make}
-                </Typography.Text>
-              </Col>
-              <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
-                <Typography.Text style={{ fontSize: 13 }}>
-                  {row.mpn}
-                </Typography.Text>
-              </Col> */}
-                  <Col span={3} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.vendor?.label ?? row.vendor}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={2} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.locations}
-                    </Typography.Text>
-                  </Col>
-                  {type === "substitute" && (
-                    <Col span={4} style={{ borderBottom: "1px solid #ddd" }}>
-                      <Typography.Text style={{ fontSize: 13 }}>
-                        {row.substituteOf?.label}
-                      </Typography.Text>
-                    </Col>
-                  )}
-                  <Col
-                    span={type === "substitute" ? 1 : 5}
-                    style={{ borderBottom: "1px solid #ddd" }}
-                  >
-                    <Typography.Text style={{ fontSize: 13 }}>
-                      {row.remarks}
-                    </Typography.Text>
-                  </Col>
-                  <Col span={1} style={{ borderBottom: "1px solid #ddd" }}>
-                    <Flex gap={2}>
-                      <TableActions
-                        action="edit"
-                        onClick={() => {
-                          handleSetComponentForEditing(row);
-                          setIsEditing(index);
-                        }}
-                      />
-                      <TableActions
-                        action="delete"
-                        onClick={() =>
-                          handleDeleteComponent(row.value, row.type)
-                        }
-                      />
-                    </Flex>
-                  </Col>
-                </React.Fragment>
-              ))}
-            </Row>
-            <Flex justify="center" style={{ marginTop: 20 }}>
-              <Typography.Text strong type="secondary">
-                --End of the list--
-              </Typography.Text>
-            </Flex>
-          </Col>
+          <MyDataTable data={rowsWithId} columns={columns} loading={false}  />
         </Row>
       )}
     </div>
   );
 };
+
 const initialValues = {
   component: undefined,
   qty: undefined,

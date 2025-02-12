@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ModalType, SelectOptionType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
-import { Drawer } from "antd";
+import { Drawer, Upload } from "antd";
 import { Col, Flex, Form, Input, Row } from "antd";
 import MyButton from "@/Components/MyButton";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
@@ -82,6 +82,7 @@ const ProductDocuments = (props: DrawerProps) => {
     if(data.success){
       toast.success(data?.message||"Product Updated Successfully");
       props.hide();
+      form.resetFields();
       props.handleFetchProductList();
     }
     else{
@@ -90,6 +91,14 @@ const ProductDocuments = (props: DrawerProps) => {
     // form.resetFields();
     setLoader("submit", false);
   }
+
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+  
   useEffect(() => {
     props?.id && fetchProductData();
   }, [props?.id]);
@@ -98,7 +107,7 @@ const ProductDocuments = (props: DrawerProps) => {
     <Drawer
       width={650}
       open={props.show}
-      onClose={props.hide}
+      onClose={() =>{props.hide(); form.setFieldValue("documents",[]); form.setFieldValue("images",[]);}}
       title={`Update ${props.product?.name}`}
     >
       <Col span={20} style={{ height: "100%", overflow: "auto" }}>
@@ -156,10 +165,55 @@ const ProductDocuments = (props: DrawerProps) => {
                 </Form.Item>
               </Col>
       
+              
+              <Col span={24}>
+                <Form.Item
+                  name="images"
+                  label="Images"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  extra="Max 4 Images"
+                >
+                  <Upload
+                    name="image"
+                    beforeUpload={() => false}
+                    style={{ marginBottom: 10 }}
+                    maxCount={4}
+                  >
+                    <MyButton
+                      variant="upload"
+                      text="Select"
+                      style={{ width: "100%", marginBottom: 5 }}
+                    />
+                  </Upload>
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name="documents"
+                  label="Documents"
+                  valuePropName="fileList"
+                  getValueFromEvent={normFile}
+                  extra="Max 4 Documents"
+                >
+                  <Upload
+                    name="document"
+                    beforeUpload={() => false}
+                    style={{ marginBottom: 10 }}
+                    maxCount={4}
+                  >
+                    <MyButton
+                      variant="upload"
+                      text="Select"
+                      style={{ width: "100%", marginBottom: 5 }}
+                    />
+                  </Upload>
+                </Form.Item>
+              </Col>
               <Col span={24}>
                 <Flex justify="center" gap={5}>
                   <Form.Item>
-                    <MyButton onClick={form.resetFields} variant="reset">
+                    <MyButton onClick={()=>form.resetFields()} variant="reset">
                       Reset
                     </MyButton>
                   </Form.Item>

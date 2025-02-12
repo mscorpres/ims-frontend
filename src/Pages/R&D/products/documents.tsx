@@ -8,7 +8,6 @@ interface DrawerProps extends ModalType {
   product: ProductType;
 }
 const ProductDocuments = (props: DrawerProps) => {
-  console.log("selected", props.product);
   const handleDownloadDoc = async (url: string) => {
     window.open(url, "_blank", "noreferrer");
   };
