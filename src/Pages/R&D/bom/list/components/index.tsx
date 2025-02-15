@@ -128,6 +128,16 @@ const columns = [
     width: 80,
     field: "qty",
   },
+  {
+    headerName: "Make",
+    width: 80,
+    field: "make",
+  },
+  {
+    headerName: "MPN",
+    width: 80,
+    field: "mpn",
+  },
   // vendor here
   {
     headerName: "Vendor",

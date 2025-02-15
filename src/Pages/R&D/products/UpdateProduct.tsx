@@ -8,7 +8,7 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import useApi from "@/hooks/useApi";
 import { getCostCentresOptions, getProjectOptions } from "@/api/general";
 import { convertSelectOptions } from "@/utils/general";
-import { getProductdata } from "@/api/r&d/products";
+import { getProductdata, updateProduct } from "@/api/r&d/products";
 import Loading from "../../../Components/Loading";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";

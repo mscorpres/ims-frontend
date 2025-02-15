@@ -258,6 +258,8 @@ interface GetBomComponentsType {
   key: string;
   name: string;
   altPartNo: string;
+  make: string;
+  mpn: string;
 }
 
 export const getComponents = async (bomKey: string) => {
@@ -288,6 +290,8 @@ export const getComponents = async (bomKey: string) => {
       locations: row.placement || null,
       uniqueCode: row.attributeCode || "",
       subPartCode: row?.altPartNo || "--",
+      make: row?.make||"--",
+      mpn: row?.mpn||"--",
     }));
   }
 

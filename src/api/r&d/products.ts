@@ -74,6 +74,29 @@ export const createProduct = async (values: ProductType) => {
   return response;
 };
 
+// export const updateProduct = async (values: ProductType,key) => {
+//   const formData = new FormData();
+// console.log(values)
+//   formData.append("name", values.name);
+//   formData.append("isActive", true);
+//   formData.append("description", values.description);
+//   formData.append("projectCode", values.project?.value);
+//   formData.append("costCenter", values.costCenter?.value);
+//   values.images?.map((row) => {
+//     formData.append("images", row.originFileObj);
+//   });
+//   values.documents?.map((row) => {
+//     formData.append("documents", row.originFileObj);
+//   });
+
+//   const response: ResponseType = await imsAxios.post(
+//     `/products/update/temp/${key}`,
+//     formData
+//   );
+
+//   return response;
+// };
+
 export const getProductOptions = async (search: string) => {
   const response: ResponseType = await imsAxios.get(
     `/bomRnd/search/product?search=${search}`
