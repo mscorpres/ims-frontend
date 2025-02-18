@@ -61,6 +61,10 @@ interface ComponentType {
     label: string;
     value: string;
   };
+  vendor: {
+    text: string;
+    value: string;
+  };
 }
 
 const BOMCreate = () => {
@@ -119,9 +123,11 @@ const BOMCreate = () => {
           row.type === "main" || row.type === "Main" ? "main" : "substitute",
         locations: row.location,
         vendor: {
-          ...row.make,
-          label: row.make.text,
+          ...row.vendor,
+          // label: row.vendor.text,
         },
+        make: row.make,
+        mpn: row.mpn,
         remarks: row.remarks,
         partCode: row.partCode?.code,
         value: row.partCode.value,
@@ -352,7 +358,7 @@ const BOMCreate = () => {
       ),
       // bomDoc: values.documents,
       componets: combined.map((item: any) => ({
-        vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor,
+        vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor?.value,
         component: item.component.value
           ? item.component.value
           : item.componentKey, // Extract the component value
@@ -375,8 +381,8 @@ const BOMCreate = () => {
         action
       );
     }
-    
-    if (response?.success) {
+    console.log(response)
+    if (response?.success||response?.success !=="error") {
       setBomId("");
       setIsBomRej(false);
       setShowApproverMetrics(false);
@@ -971,7 +977,7 @@ const Components = ({
       headerName: "Vendor",
       width: 180,
       sortable: true,
-      renderCell: (params: any) => <Tooltip title={params.value?.label}>{params.value?.label }</Tooltip>,
+      renderCell: (params: any) => <Tooltip title={params.value?.label||params.value.name+" ("+params.value?.code+")"}>{params.value?.label||params.value.name+" ("+params.value?.code+")" }</Tooltip>,
     },
     {
       field: "locations",

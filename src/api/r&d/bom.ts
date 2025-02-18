@@ -606,6 +606,7 @@ export const getExistingBom = async (sku: string, version: string) => {
               name: row.name.trim(), // Clean up any extra spaces
               label: row.name.trim() + " " + row.partno, // Assuming part number and name make up the label
             },
+            partCode:row.partno,
             qty: row.quantity, // Quantity as given in the response
             remarks: row.remark, // Remarks are from the response
             status: row.status, // Component status
@@ -617,12 +618,14 @@ export const getExistingBom = async (sku: string, version: string) => {
             },
             type: row.type === "alternate" ? "substitute" : row.type, // The component type (main, etc.)
             locations: row.placement, // Placement locations (p1, p2, etc.)
-            vendor: row.vendor?.code, // Vendor data (though it's "null - null" in your example)
+            vendor: row.vendor, // Vendor data (though it's "null - null" in your example)
             text: row.name, // Text associated with the component
             value: row.key, // You might need to adjust this if a value exists elsewhere
             mfgCode: row.manufacturingCode || "", // Manufacturing code, handle missing or empty cases
-            smtType: row.catType, // Category type
+            smtType: row.catType,
             componentKey: row.key,
+            make: row.make,
+            mpn: row.mpn,
           })),
         };
 
