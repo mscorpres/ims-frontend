@@ -381,8 +381,8 @@ const BOMCreate = () => {
         action
       );
     }
-    console.log(response)
-    if (response?.success||response?.success !=="error") {
+  
+    if (response?.success) {
       setBomId("");
       setIsBomRej(false);
       setShowApproverMetrics(false);

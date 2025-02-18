@@ -26,6 +26,7 @@ const ProductDocuments = (props: DrawerProps) => {
   const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
   const { executeFun, loading } = useApi();
   const [loader, setLoader] = useLoading();
+  const [loading2,setLoading] = useState(false);
 
   const handleCostCenterOptions = async (search: string) => {
     const response = await executeFun(
@@ -64,7 +65,7 @@ const ProductDocuments = (props: DrawerProps) => {
   };
 
   const validateHandler = async () => {
-    setLoader("submit", true);
+    setLoading(true);
     const values = await form.validateFields();
     console.log(values)
     const payload = {
@@ -74,22 +75,25 @@ const ProductDocuments = (props: DrawerProps) => {
       description: values.description,
       unit: values.unit,
       isActive: true,
+      documents: values.documents,
+      images: values.images
     };
 
-    const data  = await imsAxios.put(`/products/update/temp/${props?.id}`, {
-      ...payload,
-    });
-    if(data.success){
-      toast.success(data?.message||"Product Updated Successfully");
+    const response = await executeFun(() => updateProduct(payload,props?.id), "submit");
+    // const data  = await imsAxios.put(`/products/update/temp/${props?.id}`, {
+    //   ...payload,
+    // });
+    if(response.success){
+      toast.success(response?.message||"Product Updated Successfully");
       props.hide();
       form.resetFields();
       props.handleFetchProductList();
     }
     else{
-      toast.error(data?.message);
+      toast.error(response?.message);
     }
-    // form.resetFields();
-    setLoader("submit", false);
+    form.resetFields();
+    setLoading(false);
   }
 
   const normFile = (e: any) => {
@@ -219,7 +223,7 @@ const ProductDocuments = (props: DrawerProps) => {
                   </Form.Item>
                   <Form.Item>
                     <MyButton
-                      loading={loader("submit")|| loading("fetch")}
+                      loading={loading2}
                       type="primary"
                       variant="submit"
                         onClick={validateHandler}
