@@ -136,14 +136,14 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
   const updateFun = async () => {
     let allCompArray = [];
     let allQtyArray = [];
-    const invalidRates = mainData.filter((row) => !row.rate || row.rate <= 0);
+    // const invalidRates = mainData.filter((row) => !row.rate || row.rate <= 0);
 
-    if (invalidRates.length > 0) {
-      toast.error("Rate field cannot be empty for all rows.");
-      return;  // Prevent submission if validation fails
-    }
+    // if (invalidRates.length > 0) {
+    //   toast.error("Rate field cannot be empty for all rows.");
+    //   return;  // Prevent submission if validation fails
+    // }
     mainData.map((a) => allCompArray.push(a.component_key));
-    mainData.map((a) => allQtyArray.push(a.bom_req ?? ""));
+    mainData.map((a) => allQtyArray.push(a.bom_req ?? "")); 
 
     //  console.log(view);
     setSubmitLoading(true);
