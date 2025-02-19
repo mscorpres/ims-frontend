@@ -300,7 +300,7 @@ export default function UpdateComponent() {
       pocost: values.purchaseCost,
       othercost: values.otherCost,
       attr_code: attr_raw?.attributeCode ?? "--",
-      attr_raw: attr_raw?.attr_raw ?? "",
+      attr_raw: attr_raw?.attr_raw?attr_raw?.attr_raw:tooldata ?? "",
       attr_category: attrCat,
       componentcategory: "--",
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
