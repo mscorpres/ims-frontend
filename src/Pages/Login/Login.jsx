@@ -23,11 +23,13 @@ import {
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
 import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const Login = () => {
   document.title = "IMS Login";
   const [signUpPage, setSignUpPage] = useState("1");
   const [forgotPassword, setForgotPassword] = useState("0");
+  const [recaptchaValue, setRecaptchaValue] = React.useState(null);
   const [ispassSame, setIsPassSame] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { executeFun, loading } = useApi();
@@ -50,6 +52,10 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
+    if (!recaptchaValue) {
+      toast.error("Please verify the reCAPTCHA");
+      // return;
+    }
     const { username, password } = inpVal;
     if (username === "" && password === "") {
       toast.error("Please fill the field");
@@ -211,6 +217,11 @@ const Login = () => {
     signUp.getFieldValue("confirmPassword"),
     signUp.getFieldValue("password"),
   ]);
+
+  const handleRecaptchaChange = (value) => {
+    setRecaptchaValue(value);
+  };
+
   // console.log("ispassSame", ispassSame);
   return (
     <div style={{ height: "100vh" }}>
@@ -357,6 +368,9 @@ const Login = () => {
                         {/* <Link onClick={() => setForgotPassword("1")}>
                           Forgot Password
                         </Link> */}
+                        <div className="flex justify-center">
+                          <ReCAPTCHA sitekey="6LfT-t8qAAAAAAryXqezNqrrTo1HEqGwsotxPahZ" onChange={handleRecaptchaChange} />
+                        </div>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
                             loading={loading("submit")}
