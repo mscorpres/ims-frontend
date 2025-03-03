@@ -32,6 +32,7 @@ const Login = () => {
   const [recaptchaValue, setRecaptchaValue] = React.useState(null);
   const [ispassSame, setIsPassSame] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
   const { executeFun, loading } = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -98,6 +99,8 @@ const Login = () => {
         dispatch(setUser(obj));
         dispatch(setSettings(data.data.settings));
       } else {
+        setRecaptchaValue(null);
+        setRecaptchaKey(Math.random());
         // console.log("data.message", data);
         toast.error(data.message);
       }
@@ -369,7 +372,7 @@ const Login = () => {
                           Forgot Password
                         </Link> */}
                         <div className="flex justify-center">
-                          <ReCAPTCHA sitekey="6LfT-t8qAAAAAAryXqezNqrrTo1HEqGwsotxPahZ" onChange={handleRecaptchaChange} />
+                          <ReCAPTCHA sitekey="6LfT-t8qAAAAAAryXqezNqrrTo1HEqGwsotxPahZ" onChange={handleRecaptchaChange}  key={recaptchaKey}/>
                         </div>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
