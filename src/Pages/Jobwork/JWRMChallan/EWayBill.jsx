@@ -36,50 +36,71 @@ const EWayBill = () => {
   const getDetails = async () => {
     try {
       setLoading("fetch");
-      const response = await imsAxios.post("/jwEwaybill/fetch_challan_data", {
+      const response = await imsAxios.post("/ewaybill/fetch_challan_data", {
         challan_no: params.jwId.replaceAll("_", "/"),
       });
 
-      const { data } = response;
+      const { data, items } = response;
       if (data) {
-        if (data.code === 200) {
-          const { header, items, docType, subSupplyType, supplyType } =
-            data.data;
+        if (response?.code === 200 || response?.success) {
+          // debugger
+          const { bill_from, bill_to, ship_from, ship_to } = data;
           const finalObj = {
-            type: supplyType,
-            subType: subSupplyType,
-            docNo: header.challan_id,
-            docType: docType,
-            docDate: header.jw_date,
-            billFromName: header.dispatch_company,
-            billFromGstin: header.dispatch_gst,
+            docNo: data.challan_id,
+            billFromName: bill_from.legalName,
+            billFromGstin: bill_from.gstin,
             billFromState: {
-              label: header.dispatch_state_name,
-              value: header.dispatch_state,
+              label: bill_from?.state?.state_name,
+              value: bill_from?.state?.state_code,
             },
-            dispatchFromPlace: header.dispatch_label,
-            dispatchFromPincode: header.dispatch_pincode,
-            dispatchFromAddress: header.dispatch_address,
-            billToName: header.vendorName,
-            billToGstin: header.vendorGstin,
+            billFromLocation: bill_from.location,
+            billFromAddress1: bill_from.address1,
+            billFromAddress2: bill_from.address2,
+            billFromPincode: bill_from.pincode,
+            billToName: bill_to.client,
+            billToGstin: bill_to.gst,
             billToState: {
-              label: header.dispatch_state_name,
-              value: header.vendorState,
+              label: bill_to?.state?.state_name,
+              value: bill_to?.state?.state_code,
             },
-            dispatchToPlace: header.vendorCity,
-            dispatchToPincode: header.vendorPinCode,
-            dispatchToAddress: header.vendor_address,
-            vehicleNo: header.vehicle,
+            billToLocation: bill_to.location,
+            billToAddress1: bill_to.address1,
+            billToAddress2: bill_to.address2,
+            billToPincode: bill_to.pincode,
+            dispatchFromPlace: ship_from.legalName,
+            dispatchFromPincode: ship_from.pincode,
+            dispatchFromAddress1: ship_from.address1,
+            dispatchFromAddress2: ship_from.address2,
+            dispatchFromLocation: ship_from.location,
+            dispatchFromState: {
+              label: ship_from?.state.state_name,
+              value: ship_from?.state.state_code,
+            },
+            dispatchFromGstin: ship_from.gst,
+            dispatchToPlace: ship_to.company,
+            dispatchToGstin: ship_to.gst,
+            dispatchToPincode: ship_to.pincode,
+            dispatchToAddress1: ship_to.address1,
+            dispatchToAddress2: ship_to.address2,
+            dispatchToState: {
+              label: ship_to?.state.state_name,
+              value: ship_to?.state.state_code,
+            },
+            dispatchToLocation: ship_to.location,
+            distance: "0",
             mode: "1",
             vehicleType: "R",
             transactionType: "1",
+            documentType: "CHL",
+            docDate: "09-03-2025",
           };
+          // form.setValue("totalAmount",data?.total_amount)
           const arr = items.map((row, index) => ({
             id: index + 1,
             component: row.component_name,
             hsn: row.hsn_code,
-            qty: row.issue_qty,
-            rate: row.part_rate,
+            qty: row.qty,
+            rate: row.rate,
             value: row.taxable_amount,
             uom: row.unit_name,
           }));
@@ -94,6 +115,7 @@ const EWayBill = () => {
       setLoading("fetch");
     }
   };
+  const transactionType = Form.useWatch("transactionType", form);
 
   const getStateOptions = async () => {
     try {
@@ -133,50 +155,84 @@ const EWayBill = () => {
   };
 
   const validateHandler = async () => {
-    const values = await form.validateFields();
+    try {
+      const values = await form.validateFields();
+      const payload = {
+        header: {
+          documentType: "CHL",
+          supplyType: "O",
+          subSupplyType: "4",
+          documentNo: values.docNo,
+          documentDate: "09-03-2025",
+          transactionType: values.transactionType,
+        },
+        billFrom: {
+          gstin: values.billFromGstin,
+          legalName: values.billFromName,
+          addressLine1: values.billFromAddress1,
+          addressLine2: values.billFromAddress2,
+          location: values.billFromPlace,
+          state: values.billFromState.value,
+          pincode: values.billFromPincode,
+        },
+        billTo: {
+          gstin: values.billToGstin,
+          legalName: values.billToName,
+          addressLine1: values.billToAddress1,
+          addressLine2: values.billToAddress2,
+          location: values.billToPlace,
+          state: values.billToState.value,
+          pincode: values.billToPincode,
+        },
+        shipFrom: {
+          gstin: values.dispatchFromGstin,
+          legalName: values.dispatchFromName,
+          addressLine1: values.dispatchFromAddress1,
+          addressLine2: values.dispatchFromAddress2,
+          location: values.dispatchFromPlace,
+          // state:values.dispatchFromState.value||"07",
+          pincode: values.dispatchFromPincode,
+        },
+        shipTo: {
+          gstin: values.shipToGstin,
+          legalName: values.shipToName,
+          addressLine1: values.shipToAddress1,
+          addressLine2: values.shipToAddress2,
+          location: values.shipToPlace,
+          // state:values.shipToState.value||"09",
+          pincode: values.shipToPincode,
+        },
+        ewaybillDetails: {
+          transporterId: values.transporterId,
+          transporterName: values.transporterName,
+          transporterDocNo: values.transportDoc,
+          transMode: values.mode,
+          transDistance: values.distance,
+          transporterDate: values.transportDate,
+          vehicleNo: values.vehicleNo,
+          vehicleType: values.vehicleType,
+        },
+      };
 
-    const payload = {
-      challan_ID: params.jwId.replaceAll("_", "/"),
-      transactionType: values.transactionType,
-      transporterId: values.transporterId,
-      transporterName: values.transporterName,
-      transporterDocNo: values.transportDoc,
-      transporterDate: values.transportDate,
-      transMode: values.mode,
-      transDistance: values.distance,
-      document_type: values.docType,
-
-      challan_dt: values.docDate,
-      supply_type: values.type,
-      sub_supply_type: values.subType,
-      document_type: "Delivery Challan",
-      dispatch_name: values.billFromName,
-      dispatch_address: values.dispatchFromAddress,
-      dispatch_gstin: values.billFromGstin,
-      dispatch_place: values.dispatchFromPlace,
-      dispatch_state: values.billFromState.value,
-      dispatch_pincode: values.dispatchFromPincode,
-      shipto_name: values.billToName,
-      shipto_address: values.dispatchToAddress,
-      shipto_gstin: values.billToGstin,
-      shipto_place: values.dispatchToPlace,
-      shipto_state: values.billToState.value,
-      shipto_pincode: values.dispatchToPincode,
-      vehicleNo: values.vehicleNo,
-    };
-
-    Modal.confirm({
-      title: "Create E-Way Bill",
-      content: "Please check all the entries properly before proceeding",
-      okText: "Create",
-      onOk: () => submitHandler(payload),
-    });
+      Modal.confirm({
+        title: "Create E-Way Bill",
+        content: "Please check all the entries properly before proceeding",
+        okText: "Create",
+        onOk: () => submitHandler(payload),
+      });
+    } catch (error) {
+      // If validation fails, show a toast with the warning message
+      toast.error("Please fill the mandatory fields.");
+    }
   };
 
   const submitHandler = async (payload) => {
     try {
       setLoading("submit");
-      const response = await imsAxios.post("/jwEwaybill/create", payload);
+      const response = await imsAxios.post(
+        "/ewaybill/createEwayBillJobWork",
+        payload
+      );
       const { data } = response;
       if (data) {
         if (data.code === 200) {
@@ -223,15 +279,22 @@ const EWayBill = () => {
                 <Col span={4}>
                   <Form.Item name="type" label="Supply Type">
                     <MySelect
-                      disabled={true}
+                      // disabled={true}
                       labelInValue={true}
                       options={supplyTypeOptions}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item disabled={true} name="subType" label="Sub Type">
-                    <MySelect options={subOptions} disabled={true} />
+                  <Form.Item
+                    // disabled={true}
+                    name="subType"
+                    label="Sub Type"
+                  >
+                    <MySelect
+                      options={subOptions}
+                      // disabled={true}
+                    />
                   </Form.Item>
                 </Col>
 
@@ -290,31 +353,29 @@ const EWayBill = () => {
                     <MySelect options={stateOptions} />
                   </Form.Item>
                 </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card size="small" title="Dispatch From">
-              <Row gutter={6}>
                 <Col span={12}>
-                  <Form.Item name="dispatchFromPlace" label="Place">
+                  <Form.Item name="billFromLocation" label="Location">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="dispatchFromPincode" label="Pincode">
+                  <Form.Item name="billFromPinCode" label="Pincode">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="dispatchFromAddress" label="Address">
+                  <Form.Item name="billFromAddress1" label="Address1">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="billFromAddress2" label="Address2">
                     <Input.TextArea />
                   </Form.Item>
                 </Col>
               </Row>
             </Card>
           </Col>
-
           <Col span={12}>
             <Card
               size="small"
@@ -338,31 +399,121 @@ const EWayBill = () => {
                     <MySelect labelInValue={true} options={stateOptions} />
                   </Form.Item>
                 </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card size="small" title="Dispatch To">
-              <Row gutter={6}>
                 <Col span={12}>
-                  <Form.Item name="dispatchToPlace" label="Place">
+                  <Form.Item name="billToLocation" label="Location">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="dispatchToPincode" label="Pincode">
+                  <Form.Item name="billToPincode" label="Pincode">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="dispatchToAddress" label="Address">
+                  <Form.Item name="billToAddress1" label="Address1">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="billToAddress2" label="Address2">
                     <Input.TextArea />
                   </Form.Item>
                 </Col>
               </Row>
             </Card>
           </Col>
+          {transactionType !== "1" && transactionType !== "2" && (
+            <Col span={12}>
+              <Card size="small" title="Dispatch From">
+                <Row gutter={6}>
+                  <Col span={12}>
+                    <Form.Item name="dispatchFromPlace" label="Legal Name">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchFromState" label="State">
+                      <MySelect options={stateOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchFromPincode" label="Pincode">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchFromLocation" label="Location">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchFromGstin" label="GSTIN">
+                      <Input />
+                    </Form.Item>
+                  </Col>
 
+                  {/* <Col span={12}>
+                  <Form.Item name="billFromPAN" label="PAN">
+                    <Input />
+                  </Form.Item>
+                </Col> */}
+                  <Col span={24}>
+                    <Form.Item name="dispatchFromAddress1" label="Address1">
+                      <Input.TextArea />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24}>
+                    <Form.Item name="dispatchFromAddress2" label="Address2">
+                      <Input.TextArea />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+          )}
+          {transactionType !== "1" && transactionType !== "3" && (
+            <Col span={12}>
+              <Card size="small" title="Ship To">
+                <Row gutter={6}>
+                  <Col span={12}>
+                    <Form.Item name="dispatchToPlace" label="Place">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchToState" label="State">
+                      <MySelect labelInValue={true} options={stateOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchToPincode" label="Pincode">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchToLocation" label="Location">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item name="dispatchToGstin" label="GSTIN">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24}>
+                    <Form.Item name="dispatchToAddress1" label="Address1">
+                      <Input.TextArea />
+                    </Form.Item>
+                  </Col>
+                  <Col span={24}>
+                    <Form.Item name="dispatchToAddress2" label="Address2">
+                      <Input.TextArea />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Card>
+            </Col>
+          )}
           <Col span={24}>
             <Card size="small" title="Transportation Details">
               <Row gutter={6}>
@@ -376,7 +527,7 @@ const EWayBill = () => {
                     <Input />
                   </Form.Item>
                 </Col>
-                <Col span={4}>
+                {/* <Col span={4}>
                   <Form.Item name="fromPin" label="From Pin Code">
                     <Input />
                   </Form.Item>
@@ -385,7 +536,7 @@ const EWayBill = () => {
                   <Form.Item name="toPin" label="To Pin Code">
                     <Input />
                   </Form.Item>
-                </Col>
+                </Col> */}
                 <Col span={4}>
                   <Form.Item name="distance" label="Distance (in Km)">
                     <Input />
@@ -435,7 +586,7 @@ const EWayBill = () => {
               title={`Items Details : ${components.length} Items`}
               extra={
                 <Typography.Text>
-                  Total Amount :{" "}
+                  Total Amount :{form.getFieldValue("totalAmount")}
                   {components.reduce(
                     (a, b) => +a + +Number(b.value).toFixed(3),
                     0
