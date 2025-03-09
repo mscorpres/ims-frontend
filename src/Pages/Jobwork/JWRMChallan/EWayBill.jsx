@@ -43,7 +43,7 @@ const EWayBill = () => {
       const { data, items } = response;
       if (data) {
         if (response?.code === 200 || response?.success) {
-          // debugger
+          console.log(data)
           const { bill_from, bill_to, ship_from, ship_to } = data;
           const finalObj = {
             docNo: data.challan_id,
@@ -93,6 +93,7 @@ const EWayBill = () => {
             transactionType: "1",
             documentType: "CHL",
             docDate: "09-03-2025",
+            type: "O",
           };
           // form.setValue("totalAmount",data?.total_amount)
           const arr = items.map((row, index) => ({
@@ -104,6 +105,7 @@ const EWayBill = () => {
             value: row.taxable_amount,
             uom: row.unit_name,
           }));
+          console.log(finalObj);
           setComponents(arr);
           form.setFieldsValue(finalObj);
         } else {
@@ -157,11 +159,12 @@ const EWayBill = () => {
   const validateHandler = async () => {
     try {
       const values = await form.validateFields();
+      console.log(values)
       const payload = {
         header: {
-          documentType: "CHL",
+          documentType: values.docType,
           supplyType: "O",
-          subSupplyType: "4",
+          subSupplyType: values.subType,
           documentNo: values.docNo,
           documentDate: "09-03-2025",
           transactionType: values.transactionType,
@@ -171,7 +174,7 @@ const EWayBill = () => {
           legalName: values.billFromName,
           addressLine1: values.billFromAddress1,
           addressLine2: values.billFromAddress2,
-          location: values.billFromPlace,
+          location: values.billFromLocation,
           state: values.billFromState.value,
           pincode: values.billFromPincode,
         },
@@ -180,7 +183,7 @@ const EWayBill = () => {
           legalName: values.billToName,
           addressLine1: values.billToAddress1,
           addressLine2: values.billToAddress2,
-          location: values.billToPlace,
+          location: values.billToLocation,
           state: values.billToState.value,
           pincode: values.billToPincode,
         },
@@ -189,18 +192,18 @@ const EWayBill = () => {
           legalName: values.dispatchFromName,
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
-          location: values.dispatchFromPlace,
-          // state:values.dispatchFromState.value||"07",
+          location: values.dispatchFromLocation,
+          state:values.dispatchFromState.value,
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
-          gstin: values.shipToGstin,
-          legalName: values.shipToName,
-          addressLine1: values.shipToAddress1,
-          addressLine2: values.shipToAddress2,
-          location: values.shipToPlace,
-          // state:values.shipToState.value||"09",
-          pincode: values.shipToPincode,
+          gstin: values.dispatchToGstin,
+          legalName: values.dispatchToPlace,
+          addressLine1: values.dispatchToAddress1,
+          addressLine2: values.dispatchToAddress2,
+          location: values.dispatchToLocation,
+          state:values.dispatchToState.value,
+          pincode: values.dispatchToPincode,
         },
         ewaybillDetails: {
           transporterId: values.transporterId,
@@ -221,6 +224,7 @@ const EWayBill = () => {
         onOk: () => submitHandler(payload),
       });
     } catch (error) {
+      console.log(error)
       // If validation fails, show a toast with the warning message
       toast.error("Please fill the mandatory fields.");
     }
@@ -279,7 +283,7 @@ const EWayBill = () => {
                 <Col span={4}>
                   <Form.Item name="type" label="Supply Type">
                     <MySelect
-                      // disabled={true}
+                      disabled={true}
                       labelInValue={true}
                       options={supplyTypeOptions}
                     />
@@ -305,7 +309,10 @@ const EWayBill = () => {
                 </Col>
                 <Col span={4}>
                   <Form.Item name="docType" label="Document Type">
-                    <Input disabled={true} />
+                  <MySelect
+                      labelInValue={true}
+                      options={docTypeOptions}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
@@ -359,7 +366,7 @@ const EWayBill = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="billFromPinCode" label="Pincode">
+                  <Form.Item name="billFromPincode" label="Pincode">
                     <Input />
                   </Form.Item>
                 </Col>
@@ -737,4 +744,12 @@ const transactionTypeOptions = [
     text: "Combination of 2 & 3",
     value: "4",
   },
+];
+
+const docTypeOptions = [
+  { value: "INV", text: "Tax Invoice" },
+  { value: "BIL", text: "Bill of Supply" },
+  { value: "BOE", text: "Bill of Entry" },
+  { value: "CHL", text: "Delivery Challan" },
+  { value: "OTH", text: "Others" },
 ];

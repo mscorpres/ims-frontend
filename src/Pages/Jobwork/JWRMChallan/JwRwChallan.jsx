@@ -207,7 +207,7 @@ function JwRwChallan() {
         ) : (
           <GridActionsCellItem
             showInMenu
-            label="Cance; E-Way Bill"
+            label="Cancel E-Way Bill"
             onClick={() =>
               setShowEwayBillCancelModal({
                 jwId: row.challan_id,
@@ -266,6 +266,14 @@ function JwRwChallan() {
         <span>{row.status === "cancel" ? "Cancelled" : "--"}</span>
       ),
     },
+      {
+        headerName: "Job Work Eway Bill",
+        width: 150,
+        field: "jw_ewaybill",
+        renderCell: ({ row }) => (
+          <ToolTipEllipses text={row.jw_ewaybill} copy={row.jw_ewaybill!=="--"?true:false} />
+        ),
+      },
     {
       headerName: "SKU ID",
       width: 100,
