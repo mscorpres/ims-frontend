@@ -247,6 +247,18 @@ const WoViewChallan = () => {
               }}
               label="Cancel Challan"
             />,
+            <GridActionsCellItem
+            showInMenu
+            label={
+              <Link
+                style={{ textDecoration: "none", color: "black" }}
+                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
+                target="_blank"
+              >
+                Create E-Way Bill
+              </Link>
+            }
+          />,
           ]
         : challantype === "RM Challan"
         ? [
@@ -288,6 +300,18 @@ const WoViewChallan = () => {
             //   }}
             //   label="Cancel Challan"
             // />,
+            <GridActionsCellItem
+            showInMenu
+            label={
+              <Link
+                style={{ textDecoration: "none", color: "black" }}
+                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
+                target="_blank"
+              >
+                Create E-Way Bill
+              </Link>
+            }
+          />,
           ]
         : row.challan_type == "scrape"
         ? [
@@ -338,6 +362,18 @@ const WoViewChallan = () => {
               }}
               label="Cancel Challan"
             />,
+            <GridActionsCellItem
+            showInMenu
+            label={
+              <Link
+                style={{ textDecoration: "none", color: "black" }}
+                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
+                target="_blank"
+              >
+                Create E-Way Bill
+              </Link>
+            }
+          />,
           ]
         : [
             <GridActionsCellItem
@@ -369,7 +405,20 @@ const WoViewChallan = () => {
               }}
               label="Download"
             />,
+            <GridActionsCellItem
+            showInMenu
+            label={
+              <Link
+                style={{ textDecoration: "none", color: "black" }}
+                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
+                target="_blank"
+              >
+                Create E-Way Bill
+              </Link>
+            }
+          />,
           ],
+          
   };
 
   const getRows = async () => {

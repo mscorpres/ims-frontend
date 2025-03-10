@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Input, Row, Select } from "antd";
+import { Link } from "react-router-dom";
 import MyDataTable from "../../../Components/MyDataTable";
 import { v4 } from "uuid";
 import MyDatePicker from "../../../Components/MyDatePicker";
@@ -11,6 +12,7 @@ import validateResponse from "../../../Components/validateResponse";
 import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
+import { GridActionsCellItem } from "@mui/x-data-grid";
 import EditDC from "./EditDC/EditDC";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
@@ -116,6 +118,42 @@ function ManageDC() {
   };
   const columns = [
     {
+      // field: "actions",
+      headerName: "",
+      width: 30,
+      type: "actions",
+      getActions: ({ row }) => [
+        <GridActionsCellItem
+          showInMenu
+          // disabled={disabled}
+          label={"Edit"}
+          onClick={() => setUpdateDCId(row.transaction_id)}
+        />,
+        <GridActionsCellItem
+          showInMenu
+          label="Download"
+          onClick={() => downloadFun(row.transaction_id)}
+        />,
+        <GridActionsCellItem
+          label="print"
+          showInMenu
+          onClick={() => printFun(row.transaction_id)}
+        />,
+        <GridActionsCellItem
+          showInMenu
+          label={
+            <Link
+              style={{ textDecoration: "none", color: "black" }}
+              to={`/warehouse/e-way/dc/${row.transaction_id.replaceAll("/", "_")}`}
+              target="_blank"
+            >
+              Create E-Way Bill
+            </Link>
+          }
+        />,
+      ],
+    },
+    {
       field: "transaction_id",
       headerName: "Journal ID",
       width: 200,
@@ -125,26 +163,6 @@ function ManageDC() {
     },
     { field: "vendor_name", headerName: "To (Name)", width: 500 },
     { field: "insert_date", headerName: "Created Date/Time", width: 200 },
-    {
-      field: "actions",
-      headerName: "Action",
-      width: 100,
-      type: "actions",
-      getActions: ({ row }) => [
-        <TableActions
-          action="edit"
-          onClick={() => setUpdateDCId(row.transaction_id)}
-        />,
-        <TableActions
-          action="download"
-          onClick={() => downloadFun(row.transaction_id)}
-        />,
-        <TableActions
-          action="print"
-          onClick={() => printFun(row.transaction_id)}
-        />,
-      ],
-    },
   ];
   return (
     <div style={{ height: "90%" }}>
