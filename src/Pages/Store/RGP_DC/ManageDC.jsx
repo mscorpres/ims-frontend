@@ -92,6 +92,8 @@ function ManageDC() {
         "Journal ID": row.transaction_id,
         "To (Name)": row.vendor_name,
         "Created Date/Time": row.insert_date,
+        "EWay Bill Status": row.ewaybill_status,
+        "Eway Bill No": row.ewaybill_no,
       };
     });
 
@@ -144,7 +146,10 @@ function ManageDC() {
           label={
             <Link
               style={{ textDecoration: "none", color: "black" }}
-              to={`/warehouse/e-way/dc/${row.transaction_id.replaceAll("/", "_")}`}
+              to={`/warehouse/e-way/dc/${row.transaction_id.replaceAll(
+                "/",
+                "_"
+              )}`}
               target="_blank"
             >
               Create E-Way Bill
@@ -163,6 +168,16 @@ function ManageDC() {
     },
     { field: "vendor_name", headerName: "To (Name)", width: 500 },
     { field: "insert_date", headerName: "Created Date/Time", width: 200 },
+    {
+      headerName: "E WayBill Status",
+      field: "ewaybill_status",
+      width: 200,
+    },
+    {
+      headerName: "E WayBill No.",
+      field: "ewaybill_no",
+      width: 200,
+    },
   ];
   return (
     <div style={{ height: "90%" }}>

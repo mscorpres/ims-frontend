@@ -266,8 +266,13 @@ function JwRwChallan() {
         <span>{row.status === "cancel" ? "Cancelled" : "--"}</span>
       ),
     },
+    {
+      headerName: "Eway Bill Status",
+      width: 120,
+      field: "jw_ewaybill_status",
+    },
       {
-        headerName: "Job Work Eway Bill",
+        headerName: "Eway Bill",
         width: 150,
         field: "jw_ewaybill",
         renderCell: ({ row }) => (
