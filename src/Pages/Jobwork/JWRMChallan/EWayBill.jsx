@@ -29,21 +29,28 @@ const EWayBill = () => {
   const [transporterModeOptions, setTransporterModeOptions] = useState([]);
   const [successData, setSuccessData] = useState(null);
   const params = useParams();
-
   const [form] = Form.useForm();
-  const transporterId = Form.useWatch("transporterId", form);
 
   const getDetails = async () => {
     try {
       setLoading("fetch");
-      const response = await imsAxios.post("/ewaybill/fetch_challan_data", {
-        challan_no: params.jwId.replaceAll("_", "/"),
-      });
+      if (location.href.includes("jw")) {
+        var response = await imsAxios.post("/ewaybill/fetch_challan_data", {
+          challan_no: params.jwId.replaceAll("_", "/"),
+        });
+      } else if (location.href.includes("dc")) {
+        var response = await imsAxios.post("/gatepass/fetch_dc", {
+          challan_no: params.jwId.replaceAll("_", "/"),
+        });
+      } else {
+        var response = await imsAxios.post("/ewaybill/fetch_challan_data", {
+          challan_no: params.jwId.replaceAll("_", "/"),
+        });
+      }
 
       const { data, items } = response;
       if (data) {
         if (response?.code === 200 || response?.success) {
-          console.log(data)
           const { bill_from, bill_to, ship_from, ship_to } = data;
           const finalObj = {
             docNo: data.challan_id,
@@ -92,7 +99,7 @@ const EWayBill = () => {
             vehicleType: "R",
             transactionType: "1",
             documentType: "CHL",
-            docDate: "09-03-2025",
+            // docDate: "09-03-2025",
             type: "O",
           };
           // form.setValue("totalAmount",data?.total_amount)
@@ -105,7 +112,6 @@ const EWayBill = () => {
             value: row.taxable_amount,
             uom: row.unit_name,
           }));
-          console.log(finalObj);
           setComponents(arr);
           form.setFieldsValue(finalObj);
         } else {
@@ -159,7 +165,6 @@ const EWayBill = () => {
   const validateHandler = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values)
       const payload = {
         header: {
           documentType: values.docType?.value,
@@ -193,7 +198,7 @@ const EWayBill = () => {
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
           location: values.dispatchFromLocation,
-          state:values.dispatchFromState?.value,
+          state: values.dispatchFromState?.value,
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
@@ -202,7 +207,7 @@ const EWayBill = () => {
           addressLine1: values.dispatchToAddress1,
           addressLine2: values.dispatchToAddress2,
           location: values.dispatchToLocation,
-          state:values.dispatchToState?.value,
+          state: values.dispatchToState?.value,
           pincode: values.dispatchToPincode,
         },
         ewaybillDetails: {
@@ -224,7 +229,7 @@ const EWayBill = () => {
         onOk: () => submitHandler(payload),
       });
     } catch (error) {
-      console.log(error)
+      console.error(error);
       // If validation fails, show a toast with the warning message
       toast.error("Please fill the mandatory fields.");
     }
@@ -233,10 +238,22 @@ const EWayBill = () => {
   const submitHandler = async (payload) => {
     try {
       setLoading("submit");
-      const response = await imsAxios.post(
-        "/ewaybill/createEwayBillJobWork",
-        payload
-      );
+      let response
+      if (location.href.includes("jw")) {
+        response = await imsAxios.post(
+          "/ewaybill/createEwayBillJobWork",
+          payload
+        );
+      } else if (location.href.includes("dc")) {
+        response = await imsAxios.post(
+          "/ewaybill/createEwayBillDc",
+          payload
+        );
+      } else {
+        response = await imsAxios.post("/ewaybill/fetch_challan_data", {
+          challan_no: params.jwId.replaceAll("_", "/"),
+        });
+      }
       const { data } = response;
       if (response) {
         if (response?.code === 200) {
@@ -268,11 +285,11 @@ const EWayBill = () => {
     getStateOptions();
     getTransporterModeOptions();
   }, []);
-  useEffect(() => {
-    if (transporterId?.length === 15) {
-      getGstinDetails(transporterId);
-    }
-  }, [transporterId]);
+  // useEffect(() => {
+  //   if (transporterId?.length === 15) {
+  //     getGstinDetails(transporterId);
+  //   }
+  // }, [transporterId]);
   return (
     <Form form={form} layout="vertical" style={{ padding: 10 }}>
       {!successData && (
@@ -309,10 +326,7 @@ const EWayBill = () => {
                 </Col>
                 <Col span={4}>
                   <Form.Item name="docType" label="Document Type">
-                  <MySelect
-                      labelInValue={true}
-                      options={docTypeOptions}
-                    />
+                    <MySelect labelInValue={true} options={docTypeOptions} />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
@@ -579,7 +593,10 @@ const EWayBill = () => {
                   <Form.Item name="transportDate" label="Transport Date">
                     <SingleDatePicker
                       setDate={(value) =>
-                        form.setFieldValue("transportDate", value)
+                        form.setFieldValue(
+                          "transportDate",
+                          dayjs(value).format("DD-MM-YYYY")
+                        )
                       }
                     />
                   </Form.Item>
