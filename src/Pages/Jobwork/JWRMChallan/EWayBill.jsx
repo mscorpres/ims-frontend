@@ -162,7 +162,7 @@ const EWayBill = () => {
       console.log(values)
       const payload = {
         header: {
-          documentType: values.docType,
+          documentType: values.docType?.value,
           supplyType: "O",
           subSupplyType: values.subType,
           documentNo: values.docNo,
@@ -651,39 +651,51 @@ const supplyTypeOptions = [
 const subOptions = [
   {
     text: "Supply",
-    value: "S",
+    value: "1",
+  },
+  {
+    text: "Import",
+    value: "2",
   },
   {
     text: "Export",
-    value: "E",
+    value: "3",
   },
   {
     text: "Job Work",
-    value: "Job Work",
+    value: "4",
   },
   {
-    text: "SKD/CKD/Lots",
-    value: "SK",
+    text: "For Own Use",
+    value: "5",
   },
   {
-    text: "Recipient Not Known",
-    value: "R",
+    text: "Job Work Return",
+    value: "6",
   },
   {
-    text: "For Known Use",
-    value: "F",
+    text: "Sale Return",
+    value: "7",
   },
   {
     text: "Exhibition of Fairs",
-    value: "Ex",
+    value: "12",
   },
   {
-    text: "Lines Sales",
-    value: "L",
+    text: "Line Sales",
+    value: "10",
+  },
+  {
+    text: "Recipient Not Known",
+    value: "11",
+  },
+  {
+    text: "SKD/CKD/Lots",
+    value: "9",
   },
   {
     text: "Others",
-    value: "O",
+    value: "8",
   },
 ];
 
