@@ -193,7 +193,7 @@ const EWayBill = () => {
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
           location: values.dispatchFromLocation,
-          state:values.dispatchFromState.value,
+          state:values.dispatchFromState?.value,
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
@@ -202,7 +202,7 @@ const EWayBill = () => {
           addressLine1: values.dispatchToAddress1,
           addressLine2: values.dispatchToAddress2,
           location: values.dispatchToLocation,
-          state:values.dispatchToState.value,
+          state:values.dispatchToState?.value,
           pincode: values.dispatchToPincode,
         },
         ewaybillDetails: {
@@ -238,12 +238,12 @@ const EWayBill = () => {
         payload
       );
       const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          toast.success(data.message);
-          setSuccessData({ ewayBillNo: data.data.ewayBillNo });
+      if (response) {
+        if (response?.code === 200) {
+          toast.success(response?.message);
+          setSuccessData({ ewayBillNo: response?.data?.ewayBillNo });
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message.msg);
         }
       }
     } catch (error) {
