@@ -253,7 +253,7 @@ const WoViewChallan = () => {
             label={
               <Link
                 style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
+                to={`/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll("/", "_")}`}
                 target="_blank"
               >
                 Create E-Way Bill
@@ -368,7 +368,7 @@ const WoViewChallan = () => {
             label={
               <Link
                 style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
+                to={`/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll("/", "_")}`}
                 target="_blank"
               >
                 Create E-Way Bill
