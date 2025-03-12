@@ -42,8 +42,13 @@ const EWayBill = () => {
         var response = await imsAxios.post("/gatepass/fetch_dc", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
-      } else {
-        var response = await imsAxios.post("/ewaybill/fetch_challan_data", {
+      } else if(location.href.includes("scrape-wo")){
+        var response = await imsAxios.post("/wo_challan/scrape_wo_challan", {
+          challan_no: params.jwId.replaceAll("_", "/"),
+        });
+      }
+      else{
+        var response = await imsAxios.post("/wo_challan/scrape_wo_challan", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
       }
@@ -249,10 +254,10 @@ const EWayBill = () => {
           "/ewaybill/createEwayBillDc",
           payload
         );
-      } else {
-        response = await imsAxios.post("/ewaybill/fetch_challan_data", {
-          challan_no: params.jwId.replaceAll("_", "/"),
-        });
+      } else if(location.href.includes("scrape-wo")){
+        response = await imsAxios.post("/ewaybill/createEwayforScrapeWo",
+          payload,
+        );
       }
       const { data } = response;
       if (response) {
