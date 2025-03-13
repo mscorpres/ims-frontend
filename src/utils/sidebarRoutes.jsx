@@ -530,11 +530,6 @@ export const items = (user) => [
         "B42"
         // <AiOutlineMinus />
       ),
-      getItem(
-        <Link to="/warehouse/eway-bill/report">E-Way Bill Report</Link>,
-        "B42"
-        // <AiOutlineMinus />
-      ),
     ]),
     getItem("Query", "B5", <MdQueryStats />, [
       getItem(

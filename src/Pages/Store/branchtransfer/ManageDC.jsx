@@ -84,7 +84,7 @@ function ManageDC() {
     let arr = [];
     let csvData = [];
     arr = dateData;
-    csvData = arr?.map((row) => {
+    csvData = arr.map((row) => {
       return {
         "Journal ID": row.transaction_id,
         "To (Name)": row.vendor_name,
