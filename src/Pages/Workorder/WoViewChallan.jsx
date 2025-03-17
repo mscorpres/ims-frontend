@@ -1048,6 +1048,20 @@ const allColm = [
     flex: 1,
   },
 
+  {
+    headerName:"Eway Bill Status",
+    field:"ewayBill",
+    minWidth:250,
+    flex:1,
+  },
+
+  {
+    headerName:"Eway Bill Number",
+    field:"ewayBillNo",
+    minWidth:250,
+    flex:1,
+  }
+
   // {
   //   headerName: "Product",
   //   field: "product",
