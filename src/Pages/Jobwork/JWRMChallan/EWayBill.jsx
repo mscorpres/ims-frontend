@@ -42,23 +42,22 @@ const EWayBill = () => {
         var response = await imsAxios.post("/gatepass/fetch_dc", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
-      } else if(location.href.includes("scrape-wo")){
+      } else if (location.href.includes("scrape-wo")) {
         var response = await imsAxios.post("/wo_challan/scrape_wo_challan", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
-      }
-      else{
-        var response = await imsAxios.post("/wo_challan/scrape_wo_challan", {
+      } else {
+        var response = await imsAxios.post("/wo_challan/fetch_wo_delivery_challan", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
       }
 
       const { data, items } = response;
       if (data) {
-        if (response?.code === 200 || response?.success) {
+        if (response?.success) {
           const { bill_from, bill_to, ship_from, ship_to } = data;
           const finalObj = {
-            docNo: data.challan_id,
+            docNo: data?.challan_id,
             billFromName: bill_from.legalName,
             billFromGstin: bill_from.gstin,
             billFromState: {
@@ -243,20 +242,24 @@ const EWayBill = () => {
   const submitHandler = async (payload) => {
     try {
       setLoading("submit");
-      let response
+      let response;
       if (location.href.includes("jw")) {
         response = await imsAxios.post(
           "/ewaybill/createEwayBillJobWork",
           payload
         );
       } else if (location.href.includes("dc")) {
+        response = await imsAxios.post("/ewaybill/createEwayBillDc", payload);
+      } else if (location.href.includes("scrape-wo")) {
         response = await imsAxios.post(
-          "/ewaybill/createEwayBillDc",
+          "/ewaybill/createEwayforScrapeWo",
           payload
         );
-      } else if(location.href.includes("scrape-wo")){
-        response = await imsAxios.post("/ewaybill/createEwayforScrapeWo",
-          payload,
+      }
+      else{
+        response = await imsAxios.post(
+          "/ewaybill/createEwayBillWorkOrder",
+          payload
         );
       }
       const { data } = response;
@@ -448,98 +451,96 @@ const EWayBill = () => {
               </Row>
             </Card>
           </Col>
-          {transactionType !== "1" && transactionType !== "2" && (
-            <Col span={12}>
-              <Card size="small" title="Dispatch From">
-                <Row gutter={6}>
-                  <Col span={12}>
-                    <Form.Item name="dispatchFromPlace" label="Legal Name">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchFromState" label="State">
-                      <MySelect options={stateOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchFromPincode" label="Pincode">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchFromLocation" label="Location">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchFromGstin" label="GSTIN">
-                      <Input />
-                    </Form.Item>
-                  </Col>
+          <Col span={12}>
+            <Card size="small" title="Dispatch From">
+              <Row gutter={6}>
+                <Col span={12}>
+                  <Form.Item name="dispatchFromPlace" label="Legal Name">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchFromState" label="State">
+                    <MySelect options={stateOptions} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchFromPincode" label="Pincode">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchFromLocation" label="Location">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchFromGstin" label="GSTIN">
+                    <Input />
+                  </Form.Item>
+                </Col>
 
-                  {/* <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="billFromPAN" label="PAN">
                     <Input />
                   </Form.Item>
                 </Col> */}
-                  <Col span={24}>
-                    <Form.Item name="dispatchFromAddress1" label="Address1">
-                      <Input.TextArea />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24}>
-                    <Form.Item name="dispatchFromAddress2" label="Address2">
-                      <Input.TextArea />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          )}
-          {transactionType !== "1" && transactionType !== "3" && (
-            <Col span={12}>
-              <Card size="small" title="Ship To">
-                <Row gutter={6}>
-                  <Col span={12}>
-                    <Form.Item name="dispatchToPlace" label="Place">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchToState" label="State">
-                      <MySelect labelInValue={true} options={stateOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchToPincode" label="Pincode">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchToLocation" label="Location">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="dispatchToGstin" label="GSTIN">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24}>
-                    <Form.Item name="dispatchToAddress1" label="Address1">
-                      <Input.TextArea />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24}>
-                    <Form.Item name="dispatchToAddress2" label="Address2">
-                      <Input.TextArea />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          )}
+                <Col span={24}>
+                  <Form.Item name="dispatchFromAddress1" label="Address1">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="dispatchFromAddress2" label="Address2">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+
+          <Col span={12}>
+            <Card size="small" title="Ship To">
+              <Row gutter={6}>
+                <Col span={12}>
+                  <Form.Item name="dispatchToPlace" label="Place">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchToState" label="State">
+                    <MySelect labelInValue={true} options={stateOptions} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchToPincode" label="Pincode">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchToLocation" label="Location">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="dispatchToGstin" label="GSTIN">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="dispatchToAddress1" label="Address1">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="dispatchToAddress2" label="Address2">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+
           <Col span={24}>
             <Card size="small" title="Transportation Details">
               <Row gutter={6}>
