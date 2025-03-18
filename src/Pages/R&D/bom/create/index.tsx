@@ -348,7 +348,7 @@ const BOMCreate = () => {
     let combined = [...mainComponents, ...subComponents];
     const payload = {
       product: values.product?.value ? values?.product.value : values?.product,
-      bomName: values.name,
+      bomName: values?.name,
       brn: values.version,
       bomDoc: values.documents,
       bomRef: values.bomRef,
@@ -977,8 +977,12 @@ const Components = ({
       headerName: "Vendor",
       width: 180,
       sortable: true,
-      renderCell: (params: any) => <Tooltip title={params.value?.label||params.value.name+" ("+params.value?.code+")"}>{params.value?.label||params.value.name+" ("+params.value?.code+")" }</Tooltip>,
-    },
+      renderCell: (params: any) => {
+        const value = params.value?.label || params.value?.name || "";
+        const tooltipText = value ? `${value} (${params.value?.code})` : "";
+        return <Tooltip title={tooltipText}>{tooltipText}</Tooltip>;
+    }
+        },
     {
       field: "locations",
       headerName: "Placement",
