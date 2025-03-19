@@ -105,6 +105,7 @@ const EWayBill = () => {
             documentType: "CHL",
             // docDate: "09-03-2025",
             type: "O",
+            vehicleNo:data?.vehicle,
           };
           // form.setValue("totalAmount",data?.total_amount)
           const arr = items.map((row, index) => ({
@@ -199,7 +200,7 @@ const EWayBill = () => {
           pincode: values.billToPincode,
         },
         shipFrom: {
-          gstin: values.dispatchFromGstin,
+          // gstin: values.dispatchFromGstin,
           legalName: values.dispatchFromName,
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
@@ -208,7 +209,7 @@ const EWayBill = () => {
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
-          gstin: values.dispatchToGstin,
+          // gstin: values.dispatchToGstin,
           legalName: values.dispatchToPlace,
           addressLine1: values.dispatchToAddress1,
           addressLine2: values.dispatchToAddress2,
@@ -434,11 +435,11 @@ const EWayBill = () => {
                     <Input />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="dispatchFromGstin" label="GSTIN">
                     <Input />
                   </Form.Item>
-                </Col>
+                </Col> */}
 
                 {/* <Col span={12}>
                   <Form.Item name="billFromPAN" label="PAN">
@@ -529,11 +530,11 @@ const EWayBill = () => {
                     <Input />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="dispatchToGstin" label="GSTIN">
                     <Input />
                   </Form.Item>
-                </Col>
+                </Col> */}
                 <Col span={24}>
                   <Form.Item name="dispatchToAddress1" label="Address1">
                     <Input.TextArea />
