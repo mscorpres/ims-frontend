@@ -128,6 +128,7 @@ const EWayBill = () => {
     }
   };
   const transactionType = Form.useWatch("transactionType", form);
+  const subSupplyTypeOption = Form.useWatch("subType", form);
 
   const getStateOptions = async () => {
     try {
@@ -177,6 +178,7 @@ const EWayBill = () => {
           documentNo: values.docNo,
           documentDate: "09-03-2025",
           transactionType: values.transactionType,
+          subSupplyDesc: values.subSupplyDesc,
         },
         billFrom: {
           gstin: values.billFromGstin,
@@ -326,7 +328,11 @@ const EWayBill = () => {
                     />
                   </Form.Item>
                 </Col>
-
+               {subSupplyTypeOption ==8 && <Col span={4}>
+                  <Form.Item name="subSupplyDesc" label="Other Description">
+                    <Input />
+                  </Form.Item>
+                </Col>}
                 <Col span={4}>
                   <Form.Item name="docNo" label="Document No.">
                     <Input />
