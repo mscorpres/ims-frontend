@@ -333,11 +333,11 @@ const ManagePO = () => {
   };
   const getPoDetail = async (poid) => {
     setLoading(true);
-    const { data } = await imsAxios.post("/purchaseOrder/fetchData4Update", {
+    const  {data,message}  = await imsAxios.post("/purchaseOrder/fetchData4Update", {
       pono: poid.replaceAll("_", "/"),
     });
     setLoading(false);
-    if (data.code == 200) {
+    if (data?.code == 200) {
       setUpdatePoId({
         ...data.data.bill,
         materials: data.data.materials,
@@ -345,7 +345,7 @@ const ManagePO = () => {
         ...data.data.vendor[0],
       });
     } else {
-      toast.error(data.message);
+      toast.error(data?.message||message);
     }
   };
   useEffect(() => {
