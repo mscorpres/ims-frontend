@@ -406,52 +406,6 @@ const EWayBill = () => {
             </Card>
           </Col>
           <Col span={12}>
-            <Card
-              size="small"
-              title="Bill To"
-              style={{ height: "100%" }}
-              bodyStyle={{ height: "100%" }}
-            >
-              <Row gutter={6}>
-                <Col span={12}>
-                  <Form.Item name="billToName" label="Name">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToGstin" label="GSTIN">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToState" label="State">
-                    <MySelect labelInValue={true} options={stateOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToLocation" label="Location">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToPincode" label="Pincode">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billToAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billToAddress2" label="Address2">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={12}>
             <Card size="small" title="Dispatch From">
               <Row gutter={6}>
                 <Col span={12}>
@@ -498,6 +452,53 @@ const EWayBill = () => {
               </Row>
             </Card>
           </Col>
+          <Col span={12}>
+            <Card
+              size="small"
+              title="Bill To"
+              style={{ height: "100%" }}
+              bodyStyle={{ height: "100%" }}
+            >
+              <Row gutter={6}>
+                <Col span={12}>
+                  <Form.Item name="billToName" label="Name">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="billToGstin" label="GSTIN">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="billToState" label="State">
+                    <MySelect labelInValue={true} options={stateOptions} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="billToLocation" label="Location">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name="billToPincode" label="Pincode">
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="billToAddress1" label="Address1">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+                <Col span={24}>
+                  <Form.Item name="billToAddress2" label="Address2">
+                    <Input.TextArea />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+          
 
           <Col span={12}>
             <Card size="small" title="Ship To">
