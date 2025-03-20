@@ -1050,14 +1050,14 @@ const allColm = [
 
   {
     headerName:"Eway Bill Status",
-    field:"ewayBill",
+    field:"ewaybillStatus",
     minWidth:250,
     flex:1,
   },
 
   {
     headerName:"Eway Bill Number",
-    field:"ewayBillNo",
+    field:"ewaybill_no",
     minWidth:250,
     flex:1,
   }
