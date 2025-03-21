@@ -15,7 +15,6 @@ import {
   getComponentOptions,
   getVendorOptions,
 } from "../../../../../api/general.ts";
-import AlterModal from "../../AlterModal.jsx";
 
 import useApi from "../../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../../utils/general.ts";
@@ -23,7 +22,6 @@ const EditModal = ({ show, close, bomType }) => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [rows, setRows] = useState([]);
-  const [altModal, setAltModal] = useState(false);
   const [details, setDetails] = useState({});
   const { executeFun, loading: loading1 } = useApi();
   const getDetails = async (id) => {
@@ -158,11 +156,6 @@ const EditModal = ({ show, close, bomType }) => {
       setLoading(false);
     }
   };
-
-  const clas = (a) => {
-    setAltModal(a);
-  };
-
   const getComponentOption = async (search) => {
     const response = await executeFun(
       () => getComponentOptions(search),
@@ -241,10 +234,7 @@ const EditModal = ({ show, close, bomType }) => {
         <MySelect
           value={row.status}
           options={statusOptions}
-          onChange={(value) => { if (value == "ALT") {
-            clas(row, details);
-          }
-          inputHandler("status", value, row.id)}}
+          onChange={(value) => inputHandler("status", value, row.id)}
         />
       ),
     },
@@ -345,8 +335,7 @@ const EditModal = ({ show, close, bomType }) => {
       getDetails(show.id);
     }
   }, [show]);
-
-  return ( 
+  return (
     <Drawer
       width="100%"
       title={`Editing ${show?.name} | ${rows.length} Components`}
@@ -365,13 +354,6 @@ const EditModal = ({ show, close, bomType }) => {
           <FormTable columns={columns} data={rows} />
         </Col>
       </Row>
-      <AlterModal
-        altModal={altModal}
-        setAltModal={setAltModal}
-        secondData={rows}
-        fetchData={details}
-        // modalEditOpen={modalEditOpen}
-      />
     </Drawer>
   );
 };
@@ -380,7 +362,7 @@ export default EditModal;
 
 const statusOptions = [
   { text: "ACTIVE", value: "A" },
-  { text: "ALTERNATE", value: "ALT" },
+  // { text: "ALTERNATE", value: "ALT" },
   { text: "INACTIVE", value: "I" },
 ];
 const categoryOptions = [
