@@ -217,7 +217,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       setResetDetailsData(obj);
       getVendorBranches(obj.vendorcode.value);
       form.setFieldsValue(obj);
-      form.setFieldValue("advancePayment",Number(updatePoId?.advPayment)); //po edit case
+      form.setFieldValue("advancePayment",Number(updatePoId?.advPayment));
     }
 
     updatePoId?.materials?.map((row, index) =>
