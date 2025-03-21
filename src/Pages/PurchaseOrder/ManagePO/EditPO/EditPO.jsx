@@ -50,6 +50,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       };
     });
   };
+  
   const selectInputHandler = async (name, value) => {
     if (value) {
       let obj = purchaseOrder;
