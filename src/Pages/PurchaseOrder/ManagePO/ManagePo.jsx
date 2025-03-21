@@ -226,6 +226,13 @@ const ManagePO = () => {
       minWidth: 150,
     },
     {
+      headerName: "Advance Payment",
+      field: "advPayment",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.advPayment=="0"?"NO":"YES"} />,
+      flex: 1,
+      minWidth: 150,
+    },
+    {
       headerName: "Comment",
       field: "po_comment",
       renderCell: ({ row }) => <ToolTipEllipses text={row.po_comment} />,
