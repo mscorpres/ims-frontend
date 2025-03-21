@@ -1,23 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { AiFillDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { Button, Drawer, Space } from "antd";
-import { CloseCircleFilled, CheckCircleFilled } from "@ant-design/icons";
+import { Button, Col, Drawer, Form, Row, Skeleton, Space } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import MySelect from "../../../Components/MySelect";
+import { v4 } from "uuid";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
+import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
 
-function AlterModal({ setAltModal, altModal, firstData }) {
+const AlterModal = ({
+  setAltModal,
+  altModal,
+  secondData,
+  fetchData,
+  sfgEditModal,
+}) => {
   const [allData, setAllData] = useState([]);
+  const [skeletonLoading, setSkeletonLoading] = useState(false);
+  const [minusLoading, setMinusLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [dropdown, setDropdown] = useState([]);
   const [selValue, setSelValue] = useState({
     selOptionVale: "",
   });
 
   const dropDownData = async () => {
+    setSkeletonLoading(true);
     const { data } = await imsAxios.post("/bom/getAlternativeComponents", {
-      subject: firstData?.subjectid,
-      current_component: altModal?.compKey,
+      subject: fetchData?.bomId,
+      current_component: altModal?.id,
     });
+    setSkeletonLoading(false);
+
     // console.log(data.data);
     let arr = [];
     arr = data.data?.map((vList) => {
@@ -27,13 +41,15 @@ function AlterModal({ setAltModal, altModal, firstData }) {
   };
 
   const addAlterComponent = async () => {
+    setSubmitLoading(true);
     const { data } = await imsAxios.post("/bom/addNewAltComponent", {
-      subject_id: firstData.subjectid,
-      product_id: firstData.sku,
+      subject_id: fetchData?.bomId,
+      product_id: fetchData?.sku,
       // parent_component: sfgEditModal.bom_product_sku,
-      parent_component: altModal.compKey,
+      parent_component: altModal.id,
       child_component: selValue.selOptionVale,
     });
+    setSubmitLoading(false);
     if (data.code == 200) {
       fetchMappningComponent();
       setSelValue({
@@ -46,16 +62,27 @@ function AlterModal({ setAltModal, altModal, firstData }) {
 
   const fetchMappningComponent = async () => {
     const { data } = await imsAxios.post("/bom/getAllAlternativeComponents", {
-      // subjectid: sfgEditModal?.subject_id,
-      // product_id: sfgEditModal?.bom_product_sku,
-      subjectid: firstData?.subjectid,
-      product_id: firstData?.sku,
-      parent_component: altModal?.compKey,
+      subjectid: fetchData?.bomId,
+      product_id: fetchData?.sku,
+      parent_component: altModal.id,
     });
-    setAllData(data.data);
+    if (data.code == 200) {
+      const arr = data.data.map((row, index) => {
+        return {
+          ...row,
+          id: v4(),
+          index: index + 1,
+        };
+      });
+      setAllData(arr);
+    } else {
+      setAllData([]);
+      toast.error(data.message.msg);
+    }
   };
+
   const deleteRow = async (a) => {
-    console.log(a.subject);
+    setMinusLoading(a.refid);
     const { data } = await imsAxios.post("/bom/removeAltComponent", {
       subject: a.subject,
       product: a.product_sku,
@@ -63,6 +90,7 @@ function AlterModal({ setAltModal, altModal, firstData }) {
       child_component: a.child_component,
       refid: a.refid,
     });
+    setMinusLoading(false);
     if (data.code == 200) {
       fetchMappningComponent();
       toast.success("Data Deteled Successfullt");
@@ -70,204 +98,189 @@ function AlterModal({ setAltModal, altModal, firstData }) {
       toast.error("Something went wrong");
     }
   };
-  useEffect(() => {
-    fetchMappningComponent();
-  }, [firstData]);
-
+  const columns = [
+    { headerName: "Serial No.", field: "index", width: 80 },
+    { headerName: "Component", field: "component_name", flex: 1 },
+    {
+      headerName: "Actions.",
+      field: "action",
+      width: 100,
+      renderCell: ({ row }) =>
+        minusLoading == row.refid ? (
+          <LoadingOutlined />
+        ) : (
+          <CommonIcons action="removeRow" onClick={() => deleteRow(row)} />
+        ),
+    },
+  ];
   useEffect(() => {
     if (altModal) {
       dropDownData();
     }
-  }, [altModal, firstData]);
+  }, [altModal, fetchData]);
+
+  useEffect(() => {
+    if (fetchData.bomId && fetchData?.sku && altModal?.id) {
+      fetchMappningComponent();
+    }
+  }, [secondData, sfgEditModal]);
   return (
     <>
       <Space>
         <Drawer
           width="100vw"
-          title="Component Mapping"
-          placement="right"
-          closable={false}
+          title={`Alternatives for : ${altModal?.componentName} / ${altModal?.partCode}`}
+          // closable={false}
           onClose={() => setAltModal(null)}
           open={altModal}
-          getContainer={false}
-          style={{
-            position: "absolute",
-          }}
-          extra={
-            <Space>
-              <CloseCircleFilled onClick={() => setAltModal(null)} />
-            </Space>
-          }
+          // extra={
+          //   <Space>
+          //     <CloseCircleFilled onClick={() => setAltModal(null)} />
+          //   </Space>
+          // }
         >
-          <div className="row">
-            <div className="col-md-4">
-              <form>
-                <div className="card">
-                  <div className="card-header">COMPONENT / PART CODE</div>
-                  <div className="card-body">
-                    <div className="row">
-                      <div className="col-md-9">
+          {<Skeleton active loading={skeletonLoading} />}
+          {<Skeleton active loading={skeletonLoading} />}
+          {!skeletonLoading && (
+            <Row gutter={16} style={{ height: "100%" }}>
+              <Col span={8}>
+                <Row style={{ width: "100%" }}>
+                  <Col span={24}>
+                    <Form size="small" layout="vertical">
+                      <Form.Item label="Component">
                         <MySelect
                           options={dropdown}
-                          style={{ width: "100%" }}
-                          value={selValue.selOptionVale.value}
+                          value={selValue.selOptionVale}
                           onChange={(e) =>
                             setSelValue((selValue) => {
                               return { ...selValue, selOptionVale: e };
                             })
                           }
                         />
-                      </div>
-
-                      <div className="col-md-3">
-                        <Button
-                          onClick={addAlterComponent}
-                          style={{ backgroundColor: "#3A4B53", color: "white" }}
-                        >
-                          Add
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="col-md-8">
-              <div className="overflow-auto" style={{ height: "78vh" }}>
-                <table className="table table-striped table-bordered table-hover">
-                  <thead className="">
-                    <tr className="bg-seconhdary">
-                      <th className="col-md-1">S.No</th>
-                      <th className="col-md-5">Component/Part</th>
-                      <th className="col-md-5">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allData?.map((ab, i) => (
-                      <tr>
-                        <td className="col-md-5" style={{ width: "10px" }}>
-                          {i + 1}
-                        </td>
-                        <td className="col-md-1">{ab.component_name}</td>
-
-                        <td>
-                          <div className="btn-group" role="group">
-                            <AiFillDelete
-                              size={30}
-                              color="red"
-                              onClick={() => deleteRow(ab)}
-                              style={{ cursor: "pointer" }}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+                      </Form.Item>
+                    </Form>
+                  </Col>
+                </Row>
+                <Row justify="end">
+                  <Col>
+                    <Button
+                      loading={submitLoading}
+                      type="primary"
+                      onClick={addAlterComponent}
+                    >
+                      Add
+                    </Button>
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={16} style={{ height: "80vh" }}>
+                <MyDataTable columns={columns} data={allData} />
+              </Col>
+            </Row>
+          )}
         </Drawer>
       </Space>
     </>
   );
-}
-
-{
-  /* <div
-  style={{
-    height: "93%",
-    width: "100vw",
-    position: "fixed",
-    top: "6%",
-    // right: '0'
-    right: `${altModal ? "0vh" : "-100vw"}`,
-    zIndex: "9909999",
-    transition: "all 350ms linear",
-  }}
-  className="card text-center"
->
-  <div
-    className="card-header bg-secondary text-white"
-    style={{
-      fontFamily: "montserrat",
-      fontSize: "16px",
-      color: "dodgerblue",
-    }}
-  >
-    Component Mapping
-    <AiFillCloseCircle className="cursorr " size="30" onClick={() => setAltModal(false)} />
-  </div>
-  <div className="row m-2 mt-5">
-    <div className="col-md-4">
-      <form>
-        <div className="card text-center">
-          <div className="card-header">COMPONENT / PART CODE</div>
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-11">
-                <Select
-                  options={dropdown}
-                  value={selValue.selOptionVale}
-                  onChange={(e) =>
-                    setSelValue((selValue) => {
-                      return { ...selValue, selOptionVale: e };
-                    })
-                  }
-                />
-              </div>
-              <div className="col-md-1 mt-1">
-                <IoCheckmarkDoneCircleSharp
-                  size={30}
-                  // color="red"
-                  onClick={() => addAlterComponent()}
-                  style={{ cursor: "pointer" }}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="card-footer text-muted">Component</div>
-        </div>
-      </form>
-    </div>
-
-    <div className="col-md-8">
-      <div className="overflow-auto" style={{ height: "78vh" }}>
-        <table className="table table-striped table-bordered table-hover">
-          <thead className="">
-            <tr className="bg-seconhdary">
-              <th className="col-md-1">S.No</th>
-              <th className="col-md-5">Component/Part</th>
-              <th className="col-md-5">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allData?.map((ab, i) => (
-              <tr>
-                <td className="col-md-5" style={{ width: "10px" }}>
-                  {i + 1}
-                </td>
-                <td className="col-md-1">{ab.component_name}</td>
-
-                <td>
-                  <div className="btn-group" role="group">
-                    <AiFillDelete
-                      size={30}
-                      color="red"
-                      onClick={() => deleteRow(ab)}
-                      style={{ cursor: "pointer" }}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>; */
-}
+};
 
 export default AlterModal;
+
+// <div
+//   style={{
+//     height: "95%",
+//     width: "100vw",
+//     position: "fixed",
+//     top: "5%",
+//     // right: '0'
+//     right: `${altModal ? "0vh" : "-100vw"}`,
+//     zIndex: "9909999",
+//     transition: "all 350ms linear",
+//   }}
+//   className="card text-center"
+// >
+//   <div
+//     className="card-header bg-secondary text-white"
+//     style={{
+//       fontFamily: "montserrat",
+//       fontSize: "20px",
+//       color: "dodgerblue",
+//     }}
+//   >
+//     Component Mapping
+//     <AiFillCloseCircle
+//       className="cursorr "
+//       size="30"
+//       onClick={() => setAltModal(false)}
+//     />
+//   </div>
+
+//   <div className="row m-2 mt-5">
+//     <div className="col-md-4">
+//       <form>
+//         <div className="card text-center">
+//           <div className="card-header">COMPONENT / PART CODE</div>
+//           <div className="card-body">
+//             <div className="row">
+//               <div className="col-md-11">
+//                 <Select
+//                   options={dropdown}
+//                   value={selValue.selOptionVale}
+//                   onChange={(e) =>
+//                     setSelValue((selValue) => {
+//                       return { ...selValue, selOptionVale: e };
+//                     })
+//                   }
+//                 />
+//               </div>
+//               <div className="col-md-1 mt-1">
+//                 <IoCheckmarkDoneCircleSharp
+//                   size={30}
+//                   // color="red"
+//                   onClick={() => addAlterComponent()}
+//                   style={{ cursor: "pointer" }}
+//                 />
+//               </div>
+//             </div>
+//           </div>
+//           <div className="card-footer text-muted">Component</div>
+//         </div>
+//       </form>
+//     </div>
+
+// <div className="col-md-8">
+//   <div className="overflow-auto" style={{ height: "78vh" }}>
+//     <table className="table table-striped table-bordered table-hover">
+//       <thead className="">
+//         <tr className="bg-seconhdary">
+//           <th className="col-md-1">S.No</th>
+//           <th className="col-md-5">Component/Part</th>
+//           <th className="col-md-5">Action</th>
+//         </tr>
+//       </thead>
+//       <tbody>
+//         {allData?.map((ab, i) => (
+//           <tr>
+//             <td className="col-md-5" style={{ width: "10px" }}>
+//               {i + 1}
+//             </td>
+//             <td className="col-md-1">{ab.component_name}</td>
+
+//             <td>
+//               <div className="btn-group" role="group">
+//                 <AiFillDelete
+//                   size={30}
+//                   color="red"
+//                   onClick={() => deleteRow(ab)}
+//                   style={{ cursor: "pointer" }}
+//                 />
+//               </div>
+//             </td>
+//           </tr>
+//         ))}
+//       </tbody>
+//     </table>
+//   </div>
+//     // </div>
+//   </div>
+// </div>
