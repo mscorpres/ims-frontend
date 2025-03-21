@@ -55,7 +55,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     if (!recaptchaValue) {
       toast.error("Please verify the reCAPTCHA");
-      return;
+      // return;
     }
     const { username, password } = inpVal;
     if (username === "" && password === "") {
