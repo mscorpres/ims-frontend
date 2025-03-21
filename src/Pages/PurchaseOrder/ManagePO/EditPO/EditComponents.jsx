@@ -455,6 +455,7 @@ export default function EditComponent({
         bill_address_id: purchaseOrder.addrbillid,
         billaddress: purchaseOrder.billaddress,
         termsday: purchaseOrder.paymenttermsday,
+        advancePayment: purchaseOrder.advancePayment,
         // ...purchaseOrder,
         ...components,
         materials: null,
