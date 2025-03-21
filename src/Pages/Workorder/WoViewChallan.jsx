@@ -7,7 +7,6 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import SelectChallanTypeModal from "./components/WoCreateChallan/SelectChallanTypeModal";
 import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
-import { Link } from "react-router-dom";
 import { downloadCSV } from "../../Components/exportToCSV";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
@@ -248,18 +247,6 @@ const WoViewChallan = () => {
               }}
               label="Cancel Challan"
             />,
-            <GridActionsCellItem
-            showInMenu
-            label={
-              <Link
-                style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll("/", "_")}`}
-                target="_blank"
-              >
-                Create E-Way Bill
-              </Link>
-            }
-          />,
           ]
         : challantype === "RM Challan"
         ? [
@@ -301,18 +288,6 @@ const WoViewChallan = () => {
             //   }}
             //   label="Cancel Challan"
             // />,
-            <GridActionsCellItem
-            showInMenu
-            label={
-              <Link
-                style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
-                target="_blank"
-              >
-                Create E-Way Bill
-              </Link>
-            }
-          />,
           ]
         : row.challan_type == "scrape"
         ? [
@@ -363,18 +338,6 @@ const WoViewChallan = () => {
               }}
               label="Cancel Challan"
             />,
-            <GridActionsCellItem
-            showInMenu
-            label={
-              <Link
-                style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll("/", "_")}`}
-                target="_blank"
-              >
-                Create E-Way Bill
-              </Link>
-            }
-          />,
           ]
         : [
             <GridActionsCellItem
@@ -406,20 +369,7 @@ const WoViewChallan = () => {
               }}
               label="Download"
             />,
-            <GridActionsCellItem
-            showInMenu
-            label={
-              <Link
-                style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/wo/${row.challan_id.replaceAll("/", "_")}`}
-                target="_blank"
-              >
-                Create E-Way Bill
-              </Link>
-            }
-          />,
           ],
-          
   };
 
   const getRows = async () => {

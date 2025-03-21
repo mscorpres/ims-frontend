@@ -29,7 +29,9 @@ const EWayBill = () => {
   const [transporterModeOptions, setTransporterModeOptions] = useState([]);
   const [successData, setSuccessData] = useState(null);
   const params = useParams();
+
   const [form] = Form.useForm();
+  const transporterId = Form.useWatch("transporterId", form);
 
   const getDetails = async () => {
     try {
@@ -52,7 +54,7 @@ const EWayBill = () => {
         });
       }
 
-      const { data, items } = response;
+      const { data } = response;
       if (data) {
         if (response?.success) {
           const { bill_from, bill_to, ship_from, ship_to } = data;
@@ -61,44 +63,22 @@ const EWayBill = () => {
             billFromName: bill_from.legalName,
             billFromGstin: bill_from.gstin,
             billFromState: {
-              label: bill_from?.state?.state_name,
-              value: bill_from?.state?.state_code,
+              label: header.dispatch_state_name,
+              value: header.dispatch_state,
             },
-            billFromLocation: bill_from.location,
-            billFromAddress1: bill_from.address1,
-            billFromAddress2: bill_from.address2,
-            billFromPincode: bill_from.pincode,
-            billToName: bill_to.client,
-            billToGstin: bill_to.gst,
+            dispatchFromPlace: header.dispatch_label,
+            dispatchFromPincode: header.dispatch_pincode,
+            dispatchFromAddress: header.dispatch_address,
+            billToName: header.vendorName,
+            billToGstin: header.vendorGstin,
             billToState: {
-              label: bill_to?.state?.state_name,
-              value: bill_to?.state?.state_code,
+              label: header.dispatch_state_name,
+              value: header.vendorState,
             },
-            billToLocation: bill_to.location,
-            billToAddress1: bill_to.address1,
-            billToAddress2: bill_to.address2,
-            billToPincode: bill_to.pincode,
-            dispatchFromPlace: ship_from.legalName,
-            dispatchFromPincode: ship_from.pincode,
-            dispatchFromAddress1: ship_from.address1,
-            dispatchFromAddress2: ship_from.address2,
-            dispatchFromLocation: ship_from.location,
-            dispatchFromState: {
-              label: ship_from?.state.state_name,
-              value: ship_from?.state.state_code,
-            },
-            dispatchFromGstin: ship_from.gst,
-            dispatchToPlace: ship_to.company,
-            dispatchToGstin: ship_to.gst,
-            dispatchToPincode: ship_to.pincode,
-            dispatchToAddress1: ship_to.address1,
-            dispatchToAddress2: ship_to.address2,
-            dispatchToState: {
-              label: ship_to?.state.state_name,
-              value: ship_to?.state.state_code,
-            },
-            dispatchToLocation: ship_to.location,
-            distance: "0",
+            dispatchToPlace: header.vendorCity,
+            dispatchToPincode: header.vendorPinCode,
+            dispatchToAddress: header.vendor_address,
+            vehicleNo: header.vehicle,
             mode: "1",
             vehicleType: "R",
             transactionType: "1",
@@ -107,13 +87,12 @@ const EWayBill = () => {
             type: "O",
             vehicleNo:data?.vehicle,
           };
-          // form.setValue("totalAmount",data?.total_amount)
           const arr = items.map((row, index) => ({
             id: index + 1,
             component: row.component_name,
             hsn: row.hsn_code,
-            qty: row.qty,
-            rate: row.rate,
+            qty: row.issue_qty,
+            rate: row.part_rate,
             value: row.taxable_amount,
             uom: row.unit_name,
           }));
@@ -229,17 +208,15 @@ const EWayBill = () => {
         },
       };
 
-      Modal.confirm({
-        title: "Create E-Way Bill",
-        content: "Please check all the entries properly before proceeding",
-        okText: "Create",
-        onOk: () => submitHandler(payload),
-      });
-    } catch (error) {
-      console.error(error);
-      // If validation fails, show a toast with the warning message
-      toast.error("Please fill the mandatory fields.");
-    }
+    Modal.confirm({
+      title: "Create E-Way Bill",
+      content: "Please check all the entries properly before proceeding",
+      okText: "Create",
+      onOk: () => submitHandler(payload),
+    });
+  } catch (error) {
+    toast.error(error.message);
+  }
   };
 
   const submitHandler = async (payload) => {
@@ -266,12 +243,12 @@ const EWayBill = () => {
         );
       }
       const { data } = response;
-      if (response) {
-        if (response?.code === 200) {
-          toast.success(response?.message);
-          setSuccessData({ ewayBillNo: response?.data?.ewayBillNo });
+      if (data) {
+        if (data.code === 200) {
+          toast.success(data.message);
+          setSuccessData({ ewayBillNo: data.data.ewayBillNo });
         } else {
-          toast.error(response.message.msg);
+          toast.error(data.message.msg);
         }
       }
     } catch (error) {
@@ -296,11 +273,11 @@ const EWayBill = () => {
     getStateOptions();
     getTransporterModeOptions();
   }, []);
-  // useEffect(() => {
-  //   if (transporterId?.length === 15) {
-  //     getGstinDetails(transporterId);
-  //   }
-  // }, [transporterId]);
+  useEffect(() => {
+    if (transporterId?.length === 15) {
+      getGstinDetails(transporterId);
+    }
+  }, [transporterId]);
   return (
     <Form form={form} layout="vertical" style={{ padding: 10 }}>
       {!successData && (
@@ -318,15 +295,8 @@ const EWayBill = () => {
                   </Form.Item>
                 </Col>
                 <Col span={4}>
-                  <Form.Item
-                    // disabled={true}
-                    name="subType"
-                    label="Sub Type"
-                  >
-                    <MySelect
-                      options={subOptions}
-                      // disabled={true}
-                    />
+                  <Form.Item disabled={true} name="subType" label="Sub Type">
+                    <MySelect options={subOptions} disabled={true} />
                   </Form.Item>
                 </Col>
                {subSupplyTypeOption ==8 && <Col span={4}>
@@ -341,7 +311,7 @@ const EWayBill = () => {
                 </Col>
                 <Col span={4}>
                   <Form.Item name="docType" label="Document Type">
-                    <MySelect labelInValue={true} options={docTypeOptions} />
+                    <Input disabled={true} />
                   </Form.Item>
                 </Col>
                 <Col span={4}>
@@ -389,29 +359,31 @@ const EWayBill = () => {
                     <MySelect options={stateOptions} />
                   </Form.Item>
                 </Col>
+              </Row>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card size="small" title="Dispatch From">
+              <Row gutter={6}>
                 <Col span={12}>
-                  <Form.Item name="billFromLocation" label="Location">
+                  <Form.Item name="dispatchFromPlace" label="Place">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="billFromPincode" label="Pincode">
+                  <Form.Item name="dispatchFromPincode" label="Pincode">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="billFromAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billFromAddress2" label="Address2">
+                  <Form.Item name="dispatchFromAddress" label="Address">
                     <Input.TextArea />
                   </Form.Item>
                 </Col>
               </Row>
             </Card>
           </Col>
+
           <Col span={12}>
             <Card size="small" title="Dispatch From">
               <Row gutter={6}>
@@ -482,23 +454,24 @@ const EWayBill = () => {
                     <MySelect labelInValue={true} options={stateOptions} />
                   </Form.Item>
                 </Col>
+              </Row>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card size="small" title="Dispatch To">
+              <Row gutter={6}>
                 <Col span={12}>
-                  <Form.Item name="billToLocation" label="Location">
+                  <Form.Item name="dispatchToPlace" label="Place">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="billToPincode" label="Pincode">
+                  <Form.Item name="dispatchToPincode" label="Pincode">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="billToAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billToAddress2" label="Address2">
+                  <Form.Item name="dispatchToAddress" label="Address">
                     <Input.TextArea />
                   </Form.Item>
                 </Col>
@@ -562,7 +535,7 @@ const EWayBill = () => {
                     <Input />
                   </Form.Item>
                 </Col>
-                {/* <Col span={4}>
+                <Col span={4}>
                   <Form.Item name="fromPin" label="From Pin Code">
                     <Input />
                   </Form.Item>
@@ -571,7 +544,7 @@ const EWayBill = () => {
                   <Form.Item name="toPin" label="To Pin Code">
                     <Input />
                   </Form.Item>
-                </Col> */}
+                </Col>
                 <Col span={4}>
                   <Form.Item name="distance" label="Distance (in Km)">
                     <Input />
@@ -607,10 +580,7 @@ const EWayBill = () => {
                   <Form.Item name="transportDate" label="Transport Date">
                     <SingleDatePicker
                       setDate={(value) =>
-                        form.setFieldValue(
-                          "transportDate",
-                          dayjs(value).format("DD-MM-YYYY")
-                        )
+                        form.setFieldValue("transportDate", value)
                       }
                     />
                   </Form.Item>
@@ -624,7 +594,7 @@ const EWayBill = () => {
               title={`Items Details : ${components.length} Items`}
               extra={
                 <Typography.Text>
-                  Total Amount :{form.getFieldValue("totalAmount")}
+                  Total Amount :{" "}
                   {components.reduce(
                     (a, b) => +a + +Number(b.value).toFixed(3),
                     0
@@ -682,51 +652,39 @@ const supplyTypeOptions = [
 const subOptions = [
   {
     text: "Supply",
-    value: "1",
-  },
-  {
-    text: "Import",
-    value: "2",
+    value: "S",
   },
   {
     text: "Export",
-    value: "3",
+    value: "E",
   },
   {
     text: "Job Work",
-    value: "4",
-  },
-  {
-    text: "For Own Use",
-    value: "5",
-  },
-  {
-    text: "Job Work Return",
-    value: "6",
-  },
-  {
-    text: "Sale Return",
-    value: "7",
-  },
-  {
-    text: "Exhibition of Fairs",
-    value: "12",
-  },
-  {
-    text: "Line Sales",
-    value: "10",
-  },
-  {
-    text: "Recipient Not Known",
-    value: "11",
+    value: "Job Work",
   },
   {
     text: "SKD/CKD/Lots",
-    value: "9",
+    value: "SK",
+  },
+  {
+    text: "Recipient Not Known",
+    value: "R",
+  },
+  {
+    text: "For Known Use",
+    value: "F",
+  },
+  {
+    text: "Exhibition of Fairs",
+    value: "Ex",
+  },
+  {
+    text: "Lines Sales",
+    value: "L",
   },
   {
     text: "Others",
-    value: "8",
+    value: "O",
   },
 ];
 
@@ -787,12 +745,4 @@ const transactionTypeOptions = [
     text: "Combination of 2 & 3",
     value: "4",
   },
-];
-
-const docTypeOptions = [
-  { value: "INV", text: "Tax Invoice" },
-  { value: "BIL", text: "Bill of Supply" },
-  { value: "BOE", text: "Bill of Entry" },
-  { value: "CHL", text: "Delivery Challan" },
-  { value: "OTH", text: "Others" },
 ];
