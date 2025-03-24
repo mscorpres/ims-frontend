@@ -1305,7 +1305,7 @@ const Routes = [
     main: () => <PartCodeConversionReport />,
   },
   {
-    path: "/warehouse/e-way/jw/:jwId",
+    path: "/warehouse/e-way/:typeId/:jwId",
     main: () => <EWayBill />,
   },
 
