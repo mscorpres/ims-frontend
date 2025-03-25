@@ -43,7 +43,7 @@ export default function CancelPO({
     if (showCancelPO) {
       setLoading(true);
 
-      const { data } = await imsAxios.post("/purchaseOrder/CancelP", {
+      const { data } = await imsAxios.post("/purchaseOrder/CancelPO", {
         purchase_order: showCancelPO,
         remark: reason,
       });
