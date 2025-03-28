@@ -34,6 +34,8 @@ export { default as ViewMin } from "./Store/MINLabel/ViewMIN.jsx";
 
 export { default as MaterialInWithoutPO } from "./Store/MaterialIn/MaterialInWithoutPO/MaterialInWithoutPO";
 export { default as MaterialInWithPO } from "./Store/MaterialIn/MaterialInWithPO/MaterialInWithPO";
+export { default as ExportMaterialInWithPO } from "./Store/MaterialIn/MaterialInWithPO/ExportMaterialInWithPO.jsx";
+
 export { default as ProductMIN } from "./Store/MaterialIn/ProductMIN";
 
 export { default as Rejection } from "./Store/Rejection/Rejection";

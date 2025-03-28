@@ -97,6 +97,15 @@ export const uplaodFileInMINInward = async (formdata) => {
     console.log("something happened wrong", error);
   }
 };
+
+export const uploadPOExportFile = async (formdata) => {
+  try {
+    const response = await imsAxios.post("purchaseOthers/uploadPoFile", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
 export const getVendorBranchOptions = async (vendorCode) => {
   const response = await imsAxios.post("/backend/vendorBranchList", {
     vendorcode: vendorCode,
