@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import NavFooter from "../..//../../Components/NavFooter";
+import NavFooter from "../../../../Components/NavFooter.jsx";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
@@ -15,6 +15,8 @@ import {
   Tooltip,
   Typography,
   Form,
+  Upload,
+  Drawer,
 } from "antd";
 import {
   QuantityCell,
@@ -33,32 +35,35 @@ import {
   autoConsumptionCell,
   gstRate,
   manualMFGCode,
-} from "./TableCollumns";
-import SingleProduct from "../../../Master/Vendor/SingleProduct";
-import CurrenceModal from "../CurrenceModal";
-import UploadDocs from "./UploadDocs";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import FormTable from "../../../../Components/FormTable";
-import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
-import SuccessPage from "../SuccessPage";
-import { imsAxios } from "../../../../axiosInterceptor";
-import Loading from "../../../../Components/Loading";
-import { v4 } from "uuid";
+} from "./TableCollumns.jsx";
+import SingleProduct from "../../../Master/Vendor/SingleProduct.jsx";
+import CurrenceModal from "../CurrenceModal.jsx";
+import UploadDocs from "./UploadDocs.jsx";
+import MyAsyncSelect from "../../../../Components/MyAsyncSelect.jsx";
+import ToolTipEllipses from "../../../../Components/ToolTipEllipses.jsx";
+import { InboxOutlined } from "@ant-design/icons";
+import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions.jsx";
+import SuccessPage from "../SuccessPage.jsx";
+import { imsAxios } from "../../../../axiosInterceptor.js";
+import Loading from "../../../../Components/Loading.jsx";
+import MyDataTable from "../../../../Components/MyDataTable.jsx";
 import {
   checkInvoiceforMIN,
   getVendorOptions,
   poMINforMIN,
+  uploadPOExportFile,
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
-import MyButton from "../../../../Components/MyButton";
+import MyButton from "../../../../Components/MyButton/index.jsx";
+import FormTable from "../../../../Components/FormTable.jsx";
 
-export default function MaterialInWithPO({}) {
+export default function ExportMaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
   const [resetPoData, setResetPoData] = useState({ materials: [] });
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [materialInward, setMaterialInward] = useState(null);
+  const [preview, setPreview] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
   const [irnNum, setIrnNum] = useState("");
   const [searchData, setSearchData] = useState({
@@ -79,7 +84,9 @@ export default function MaterialInWithPO({}) {
   const [searchLoading, setSearchLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
   const [showVendorInfo, setShowVendorInfo] = useState(false);
+  const [open, setOpen] = useState(false);
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [locationOptions, setLocationOptions] = useState([]);
@@ -87,26 +94,30 @@ export default function MaterialInWithPO({}) {
   const [isScan, setIsScan] = useState(false);
   const [uplaoaClicked, setUploadClicked] = useState(false);
   const [form] = Form.useForm();
+  const [uplaodForm] = Form.useForm();
   const components = Form.useWatch("components", form);
   let costCode;
   const { executeFun, loading: loading1 } = useApi();
+  const { loading } = useApi();
+  console.log(form.getFieldsValue());
   const validateData = async () => {
-    let validation = false;
-    poData.materials.map((row) => {
-      if (
-        row.c_partno &&
-        row.currency &&
-        row.gstrate &&
-        row.invoiceDate &&
-        row.invoiceId &&
-        row.location &&
-        row.orderqty
-      ) {
-        validation = true;
-      } else {
-        validation = false;
-      }
-    });
+    // let validation = false;
+    let validation = true;
+    // poData.materials.map((row) => {
+    //   if (
+    //     row.c_partno &&
+    //     row.currency &&
+    //     row.gstrate &&
+    //     row.invoiceDate &&
+    //     row.invoiceId &&
+    //     row.location &&
+    //     row.orderqty
+    //   ) {
+    //     validation = true;
+    //   } else {
+    //     validation = false;
+    //   }
+    // });
     let componentData = {
       qty: [],
       rate: [],
@@ -139,32 +150,32 @@ export default function MaterialInWithPO({}) {
         values.components.map((comp) => {
           formData.append("files", comp.file[0]?.originFileObj);
         });
-        poData.materials.map((row) => {
-          componentData = {
-            component: [...componentData.component, row.componentKey],
-            qty: [...componentData.qty, row.orderqty],
-            rate: [...componentData.rate, row.orderrate],
-            currency: [...componentData.currency, row.currency],
-            exchange: [
-              ...componentData.exchange,
-              row.exchange_rate == 0 ? 1 : row.exchange_rate,
-            ],
-            invoice: [...componentData.invoice, row.invoiceId],
-            invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
-            hsncode: [...componentData.hsncode, row.hsncode],
-            gsttype: [...componentData.gsttype, row.gsttype],
-            gstrate: [...componentData.gstrate, row.gstrate],
-            cgst: [...componentData.cgst, row.cgst],
-            sgst: [...componentData.sgst, row.sgst],
-            igst: [...componentData.igst, row.igst],
-            remark: [...componentData.remark, row.orderremark],
-            location: [...componentData.location, row.location.value],
-            out_location: [...componentData.out_location, row.autoConsumption],
-            documentName: values.components.map((r) => r.documentName),
-            irn: irnNum,
-            qrScan: isScan == true ? "Y" : "N",
-          };
-        });
+        // poData.materials.map((row) => {
+        //   componentData = {
+        //     component: [...componentData.component, row.componentKey],
+        //     qty: [...componentData.qty, row.orderqty],
+        //     rate: [...componentData.rate, row.orderrate],
+        //     currency: [...componentData.currency, row.currency],
+        //     exchange: [
+        //       ...componentData.exchange,
+        //       row.exchange_rate == 0 ? 1 : row.exchange_rate,
+        //     ],
+        //     invoice: [...componentData.invoice, row.invoiceId],
+        //     invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
+        //     hsncode: [...componentData.hsncode, row.hsncode],
+        //     gsttype: [...componentData.gsttype, row.gsttype],
+        //     gstrate: [...componentData.gstrate, row.gstrate],
+        //     cgst: [...componentData.cgst, row.cgst],
+        //     sgst: [...componentData.sgst, row.sgst],
+        //     igst: [...componentData.igst, row.igst],
+        //     remark: [...componentData.remark, row.orderremark],
+        //     location: [...componentData.location, row.location.value],
+        //     out_location: [...componentData.out_location, row.autoConsumption],
+        //     documentName: values.components.map((r) => r.documentName),
+        //     irn: irnNum,
+        //     qrScan: isScan == true ? "Y" : "N",
+        //   };
+        // });
         if (
           (componentData.currency.filter((v, i, a) => v === a[0]).length ===
             componentData.currency.length) !=
@@ -200,7 +211,45 @@ export default function MaterialInWithPO({}) {
       toast.error("Please Provide all the values of all the components");
     }
   };
+
+  const closeDrawer = () => {
+    setPreview(false);
+    setOpen(false);
+    // setSelectedRows(previewRows);
+    // setRows(previewRows);
+    console.log(previewRows);
+    let arr = previewRows.map((r) => {
+      console.log(r);
+      return {
+        ...r,
+        mfgCode: r.Manualmfgcode,
+        hsnCode: r.hsn,
+        autoConsumption: r.Autoconsump == "Y" ? "Yes" : "No",
+      };
+    });
+
+    form.setFieldValue("components", arr);
+  };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
+  const saveTheData = async () => {
+    Modal.confirm({
+      title: "Are you sure you want to submit?",
+      content: "Please make sure that the values are correct",
+      onOk() {
+        closeDrawer();
+      },
+      onCancel() {},
+    });
+  };
   const validateInvoices = async (values) => {
+    console.log(values)
     try {
       const invoices = values.componentData.invoice;
       setSubmitLoading(true);
@@ -240,6 +289,109 @@ export default function MaterialInWithPO({}) {
       setSubmitLoading(false);
     }
   };
+
+  const previewedcolumns = [
+    {
+      headerName: "#",
+      field: "id",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.id} />,
+      width: 50,
+    },
+    {
+      headerName: "Part Code",
+      field: "partCode",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.partCode} />,
+      minWidth: 110,
+    },
+    {
+      headerName: "Part Name",
+      field: "partName",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.partName} copy={true} />
+      ),
+      minWidth: 250,
+      flex: 1,
+    },
+
+    {
+      headerName: "Hsn",
+      field: "hsn",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.hsn} />,
+      width: 110,
+
+      // width: "12vw",
+    },
+    {
+      headerName: "UOM",
+      field: "uom",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.uom} />,
+      width: 110,
+
+      // width: "12vw",
+    },
+    {
+      headerName: "Order Qty ",
+      field: "qty",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.orderQty} copy={false} />
+      ),
+      // flex: 1,
+    },
+    {
+      headerName: "Import Rate",
+      field: "rate",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Exchange Rate",
+      field: "exchangeRate",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Taxable Value",
+      field: "taxableValue",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.taxableValue} copy={false} />
+      ),
+    },
+    {
+      headerName: "Foreign Value",
+      field: "foreignValue",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Freight Value",
+      field: "freightValue",
+      minWidth: 150,
+      flex: 1,
+    },
+    {
+      headerName: "Custom Duty",
+      field: "customDuty",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Total",
+      field: "total",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Final Rate",
+      field: "finalRate",
+      flex: 1,
+      minWidth: 100,
+    },
+  ];
+
   const submitMIN = async (values, isScan) => {
     console.log("isScan", isScan);
     // return;
@@ -332,6 +484,16 @@ export default function MaterialInWithPO({}) {
     }
     return arr;
   };
+  const props = {
+    name: "file",
+    multiple: false,
+
+    maxCount: 1,
+
+    beforeUpload(file) {
+      return false;
+    },
+  };
   const getAutoComnsumptionOptions = async () => {
     setPageLoading(true);
 
@@ -350,6 +512,8 @@ export default function MaterialInWithPO({}) {
       setAutoConsumptionOption(arr);
     }
   };
+
+  console.log(previewRows);
   const inputHandler = (name, value, id) => {
     console.log(poData);
     let arr = poData?.materials;
@@ -518,35 +682,35 @@ export default function MaterialInWithPO({}) {
         ...obj,
 
         poId: searchData.poNumber,
-        materials: obj.materials.map((mat, index) => {
-          let percentage = mat.gstrate;
-          return {
-            // adding properties in materials array
-            ...mat,
-            id: v4(),
-            gsttype: mat.gsttype,
-            inrValue: mat?.orderqty * mat?.orderrate,
-            cgst:
-              mat.gsttype == "I"
-                ? 0
-                : (mat?.orderqty * mat?.orderrate * (percentage / 2)) / 100,
-            sgst:
-              mat.gsttype == "I"
-                ? 0
-                : (mat?.orderqty * mat?.orderrate * (percentage / 2)) / 100,
-            igst:
-              mat.gsttype == "L"
-                ? 0
-                : (mat?.orderqty * mat?.orderrate * percentage) / 100,
-            invoiceDate: "",
-            invoiceId: "",
-            location: { label: "RM021", value: "20210910142629" },
-            maxQty: mat?.orderqty,
-            autoConsumption: 0,
-            pendingqtybyorderqty: mat.orderqty + " /" + mat.po_order_qty,
-            mfg: mat.mfgCode,
-          };
-        }),
+        // materials: obj.materials.map((mat, index) => {
+        //   let percentage = mat.gstrate;
+        //   return {
+        //     // adding properties in materials array
+        //     ...mat,
+        //     id: v4(),
+        //     gsttype: mat.gsttype,
+        //     inrValue: mat?.orderqty * mat?.orderrate,
+        //     cgst:
+        //       mat.gsttype == "I"
+        //         ? 0
+        //         : (mat?.orderqty * mat?.orderrate * (percentage / 2)) / 100,
+        //     sgst:
+        //       mat.gsttype == "I"
+        //         ? 0
+        //         : (mat?.orderqty * mat?.orderrate * (percentage / 2)) / 100,
+        //     igst:
+        //       mat.gsttype == "L"
+        //         ? 0
+        //         : (mat?.orderqty * mat?.orderrate * percentage) / 100,
+        //     invoiceDate: "",
+        //     invoiceId: "",
+        //     location: { label: "RM021", value: "20210910142629" },
+        //     maxQty: mat?.orderqty,
+        //     autoConsumption: 0,
+        //     pendingqtybyorderqty: mat.orderqty + " /" + mat.po_order_qty,
+        //     mfg: mat.mfgCode,
+        //   };
+        // }),
       };
       costCode = obj.headers.cost_center_key;
       // console.log("obj", costCode);
@@ -591,127 +755,79 @@ export default function MaterialInWithPO({}) {
       field: "component_fullname",
       // sortable: false,
       width: 200,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.component_fullname} />
-      ),
+      renderCell: ({ row }) => <ToolTipEllipses text={row.component?.label} />,
       // width: 150,
     },
     {
       headerName: "Part No.",
-      field: "c_partno",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.c_partno} />,
+      field: "partCode",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.partCode} />,
       sortable: false,
       width: 80,
     },
     {
       headerName: "MFG Code ",
-      field: "mfg",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.mfg} />,
+      field: "manualMfgCode",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.manualMfgCode} />,
       sortable: false,
-      width: 180,
-    },
-    {
-      headerName: "Manual MFG",
-      name: "mfgCode",
       width: 100,
-      // renderCell: ({ row }) => ,
-      renderCell: (params) => manualMFGCode(params, inputHandler),
     },
+
     {
       headerName: "QTY",
-      field: "gstqty",
+      field: "orderQty",
       sortable: false,
-      renderCell: (params) => QuantityCell(params, inputHandler),
+      renderCell: ({ row }) => <ToolTipEllipses text={row.orderQty} />,
       width: 120,
     },
     {
-      headerName: "Pending / Ord. QTY",
-      field: "pendingqtybyorderqty",
+      headerName: "Pending Qty",
+      field: "pendingQty",
       sortable: false,
-      renderCell: ({ row }) => <span>{row.pendingqtybyorderqty}</span>,
-      width: 150,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.pendingQty} />,
+      width: 120,
+    },
+    {
+      headerName: "PO Order Qty",
+      field: "poOrderQty",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.poOrderQty} />,
+      width: 120,
     },
     {
       headerName: "Rate",
-      field: "orderrate",
+      field: "rate",
       sortable: false,
-      renderCell: (params) => rateCell(params, inputHandler, currencies),
-      width: 180,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.rate} />,
+      width: 100,
+    },
+    {
+      headerName: "Exchange Rate",
+      field: "exchangeRate",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.exchangeRate} />,
+      width: 100,
     },
     {
       headerName: "Taxable Value",
-      field: "inrValue",
+      field: "taxableValue",
       sortable: false,
-      renderCell: taxableCell,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.taxableValue} />,
       width: 120,
     },
     {
       headerName: "Foreign Value",
-      field: "usdValue",
+      field: "foreignValue",
       sortable: false,
-      renderCell: foreignCell,
-      width: 120,
-    },
-    {
-      headerName: "Invoice ID",
-      field: "invoiceId",
-      sortable: false,
-      renderCell: (params) => invoiceIdCell(params, inputHandler),
-      width: 200,
-    },
-    {
-      headerName: "Invoice Date",
-      field: "invoiceDate",
-      sortable: false,
-      renderCell: (params) => invoiceDateCell(params, inputHandler),
+      renderCell: ({ row }) => <ToolTipEllipses text={row.foreignValue} />,
       width: 120,
     },
     {
       headerName: "HSN Code",
-      field: "hsncode",
+      field: "hsn",
       sortable: false,
-      renderCell: (params) => HSNCell(params, inputHandler),
+      renderCell: ({ row }) => <ToolTipEllipses text={row.hsn} />,
       width: 150,
-    },
-    {
-      headerName: "GST Type",
-      field: "gsttype",
-      sortable: false,
-      renderCell: (params) => gstTypeCell(params, inputHandler),
-      // flex: 1,
-      width: 200,
-    },
-    {
-      headerName: "GST Rate",
-      field: "gstrate",
-      sortable: false,
-      renderCell: (params) => gstRate(params, inputHandler),
-      // flex: 1,
-      width: 100,
-    },
-    {
-      headerName: "CGST",
-      renderCell: (params) => CGSTCell(params, inputHandler),
-      // flex: 1,
-      field: "cgst",
-      sortable: false,
-      width: 120,
-    },
-    {
-      headerName: "SGST",
-      renderCell: (params) => SGSTCell(params, inputHandler),
-      // flex: 1,
-      field: "sgst",
-      sortable: false,
-      width: 120,
-    },
-    {
-      headerName: "IGST",
-      renderCell: (params) => IGSTCell(params, inputHandler),
-      // flex: 1,
-      field: "igst",
-      sortable: false,
-      width: 120,
     },
     {
       headerName: "Location",
@@ -722,13 +838,12 @@ export default function MaterialInWithPO({}) {
       width: 150,
     },
     {
-      headerName: "Auto Consump",
-      field: "autoConsumption",
-      sortable: false,
-      renderCell: (params) =>
-        autoConsumptionCell(params, inputHandler, autoConsumptionOptions),
-      width: 150,
-    },
+          headerName: "Invoice ID",
+          field: "invoiceId",
+          sortable: false,
+          renderCell: (params) => invoiceIdCell(params, inputHandler),
+          width: 200,
+        },
     {
       headerName: "Remarks",
       field: "orderremark",
@@ -829,6 +944,79 @@ export default function MaterialInWithPO({}) {
   }, [poData]);
   // log
   const { Text } = Typography;
+
+  const callFileUpalod = async () => {
+    setPreview(true);
+    const values = uplaodForm.getFieldsValue();
+
+    const file = values.files[0].originFileObj;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("po_id", searchData.poNumber);
+    const response = await executeFun(
+      () => uploadPOExportFile(formData),
+      "fetch"
+    );
+
+    if (response?.data?.status === "success") {
+      console.log(response);
+      let { data } = response;
+
+      // Flatten the new data structure to extract part details and other fields
+      const formattedRows = data?.data?.map((item) => {
+        const part = item.part;
+        return {
+          partCode: part.part_code,
+          partName: part.part_name,
+          componentKey: part.component_key,
+          manualMfgCode: part.manual_mfg_code,
+          hsn: item.hsn,
+          uom: item.uom,
+          orderQty: item.order_qty,
+          importRate: item.import_rate,
+          exchangeRate: item.exchange_rate,
+          taxableValue: item.taxable_value,
+          foreignValue: item.foreign_value,
+          freightValue: item.freight_value,
+          customDuty: item.custom_duty,
+          total: item.total,
+          finalRate: item.final_rate,
+          pendingQty: item.pending_qty,
+          poOrderQty: item.po_order_qty,
+          value: (item.order_qty * item.import_rate).toFixed(3), // You may want to adjust the calculation for the value
+        };
+      });
+
+      // Log the processed rows
+      console.log(formattedRows);
+
+      // Optional: map formatted rows to final structure
+      let arr = formattedRows.map(
+        (r, index) => (
+          console.log(r, index),
+          {
+            id: index + 1,
+            partCode: r.partCode,
+            partName: r.partName,
+            component: { label: r.partName, value: r.componentKey },
+            qty: r.orderQty,
+            rate: r.importRate,
+            hsn: r.hsn,
+            value: r.value,
+            gstRate: r.exchangeRate, // Example, adjust as needed
+            gstType: r.uom, // Example, adjust as needed
+            ...r,
+          }
+        )
+      );
+      console.log(arr);
+      setPreviewRows(arr);
+    } else {
+      toast.error(response.message.msg);
+      setPreview(false);
+    }
+  };
+
   return (
     <div style={{ height: "90%", position: "relative" }}>
       <Row
@@ -1268,7 +1456,39 @@ export default function MaterialInWithPO({}) {
                   </Row>
                 </Card>
               </Row>
-
+              <Col span={24} style={{ width: "100%", height: "20%" }}>
+                <Card
+                  size="small"
+                  style={{ width: "100%", height: "100%" }}
+                  bodyStyle={{ overflowY: "auto", maxHeight: "74%" }}
+                  title="Upload Excel"
+                >
+                  <Row
+                    span={24}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Col>
+                      <MyButton
+                        variant="upload"
+                        text="Excel"
+                        onClick={() => setOpen(true)}
+                      >
+                        Excel
+                      </MyButton>
+                    </Col>
+                    <Col>
+                      <Button onClick={() => setUploadClicked(true)}>
+                        {" "}
+                        Upload Documents
+                      </Button>
+                    </Col>
+                  </Row>
+                </Card>
+              </Col>
               {/* tax details */}
               <Col span={24} style={{ width: "100%", height: "50%" }}>
                 <Card
@@ -1328,12 +1548,113 @@ export default function MaterialInWithPO({}) {
                   </Row>
                 </Card>
               </Col>
-              <Col span={24} style={{ height: "10%" }}>
-                <Button onClick={() => setUploadClicked(true)}>
-                  {" "}
-                  Upload Documents
-                </Button>
-              </Col>
+              <Modal
+                title="Upload File Here"
+                open={open}
+                width={500}
+                onCancel={() => setOpen(false)}
+                footer={[
+                  <Button key="back" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>,
+                  <Button key="submit" type="primary" onClick={callFileUpalod}>
+                    Preview
+                  </Button>,
+                ]}
+              >
+                {loading("fetch") && <Loading />}
+                <Card>
+                  <Form
+                    // initialValues={initialValues}
+                    form={uplaodForm}
+                    layout="vertical"
+                  >
+                    <Form.Item>
+                      <Form.Item
+                        name="files"
+                        valuePropName="fileList"
+                        getValueFromEvent={normFile}
+                        // rules={rules.file}
+                        noStyle
+                      >
+                        <Upload.Dragger name="files" {...props}>
+                          <p className="ant-upload-drag-icon">
+                            <InboxOutlined />
+                          </p>
+                          <p className="ant-upload-text">
+                            Click or drag file to this area to upload
+                          </p>
+                        </Upload.Dragger>
+                      </Form.Item>
+                    </Form.Item>
+
+                    <Row justify="end" style={{ marginTop: 5 }}>
+                      <MyButton
+                        variant="downloadSample"
+                        onClick={() =>
+                          downloadCSVCustomColumns(sampleData, "RM Inward")
+                        }
+                      />
+                    </Row>
+                  </Form>
+                </Card>
+              </Modal>
+              <Drawer
+                width="100%"
+                title="Preview Data From Excel"
+                placement="right"
+                onClose={() => setPreview(false)}
+                destroyOnClose={true}
+                open={preview}
+                bodyStyle={{
+                  padding: 5,
+                }}
+              >
+                {loading("fetch") && <Loading />}
+                <Row
+                  style={{
+                    height: "95%",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Col
+                    style={{
+                      height: "90%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                    }}
+                    span={23}
+                  >
+                    <MyDataTable
+                      columns={previewedcolumns}
+                      data={previewRows}
+                      // pagination
+                      loading={loading("fetch")}
+                      headText="center"
+                      // export={true}
+                    />
+                  </Col>
+                  <Row
+                    span={24}
+                    style={{
+                      width: "100%",
+                      height: "10%",
+                      display: "flex",
+                      justifyContent: "end",
+                    }}
+                  >
+                    <NavFooter
+                      // submithtmlType="Save"
+                      // resethtmlType="Back"
+                      submitFunction={saveTheData}
+                      nextLabel="Submit"
+                      resetFunction={() => setPreview(false)}
+                    ></NavFooter>
+                  </Row>
+                </Row>
+              </Drawer>
               <Modal
                 open={uplaoaClicked}
                 layout="vertical"
@@ -1398,7 +1719,7 @@ export default function MaterialInWithPO({}) {
           >
             {" "}
             {pageLoading || (loading1("select") && <Loading />)}
-            <FormTable columns={columns} data={poData?.materials} />
+            <FormTable columns={columns} data={previewRows} />
           </Col>
 
           <NavFooter
