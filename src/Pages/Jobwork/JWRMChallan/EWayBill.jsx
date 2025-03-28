@@ -199,7 +199,7 @@ const EWayBill = () => {
           state: values.billToState.value,
           pincode: values.billToPincode,
         },
-        shipFrom: {
+        dispatchFrom: {
           // gstin: values.dispatchFromGstin,
           legalName: values.dispatchFromName,
           addressLine1: values.dispatchFromAddress1,
