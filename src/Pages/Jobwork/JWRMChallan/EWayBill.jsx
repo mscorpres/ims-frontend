@@ -201,7 +201,7 @@ const EWayBill = () => {
         },
         dispatchFrom: {
           // gstin: values.dispatchFromGstin,
-          legalName: values.dispatchFromName,
+          legalName: values.dispatchFromPlace,
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
           location: values.dispatchFromLocation,
