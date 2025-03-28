@@ -55,6 +55,7 @@ import {
   Q4,
   MaterialInWithoutPO,
   MaterialInWithPO,
+  ExportMaterialInWithPO,
   Messenger,
   Profile,
   Page404,
@@ -815,6 +816,10 @@ const Routes = [
   {
     path: "/warehouse/material-in-with-po",
     main: () => <MaterialInWithPO />,
+  },
+  {
+    path: "/warehouse/export-material-in-with-po",
+    main: () => <ExportMaterialInWithPO />,
   },
   {
     path: "/warehouse/material-in-product",

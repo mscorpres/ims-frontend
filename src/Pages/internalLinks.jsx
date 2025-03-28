@@ -407,6 +407,10 @@ const links = [
       routeName: "Material In FG/SFG",
       routePath: "/warehouse/material-in-product",
     },
+    {
+      routeName: "Import Material In from PO ",
+      routePath: "/warehouse/export-material-in-with-po",
+    },
   ],
   //QA link
   [
