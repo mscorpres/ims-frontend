@@ -17,6 +17,7 @@ import {
   Form,
   Upload,
   Drawer,
+  DatePicker,
 } from "antd";
 import {
   QuantityCell,
@@ -72,13 +73,12 @@ export default function ExportMaterialInWithPO({}) {
     poNumber: "",
   });
   const [currency, setCurrency] = useState(null);
+  const [invoice, setInvoice] = useState("");
+  const [invoiceDate, setInvoiceDate] = useState(null);
   const [showCurrency, setShowCurrenncy] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [autoConsumptionOptions, setAutoConsumptionOption] = useState([]);
   const [totalValues, setTotalValues] = useState([
-    { label: "cgst", sign: "+", values: [] },
-    { label: "sgst", sign: "+", values: [] },
-    { label: "cigst", sign: "+", values: [] },
     { label: "Sub-Total value before Taxes", sign: "", values: [] },
   ]);
   const [currencies, setCurrencies] = useState([]);
@@ -95,6 +95,7 @@ export default function ExportMaterialInWithPO({}) {
   const [isScan, setIsScan] = useState(false);
   const [uplaoaClicked, setUploadClicked] = useState(false);
   const [form] = Form.useForm();
+  const [form2] = Form.useForm();
   const [uplaodForm] = Form.useForm();
   const components = Form.useWatch("components", form);
   let costCode;
@@ -136,40 +137,45 @@ export default function ExportMaterialInWithPO({}) {
       location: [],
       out_location: [],
       component: [],
+      finalRate:[],
+      customDuty:[],
+      freight:[],
     };
     if (validation == true) {
       let formData = new FormData();
       let values = await form.validateFields();
-      let values2 = await uplaodForm.validateFields();
-      console.log(values,values2)
-      let a = values.components;
+      let values2 = await form2.validateFields();
+      console.log(values,values2,poData)
+      let a = values2?.components;
       // let a = values.components.map((comp) => {
       //   formData.append("files", comp.file[0]?.originFileObj);
       // });
       if (a?.length) {
-        if (!values?.components[0]?.file) {
+        if (!values2?.components[0]?.file) {
           toast.info("Please upload Files");
         }
-        values.components.map((comp) => {
+        values2.components.map((comp) => {
           formData.append("files", comp.file[0]?.originFileObj);
         });
-        poData.materials?.map((row) => {
+        poData?.materials?.map((row) => {
           console.log(row);
           componentData = {
             component: [...componentData.component, row.componentKey],
+            customDuty: [...componentData.customDuty, row.customDuty],
+            freight: [...componentData.freight, row.freightValue],
             qty: [...componentData.qty, row.orderQty],
             rate: [...componentData.rate, row.rate],
             exchange: [
-              ...componentData.exchange,
-              row.exchange_rate == 0 ? 1 : row.exchange_rate,
+              ...componentData?.exchange,row.exchangeRate
             ],
-            invoice: [...componentData.invoice, row.invoiceId],
-            invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
+            invoice:[invoice],
+            // invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
             hsncode: [...componentData.hsncode, row.hsn],
             remark: [...componentData.remark, row.orderremark],
             location: [...componentData.location, row.location.value],
+            finalRate: [...componentData.finalRate, row.finalRate],
             // out_location: [...componentData.out_location, row.autoConsumption],
-            documentName: values.components.map((r) => r.documentName),
+            documentName: values2?.components?.map((r) => r.documentName),
             irn: irnNum,
             qrScan: isScan == true ? "Y" : "N",
             currency:currency
@@ -195,7 +201,7 @@ export default function ExportMaterialInWithPO({}) {
       toast.error("Please Provide all the values of all the components");
     }
   };
-
+console.log(poData,form.getFieldValue(),form2.getFieldsValue())
   const closeDrawer = () => {
     setPreview(false);
     setOpen(false);
@@ -379,10 +385,11 @@ export default function ExportMaterialInWithPO({}) {
       minWidth: 100,
     },
   ];
-
+console.log(invoice,invoiceDate)
   const submitMIN = async (values, isScan) => {
     // return;
     // log
+    console.log(values)
     if (values.formData) {
       setSubmitLoading(true);
       const { data: fileData } = await imsAxios.post(
@@ -393,8 +400,10 @@ export default function ExportMaterialInWithPO({}) {
         let final = {
           companybranch: "BRMSC012",
           invoices: fileData.data,
-          poid: poData.headers.transaction,
-          manual_mfg_code: poData.materials.map((row) => row.mfgCode),
+          poid: searchData.poNumber,
+          manual_mfg_code: poData.materials.map((row) => row.manualMfgCode),
+          invoice: invoice,
+          invoiceDate: invoiceDate
         };
         final = { ...final, ...values.componentData };
         const response = await executeFun(() => poMINforImport(final), "select");
@@ -730,6 +739,12 @@ export default function ExportMaterialInWithPO({}) {
       width: 120,
     },
     {
+      headerName: "Final Rate",
+      field: "finalRate",
+      flex: 1,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.foreignValue} />,
+    },
+    {
       headerName: "HSN Code",
       field: "hsn",
       sortable: false,
@@ -834,18 +849,11 @@ export default function ExportMaterialInWithPO({}) {
   }, []);
   useEffect(() => {
     let grandTotal = poData?.materials.map((row) =>
-      Number(row?.cgst + row?.sgst + row?.igst + row.inrValue)
+      Number(row?.total).toFixed(2)
     );
-    let cgsttotal = poData?.materials.map((row) => Number(row?.cgst));
-    let sgsttotal = poData?.materials.map((row) => Number(row?.sgst));
-    let igsttotal = poData?.materials.map((row) => Number(row?.igst));
     let inrValue = poData?.materials.map((row) => Number(row?.inrValue));
     let obj = [
-      { label: "Sub-Total value before Taxes", sign: "", values: inrValue },
-      { label: "CGST", sign: "+", values: cgsttotal },
-      { label: "SGST", sign: "+", values: sgsttotal },
-      { label: "IGST", sign: "+", values: igsttotal },
-      { label: "Sub-Total values after Taxes", sign: "", values: grandTotal },
+      { label: "Total Sum", sign: "", values: grandTotal },
     ];
     setTotalValues(obj);
   }, [poData]);
@@ -1377,6 +1385,46 @@ export default function ExportMaterialInWithPO({}) {
                         label="Currency"
                       />
                     </Col>
+                    <Col span={24}>
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Invoice Number
+                      </Typography.Title>
+                      <Input
+                        name="invoice_number"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter invoice number",
+                          },
+                        ]}
+                        onChange={(value) =>{setInvoice(value.target.value);}}
+                        value={invoice}
+                      />
+                    </Col>
+                    <Col span={24}>
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Invoice Date
+                      </Typography.Title>
+                      <DatePicker
+                        style={{ width: "100%" }}
+                        name="invoice_date"
+                        onChange={(value) => setInvoiceDate(value)}
+                        value={invoiceDate}
+                      />
+                        
+                    </Col>
                   </Row>
                 </Card>
               </Row>
@@ -1591,7 +1639,7 @@ export default function ExportMaterialInWithPO({}) {
               >
                 <Form
                   initialValues={defaultValues}
-                  form={form}
+                  form={form2}
                   layout="vertical"
                 >
                   <Card style={{ height: "20rem", overflowY: "scroll" }}>
@@ -1614,7 +1662,7 @@ export default function ExportMaterialInWithPO({}) {
                                       field={field}
                                       index={index}
                                       add={add}
-                                      form={form}
+                                      form={form2}
                                       remove={remove}
                                       // setFiles={setFiles}
                                       // files={files}
@@ -1656,10 +1704,10 @@ export default function ExportMaterialInWithPO({}) {
             }}
             submitFunction={validateData}
             disabled={{
-              uploadDoc: !poData.headers,
-              reset: !poData.headers,
-              next: !poData.headers,
-              back: !poData.headers,
+              // uploadDoc: !poData.headers,
+              // reset: !poData.headers,
+              // next: !poData.headers,
+              // back: !poData.headers,
             }}
           />
         </Row>
