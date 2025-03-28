@@ -49,6 +49,15 @@ export const poMINforMIN = async (final) => {
     console.log("something happened wrong", error);
   }
 };
+
+export const poMINforImport = async (final) => {
+  try {
+    const response = await imsAxios.post("/purchaseOthers/poMINImport", final);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
 export const savefginward = async (final) => {
   try {
     const response = await imsAxios.post("/fgMIN/savefginward", final);
