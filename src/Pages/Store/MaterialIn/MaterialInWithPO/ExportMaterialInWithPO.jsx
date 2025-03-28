@@ -50,13 +50,14 @@ import MyDataTable from "../../../../Components/MyDataTable.jsx";
 import {
   checkInvoiceforMIN,
   getVendorOptions,
-  poMINforMIN,
+  poMINforImport,
   uploadPOExportFile,
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton/index.jsx";
 import FormTable from "../../../../Components/FormTable.jsx";
+import MySelect from "../../../../Components/MySelect.jsx";
 
 export default function ExportMaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
@@ -70,9 +71,9 @@ export default function ExportMaterialInWithPO({}) {
     vendor: "",
     poNumber: "",
   });
+  const [currency, setCurrency] = useState(null);
   const [showCurrency, setShowCurrenncy] = useState(null);
   const [invoices, setInvoices] = useState([]);
-  const [showUploadDoc, setShowUploadDoc] = useState(false);
   const [autoConsumptionOptions, setAutoConsumptionOption] = useState([]);
   const [totalValues, setTotalValues] = useState([
     { label: "cgst", sign: "+", values: [] },
@@ -139,6 +140,8 @@ export default function ExportMaterialInWithPO({}) {
     if (validation == true) {
       let formData = new FormData();
       let values = await form.validateFields();
+      let values2 = await uplaodForm.validateFields();
+      console.log(values,values2)
       let a = values.components;
       // let a = values.components.map((comp) => {
       //   formData.append("files", comp.file[0]?.originFileObj);
@@ -150,47 +153,28 @@ export default function ExportMaterialInWithPO({}) {
         values.components.map((comp) => {
           formData.append("files", comp.file[0]?.originFileObj);
         });
-        // poData.materials.map((row) => {
-        //   componentData = {
-        //     component: [...componentData.component, row.componentKey],
-        //     qty: [...componentData.qty, row.orderqty],
-        //     rate: [...componentData.rate, row.orderrate],
-        //     currency: [...componentData.currency, row.currency],
-        //     exchange: [
-        //       ...componentData.exchange,
-        //       row.exchange_rate == 0 ? 1 : row.exchange_rate,
-        //     ],
-        //     invoice: [...componentData.invoice, row.invoiceId],
-        //     invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
-        //     hsncode: [...componentData.hsncode, row.hsncode],
-        //     gsttype: [...componentData.gsttype, row.gsttype],
-        //     gstrate: [...componentData.gstrate, row.gstrate],
-        //     cgst: [...componentData.cgst, row.cgst],
-        //     sgst: [...componentData.sgst, row.sgst],
-        //     igst: [...componentData.igst, row.igst],
-        //     remark: [...componentData.remark, row.orderremark],
-        //     location: [...componentData.location, row.location.value],
-        //     out_location: [...componentData.out_location, row.autoConsumption],
-        //     documentName: values.components.map((r) => r.documentName),
-        //     irn: irnNum,
-        //     qrScan: isScan == true ? "Y" : "N",
-        //   };
-        // });
-        if (
-          (componentData.currency.filter((v, i, a) => v === a[0]).length ===
-            componentData.currency.length) !=
-          true
-        ) {
-          validation = false;
-          return toast.error("Currency of all components should be the same");
-        } else if (
-          (componentData.gsttype.filter((v, i, a) => v === a[0]).length ===
-            componentData.gsttype.length) !=
-          true
-        ) {
-          validation = false;
-          return toast.error("gst type of all components should be the same");
-        }
+        poData.materials?.map((row) => {
+          console.log(row);
+          componentData = {
+            component: [...componentData.component, row.componentKey],
+            qty: [...componentData.qty, row.orderQty],
+            rate: [...componentData.rate, row.rate],
+            exchange: [
+              ...componentData.exchange,
+              row.exchange_rate == 0 ? 1 : row.exchange_rate,
+            ],
+            invoice: [...componentData.invoice, row.invoiceId],
+            invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
+            hsncode: [...componentData.hsncode, row.hsn],
+            remark: [...componentData.remark, row.orderremark],
+            location: [...componentData.location, row.location.value],
+            // out_location: [...componentData.out_location, row.autoConsumption],
+            documentName: values.components.map((r) => r.documentName),
+            irn: irnNum,
+            qrScan: isScan == true ? "Y" : "N",
+            currency:currency
+          };
+        });
         //uploading invoices
         console.log("this is the component data", componentData);
         Modal.confirm({
@@ -231,6 +215,10 @@ export default function ExportMaterialInWithPO({}) {
     form.setFieldValue("components", arr);
   };
 
+  useEffect(() => {
+    previewRows&& setPoData({materials:previewRows});
+  }, [previewRows]);
+
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;
@@ -249,7 +237,7 @@ export default function ExportMaterialInWithPO({}) {
     });
   };
   const validateInvoices = async (values) => {
-    console.log(values)
+    console.log(values);
     try {
       const invoices = values.componentData.invoice;
       setSubmitLoading(true);
@@ -393,7 +381,6 @@ export default function ExportMaterialInWithPO({}) {
   ];
 
   const submitMIN = async (values, isScan) => {
-    console.log("isScan", isScan);
     // return;
     // log
     if (values.formData) {
@@ -410,7 +397,7 @@ export default function ExportMaterialInWithPO({}) {
           manual_mfg_code: poData.materials.map((row) => row.mfgCode),
         };
         final = { ...final, ...values.componentData };
-        const response = await executeFun(() => poMINforMIN(final), "select");
+        const response = await executeFun(() => poMINforImport(final), "select");
         // const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
         // console.log("data po min", data);
         let { data } = response;
@@ -466,6 +453,7 @@ export default function ExportMaterialInWithPO({}) {
     });
     setCurrencies(arr);
   };
+  console.log(poData)
   const getLocation = async (costCode) => {
     setPageLoading(true);
     const { data } = await imsAxios.post("/transaction/getLocationInMin", {
@@ -513,7 +501,6 @@ export default function ExportMaterialInWithPO({}) {
     }
   };
 
-  console.log(previewRows);
   const inputHandler = (name, value, id) => {
     console.log(poData);
     let arr = poData?.materials;
@@ -542,87 +529,7 @@ export default function ExportMaterialInWithPO({}) {
             };
           }
           return obj;
-        } else if (name == "orderrate") {
-          obj = {
-            ...obj,
-            [name]: value,
-            inrValue: value * row.orderqty,
-            usdValue: value * row.orderqty * row.exchange_rate,
-            igst:
-              row.gsttype == "L"
-                ? 0
-                : (value * row.orderqty * row.gstrate) / 100,
-            sgst:
-              row.gsttype == "I"
-                ? 0
-                : (value * row.orderqty * row.gstrate) / 200,
-            cgst:
-              row.gsttype == "I"
-                ? 0
-                : (value * row.orderqty * row.gstrate) / 200,
-          };
-          return obj;
-        } else if (name == "gsttype") {
-          if (value == "I") {
-            obj = {
-              ...obj,
-              [name]: value,
-              igst: (row.inrValue * row.gstrate) / 100,
-              sgst: 0,
-              cgst: 0,
-            };
-          } else if (value == "L") {
-            obj = {
-              ...obj,
-              igst: 0,
-              [name]: value,
-              sgst: (row.inrValue * row.gstrate) / 200,
-              cgst: (row.inrValue * row.gstrate) / 200,
-            };
-          }
-          return obj;
-        } else if (name == "gstrate") {
-          obj = {
-            ...obj,
-            [name]: value,
-            igst: row.gsttype == "L" ? 0 : (value * row.inrValue) / 100,
-            sgst: row.gsttype == "I" ? 0 : (value * row.inrValue) / 200,
-            cgst: row.gsttype == "I" ? 0 : (value * row.inrValue) / 200,
-          };
-          return obj;
-        } else if (name == "currency") {
-          if (value == "364907247") {
-            obj = {
-              ...obj,
-              currency: value,
-              usdValue: 0,
-              exchange_rate: 1,
-            };
-          } else {
-            obj = {
-              ...obj,
-              [name]: value,
-            };
-            setShowCurrenncy({
-              currency: value,
-              price: row.inrValue,
-              exchange_rate: row.exchange_rate,
-              symbol: currencies.filter((cur) => cur.value == value)[0].text,
-              rowId: row.id,
-              inputHandler: inputHandler,
-            });
-          }
-
-          return obj;
-        } else if (name == "exchange_rate") {
-          obj = {
-            ...obj,
-            exchange_rate: value.rate,
-            currency: value.currency,
-            usdValue: row.inrValue * value.rate,
-          };
-          return obj;
-        } else if (name == "location") {
+        }  else if (name == "location") {
           obj = {
             ...obj,
             [name]: value,
@@ -838,12 +745,12 @@ export default function ExportMaterialInWithPO({}) {
       width: 150,
     },
     {
-          headerName: "Invoice ID",
-          field: "invoiceId",
-          sortable: false,
-          renderCell: (params) => invoiceIdCell(params, inputHandler),
-          width: 200,
-        },
+      headerName: "Invoice ID",
+      field: "invoiceId",
+      sortable: false,
+      renderCell: (params) => invoiceIdCell(params, inputHandler),
+      width: 200,
+    },
     {
       headerName: "Remarks",
       field: "orderremark",
@@ -1451,6 +1358,23 @@ export default function ExportMaterialInWithPO({}) {
                         rows={1}
                         loading={searchLoading}
                         active
+                      />
+                    </Col>
+                    <Col span={24}>
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Currency
+                      </Typography.Title>
+                      <MySelect
+                        onChange={(value) => setCurrency(value)}
+                        value={currency}
+                        options={currencies}
+                        label="Currency"
                       />
                     </Col>
                   </Row>
