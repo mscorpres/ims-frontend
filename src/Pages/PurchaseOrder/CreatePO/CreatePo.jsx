@@ -19,6 +19,7 @@ import {
   Modal,
   Button,
   InputNumber,
+  Radio,
 } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import Loading from "../../../Components/Loading";
@@ -162,6 +163,7 @@ export default function CreatePo() {
           : newPurchaseOrder.paymenttermsday
         : 30,
       po_raise_by: newPurchaseOrder.raisedBy,
+      advancePayment: newPurchaseOrder.advancePayment,
     };
     let error = false;
     if (rowCount.length == 0) {
@@ -1035,6 +1037,15 @@ export default function CreatePo() {
                             />
                           </Form.Item>
                         </Col>
+                        <Col span={5}>
+                          <Form.Item  label="Advance Payment" name="advancePayment">
+                            <Radio.Group>
+                              <Radio value={1}>Yes</Radio>
+                              <Radio value={0}>No</Radio>
+                            </Radio.Group>
+                          </Form.Item>
+                        </Col>
+                      
                       </Row>
                     </Col>
                   </Row>

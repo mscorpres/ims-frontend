@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { Button, Col, Drawer, Form, Input, Row } from "antd";
+import { Button, Col, Drawer, Form, Input, Row, Modal } from "antd";
 import { imsAxios } from "../../../../axiosInterceptor";
 
 export default function CancelPO({
@@ -14,6 +14,7 @@ export default function CancelPO({
 }) {
   const [reason, setReason] = useState("");
   const [status, setStatus] = useState();
+  const [payment,setPayment] = useState(false);
   const [loading, setLoading] = useState(false);
   const getPOStatus = async () => {
     if (showCancelPO) {
@@ -22,10 +23,21 @@ export default function CancelPO({
       });
       if (data.code == 200) {
         setStatus("okay");
+        setPayment(data?.data?.advPayment=="1"?true:false);
       } else {
         setStatus(data);
       }
     }
+  };
+
+  const showCofirmModal = () => {
+    Modal.confirm({
+      okText: "Save",
+      title:"Are you sure you want to cancel this PO ? Since the advanced payment has already been made to the vendor.",
+      onOk() {
+        handleCancelPO();
+      },
+    });
   };
   const handleCancelPO = async () => {
     if (showCancelPO) {
@@ -98,7 +110,7 @@ export default function CancelPO({
             <Button
               loading={loading}
               disabled={reason.length < 5 ? true : false}
-              onClick={handleCancelPO}
+              onClick={payment?showCofirmModal:handleCancelPO}
               type="primary"
             >
               Cancel PO

@@ -46,7 +46,7 @@ import MyButton from "../../../../Components/MyButton/index.jsx";
 import FormTable from "../../../../Components/FormTable.jsx";
 import MySelect from "../../../../Components/MySelect.jsx";
 
-export default function ExportMaterialInWithPO({}) {
+export default function ImportMaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
   const [resetPoData, setResetPoData] = useState({ materials: [] });
   const [asyncOptions, setAsyncOptions] = useState([]);

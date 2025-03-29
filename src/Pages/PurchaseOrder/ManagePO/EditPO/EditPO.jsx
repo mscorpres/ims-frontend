@@ -14,6 +14,7 @@ import {
   Modal,
   Row,
   Tabs,
+  Radio
 } from "antd";
 import MySelect from "../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
@@ -49,6 +50,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       };
     });
   };
+  
   const selectInputHandler = async (name, value) => {
     if (value) {
       let obj = purchaseOrder;
@@ -216,7 +218,9 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       setResetDetailsData(obj);
       getVendorBranches(obj.vendorcode.value);
       form.setFieldsValue(obj);
+      form.setFieldValue("advancePayment",Number(updatePoId?.advPayment));
     }
+
     updatePoId?.materials?.map((row, index) =>
       arr.push({
         id: v4(),
@@ -491,6 +495,14 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                     <Col span={6}>
                       <Form.Item name="pocomment" label="Comments">
                         <Input size="default" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={5}>
+                      <Form.Item label="Advance Payment" name="advancePayment">
+                        <Radio.Group>
+                          <Radio value={1}>Yes</Radio>
+                          <Radio value={0}>No</Radio>
+                        </Radio.Group>
                       </Form.Item>
                     </Col>
                   </Row>
