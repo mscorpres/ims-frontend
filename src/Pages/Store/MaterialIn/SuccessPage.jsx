@@ -65,7 +65,7 @@ export default function SuccessPage({
                 po?.components?.length
               } component${po?.components?.length > 1 ? "s" : ""}) ${
                 po?.poId ? `from  ${po?.poId}` : ""
-              } from ${po?.vendor?.vendorname}`
+              } from ${po?.vendor?.vendorname ?? po?.vendor}`
         }
         extra={[
           <Row justify="center" gutter={16}>

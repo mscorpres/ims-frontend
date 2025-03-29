@@ -101,25 +101,21 @@ export default function ExportMaterialInWithPO({}) {
   let costCode;
   const { executeFun, loading: loading1 } = useApi();
   const { loading } = useApi();
-  console.log(form.getFieldsValue());
   const validateData = async () => {
-    // let validation = false;
-    let validation = true;
+    let validation = false;
+    // let validation = true;
     // poData.materials.map((row) => {
-    //   if (
-    //     row.c_partno &&
-    //     row.currency &&
-    //     row.gstrate &&
-    //     row.invoiceDate &&
-    //     row.invoiceId &&
-    //     row.location &&
-    //     row.orderqty
-    //   ) {
-    //     validation = true;
-    //   } else {
-    //     validation = false;
-    //   }
-    // });
+      if (
+       currency &&
+        invoice &&
+        invoiceDate &&
+        poData.materials.length
+      ) {
+        validation = true;
+      } else {
+        validation = false;
+      // }
+    };
     let componentData = {
       qty: [],
       rate: [],
@@ -137,15 +133,14 @@ export default function ExportMaterialInWithPO({}) {
       location: [],
       out_location: [],
       component: [],
-      finalRate:[],
-      customDuty:[],
-      freight:[],
+      finalRate: [],
+      customDuty: [],
+      freight: [],
     };
     if (validation == true) {
       let formData = new FormData();
       let values = await form.validateFields();
       let values2 = await form2.validateFields();
-      console.log(values,values2,poData)
       let a = values2?.components;
       // let a = values.components.map((comp) => {
       //   formData.append("files", comp.file[0]?.originFileObj);
@@ -158,17 +153,15 @@ export default function ExportMaterialInWithPO({}) {
           formData.append("files", comp.file[0]?.originFileObj);
         });
         poData?.materials?.map((row) => {
-          console.log(row);
+          if(!row.location) toast.error("Please select location");
           componentData = {
             component: [...componentData.component, row.componentKey],
             customDuty: [...componentData.customDuty, row.customDuty],
             freight: [...componentData.freight, row.freightValue],
             qty: [...componentData.qty, row.orderQty],
             rate: [...componentData.rate, row.rate],
-            exchange: [
-              ...componentData?.exchange,row.exchangeRate
-            ],
-            invoice:[invoice],
+            exchange: [...componentData?.exchange, row.exchangeRate],
+            invoice: [invoice],
             // invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
             hsncode: [...componentData.hsncode, row.hsn],
             remark: [...componentData.remark, row.orderremark],
@@ -178,11 +171,10 @@ export default function ExportMaterialInWithPO({}) {
             documentName: values2?.components?.map((r) => r.documentName),
             irn: irnNum,
             qrScan: isScan == true ? "Y" : "N",
-            currency:currency
+            currency: currency,
           };
         });
         //uploading invoices
-        console.log("this is the component data", componentData);
         Modal.confirm({
           title: "Are you sure you want to submt this MIN",
           // icon: <ExclamationCircleFilled />,
@@ -201,15 +193,11 @@ export default function ExportMaterialInWithPO({}) {
       toast.error("Please Provide all the values of all the components");
     }
   };
-console.log(poData,form.getFieldValue(),form2.getFieldsValue())
+
   const closeDrawer = () => {
     setPreview(false);
     setOpen(false);
-    // setSelectedRows(previewRows);
-    // setRows(previewRows);
-    console.log(previewRows);
     let arr = previewRows.map((r) => {
-      console.log(r);
       return {
         ...r,
         mfgCode: r.Manualmfgcode,
@@ -222,7 +210,7 @@ console.log(poData,form.getFieldValue(),form2.getFieldsValue())
   };
 
   useEffect(() => {
-    previewRows&& setPoData({materials:previewRows});
+    previewRows && setPoData({ materials: previewRows });
   }, [previewRows]);
 
   const normFile = (e) => {
@@ -243,7 +231,6 @@ console.log(poData,form.getFieldValue(),form2.getFieldsValue())
     });
   };
   const validateInvoices = async (values) => {
-    console.log(values);
     try {
       const invoices = values.componentData.invoice;
       setSubmitLoading(true);
@@ -385,11 +372,8 @@ console.log(poData,form.getFieldValue(),form2.getFieldsValue())
       minWidth: 100,
     },
   ];
-console.log(invoice,invoiceDate)
+
   const submitMIN = async (values, isScan) => {
-    // return;
-    // log
-    console.log(values)
     if (values.formData) {
       setSubmitLoading(true);
       const { data: fileData } = await imsAxios.post(
@@ -403,14 +387,16 @@ console.log(invoice,invoiceDate)
           poid: searchData.poNumber,
           manual_mfg_code: poData.materials.map((row) => row.manualMfgCode),
           invoice: invoice,
-          invoiceDate: invoiceDate
+          invoiceDate: invoiceDate,
         };
         final = { ...final, ...values.componentData };
-        const response = await executeFun(() => poMINforImport(final), "select");
+        const response = await executeFun(
+          () => poMINforImport(final),
+          "select"
+        );
         // const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
-        // console.log("data po min", data);
-        let { data } = response;
 
+        let { data } = response;
         // setSubmitLoading(false);
         if (data.code == "200") {
           setSearchData({
@@ -421,18 +407,16 @@ console.log(invoice,invoiceDate)
           setSubmitLoading(false);
           setMaterialInSuccess({
             materialInId: data.transaction_id,
-            poId: poData.headers.transaction,
-            vendor: poData.headers.vendorcode,
-            components: poData.materials.map((row) => {
+            poId: searchData.poNumber,
+            vendor: searchData.vendor,
+            components: poData?.materials?.map((row) => {
               return {
-                id: row.c_partno,
-                componentName: row.component_fullname,
-                partNo: row.c_partno,
-                inQuantity: row.orderqty,
-                invoiceNumber: row.invoiceId,
-                invoiceDate: row.invoiceDate,
+                id: row.id,
+                componentName: row.component?.label,
+                partNo: row.partCode,
+                inQuantity: row.orderQty,
                 location: row.location.label,
-                poQuantity: row.po_order_qty,
+                poQuantity: row.poOrderQty,
               };
             }),
           });
@@ -462,7 +446,7 @@ console.log(invoice,invoiceDate)
     });
     setCurrencies(arr);
   };
-  console.log(poData)
+
   const getLocation = async (costCode) => {
     setPageLoading(true);
     const { data } = await imsAxios.post("/transaction/getLocationInMin", {
@@ -511,7 +495,6 @@ console.log(invoice,invoiceDate)
   };
 
   const inputHandler = (name, value, id) => {
-    console.log(poData);
     let arr = poData?.materials;
     arr = arr.map((row) => {
       let obj = row;
@@ -538,7 +521,7 @@ console.log(invoice,invoiceDate)
             };
           }
           return obj;
-        }  else if (name == "location") {
+        } else if (name == "location") {
           obj = {
             ...obj,
             [name]: value,
@@ -566,10 +549,8 @@ console.log(invoice,invoiceDate)
     // if (search?.length > 2) {
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
-    console.log("this is the vendor options", response.data);
     if (response.success) {
       arr = convertSelectOptions(response.data);
-      console.log("this is the arr options", arr);
     }
     setAsyncOptions(arr);
     // }
@@ -598,38 +579,8 @@ console.log(invoice,invoiceDate)
         ...obj,
 
         poId: searchData.poNumber,
-        // materials: obj.materials.map((mat, index) => {
-        //   let percentage = mat.gstrate;
-        //   return {
-        //     // adding properties in materials array
-        //     ...mat,
-        //     id: v4(),
-        //     gsttype: mat.gsttype,
-        //     inrValue: mat?.orderqty * mat?.orderrate,
-        //     cgst:
-        //       mat.gsttype == "I"
-        //         ? 0
-        //         : (mat?.orderqty * mat?.orderrate * (percentage / 2)) / 100,
-        //     sgst:
-        //       mat.gsttype == "I"
-        //         ? 0
-        //         : (mat?.orderqty * mat?.orderrate * (percentage / 2)) / 100,
-        //     igst:
-        //       mat.gsttype == "L"
-        //         ? 0
-        //         : (mat?.orderqty * mat?.orderrate * percentage) / 100,
-        //     invoiceDate: "",
-        //     invoiceId: "",
-        //     location: { label: "RM021", value: "20210910142629" },
-        //     maxQty: mat?.orderqty,
-        //     autoConsumption: 0,
-        //     pendingqtybyorderqty: mat.orderqty + " /" + mat.po_order_qty,
-        //     mfg: mat.mfgCode,
-        //   };
-        // }),
       };
       costCode = obj.headers.cost_center_key;
-      // console.log("obj", costCode);
       setCodeCostCenter(costCode);
 
       setPoData(obj);
@@ -641,8 +592,6 @@ console.log(invoice,invoiceDate)
     }
   };
   useEffect(() => {
-    // console.log("obj", costCode);
-    // console.log("codeCostCenter", codeCostCenter);
     if (codeCostCenter) {
       getLocation(codeCostCenter);
     }
@@ -742,7 +691,15 @@ console.log(invoice,invoiceDate)
       headerName: "Final Rate",
       field: "finalRate",
       flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.foreignValue} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.finalRate} />,
+      width: 100,
+    },
+    {
+      headerName: "Total",
+      field: "total",
+      flex: 1,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.total} />,
+      width: 100,
     },
     {
       headerName: "HSN Code",
@@ -758,13 +715,6 @@ console.log(invoice,invoiceDate)
       renderCell: (params) =>
         locationCell(params, inputHandler, locationOptions),
       width: 150,
-    },
-    {
-      headerName: "Invoice ID",
-      field: "invoiceId",
-      sortable: false,
-      renderCell: (params) => invoiceIdCell(params, inputHandler),
-      width: 200,
     },
     {
       headerName: "Remarks",
@@ -784,8 +734,6 @@ console.log(invoice,invoiceDate)
     { headerName: "Part No.", field: "partNo", flex: 1 },
     { headerName: "PO Quantity", field: "poQuantity", flex: 1 },
     { headerName: "In Quantity", field: "inQuantity", flex: 1 },
-    { headerName: "Invoice Number", field: "invoiceNumber", flex: 1 },
-    { headerName: "Invoice Date", field: "invoiceDate", flex: 1 },
     { headerName: "Location", field: "location", flex: 1 },
   ];
   const newMinFunction = () => {
@@ -852,9 +800,7 @@ console.log(invoice,invoiceDate)
       Number(row?.total).toFixed(2)
     );
     let inrValue = poData?.materials.map((row) => Number(row?.inrValue));
-    let obj = [
-      { label: "Total Sum", sign: "", values: grandTotal },
-    ];
+    let obj = [{ label: "Total Sum", sign: "", values: grandTotal }];
     setTotalValues(obj);
   }, [poData]);
   // log
@@ -874,7 +820,6 @@ console.log(invoice,invoiceDate)
     );
 
     if (response?.data?.status === "success") {
-      console.log(response);
       let { data } = response;
 
       // Flatten the new data structure to extract part details and other fields
@@ -901,39 +846,29 @@ console.log(invoice,invoiceDate)
           value: (item.order_qty * item.import_rate).toFixed(3), // You may want to adjust the calculation for the value
         };
       });
-
-      // Log the processed rows
-      console.log(formattedRows);
-
       // Optional: map formatted rows to final structure
-      let arr = formattedRows.map(
-        (r, index) => (
-          console.log(r, index),
-          {
-            id: index + 1,
-            partCode: r.partCode,
-            partName: r.partName,
-            component: { label: r.partName, value: r.componentKey },
-            qty: r.orderQty,
-            rate: r.importRate,
-            hsn: r.hsn,
-            value: r.value,
-            gstRate: r.exchangeRate, // Example, adjust as needed
-            gstType: r.uom, // Example, adjust as needed
-            ...r,
-          }
-        )
-      );
-      console.log(arr);
+      let arr = formattedRows.map((r, index) => ({
+        id: index + 1,
+        partCode: r.partCode,
+        partName: r.partName,
+        component: { label: r.partName, value: r.componentKey },
+        qty: r.orderQty,
+        rate: r.importRate,
+        hsn: r.hsn,
+        value: r.value,
+        gstRate: r.exchangeRate, // Example, adjust as needed
+        gstType: r.uom, // Example, adjust as needed
+        ...r,
+      }));
       setPreviewRows(arr);
     } else {
-      toast.error(response.message.msg);
+      toast.error(response?.data?.message);
       setPreview(false);
     }
   };
 
   return (
-    <div style={{ height: "90%", position: "relative" }}>
+    <div style={{ height: "90%", position: "relative", overflow: "hidden" }}>
       <Row
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
@@ -1224,23 +1159,7 @@ console.log(invoice,invoiceDate)
                           {poData?.headers?.gstin}
                         </Typography.Text>
                       )}
-                      <Col span={24}>
-                        {/* <Form.Item name="QR"> */}
-                        <Checkbox
-                          checked={isScan}
-                          onChange={(e) => setIsScan(e.target.checked)}
-                        ></Checkbox>
-                        <Typography.Text
-                          style={{
-                            fontSize: 11,
-                            marginLeft: "4px",
-                            marginBottom: "4px",
-                          }}
-                        >
-                          Scan with QR Code
-                        </Typography.Text>
-                        {/* </Form.Item> */}
-                      </Col>
+
                       <span display="flex">
                         <Row gutter={[0, 0]}>
                           <Col span={10}>
@@ -1403,7 +1322,9 @@ console.log(invoice,invoiceDate)
                             message: "Please enter invoice number",
                           },
                         ]}
-                        onChange={(value) =>{setInvoice(value.target.value);}}
+                        onChange={(value) => {
+                          setInvoice(value.target.value);
+                        }}
                         value={invoice}
                       />
                     </Col>
@@ -1423,7 +1344,6 @@ console.log(invoice,invoiceDate)
                         onChange={(value) => setInvoiceDate(value)}
                         value={invoiceDate}
                       />
-                        
                     </Col>
                   </Row>
                 </Card>
@@ -1447,7 +1367,13 @@ console.log(invoice,invoiceDate)
                       <MyButton
                         variant="upload"
                         text="Excel"
-                        onClick={() => setOpen(true)}
+                        onClick={() => {
+                          if (searchData?.poNumber) {
+                            setOpen(true);
+                          } else {
+                            toast.error("Please enter PO Number");
+                          }
+                        }}
                       >
                         Excel
                       </MyButton>
@@ -1465,7 +1391,7 @@ console.log(invoice,invoiceDate)
               <Col span={24} style={{ width: "100%", height: "50%" }}>
                 <Card
                   size="small"
-                  style={{ width: "100%", height: "100%" }}
+                  style={{ width: "100%", height: "30%" }}
                   bodyStyle={{ overflowY: "auto", maxHeight: "74%" }}
                   title="Tax Details"
                 >
@@ -1582,7 +1508,7 @@ console.log(invoice,invoiceDate)
                   padding: 5,
                 }}
               >
-                {loading("fetch") && <Loading />}
+                {loading1("fetch")  && <Loading />}
                 <Row
                   style={{
                     height: "95%",
@@ -1703,12 +1629,14 @@ console.log(invoice,invoiceDate)
               setShowResetConfirm(true);
             }}
             submitFunction={validateData}
-            disabled={{
-              // uploadDoc: !poData.headers,
-              // reset: !poData.headers,
-              // next: !poData.headers,
-              // back: !poData.headers,
-            }}
+            disabled={
+              {
+                // uploadDoc: !poData.headers,
+                // reset: !poData.headers,
+                // next: !poData.headers,
+                // back: !poData.headers,
+              }
+            }
           />
         </Row>
       )}
