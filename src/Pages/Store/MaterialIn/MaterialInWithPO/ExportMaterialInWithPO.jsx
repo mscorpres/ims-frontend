@@ -105,17 +105,12 @@ export default function ExportMaterialInWithPO({}) {
     let validation = false;
     // let validation = true;
     // poData.materials.map((row) => {
-      if (
-       currency &&
-        invoice &&
-        invoiceDate &&
-        poData.materials.length
-      ) {
-        validation = true;
-      } else {
-        validation = false;
+    if (currency && invoice && invoiceDate && poData.materials.length) {
+      validation = true;
+    } else {
+      validation = false;
       // }
-    };
+    }
     let componentData = {
       qty: [],
       rate: [],
@@ -153,7 +148,7 @@ export default function ExportMaterialInWithPO({}) {
           formData.append("files", comp.file[0]?.originFileObj);
         });
         poData?.materials?.map((row) => {
-          if(!row.location) toast.error("Please select location");
+          if (!row.location) toast.error("Please select location");
           componentData = {
             component: [...componentData.component, row.componentKey],
             customDuty: [...componentData.customDuty, row.customDuty],
@@ -667,6 +662,20 @@ export default function ExportMaterialInWithPO({}) {
       width: 100,
     },
     {
+      headerName: "Custom Duty",
+      field: "customDuty",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.customDuty} />,
+      width: 100,
+    },
+    {
+      headerName: "Freight Charge",
+      field: "freightValue",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.freightValue} />,
+      width: 100,
+    },
+    {
       headerName: "Exchange Rate",
       field: "exchangeRate",
       sortable: false,
@@ -800,8 +809,20 @@ export default function ExportMaterialInWithPO({}) {
     let grandTotal = poData?.materials.map((row) =>
       Number(row?.total).toFixed(2)
     );
+    let totalTaxableValue = poData?.materials.map((row) =>
+      Number(row?.taxableValue)
+    );
+    let customTotal = poData?.materials.map((row) => Number(row?.customDuty));
+    let freightTotal = poData?.materials.map((row) =>
+      Number(row?.freightValue)
+    );
     let inrValue = poData?.materials.map((row) => Number(row?.inrValue));
-    let obj = [{ label: "Total Sum", sign: "", values: grandTotal }];
+    let obj = [
+      { label: "Total Taxable Value", sign: "+", values: totalTaxableValue },
+      { label: "Total Custom Duty", sign: "+", values: customTotal },
+      { label: "Total Freight Charges", sign: "+", values: freightTotal },
+      { label: "Total Sum", sign: "", values: grandTotal },
+    ];
     setTotalValues(obj);
   }, [poData]);
   // log
@@ -869,7 +890,7 @@ export default function ExportMaterialInWithPO({}) {
   };
 
   return (
-    <div style={{ height: "90%", position: "relative", overflow: "hidden" }}>
+    <div style={{ height: "90%", position: "relative", overflow: "auto" }}>
       <Row
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
@@ -1392,7 +1413,7 @@ export default function ExportMaterialInWithPO({}) {
               <Col span={24} style={{ width: "100%", height: "50%" }}>
                 <Card
                   size="small"
-                  style={{ width: "100%", height: "30%" }}
+                  style={{ width: "100%", height: "50%" }}
                   bodyStyle={{ overflowY: "auto", maxHeight: "74%" }}
                   title="Tax Details"
                 >
@@ -1509,7 +1530,7 @@ export default function ExportMaterialInWithPO({}) {
                   padding: 5,
                 }}
               >
-                {loading1("fetch")  && <Loading />}
+                {loading1("fetch") && <Loading />}
                 <Row
                   style={{
                     height: "95%",
