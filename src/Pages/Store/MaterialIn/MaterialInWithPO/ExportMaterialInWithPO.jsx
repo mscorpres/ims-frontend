@@ -20,22 +20,8 @@ import {
   DatePicker,
 } from "antd";
 import {
-  QuantityCell,
-  taxableCell,
-  foreignCell,
-  invoiceIdCell,
-  invoiceDateCell,
-  HSNCell,
-  gstTypeCell,
-  CGSTCell,
-  SGSTCell,
-  IGSTCell,
   locationCell,
   remarkCell,
-  rateCell,
-  autoConsumptionCell,
-  gstRate,
-  manualMFGCode,
 } from "./TableCollumns.jsx";
 import SingleProduct from "../../../Master/Vendor/SingleProduct.jsx";
 import CurrenceModal from "../CurrenceModal.jsx";
@@ -91,6 +77,7 @@ export default function ExportMaterialInWithPO({}) {
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [locationOptions, setLocationOptions] = useState([]);
+  const [selectLocation, setSelectLocation] = useState(null);
   const [codeCostCenter, setCodeCostCenter] = useState("");
   const [isScan, setIsScan] = useState(false);
   const [uplaoaClicked, setUploadClicked] = useState(false);
@@ -105,7 +92,7 @@ export default function ExportMaterialInWithPO({}) {
     let validation = false;
     // let validation = true;
     // poData.materials.map((row) => {
-    if (currency && invoice && invoiceDate && poData.materials.length) {
+    if (currency && invoice && invoiceDate && poData.materials.length && selectLocation) {
       validation = true;
     } else {
       validation = false;
@@ -148,7 +135,6 @@ export default function ExportMaterialInWithPO({}) {
           formData.append("files", comp.file[0]?.originFileObj);
         });
         poData?.materials?.map((row) => {
-          if (!row.location) toast.error("Please select location");
           componentData = {
             component: [...componentData.component, row.componentKey],
             customDuty: [...componentData.customDuty, row.customDuty],
@@ -160,7 +146,7 @@ export default function ExportMaterialInWithPO({}) {
             // invoiceDate: [...componentData.invoiceDate, row.invoiceDate],
             hsncode: [...componentData.hsncode, row.hsn],
             remark: [...componentData.remark, row.orderremark],
-            location: [...componentData.location, row.location.value],
+            // location: [...componentData.location, row.location.value],
             finalRate: [...componentData.finalRate, row.finalRate],
             // out_location: [...componentData.out_location, row.autoConsumption],
             documentName: values2?.components?.map((r) => r.documentName),
@@ -383,6 +369,7 @@ export default function ExportMaterialInWithPO({}) {
           manual_mfg_code: poData.materials.map((row) => row.manualMfgCode),
           invoice: invoice,
           invoiceDate: invoiceDate,
+          location: selectLocation,
         };
         final = { ...final, ...values.componentData };
         const response = await executeFun(
@@ -390,7 +377,6 @@ export default function ExportMaterialInWithPO({}) {
           "select"
         );
         // const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
-
         let { data } = response;
         // setSubmitLoading(false);
         if (data.code == "200") {
@@ -410,7 +396,7 @@ export default function ExportMaterialInWithPO({}) {
                 componentName: row.component?.label,
                 partNo: row.partCode,
                 inQuantity: row.orderQty,
-                location: row.location.label,
+                location: selectLocation,
                 poQuantity: row.poOrderQty,
               };
             }),
@@ -418,7 +404,7 @@ export default function ExportMaterialInWithPO({}) {
           setIrnNum("");
         } else {
           setSubmitLoading(false);
-          toast.error(data.message);
+          toast.error(data.message.msg);
         }
       } else {
         setSubmitLoading(false);
@@ -715,14 +701,6 @@ export default function ExportMaterialInWithPO({}) {
       field: "hsn",
       sortable: false,
       renderCell: ({ row }) => <ToolTipEllipses text={row.hsn} />,
-      width: 150,
-    },
-    {
-      headerName: "Location",
-      field: "location",
-      sortable: false,
-      renderCell: (params) =>
-        locationCell(params, inputHandler, locationOptions),
       width: 150,
     },
     {
@@ -1047,7 +1025,7 @@ export default function ExportMaterialInWithPO({}) {
 
       {!materialInSuccess && (
         <Row gutter={8} style={{ height: "100%", padding: "0px 10px" }}>
-          <Col span={6} style={{ overflowY: "auto", maxHeight: "100%" }}>
+          <Col span={6} style={{ overflowY: "hidden", maxHeight: "100%" , height: "100%"}}>
             <Row
               style={{
                 height: "76%",
@@ -1183,31 +1161,7 @@ export default function ExportMaterialInWithPO({}) {
                       )}
 
                       <span display="flex">
-                        <Row gutter={[0, 0]}>
-                          <Col span={10}>
-                            <Typography.Title
-                              style={{
-                                marginTop: "5px",
-                                fontSize:
-                                  window.innerWidth < 1600
-                                    ? "0.85rem"
-                                    : "0.95rem",
-                              }}
-                              level={5}
-                            >
-                              Acknowledgment Number
-                            </Typography.Title>
-                          </Col>
-                          <Col span={14}>
-                            <Input
-                              style={{
-                                marginTop: "5px",
-                              }}
-                              placeholder="Please enter Acknowledgment Number"
-                              onChange={(e) => setIrnNum(e.target.value)}
-                            />
-                          </Col>
-                        </Row>
+          
                       </span>
                       <Skeleton
                         paragraph={false}
@@ -1334,6 +1288,23 @@ export default function ExportMaterialInWithPO({}) {
                         }}
                         level={5}
                       >
+                        Location
+                      </Typography.Title>
+                      <MySelect
+                        onChange={(value) => setSelectLocation(value)}
+                        value={selectLocation}
+                        options={locationOptions}
+                        label="Location"
+                      />
+                    </Col>
+                    <Col span={24}>
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
                         Invoice Number
                       </Typography.Title>
                       <Input
@@ -1414,7 +1385,7 @@ export default function ExportMaterialInWithPO({}) {
                 <Card
                   size="small"
                   style={{ width: "100%", height: "50%" }}
-                  bodyStyle={{ overflowY: "auto", maxHeight: "74%" }}
+                  bodyStyle={{ overflowY: "auto", maxHeight: "100%" }}
                   title="Tax Details"
                 >
                   <Row gutter={[0, 4]}>
