@@ -17,7 +17,8 @@ import Attachments from "@/Pages/R&D/bom/list/attachments";
 import { useLocation, useNavigate } from "react-router-dom";
 import routeConstants from "@/Routes/routeConstants.js";
 import IconButton from "@/Components/IconButton";
-import { ArrowRightOutlined } from "@ant-design/icons";
+import { ArrowRightOutlined,EyeOutlined } from "@ant-design/icons";
+
 import ViewLogs from "@/Pages/R&D/bom/list/components/ViewLogs.js";
 
 const BOMList = () => {
@@ -101,10 +102,28 @@ const BOMList = () => {
 
   const draftActionColumns = [
     {
-      headerName: "",
+      headerName: "Actions",
       type: "actions",
-      width: 30,
+      width: 130,      
       getActions: ({ row }: { row: BOMTypeExtended }) => [
+        <GridActionsCellItem
+          icon={
+            <IconButton
+              icon={
+                <EyeOutlined
+                  style={{ color: "#04B0A8", fontSize: 16 }}
+                />
+              }
+              tooltip="View Images"
+            />
+          }
+          label="View Attachments"
+          onClick={() => {
+            console.log(row)
+            setShowDocs(true);
+            setAttachLsit(row);
+          }}
+        />,
         <GridActionsCellItem
           icon={
             <IconButton
@@ -183,7 +202,7 @@ const BOMList = () => {
         }}
         selectedBom={selectedBOM}
       /> */}
-      <Col sm={20} lg={18} xxl={14}>
+      <Col sm={24} lg={20} xxl={16}>
         <MyDataTable
           columns={[
             ...columns,

@@ -97,7 +97,7 @@ const AddComponent = ({
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
-
+  const isDraftUpdate = window.location.href.includes("draft") && window.location.href.includes("version");
   const handleFetchVendorOptions = async (search: string) => {
     const response = await executeFun(() => getVendorOptions(search), "select");
 
@@ -287,9 +287,9 @@ const AddComponent = ({
         <MyButton
           variant="save"
           loading={loading("draft")}
-          onClick={() => validateHandler("draft")}
+          onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
           disabled={mainComponents.length === 0}
-          text="Save as Draft"
+          text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
         />
       </Flex>
     </Card>

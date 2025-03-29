@@ -711,6 +711,11 @@ export const createBomRND = async (data: BomRequest) => {
   return response;  
 };
 
+export const updateDraftBomRND = async (data: BomRequest) => {
+  const response: ResponseType = await imsAxios.post("/bomRnd/updateDraftBom", data);
+  return response;  
+};
+
 export const createDraftBomRND = async (data: BomRequest) => {
   const response: ResponseType = await imsAxios.post("/bomRnd/createDraftBom", data);
   return response;  

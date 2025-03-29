@@ -29,6 +29,7 @@ import {
   downloadSampleComponentFile,
   getComponentsFromFile,
   getExistingBom,
+  updateDraftBomRND,
   uploadDocs,
 } from "@/api/r&d/bom";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -292,12 +293,24 @@ const BOMCreate = () => {
     setAsyncOptions(response.data ?? []);
   };
 
-  const validateHandler = async (action: "final" | "draft") => {
+  const validateHandler = async (action: "final" | "draft"|"updateDraft") => {
     await form.validateFields(["name", "version", "product", "bomRef"]);
     setSaveType(action);
    if( action === "final"){
      setShowApproverMetrics(true);
    } 
+   else if(action === "updateDraft"){
+    Modal.confirm({
+      title: "Are you sure you want to update this BOM as Draft?",
+      content:
+        "Please make sure that the values are correct,",
+      onOk() {
+        submitHandler(action);
+      },
+      onCancel() {},
+    });
+    
+   }
    else{
     Modal.confirm({
       title: "Are you sure you want to save this BOM as Draft?",
@@ -334,7 +347,7 @@ const BOMCreate = () => {
     }
   } 
 
-  const submitHandler = async (action: "final" | "draft") => {
+  const submitHandler = async (action: "final" | "draft"| "updateDraft") => {
     const values = await form.validateFields([
       "name",
       "version",
@@ -353,6 +366,7 @@ const BOMCreate = () => {
       bomDoc: values.documents,
       bomRef: values.bomRef,
       bomRemark: values.description,
+      bomKey:bomId??"",
       approvers: approvers.map(
         (stage) => stage.approvers.map((approver: any) => approver?.user?.value) // Extract the 'value' of each approver's user
       ),
@@ -375,7 +389,9 @@ const BOMCreate = () => {
     let response;
     if (action === "final") {
       response = await executeFun(() => createBomRND(payload as any), action);
-    } else {
+    } else if (action === "updateDraft") {
+      response = await executeFun(() => updateDraftBomRND(payload as any), action);
+    }else {
       response = await executeFun(
         () => createDraftBomRND(payload as any),
         action
