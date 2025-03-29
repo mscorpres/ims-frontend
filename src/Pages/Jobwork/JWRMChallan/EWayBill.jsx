@@ -206,7 +206,7 @@ const EWayBill = () => {
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
           location: values.dispatchFromLocation,
-          state: dispFromState,
+          state: values.dispatchFromState?.value ?? values.dispatchFromState+"",
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
