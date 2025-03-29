@@ -130,6 +130,7 @@ const EWayBill = () => {
   };
   const transactionType = Form.useWatch("transactionType", form);
   const subSupplyTypeOption = Form.useWatch("subType", form);
+  const dispFromState = Form.useWatch("dispatchFromState", form);
 
   const getStateOptions = async () => {
     try {
@@ -205,7 +206,7 @@ const EWayBill = () => {
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
           location: values.dispatchFromLocation,
-          state: values.dispatchFromState?.value,
+          state: dispFromState,
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
