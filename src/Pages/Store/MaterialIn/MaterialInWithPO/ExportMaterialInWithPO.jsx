@@ -890,7 +890,7 @@ export default function ExportMaterialInWithPO({}) {
   };
 
   return (
-    <div style={{ height: "90%", position: "relative", overflow: "auto" }}>
+    <div style={{ height: "90%", position: "relative"  }}>
       <Row
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
@@ -1047,7 +1047,7 @@ export default function ExportMaterialInWithPO({}) {
 
       {!materialInSuccess && (
         <Row gutter={8} style={{ height: "100%", padding: "0px 10px" }}>
-          <Col span={6}>
+          <Col span={6} style={{ overflowY: "auto", maxHeight: "100%" }}>
             <Row
               style={{
                 height: "76%",
@@ -1410,7 +1410,7 @@ export default function ExportMaterialInWithPO({}) {
                 </Card>
               </Col>
               {/* tax details */}
-              <Col span={24} style={{ width: "100%", height: "50%" }}>
+              <Col span={24} style={{ width: "100%", height: "75%" }}>
                 <Card
                   size="small"
                   style={{ width: "100%", height: "50%" }}
@@ -1635,7 +1635,7 @@ export default function ExportMaterialInWithPO({}) {
           </Col>
           <Col
             span={18}
-            style={{ height: "85%", padding: 0, border: "1px solid #eeeeee " }}
+            style={{ height: "85%", padding: 0, border: "1px solid #eeeeee " ,overflow:"hidden"}}
           >
             {" "}
             {pageLoading || (loading1("select") && <Loading />)}
