@@ -243,7 +243,12 @@ export default function ItemLocationLog() {
       width: 120,
     },
     {
-      headerName: "Weighted Purchase Rate",
+      headerName: "Total Value",
+      field: "total_value",
+      width: 120,
+    },
+    {
+      headerName: "Weighted Average Rate",
       field: "weightedPurchaseRate",
       width: 180,
       renderCell: ({ row }) => (
