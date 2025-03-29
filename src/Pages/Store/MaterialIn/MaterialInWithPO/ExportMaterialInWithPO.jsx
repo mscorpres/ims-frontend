@@ -423,7 +423,7 @@ export default function ExportMaterialInWithPO({}) {
           setIrnNum("");
         } else {
           setSubmitLoading(false);
-          toast.error(data.message.msg);
+          toast.error(data.message);
         }
       } else {
         setSubmitLoading(false);
@@ -740,6 +740,7 @@ export default function ExportMaterialInWithPO({}) {
     setMaterialInSuccess(false);
     setPoData({ materials: [] });
     setResetPoData({ materials: [] });
+    window.location.reload();
   };
   const additional = () => (
     <Space>
