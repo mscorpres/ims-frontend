@@ -242,11 +242,11 @@ export default function ItemLocationLog() {
       field: "qty_in_rate",
       width: 120,
     },
-    {
-      headerName: "Total Value",
-      field: "total_value",
-      width: 120,
-    },
+    // {
+    //   headerName: "Total Value",
+    //   field: "total_value",
+    //   width: 120,
+    // },
     {
       headerName: "Weighted Average Rate",
       field: "weightedPurchaseRate",
