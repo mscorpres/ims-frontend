@@ -1483,7 +1483,7 @@ export default function ExportMaterialInWithPO({}) {
                       <MyButton
                         variant="downloadSample"
                         onClick={() =>
-                          downloadCSVCustomColumns(sampleData, "RM Inward")
+                          window.open("http://imsv2.mscapi.live/files/sample/Import%20PO%20Sample%20File%20Format.xlsx", "_blank")
                         }
                       />
                     </Row>
@@ -1610,7 +1610,7 @@ export default function ExportMaterialInWithPO({}) {
           >
             {" "}
             {pageLoading || (loading1("select") && <Loading />)}
-            <FormTable columns={columns} data={previewRows} />
+            <FormTable columns={columns} data={poData?.materials} />
           </Col>
 
           <NavFooter
