@@ -70,6 +70,7 @@ interface ComponentType {
 
 const BOMCreate = () => {
   const [visible, setVisible] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [mainComponents, setMainComponents] = useState<ComponentType[]>([]);
   const [subComponents, setSubComponents] = useState<ComponentType[]>([]);
@@ -471,6 +472,7 @@ const BOMCreate = () => {
   };
 
   const handleUpload = async (files) => {
+    setUploadLoading(true); 
     // Create a FormData object
     const formData = new FormData();
 
@@ -485,9 +487,11 @@ const BOMCreate = () => {
       // Show success toast
       toast.success("Upload successful");
       setVisible(false); // Close the modal
+      setUploadLoading(false);
     } catch (error) {
       console.error("Error during upload:", error); // Handle error
     }
+    setUploadLoading(false);
   };
 
   const resetHandler = () => {
@@ -748,6 +752,7 @@ const BOMCreate = () => {
                   handleUpload={(files) => handleUpload(files)}
                   fileList={fileList} // Pass the selected file list to the modal
                   setFileList={setFileList}
+                  loading={uploadLoading}
                 />
               </Card>
             </Col>
