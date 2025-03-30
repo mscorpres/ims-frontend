@@ -161,6 +161,11 @@ export default function ItemAllLogs() {
       width: 120,
     },
     {
+      field: "weightedPurchaseRate",
+      headerName: "Weighted Average Rate",
+      width: 180,
+    },
+    {
       headerName: "Method",
       field: "mode",
       width: 120,

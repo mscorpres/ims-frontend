@@ -494,12 +494,14 @@ export default function CreatePo() {
       project_name: "",
       pocreatetype: "N",
       original_po: "",
+      advancePayment: "",
     };
 
     // form.reset
     // form.resetFields();
     form.setFieldsValue(obj);
     setnewPurchaseOrder(obj);
+    form.setFieldValue("advancePayment", "");
     setShowDetailsConfirm(false);
   };
   const rowsReset = () => {

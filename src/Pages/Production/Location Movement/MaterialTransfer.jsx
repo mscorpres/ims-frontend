@@ -247,6 +247,7 @@ function MaterialTransfer({ type }) {
                   <th style={{ width: "4vw" }}>In Stock Qty</th>
                   <th style={{ width: "3vw" }}>Transfer Qty</th>
                   <th style={{ width: "3vw" }}>DROP (+) Loc</th>
+                  <th style={{ width: "3vw" }}>Weighted Average Rate</th>
                   <th style={{ width: "10vw" }}>Address</th>
                 </tr>
               </thead>
@@ -294,6 +295,9 @@ function MaterialTransfer({ type }) {
                         })
                       }
                     />
+                  </td>
+                  <td>
+                    <Input disabled value={restDetail?.avr_rate} />
                   </td>
                   <td>
                     <TextArea disabled value={address} />
