@@ -21,6 +21,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
 
   const availableQty = Form.useWatch("availableQty", { form, preserve: true });
   const requestedQty = Form.useWatch("requestedQty", { form, preserve: true });
+  const weightedRate = Form.useWatch("weightedRate", { form, preserve: true });
   const authKey = Form.useWatch("authKey", { form, preserve: true });
   const unit = Form.useWatch("unit", { form, preserve: true });
   const selectedComponent = Form.useWatch("component", form);
@@ -112,7 +113,9 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
       if (data) {
         if (data.code === 200) {
           const qty = data.data.available_qty;
+          const rate = data?.data?.avr_rate;
           form.setFieldValue("availableQty", qty);
+          form.setFieldValue("weightedRate", rate);
         } else {
           toast.error(data.message.msg);
         }
@@ -378,7 +381,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   </Flex>
                 </Col>
                 <Col span={8}>
-                  <Typography.Text style={{ fontSize: 13 }} strong>
+                  <Typography.Text style={{ fontSize: 12 }} strong>
                     Available Qty
                   </Typography.Text>
                   <br />
@@ -386,16 +389,17 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                     <Skeleton.Button size="small" active block />
                   )}
                   {!loading("fetchStock") && (
-                    <Typography.Text style={{ fontSize: 13 }}>
+                    <Typography.Text style={{ fontSize: 12 }}>
                       {availableQty ?? 0}{" "}
                       {" " + unit === undefined || null ? "" : unit}
                     </Typography.Text>
                   )}
                   <Divider />
                 </Col>
+              
 
                 <Col span={8}>
-                  <Typography.Text style={{ fontSize: 13 }} strong>
+                  <Typography.Text style={{ fontSize: 12 }} strong>
                     Requested Qty
                   </Typography.Text>
                   <br />
@@ -403,9 +407,25 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                     <Skeleton.Button size="small" active block />
                   )}
                   {!loading("fetchStock") && (
-                    <Typography.Text style={{ fontSize: 13 }}>
+                    <Typography.Text style={{ fontSize: 12 }}>
                       {requestedQty ?? 0}{" "}
                       {" " + unit === undefined || null ? "" : unit}
+                    </Typography.Text>
+                  )}
+                  <Divider />
+                </Col>
+                <Col span={8}>
+                <Typography.Text style={{ fontSize: 12 }} strong>
+                    Weighted Average Rate
+                  </Typography.Text>
+                  <br />
+                  {loading("fetchStock") && (
+                    <Skeleton.Button size="small" active block />
+                  )}
+                  {!loading("fetchStock") && (
+                    <Typography.Text style={{ fontSize: 12 }}>
+                      {weightedRate ?? 0}{" "}
+                      
                     </Typography.Text>
                   )}
                   <Divider />

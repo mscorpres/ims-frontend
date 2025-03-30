@@ -212,6 +212,7 @@ function ReToRej() {
                   <th className="an">STOCK QUANTITY</th>
                   <th className="an">TRANSFERING QTY</th>
                   <th className="an">DROP (+) Loc</th>
+                  <th className="an">Weighted Average Rate</th>
                 </tr>
                 <tr>
                   <td>
@@ -263,6 +264,9 @@ function ReToRej() {
                         })
                       }
                     />
+                  </td>
+                  <td>
+                    <Input disabled value={qty?.avr_rate} />
                   </td>
                 </tr>
               </table>

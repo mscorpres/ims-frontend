@@ -42,6 +42,11 @@ function R28() {
       flex: 1,
       field: "sf_qty",
     },
+    {
+      field: "weightedPurchaseRate",
+      headerName: "Weighted Average Rate",
+      width: 180,
+    },
   ];
 
   const getRows = async () => {

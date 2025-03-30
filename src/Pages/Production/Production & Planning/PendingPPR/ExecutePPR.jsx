@@ -128,6 +128,16 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       ),
     },
     {
+      headerName: "Average Weighted Rate",
+      flex: 1,
+      field: "avgRate",
+      renderCell: ({ row }) => (
+        <span>
+          {row?.avgRate}
+        </span>
+      ),
+    },
+    {
       headerName: "Actual Cons.",
       flex: 1,
       field: "annuaCons",

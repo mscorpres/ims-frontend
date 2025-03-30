@@ -83,6 +83,7 @@ const QueryQ5 = () => {
           componentName: data.component.name,
           partCode: data.component.part_code,
           unit: data.component.unit,
+          weightedPurchaseRate: data.weightedPurchaseRate,
         });
         const obj = {
           component: data.component.name,
@@ -196,6 +197,14 @@ const QueryQ5 = () => {
                   </Typography.Text>
                   <br />
                   <Typography.Text>{headerData?.unit}</Typography.Text>
+                </Col>
+                <Divider />
+                <Col span={24}>
+                  <Typography.Text strong type="secondary">
+                    Weighted Average Rate
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text>{headerData?.weightedPurchaseRate}</Typography.Text>
                 </Col>
                 <Divider />
                 <Col span={24}>

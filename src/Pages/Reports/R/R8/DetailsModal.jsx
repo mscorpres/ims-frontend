@@ -111,7 +111,7 @@ const columns = [
     width: 120,
   },
   {
-    headerName: "Weighted Purchase Rate",
+    headerName: "Weighted Average Rate",
     field: "weightedPurchaseRate",
     width: 150,
   },

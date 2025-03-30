@@ -104,7 +104,7 @@ const R1 = () => {
     { field: "closing", headerName: "Closing", width: 100 },
     {
       field: "weightedPurchaseRate",
-      headerName: "Weighted Purchase Rate",
+      headerName: "Weighted Average Rate",
       width: 180,
     },
     {
