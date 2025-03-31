@@ -114,7 +114,7 @@ const BOMList = () => {
                   style={{ color: "#04B0A8", fontSize: 16 }}
                 />
               }
-              tooltip="View Images"
+              tooltip="View Attachments"
             />
           }
           label="View Attachments"
