@@ -85,6 +85,11 @@ const AttachementList = ({
       //   ),
     },
     {
+      headerName: "Inserted Date",
+      field: "insertDt",
+      width: 190,
+    },
+    {
       headerName: "Action",
       field: "sku",
       width: 100,
@@ -111,7 +116,7 @@ const AttachementList = ({
   return (
     <Drawer
       title="Attachments"
-      width={600}
+      width={800}
       open={attachlist?.key}
       onClose={() => setAttachLsit(null)}
     >
