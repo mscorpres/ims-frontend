@@ -210,6 +210,11 @@ function R9() {
     { field: "creditBal", headerName: "In Qty", width: 100 },
     { field: "debitBal", headerName: "Out Qty", width: 100 },
     { field: "closingBal", headerName: "Cl Qty", width: 100 },
+    {
+      field: "weightedPurchaseRate",
+      headerName: "Weighted Average Rate",
+      width: 180,
+    },
   ];
 
   // const reset = () => {
