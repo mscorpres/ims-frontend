@@ -641,6 +641,7 @@ const App = () => {
     { label: "Session 22-23", value: "22-23" },
     { label: "Session 23-24", value: "23-24" },
     { label: "Session 24-25", value: "24-25" },
+    { label: "Session 25-26", value: "25-26" },
   ];
   const path = window.location.hostname;
 
