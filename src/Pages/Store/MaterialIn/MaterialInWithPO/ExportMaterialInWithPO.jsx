@@ -19,10 +19,7 @@ import {
   Drawer,
   DatePicker,
 } from "antd";
-import {
-  locationCell,
-  remarkCell,
-} from "./TableCollumns.jsx";
+import { locationCell, remarkCell } from "./TableCollumns.jsx";
 import SingleProduct from "../../../Master/Vendor/SingleProduct.jsx";
 import CurrenceModal from "../CurrenceModal.jsx";
 import UploadDocs from "./UploadDocs.jsx";
@@ -92,7 +89,13 @@ export default function ExportMaterialInWithPO({}) {
     let validation = false;
     // let validation = true;
     // poData.materials.map((row) => {
-    if (currency && invoice && invoiceDate && poData.materials.length && selectLocation) {
+    if (
+      currency &&
+      invoice &&
+      invoiceDate &&
+      poData.materials.length &&
+      selectLocation
+    ) {
       validation = true;
     } else {
       validation = false;
@@ -868,7 +871,7 @@ export default function ExportMaterialInWithPO({}) {
   };
 
   return (
-    <div style={{ height: "90%", position: "relative"  }}>
+    <div style={{ height: "90%", position: "relative" }}>
       <Row
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
@@ -1025,7 +1028,10 @@ export default function ExportMaterialInWithPO({}) {
 
       {!materialInSuccess && (
         <Row gutter={8} style={{ height: "100%", padding: "0px 10px" }}>
-          <Col span={6} style={{ overflowY: "hidden", maxHeight: "100%" , height: "100%"}}>
+          <Col
+            span={6}
+            style={{ overflowY: "hidden", maxHeight: "100%", height: "100%" }}
+          >
             <Row
               style={{
                 height: "76%",
@@ -1160,9 +1166,7 @@ export default function ExportMaterialInWithPO({}) {
                         </Typography.Text>
                       )}
 
-                      <span display="flex">
-          
-                      </span>
+                      <span display="flex"></span>
                       <Skeleton
                         paragraph={false}
                         style={{ width: "100%" }}
@@ -1480,12 +1484,13 @@ export default function ExportMaterialInWithPO({}) {
                     </Form.Item>
 
                     <Row justify="end" style={{ marginTop: 5 }}>
-                      <MyButton
-                        variant="downloadSample"
-                        onClick={() =>
-                          window.open("http://imsv2.mscapi.live/files/sample/Import%20PO%20Sample%20File%20Format.xlsx", "_blank")
-                        }
-                      />
+                      <a
+                        href="http://imsv2.mscapi.live/files/sample/Import%20PO%20Sample%20File%20Format.xlsx"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MyButton variant="downloadSample" />
+                      </a>
                     </Row>
                   </Form>
                 </Card>
@@ -1606,7 +1611,12 @@ export default function ExportMaterialInWithPO({}) {
           </Col>
           <Col
             span={18}
-            style={{ height: "85%", padding: 0, border: "1px solid #eeeeee " ,overflow:"hidden"}}
+            style={{
+              height: "85%",
+              padding: 0,
+              border: "1px solid #eeeeee ",
+              overflow: "hidden",
+            }}
           >
             {" "}
             {pageLoading || (loading1("select") && <Loading />)}
