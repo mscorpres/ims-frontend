@@ -178,7 +178,7 @@ const EWayBill = () => {
           supplyType: "O",
           subSupplyType: values.subType,
           documentNo: values.docNo,
-          documentDate: "09-03-2025",
+          documentDate: values.docDate,
           transactionType: values.transactionType,
           subSupplyDesc: values.subSupplyDesc,
         },
