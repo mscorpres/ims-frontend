@@ -178,7 +178,7 @@ const EWayBill = () => {
           supplyType: "O",
           subSupplyType: values.subType,
           documentNo: values.docNo,
-          documentDate: "09-03-2025",
+          documentDate: values.docDate,
           transactionType: values.transactionType,
           subSupplyDesc: values.subSupplyDesc,
         },
@@ -210,7 +210,7 @@ const EWayBill = () => {
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
-          // gstin: values.dispatchToGstin,
+          gstin: values.dispatchToGstin,
           legalName: values.dispatchToPlace,
           addressLine1: values.dispatchToAddress1,
           addressLine2: values.dispatchToAddress2,
@@ -531,11 +531,11 @@ const EWayBill = () => {
                     <Input />
                   </Form.Item>
                 </Col>
-                {/* <Col span={12}>
+                <Col span={12}>
                   <Form.Item name="dispatchToGstin" label="GSTIN">
                     <Input />
                   </Form.Item>
-                </Col> */}
+                </Col>
                 <Col span={24}>
                   <Form.Item name="dispatchToAddress1" label="Address1">
                     <Input.TextArea />

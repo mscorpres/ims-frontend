@@ -244,6 +244,11 @@ export default function ItemLocationLog() {
       field: "qty_in_rate",
       width: 120,
     },
+    {
+      headerName: "Out Rate",
+      field: "out_rate",
+      width: 120,
+    },
     // {
     //   headerName: "Total Value",
     //   field: "total_value",
@@ -252,7 +257,7 @@ export default function ItemLocationLog() {
     {
       headerName: "Weighted Average Rate",
       field: "weightedPurchaseRate",
-      width: 180,
+      width: 120,
       renderCell: ({ row }) => (
         <Tooltip
           title={row.weightedPurchaseRateCurrency}
