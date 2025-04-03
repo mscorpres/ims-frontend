@@ -27,7 +27,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
-  const [searchInput, setSearchInput] = useState("MIN/24-25/");
+  const [searchInput, setSearchInput] = useState("MIN/25-26/");
   const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
@@ -440,7 +440,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   // ----------------------------
   useEffect(() => {
     if (wise == "min_wise") {
-      setSearchInput("MIN/24-25/");
+      setSearchInput("MIN/25-26/");
     } else {
       setSearchInput(null);
     }

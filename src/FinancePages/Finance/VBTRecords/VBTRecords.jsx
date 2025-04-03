@@ -22,7 +22,7 @@ function VBTRecords() {
   const [rows, setRows] = useState([]);
 
   const [searchDateRange, setSearchDateRange] = useState("");
-  const [searchInput, setSearchInput] = useState("MIN/24-25/");
+  const [searchInput, setSearchInput] = useState("MIN/25-26/");
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [vbtOption, setVbtOption] = useState("ALL");
@@ -159,7 +159,7 @@ function VBTRecords() {
   useEffect(() => {
     setRows([]);
     if (wise == "minwise") {
-      setSearchInput("MIN/24-25/");
+      setSearchInput("MIN/25-26/");
     } else {
       setSearchInput("");
     }
