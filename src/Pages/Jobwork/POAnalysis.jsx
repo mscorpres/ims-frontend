@@ -302,7 +302,7 @@ const columns = [
   {
     headerName: "Jobwork ID",
     field: "jwId",
-    width: "150",
+    width: "200",
     renderCell: ({ row }) => <ToolTipEllipses text={row.jwId} copy={true} />,
   },
   {
