@@ -222,7 +222,7 @@ export default function ItemLocationLog() {
     {
       headerName: "Transaction",
       field: "transaction",
-      width: 150,
+      width: 200,
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.transaction} copy={true} />
       ),
