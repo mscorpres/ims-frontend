@@ -252,6 +252,7 @@ import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
 import R34 from "@/Pages/Reports/R/R34/index.js";
 import FARUpload from "@/Pages/far/index.js";
 import R35 from "@/Pages/Reports/R/R35.jsx";
+import R37 from "@/Pages/Reports/R/R37.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
@@ -757,6 +758,11 @@ const Routes = [
     path: "/r35",
 
     main: () => <R35 />,
+  },
+  {
+    path: "/r37",
+
+    main: () => <R37 />,
   },
   {
     path: "/reqWithBom",
