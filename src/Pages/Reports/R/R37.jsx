@@ -92,9 +92,9 @@ const R37 = () => {
       field: "OutwardRate",
     },
     {
-      headerName: "OutwardValue",
+      headerName: "Outward Value",
       width: 100,
-      field: "Outward Value",
+      field: "OutwardValue",
     },
     {
       headerName: "closing",
@@ -109,7 +109,7 @@ const R37 = () => {
     {
       headerName: "Closing Value",
       width: 90,
-      field: "closing Value",
+      field: "closingValue",
     },
     {
       headerName: "Unit",
