@@ -39,11 +39,6 @@ const R37 = () => {
       field: "id",
     },
     {
-      headerName: "Component",
-      width: 350,
-      field: "COMPONENT",
-    },
-    {
       headerName: "PART ",
       // minWidth: 80,
       //   flex: 1,
@@ -51,7 +46,17 @@ const R37 = () => {
       renderCell: ({ row }) => <ToolTipEllipses text={row.PART} />,
     },
     {
-      headerName: "Opening",
+      headerName: "Component",
+      width: 350,
+      field: "COMPONENT",
+    },
+    {
+      headerName: "Unit",
+      width: 90,
+      field: "UNIT",
+    },
+    {
+      headerName: "Opening Qty",
       width: 100,
       field: "Opening",
     },
@@ -66,7 +71,7 @@ const R37 = () => {
       field: "OpeningValue",
     },
     {
-      headerName: "Inward",
+      headerName: "Inward Qty",
       width: 100,
       field: "Inward",
     },
@@ -82,7 +87,7 @@ const R37 = () => {
     },
 
     {
-      headerName: "Outward",
+      headerName: "Outward Qty",
       width: 110,
       field: "Outward",
     },
@@ -97,7 +102,7 @@ const R37 = () => {
       field: "OutwardValue",
     },
     {
-      headerName: "closing",
+      headerName: "closing Qty",
       width: 100,
       field: "closing",
     },
@@ -111,11 +116,7 @@ const R37 = () => {
       width: 90,
       field: "closingValue",
     },
-    {
-      headerName: "Unit",
-      width: 90,
-      field: "UNIT",
-    },
+    
   ];
   //getting rows from database from all 3 filter po wise, data wise, vendor wise
   const getSearchResults = async () => {
