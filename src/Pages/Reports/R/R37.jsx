@@ -185,7 +185,7 @@ const R37 = () => {
   const emitAllVendors = () => {
     if (searchDateRange) {
       socket.emit("r37", {
-        otherdata: searchDateRange,
+        date : searchDateRange,
         notificationId: "",
       });
   };
