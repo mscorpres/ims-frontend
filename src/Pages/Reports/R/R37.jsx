@@ -15,6 +15,7 @@ import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
+import socket from "../../../Components/socket";
 
 const R37 = () => {
   const [loading, setLoading] = useState(false);
@@ -181,6 +182,14 @@ const R37 = () => {
     }
   };
 
+  const emitAllVendors = () => {
+    if (searchDateRange) {
+      socket.emit("r37", {
+        otherdata: searchDateRange,
+        notificationId: "",
+      });
+  };
+}
   return (
     <div className="manage-po" style={{ position: "relative", height: "100%" }}>
       <Row
@@ -240,6 +249,25 @@ const R37 = () => {
               variant="search"
             >
               Search
+            </MyButton>
+            <MyButton
+              disabled={
+                wise === "date"
+                  ? searchDateRange === ""
+                    ? true
+                    : false
+                  : !searchInput
+                  ? true
+                  : false
+              }
+              type="primary"
+              loading={searchLoading}
+              onClick={emitAllVendors}
+              id="submit"
+              text="All Vendors"
+              variant="search"
+            >
+              All Vendors
             </MyButton>
           </Space>
         </Col>
