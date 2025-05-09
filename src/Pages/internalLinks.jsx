@@ -823,6 +823,12 @@ const links = [
 
       placeholder: "SKUs Raw Material transaction Reco",
     },
+    {
+      routeName: "R37",
+      routePath: "/r37",
+
+      placeholder: "Job Work Inventory Report",
+    },
   ],
   // MIN label links
 
