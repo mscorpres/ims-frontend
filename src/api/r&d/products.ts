@@ -46,6 +46,11 @@ export const getProductsList = async () => {
   return response;
 };
 
+export const getProductdata = async (id: string) => {
+  const response: ResponseType = await imsAxios.get(`products/fethProductUpdate/${id}`);
+  return response;
+}
+
 export const createProduct = async (values: ProductType) => {
   const formData = new FormData();
 
@@ -63,6 +68,28 @@ export const createProduct = async (values: ProductType) => {
 
   const response: ResponseType = await imsAxios.post(
     "/products/create/temp",
+    formData
+  );
+
+  return response;
+};
+
+export const updateProduct = async (values: ProductType,key) => {
+  const formData = new FormData();
+  formData.append("name", values.name);
+  formData.append("isActive", true);
+  formData.append("description", values.description);
+  formData.append("projectCode", values.projectCode?.value?values.projectCode?.value:values.projectCode);
+  formData.append("costCenter", values.costCenter?.value?values.costCenter?.value:values.costCenter);
+  values.images?.map((row) => {
+    formData.append("images", row.originFileObj);
+  });
+  values.documents?.map((row) => {
+    formData.append("documents", row.originFileObj);
+  });
+
+  const response: ResponseType = await imsAxios.put(
+    `/products/update/temp/${key}`,
     formData
   );
 

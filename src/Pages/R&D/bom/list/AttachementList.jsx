@@ -17,9 +17,15 @@ const AttachementList = ({
   const [loading, setLoading] = useState(false);
 
   const [imageRow, setImageRow] = useState([]);
+
   const handleFetchProductList = async (val) => {
     setLoading(true);
-    const response = await imsAxios.get(`/bomRnd/attachment/${val}`);
+    const isDraft = window.location.pathname.includes("draft");
+    const url = isDraft
+      ? `/bomRnd/draftAttachment/${val}`
+      : `/bomRnd/attachment/${val}`;
+
+    const response = await imsAxios.get(url);
     if (response.success) {
       //   setRows(response.data);
       let arr = response.data;
@@ -79,6 +85,11 @@ const AttachementList = ({
       //   ),
     },
     {
+      headerName: "Inserted Date",
+      field: "insertDt",
+      width: 190,
+    },
+    {
       headerName: "Action",
       field: "sku",
       width: 100,
@@ -105,7 +116,7 @@ const AttachementList = ({
   return (
     <Drawer
       title="Attachments"
-      width={600}
+      width={800}
       open={attachlist?.key}
       onClose={() => setAttachLsit(null)}
     >

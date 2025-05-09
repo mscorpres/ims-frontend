@@ -1,13 +1,15 @@
 import React from 'react'
 import { Modal, Upload, Button, Typography } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+import Loading from "../../../../Components/Loading.jsx";
 
 export default function UploadDocumentModal({
   open,
   close,
   handleUpload,
   fileList,
-  setFileList
+  setFileList,
+  loading
 }) {
   // Handle file change (multiple files)
   const handleFileChange = ({ fileList }) => {
@@ -31,6 +33,7 @@ export default function UploadDocumentModal({
       onCancel={close} // Close the modal
       destroyOnClose
     >
+      {loading && <Loading />}
       <Upload
         name="documents"
         multiple // Allow multiple file selection

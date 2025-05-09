@@ -97,7 +97,7 @@ const AddComponent = ({
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
-
+  const isDraftUpdate = window.location.href.includes("draft") && window.location.href.includes("version");
   const handleFetchVendorOptions = async (search: string) => {
     const response = await executeFun(() => getVendorOptions(search), "select");
 
@@ -219,7 +219,7 @@ const AddComponent = ({
           style={{ flex: 1, minWidth: 100 }}
           name="mpn"
           label="MPN"
-          rules={rules.min}
+          rules={rules.mpn}
         >
           <Input style={{ width: "100%" }} />
         </Form.Item>
@@ -284,12 +284,13 @@ const AddComponent = ({
           onClick={() => validateHandler("final")}
           disabled={mainComponents.length === 0}
         />
-        {/* <MyButton
+        <MyButton
           variant="save"
           loading={loading("draft")}
-          onClick={() => validateHandler("draft")} BOM Release Refrence No.(RRN)
+          onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
           disabled={mainComponents.length === 0}
-        /> */}
+          text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
+        />
       </Flex>
     </Card>
   );

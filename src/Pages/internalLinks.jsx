@@ -1173,14 +1173,14 @@ const links = [
       routeName: "Create BOM",
       routePath: routeConstants.researchAndDevelopment.bom.create,
     },
-    // {
-    //   routeName: "BOM Drafts",
-    //   routeName: "BOM Drafts",
-    //   routePath: routeConstants.researchAndDevelopment.bom.drafts,
-    // },
     {
       routeName: "BOM List",
       routePath: routeConstants.researchAndDevelopment.bom.list,
+    },
+    {
+      routeName: "BOM Drafts",
+      routeName: "BOM Drafts",
+      routePath: routeConstants.researchAndDevelopment.bom.drafts,
     },
   ],
   // task manager links

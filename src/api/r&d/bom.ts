@@ -187,7 +187,7 @@ interface GetBOMListType {
 export const getBOMList = async (action: "final" | "draft") => {
   let url = "";
   if (action === "draft") {
-    url = "/bom/fetchBom/draft";
+    url = "/bomRnd/bomDraftList";
   } else {
     url = "/bomRnd/bomList";
   }
@@ -258,6 +258,8 @@ interface GetBomComponentsType {
   key: string;
   name: string;
   altPartNo: string;
+  make: string;
+  mpn: string;
 }
 
 export const getComponents = async (bomKey: string) => {
@@ -288,6 +290,8 @@ export const getComponents = async (bomKey: string) => {
       locations: row.placement || null,
       uniqueCode: row.attributeCode || "",
       subPartCode: row?.altPartNo || "--",
+      make: row?.make||"--",
+      mpn: row?.mpn||"--",
     }));
   }
 
@@ -602,6 +606,7 @@ export const getExistingBom = async (sku: string, version: string) => {
               name: row.name.trim(), // Clean up any extra spaces
               label: row.name.trim() + " " + row.partno, // Assuming part number and name make up the label
             },
+            partCode:row.partno,
             qty: row.quantity, // Quantity as given in the response
             remarks: row.remark, // Remarks are from the response
             status: row.status, // Component status
@@ -613,12 +618,14 @@ export const getExistingBom = async (sku: string, version: string) => {
             },
             type: row.type === "alternate" ? "substitute" : row.type, // The component type (main, etc.)
             locations: row.placement, // Placement locations (p1, p2, etc.)
-            vendor: row.vendor?.code, // Vendor data (though it's "null - null" in your example)
+            vendor: row.vendor, // Vendor data (though it's "null - null" in your example)
             text: row.name, // Text associated with the component
             value: row.key, // You might need to adjust this if a value exists elsewhere
             mfgCode: row.manufacturingCode || "", // Manufacturing code, handle missing or empty cases
-            smtType: row.catType, // Category type
+            smtType: row.catType,
             componentKey: row.key,
+            make: row.make,
+            mpn: row.mpn,
           })),
         };
 
@@ -701,6 +708,16 @@ interface BomRequest {
 
 export const createBomRND = async (data: BomRequest) => {
   const response: ResponseType = await imsAxios.post("/bomRnd/creatBom", data);
+  return response;  
+};
+
+export const updateDraftBomRND = async (data: BomRequest) => {
+  const response: ResponseType = await imsAxios.post("/bomRnd/updateDraftBom", data);
+  return response;  
+};
+
+export const createDraftBomRND = async (data: BomRequest) => {
+  const response: ResponseType = await imsAxios.post("/bomRnd/createDraftBom", data);
   return response;  
 };
 
