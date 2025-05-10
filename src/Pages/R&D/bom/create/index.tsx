@@ -373,7 +373,7 @@ const BOMCreate = () => {
       ),
       // bomDoc: values.documents,
       componets: combined.map((item: any) => ({
-        vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor?.value,
+        vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor?.value? item?.vendor.value : item?.vendor.code,
         component: item.component.value
           ? item.component.value
           : item.componentKey, // Extract the component value
@@ -999,8 +999,8 @@ const Components = ({
       width: 180,
       sortable: true,
       renderCell: (params: any) => {
-        const value = params.value?.label || params.value?.name || "";
-        const tooltipText = value ? `${value} (${params.value?.code})` : "";
+        const value = params.value?.text || params.value?.name || "";
+        const tooltipText = value ? `${value} (${params.value?.code ?? params.value.value})` : "";
         return <Tooltip title={tooltipText}>{tooltipText}</Tooltip>;
     }
         },
