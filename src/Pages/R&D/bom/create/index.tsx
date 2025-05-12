@@ -373,7 +373,7 @@ const BOMCreate = () => {
       ),
       // bomDoc: values.documents,
       componets: combined.map((item: any) => ({
-        vendor: item?.vendor?.key ? item?.vendor.key : item?.vendor?.value? item?.vendor.value : item?.vendor.code,
+        vendor: item?.vendor?.key ? item?.vendor?.key : item?.vendor?.value? item?.vendor?.value : item?.vendor?.code,
         component: item.component.value
           ? item.component.value
           : item.componentKey, // Extract the component value
