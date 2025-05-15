@@ -34,12 +34,13 @@ import useApi from "../../hooks/useApi.ts";
 import { getVendorOptions } from "../../api/general.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
+import { downloadCSV } from "../../Components/exportToCSV.jsx";
 
 const POAnalysis = () => {
   const { executeFun, loading: loading1 } = useApi();
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [closeModalOpen, setCloseModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -204,6 +205,15 @@ const POAnalysis = () => {
                 {valueInput(wise, filterForm)}
               </Form>
               <Row justify="end">
+                <Space>
+                  <CommonIcons
+                    action="downloadButton"
+                    onClick={() =>
+                      downloadCSV(rows, columns, "PO Analysis Report")
+                    }
+                    disabled={rows.length == 0}
+                  />
+                </Space>
                 <Space>
                   {wise?.value === "vendorwise" && (
                     <CommonIcons
