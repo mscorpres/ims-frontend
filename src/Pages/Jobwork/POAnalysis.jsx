@@ -9,6 +9,7 @@ import {
   Modal,
   Row,
   Space,
+  Checkbox,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import MyDataTable from "../../Components/MyDataTable";
@@ -47,6 +48,8 @@ const POAnalysis = () => {
   const [updateModalInfo, setUpdateModalInfo] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState("");
+  const [advancedFilter, setAdvancedFilter] = useState(false);
+  const [advancedDate, setAdvancedDate] = useState("");
 
   const [filterForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
@@ -57,6 +60,8 @@ const POAnalysis = () => {
     const payload = {
       data: values.value,
       wise: wise.value,
+      advanced: advancedFilter,
+      dateRange: advancedDate,
     };
     setLoading("fetch");
     const response = await imsAxios.post("/jobwork/jw_analysis", payload);
@@ -189,6 +194,8 @@ const POAnalysis = () => {
     setSelectedRow(row);
   };
 
+  const selectedWise = filterForm.getFieldValue("wise");
+
   return (
     <Row gutter={6} style={{ height: "90%", padding: 10 }}>
       <Col span={4}>
@@ -203,8 +210,24 @@ const POAnalysis = () => {
                 <Form.Item label="Select Wise" name="wise">
                   <MySelect options={wiseOptions} labelInValue />
                 </Form.Item>
-
                 {valueInput(wise, filterForm)}
+
+                <Form.Item
+                  label="Advanced Filter"
+                  name="advancedFilter"
+                  className=""
+                >
+                  <Checkbox
+                    onChange={(e) => setAdvancedFilter(e.target.checked)}
+                  />
+                </Form.Item>
+
+                {selectedWise?.value !== "datewise" && advancedFilter && (
+                  <MyDatePicker
+                    setDateRange={(value) => setAdvancedDate(value)}
+                  />
+                )}
+
               </Form>
               <Row justify="end">
                 <Space>
@@ -347,13 +370,17 @@ const columns = [
     headerName: "Project Name",
     field: "project_name",
     width: 200,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.project_name} copy={true} />,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.project_name} copy={true} />
+    ),
   },
   {
     headerName: "Project Description",
     field: "project_description",
     width: 200,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.project_description} copy={true} />,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.project_description} copy={true} />
+    ),
   },
 ];
 
