@@ -77,6 +77,8 @@ const POAnalysis = () => {
           recipeStatus: row.bom_recipe,
           poStatus: row.po_status,
           skuKey: row.sku,
+          project_description: row.project_description,
+          project_name: row.project_name,
         }));
       } else {
         toast.error(data.message.msg);
@@ -235,6 +237,7 @@ const POAnalysis = () => {
           loading={loading === "fetch" || loading === "print"}
           columns={[actionColumn, ...columns]}
           data={rows}
+          width="100%"
         />
       </Col>
       <ViewModal
@@ -306,39 +309,51 @@ const columns = [
   {
     headerName: "Date",
     field: "date",
-    width: "150",
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
   },
   {
     headerName: "Jobwork ID",
     field: "jwId",
-    width: "200",
+    width: 200,
     renderCell: ({ row }) => <ToolTipEllipses text={row.jwId} copy={true} />,
   },
   {
     headerName: "Vendor",
     field: "vendor",
-    minWidth: "150",
+    minWidth: 150,
     flex: 1,
     renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
   },
   {
     headerName: "SKU",
     field: "sku",
-    width: "150",
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
     headerName: "Product",
     field: "product",
-    minWidth: "150",
+    minWidth: 150,
     flex: 1,
     renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
     headerName: "Required Qty",
     field: "reqQty",
-    width: "150",
+    width: 150,
+  },
+  {
+    headerName: "Project Name",
+    field: "project_name",
+    width: 200,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.project_name} copy={true} />,
+  },
+  {
+    headerName: "Project Description",
+    field: "project_description",
+    width: 200,
+    renderCell: ({ row }) => <ToolTipEllipses text={row.project_description} copy={true} />,
   },
 ];
 
