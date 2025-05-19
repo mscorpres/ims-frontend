@@ -286,13 +286,13 @@ export default function JobWorkApproval() {
                 >
                   Approve Selected Jw's
                 </Button>
-                <Button
+                {/* <Button
                   loading={loading === "fetch"}
                   disabled={selectedPo.length === 0}
                   onClick={RejectSelectedPo}
                 >
                   Reject Selected Jw's
-                </Button>
+                </Button> */}
               </Space>
             </Col>
           </Row>

@@ -1089,7 +1089,7 @@ export default function CreateJW({}) {
                   fontSize: window.innerWidth < 1600 && "0.7rem",
                 }}
               >
-                Provide Component Details
+                Provide SFG Component Details
               </Descriptions.Item>
             </Descriptions>
           </Col>
