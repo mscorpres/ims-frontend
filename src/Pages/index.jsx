@@ -89,6 +89,7 @@ export { default as EditPO } from "./PurchaseOrder/ManagePO/EditPO/EditPO";
 export { default as CreatePo } from "./PurchaseOrder/CreatePO/CreatePo";
 export { default as VendorPricingUpload } from "./PurchaseOrder/VendorPricingUpload";
 export { default as PoApproval } from "./PurchaseOrder/ManagePO/PoApproval/PoApproval";
+export { default as JobworkApproval } from "./Jobwork/JwApproval/JobWorkApproval.jsx";
 
 export { default as SKUCosting } from "./SKUCosting/SKUCosting";
 

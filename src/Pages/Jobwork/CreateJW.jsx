@@ -71,6 +71,7 @@ const newPurchaseOrder = {
   project_name: "",
   project_description: "",
   billaddressid: "",
+  jw_raise_by: "",
   billGST: "",
   billaddress: "",
   shipaddressid: "",
@@ -93,6 +94,7 @@ export default function CreateJW({}) {
   // initialize loading state
   const [loading, setLoading] = useLoading();
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [requestByOptions, setRequestByOptions] = useState([]);
   const [vendorBranchOptions, setVendorBranchOptions] = useState([]);
   const [projectDescription, setProjectDescription] = useState("");
   const [billingAddressOptions, setBillingAddressOptions] = useState([]);
@@ -229,7 +231,6 @@ export default function CreateJW({}) {
         text: row.text,
         value: row.id,
       }));
-      console.log("arr", arr);
       setBillingAddressOptions(arr);
     } else {
       setBillingAddressOptions([]);
@@ -299,10 +300,30 @@ export default function CreateJW({}) {
       toast.error("Some error occured wile getting billing address details");
     }
   };
+
+  const getusers = async (s) => {
+    setLoading("select", true);
+    if (s?.length > 2) {
+      const { data } = await imsAxios.post("/backend/fetchAllUser", {
+        search: s,
+      });
+      setLoading("select", false);
+      let arr = [];
+      if (!data.msg) {
+        arr = data.map((d) => {
+          return { text: d.text, value: d.id };
+        });
+        setRequestByOptions(arr);
+      } else {
+        setRequestByOptions([]);
+      }
+    }
+  };
+
   //   getting component options
   const getComponentOptions = async (inputValue) => {
     setLoading("select", true);
-    const response = await imsAxios.post("/backend/getProductByNameAndNo", {
+    const response = await imsAxios.post("/backend/getSemiProductByNameAndNo", {
       search: inputValue,
     });
     setLoading("select", false);
@@ -407,6 +428,7 @@ export default function CreateJW({}) {
       paymenttermsday: values.paymenttermsday ?? 30,
       pocostcenter: values.pocostcenter,
       poproject_name: values.project_name,
+      jw_raise_by: values.jw_raise_by,
       po_remark: values.po_comment ?? "--",
       vendor_name: values.vendorname.value,
       vendor_type: values.vendortype,
@@ -857,6 +879,26 @@ export default function CreateJW({}) {
                   <Input size="default" />
                 </Form.Item>
               </Col>
+              <Col span={5}>
+                <Form.Item
+                  label="Requested By"
+                  name="jw_raise_by"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Select Requested By!",
+                    },
+                  ]}
+                >
+                  <MyAsyncSelect
+                    selectLoading={loading("select")}
+                    size="default"
+                    onBlur={() => setRequestByOptions([])}
+                    optionsState={requestByOptions}
+                    loadOptions={getusers}
+                  />
+                </Form.Item>
+              </Col>
             </Row>
           </Col>
         </Row>
@@ -1047,7 +1089,7 @@ export default function CreateJW({}) {
                   fontSize: window.innerWidth < 1600 && "0.7rem",
                 }}
               >
-                Provide Component Details
+                Provide SFG Component Details
               </Descriptions.Item>
             </Descriptions>
           </Col>
