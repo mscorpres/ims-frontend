@@ -99,6 +99,10 @@ const BOMCreate = () => {
   const selectedProduct = Form.useWatch("product", form);
   const selectedSubstituteOf = Form.useWatch("altComp", form);
 
+  const [editingComponentValue, setEditingComponentValue] = useState<
+    string | null
+  >(null);
+
   const handleFetchComponentOptions = async (search: string) => {
     const response = await executeFun(
       () => getComponentOptions(search),
@@ -227,36 +231,46 @@ const BOMCreate = () => {
       "mpn",
     ]);
 
-    const newComponent = {
-      ...values,
-
-      value: values.component.value,
-      text: values.component.label,
-    };
-
     if (values.type === "main") {
-      setMainComponents((curr) => {
-        let arr = curr;
-        arr = arr.map((row, index) => {
-          if (index === isEditing) {
-            return newComponent;
-          } else return row;
-        });
-
-        return arr;
-      });
+      setMainComponents((curr) =>
+        curr.map((row) =>
+          row.value === editingComponentValue
+            ? {
+                ...row,
+                ...values,
+                value: values.component.value,
+                text: values.component.label,
+                component: values.component,
+                partCode:
+                  values.component.code ||
+                  values.component.value ||
+                  values.component.label,
+                qty: values.qty,
+              }
+            : row
+        )
+      );
     } else {
-      setSubComponents((curr) => {
-        let arr = curr;
-        arr = arr.map((row, index) => {
-          if (index === isEditing) {
-            return newComponent;
-          } else return row;
-        });
-
-        return arr;
-      });
+      setSubComponents((curr) =>
+        curr.map((row) =>
+          row.value === editingComponentValue
+            ? {
+                ...row,
+                ...values,
+                value: values.component.value,
+                text: values.component.label,
+                component: values.component,
+                partCode:
+                  values.component.code ||
+                  values.component.value ||
+                  values.component.label,
+                qty: values.qty,
+              }
+            : row
+        )
+      );
     }
+    setEditingComponentValue(null);
     setIsEditing(false);
     form.resetFields([
       "component",
@@ -336,12 +350,16 @@ const BOMCreate = () => {
       return item;
     });
   }
-  function showConfirmation(message: string) {
+  function showConfirmation(message: string, action: "final" | "draft"| "updateDraft") {
     const userConfirmed = window.confirm(
-      `${message} , Do you wish to go to BOM List?`
+      `${message} , Do you wish to go to ${action === "final" ? "BOM List" : "Drafts List"}?`
     );
     if (userConfirmed) {
-      navigate(routeConstants.researchAndDevelopment.bom.list);
+      if(action === "final"){
+        navigate(routeConstants.researchAndDevelopment.bom.list);
+      }else{
+        navigate(routeConstants.researchAndDevelopment.bom.drafts);
+      }
       window.location.reload();
     } else {
       window.location.reload();
@@ -404,7 +422,7 @@ const BOMCreate = () => {
       setIsBomRej(false);
       setShowApproverMetrics(false);
       resetHandler();
-      showConfirmation(response?.message);
+      showConfirmation(response?.message, action);
     } else {
       if (approvers) {
         const updatedData = convertStageToNumber(approvers);
@@ -502,6 +520,8 @@ const BOMCreate = () => {
 
   const handleSetComponentForEditing = (component: ComponentType) => {
     form.setFieldsValue(component);
+    setEditingComponentValue(component.value);
+    setIsEditing(true);
   };
 
   const handleCancelEditing = () => {
