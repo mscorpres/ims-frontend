@@ -367,7 +367,7 @@ const columns = [
     width: 150,
   },
   {
-    headerName: "Project Name",
+    headerName: "Project ID",
     field: "project_name",
     width: 200,
     renderCell: ({ row }) => (

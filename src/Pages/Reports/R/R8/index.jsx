@@ -41,6 +41,7 @@ function R8() {
         payload.data = skuInput;
         payload.advanced = true;
         payload.dateRange = searchInput;
+        payload.wise = "skuwise";
       }
 
       const { data } = await imsAxios.post("/report8", payload);
