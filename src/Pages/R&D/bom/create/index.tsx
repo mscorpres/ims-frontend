@@ -231,44 +231,41 @@ const BOMCreate = () => {
       "mpn",
     ]);
 
+    const updatedComponent = {
+      ...values,
+      value: values.component.value,
+      text: values.component.label,
+      component: {
+        label: values.component.label,
+        value: values.component.value,
+      },
+      partCode:
+        values.component.code ||
+        values.component.value ||
+        values.component.label,
+      qty: values.qty,
+      substituteOf:
+        values.type === "substitute"
+          ? {
+              label: values.substituteOf.label,
+              value: values.substituteOf.value,
+            }
+          : null,
+    };
+
+    // Remove the component from both arrays first
+    setMainComponents((curr) =>
+      curr.filter((row) => row.value !== editingComponentValue)
+    );
+    setSubComponents((curr) =>
+      curr.filter((row) => row.value !== editingComponentValue)
+    );
+
+    // Add to the appropriate array based on type
     if (values.type === "main") {
-      setMainComponents((curr) =>
-        curr.map((row) =>
-          row.value === editingComponentValue
-            ? {
-                ...row,
-                ...values,
-                value: values.component.value,
-                text: values.component.label,
-                component: values.component,
-                partCode:
-                  values.component.code ||
-                  values.component.value ||
-                  values.component.label,
-                qty: values.qty,
-              }
-            : row
-        )
-      );
+      setMainComponents((curr) => [...curr, updatedComponent]);
     } else {
-      setSubComponents((curr) =>
-        curr.map((row) =>
-          row.value === editingComponentValue
-            ? {
-                ...row,
-                ...values,
-                value: values.component.value,
-                text: values.component.label,
-                component: values.component,
-                partCode:
-                  values.component.code ||
-                  values.component.value ||
-                  values.component.label,
-                qty: values.qty,
-              }
-            : row
-        )
-      );
+      setSubComponents((curr) => [...curr, updatedComponent]);
     }
     setEditingComponentValue(null);
     setIsEditing(false);
