@@ -201,26 +201,30 @@ const AddComponent = ({
       </Flex>
       <Divider />
       <Flex align="center" vertical gap={10}>
-        <Typography.Text strong type="secondary" style={{ textAlign: "center", fontSize: 13 }}>
-          After adding the components and header details, click on Create BOM
-        </Typography.Text>
-        <MyButton
-          variant="submit"
-          text={isBomUpdating ? "Update BOM" : "Create BOM"}
-          loading={loading("final")}
-          onClick={() => validateHandler("final")}
-          disabled={mainComponents.length === 0}
-        />
-        <MyButton
-          variant="save"
-          loading={loading("draft")}
-          onClick={() =>
-            validateHandler(isDraftUpdate ? "updateDraft" : "draft")
-          }
-          disabled={mainComponents.length === 0}
-          text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
-        />
-      </Flex>
+  <Typography.Text
+    strong
+    type="secondary"
+    style={{ textAlign: "center", fontSize: 13 }}
+  >
+    After adding the components and header details, click on Create BOM
+  </Typography.Text>
+  <Flex gap={10}>
+    <MyButton
+      variant="submit"
+      text={isBomUpdating ? "Update BOM" : "Create BOM"}
+      loading={loading("final")}
+      onClick={() => validateHandler("final")}
+      disabled={mainComponents.length === 0}
+    />
+    <MyButton
+      variant="save"
+      loading={loading("draft")}
+      onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
+      disabled={mainComponents.length === 0}
+      text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
+    />
+  </Flex>
+</Flex>
     </Card>
   );
 };
