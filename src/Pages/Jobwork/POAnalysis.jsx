@@ -9,6 +9,7 @@ import {
   Modal,
   Row,
   Space,
+  Checkbox,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import MyDataTable from "../../Components/MyDataTable";
@@ -34,18 +35,21 @@ import useApi from "../../hooks/useApi.ts";
 import { getVendorOptions } from "../../api/general.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
+import { downloadCSV } from "../../Components/exportToCSV.jsx";
 
 const POAnalysis = () => {
   const { executeFun, loading: loading1 } = useApi();
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [closeModalOpen, setCloseModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [updateModalInfo, setUpdateModalInfo] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState("");
+  const [advancedFilter, setAdvancedFilter] = useState(false);
+  const [advancedDate, setAdvancedDate] = useState("");
 
   const [filterForm] = Form.useForm();
   const [passwordForm] = Form.useForm();
@@ -56,6 +60,8 @@ const POAnalysis = () => {
     const payload = {
       data: values.value,
       wise: wise.value,
+      advanced: advancedFilter,
+      dateRange: advancedDate,
     };
     setLoading("fetch");
     const response = await imsAxios.post("/jobwork/jw_analysis", payload);
@@ -76,6 +82,8 @@ const POAnalysis = () => {
           recipeStatus: row.bom_recipe,
           poStatus: row.po_status,
           skuKey: row.sku,
+          project_description: row.project_description,
+          project_name: row.project_name,
         }));
       } else {
         toast.error(data.message.msg);
@@ -186,6 +194,8 @@ const POAnalysis = () => {
     setSelectedRow(row);
   };
 
+  const selectedWise = filterForm.getFieldValue("wise");
+
   return (
     <Row gutter={6} style={{ height: "90%", padding: 10 }}>
       <Col span={4}>
@@ -200,10 +210,35 @@ const POAnalysis = () => {
                 <Form.Item label="Select Wise" name="wise">
                   <MySelect options={wiseOptions} labelInValue />
                 </Form.Item>
-
                 {valueInput(wise, filterForm)}
+
+                <Form.Item
+                  label="Advanced Filter"
+                  name="advancedFilter"
+                  className=""
+                >
+                  <Checkbox
+                    onChange={(e) => setAdvancedFilter(e.target.checked)}
+                  />
+                </Form.Item>
+
+                {selectedWise?.value !== "datewise" && advancedFilter && (
+                  <MyDatePicker
+                    setDateRange={(value) => setAdvancedDate(value)}
+                  />
+                )}
+
               </Form>
               <Row justify="end">
+                <Space>
+                  <CommonIcons
+                    action="downloadButton"
+                    onClick={() =>
+                      downloadCSV(rows, columns, "PO Analysis Report")
+                    }
+                    disabled={rows.length == 0}
+                  />
+                </Space>
                 <Space>
                   {wise?.value === "vendorwise" && (
                     <CommonIcons
@@ -225,6 +260,7 @@ const POAnalysis = () => {
           loading={loading === "fetch" || loading === "print"}
           columns={[actionColumn, ...columns]}
           data={rows}
+          width="100%"
         />
       </Col>
       <ViewModal
@@ -296,39 +332,55 @@ const columns = [
   {
     headerName: "Date",
     field: "date",
-    width: "150",
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
   },
   {
     headerName: "Jobwork ID",
     field: "jwId",
-    width: "200",
+    width: 200,
     renderCell: ({ row }) => <ToolTipEllipses text={row.jwId} copy={true} />,
   },
   {
     headerName: "Vendor",
     field: "vendor",
-    minWidth: "150",
+    minWidth: 150,
     flex: 1,
     renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
   },
   {
     headerName: "SKU",
     field: "sku",
-    width: "150",
+    width: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
     headerName: "Product",
     field: "product",
-    minWidth: "150",
+    minWidth: 150,
     flex: 1,
     renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
     headerName: "Required Qty",
     field: "reqQty",
-    width: "150",
+    width: 150,
+  },
+  {
+    headerName: "Project Name",
+    field: "project_name",
+    width: 200,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.project_name} copy={true} />
+    ),
+  },
+  {
+    headerName: "Project Description",
+    field: "project_description",
+    width: 200,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={row.project_description} copy={true} />
+    ),
   },
 ];
 

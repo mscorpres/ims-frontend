@@ -377,7 +377,7 @@ const BOMCreate = () => {
         component: item.component.value
           ? item.component.value
           : item.componentKey, // Extract the component value
-        quantity: item.qty.toString(), // Ensure quantity is a string
+        quantity: item?.qty?.toString(), // Ensure quantity is a string
         type: item.type === "substitute" ? "alternate" : item.type, // Retain the type
         placement: item.locations, // Add placement field
         remark: item.remarks,

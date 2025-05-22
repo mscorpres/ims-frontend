@@ -124,6 +124,7 @@ import {
   AddAgreementType,
   AllPages,
   AllUsers,
+  JobworkApproval,
 } from "../Pages/index.jsx";
 
 import {
@@ -861,6 +862,10 @@ const Routes = [
   {
     path: "/create-jw",
     main: () => <CreateJW />,
+  },
+    {
+    path: "/approval-jw",
+    main: () => <JobworkApproval />,
   },
   {
     path: "/po-analysis",
