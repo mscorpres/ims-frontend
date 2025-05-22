@@ -1,19 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Flex,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Row,
-  Tabs,
-  Typography,
-  Upload,
-} from "antd";
+import { Button, Card, Col, Divider, Flex, Form, Input, InputNumber, Modal, Row, Tabs, Typography, Upload } from "antd";
 import MyButton from "@/Components/MyButton";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import MySelect from "@/Components/MySelect.jsx";
@@ -54,9 +40,7 @@ interface Props {
   handleDownloadComponentSampleFile: () => void;
   selectedFile: File | null | undefined;
   handleFetchComponentsFromFile: () => void;
-  setSelectedFile: React.Dispatch<
-    React.SetStateAction<File | null | undefined>
-  >;
+  setSelectedFile: React.Dispatch<React.SetStateAction<File | null | undefined>>;
   loading: (name: string) => void;
   handleFetchComponentOptions: (search: string) => Promise<void>;
   asyncOptions: SelectOptionType[];
@@ -113,8 +97,7 @@ const AddComponent = ({
     maxCount: 1,
     fileList: selectedFile ? [selectedFile] : [],
     beforeUpload: () => false,
-    onChange: (info) =>
-      info.file ? setSelectedFile(info.file) : setSelectedFile(null),
+    onChange: (info) => (info.file ? setSelectedFile(info.file) : setSelectedFile(null)),
   };
   // useEffect(() => {
   //   if (!showUpdateTypeModal && !isBomUpdating) {
@@ -134,70 +117,36 @@ const AddComponent = ({
     Modal.confirm({
       okText: "Reset",
       title: "Are you sure?",
-      content:
-        "Are you sure you want to reset the data, all changes will be lost",
+      content: "Are you sure you want to reset the data, all changes will be lost",
       onOk() {
         formResetHandler();
       },
     });
   };
-  
 
   return (
     <Card size="small" title="Add Components">
       <Flex vertical align="center" gap={10}>
-        <MyButton
-          loading={loading("sample")}
-          variant="downloadSample"
-          onClick={handleDownloadComponentSampleFile}
-        />
+        <MyButton loading={loading("sample")} variant="downloadSample" onClick={handleDownloadComponentSampleFile} />
         <Upload {...props}>
           <Button block icon={<UploadOutlined />}>
             Select File
           </Button>
         </Upload>
-        {selectedFile && (
-          <MyButton
-            onClick={handleFetchComponentsFromFile}
-            loading={loading("upload")}
-            block
-            variant="upload"
-          />
-        )}
+        {selectedFile && <MyButton onClick={handleFetchComponentsFromFile} loading={loading("upload")} block variant="upload" />}
       </Flex>
       <Divider>OR</Divider>
       <Form.Item name="component" label="Component" rules={rules.component}>
-        <MyAsyncSelect
-          loadOptions={handleFetchComponentOptions}
-          optionsState={asyncOptions}
-          onBlur={() => setAsyncOptions([])}
-          labelInValue={true}
-          selectLoading={loading("select")}
-        />
+        <MyAsyncSelect loadOptions={handleFetchComponentOptions} optionsState={asyncOptions} onBlur={() => setAsyncOptions([])} labelInValue={true} selectLoading={loading("select")} />
       </Form.Item>
-      <Form.Item
-        style={{ flex: 1, minWidth: 100 }}
-        name="locations"
-        label="PCB Locations"
-        rules={rules.locations}
-      >
+      <Form.Item style={{ flex: 1, minWidth: 100 }} name="locations" label="PCB Locations" rules={rules.locations}>
         <Input />
       </Form.Item>
       <Flex wrap="wrap" gap={5}>
-        <Form.Item
-          style={{ flex: 1, minWidth: 100 }}
-          name="qty"
-          label="Qty"
-          rules={rules.qty}
-        >
+        <Form.Item style={{ flex: 1, minWidth: 100 }} name="qty" label="Qty" rules={rules.qty}>
           <InputNumber style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item
-          style={{ flex: 1, minWidth: 100 }}
-          name="type"
-          label="Type"
-          rules={rules.type}
-        >
+        <Form.Item style={{ flex: 1, minWidth: 100 }} name="type" label="Type" rules={rules.type}>
           <MySelect options={typeOptions} />
         </Form.Item>
       </Flex>
@@ -206,21 +155,11 @@ const AddComponent = ({
           <MySelect options={mainComponents} labelInValue={true} />
         </Form.Item>
       )}
-       <Flex wrap="wrap" gap={5}>
-        <Form.Item
-          style={{ flex: 1, minWidth: 100 }}
-          name="make"
-          label="Make"
-          rules={rules.make}
-        >
+      <Flex wrap="wrap" gap={5}>
+        <Form.Item style={{ flex: 1, minWidth: 100 }} name="make" label="Make" rules={rules.make}>
           <Input style={{ width: "100%" }} />
         </Form.Item>
-        <Form.Item
-          style={{ flex: 1, minWidth: 100 }}
-          name="mpn"
-          label="MPN"
-          rules={rules.mpn}
-        >
+        <Form.Item style={{ flex: 1, minWidth: 100 }} name="mpn" label="MPN" rules={rules.mpn}>
           <Input style={{ width: "100%" }} />
         </Form.Item>
       </Flex>
@@ -236,61 +175,36 @@ const AddComponent = ({
           </Flex>
         }
       >
-        <MyAsyncSelect
-          labelInValue={true}
-          optionsState={asyncOptions}
-          loadOptions={handleFetchVendorOptions}
-          selectLoading={loading1("select")}
-          onBlur={() => setAsyncOptions([])}
-        />
+        <MyAsyncSelect labelInValue={true} optionsState={asyncOptions} loadOptions={handleFetchVendorOptions} selectLoading={loading1("select")} onBlur={() => setAsyncOptions([])} />
       </Form.Item>
       <Form.Item name="remarks" label="Remarks">
         <Input.TextArea rows={3} />
       </Form.Item>
       <Flex justify="center" gap={5}>
-        {isEditing !== false ? (
-          <MyButton
-            onClick={handleCancelEditing}
-            variant="clear"
-            type="default"
-            text="Cancel"
-          />
-        ) : (
-          <MyButton variant="reset" onClick={() => showCofirmModal()} />
-        )}
+        {isEditing !== false ? <MyButton onClick={handleCancelEditing} variant="clear" type="default" text="Cancel" /> : <MyButton variant="reset" onClick={() => showCofirmModal()} />}
 
         <MyButton
           variant="add"
           // disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
-          onClick={ 
-            isEditing !== false ? handleUpdateCompnent : handleAddComponents
-          }
+          onClick={isEditing !== false ? handleUpdateCompnent : handleAddComponents}
         />
       </Flex>
       <Divider />
       <Flex align="center" vertical gap={10}>
-        <Typography.Text
-          strong
-          type="secondary"
-          style={{ textAlign: "center", fontSize: 13 }}
-        >
+        <Typography.Text strong type="secondary" style={{ textAlign: "center", fontSize: 13 }}>
           After adding the components and header details, click on Create BOM
         </Typography.Text>
-        <MyButton
-          variant="submit"
-          text={isBomUpdating ? "Update BOM" : "Create BOM"}
-          loading={loading("final")}
-          onClick={() => validateHandler("final")}
-          disabled={mainComponents.length === 0}
-        />
-        <MyButton
-          variant="save"
-          loading={loading("draft")}
-          onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
-          disabled={mainComponents.length === 0}
-          text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
-        />
+        <Flex gap={10} className="py-4">
+          <MyButton variant="submit" text={isBomUpdating ? "Update BOM" : "Create BOM"} loading={loading("final")} onClick={() => validateHandler("final")} disabled={mainComponents.length === 0} />
+          <MyButton
+            variant="save"
+            loading={loading("draft")}
+            onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
+            disabled={mainComponents.length === 0}
+            text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
+          />
+        </Flex>
       </Flex>
     </Card>
   );
