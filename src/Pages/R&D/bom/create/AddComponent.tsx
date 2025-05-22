@@ -97,7 +97,9 @@ const AddComponent = ({
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
-  const isDraftUpdate = window.location.href.includes("draft") && window.location.href.includes("version");
+  const isDraftUpdate =
+    window.location.href.includes("draft") &&
+    window.location.href.includes("version");
   const handleFetchVendorOptions = async (search: string) => {
     const response = await executeFun(() => getVendorOptions(search), "select");
 
@@ -141,7 +143,6 @@ const AddComponent = ({
       },
     });
   };
-  
 
   return (
     <Card size="small" title="Add Components">
@@ -206,7 +207,7 @@ const AddComponent = ({
           <MySelect options={mainComponents} labelInValue={true} />
         </Form.Item>
       )}
-       <Flex wrap="wrap" gap={5}>
+      <Flex wrap="wrap" gap={5}>
         <Form.Item
           style={{ flex: 1, minWidth: 100 }}
           name="make"
@@ -263,7 +264,7 @@ const AddComponent = ({
           variant="add"
           // disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
-          onClick={ 
+          onClick={
             isEditing !== false ? handleUpdateCompnent : handleAddComponents
           }
         />
@@ -287,7 +288,9 @@ const AddComponent = ({
         <MyButton
           variant="save"
           loading={loading("draft")}
-          onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
+          onClick={() =>
+            validateHandler(isDraftUpdate ? "updateDraft" : "draft")
+          }
           disabled={mainComponents.length === 0}
           text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
         />
