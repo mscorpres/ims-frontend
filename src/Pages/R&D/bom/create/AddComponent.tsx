@@ -81,7 +81,9 @@ const AddComponent = ({
 }: Props) => {
   const { executeFun, loading: loading1 } = useApi();
   const type = Form.useWatch("type", form);
-  const isDraftUpdate = window.location.href.includes("draft") && window.location.href.includes("version");
+  const isDraftUpdate =
+    window.location.href.includes("draft") &&
+    window.location.href.includes("version");
   const handleFetchVendorOptions = async (search: string) => {
     const response = await executeFun(() => getVendorOptions(search), "select");
 
@@ -156,7 +158,12 @@ const AddComponent = ({
         </Form.Item>
       )}
       <Flex wrap="wrap" gap={5}>
-        <Form.Item style={{ flex: 1, minWidth: 100 }} name="make" label="Make" rules={rules.make}>
+        <Form.Item
+          style={{ flex: 1, minWidth: 100 }}
+          name="make"
+          label="Make"
+          rules={rules.make}
+        >
           <Input style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item style={{ flex: 1, minWidth: 100 }} name="mpn" label="MPN" rules={rules.mpn}>
@@ -187,7 +194,9 @@ const AddComponent = ({
           variant="add"
           // disabled={form.getFieldValue("version")?.length > 0 ? false : true}
           text={isEditing !== false ? "Update" : "Add"}
-          onClick={isEditing !== false ? handleUpdateCompnent : handleAddComponents}
+          onClick={
+            isEditing !== false ? handleUpdateCompnent : handleAddComponents
+          }
         />
       </Flex>
       <Divider />
@@ -195,16 +204,22 @@ const AddComponent = ({
         <Typography.Text strong type="secondary" style={{ textAlign: "center", fontSize: 13 }}>
           After adding the components and header details, click on Create BOM
         </Typography.Text>
-        <Flex gap={10} className="py-4">
-          <MyButton variant="submit" text={isBomUpdating ? "Update BOM" : "Create BOM"} loading={loading("final")} onClick={() => validateHandler("final")} disabled={mainComponents.length === 0} />
-          <MyButton
-            variant="save"
-            loading={loading("draft")}
-            onClick={() => validateHandler(isDraftUpdate ? "updateDraft" : "draft")}
-            disabled={mainComponents.length === 0}
-            text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
-          />
-        </Flex>
+        <MyButton
+          variant="submit"
+          text={isBomUpdating ? "Update BOM" : "Create BOM"}
+          loading={loading("final")}
+          onClick={() => validateHandler("final")}
+          disabled={mainComponents.length === 0}
+        />
+        <MyButton
+          variant="save"
+          loading={loading("draft")}
+          onClick={() =>
+            validateHandler(isDraftUpdate ? "updateDraft" : "draft")
+          }
+          disabled={mainComponents.length === 0}
+          text={isDraftUpdate ? "Update as Draft" : "Save as Draft"}
+        />
       </Flex>
     </Card>
   );

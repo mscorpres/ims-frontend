@@ -231,44 +231,41 @@ const BOMCreate = () => {
       "mpn",
     ]);
 
+    const updatedComponent = {
+      ...values,
+      value: values.component.value,
+      text: values.component.label,
+      component: {
+        label: values.component.label,
+        value: values.component.value,
+      },
+      partCode:
+        values.component.code ||
+        values.component.value ||
+        values.component.label,
+      qty: values.qty,
+      substituteOf:
+        values.type === "substitute"
+          ? {
+              label: values.substituteOf.label,
+              value: values.substituteOf.value,
+            }
+          : null,
+    };
+
+    // Remove the component from both arrays first
+    setMainComponents((curr) =>
+      curr.filter((row) => row.value !== editingComponentValue)
+    );
+    setSubComponents((curr) =>
+      curr.filter((row) => row.value !== editingComponentValue)
+    );
+
+    // Add to the appropriate array based on type
     if (values.type === "main") {
-      setMainComponents((curr) =>
-        curr.map((row) =>
-          row.value === editingComponentValue
-            ? {
-                ...row,
-                ...values,
-                value: values.component.value,
-                text: values.component.label,
-                component: values.component,
-                partCode:
-                  values.component.code ||
-                  values.component.value ||
-                  values.component.label,
-                qty: values.qty,
-              }
-            : row
-        )
-      );
+      setMainComponents((curr) => [...curr, updatedComponent]);
     } else {
-      setSubComponents((curr) =>
-        curr.map((row) =>
-          row.value === editingComponentValue
-            ? {
-                ...row,
-                ...values,
-                value: values.component.value,
-                text: values.component.label,
-                component: values.component,
-                partCode:
-                  values.component.code ||
-                  values.component.value ||
-                  values.component.label,
-                qty: values.qty,
-              }
-            : row
-        )
-      );
+      setSubComponents((curr) => [...curr, updatedComponent]);
     }
     setEditingComponentValue(null);
     setIsEditing(false);
@@ -308,36 +305,31 @@ const BOMCreate = () => {
     setAsyncOptions(response.data ?? []);
   };
 
-  const validateHandler = async (action: "final" | "draft"|"updateDraft") => {
+  const validateHandler = async (action: "final" | "draft" | "updateDraft") => {
     await form.validateFields(["name", "version", "product", "bomRef"]);
     setSaveType(action);
-   if( action === "final"){
-     setShowApproverMetrics(true);
-   } 
-   else if(action === "updateDraft"){
-    Modal.confirm({
-      title: "Are you sure you want to update this BOM as Draft?",
-      content:
-        "Please make sure that the values are correct,",
-      onOk() {
-        submitHandler(action);
-      },
-      onCancel() {},
-    });
-    
-   }
-   else{
-    Modal.confirm({
-      title: "Are you sure you want to save this BOM as Draft?",
-      content:
-        "Please make sure that the values are correct, This process is irreversible",
-      onOk() {
-        submitHandler(action);
-      },
-      onCancel() {},
-    });
-    
-   }
+    if (action === "final") {
+      setShowApproverMetrics(true);
+    } else if (action === "updateDraft") {
+      Modal.confirm({
+        title: "Are you sure you want to update this BOM as Draft?",
+        content: "Please make sure that the values are correct,",
+        onOk() {
+          submitHandler(action);
+        },
+        onCancel() {},
+      });
+    } else {
+      Modal.confirm({
+        title: "Are you sure you want to save this BOM as Draft?",
+        content:
+          "Please make sure that the values are correct, This process is irreversible",
+        onOk() {
+          submitHandler(action);
+        },
+        onCancel() {},
+      });
+    }
   };
   function convertStageToNumber(data) {
     // console.log("data ub ", data);
@@ -350,23 +342,28 @@ const BOMCreate = () => {
       return item;
     });
   }
-  function showConfirmation(message: string, action: "final" | "draft"| "updateDraft") {
+  function showConfirmation(
+    message: string,
+    action: "final" | "draft" | "updateDraft"
+  ) {
     const userConfirmed = window.confirm(
-      `${message} , Do you wish to go to ${action === "final" ? "BOM List" : "Drafts List"}?`
+      `${message} , Do you wish to go to ${
+        action === "final" ? "BOM List" : "Drafts List"
+      }?`
     );
     if (userConfirmed) {
-      if(action === "final"){
+      if (action === "final") {
         navigate(routeConstants.researchAndDevelopment.bom.list);
-      }else{
+      } else {
         navigate(routeConstants.researchAndDevelopment.bom.drafts);
       }
       window.location.reload();
     } else {
       window.location.reload();
     }
-  } 
+  }
 
-  const submitHandler = async (action: "final" | "draft"| "updateDraft") => {
+  const submitHandler = async (action: "final" | "draft" | "updateDraft") => {
     const values = await form.validateFields([
       "name",
       "version",
@@ -385,13 +382,17 @@ const BOMCreate = () => {
       bomDoc: values.documents,
       bomRef: values.bomRef,
       bomRemark: values.description,
-      bomKey:bomId??"",
+      bomKey: bomId ?? "",
       approvers: approvers.map(
         (stage) => stage.approvers.map((approver: any) => approver?.user?.value) // Extract the 'value' of each approver's user
       ),
       // bomDoc: values.documents,
       componets: combined.map((item: any) => ({
-        vendor: item?.vendor?.key ? item?.vendor?.key : item?.vendor?.value? item?.vendor?.value : item?.vendor?.code,
+        vendor: item?.vendor?.key
+          ? item?.vendor?.key
+          : item?.vendor?.value
+          ? item?.vendor?.value
+          : item?.vendor?.code,
         component: item.component.value
           ? item.component.value
           : item.componentKey, // Extract the component value
@@ -409,14 +410,17 @@ const BOMCreate = () => {
     if (action === "final") {
       response = await executeFun(() => createBomRND(payload as any), action);
     } else if (action === "updateDraft") {
-      response = await executeFun(() => updateDraftBomRND(payload as any), action);
-    }else {
+      response = await executeFun(
+        () => updateDraftBomRND(payload as any),
+        action
+      );
+    } else {
       response = await executeFun(
         () => createDraftBomRND(payload as any),
         action
       );
     }
-  
+
     if (response?.success) {
       setBomId("");
       setIsBomRej(false);
@@ -490,7 +494,7 @@ const BOMCreate = () => {
   };
 
   const handleUpload = async (files) => {
-    setUploadLoading(true); 
+    setUploadLoading(true);
     // Create a FormData object
     const formData = new FormData();
 
@@ -636,11 +640,7 @@ const BOMCreate = () => {
                 <Input disabled />
               </Form.Item>
 
-              <Form.Item
-                name="bomRef"
-                label="ECN Number"
-                rules={rules.bomRef}
-              >
+              <Form.Item name="bomRef" label="ECN Number" rules={rules.bomRef}>
                 <Input />
               </Form.Item>
 
@@ -956,7 +956,7 @@ export default BOMCreate;
 //     </div>
 //   );
 // };
- // Assuming TableActions is a component for Edit/Delete actions
+// Assuming TableActions is a component for Edit/Delete actions
 
 const Components = ({
   rows,
@@ -1020,25 +1020,29 @@ const Components = ({
       sortable: true,
       renderCell: (params: any) => {
         const value = params.value?.text || params.value?.name || "";
-        const tooltipText = value ? `${value} (${params.value?.code ?? params.value.value})` : "";
+        const tooltipText = value
+          ? `${value} (${params.value?.code ?? params.value.value})`
+          : "";
         return <Tooltip title={tooltipText}>{tooltipText}</Tooltip>;
-    }
-        },
+      },
+    },
     {
       field: "locations",
       headerName: "Placement",
       width: 180,
       sortable: true,
     },
-    ...(type === "substitute" 
+    ...(type === "substitute"
       ? [
           {
             field: "substituteOf",
             headerName: "Alternate Of",
             width: 200,
             sortable: true,
-            renderCell: (params: any) => <Tooltip title={params.value.label}>{params.value.label}</Tooltip>, // Render substitute label
-          }
+            renderCell: (params: any) => (
+              <Tooltip title={params.value.label}>{params.value.label}</Tooltip>
+            ), // Render substitute label
+          },
         ]
       : []),
     {
@@ -1071,17 +1075,17 @@ const Components = ({
       ),
     },
   ];
-  const rowsWithId = rows?.map((row,index) => ({
+  const rowsWithId = rows?.map((row, index) => ({
     ...row,
-    id: index+1,  // Add `id` using the `value` field as the unique identifier
+    id: index + 1, // Add `id` using the `value` field as the unique identifier
   }));
-  
+
   return (
     <div style={{ height: "100%", overflow: "hidden" }}>
       {rowsWithId?.length === 0 && <Empty />}
       {rowsWithId?.length > 0 && (
         <Row gutter={[6, 6]} style={{ height: "100%" }}>
-          <MyDataTable data={rowsWithId} columns={columns} loading={false}  />
+          <MyDataTable data={rowsWithId} columns={columns} loading={false} />
         </Row>
       )}
     </div>
