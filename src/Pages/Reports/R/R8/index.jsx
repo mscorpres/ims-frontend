@@ -53,7 +53,7 @@ function R8() {
         setRows(arr);
       }
     } catch (error) {
-      console.log("Some error occured while fetching rows", error);
+      console.log("Some error occurred while fetching rows", error);
     } finally {
       setLoading(false);
     }
@@ -72,14 +72,30 @@ function R8() {
       />,
     ],
   };
+
   const downloadHandler = () => {
     let newId = v4();
-
-    socket.emit("generate_r8_report", {
+    let payload = {
       otherdata: searchInput,
       notificationId: newId,
-    });
+      wise: type,
+      data: null,
+      advanced: false,
+    };
+
+    if (type === "datewise") {
+      payload.data = searchInput;
+    } else if (type === "skuwise") {
+      payload.data = skuInput;
+    } else if (type === "both") {
+      payload.data = skuInput;
+      payload.advanced = true;
+      payload.wise = "skuwise";
+    }
+
+    socket.emit("generate_r8_report", payload);
   };
+
   return (
     <div style={{ height: "90%" }}>
       <Space align="center" style={{ width: "100%", marginBottom: 8 }}>
@@ -110,7 +126,7 @@ function R8() {
             <Input
               type="text"
               placeholder="Enter SKU"
-              onChange={(e) => setSkuInput(e.target.value)}
+              onClick={(e) => setSkuInput(e.target.value)}
               style={{ width: 200 }}
             />
           </>
@@ -168,7 +184,6 @@ const columns = [
     field: "fgtype",
     width: 100,
   },
-
   {
     headerName: "Product",
     field: "productname",
