@@ -20,7 +20,10 @@ const SELECT_OPTIONS = [
   { label: "GP ID Wise", value: "gpwise" },
 ];
 
-const COLUMNS = [
+
+
+function ManageDC() {
+  const COLUMNS = [
   {
     headerName: "",
     width: 30,
@@ -78,8 +81,6 @@ const COLUMNS = [
   { field: "ewaybill_status", headerName: "E WayBill Status", width: 200 },
   { field: "ewaybill_no", headerName: "E WayBill No.", width: 200 },
 ];
-
-function ManageDC() {
   const [state, setState] = useState({
     selType: "",
     gpInput: "",
