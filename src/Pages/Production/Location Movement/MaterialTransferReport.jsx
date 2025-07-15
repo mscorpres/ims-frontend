@@ -58,6 +58,8 @@ export default function MaterialTransferReport({ type }) {
     },
     { headerName: "Out Loc.", field: "out_location", flex: 1 },
     { headerName: "In Loc.", field: "in_location", flex: 1 },
+    { headerName: "Weighted average rate", field: "weightedPurchaseRate", flex: 1 },
+    { headerName: "Weighted total cost", field: "weightedTotalCost", flex: 1 },
     { headerName: "Qty", field: "qty", flex: 1 },
     { headerName: "UoM", field: "uom", flex: 1 },
     { headerName: "TXN ID", field: "transaction", flex: 1 },
