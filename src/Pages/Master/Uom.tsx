@@ -114,7 +114,7 @@ const Uom = () => {
               <Form.Item name="name" label="Unit">
                 <Input />
               </Form.Item>
-              <Form.Item name="description" label="Specification">
+              <Form.Item name="details" label="Specification">
                 <Input.TextArea rows={3} />
               </Form.Item>
               <Row justify="center">
