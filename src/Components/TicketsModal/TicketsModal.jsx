@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import ToolTipEllipses from "../ToolTipEllipses";
 import { Link } from "react-router-dom";
 import Loading from "../Loading";
-const axiosLink = "https://support.mscorpres.online";
+const axiosLink = "https://support.mscorpres.com";
 
 export default function TicketsModal({ open, handleClose }) {
   const [loading, setLoading] = useState(false);
