@@ -452,7 +452,7 @@ export default function CreateJW({}) {
       () => createJobWorkReq(finalObj),
       "select"
     );
-    // console.log("response", response);
+    console.log("response", response);
 
     // const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
     // setLoading("submitting", false);

@@ -53,10 +53,10 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    if (!recaptchaValue) {
-      toast.error("Please verify the reCAPTCHA");
-      // return;
-    }
+    // if (!recaptchaValue) {
+    //   toast.error("Please verify the reCAPTCHA");
+    //   // return;
+    // }
     // if (!recaptchaValue) {
     //   toast.error("Please verify the reCAPTCHA");
     //   return;
