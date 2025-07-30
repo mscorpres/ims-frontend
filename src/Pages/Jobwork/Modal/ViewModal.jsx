@@ -23,6 +23,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../Components/Loading";
+import { Tooltip } from "@mui/material";
 
 const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
   const [loading, setLoading] = useState(false);
@@ -64,6 +65,25 @@ const ViewModal = ({ viewModalOpen, setViewModalOpen }) => {
     { field: "index", headerName: "S No.", width: 8 },
     { field: "part_code", headerName: "Part Code", width: 120 },
     { field: "component_name", headerName: "Name", width: 350 },
+    {
+      field: "bomalt_name",
+      headerName: "Alt Part",
+      width: 150,
+      renderCell: ({ row }) => {
+        const altNames = Array.isArray(row?.bomalt_name)
+          ? row.bomalt_name.join(", ")
+          : "";
+        const altParts = Array.isArray(row?.bomalt_part)
+          ? row.bomalt_part.join(", ")
+          : "";
+
+        return (
+          <Tooltip title={altNames}>
+            <span>{altParts}</span>
+          </Tooltip>
+        );
+      },
+    },
     { field: "bom_uom", headerName: "UoM", width: 100 },
     { field: "bom_qty", headerName: "BOM Qty", width: 100 },
     { field: "bom_rate", headerName: "BOM Rate", width: 100 },

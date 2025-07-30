@@ -31,7 +31,7 @@ import Layout, { Content, Header } from "antd/lib/layout/layout";
 import { Badge, Row, Select, Space, Switch, Typography } from "antd";
 // icons import
 import {
-  MessageOutlined,
+  CustomerServiceOutlined,
   BellFilled,
   StarFilled,
   StarOutlined,
@@ -857,7 +857,7 @@ const App = () => {
                       />
                     )}
                   </div>
-                  <div>
+                  <div> 
                     <Badge
                       size="small"
                       count={
@@ -865,8 +865,8 @@ const App = () => {
                           .length
                       }
                     >
-                      <MessageOutlined
-                        onClick={() => setShowMessageDrawer(true)}
+                      <CustomerServiceOutlined
+                        onClick={() => setShowTickets(true)}
                         style={{
                           fontSize: 18,
                           cursor: "pointer",

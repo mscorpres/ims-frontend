@@ -21,6 +21,7 @@ import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
+import { Tooltip } from "@mui/material";
 const { TextArea } = Input;
 function R9() {
   const [locDataTo, setloctionDataTo] = useState([]);
@@ -203,7 +204,7 @@ function R9() {
         <span dangerouslySetInnerHTML={{ __html: row.statusHtml }} />
       ),
     },
-    { field: "bomalt_part", headerName: "Alt Of", width: 120 },
+    { field: "bomalt_part", headerName: "Alt Of", width: 120, renderCell:({row})=> (<Tooltip title={row.bomalt_name}>{row.bomalt_part}</Tooltip>) },
     { field: "bomqty", headerName: "Bom Qty", width: 120 },
     { field: "uom", headerName: "UoM", width: 100 },
     { field: "openBal", headerName: "Op Qty", width: 100 },

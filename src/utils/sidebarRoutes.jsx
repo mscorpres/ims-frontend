@@ -32,14 +32,14 @@ import { faScaleBalanced } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import routeConstants from "../Routes/routeConstants";
 export const items = (user) => [
-  getItem(
-    "Favorites",
-    "G",
-    user?.favPages?.length > 0 ? <StarFilled /> : <StarOutlined />,
-    user?.favPages?.map((fav, index) =>
-      getItem(<Link to={fav.url}>{fav.page_name}</Link>, `A${index + 1}`)
-    )
-  ),
+  // getItem(
+  //   "Favorites",
+  //   "G",
+  //   user?.favPages?.length > 0 ? <StarFilled /> : <StarOutlined />,
+  //   user?.favPages?.map((fav, index) =>
+  //     getItem(<Link to={fav.url}>{fav.page_name}</Link>, `A${index + 1}`)
+  //   )
+  // ),
   getItem("Finance", "D", <BiMoney />, [
     getItem(
       <Link to="/tally/ChartOfAccounts">Account</Link>,
@@ -663,19 +663,19 @@ export const items = (user) => [
   // user?.showlegal
   // ?
 
-  getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
-    getItem("Master", "X1", <DeliveredProcedureOutlined />, [
-      getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),
-      getItem(
-        <Link to="/legal/addagreementtype">Add Type Of Agreement</Link>,
-        "X12"
-      ),
-    ]),
-    getItem("Agreements", "X2", <DeliveredProcedureOutlined />, [
-      getItem(<Link to="/legal/createagreement">Create Agreement</Link>, "X21"),
-      getItem(<Link to="/legal/viewagreement">View Agreement</Link>, "X22"),
-    ]),
-  ]),
+  // getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
+  //   getItem("Master", "X1", <DeliveredProcedureOutlined />, [
+  //     getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),
+  //     getItem(
+  //       <Link to="/legal/addagreementtype">Add Type Of Agreement</Link>,
+  //       "X12"
+  //     ),
+  //   ]),
+  //   getItem("Agreements", "X2", <DeliveredProcedureOutlined />, [
+  //     getItem(<Link to="/legal/createagreement">Create Agreement</Link>, "X21"),
+  //     getItem(<Link to="/legal/viewagreement">View Agreement</Link>, "X22"),
+  //   ]),
+  // ]),
   // : null,
 
   //MES
@@ -722,7 +722,7 @@ export const items = (user) => [
       "F2"
     ),
   ]),
-  getItem(<Link to="/sop">SOP's</Link>, "/sop", <FormOutlined />),
+  // getItem(<Link to="/sop">SOP's</Link>, "/sop", <FormOutlined />),
   getItem(
     <Link to="/invoice/create">Sales & Distribution</Link>,
     "/invoice/create",
@@ -757,11 +757,11 @@ export const items = (user) => [
 ];
 
 export const items1 = (user, setShowTickets) => [
-  getItem(
-    <Link onClick={() => setShowTickets(true)}>Tickets</Link>,
-    "B",
-    <CustomerServiceOutlined />
-  ),
+  // getItem(
+  //   <Link onClick={() => setShowTickets(true)}>Tickets</Link>,
+  //   "B",
+  //   <CustomerServiceOutlined />
+  // ),
   getItem(<Link to="/myprofile">Profile</Link>, "A", <UserOutlined />),
   // getItem(<Link to="/messenger">Messenger</Link>, "C", <MessageOutlined />),
 ];

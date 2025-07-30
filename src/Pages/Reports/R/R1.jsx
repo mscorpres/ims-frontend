@@ -12,6 +12,7 @@ import {
 } from "@ant-design/icons";
 
 import MyDataTable from "../../../Components/MyDataTable";
+import Tooltip from "@mui/material/Tooltip";
 
 const R1 = () => {
   const [viewModal, setViewModal] = useState(false);
@@ -95,6 +96,7 @@ const R1 = () => {
       field: "bomalt_name",
       headerName: "Alternate Of",
       width: 120,
+      renderCell:({row})=> (<Tooltip title={row.bomalt_name}>{row.bomalt_part}</Tooltip>)
     },
     { field: "bomqty", headerName: "BOM Qty", width: 100 },
     { field: "units_name", headerName: "UoM", width: 100 },

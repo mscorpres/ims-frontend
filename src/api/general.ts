@@ -2,6 +2,7 @@ import { ResponseType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { imsAxios } from "../axiosInterceptor";
 import { RowProps } from "antd";
+import { toast } from "react-toastify";
 
 export const getVendorOptions = async (search) => {
   console.log("here", search);
@@ -17,6 +18,7 @@ export const getVendorOptions = async (search) => {
 export const createJobWorkReq = async (finalObj) => {
   try {
     const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
+    if(response.code == 500) toast.error(response?.message?.msg);
     return response;
   } catch (error) {
     console.log("something happened wrong", error);

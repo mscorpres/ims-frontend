@@ -46,7 +46,14 @@ export default function CancelPO({
       const { data } = await imsAxios.post("/purchaseOrder/CancelPO", {
         purchase_order: showCancelPO,
         remark: reason,
-      });
+      }).then((res) => {
+        if(res.code==500){
+          toast.error(res.message.msg)
+          setLoading(false);
+          setShowCancelPO(null);
+        }
+      }
+    );
       setLoading(false);
       if (data.code == 200) {
         toast.success(data.message.msg);
