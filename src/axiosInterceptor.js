@@ -45,6 +45,7 @@ imsAxios.interceptors.request.use(
     let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26";
     config.headers["Company-Branch"] = branch;
     config.headers["Session"] = session;
+    config.headers["x-window-url"] = window.location.href;
 
     return config;
   },
@@ -106,6 +107,5 @@ let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26";
 
 imsAxios.defaults.headers["Company-Branch"] = branch;
 imsAxios.defaults.headers["Session"] = session;
-imsAxios.defaults.headers["x-window-url"] = window.location.href;
 
 export { imsAxios, socketLink };
