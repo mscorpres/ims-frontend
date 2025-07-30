@@ -213,6 +213,11 @@ export default function CreatePo() {
     if (showSubmitConfirm) {
       const response = await imsAxios.post("/purchaseOrder/createPO", {
         ...showSubmitConfirm,
+      }).then((res) => {
+        if(res?.code == 500){
+          toast.error(res?.message.msg)
+          setSubmitLoading(false);
+        }
       });
       setSubmitLoading(false);
       const { data } = response;
