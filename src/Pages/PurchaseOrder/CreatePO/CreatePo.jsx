@@ -218,6 +218,9 @@ export default function CreatePo() {
           toast.error(res?.message.msg)
           setSubmitLoading(false);
         }
+        else{
+          return res
+        }
       });
       setSubmitLoading(false);
       const { data } = response;
