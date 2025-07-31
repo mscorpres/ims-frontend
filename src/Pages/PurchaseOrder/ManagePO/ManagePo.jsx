@@ -342,7 +342,16 @@ const ManagePO = () => {
     setLoading(true);
     const  {data,message}  = await imsAxios.post("/purchaseOrder/fetchData4Update", {
       pono: poid.replaceAll("_", "/"),
-    });
+    }).then((res) => {
+      if(res.code == 500){
+        toast.error(res.message.msg);
+        setLoading(false);
+      }
+      else{
+        return res
+      }
+    }
+    );
     setLoading(false);
     if (data?.code == 200) {
       setUpdatePoId({

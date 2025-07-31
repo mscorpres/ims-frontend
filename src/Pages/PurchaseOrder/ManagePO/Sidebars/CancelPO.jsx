@@ -14,7 +14,7 @@ export default function CancelPO({
 }) {
   const [reason, setReason] = useState("");
   const [status, setStatus] = useState();
-  const [payment,setPayment] = useState(false);
+  const [payment, setPayment] = useState(false);
   const [loading, setLoading] = useState(false);
   const getPOStatus = async () => {
     if (showCancelPO) {
@@ -23,7 +23,7 @@ export default function CancelPO({
       });
       if (data.code == 200) {
         setStatus("okay");
-        setPayment(data?.data?.advPayment=="1"?true:false);
+        setPayment(data?.data?.advPayment == "1" ? true : false);
       } else {
         setStatus(data);
       }
@@ -33,7 +33,8 @@ export default function CancelPO({
   const showCofirmModal = () => {
     Modal.confirm({
       okText: "Save",
-      title:"Are you sure you want to cancel this PO ? Since the advanced payment has already been made to the vendor.",
+      title:
+        "Are you sure you want to cancel this PO ? Since the advanced payment has already been made to the vendor.",
       onOk() {
         handleCancelPO();
       },
@@ -51,6 +52,9 @@ export default function CancelPO({
           toast.error(res.message.msg)
           setLoading(false);
           setShowCancelPO(null);
+        }
+        else{
+          return res
         }
       }
     );
@@ -117,7 +121,7 @@ export default function CancelPO({
             <Button
               loading={loading}
               disabled={reason.length < 5 ? true : false}
-              onClick={payment?showCofirmModal:handleCancelPO}
+              onClick={payment ? showCofirmModal : handleCancelPO}
               type="primary"
             >
               Cancel PO
