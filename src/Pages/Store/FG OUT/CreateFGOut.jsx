@@ -13,7 +13,7 @@ const CreateFGOut = () => {
   const [loading, setLoading] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [selLoading, setSelLoading] = useState(false);
-  const options = [{ label: "Sale", value: "SL001" }];
+  const options = [{ label: "Sale", value: "SL001" },{ label: "Other", value: "OT001" }];
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [createFgOut, setCreateFgOut] = useState({
