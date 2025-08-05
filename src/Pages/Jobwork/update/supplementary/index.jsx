@@ -31,6 +31,10 @@ function UpdateJW() {
   const [component, setComponent] = useState([]);
   const [viewModal, setViewModal] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
+
+  // Separate state for alternative components to avoid conflicts
+  const [altComponentOptions, setAltComponentOptions] = useState([]);
+  const [altSearchInput, setAltSearchInput] = useState("");
   const setType = [{ label: "Supplymentary", value: "S" }];
   const statusOptions = [
     { label: "Active", value: "active" },
@@ -101,10 +105,43 @@ function UpdateJW() {
     if (data.code == 200) {
       setHeader(data?.data?.headers);
       let arr = data?.data?.components.map((row, index) => {
+        // Map backend status to frontend status values
+        let status = "active"; // default
+        if (row.part_status === "ALT") {
+          status = "alt";
+        } else if (row.part_status === "ACTIVE") {
+          status = "active";
+        }
+
+        // Map alternative components from backend
+        let altComponents = [];
+        if (row.part_alt && row.part_alt.length > 0) {
+          altComponents = row.part_alt
+            .filter(
+              (alt) =>
+                alt.alt_component_part !== "N/A" &&
+                alt.alt_component_name !== "N/A"
+            )
+            .map((alt) => ({
+              text: alt.alt_component_name,
+              value: alt.alt_component_part,
+              part_code: alt.alt_component_part,
+            }));
+        }
+
         return {
           ...row,
           id: v4(),
           index: index + 1,
+          status: status,
+          alt_components: altComponents,
+          // Map backend fields to frontend field names
+          component_name: row.component_name,
+          component_part: row.component_part,
+          component_uom: row.component_uom,
+          recipe_qty: row.recipe_qty,
+          component_key: row.component_key,
+          row_id: row.row_id,
         };
       });
       setComponent(arr);
@@ -135,6 +172,25 @@ function UpdateJW() {
       });
       setAsyncOptions(arr);
       // return arr;
+    }
+  };
+
+  const getAltComponentName = async (e) => {
+    if (e?.length > 2) {
+      const response = await executeFun(
+        () => getComponentOptions(e),
+        "altSelect"
+      );
+      const { data } = response;
+      let arr = [];
+      arr = data.map((d) => {
+        return {
+          text: d.text,
+          value: d.id,
+          part_code: d.part_code, // Include part_code from API response
+        };
+      });
+      setAltComponentOptions(arr);
     }
   };
 
@@ -280,18 +336,19 @@ function UpdateJW() {
         width: 150,
         sortable: false,
         renderCell: ({ row }) => (
-          <MyAsyncSelect
+          <Select
             style={{ width: "100%" }}
             value={row?.status}
-            optionsState={statusOptions}
+            options={statusOptions}
             onChange={(e) => inputHandler("status", row.id, e)}
+            placeholder="Select Status"
           />
         ),
       },
       {
         headerName: "Alternative Components",
         field: "alt_components",
-        width: 600,
+        width: 400,
         sortable: false,
         renderCell: ({ row }) => {
           if (row?.status === "alt") {
@@ -385,15 +442,15 @@ function UpdateJW() {
                         outline: "none",
                         width: "100%",
                       }}
-                      loadOptions={getComponentName}
-                      selectLoading={loading1("select")}
+                      loadOptions={getAltComponentName}
+                      selectLoading={loading1("altSelect")}
                       placeholder={
                         (row.alt_components || []).length === 0
                           ? "Search and select components"
                           : ""
                       }
-                      onInputChange={(e) => setSearchInput1(e)}
-                      optionsState={asyncOptions}
+                      onInputChange={(e) => setAltSearchInput(e)}
+                      optionsState={altComponentOptions}
                       onChange={(value) => {
                         console.log("Selected value:", value);
                         console.log(
@@ -401,7 +458,7 @@ function UpdateJW() {
                           row.alt_components
                         );
 
-                        const selectedOption = asyncOptions.find(
+                        const selectedOption = altComponentOptions.find(
                           (opt) => opt.value === value
                         );
                         if (selectedOption) {
@@ -440,7 +497,7 @@ function UpdateJW() {
                       onBlur={(e) => {
                         // Only close dropdown if clicking outside the component
                         if (!e.currentTarget.contains(e.relatedTarget)) {
-                          setAsyncOptions([]);
+                          setAltComponentOptions([]);
                         }
                       }}
                       value={null} // Keep the select empty for new selections
