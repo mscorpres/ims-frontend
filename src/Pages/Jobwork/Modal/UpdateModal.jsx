@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { EyeFilled, CloseCircleFilled, DeleteTwoTone } from "@ant-design/icons";
-import axios from "axios";
+import {CloseCircleFilled } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import { Button, Col, Drawer, Row, Skeleton, Space, Input } from "antd";
+import { Button, Col, Drawer, Row, Skeleton, Space, Input,Tooltip } from "antd";
 import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
 import TableActions from "../../../Components/TableActions.jsx/TableActions";
@@ -84,6 +83,46 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
     { field: "index", headerName: "S No.", width: 8 },
     { field: "part_code", headerName: "Part Code.", width: 120 },
     { field: "component_name", headerName: "Component Name", width: 450 },
+    { field: "part_status", headerName: "Status", width: 100 },
+    {
+      field: "part_alt",
+      headerName: "Alt Part",
+      width: 150,
+      renderCell: ({ row }) => {
+        // Handle the new backend structure with alts array
+        if (row?.part_alt && Array.isArray(row.part_alt) && row.part_alt.length > 0) {
+          const altParts = row.part_alt
+            .filter((alt) => alt.alt_component_part !== "N/A")
+            .map((alt) => alt.alt_component_part)
+            .join(", ");
+
+          const altNames = row.part_alt
+            .filter((alt) => alt.alt_component_name !== "N/A")
+            .map((alt) => alt.alt_component_name)
+            .join(", ");
+
+          return (
+            <Tooltip title={altNames}>
+              <span>{altParts}</span>
+            </Tooltip>
+          );
+        }
+
+        // Fallback for old structure or empty alts
+        const altNames = Array.isArray(row?.alt_component_part)
+          ? row.alt_component_part.join(", ")
+          : "";
+        const altParts = Array.isArray(row?.alt_component_part)
+          ? row.alt_component_part.join(", ")
+          : "";
+
+        return (
+          <Tooltip title={altNames}>
+            <span>{altParts}</span>
+          </Tooltip>
+        );
+      },
+    },
     { field: "bom_req_qty", headerName: "BOM Required Qty", width: 180 },
     {
       field: "rate",
@@ -154,6 +193,18 @@ function UpdateModal({ updateModalInfo, setUpdateModalInfo, getRows }) {
       sku_trans_id: view?.jobwork_sku_id,
       trans_id: view?.jobwork_id,
       rate: mainData.map((row) => row.rate ?? 0),
+      part_alt: mainData.reduce((acc, row) => {
+        // Only include if there are valid alt parts
+        if (Array.isArray(row.part_alt) && row.part_alt.length > 0) {
+          const validAlts = row.part_alt
+            .filter((alt) => alt.alt_component_part !== "N/A")
+            .map((alt) => alt.alt_component_key); // or alt.alt_component_part if you want part code
+          if (validAlts.length > 0) {
+            acc[row.component_key] = validAlts;
+          }
+        }
+        return acc;
+      }, {}),
     });
     setSubmitLoading(false);
     if (data.code == 200) {

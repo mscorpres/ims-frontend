@@ -23,7 +23,7 @@ function UpdateJW() {
     compName: "",
     comment: "",
   });
-  // console.log(updateData);
+
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchInput1, setSearchInput1] = useState("");
@@ -56,14 +56,12 @@ function UpdateJW() {
       row_id: 0,
     },
   ]);
-  // console.log(addField);
 
   const getComponent = async (e) => {
     if (e?.length > 2) {
       const { data } = await imsAxios.post("/JWSupplementary/fetchJwOption", {
         searchTerm: e,
       });
-      console.log(data);
       let arr = [];
       arr = data.data.map((d) => {
         return { text: d.text, value: d.id };
@@ -124,12 +122,14 @@ function UpdateJW() {
             )
             .map((alt) => ({
               text: alt.alt_component_name,
-              value: alt.alt_component_part,
+              value: alt.alt_component_key || alt.alt_component_part, // Use key if available, fallback to part
               part_code: alt.alt_component_part,
+              component_key: alt.alt_component_key, // Store the key for API calls
+              isFromBackend: true, // Flag to identify backend components
             }));
         }
 
-        return {
+        const mappedRow = {
           ...row,
           id: v4(),
           index: index + 1,
@@ -137,12 +137,14 @@ function UpdateJW() {
           alt_components: altComponents,
           // Map backend fields to frontend field names
           component_name: row.component_name,
-          component_part: row.component_part,
-          component_uom: row.component_uom,
-          recipe_qty: row.recipe_qty,
+          component_part: row.component_part, // Use component_part from API
+          component_uom: row.component_uom, // Use component_uom from API
+          recipe_qty: row.recipe_qty, // Use recipe_qty from API
           component_key: row.component_key,
-          row_id: row.row_id,
+          row_id: row.row_id, // Use row_id from API
         };
+
+        return mappedRow;
       });
       setComponent(arr);
       setLoadingUpdate(false);
@@ -156,10 +158,7 @@ function UpdateJW() {
     if (e?.length > 2) {
       // setSelectLoading(true);
       // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: e,
-      // });
-      // console.log(data);
-      // setSelectLoading(false);
+
       const response = await executeFun(() => getComponentOptions(e), "select");
       const { data } = response;
       let arr = [];
@@ -171,7 +170,6 @@ function UpdateJW() {
         };
       });
       setAsyncOptions(arr);
-      // return arr;
     }
   };
 
@@ -186,8 +184,9 @@ function UpdateJW() {
       arr = data.map((d) => {
         return {
           text: d.text,
-          value: d.id,
+          value: d.id, // This is the component key
           part_code: d.part_code, // Include part_code from API response
+          component_key: d.id, // Store the key for API calls
         };
       });
       setAltComponentOptions(arr);
@@ -195,8 +194,6 @@ function UpdateJW() {
   };
 
   const inputHandler = async (name, id, value) => {
-    console.log(name, id, value);
-
     if (name == "component_name") {
       const { data } = await imsAxios.post(
         "/JWSupplementary/getComponentData",
@@ -204,8 +201,6 @@ function UpdateJW() {
           component: value,
         }
       );
-
-      console.log(data);
 
       setComponent((com) =>
         com.map((v) => {
@@ -403,33 +398,35 @@ function UpdateJW() {
                         >
                           {partCode}
                         </span>
-                        <span
-                          style={{
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                            fontSize: "8px",
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const updatedAltComponents = (
-                              row.alt_components || []
-                            ).filter(
-                              (_, i) => i !== row.alt_components.indexOf(item)
-                            );
-                            setComponent((prev) =>
-                              prev.map((comp) =>
-                                comp.id === row.id
-                                  ? {
-                                      ...comp,
-                                      alt_components: updatedAltComponents,
-                                    }
-                                  : comp
-                              )
-                            );
-                          }}
-                        >
-                          ×
-                        </span>
+                        {!item.isFromBackend && (
+                          <span
+                            style={{
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                              fontSize: "8px",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedAltComponents = (
+                                row.alt_components || []
+                              ).filter(
+                                (_, i) => i !== row.alt_components.indexOf(item)
+                              );
+                              setComponent((prev) =>
+                                prev.map((comp) =>
+                                  comp.id === row.id
+                                    ? {
+                                        ...comp,
+                                        alt_components: updatedAltComponents,
+                                      }
+                                    : comp
+                                )
+                              );
+                            }}
+                          >
+                            ×
+                          </span>
+                        )}
                       </span>
                     );
                   })}
@@ -452,12 +449,6 @@ function UpdateJW() {
                       onInputChange={(e) => setAltSearchInput(e)}
                       optionsState={altComponentOptions}
                       onChange={(value) => {
-                        console.log("Selected value:", value);
-                        console.log(
-                          "Current alt_components:",
-                          row.alt_components
-                        );
-
                         const selectedOption = altComponentOptions.find(
                           (opt) => opt.value === value
                         );
@@ -472,13 +463,9 @@ function UpdateJW() {
                               {
                                 ...selectedOption,
                                 part_code: selectedOption.part_code, // Ensure part_code is included
+                                isFromBackend: false, // Flag to identify newly added components
                               },
                             ];
-                            console.log(
-                              "Updated alt_components:",
-                              updatedAltComponents
-                            );
-
                             setComponent((prev) =>
                               prev.map((item) =>
                                 item.id === row.id
@@ -531,11 +518,23 @@ function UpdateJW() {
       // Prepare alternate components data
       const alternateComponentsData = component
         .filter((row) => row.status === "alt" && row.alt_components?.length > 0)
-        .map((row) => ({
-          row_id: row.row_id,
-          component_key: row.component_key,
-          alt_components: row.alt_components.map((item) => item.value),
-        }));
+        .map((row) => {
+          // Get all alternative components (both existing from backend and newly added)
+          const allAltComponents = row.alt_components.map((item) => {
+            // For existing components from backend, use component_key if available
+            if (item.component_key && item.component_key !== "N/A") {
+              return item.component_key;
+            }
+            // For newly added components, use the value (which should be the key from API)
+            return item.value;
+          });
+
+          return {
+            row_id: row.row_id,
+            component_key: row.component_key,
+            alt_components: allAltComponents,
+          };
+        });
 
       const { data } = await imsAxios.post(
         "/JWSupplementary/updateJobworkRecipe",
@@ -549,7 +548,7 @@ function UpdateJW() {
           alternate_components: alternateComponentsData,
         }
       );
-      // console.log(data);
+
       if (data.code == 200) {
         setComponent([]);
         setUpdateData({
