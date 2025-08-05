@@ -125,6 +125,7 @@ function UpdateJW() {
               value: alt.alt_component_key || alt.alt_component_part, // Use key if available, fallback to part
               part_code: alt.alt_component_part,
               component_key: alt.alt_component_key, // Store the key for API calls
+              isFromBackend: true, // Flag to identify backend components
             }));
         }
 
@@ -397,33 +398,35 @@ function UpdateJW() {
                         >
                           {partCode}
                         </span>
-                        <span
-                          style={{
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                            fontSize: "8px",
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const updatedAltComponents = (
-                              row.alt_components || []
-                            ).filter(
-                              (_, i) => i !== row.alt_components.indexOf(item)
-                            );
-                            setComponent((prev) =>
-                              prev.map((comp) =>
-                                comp.id === row.id
-                                  ? {
-                                      ...comp,
-                                      alt_components: updatedAltComponents,
-                                    }
-                                  : comp
-                              )
-                            );
-                          }}
-                        >
-                          ×
-                        </span>
+                        {!item.isFromBackend && (
+                          <span
+                            style={{
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                              fontSize: "8px",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedAltComponents = (
+                                row.alt_components || []
+                              ).filter(
+                                (_, i) => i !== row.alt_components.indexOf(item)
+                              );
+                              setComponent((prev) =>
+                                prev.map((comp) =>
+                                  comp.id === row.id
+                                    ? {
+                                        ...comp,
+                                        alt_components: updatedAltComponents,
+                                      }
+                                    : comp
+                                )
+                              );
+                            }}
+                          >
+                            ×
+                          </span>
+                        )}
                       </span>
                     );
                   })}
@@ -460,6 +463,7 @@ function UpdateJW() {
                               {
                                 ...selectedOption,
                                 part_code: selectedOption.part_code, // Ensure part_code is included
+                                isFromBackend: false, // Flag to identify newly added components
                               },
                             ];
                             setComponent((prev) =>
