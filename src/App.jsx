@@ -48,6 +48,7 @@ import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
+import TopBanner from "./Components/TopBanner";
 
 const App = () => {
   const { user, notifications, testPages } = useSelector(
@@ -658,6 +659,7 @@ const App = () => {
         pauseOnFocusLoss
         pauseOnHover
       />
+      <TopBanner />
       <Layout
         style={{
           width: "100%",
