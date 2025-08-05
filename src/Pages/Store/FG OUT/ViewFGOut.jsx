@@ -58,6 +58,7 @@ const ViewFGOut = () => {
     { field: "name", headerName: "Product", width: 380 },
     { field: "approveqty", headerName: "Out Qty", width: 100 },
     { field: "approveby", headerName: "Out By", width: 320 },
+    { field: "fg_type", headerName: "FG TYPE", width: 100 },
   ];
 
   const handleDownloadingCSV = () => {
@@ -71,6 +72,7 @@ const ViewFGOut = () => {
         Product: row.name,
         "Out Qty": row.approveqty,
         "Out By": row.approveby,
+        "FG TYPE": row.fg_type,
       };
     });
     downloadCSV(csvData);
