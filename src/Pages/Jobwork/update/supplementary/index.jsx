@@ -32,10 +32,15 @@ function UpdateJW() {
   const [viewModal, setViewModal] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const setType = [{ label: "Supplymentary", value: "S" }];
+  const statusOptions = [
+    { label: "Active", value: "active" },
+    { label: "Alternative", value: "alt" },
+  ];
 
   const [allData, setAllData] = useState({
     name: "",
   });
+  const [showAltPartCode, setShowAltPartCode] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const [addField, setAddField] = useState([
     {
@@ -122,7 +127,11 @@ function UpdateJW() {
       const { data } = response;
       let arr = [];
       arr = data.map((d) => {
-        return { text: d.text, value: d.id };
+        return {
+          text: d.text,
+          value: d.id,
+          part_code: d.part_code, // Include part_code from API response
+        };
       });
       setAsyncOptions(arr);
       // return arr;
@@ -171,76 +180,283 @@ function UpdateJW() {
           }
         })
       );
+    } else if (name == "status") {
+      setComponent((status) =>
+        status.map((v) => {
+          if (v.id == id) {
+            return { ...v, status: value };
+          } else {
+            return v;
+          }
+        })
+      );
+
+      // Check if any row has status as "alt"
+      const updatedComponent = component.map((v) => {
+        if (v.id == id) {
+          return { ...v, status: value };
+        } else {
+          return v;
+        }
+      });
+
+      const hasAlternateStatus = updatedComponent.some(
+        (row) => row.status === "alt"
+      );
+      setShowAltPartCode(hasAlternateStatus);
     }
   };
 
-  const columns = [
-    {
-      headerName: (
-        <span onClick={addRow}>
-          <PlusCircleTwoTone
-            style={{ cursor: "pointer", fontSize: "1.0rem" }}
-          />
-        </span>
-      ),
-      width: 70,
-      field: "add",
-      sortable: false,
-      renderCell: ({ row }) =>
-        row.new && (
-          <MinusCircleTwoTone
-            onClick={() => removeRow(row?.id)}
-            style={{ fontSize: "1.0rem", cursor: "pointer" }}
+  const getColumns = () => {
+    const baseColumns = [
+      {
+        headerName: (
+          <span onClick={addRow}>
+            <PlusCircleTwoTone
+              style={{ cursor: "pointer", fontSize: "1.0rem" }}
+            />
+          </span>
+        ),
+        width: 70,
+        field: "add",
+        sortable: false,
+        renderCell: ({ row }) =>
+          row.new && (
+            <MinusCircleTwoTone
+              onClick={() => removeRow(row?.id)}
+              style={{ fontSize: "1.0rem", cursor: "pointer" }}
+            />
+          ),
+      },
+      {
+        headerName: "Name",
+        field: "component_name",
+        width: 650,
+        sortable: false,
+        renderCell: ({ row }) => (
+          <MyAsyncSelect
+            style={{ width: "100%" }}
+            onBlur={() => setAsyncOptions([])}
+            loadOptions={getComponentName}
+            selectLoading={loading1("select")}
+            value={row?.component_name}
+            onInputChange={(e) => setSearchInput1(e)}
+            optionsState={asyncOptions}
+            onChange={(e) => inputHandler("component_name", row.id, e)}
           />
         ),
-    },
-    {
-      headerName: "Name",
-      field: "component_name",
-      width: 650,
-      sortable: false,
-      renderCell: ({ row }) => (
-        <MyAsyncSelect
-          style={{ width: "100%" }}
-          onBlur={() => setAsyncOptions([])}
-          loadOptions={getComponentName}
-          selectLoading={loading1("select")}
-          value={row?.component_name}
-          onInputChange={(e) => setSearchInput1(e)}
-          optionsState={asyncOptions}
-          onChange={(e) => inputHandler("component_name", row.id, e)}
-        />
-      ),
-    },
-    {
-      headerName: "Part",
-      field: "component_part",
-      width: 150,
-      sortable: false,
-      renderCell: ({ row }) => <Input value={row.component_part} disabled />,
-    },
-    {
-      headerName: "UoM",
-      field: "component_uom",
-      width: 150,
-      sortable: false,
-      renderCell: ({ row }) => <span>{row.component_uom}</span>,
-    },
-    {
-      headerName: "Recipe Qty",
-      field: "recipe_qty",
-      width: 250,
-      sortable: false,
-      renderCell: ({ row }) => (
-        <Input
-          suffix={row.uom}
-          placeholder="Qty"
-          value={row.recipe_qty}
-          onChange={(e) => inputHandler("recipe_qty", row.id, e.target.value)}
-        />
-      ),
-    },
-  ];
+      },
+      {
+        headerName: "Part",
+        field: "component_part",
+        width: 150,
+        sortable: false,
+        renderCell: ({ row }) => <Input value={row.component_part} disabled />,
+      },
+      {
+        headerName: "UoM",
+        field: "component_uom",
+        width: 150,
+        sortable: false,
+        renderCell: ({ row }) => <span>{row.component_uom}</span>,
+      },
+      {
+        headerName: "Recipe Qty",
+        field: "recipe_qty",
+        width: 250,
+        sortable: false,
+        renderCell: ({ row }) => (
+          <Input
+            suffix={row.uom}
+            placeholder="Qty"
+            value={row.recipe_qty}
+            onChange={(e) => inputHandler("recipe_qty", row.id, e.target.value)}
+          />
+        ),
+      },
+      {
+        headerName: "Status",
+        field: "status",
+        width: 150,
+        sortable: false,
+        renderCell: ({ row }) => (
+          <MyAsyncSelect
+            style={{ width: "100%" }}
+            value={row?.status}
+            optionsState={statusOptions}
+            onChange={(e) => inputHandler("status", row.id, e)}
+          />
+        ),
+      },
+      {
+        headerName: "Alternative Components",
+        field: "alt_components",
+        width: 600,
+        sortable: false,
+        renderCell: ({ row }) => {
+          if (row?.status === "alt") {
+            return (
+              <div style={{ width: "100%" }}>
+                <div
+                  style={{
+                    border: "1px solid #d9d9d9",
+                    borderRadius: "6px",
+                    padding: "4px 8px",
+                    minHeight: "32px",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    gap: "4px",
+                    backgroundColor: "#fff",
+                    cursor: "text",
+                    position: "relative",
+                  }}
+                >
+                  {/* Display selected chips inside the input area */}
+                  {(row.alt_components || []).map((item, index) => {
+                    const partCode =
+                      item.part_code ||
+                      item.text.split(" ").pop() ||
+                      item.value;
+                    return (
+                      <span
+                        key={`${row.id}-${item.value}-${index}`}
+                        style={{
+                          background: "#6c757d",
+                          color: "white",
+                          padding: "1px 4px",
+                          borderRadius: "8px",
+                          fontSize: "10px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "2px",
+                          maxWidth: "60px",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          flexShrink: 0,
+                        }}
+                        title={item.text} // Show full text on hover
+                      >
+                        <span
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {partCode}
+                        </span>
+                        <span
+                          style={{
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "8px",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const updatedAltComponents = (
+                              row.alt_components || []
+                            ).filter(
+                              (_, i) => i !== row.alt_components.indexOf(item)
+                            );
+                            setComponent((prev) =>
+                              prev.map((comp) =>
+                                comp.id === row.id
+                                  ? {
+                                      ...comp,
+                                      alt_components: updatedAltComponents,
+                                    }
+                                  : comp
+                              )
+                            );
+                          }}
+                        >
+                          ×
+                        </span>
+                      </span>
+                    );
+                  })}
+
+                  {/* Inline select component */}
+                  <div style={{ flex: 1, minWidth: "120px" }}>
+                    <MyAsyncSelect
+                      style={{
+                        border: "none",
+                        outline: "none",
+                        width: "100%",
+                      }}
+                      loadOptions={getComponentName}
+                      selectLoading={loading1("select")}
+                      placeholder={
+                        (row.alt_components || []).length === 0
+                          ? "Search and select components"
+                          : ""
+                      }
+                      onInputChange={(e) => setSearchInput1(e)}
+                      optionsState={asyncOptions}
+                      onChange={(value) => {
+                        console.log("Selected value:", value);
+                        console.log(
+                          "Current alt_components:",
+                          row.alt_components
+                        );
+
+                        const selectedOption = asyncOptions.find(
+                          (opt) => opt.value === value
+                        );
+                        if (selectedOption) {
+                          const currentAltComponents = row.alt_components || [];
+                          const isDuplicate = currentAltComponents.find(
+                            (item) => item.value === value
+                          );
+                          if (!isDuplicate) {
+                            const updatedAltComponents = [
+                              ...currentAltComponents,
+                              {
+                                ...selectedOption,
+                                part_code: selectedOption.part_code, // Ensure part_code is included
+                              },
+                            ];
+                            console.log(
+                              "Updated alt_components:",
+                              updatedAltComponents
+                            );
+
+                            setComponent((prev) =>
+                              prev.map((item) =>
+                                item.id === row.id
+                                  ? {
+                                      ...item,
+                                      alt_components: updatedAltComponents,
+                                    }
+                                  : item
+                              )
+                            );
+                            // Clear the selection but keep dropdown open
+                            return null; // This prevents the dropdown from closing
+                          }
+                        }
+                      }}
+                      onBlur={(e) => {
+                        // Only close dropdown if clicking outside the component
+                        if (!e.currentTarget.contains(e.relatedTarget)) {
+                          setAsyncOptions([]);
+                        }
+                      }}
+                      value={null} // Keep the select empty for new selections
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        },
+      },
+    ];
+
+    return baseColumns;
+  };
 
   const addUpdate = async () => {
     if (!updateData.comment) {
@@ -255,6 +471,15 @@ function UpdateJW() {
       component.map((a) => rowArray.push(a.component_key));
       component.map((a) => qtyArray.push(a.recipe_qty));
 
+      // Prepare alternate components data
+      const alternateComponentsData = component
+        .filter((row) => row.status === "alt" && row.alt_components?.length > 0)
+        .map((row) => ({
+          row_id: row.row_id,
+          component_key: row.component_key,
+          alt_components: row.alt_components.map((item) => item.value),
+        }));
+
       const { data } = await imsAxios.post(
         "/JWSupplementary/updateJobworkRecipe",
         {
@@ -264,6 +489,7 @@ function UpdateJW() {
           part: rowArray,
           qty: qtyArray,
           remark: updateData?.comment,
+          alternate_components: alternateComponentsData,
         }
       );
       // console.log(data);
@@ -276,6 +502,7 @@ function UpdateJW() {
           compName: "",
           comment: "",
         });
+        setShowAltPartCode(false);
         toast.success(data.message);
         setLoadingUpdate(false);
       } else if (data.code == 500) {
@@ -294,6 +521,7 @@ function UpdateJW() {
       comment: "",
     });
     setComponent([]);
+    setShowAltPartCode(false);
   };
   useEffect(() => {
     if (updateData?.poType) {
@@ -389,7 +617,7 @@ function UpdateJW() {
           <Skeleton loading={loadingUpdate}>
             <div style={{ height: "94%" }}>
               <div style={{ height: "68vh", margin: "10px" }}>
-                <MyDataTable columns={columns} data={component} />
+                <MyDataTable columns={getColumns()} data={component} />
               </div>
             </div>
 
