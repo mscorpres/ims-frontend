@@ -185,6 +185,43 @@ const wiseOptions = [
     text: "Vendor Consumption",
     value: "ven-cons",
   },
+  {
+    text: "SFG INWARD",
+    value: "rm-sfg",
+  },
+   {
+    text: "RM RETURN",
+    value: "rm-return",
+  },
+  {
+    text: "PRODUCTION FLOOR - SF024",
+    value: "sf-rej",
+  },
+
+  {
+    text: "SF024 - PRODUCTION FLOOR",
+    value: "rej-sf",
+  },
+  {
+    text: "SF024 - REJ021",
+    value: "rej-rj21",
+  },
+  {
+    text:"RM TO SF999",
+    value:"rm_sf999"
+  },
+  {
+    text:"SF024 - SF999",
+    value:"rej-sf999"
+  },
+  {
+    text:"PRODUCTION RETURN FG OUT",
+    value:"fg-dismantle"
+  },
+  {
+    text:"CONVERSION ENTRY",
+    value:"part-conv"
+  }
 ];
 
 const columns = [
