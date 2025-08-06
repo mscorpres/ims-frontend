@@ -1,45 +1,44 @@
 import React from "react";
-import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { DownOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Space } from "antd";
-import { UserOutlined } from "@ant-design/icons";
 import { Avatar } from "antd";
 import { Link } from "react-router-dom";
 
 export default function UserMenu({ user, logoutHandler, setShowSettings }) {
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: "1",
-          label: <Link to={"/myProfile"}>Profile</Link>,
-        },
-        { type: "divider" },
-        {
-          key: "2",
-          label: (
-            <span
-              style={{ width: "100%", display: "block" }}
-              onClick={() => setShowSettings((curr) => !curr)}
-            >
-              Settings
-            </span>
-          ),
-        },
-        { type: "divider" },
-        {
-          key: "3",
-          label: (
-            <span
-              style={{ width: "100%", display: "block" }}
-              onClick={logoutHandler}
-            >
-              Logout
-            </span>
-          ),
-        },
-      ]}
-    />
-  );
+  const menuItems = [
+    {
+      key: "1",
+      label: <Link to={"/myProfile"}>Profile</Link>,
+    },
+    { type: "divider" },
+  ];
+
+  // Only show Settings for developers
+  if (user?.type && user?.type.toLowerCase() === "developer") {
+    menuItems.push({
+      key: "2",
+      label: (
+        <span
+          style={{ width: "100%", display: "block" }}
+          onClick={() => setShowSettings((curr) => !curr)}
+        >
+          Settings
+        </span>
+      ),
+    });
+    menuItems.push({ type: "divider" });
+  }
+
+  menuItems.push({
+    key: "3",
+    label: (
+      <span style={{ width: "100%", display: "block" }} onClick={logoutHandler}>
+        Logout
+      </span>
+    ),
+  });
+
+  const menu = <Menu items={menuItems} />;
   return (
     <Dropdown
       overlay={menu}
