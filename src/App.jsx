@@ -49,6 +49,7 @@ import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
+import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
   const { user, notifications, testPages } = useSelector(
@@ -82,6 +83,7 @@ const App = () => {
   const notificationsRef = useRef();
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSetting, setShowSetting] = useState(false);
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -911,7 +913,8 @@ const App = () => {
                       />
                     </Badge>
                   </div>
-                  <UserMenu user={user} logoutHandler={logoutHandler} />
+                  <UserMenu user={user} logoutHandler={logoutHandler} setShowSettings={setShowSetting}/>
+                  {showSetting && <SettingDrawer open={showSetting} hide={() => setShowSetting(false)} />}
                 </Space>
               </Row>
             </Header>

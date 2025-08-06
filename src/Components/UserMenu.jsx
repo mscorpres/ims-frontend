@@ -14,18 +14,18 @@ export default function UserMenu({ user, logoutHandler, setShowSettings }) {
           label: <Link to={"/myProfile"}>Profile</Link>,
         },
         { type: "divider" },
-        // {
-        //   key: "2",
-        //   label: (
-        //     <span
-        //       style={{ width: "100%", display: "block" }}
-        //       onClick={() => setShowSettings((curr) => !curr)}
-        //     >
-        //       Settings
-        //     </span>
-        //   ),
-        // },
-        // { type: "divider" },
+        {
+          key: "2",
+          label: (
+            <span
+              style={{ width: "100%", display: "block" }}
+              onClick={() => setShowSettings((curr) => !curr)}
+            >
+              Settings
+            </span>
+          ),
+        },
+        { type: "divider" },
         {
           key: "3",
           label: (
