@@ -40,15 +40,16 @@ import {
   SearchOutlined,
   ControlOutlined,
 } from "@ant-design/icons";
-
+import { Tooltip, IconButton } from "@mui/material";
+import { SiSocketdotio } from "react-icons/si";
 import InternalNav from "./Components/InternalNav";
 import { imsAxios } from "./axiosInterceptor";
 import MyAsyncSelect from "./Components/MyAsyncSelect";
 import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
-
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
+import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
   const { user, notifications, testPages } = useSelector(
@@ -80,6 +81,9 @@ const App = () => {
   const [hisList, setHisList] = useState([]);
   const [showHisList, setShowHisList] = useState([]);
   const notificationsRef = useRef();
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSetting, setShowSetting] = useState(false);
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -179,14 +183,20 @@ const App = () => {
   // notifications recieve handlers
   socket.on("connect", () => {
     console.log("WebSocket connected!!!!");
+    setIsConnected(true);
+    setIsLoading(false);
   });
 
   socket.on("connect_error", (error) => {
     console.error("Connection error:", error);
+    setIsConnected(false);
+    setIsLoading(false);
   });
 
   socket.on("disconnect", (reason) => {
     console.log("WebSocket disconnected:", reason);
+    setIsConnected(false);
+    setIsLoading(false);
   });
   useEffect(() => {
     const otherData = JSON.parse(localStorage.getItem("otherData"));
@@ -646,6 +656,12 @@ const App = () => {
   ];
   const path = window.location.hostname;
 
+  const refreshConnection = () => {
+    setIsLoading(true);
+    socket.close();
+    socket.open();
+  };
+
   return (
     <div style={{ height: "100vh" }}>
       <ToastContainer
@@ -793,8 +809,28 @@ const App = () => {
                       />
                     </>
                   )}
-
-                  {favLoading ? (
+                  <Tooltip
+                    title={`Socket ${
+                      isConnected ? "Connected" : "Disconnected"
+                    }`}
+                    placement="bottom"
+                  >
+                    <IconButton
+                      onClick={() => refreshConnection()}
+                      disabled={isLoading}
+                    >
+                      <SiSocketdotio
+                        style={{
+                          fontSize: "25px",
+                          color: isConnected ? "#10b981" : "#ef4444",
+                          animation: isLoading
+                            ? "spin 1s linear infinite"
+                            : "none",
+                        }}
+                      />
+                    </IconButton>
+                  </Tooltip>
+                  {/* {favLoading ? (
                     <LoadingOutlined
                       style={{
                         fontSize: 18,
@@ -822,7 +858,7 @@ const App = () => {
                         cursor: "pointer",
                       }}
                     />
-                  )}
+                  )} */}
 
                   <div>
                     <Badge
@@ -859,7 +895,7 @@ const App = () => {
                       />
                     )}
                   </div>
-                  <div> 
+                  <div>
                     <Badge
                       size="small"
                       count={
@@ -877,7 +913,8 @@ const App = () => {
                       />
                     </Badge>
                   </div>
-                  <UserMenu user={user} logoutHandler={logoutHandler} />
+                  <UserMenu user={user} logoutHandler={logoutHandler} setShowSettings={setShowSetting}/>
+                  {showSetting && <SettingDrawer open={showSetting} hide={() => setShowSetting(false)} />}
                 </Space>
               </Row>
             </Header>
