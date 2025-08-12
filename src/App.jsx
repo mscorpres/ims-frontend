@@ -48,7 +48,7 @@ import MyAsyncSelect from "./Components/MyAsyncSelect";
 import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
-import TopBanner from "./Components/TopBanner";
+// import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
@@ -675,7 +675,7 @@ const App = () => {
         pauseOnFocusLoss
         pauseOnHover
       />
-      <TopBanner />
+      {/* <TopBanner /> */}
       <Layout
         style={{
           width: "100%",
