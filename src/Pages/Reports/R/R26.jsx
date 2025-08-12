@@ -186,40 +186,40 @@ const wiseOptions = [
     value: "ven-cons",
   },
   {
-    text: "SFG INWARD",
+    text: "JW SFG Inward",
     value: "rm-sfg",
   },
    {
-    text: "RM RETURN",
+    text: "JW RM Return",
     value: "rm-return",
   },
   {
-    text: "PRODUCTION FLOOR - SF024",
+    text: "Production Floor to SF024(Rej)",
     value: "sf-rej",
   },
 
   {
-    text: "SF024 - PRODUCTION FLOOR",
+    text: "SF024(Rej) to Production Floor",
     value: "rej-sf",
   },
   {
-    text: "SF024 - REJ021",
+    text: "SF024(Rej) to Rej021(Scrap)",
     value: "rej-rj21",
   },
   {
-    text:"RM TO SF999",
+    text:"Production floor to RM",
     value:"rm_sf999"
   },
   {
-    text:"SF024 - SF999",
+    text:"SF024(Rej) to RM",
     value:"rej-sf999"
   },
   {
-    text:"PRODUCTION RETURN FG OUT",
+    text:"Finish stock Outward",
     value:"fg-dismantle"
   },
   {
-    text:"CONVERSION ENTRY",
+    text:"Part Code Conversion",
     value:"part-conv"
   }
 ];
