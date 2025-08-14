@@ -215,7 +215,7 @@ const wiseOptions = [
     value:"rej-sf999"
   },
   {
-    text:"Finish stock Outward",
+    text:"FG Product Dismantle(SF)",
     value:"fg-dismantle"
   },
   {
