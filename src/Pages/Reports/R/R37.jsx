@@ -103,6 +103,11 @@ const R37 = () => {
       field: "OutwardValue",
     },
     {
+      headerName: "Short/Excess",
+      width: 100,
+      field: "sortAccess",
+    },
+    {
       headerName: "closing Qty",
       width: 100,
       field: "closing",
