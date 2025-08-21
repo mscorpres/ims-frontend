@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Drawer, Form, Row, Skeleton, Space } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import MySelect from "../../../Components/MySelect";
+import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { v4 } from "uuid";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import MyDataTable from "../../../Components/MyDataTable";
@@ -23,14 +23,16 @@ const AlterModal = ({
   const [selValue, setSelValue] = useState({
     selOptionVale: "",
   });
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  const dropDownData = async () => {
-    setSkeletonLoading(true);
+  const dropDownData = async (search) => {
+    setSearchLoading(true);
     const { data } = await imsAxios.post("/bom/getAlternativeComponents", {
       subject: fetchData?.bomId,
       current_component: altModal?.id,
+      searchTerm: search,
     });
-    setSkeletonLoading(false);
+    setSearchLoading(false);
 
     // console.log(data.data);
     let arr = [];
@@ -148,14 +150,18 @@ const AlterModal = ({
                   <Col span={24}>
                     <Form size="small" layout="vertical">
                       <Form.Item label="Component">
-                        <MySelect
-                          options={dropdown}
+                        <MyAsyncSelect
+                          optionsState={dropdown}
                           value={selValue.selOptionVale}
                           onChange={(e) =>
-                            setSelValue((selValue) => {
-                              return { ...selValue, selOptionVale: e };
-                            })
+                            setSelValue((prev) => ({
+                              ...prev,
+                              selOptionVale: e,
+                            }))
                           }
+                          labelInValue={true}
+                          loadOptions={dropDownData}
+                          selectLoading={searchLoading}
                         />
                       </Form.Item>
                     </Form>
