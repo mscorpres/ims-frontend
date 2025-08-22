@@ -49,7 +49,7 @@ const AlterModal = ({
       product_id: fetchData?.sku,
       // parent_component: sfgEditModal.bom_product_sku,
       parent_component: altModal.id,
-      child_component: selValue.selOptionVale,
+      child_component: selValue.selOptionVale?.key,
     });
     setSubmitLoading(false);
     if (data.code == 200) {
