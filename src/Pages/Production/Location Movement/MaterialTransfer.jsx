@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Col, Row, Input, Typography, Card } from "antd";
+import { Col, Row, Input, Typography, Card, Button } from "antd";
 import MySelect from "../../../Components/MySelect";
 import NavFooter from "../../../Components/NavFooter";
 import { v4 } from "uuid";
@@ -33,10 +33,18 @@ function MaterialTransfer({ type }) {
   const [locationData, setLocationData] = useState([]);
 
   const [locDetail, setLocDetail] = useState("");
-  const [restDetail, setRestDetail] = useState("");
   const [locRejDetail, setLocRejDetail] = useState("");
 
-  const [address, setAddress] = useState("");
+  const [rows, setRows] = useState([
+    {
+      componentName: "",
+      qty: "",
+      rejLoc: "",
+      restDetail: {},
+      address: "",
+    },
+  ]);
+
   const [loading, setLoading] = useState(false);
   // console.log(restDetail)
 
@@ -79,13 +87,19 @@ function MaterialTransfer({ type }) {
     }
   };
 
-  const getAllDetailComponent = async () => {
+  const getRowComponentDetail = async (rowIndex, componentValue) => {
+    const row = rows[rowIndex];
+    const component = componentValue ?? row?.componentName;
+    if (!allData.locationSel || !component) return;
     const { data } = await imsAxios.post("/godown/godownStocks", {
-      component: allData.componentName,
+      component,
       location: allData.locationSel,
     });
-    // console.log(data.data)
-    setRestDetail(data.data);
+    setRows((prev) => {
+      const updated = [...prev];
+      updated[rowIndex] = { ...updated[rowIndex], restDetail: data.data };
+      return updated;
+    });
   };
 
   const getDropLoc = async () => {
@@ -104,57 +118,69 @@ function MaterialTransfer({ type }) {
     }
   };
 
-  const getMoreDetail = async () => {
+  const getRowDropLocationDetail = async (rowIndex, rejLocValue) => {
+    const row = rows[rowIndex];
+    const rejLoc = rejLocValue ?? row?.rejLoc;
+    if (!rejLoc) return;
     const { data } = await imsAxios.post("/godown/fetchLocationDetail_to", {
-      location_key: allData.rejLoc,
+      location_key: rejLoc,
     });
-    // console.log(data)
-    setAddress(data.data);
+    setRows((prev) => {
+      const updated = [...prev];
+      updated[rowIndex] = { ...updated[rowIndex], address: data.data };
+      return updated;
+    });
   };
 
   const submitHandler = async () => {
-    if (allData?.rejLoc == allData?.locationSel) {
-      return toast.error("Both Location Same ");
-    } else if (allData?.componentName == "") {
-      return toast.error("Please Select a location first");
-    } else if (allData?.qty == "") {
-      return toast.error("Please select add qty");
-    } else if (allData?.rejLoc == "") {
-      return toast.error("Please select Drop Location");
-    } else {
-      setLoading(true);
-      const { data } = await imsAxios.post(
-        type == "sftorej" ? "/godown/transferSF2REJ" : "/godown/transferSF2SF",
-        {
-          comment: allData.detail,
-          fromlocation: allData.locationSel,
-          component: [allData.componentName],
-          tolocation: [allData.rejLoc],
-          qty: [allData.qty],
-          type: type == "sftorej" ? "SF2REJ" : "SF2SF",
-        }
-      );
+    // validations
+    if (!allData?.locationSel)
+      return toast.error("Please select a Pick Location");
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r.componentName)
+        return toast.error(`Row ${i + 1}: Please select Component`);
+      if (!r.qty) return toast.error(`Row ${i + 1}: Please enter Qty`);
+      if (!r.rejLoc)
+        return toast.error(`Row ${i + 1}: Please select Drop Location`);
+      if (r.rejLoc == allData.locationSel)
+        return toast.error(`Row ${i + 1}: Both Location Same`);
+    }
 
-      if (data.code == 200) {
-        setAllData({
-          locationSel: "",
-          detail: "",
-          componentName: "",
-          qty: "",
-          rejLoc: "",
-        });
-        setRestDetail({
-          available_qty: "",
-        });
-        setAddress("");
-        setLocDetail("");
-        setLoading(false);
-        toast.success(data.message);
-      } else if (data.code == 500) {
-        toast.error(data.message.msg);
-        setLoading(false);
-        // setLoading(false);
+    const components = rows.map((r) => r.componentName);
+    const tolocations = rows.map((r) => r.rejLoc);
+    const qtys = rows.map((r) => r.qty);
+
+    setLoading(true);
+    const { data } = await imsAxios.post(
+      type == "sftorej" ? "/godown/transferSF2REJ" : "/godown/transferSF2SF",
+      {
+        comment: allData.detail,
+        fromlocation: allData.locationSel,
+        component: components,
+        tolocation: tolocations,
+        qty: qtys,
+        type: type == "sftorej" ? "SF2REJ" : "SF2SF",
       }
+    );
+
+    if (data.code == 200) {
+      setAllData({
+        locationSel: "",
+        detail: "",
+        componentName: "",
+        qty: "",
+        rejLoc: "",
+      });
+      setRows([
+        { componentName: "", qty: "", rejLoc: "", restDetail: {}, address: "" },
+      ]);
+      setLocDetail("");
+      setLoading(false);
+      toast.success(data.message);
+    } else if (data.code == 500) {
+      toast.error(data.message.msg);
+      setLoading(false);
     }
   };
 
@@ -166,10 +192,20 @@ function MaterialTransfer({ type }) {
       qty: "",
       rejLoc: "",
     });
-    setRestDetail({
-      available_qty: "",
-    });
-    setAddress("");
+    setRows([
+      { componentName: "", qty: "", rejLoc: "", restDetail: {}, address: "" },
+    ]);
+  };
+
+  const addRow = () => {
+    setRows((prev) => [
+      ...prev,
+      { componentName: "", qty: "", rejLoc: "", restDetail: {}, address: "" },
+    ]);
+  };
+
+  const removeRow = (index) => {
+    setRows((prev) => prev.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
@@ -183,24 +219,12 @@ function MaterialTransfer({ type }) {
     }
   }, [allData.locationSel]);
 
-  useEffect(() => {
-    if (allData?.locationSel && allData?.componentName) {
-      getAllDetailComponent();
-    }
-  }, [allData?.locationSel && allData?.componentName]);
-
-  useEffect(() => {
-    if (allData?.rejLoc) {
-      getMoreDetail();
-    }
-  }, [allData?.rejLoc]);
-
+  // when pick location changes, refresh each row's stock detail (if component selected)
   useEffect(() => {
     if (allData?.locationSel) {
-      if (allData?.locationSel && allData?.componentName) {
-        getAllDetailComponent();
-      }
+      rows.forEach((_, idx) => getRowComponentDetail(idx));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allData?.locationSel]);
   return (
     <div style={{ height: "90vh" }}>
@@ -240,71 +264,122 @@ function MaterialTransfer({ type }) {
         </Col>
         <Col span={18} style={{ height: "50vh" }}>
           <Card style={{ height: "100%" }}>
-            <table className="table table-hover">
-              <thead style={{ backgroundColor: "grey", color: "white" }}>
-                <tr>
-                  <th style={{ width: "8vw" }}>Component/Part</th>
-                  <th style={{ width: "4vw" }}>In Stock Qty</th>
-                  <th style={{ width: "3vw" }}>Transfer Qty</th>
-                  <th style={{ width: "3vw" }}>DROP (+) Loc</th>
-                  <th style={{ width: "3vw" }}>Weighted Average Rate</th>
-                  <th style={{ width: "10vw" }}>Address</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ width: "8vw" }}>
-                    <MyAsyncSelect
-                      loadOptions={getComponent}
-                      optionsState={asyncOptions}
-                      value={allData.componentName}
-                      selectLoading={loading1("select")}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, componentName: e };
-                        })
-                      }
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <paragraph>
-                      {restDetail?.available_qty
-                        ? `${restDetail?.available_qty} ${restDetail?.unit}`
-                        : "0"}
-                    </paragraph>
-                  </td>
-                  <td>
-                    <Input
-                      value={allData.qty}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, qty: e.target.value };
-                        })
-                      }
-                      // suffix={restDetail?.available_qty ? `${restDetail?.available_qty} ${restDetail?.unit}` : "0"}
-                    />
-                  </td>
-                  <td>
-                    <MySelect
-                      options={locRejDetail}
-                      placeholder="Check Location"
-                      value={allData.rejLoc}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, rejLoc: e };
-                        })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input disabled value={restDetail?.avr_rate} />
-                  </td>
-                  <td>
-                    <TextArea disabled value={address} />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginBottom: 10,
+              }}
+            >
+              <Button type="primary" onClick={addRow}>
+                Add Row
+              </Button>
+            </div>
+            <div
+              style={{
+                overflowX: "auto",
+                overflowY: "auto",
+                maxHeight: "38vh",
+              }}
+            >
+              <table
+                className="table table-hover"
+                style={{ tableLayout: "fixed", width: "100%", minWidth: 1200 }}
+              >
+                <thead style={{ backgroundColor: "grey", color: "white" }}>
+                  <tr>
+                    <th style={{ width: "18vw" }}>Component/Part</th>
+                    <th style={{ width: "12vw" }}>In Stock Qty</th>
+                    <th style={{ width: "12vw" }}>Transfer Qty</th>
+                    <th style={{ width: "14vw" }}>DROP (+) Loc</th>
+                    <th style={{ width: "12vw" }}>Weighted Average Rate</th>
+                    <th style={{ width: "22vw" }}>Address</th>
+                    <th style={{ width: "10vw" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, idx) => (
+                    <tr key={idx}>
+                      <td style={{ width: "18vw" }}>
+                        <MyAsyncSelect
+                          loadOptions={getComponent}
+                          optionsState={asyncOptions}
+                          value={r.componentName}
+                          selectLoading={loading1("select")}
+                          onChange={async (e) => {
+                            setRows((prev) => {
+                              const updated = [...prev];
+                              updated[idx] = {
+                                ...updated[idx],
+                                componentName: e,
+                              };
+                              return updated;
+                            });
+                            await getRowComponentDetail(idx, e);
+                          }}
+                        />
+                      </td>
+                      <td style={{ textAlign: "center", width: "12vw" }}>
+                        <paragraph>
+                          {r?.restDetail?.available_qty
+                            ? `${r?.restDetail?.available_qty} ${r?.restDetail?.unit}`
+                            : "0"}
+                        </paragraph>
+                      </td>
+                      <td style={{ width: "12vw" }}>
+                        <Input
+                          value={r.qty}
+                          onChange={(e) =>
+                            setRows((prev) => {
+                              const updated = [...prev];
+                              updated[idx] = {
+                                ...updated[idx],
+                                qty: e.target.value,
+                              };
+                              return updated;
+                            })
+                          }
+                        />
+                      </td>
+                      <td style={{ width: "14vw" }}>
+                        <MySelect
+                          options={locRejDetail}
+                          placeholder="Check Location"
+                          value={r.rejLoc}
+                          onChange={async (e) => {
+                            setRows((prev) => {
+                              const updated = [...prev];
+                              updated[idx] = { ...updated[idx], rejLoc: e };
+                              return updated;
+                            });
+                            await getRowDropLocationDetail(idx, e);
+                          }}
+                        />
+                      </td>
+                      <td style={{ width: "12vw" }}>
+                        <Input disabled value={r?.restDetail?.avr_rate} />
+                      </td>
+                      <td style={{ width: "22vw" }}>
+                        <TextArea
+                          disabled
+                          value={r.address}
+                          style={{ resize: "none" }}
+                        />
+                      </td>
+                      <td style={{ width: "10vw" }}>
+                        <Button
+                          danger
+                          onClick={() => removeRow(idx)}
+                          disabled={rows.length === 1}
+                        >
+                          Remove
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
         </Col>
       </Row>
