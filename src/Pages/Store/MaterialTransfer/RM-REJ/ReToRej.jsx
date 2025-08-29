@@ -110,8 +110,9 @@ function ReToRej() {
     const components = rows.map((r) => r.component);
     const tolocations = rows.map((r) => r.locationTo);
     const qtys = rows.map((r) => r.qty1);
+    const comments = rows.map(() => allDataRej?.comment || "");
     const { data } = await imsAxios.post("/godown/transferRM2REJ", {
-      comment: allDataRej?.comment,
+      comment: comments,
       fromlocation: allDataRej?.locationFrom,
       component: components,
       tolocation: tolocations,
