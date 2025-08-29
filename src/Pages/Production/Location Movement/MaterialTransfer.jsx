@@ -20,7 +20,6 @@ function MaterialTransfer({ type }) {
 
   const [allData, setAllData] = useState({
     locationSel: "",
-    detail: "",
 
     componentName: "",
     qty: "",
@@ -42,6 +41,7 @@ function MaterialTransfer({ type }) {
       rejLoc: "",
       restDetail: {},
       address: "",
+      comment: "",
     },
   ]);
 
@@ -150,11 +150,13 @@ function MaterialTransfer({ type }) {
     const components = rows.map((r) => r.componentName);
     const tolocations = rows.map((r) => r.rejLoc);
     const qtys = rows.map((r) => r.qty);
+    const comments = rows.map((r) => r.comment || "");
 
     setLoading(true);
     const { data } = await imsAxios.post(
       type == "sftorej" ? "/godown/transferSF2REJ" : "/godown/transferSF2SF",
       {
+        comment: comments,
         comments: allData.detail,
         fromlocation: allData.locationSel,
         component: components,
@@ -167,13 +169,19 @@ function MaterialTransfer({ type }) {
     if (data.code == 200) {
       setAllData({
         locationSel: "",
-        detail: "",
         componentName: "",
         qty: "",
         rejLoc: "",
       });
       setRows([
-        { componentName: "", qty: "", rejLoc: "", restDetail: {}, address: "" },
+        {
+          componentName: "",
+          qty: "",
+          rejLoc: "",
+          restDetail: {},
+          address: "",
+          comment: "",
+        },
       ]);
       setLocDetail("");
       setLoading(false);
@@ -187,20 +195,33 @@ function MaterialTransfer({ type }) {
   const reset = () => {
     setAllData({
       locationSel: "",
-      detail: "",
       componentName: "",
       qty: "",
       rejLoc: "",
     });
     setRows([
-      { componentName: "", qty: "", rejLoc: "", restDetail: {}, address: "" },
+      {
+        componentName: "",
+        qty: "",
+        rejLoc: "",
+        restDetail: {},
+        address: "",
+        comment: "",
+      },
     ]);
   };
 
   const addRow = () => {
     setRows((prev) => [
       ...prev,
-      { componentName: "", qty: "", rejLoc: "", restDetail: {}, address: "" },
+      {
+        componentName: "",
+        qty: "",
+        rejLoc: "",
+        restDetail: {},
+        address: "",
+        comment: "",
+      },
     ]);
   };
 
@@ -248,17 +269,6 @@ function MaterialTransfer({ type }) {
               <Col span={24} style={{ padding: "5px" }}>
                 <TextArea disabled value={locDetail} />
               </Col>
-              <Col span={24} style={{ padding: "5px" }}>
-                <TextArea
-                  value={allData.detail}
-                  placeholder="Add Description"
-                  onChange={(e) =>
-                    setAllData((allData) => {
-                      return { ...allData, detail: e.target.value };
-                    })
-                  }
-                />
-              </Col>
             </Row>
           </Card>
         </Col>
@@ -294,6 +304,7 @@ function MaterialTransfer({ type }) {
                     <th style={{ width: "14vw" }}>DROP (+) Loc</th>
                     <th style={{ width: "12vw" }}>Weighted Average Rate</th>
                     <th style={{ width: "22vw" }}>Address</th>
+                    <th style={{ width: "22vw" }}>Comment</th>
                     <th style={{ width: "10vw" }}>Actions</th>
                   </tr>
                 </thead>
@@ -363,6 +374,23 @@ function MaterialTransfer({ type }) {
                         <TextArea
                           disabled
                           value={r.address}
+                          style={{ resize: "none" }}
+                        />
+                      </td>
+                      <td style={{ width: "22vw" }}>
+                        <TextArea
+                          rows={2}
+                          value={r.comment}
+                          onChange={(e) =>
+                            setRows((prev) => {
+                              const updated = [...prev];
+                              updated[idx] = {
+                                ...updated[idx],
+                                comment: e.target.value,
+                              };
+                              return updated;
+                            })
+                          }
                           style={{ resize: "none" }}
                         />
                       </td>
