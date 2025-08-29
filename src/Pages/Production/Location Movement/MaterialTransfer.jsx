@@ -155,7 +155,7 @@ function MaterialTransfer({ type }) {
     const { data } = await imsAxios.post(
       type == "sftorej" ? "/godown/transferSF2REJ" : "/godown/transferSF2SF",
       {
-        comment: allData.detail,
+        comments: allData.detail,
         fromlocation: allData.locationSel,
         component: components,
         tolocation: tolocations,
