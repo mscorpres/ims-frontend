@@ -100,11 +100,25 @@ export const downloadCSV = (rows, columns, name, newRows) => {
     const columnsFields = columns
       .filter((row) => row.type !== "actions")
       .map((row) => row.field);
-    const rowsArr = arrayFromObject(rows, columnsFields);
+    const processedRows = rows.map(row => ({
+      ...row,
+      alts: Array.isArray(row.alts)
+        ? row.alts.map(alt => alt.alt_component_part).join(" | ")
+        : ""
+    }));
 
+    let rowsArr = arrayFromObject(processedRows, columnsFields);
     rowsArr.unshift(columnsArr);
+
     if (newRows) {
-      const newRowsTemp = arrayFromObject(newRows, columnsFields);
+      const processedNewRows = newRows.map(row => ({
+        ...row,
+        alts: Array.isArray(row.alts)
+          ? row.alts.map(alt => alt.alt_component_part).join(" | ")
+          : ""
+      }));
+
+      const newRowsTemp = arrayFromObject(processedNewRows, columnsFields);
       newRowsTemp.map((row) => rowsArr.unshift(row));
     }
 
