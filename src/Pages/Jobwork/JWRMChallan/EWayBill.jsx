@@ -47,9 +47,12 @@ const EWayBill = () => {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
       } else {
-        var response = await imsAxios.post("/wo_challan/fetch_wo_delivery_challan", {
-          challan_no: params.jwId.replaceAll("_", "/"),
-        });
+        var response = await imsAxios.post(
+          "/wo_challan/fetch_wo_delivery_challan",
+          {
+            challan_no: params.jwId.replaceAll("_", "/"),
+          }
+        );
       }
 
       const { data, items } = response;
@@ -104,7 +107,7 @@ const EWayBill = () => {
             transactionType: "1",
             documentType: "CHL",
             type: "O",
-            vehicleNo:data?.vehicle,
+            vehicleNo: data?.vehicle,
           };
           // form.setValue("totalAmount",data?.total_amount)
           const arr = items.map((row, index) => ({
@@ -177,7 +180,7 @@ const EWayBill = () => {
           supplyType: "O",
           subSupplyType: values.subType,
           documentNo: values.docNo,
-          documentDate: dayjs(values.docDate).format("DD-MM-YYYY") || null, //values.docDate,
+          documentDate: values.docDate,
           transactionType: values.transactionType,
           subSupplyDesc: values.subSupplyDesc,
         },
@@ -205,7 +208,8 @@ const EWayBill = () => {
           addressLine1: values.dispatchFromAddress1,
           addressLine2: values.dispatchFromAddress2,
           location: values.dispatchFromLocation,
-          state: values.dispatchFromState?.value ?? values.dispatchFromState+"",
+          state:
+            values.dispatchFromState?.value ?? values.dispatchFromState + "",
           pincode: values.dispatchFromPincode,
         },
         shipTo: {
@@ -258,8 +262,7 @@ const EWayBill = () => {
           "/ewaybill/createEwayforScrapeWo",
           payload
         );
-      }
-      else{
+      } else {
         response = await imsAxios.post(
           "/ewaybill/createEwayBillWorkOrder",
           payload
@@ -329,11 +332,13 @@ const EWayBill = () => {
                     />
                   </Form.Item>
                 </Col>
-               {subSupplyTypeOption ==8 && <Col span={4}>
-                  <Form.Item name="subSupplyDesc" label="Other Description">
-                    <Input />
-                  </Form.Item>
-                </Col>}
+                {subSupplyTypeOption == 8 && (
+                  <Col span={4}>
+                    <Form.Item name="subSupplyDesc" label="Other Description">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                )}
                 <Col span={4}>
                   <Form.Item name="docNo" label="Document No.">
                     <Input />
@@ -500,7 +505,6 @@ const EWayBill = () => {
               </Row>
             </Card>
           </Col>
-          
 
           <Col span={12}>
             <Card size="small" title="Ship To">
