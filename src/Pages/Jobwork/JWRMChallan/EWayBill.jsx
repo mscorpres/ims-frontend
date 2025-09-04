@@ -103,7 +103,6 @@ const EWayBill = () => {
             vehicleType: "R",
             transactionType: "1",
             documentType: "CHL",
-            // docDate: "09-03-2025",
             type: "O",
             vehicleNo:data?.vehicle,
           };
@@ -178,7 +177,7 @@ const EWayBill = () => {
           supplyType: "O",
           subSupplyType: values.subType,
           documentNo: values.docNo,
-          documentDate: values.docDate,
+          documentDate: dayjs(values.docDate).format("DD-MM-YYYY") || null, //values.docDate,
           transactionType: values.transactionType,
           subSupplyDesc: values.subSupplyDesc,
         },
@@ -348,12 +347,7 @@ const EWayBill = () => {
                 <Col span={4}>
                   <Form.Item name="docDate" label="Document Date">
                     <SingleDatePicker
-                      setDate={(value) =>
-                        form.setFieldValue(
-                          "docDate",
-                          dayjs(value).format("DD-MM-YYYY")
-                        )
-                      }
+                      setDate={(value) => form.setFieldValue("docDate", value)}
                     />
                   </Form.Item>
                 </Col>
@@ -608,10 +602,7 @@ const EWayBill = () => {
                   <Form.Item name="transportDate" label="Transport Date">
                     <SingleDatePicker
                       setDate={(value) =>
-                        form.setFieldValue(
-                          "transportDate",
-                          dayjs(value).format("DD-MM-YYYY")
-                        )
+                        form.setFieldValue("transportDate", value)
                       }
                     />
                   </Form.Item>
