@@ -1,5 +1,6 @@
 import { Button, Col, Row, Space, Typography, Form } from "antd";
 import React, { useState } from "react";
+import socket from "../../../Components/socket"; // Reuse existing socket from R6.jsx
 import { imsAxios } from "../../../axiosInterceptor";
 import MyDataTable from "../../../Components/MyDataTable";
 import { v4 } from "uuid";
@@ -13,7 +14,6 @@ import MyButton from "../../../Components/MyButton";
 
 function R18() {
   const [location, setLocation] = useState("RM");
-  // const [date, setDate] = useState("");
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
@@ -21,108 +21,109 @@ function R18() {
   const [reportStarted, setReportStarted] = useState(false);
 
   const [form] = Form.useForm();
+
   const getRows = async () => {
-    const values = await form.validateFields();
-    console.log("thesea re th values", values);
-    const finalObj = {
-      for_location: values.location,
-      date: values.date,
-    };
-
-    setFetchLoading(true);
-    const { data } = await imsAxios.post("/report18", finalObj);
-    setFetchLoading(false);
-    let headers = [];
-    if (data.code === 200) {
-      let location = {};
-      let headerArr = [];
-      let arr = data.data.map((row) => {
-        let obj = JSON.parse(row.locations);
-        for (const key in obj) {
-          if (obj.hasOwnProperty(key)) {
-            let headerName = key.replaceAll("\n", " - ");
-            headerArr.push(key);
-            location = { ...location, [headerName]: obj[key] };
-          }
-        }
-
-        return {
-          component: row.component,
-          part: row.part,
-          id: v4(),
-          ...location,
-        };
-      });
-      let locations = JSON.parse(data.data[0].locations);
-      for (const key in locations) {
-        if (locations.hasOwnProperty(key)) {
-          location = { headerName: key };
-        }
-        headers.push(location);
-      }
-      headers = headers.map((row) => {
-        return {
-          headerName: (
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <ToolTipEllipses text={row.headerName} />
-            </span>
-          ),
-          width: 100,
-          field: row.headerName.replaceAll("\n", " - "),
-        };
-      });
-      headers = [
-        {
-          headerName: "Component",
-          width: 200,
-          renderCell: ({ row }) => <ToolTipEllipses text={row.component} />,
-          field: "component",
-        },
-        {
-          headerName: "Part",
-          width: 150,
-          renderCell: ({ row }) => <ToolTipEllipses text={row.part} />,
-          field: "part",
-        },
-        ...headers,
-      ];
-      setColumns(headers);
-      setRows(arr);
-    }
-  };
-  const generateHandler = async () => {
     try {
-      setButtonEnabled(false);
       const values = await form.validateFields();
       const finalObj = {
         for_location: values.location,
         date: values.date,
       };
 
-      setTimeout(() => {
-        setReportStarted(true);
-      }, 2000);
+      setFetchLoading(true);
+      const { data } = await imsAxios.post("/report18", finalObj);
+      setFetchLoading(false);
 
-      const response = await imsAxios.post("/report18/generate", finalObj);
-      if (response) {
-        setButtonEnabled(false);
+      if (data.code === 200) {
+        let headers = [];
+        let location = {};
+        let headerArr = [];
+        let arr = data.data.map((row) => {
+          let obj = JSON.parse(row.locations);
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              let headerName = key; // Use loc_name directly (e.g., RMO21)
+              headerArr.push(key);
+              location = { ...location, [headerName]: obj[key] };
+            }
+          }
+
+          return {
+            component: row.component,
+            part: row.part,
+            id: v4(),
+            ...location,
+          };
+        });
+
+        headers = headerArr.map((key) => ({
+          headerName: (
+            <span style={{ display: "flex", alignItems: "center" }}>
+              <ToolTipEllipses text={key} />
+            </span>
+          ),
+          width: 100,
+          field: key,
+        }));
+
+        headers = [
+          {
+            headerName: "Part",
+            width: 150,
+            renderCell: ({ row }) => <ToolTipEllipses text={row.part} />,
+            field: "part",
+          },
+          {
+            headerName: "Material Name",
+            width: 200,
+            renderCell: ({ row }) => <ToolTipEllipses text={row.component} />,
+            field: "component",
+          },
+          ...headers,
+        ];
+
+        setColumns(headers);
+        setRows(arr);
+      } else {
+        toast.error("Failed to fetch report data");
       }
-    } catch (error) {}
+    } catch (error) {
+      setFetchLoading(false);
+      toast.error("Error fetching report data");
+    }
+  };
+
+  const generateHandler = async () => {
+    try {
+      setButtonEnabled(false);
+      const values = await form.validateFields();
+      const notificationId = v4();
+      const payload = {
+        otherdata: {
+          for_location: values.location,
+          date: values.date,
+        },
+        notificationId,
+      };
+
+      setReportStarted(true);
+      socket.emit("generate_r18", payload); 
+      toast.success("Report generation started. You'll receive an email when complete.");
+    } catch (error) {
+      toast.error("Error initiating report generation");
+      setButtonEnabled(true);
+      setReportStarted(false);
+    }
   };
 
   const handleDownloadCSV = () => {
+    if (rows.length === 0) {
+      toast.warning("No data to download");
+      return;
+    }
     downloadCSVCustomColumns(rows, "R18");
-    // let obj = {}
-    // let arr = columnsName.map(row => {
-    //   obj[row] =
-    // })
-    // downloadCSV(rows, columns, "R18 Report");
   };
+
   return (
     <Row style={{ height: "90%", padding: "0px 10px" }}>
       <Col span={24}>
@@ -130,7 +131,7 @@ function R18() {
           <Form form={form}>
             <Space>
               <div style={{ width: 150 }}>
-                <Form.Item name="location">
+                <Form.Item name="location" initialValue="RM">
                   <MySelect
                     value={location}
                     onChange={setLocation}
@@ -140,7 +141,6 @@ function R18() {
               </div>
               <Form.Item name="date">
                 <SingleDatePicker
-                  // pickerType="date"
                   setDate={(value) => form.setFieldValue("date", value)}
                 />
               </Form.Item>
@@ -175,16 +175,14 @@ function R18() {
           <MyDataTable loading={fetchLoading} data={rows} columns={columns} />
         )}
         {rows.length === 0 && !fetchLoading && (
-          <>
-            <Typography.Title
-              level={4}
-              style={{ textAlign: "center", color: "darkslategray" }}
-            >
-              {reportStarted &&
-                "Your report has started generating, You can fetch the report to see the progress of the report"}
-              Click Generate button to generate the report
-            </Typography.Title>
-          </>
+          <Typography.Title
+            level={4}
+            style={{ textAlign: "center", color: "darkslategray" }}
+          >
+            {reportStarted
+              ? "Your report has started generating, You can fetch the report to see the progress of the report"
+              : "Click Generate button to generate the report"}
+          </Typography.Title>
         )}
       </Col>
     </Row>
