@@ -46,7 +46,7 @@ function SFTransferDrawer({
     if (name == "trans_id") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, trans_id: value };
             }
@@ -58,7 +58,7 @@ function SFTransferDrawer({
     } else if (name == "part") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, part: value };
             }
@@ -70,7 +70,7 @@ function SFTransferDrawer({
     } else if (name == "name") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, name: value };
             }
@@ -82,7 +82,7 @@ function SFTransferDrawer({
     } else if (name == "qty") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, qty: value };
             }
@@ -94,7 +94,7 @@ function SFTransferDrawer({
     } else if (name == "rate") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, rate: value };
             }
@@ -106,7 +106,7 @@ function SFTransferDrawer({
     } else if (name == "uom") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, uom: value };
             }
@@ -118,7 +118,7 @@ function SFTransferDrawer({
     } else if (name == "remark") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, remark: value };
             }
@@ -130,7 +130,7 @@ function SFTransferDrawer({
     } else if (name == "location") {
       setRows((a) =>
         a.map((aa) => {
-          if (aa.id == id) {
+          if (aa.components_id == id) {
             {
               return { ...aa, location: value };
             }
@@ -222,7 +222,7 @@ function SFTransferDrawer({
   };
   const removeRow = (id) => {
     let arr = rows;
-    arr = arr.filter((row) => row.id != id);
+    arr = arr.filter((row) => row.components_id != id);
     setRows(arr);
   };
   useEffect(() => {
@@ -270,7 +270,7 @@ function SFTransferDrawer({
             let del = null;
             del = rows.indexOf(row) > 0;
 
-            del && removeRow(row.id);
+            del && removeRow(row.components_id);
           }}
           label="Delete"
         />,
@@ -331,7 +331,7 @@ function SFTransferDrawer({
         <Input
           value={row.rate}
           onChange={(e) => {
-            inputHandler("rate", row.id, e.target.value);
+            inputHandler("rate", row.components_id, e.target.value);
           }}
         />
       ),
@@ -359,7 +359,7 @@ function SFTransferDrawer({
           labelInValue
           value={row.location}
           onChange={(value) => {
-            inputHandler("location", row.id, value);
+            inputHandler("location", row.components_id, value);
           }}
           options={locationOptions}
 
@@ -382,7 +382,7 @@ function SFTransferDrawer({
         <Input
           value={row.remark}
           onChange={(e) => {
-            inputHandler("remark", row.id, e.target.value);
+            inputHandler("remark", row.components_id, e.target.value);
           }}
           //   placeholder="0"
         />
