@@ -424,7 +424,12 @@ function SFTransferDrawer({
       <Form layout="vertical" form={sftransfer} style={{ height: "100%" }}>
         <Row
           gutter={6}
-          style={{ height: "95%", overflow: "hidden", marginRight: 2 }}
+          style={{
+            height: "95%",
+            overflow: "auto",
+            marginRight: 2,
+            paddingBottom: 10,
+          }}
         >
           {/* <Col span={24} style={{ height: "100%", overflow: "hidden"  }}> */}
           <Col span={4}>
@@ -450,7 +455,7 @@ function SFTransferDrawer({
             </Form.Item>
           </Col>
           {/* </Col> */}
-          <Col span={24} style={{ height: "100%", overflow: "hidden" }}>
+          <Col span={24} style={{ height: "90%", overflow: "auto" }}>
             <FormTable data={rows} columns={colms} />
             {/* <FormTable2
               removableRows={true}
