@@ -175,16 +175,16 @@ function SFTransferDrawer({
   const validateHandler = async () => {
     const values = await sftransfer.validateFields();
     let payload = {
-      trans_id: rows[0].trans_id,
-      components: rows.map((r) => r.components_id),
-      part: rows.map((r) => r.part),
-      name: rows.map((r) => r.name),
-      rate: rows.map((r) => r.rate),
-      qty: rows.map((r) => r.qty),
-      remark: rows.map((r) => r.remark),
-      costCenter: values.costCenter,
-      projectId: [values.projectId],
-      location: rows.map((r) => r.location.value),
+      trans_id: rows[0]?.trans_id,
+      components: rows?.map((r) => r?.components_id),
+      part: rows?.map((r) => r?.part),
+      name: rows?.map((r) => r?.name),
+      rate: rows?.map((r) => r?.rate),
+      qty: rows?.map((r) => r?.qty),
+      remark: rows?.map((r) => r?.remark),
+      costCenter: values?.costCenter,
+      projectId: [values?.projectId],
+      location: rows?.map((r) => r.location?.value),
     };
     console.log("payload", payload);
 
