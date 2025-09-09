@@ -448,6 +448,7 @@ function Location() {
       address: "",
     });
     getDataTree();
+    getParentLocationOptions();
   }, []);
   useEffect(() => {
     if (location) {
