@@ -14,7 +14,7 @@ import {
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
-import FormTable from "../../../Components/FormTable";
+import FormTableDataGrid from "../../../Components/FormTableDataGrid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import errorToast from "../../../Components/errorToast";
 import { toast } from "react-toastify";
@@ -271,17 +271,17 @@ function JWRMChallanEditMaterials({
     }
   };
   const columns = [
-    { headerName: "Sr. No", renderCell: ({ row }) => row.index, width: 80 },
-    {
+    {field:"", headerName: "Sr. No", renderCell: ({ row }) => row.index, width: 80 },
+    {field:"component_name",
       headerName: "Component",
       renderCell: ({ row }) => (
-        <div style={{ width: 150 }}>
+        <div style={{ width: 300 }}>
           <ToolTipEllipses text={row.component_name} />
         </div>
       ),
-      width: 100,
+      width: 300,
     },
-    {
+    {field:"unit_name",
       headerName: "Qty",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -296,7 +296,7 @@ function JWRMChallanEditMaterials({
       ),
       width: 120,
     },
-    {
+    {field:"part_rate",
       headerName: "Rate",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -310,7 +310,7 @@ function JWRMChallanEditMaterials({
       ),
       width: 100,
     },
-    {
+    {field:"issue_qty",
       headerName: "Value",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -319,7 +319,7 @@ function JWRMChallanEditMaterials({
       ),
       width: 120,
     },
-    {
+    {field:"hsn_code",
       headerName: "HSN",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -331,8 +331,9 @@ function JWRMChallanEditMaterials({
       ),
       width: 120,
     },
-    {
+    {field:"remarks",
       headerName: "Description",
+      width:200,
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
           <Input
@@ -533,7 +534,7 @@ function JWRMChallanEditMaterials({
           </Card>
         </Col>
         <Col span={14} style={{ height: "95%" }}>
-          <FormTable data={rows} columns={columns} />
+          <FormTableDataGrid data={rows} columns={columns} />
         </Col>
       </Row>
       <NavFooter

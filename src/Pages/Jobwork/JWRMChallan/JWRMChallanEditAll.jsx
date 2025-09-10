@@ -10,12 +10,12 @@ import {
   Row,
   Select,
   Skeleton,
-  Space,
+  Modal,
 } from "antd";
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
-import FormTable from "../../../Components/FormTable";
+import FormTableDataGrid from "../../../Components/FormTableDataGrid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -315,12 +315,25 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       renderCell: ({ row }) => (
         <DeleteTwoTone
           onClick={() => {
-            deleteRow(row);
+                 Modal.confirm({
+                okText: "Continue",
+                cancelText: "Cancel",
+                title:
+                  `Are you sure you want to delete (${row?.part_no}) ${row?.component_name} ,  The action is irreversible ?`,
+                onOk() {
+                  deleteRow(row);
+                },
+                onCancel() {
+                  // setEditingVBT(null);
+                },
+              });
+            
           }}
         />
       ),
     },
     {
+      field: "part_no",
       headerName: "Part No.",
       renderCell: ({ row }) => (
         <div style={{ width: 80 }}>
@@ -330,6 +343,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 80,
     },
     {
+      field: "component_name",
       headerName: "Component",
       renderCell: ({ row }) => (
         <div style={{ width: 150 }}>
@@ -339,6 +353,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 150,
     },
     {
+      field: "issue_qty",
       headerName: "Qty",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -354,6 +369,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 120,
     },
     {
+      field: "availableQty",
       headerName: "Avail. Qty",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -370,6 +386,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 120,
     },
     {
+      field: "assign_rate",
       headerName: "Rate",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -386,6 +403,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 100,
     },
     {
+      field: "value",
       headerName: "Value",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -395,6 +413,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 120,
     },
     {
+      field: "hsn_code",
       headerName: "HSN",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -407,6 +426,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 120,
     },
     {
+      field: "out_loc",
       headerName: "Out Location",
       renderCell: ({ row }) => (
         <div style={{ width: "100%" }}>
@@ -430,6 +450,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       width: 120,
     },
     {
+      field: "remarks",
       headerName: "Description",
       renderCell: ({ row }) => (
         <div style={{ width: 200 }}>
@@ -439,7 +460,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           />
         </div>
       ),
-      // width: 170,
+      width: 200,
     },
   ];
 
@@ -652,7 +673,11 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
         </Col>
         <Col span={15} style={{ height: "95%" }}>
           {loading("tableSpinner") || (loading1("select") && <Loading />)}
-          <FormTable data={rows} columns={columns} />
+          <FormTableDataGrid
+            data={rows}
+            columns={columns}
+            loading={loading("tableSpinner") || loading1("select")}
+          />
         </Col>
         <NavFooter
           backFunction={() => setEditJWAll(false)}

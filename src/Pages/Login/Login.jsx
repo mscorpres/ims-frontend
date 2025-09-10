@@ -376,7 +376,7 @@ const Login = () => {
                           Forgot Password
                         </Link> */}
                          <div className="flex justify-center">
-                          <ReCAPTCHA sitekey="6LfT-t8qAAAAAAryXqezNqrrTo1HEqGwsotxPahZ" onChange={handleRecaptchaChange}  key={recaptchaKey}/>
+                          <ReCAPTCHA sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR" onChange={handleRecaptchaChange}  key={recaptchaKey}/>
                         </div> 
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button

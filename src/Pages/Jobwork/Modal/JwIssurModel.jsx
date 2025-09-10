@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Button, Col, Drawer, Input, Row, Skeleton, Space } from "antd";
+import { Button, Col, Drawer, Input, Row, Skeleton, Space, Modal } from "antd";
 import { CloseCircleFilled, DeleteTwoTone } from "@ant-design/icons";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-import FormTable from "../../../Components/FormTable";
+import FormTableDataGrid from "../../../Components/FormTableDataGrid";
 import useLoading from "../../../hooks/useLoading";
 import { saveJwMAterialIssue } from "../../../api/general";
 import useApi from "../../../hooks/useApi";
@@ -64,7 +64,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
     {
       field: "index",
       headerName: "S No.",
-      width: 8,
+      width: 80,
       renderCell: ({ row }) => <span>{row.index}</span>,
     },
     {
@@ -78,7 +78,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
     {
       field: "component_name",
       headerName: "Component",
-      width: 400,
+      width: 700,
       renderCell: ({ row }) => <ToolTipEllipses text={row.component_name} />,
     },
     {
@@ -89,20 +89,20 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
     },
     {
       field: "bom_req_qty",
-      headerName: "Required Qty",
+      headerName: "BOM Qty",
       width: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.bom_req_qty} />,
     },
     {
       field: "pending_qty",
-      headerName: "Pending Qty",
+      headerName: "Required Qty",
       width: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.pending_qty} />,
     },
     {
       field: "qty",
       headerName: "Issue Qty",
-      width: 120,
+      width: 180,
       renderCell: ({ row }) => (
         <Input
           value={row.qty}
@@ -115,11 +115,25 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
     {
       field: "Actions",
       headerName: "Actions",
-      width: 100,
+      width: 200,
       renderCell: ({ row }) => (
         <>
           <DeleteTwoTone
-            onClick={() => reset(row.id)}
+            onClick={() => {
+              Modal.confirm({
+                okText: "Continue",
+                cancelText: "Cancel",
+                title:
+                  `You are deleting (${row?.part_code}) ${row?.component_name} , Are you sure you want to continue?`,
+                onOk() {
+                  reset(row.id);
+                },
+                onCancel() {
+                  // setEditingVBT(null);
+                },
+              });
+              
+            }}
             style={{ fontSize: "20px", marginLeft: "10px" }}
           />
         </>
@@ -229,7 +243,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
             <div style={{ height: "100%" }}>
               {" "}
               {loading1("select") && <Loading />}
-              <FormTable
+              <FormTableDataGrid
                 loading={loading("fetch")}
                 columns={columns}
                 data={mainData}
