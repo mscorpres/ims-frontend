@@ -6,7 +6,7 @@ import {
   useLocation,
   Link,
 } from "react-router-dom";
-import Sidebar from "./Components/Sidebar";
+import Sidebar from "./new/components/layout/Sidebar/Sidebar";
 import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";

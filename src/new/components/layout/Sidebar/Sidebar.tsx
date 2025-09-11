@@ -1,190 +1,173 @@
-import React from "react";
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Collapse,
-  Box,
-  Typography,
-} from "@mui/material";
-import {
-  ExpandLess,
-  ExpandMore,
-  Dashboard,
-  Inventory,
-  AccountBalance,
-  Factory,
-  Warehouse,
-  Assessment,
-} from "@mui/icons-material";
-import { SidebarProps, MenuItem } from "../../../types";
+import React, { useMemo, useState } from "react";
+import "../../../../index.css";
 
-const Sidebar: React.FC<SidebarProps> = ({
+type AnyItem = any;
+
+const Sidebar = ({
   showSideBar,
   setShowSideBar,
-  user,
-  setShowTickets,
+  items,
+  items1,
+}: {
+  showSideBar: boolean;
+  setShowSideBar: (v: boolean) => void;
+  items: AnyItem[];
+  items1: AnyItem[];
 }) => {
-  const [openItems, setOpenItems] = React.useState<string[]>([]);
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
-  const handleItemClick = (key: string) => {
-    setOpenItems((prev) =>
-      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
-    );
+  const handleItemHover = (key: string, hasChildren: boolean) => {
+    if (!showSideBar && hasChildren && !activeKey) {
+      setHoveredKey(key);
+    }
   };
 
-  const menuItems: MenuItem[] = [
-    {
-      key: "dashboard",
-      label: "Dashboard",
-      icon: <Dashboard />,
-    },
-    {
-      key: "finance",
-      label: "Finance",
-      icon: <AccountBalance />,
-      children: [
-        { key: "finance-accounts", label: "Accounts" },
-        { key: "finance-reports", label: "Reports" },
-        { key: "finance-vouchers", label: "Vouchers" },
-      ],
-    },
-    {
-      key: "material",
-      label: "Material Management",
-      icon: <Inventory />,
-      children: [
-        { key: "material-master", label: "Master Data" },
-        { key: "material-procurement", label: "Procurement" },
-        { key: "material-warehouse", label: "Warehouse" },
-      ],
-    },
-    {
-      key: "production",
-      label: "Production",
-      icon: <Factory />,
-      children: [
-        { key: "production-ppc", label: "PPC" },
-        { key: "production-qca", label: "QCA" },
-        { key: "production-mes", label: "MES" },
-      ],
-    },
-    {
-      key: "warehouse",
-      label: "Warehouse",
-      icon: <Warehouse />,
-      children: [
-        { key: "warehouse-inventory", label: "Inventory" },
-        { key: "warehouse-transfers", label: "Transfers" },
-        { key: "warehouse-reports", label: "Reports" },
-      ],
-    },
-    {
-      key: "reports",
-      label: "Reports",
-      icon: <Assessment />,
-    },
-  ];
+  const handleItemClick = (key: string, hasChildren: boolean) => {
+    if (hasChildren) {
+      setActiveKey((prev) => (prev === key ? null : key));
+    }
+  };
 
-  const renderMenuItem = (item: MenuItem, level = 0) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isOpen = openItems.includes(item.key);
+  const isSubSidebarVisible = (key: string) => {
+    return activeKey === key || (!activeKey && hoveredKey === key);
+  };
 
-    return (
-      <React.Fragment key={item.key}>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() =>
-              hasChildren ? handleItemClick(item.key) : undefined
-            }
-            sx={{
-              pl: 2 + level * 2,
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            {item.icon && (
-              <ListItemIcon sx={{ color: "white", minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
-            )}
-            <ListItemText
-              primary={item.label}
-              sx={{
-                color: "white",
-                "& .MuiListItemText-primary": {
-                  fontSize: "0.9rem",
-                },
+  const hoveredItem = useMemo(() => {
+    return items.find((item) => item.key === (activeKey || hoveredKey));
+  }, [hoveredKey, activeKey, items]);
+
+  const renderList = (arr: AnyItem[], alwaysShowText = false) => (
+    <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+      {arr.map((c: AnyItem) => {
+        const hasChildren = c.children && c.children.length > 0;
+        const isVisible = isSubSidebarVisible(c.key);
+
+        return (
+          <li key={c.key}>
+            <div
+              onMouseEnter={() => handleItemHover(c.key, hasChildren)}
+              onMouseLeave={() => {
+                if (!activeKey) setHoveredKey(null);
               }}
-            />
-            {hasChildren &&
-              (isOpen ? (
-                <ExpandLess sx={{ color: "white" }} />
-              ) : (
-                <ExpandMore sx={{ color: "white" }} />
-              ))}
-          </ListItemButton>
-        </ListItem>
-        {hasChildren && (
-          <Collapse in={isOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {item.children?.map((child) => renderMenuItem(child, level + 1))}
-            </List>
-          </Collapse>
-        )}
-      </React.Fragment>
-    );
-  };
+              onClick={() => handleItemClick(c.key, hasChildren)}
+              style={{
+                padding: "10px 12px",
+                color: "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                borderRadius: 6,
+                backgroundColor: isVisible
+                  ? "rgba(255,255,255,0.1)"
+                  : "transparent",
+              }}
+            >
+              <span
+                style={{
+                  width: 24,
+                  display: "inline-flex",
+                  justifyContent: "center",
+                }}
+              >
+                {c.icon}
+              </span>
+              {(showSideBar || alwaysShowText) && (
+                <div
+                  style={{
+                    fontSize: 14,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  {typeof c.label === "string" ? (
+                    <span>{c.label}</span>
+                  ) : (
+                    c.label
+                  )}
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  const subSidebarOpen = !showSideBar && hoveredItem && hoveredItem.children;
+  const rootWidth = showSideBar ? 230 : subSidebarOpen ? 56 + 230 : 56;
 
   return (
-    <Drawer
-      variant="persistent"
-      anchor="left"
-      open={showSideBar}
-      sx={{
-        width: showSideBar ? 240 : 0,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: 240,
-          boxSizing: "border-box",
-          backgroundColor: "#047780",
-          border: "none",
-        },
-      }}
-    >
-      <Box sx={{ p: 2 }}>
-        <Typography
-          variant="h6"
-          sx={{
-            color: "white",
-            fontWeight: "bold",
-            textAlign: "center",
+    <div style={{ display: "flex", position: "relative", width: rootWidth }}>
+      {/* Main Sidebar */}
+      <div
+        style={{
+          height: "100vh",
+          width: showSideBar ? 230 : 56,
+          transition: "width .2s ease",
+          background: "#047780",
+          overflowY: "auto",
+          position: "relative",
+          zIndex: 99,
+          flex: "none",
+        }}
+      >
+        <div
+          style={{
+            padding: 12,
+            color: "#fff",
+            fontWeight: 700,
+            borderBottom: "1px solid rgba(255,255,255,.1)",
           }}
         >
-          IMS
-        </Typography>
-      </Box>
+          {showSideBar ? "IMS" : ""}
+        </div>
+        <div style={{ overflowY: "auto" }}>{renderList(items)}</div>
+        <div style={{ position: "absolute", bottom: 12, left: 0, right: 0 }}>
+          {renderList(items1)}
+        </div>
+      </div>
 
-      <List sx={{ flexGrow: 1 }}>
-        {menuItems.map((item) => renderMenuItem(item))}
-      </List>
-
-      <Box sx={{ p: 2, borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "rgba(255, 255, 255, 0.7)",
-            textAlign: "center",
+      {/* Sub Sidebar: always visible when clicked or hovered */}
+      {!showSideBar && hoveredItem && hoveredItem.children && (
+        <div
+          style={{
+            height: "100vh",
+            width: 230,
+            background: "#047780",
+            overflowY: "auto",
+            borderLeft: "1px solid rgba(255,255,255,.1)",
+            position: "absolute",
+            top: 0,
+            left: 56,
+            transition: "left .2s ease",
+            zIndex: 100,
+          }}
+          onMouseEnter={() => {
+            if (!activeKey) setHoveredKey(hoveredItem.key);
+          }}
+          onMouseLeave={() => {
+            if (!activeKey) setHoveredKey(null);
           }}
         >
-          {user?.name || "User"}
-        </Typography>
-      </Box>
-    </Drawer>
+          <div
+            style={{
+              padding: 12,
+              color: "#fff",
+              fontWeight: 700,
+              borderBottom: "1px solid rgba(255,255,255,.1)",
+            }}
+          >
+            {typeof hoveredItem.label === "string"
+              ? hoveredItem.label
+              : hoveredItem.label?.props?.children || ""}
+          </div>
+          {renderList(hoveredItem.children, true)}
+        </div>
+      )}
+    </div>
   );
 };
 
