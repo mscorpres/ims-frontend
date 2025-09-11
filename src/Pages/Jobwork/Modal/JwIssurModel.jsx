@@ -171,7 +171,12 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
 
   const reset = (i) => {
     setMainData((allDataComes) => {
-      return allDataComes.filter((row) => row.id != i);
+      let filteredData = allDataComes.filter((row) => row.id != i);
+      // Update the index for remaining rows
+      return filteredData.map((row, index) => ({
+        ...row,
+        index: index + 1,
+      }));
     });
   };
   const cancel = () => {
