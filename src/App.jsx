@@ -956,6 +956,12 @@ const App = () => {
                 key={1}
                 setShowSideBar={setShowSideBar}
                 showSideBar={showSideBar}
+                onWidthChange={(w) => {
+                  const layout = document.querySelector(
+                    "#app-content-left-margin"
+                  );
+                  if (layout) layout.style.marginLeft = `${w}px`;
+                }}
               />
             )}
             {/* sidebar ends */}
@@ -964,6 +970,7 @@ const App = () => {
                 setShowNotifications(false);
                 setShowMessageNotifications(false);
               }}
+              id="app-content-left-margin"
               style={{
                 height: "100%",
                 marginLeft: showSideBar ? 230 : 56,

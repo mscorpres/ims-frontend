@@ -8,11 +8,13 @@ const Sidebar = ({
   setShowSideBar,
   items,
   items1,
+  onWidthChange,
 }: {
   showSideBar: boolean;
   setShowSideBar: (v: boolean) => void;
   items: AnyItem[];
   items1: AnyItem[];
+  onWidthChange?: (w: number) => void;
 }) => {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [activeKey, setActiveKey] = useState<string | null>(null);
@@ -99,6 +101,10 @@ const Sidebar = ({
   const subSidebarOpen = !showSideBar && hoveredItem && hoveredItem.children;
   const rootWidth = showSideBar ? 230 : subSidebarOpen ? 56 + 230 : 56;
 
+  React.useEffect(() => {
+    if (onWidthChange) onWidthChange(rootWidth);
+  }, [rootWidth]);
+
   return (
     <div
       style={{
@@ -168,11 +174,24 @@ const Sidebar = ({
               color: "#fff",
               fontWeight: 700,
               borderBottom: "1px solid rgba(255,255,255,.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
             {typeof hoveredItem.label === "string"
               ? hoveredItem.label
               : hoveredItem.label?.props?.children || ""}
+            <span
+              onClick={() => {
+                setHoveredKey(null);
+                setActiveKey(null);
+              }}
+              style={{ cursor: "pointer", opacity: 0.9 }}
+              title="Collapse"
+            >
+              ×
+            </span>
           </div>
           {renderList(hoveredItem.children, true)}
         </div>
