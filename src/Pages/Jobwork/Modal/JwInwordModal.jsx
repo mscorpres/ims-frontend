@@ -227,9 +227,11 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     }
   };
   const removeRow = (id) => {
-    let arr = bomList;
-    arr = arr.filter((row) => row.id != id);
-    setBomList(arr);
+    setBomList((prev) => {
+      const filtered = prev.filter((row) => row.id != id);
+      // Reindex to keep the serial numbers continuous
+      return filtered.map((row, index) => ({ ...row, id: index + 1 }));
+    });
   };
 
   const columns = [
