@@ -100,11 +100,21 @@ const Sidebar = ({
   const rootWidth = showSideBar ? 230 : subSidebarOpen ? 56 + 230 : 56;
 
   return (
-    <div style={{ display: "flex", position: "relative", width: rootWidth }}>
+    <div
+      style={{
+        display: "flex",
+        position: "fixed",
+        top: 45,
+        left: 0,
+        width: rootWidth,
+        height: "calc(100vh - 45px)",
+        zIndex: 5,
+      }}
+    >
       {/* Main Sidebar */}
       <div
         style={{
-          height: "100vh",
+          height: "100%",
           width: showSideBar ? 230 : 56,
           transition: "width .2s ease",
           background: "#047780",
@@ -134,7 +144,7 @@ const Sidebar = ({
       {!showSideBar && hoveredItem && hoveredItem.children && (
         <div
           style={{
-            height: "100vh",
+            height: "100%",
             width: 230,
             background: "#047780",
             overflowY: "auto",

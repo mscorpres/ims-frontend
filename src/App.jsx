@@ -701,7 +701,11 @@ const App = () => {
           <Layout style={{ height: "100%" }}>
             <Header
               style={{
-                zIndex: 4,
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 10,
                 height: 45,
                 width: "100%",
                 display: "flex",
@@ -914,8 +918,17 @@ const App = () => {
                       />
                     </Badge>
                   </div>
-                  <UserMenu user={user} logoutHandler={logoutHandler} setShowSettings={setShowSetting}/>
-                  {showSetting && <SettingDrawer open={showSetting} hide={() => setShowSetting(false)} />}
+                  <UserMenu
+                    user={user}
+                    logoutHandler={logoutHandler}
+                    setShowSettings={setShowSetting}
+                  />
+                  {showSetting && (
+                    <SettingDrawer
+                      open={showSetting}
+                      hide={() => setShowSetting(false)}
+                    />
+                  )}
                 </Space>
               </Row>
             </Header>
@@ -930,58 +943,63 @@ const App = () => {
             pointerEvents: user && !branchSelected ? "none" : "all",
           }}
         >
-          <TicketsModal
-            open={showTickets}
-            handleClose={() => setShowTickets(false)}
-          />
-          {user && user.passwordChanged === "C" && (
-            <Sidebar
-              items={items(user)}
-              items1={items1(user, setShowTickets)}
-              className="site-layout-background"
-              key={1}
-              setShowSideBar={setShowSideBar}
-              showSideBar={showSideBar}
+          <div style={{ display: "flex", height: "100%", paddingTop: 45 }}>
+            <TicketsModal
+              open={showTickets}
+              handleClose={() => setShowTickets(false)}
             />
-          )}
-          {/* sidebar ends */}
-          <Layout
-            onClick={() => {
-              setShowNotifications(false);
-              setShowMessageNotifications(false);
-            }}
-            style={{ height: "100%" }}
-          >
-            <Content style={{ height: "100%" }}>
-              <InternalNav links={internalLinks} />
+            {user && user.passwordChanged === "C" && (
+              <Sidebar
+                items={items(user)}
+                items1={items1(user, setShowTickets)}
+                className="site-layout-background"
+                key={1}
+                setShowSideBar={setShowSideBar}
+                showSideBar={showSideBar}
+              />
+            )}
+            {/* sidebar ends */}
+            <Layout
+              onClick={() => {
+                setShowNotifications(false);
+                setShowMessageNotifications(false);
+              }}
+              style={{
+                height: "100%",
+                marginLeft: showSideBar ? 230 : 56,
+                minWidth: 0,
+              }}
+            >
+              <Content style={{ height: "100%" }}>
+                <InternalNav links={internalLinks} />
 
-              <div
-                style={{
-                  height: "calc(100vh - 50px)",
-                  width: "100%",
-                  opacity: testPage ? 0.5 : 1,
-                  pointerEvents:
-                    testPage && user?.type != "developer" ? "none" : "all",
-
-                  overflowX: "hidden",
-                }}
-              >
-                <MessageModal
-                  showMessageDrawer={showMessageDrawer}
-                  setShowMessageDrawer={setShowMessageDrawer}
-                />
-                <Routes>
-                  {filteredRoutes.map((route, index) => (
-                    <Route
-                      key={index}
-                      path={route.path}
-                      element={<route.main />}
-                    />
-                  ))}
-                </Routes>
-              </div>
-            </Content>
-          </Layout>
+                <div
+                  style={{
+                    height: "calc(100vh - 45px)",
+                    width: "100%",
+                    opacity: testPage ? 0.5 : 1,
+                    pointerEvents:
+                      testPage && user?.type != "developer" ? "none" : "all",
+                    overflowX: "hidden",
+                  }}
+                >
+                  <MessageModal
+                    showMessageDrawer={showMessageDrawer}
+                    setShowMessageDrawer={setShowMessageDrawer}
+                  />
+                  <Routes>
+                    {filteredRoutes.map((route, index) => (
+                      <Route
+                        key={index}
+                        path={route.path}
+                        element={<route.main />}
+                      />
+                    ))}
+                  </Routes>
+                </div>
+              </Content>
+            </Layout>
+          </div>
         </Layout>
       </Layout>
     </div>
