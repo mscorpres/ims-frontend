@@ -950,12 +950,11 @@ const App = () => {
             />
             {user && user.passwordChanged === "C" && (
               <Sidebar
-                items={items(user)}
-                items1={items1(user, setShowTickets)}
                 className="site-layout-background"
                 key={1}
                 setShowSideBar={setShowSideBar}
                 showSideBar={showSideBar}
+                useJsonConfig={true}
                 onWidthChange={(w) => {
                   const layout = document.querySelector(
                     "#app-content-left-margin"

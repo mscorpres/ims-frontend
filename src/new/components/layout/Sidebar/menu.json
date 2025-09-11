@@ -1,0 +1,71 @@
+{
+  "sidebar1": {
+    "title": "Main Navigation",
+    "items": [
+      {
+        "key": "dashboard",
+        "label": "Dashboard",
+        "icon": "DashboardIcon",
+        "path": "/dashboard"
+      },
+      {
+        "key": "apm",
+        "label": "image.pnges",
+        "icon": "PublicIcon",
+        "path": "/apm"
+      },
+      {
+        "key": "logs",
+        "label": "Logs",
+        "icon": "DescriptionIcon",
+        "path": "/logs",
+        "children": [
+          {
+            "key": "all-logs",
+            "label": "All logs",
+            "icon": "ListIcon",
+            "path": "/logs/all"
+          },
+          {
+            "key": "attributes",
+            "label": "Attributes",
+            "icon": "BarChartIcon",
+            "path": "/logs/attributes"
+          },
+          {
+            "key": "patterns",
+            "label": "Patterns",
+            "icon": "PatternIcon",
+            "path": "/logs/patterns"
+          }
+        ]
+      },
+      {
+        "key": "browser",
+        "label": "Browser",
+        "icon": "WebIcon",
+        "path": "/browser"
+      },
+      {
+        "key": "errors",
+        "label": "Errors Inbox",
+        "icon": "InboxIcon",
+        "path": "/errors",
+        "children": [
+          {
+            "key": "error-details",
+            "label": "Error Details",
+            "icon": "ErrorIcon",
+            "path": "/errors/details"
+          },
+          {
+            "key": "error-groups",
+            "label": "Error Groups",
+            "icon": "GroupWorkIcon",
+            "path": "/errors/groups"
+          }
+        ]
+      }
+    ]
+  }
+}
