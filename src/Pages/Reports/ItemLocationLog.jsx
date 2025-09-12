@@ -157,6 +157,10 @@ export default function ItemLocationLog() {
             { title: "Attribute Code", description: header?.unique_id },
             { title: "MFG Code", description: header?.mfgCode },
             {
+              title: "Opening",
+              description: header.openingBalance + " " + header.uom,
+            },
+            {
               title: "Closing",
               description: header.closingqty + " " + header.uom,
             },

@@ -71,15 +71,19 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
       field: "part_code",
       headerName: "Part Code",
       width: 120,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.part_code} copy={true} />
-      ),
+      renderCell: ({ row }) => <ToolTipEllipses text={row.part_code} copy={true} />,
     },
     {
       field: "component_name",
       headerName: "Component",
       width: 700,
       renderCell: ({ row }) => <ToolTipEllipses text={row.component_name} />,
+    },
+    {
+      field: "alts",
+      headerName: "Alternative",
+      width: 150,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.alts_status === "ALT" && row.alts.length > 0 ? row.alts.map((alt) => alt.alt_component_part).join(", ") : "--"} />,
     },
     {
       field: "available_qty",
@@ -103,14 +107,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
       field: "qty",
       headerName: "Issue Qty",
       width: 180,
-      renderCell: ({ row }) => (
-        <Input
-          value={row.qty}
-          type="number"
-          placeholder="0"
-          onChange={(e) => compInputHandler("qty", e.target.value, row.id)}
-        />
-      ),
+      renderCell: ({ row }) => <Input value={row.qty} type="number" placeholder="0" onChange={(e) => compInputHandler("qty", e.target.value, row.id)} />,
     },
     {
       field: "Actions",
@@ -123,8 +120,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
               Modal.confirm({
                 okText: "Continue",
                 cancelText: "Cancel",
-                title:
-                  `You are deleting (${row?.part_code}) ${row?.component_name} , Are you sure you want to continue?`,
+                title: `You are deleting (${row?.part_code}) ${row?.component_name} , Are you sure you want to continue?`,
                 onOk() {
                   reset(row.id);
                 },
@@ -132,7 +128,6 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
                   // setEditingVBT(null);
                 },
               });
-              
             }}
             style={{ fontSize: "20px", marginLeft: "10px" }}
           />
@@ -154,10 +149,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
       issue_qty: qtyArray,
     };
     // const response = await imsAxios.post("/jobwork/save_jw_material_issue");
-    const response = await executeFun(
-      () => saveJwMAterialIssue(finalObj),
-      "select"
-    );
+    const response = await executeFun(() => saveJwMAterialIssue(finalObj), "select");
     const { data } = response;
     setCloseLoading("fetch", false);
     if (data.code == 200) {
@@ -203,10 +195,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
         }
       >
         <Skeleton active loading={loading("fetch")}>
-          <Row
-            gutter={10}
-            style={{ border: "1px solid grey", padding: "10px" }}
-          >
+          <Row gutter={10} style={{ border: "1px solid grey", padding: "10px" }}>
             <Col span={8} style={{ fontWeight: "bolder", fontSize: "12px" }}>
               JW OP Id:{view.jw_jobwork_id}
             </Col>
@@ -243,21 +232,13 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
             <div style={{ height: "100%" }}>
               {" "}
               {loading1("select") && <Loading />}
-              <FormTableDataGrid
-                loading={loading("fetch")}
-                columns={columns}
-                data={mainData}
-              />
+              {!loading("fetch") && mainData.length > 0 ? <FormTableDataGrid loading={loading("fetch") || loading1("select")} columns={columns} data={mainData} /> : <Loading />}
             </div>
           </div>
           <Row>
             <Col span={24}>
               <div style={{ textAlign: "end", marginTop: "40px" }}>
-                <Button
-                  loading={closeLoading("fetch")}
-                  type="primary"
-                  onClick={saveFun}
-                >
+                <Button loading={closeLoading("fetch")} type="primary" onClick={saveFun}>
                   Save
                 </Button>
               </div>
