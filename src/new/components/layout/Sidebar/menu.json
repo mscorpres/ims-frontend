@@ -3,68 +3,1035 @@
     "title": "Main Navigation",
     "items": [
       {
-        "key": "dashboard",
+        "key": "D",
+        "label": "Finance",
+        "icon": "BiMoney",
+        "children": [
+          {
+            "key": "D1",
+            "label": "Account",
+            "icon": "MdAccountBox",
+            "path": "/tally/ChartOfAccounts"
+          },
+          {
+            "key": "D2",
+            "label": "Taxation",
+            "icon": "IoBookSharp",
+            "children": [
+              {
+                "key": "D21",
+                "label": "TDS Config",
+                "icon": "SettingsIcon",
+                "path": "/tally/nature_of_tds"
+              },
+              {
+                "key": "D22",
+                "label": "TCS Config",
+                "icon": "SettingsIcon",
+                "path": "/tally/nature_of_tcs"
+              }
+            ]
+          },
+          {
+            "key": "D3",
+            "label": "Vendor Bills",
+            "icon": "RiBillFill",
+            "children": [
+              {
+                "key": "D31",
+                "label": "Vendor Bill Posting",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendorbillposting/VB1"
+              },
+              {
+                "key": "D32",
+                "label": "VBT Records",
+                "icon": "ListAltIcon",
+                "path": "/tally/vendorbillposting/vendor_bill_records"
+              }
+            ]
+          },
+          {
+            "key": "D4",
+            "label": "Accounting Voucher",
+            "icon": "IoJournalSharp",
+            "children": [
+              {
+                "key": "D41",
+                "label": "Journal",
+                "icon": "BookIcon",
+                "path": "/tally/journal-posting"
+              },
+              {
+                "key": "D42",
+                "label": "Contra Transactions",
+                "icon": "SwapHorizIcon",
+                "path": "/tally/contra/1"
+              },
+              {
+                "key": "D43",
+                "label": "Bank Payments",
+                "icon": "PaymentIcon",
+                "path": "/tally/vouchers/bank-payment"
+              },
+              {
+                "key": "D44",
+                "label": "Bank Receipts",
+                "icon": "AccountBalanceIcon",
+                "path": "/tally/vouchers/bank-receipts"
+              },
+              {
+                "key": "D45",
+                "label": "Cash Payments",
+                "icon": "AttachMoneyIcon",
+                "path": "/tally/vouchers/cash-payment"
+              },
+              {
+                "key": "D46",
+                "label": "Cash Receipts",
+                "icon": "MonetizationOnIcon",
+                "path": "/tally/vouchers/cash-receipt"
+              },
+              {
+                "key": "D47",
+                "label": "App Reference Setup",
+                "icon": "SettingsIcon",
+                "path": "/tally/vouchers/reference/setup"
+              }
+            ]
+          },
+          {
+            "key": "report",
+            "label": "Report",
+            "icon": "AlignRightOutlined",
+            "children": [
+              {
+                "key": "D12",
+                "label": "Ledger Report",
+                "icon": "AssessmentIcon",
+                "path": "/tally/ledger_report"
+              },
+              {
+                "key": "reports/trial-balance",
+                "label": "Trial Balance Report",
+                "icon": "BalanceIcon",
+                "path": "/tally/reports/trial-balance-report"
+              },
+              {
+                "key": "reports/balance-sheet",
+                "label": "Balance Sheet",
+                "icon": "TableChartIcon",
+                "path": "/tally/reports/balance-sheet"
+              },
+              {
+                "key": "reports/profitloss-report",
+                "label": "P & L Report",
+                "icon": "TrendingUpIcon",
+                "path": "/tally/reports/profitloss-report"
+              },
+              {
+                "key": "reports/day-book",
+                "label": "Day Book",
+                "icon": "TodayIcon",
+                "path": "/tally/reports/day-book"
+              },
+              {
+                "key": "reports/ageing",
+                "label": "Ageing Report",
+                "icon": "ScheduleIcon",
+                "path": "/tally/vouchers/reference/payableReport"
+              },
+              {
+                "key": "reports/tdsReport",
+                "label": "TDS Report",
+                "icon": "DescriptionIcon",
+                "path": "/tally/vouchers/reference/tdsReport"
+              },
+              {
+                "key": "reports/misReport",
+                "label": "MIS Report",
+                "icon": "AnalyticsIcon",
+                "path": "/tally/vouchers/reference/misReport"
+              },
+              {
+                "key": "/gst/gstReport1",
+                "label": "GSTR1",
+                "icon": "ReceiptLongIcon",
+                "path": "/tally/vouchers/reference/gst/gstReport1"
+              }
+            ]
+          },
+          {
+            "key": "D9",
+            "label": "Others",
+            "icon": "MoreHorizIcon",
+            "children": [
+              {
+                "key": "vendor-reco",
+                "label": "Vendor Reconciliation",
+                "icon": "CompareArrowsIcon",
+                "path": "/finance/vendor/reco/create"
+              },
+              {
+                "key": "/tally/debit-note/create",
+                "label": "Debit Note",
+                "icon": "NoteIcon",
+                "path": "/tally/debit-note/create"
+              },
+              {
+                "key": "D8",
+                "label": "GST RECO",
+                "icon": "GavelIcon",
+                "children": [
+                  {
+                    "key": "D81",
+                    "label": "Add Book Details",
+                    "icon": "AddIcon",
+                    "path": "/addbookdetails"
+                  },
+                  {
+                    "key": "D82",
+                    "label": "Add Gst Details",
+                    "icon": "AddIcon",
+                    "path": "/addgstdetails"
+                  },
+                  {
+                    "key": "D83",
+                    "label": "Reconciled Details",
+                    "icon": "CheckCircleIcon",
+                    "path": "/viewreconciled"
+                  },
+                  {
+                    "key": "D84",
+                    "label": "Summary",
+                    "icon": "SummarizeIcon",
+                    "path": "/viewsummary"
+                  },
+                  {
+                    "key": "D85",
+                    "label": "View Book Data",
+                    "icon": "VisibilityIcon",
+                    "path": "/viewbookdata"
+                  },
+                  {
+                    "key": "D86",
+                    "label": "View Gst Data",
+                    "icon": "VisibilityIcon",
+                    "path": "/viewgstdata"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "A",
         "label": "Dashboard",
-        "icon": "DashboardIcon",
-        "path": "/dashboard"
-      },
-      {
-        "key": "apm",
-        "label": "image.pnges",
-        "icon": "PublicIcon",
-        "path": "/apm"
-      },
-      {
-        "key": "logs",
-        "label": "Logs",
-        "icon": "DescriptionIcon",
-        "path": "/logs",
+        "icon": "MdDashboard",
         "children": [
           {
-            "key": "all-logs",
-            "label": "All logs",
+            "key": "2",
+            "label": "SKU Costing",
+            "icon": "CalculateIcon",
+            "path": "/dashboard/sku_costing"
+          }
+        ]
+      },
+      {
+        "key": "B",
+        "label": "Material Management",
+        "icon": "BiTransfer",
+        "children": [
+          {
+            "key": "B1",
+            "label": "Master",
+            "icon": "BsFillHddStackFill",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "Material Management/B11",
+                "label": "UoM",
+                "icon": "StraightenIcon",
+                "path": "/uom"
+              },
+              {
+                "key": "B12",
+                "label": "Component",
+                "icon": "ExtensionIcon",
+                "children": [
+                  {
+                    "key": "Component/B121",
+                    "label": "Material",
+                    "icon": "InventoryIcon",
+                    "path": "/material"
+                  },
+                  {
+                    "key": "Component/B122",
+                    "label": "Services",
+                    "icon": "BuildIcon",
+                    "path": "/services"
+                  }
+                ]
+              },
+              {
+                "key": "Component/B13",
+                "label": "Products",
+                "icon": "CategoryIcon",
+                "path": "/masters/products/fg"
+              },
+              {
+                "key": "hsn-map/B14",
+                "label": "HSN Map",
+                "icon": "MapIcon",
+                "path": "/hsn-map"
+              },
+              {
+                "key": "B114",
+                "label": "Location",
+                "icon": "LocationOnIcon",
+                "path": "/location"
+              },
+              {
+                "key": "B15",
+                "label": "Groups",
+                "icon": "GroupIcon",
+                "path": "/group"
+              },
+              {
+                "key": "B16",
+                "label": "Billing Address",
+                "icon": "HomeIcon",
+                "path": "/billingAddress"
+              },
+              {
+                "key": "B17",
+                "label": "Shipping Address",
+                "icon": "LocalShippingIcon",
+                "path": "/shippingAddress"
+              },
+              {
+                "key": "B18",
+                "label": "Bill Of Material",
+                "icon": "ListIcon",
+                "children": [
+                  {
+                    "key": "B181",
+                    "label": "Create BOM",
+                    "icon": "AddIcon",
+                    "path": "/master/bom/create"
+                  }
+                ]
+              },
+              {
+                "key": "B19",
+                "label": "Vendor / Supplier",
+                "icon": "BusinessIcon",
+                "children": [
+                  {
+                    "key": "B191",
+                    "label": "Add / Rectify",
+                    "icon": "PersonAddIcon",
+                    "path": "/vendor"
+                  }
+                ]
+              },
+              {
+                "key": "clients/add",
+                "label": "Clients",
+                "icon": "PeopleIcon",
+                "path": "tally/clients/add"
+              },
+              {
+                "key": "/master/reports/projects/B20",
+                "label": "Projects",
+                "icon": "WorkIcon",
+                "path": "/master/reports/projects"
+              },
+              {
+                "key": "B21",
+                "label": "Reports",
+                "icon": "AssessmentIcon",
+                "path": "/master/reports/r19"
+              }
+            ]
+          },
+          {
+            "key": "B2",
+            "label": "Procurement",
+            "icon": "ImCart",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "B21",
+                "label": "Create PO",
+                "icon": "AddShoppingCartIcon",
+                "path": "/create-po"
+              },
+              {
+                "key": "B22",
+                "label": "Manage PO",
+                "icon": "ManageAccountsIcon",
+                "path": "/manage-po"
+              },
+              {
+                "key": "B23",
+                "label": "Completed PO",
+                "icon": "CheckCircleIcon",
+                "path": "/completed-po"
+              },
+              {
+                "key": "B24",
+                "label": "Vendor Pricing",
+                "icon": "AttachMoneyIcon",
+                "path": "/vendor-pricing"
+              },
+              {
+                "key": "B25",
+                "label": "Po Approval",
+                "icon": "ApprovalIcon",
+                "path": "/approval-po"
+              }
+            ]
+          },
+          {
+            "key": "B3",
+            "label": "Warehouse",
+            "icon": "FaWarehouse",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "B31",
+                "label": "MR Approval",
+                "icon": "ApprovalIcon",
+                "path": "/approved-transaction"
+              },
+              {
+                "key": "B32",
+                "label": "RM MATLS IN",
+                "icon": "InputIcon",
+                "path": "/warehouse/material-in"
+              },
+              {
+                "key": "B33",
+                "label": "Prod. Return MIN",
+                "icon": "UndoIcon",
+                "path": "/warehouse/prod-return-MIN"
+              },
+              {
+                "key": "warehouse/minedit",
+                "label": "MIN Edit/Reverse",
+                "icon": "EditIcon",
+                "children": [
+                  {
+                    "key": "warehouse/minedit/edit",
+                    "label": "Edit MIN",
+                    "icon": "EditIcon",
+                    "path": "/update-rm"
+                  },
+                  {
+                    "key": "warehouse/minedit/reverse",
+                    "label": "Reverse MIN",
+                    "icon": "UndoIcon",
+                    "path": "/reverse-min"
+                  }
+                ]
+              },
+              {
+                "key": "B43",
+                "label": "FG (s) Inwarding",
+                "icon": "InventoryIcon",
+                "children": [
+                  {
+                    "key": "B431",
+                    "label": "Pending FG (s)",
+                    "icon": "PendingIcon",
+                    "path": "/PendingFG"
+                  },
+                  {
+                    "key": "B432",
+                    "label": "Completed FG (s)",
+                    "icon": "CheckCircleIcon",
+                    "path": "/completedFG"
+                  }
+                ]
+              },
+              {
+                "key": "B35",
+                "label": "FG(s) Out",
+                "icon": "OutputIcon",
+                "children": [
+                  {
+                    "key": "B351",
+                    "label": "Create FG Out",
+                    "icon": "AddIcon",
+                    "path": "/create-fgOut"
+                  },
+                  {
+                    "key": "B352",
+                    "label": "View FG Out",
+                    "icon": "VisibilityIcon",
+                    "path": "/view-fgOut"
+                  }
+                ]
+              },
+              {
+                "key": "B38",
+                "label": "FG(s) Return",
+                "icon": "ReturnIcon",
+                "children": [
+                  {
+                    "key": "B381",
+                    "label": "Create FG Return",
+                    "icon": "AddIcon",
+                    "path": "/createFgReturn"
+                  },
+                  {
+                    "key": "B382",
+                    "label": "Pending Reversals",
+                    "icon": "PendingIcon",
+                    "path": "/pendingFgReturn"
+                  }
+                ]
+              },
+              {
+                "key": "B36",
+                "label": "Material Transfer",
+                "icon": "SwapHorizIcon",
+                "children": [
+                  {
+                    "key": "B361",
+                    "label": "RM To RM",
+                    "icon": "SwapHorizIcon",
+                    "path": "/rm-to-rm"
+                  },
+                  {
+                    "key": "B363",
+                    "label": "RM To REJ",
+                    "icon": "BlockIcon",
+                    "path": "/re-to-rej"
+                  },
+                  {
+                    "key": "B364",
+                    "label": "Pending Transfer(s)",
+                    "icon": "PendingIcon",
+                    "path": "/pending-transfer"
+                  }
+                ]
+              },
+              {
+                "key": "B37",
+                "label": "Rejection Out",
+                "icon": "BlockIcon",
+                "path": "/rejection"
+              },
+              {
+                "key": "B6",
+                "label": "Jobwork",
+                "icon": "MdQueryStats",
+                "children": [
+                  {
+                    "key": "B61",
+                    "label": "Jobwork & Analysis",
+                    "icon": "AnalyticsIcon",
+                    "path": "/create-jw"
+                  },
+                  {
+                    "key": "B63",
+                    "label": "Jobwork Update",
+                    "icon": "UpdateIcon",
+                    "path": "/jobwork/update/supplementary"
+                  },
+                  {
+                    "key": "B62",
+                    "label": "Vendor SFG MIN",
+                    "icon": "BusinessIcon",
+                    "path": "/jobwork/vendor/sfg/min"
+                  }
+                ]
+              },
+              {
+                "key": "B7",
+                "label": "Work Order",
+                "icon": "WorkIcon",
+                "children": [
+                  {
+                    "key": "B71",
+                    "label": "Create Work-order",
+                    "icon": "AddIcon",
+                    "path": "/createwo"
+                  },
+                  {
+                    "key": "B72",
+                    "label": "WO Analysis",
+                    "icon": "AnalyticsIcon",
+                    "path": "/woanalysis"
+                  },
+                  {
+                    "key": "B73",
+                    "label": "WO Create Challan",
+                    "icon": "ReceiptIcon",
+                    "path": "/wocreatechallan"
+                  },
+                  {
+                    "key": "B74",
+                    "label": "WO SCRAPE Challan",
+                    "icon": "DeleteIcon",
+                    "path": "/wocreatescrapechallan"
+                  },
+                  {
+                    "key": "B75",
+                    "label": "WO Shipment",
+                    "icon": "LocalShippingIcon",
+                    "path": "/woShipment"
+                  },
+                  {
+                    "key": "B76",
+                    "label": "WO View Challan",
+                    "icon": "VisibilityIcon",
+                    "path": "/woviewchallan"
+                  },
+                  {
+                    "key": "B77",
+                    "label": "WO Completed",
+                    "icon": "CheckCircleIcon",
+                    "path": "/wocompleted"
+                  },
+                  {
+                    "key": "B78",
+                    "label": "WO Report",
+                    "icon": "AssessmentIcon",
+                    "path": "/woreport"
+                  }
+                ]
+              },
+              {
+                "key": "B38",
+                "label": "RGP - DC",
+                "icon": "DescriptionIcon",
+                "path": "/create-dc"
+              },
+              {
+                "key": "B35",
+                "label": "Branch Transfer Challan",
+                "icon": "SwapHorizIcon",
+                "path": "/branchtransferchallan"
+              },
+              {
+                "key": "B39",
+                "label": "Gatepass (RGP / NRGP)",
+                "icon": "SecurityIcon",
+                "path": "/create-gp"
+              },
+              {
+                "key": "B40",
+                "label": "Physical Stock (Store)",
+                "icon": "InventoryIcon",
+                "path": "/warehouse/physical/create"
+              },
+              {
+                "key": "B41",
+                "label": "Part Code Conversion",
+                "icon": "TransformIcon",
+                "path": "/warehouse/part-code-conversion"
+              }
+            ]
+          },
+          {
+            "key": "C5",
+            "label": "Sales Order",
+            "icon": "TbReportAnalytics",
+            "children": [
+              {
+                "key": "E51",
+                "label": "Register",
+                "icon": "ListIcon",
+                "path": "/sales/order/register"
+              },
+              {
+                "key": "C52",
+                "label": "Create order",
+                "icon": "AddIcon",
+                "path": "/sales/order/create"
+              },
+              {
+                "key": "C53",
+                "label": "Challan",
+                "icon": "ReceiptIcon",
+                "path": "/sales/order/challan"
+              },
+              {
+                "key": "C54",
+                "label": "Shipment",
+                "icon": "LocalShippingIcon",
+                "path": "/sales/order/shipments"
+              }
+            ]
+          },
+          {
+            "key": "B4",
+            "label": "Reports",
+            "icon": "TbReportAnalytics",
+            "children": [
+              {
+                "key": "B41",
+                "label": "Inventory Reports",
+                "icon": "AssessmentIcon",
+                "children": [
+                  {
+                    "key": "B411",
+                    "label": "MIN Register",
+                    "icon": "ListIcon",
+                    "path": "/transaction-In"
+                  },
+                  {
+                    "key": "B414",
+                    "label": "Weekly Audit",
+                    "icon": "AuditIcon",
+                    "path": "/weeklyAudit"
+                  },
+                  {
+                    "key": "B412",
+                    "label": "RM Issue Register",
+                    "icon": "OutputIcon",
+                    "path": "/transaction-Out"
+                  },
+                  {
+                    "key": "B413",
+                    "label": "Reports R1 - R37",
+                    "icon": "DescriptionIcon",
+                    "path": "/r1"
+                  }
+                ]
+              },
+              {
+                "key": "B42",
+                "label": "Print and View MIN Label",
+                "icon": "PrintIcon",
+                "path": "/warehouse/print-view-min"
+              },
+              {
+                "key": "B43",
+                "label": "E-Way Bill Report",
+                "icon": "DescriptionIcon",
+                "path": "/warehouse/eway-bill/report"
+              }
+            ]
+          },
+          {
+            "key": "B5",
+            "label": "Query",
+            "icon": "MdQueryStats",
+            "children": [
+              {
+                "key": "C51",
+                "label": "Q1 - Q6",
+                "icon": "HelpIcon",
+                "path": "/item-all-logs"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "C",
+        "label": "Production",
+        "icon": "IoFileTrayStacked",
+        "children": [
+          {
+            "key": "C1",
+            "label": "PPC",
+            "icon": "MdDashboard",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "C11",
+                "label": "Material Requisition",
+                "icon": "RequestQuoteIcon",
+                "children": [
+                  {
+                    "key": "C111",
+                    "label": "Req With BOM",
+                    "icon": "ListIcon",
+                    "path": "/reqWithBom"
+                  },
+                  {
+                    "key": "C112",
+                    "label": "Req Without BOM",
+                    "icon": "ListIcon",
+                    "path": "/reqWithoutBom"
+                  }
+                ]
+              },
+              {
+                "key": "C12",
+                "label": "Production and Plan (s)",
+                "icon": "ScheduleIcon",
+                "children": [
+                  {
+                    "key": "C121",
+                    "label": "Create PPR",
+                    "icon": "AddIcon",
+                    "path": "/create-ppr"
+                  },
+                  {
+                    "key": "C122",
+                    "label": "Pending PPR",
+                    "icon": "PendingIcon",
+                    "path": "/pending-ppr"
+                  },
+                  {
+                    "key": "C123",
+                    "label": "Completed PPR",
+                    "icon": "CheckCircleIcon",
+                    "path": "/completed-ppr"
+                  }
+                ]
+              },
+              {
+                "key": "C14",
+                "label": "Location Movement",
+                "icon": "SwapHorizIcon",
+                "children": [
+                  {
+                    "key": "C141",
+                    "label": "SF To SF",
+                    "icon": "SwapHorizIcon",
+                    "path": "/sf-to-sf"
+                  },
+                  {
+                    "key": "C142",
+                    "label": "SF To REJ",
+                    "icon": "BlockIcon",
+                    "path": "/sf-to-rej"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "C2",
+            "label": "QCA",
+            "icon": "CheckCircleIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "C131",
+                "label": "Create Sample",
+                "icon": "AddIcon",
+                "path": "/sample-qc"
+              },
+              {
+                "key": "C132",
+                "label": "Pending Sample",
+                "icon": "PendingIcon",
+                "path": "/pending-qc"
+              },
+              {
+                "key": "C133",
+                "label": "Completed Sample",
+                "icon": "CheckCircleIcon",
+                "path": "/completed-qc"
+              },
+              {
+                "key": "C134",
+                "label": "QC Report",
+                "icon": "AssessmentIcon",
+                "path": "/report-qc"
+              }
+            ]
+          },
+          {
+            "key": "C3",
+            "label": "Query",
+            "icon": "MdQueryStats",
+            "children": [
+              {
+                "key": "C31",
+                "label": "Q1 - Q6",
+                "icon": "HelpIcon",
+                "path": "/item-all-logs"
+              }
+            ]
+          },
+          {
+            "key": "C4",
+            "label": "Reports",
+            "icon": "TbReportAnalytics",
+            "children": [
+              {
+                "key": "C41",
+                "label": "Inventory Reports",
+                "icon": "AssessmentIcon",
+                "children": [
+                  {
+                    "key": "C411",
+                    "label": "MIN Register",
+                    "icon": "ListIcon",
+                    "path": "/transaction-In"
+                  },
+                  {
+                    "key": "C412",
+                    "label": "RM Issue Register",
+                    "icon": "OutputIcon",
+                    "path": "/transaction-Out"
+                  },
+                  {
+                    "key": "C413",
+                    "label": "Weekly Audit",
+                    "icon": "AuditIcon",
+                    "path": "/weeklyAudit"
+                  },
+                  {
+                    "key": "C414",
+                    "label": "Reports R1 - R35",
+                    "icon": "DescriptionIcon",
+                    "path": "/r1"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "D1",
+            "label": "Production MIS",
+            "icon": "MdAccountBox",
+            "path": "/production/prodMis"
+          },
+          {
+            "key": "D5",
+            "label": "Physical Stock",
+            "icon": "MdAccountBox",
+            "path": "/production/physical-stock/create"
+          }
+        ]
+      },
+      {
+        "key": "Z",
+        "label": "MES",
+        "icon": "DeploymentUnitOutlined",
+        "children": [
+          {
+            "key": "Z1",
+            "label": "QA Process",
+            "icon": "DeliveredProcedureOutlined",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "Z11",
+                "label": "Create Process",
+                "icon": "AddIcon",
+                "path": "/master/qa-process"
+              },
+              {
+                "key": "Z12",
+                "label": "Create Process Map",
+                "icon": "MapIcon",
+                "path": "/master/qa-process-map"
+              }
+            ]
+          },
+          {
+            "key": "Z2",
+            "label": "QCA",
+            "icon": "CheckCircleOutlined",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "Z21",
+                "label": "Print QCA Label",
+                "icon": "PrintIcon",
+                "path": "/print-qc-label"
+              },
+              {
+                "key": "Z22",
+                "label": "QC Check",
+                "icon": "CheckCircleIcon",
+                "path": "/qccheck"
+              },
+              {
+                "key": "Z23",
+                "label": "QC Report",
+                "icon": "AssessmentIcon",
+                "path": "/mes-report-qc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "E",
+        "label": "CPM",
+        "icon": "CalculatorFilled",
+        "children": [
+          {
+            "key": "E1",
+            "label": "CPM Analysis",
+            "icon": "AnalyticsIcon",
+            "path": "/CPM/CPM-analysis"
+          },
+          {
+            "key": "reports/cpm",
+            "label": "CPM Finance",
+            "icon": "AccountBalanceIcon",
+            "path": "/CPM/report"
+          }
+        ]
+      },
+      {
+        "key": "F",
+        "label": "Analysis",
+        "icon": "SiPaytm",
+        "children": [
+          {
+            "key": "F1",
+            "label": "Paytm QC Report",
+            "icon": "AssessmentIcon",
+            "path": "/analysis/paytm-qc"
+          },
+          {
+            "key": "F2",
+            "label": "Paytm Refurbishment",
+            "icon": "BuildIcon",
+            "path": "/analysis/paytm-refurbishment"
+          }
+        ]
+      },
+      {
+        "key": "/invoice/create",
+        "label": "Sales & Distribution",
+        "icon": "UnorderedListOutlined",
+        "path": "/invoice/create"
+      },
+      {
+        "key": "Research and Development",
+        "label": "Research and Development",
+        "icon": "ExperimentOutlined",
+        "children": [
+          {
+            "key": "products/create",
+            "label": "Products",
+            "icon": "CategoryIcon",
+            "path": "/research-and-development/products/create"
+          },
+          {
+            "key": "bom/create",
+            "label": "Bill of Material",
             "icon": "ListIcon",
-            "path": "/logs/all"
-          },
-          {
-            "key": "attributes",
-            "label": "Attributes",
-            "icon": "BarChartIcon",
-            "path": "/logs/attributes"
-          },
-          {
-            "key": "patterns",
-            "label": "Patterns",
-            "icon": "PatternIcon",
-            "path": "/logs/patterns"
+            "path": "/research-and-development/bom/create"
           }
         ]
-      },
+      }
+    ]
+  },
+  "sidebar2": {
+    "title": "Account",
+    "items": [
       {
-        "key": "browser",
-        "label": "Browser",
-        "icon": "WebIcon",
-        "path": "/browser"
-      },
-      {
-        "key": "errors",
-        "label": "Errors Inbox",
-        "icon": "InboxIcon",
-        "path": "/errors",
-        "children": [
-          {
-            "key": "error-details",
-            "label": "Error Details",
-            "icon": "ErrorIcon",
-            "path": "/errors/details"
-          },
-          {
-            "key": "error-groups",
-            "label": "Error Groups",
-            "icon": "GroupWorkIcon",
-            "path": "/errors/groups"
-          }
-        ]
+        "key": "A",
+        "label": "Profile",
+        "icon": "UserOutlined",
+        "path": "/myprofile"
       }
     ]
   }
