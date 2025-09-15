@@ -49,7 +49,8 @@ const Sidebar = ({
   const handleItemClick = (
     key: string,
     hasChildren: boolean,
-    path?: string
+    path?: string,
+    isInSubMenu: boolean = false
   ) => {
     if (hasChildren) {
       setActiveKey((prev) => (prev === key ? null : key));
@@ -60,6 +61,18 @@ const Sidebar = ({
     } else if (path) {
       // Navigate to the path if it exists
       navigate(path);
+      // Close second sidebar only when clicking a direct link from the main sidebar
+      if (!isInSubMenu) {
+        setActiveKey(null);
+        setIsSecondSidebarOpen(false);
+      }
+    } else {
+      // If no children and no path
+      if (!isInSubMenu) {
+        // Close any open submenu only for main sidebar clicks
+        setActiveKey(null);
+        setIsSecondSidebarOpen(false);
+      }
     }
   };
 
@@ -130,7 +143,16 @@ const Sidebar = ({
                 onMouseLeave={() => {
                   if (!activeKey) setHoveredKey(null);
                 }}
-                onClick={() => handleItemClick(c.key, hasChildren, c.path)}
+                onClick={() =>
+                  handleItemClick(c.key, hasChildren, c.path, isSubMenu)
+                }
+                title={
+                  !shouldShowText
+                    ? typeof c.label === "string"
+                      ? c.label
+                      : "Menu Item"
+                    : undefined
+                }
                 style={{
                   padding: shouldShowText ? "8px 16px" : "8px 12px",
                   color: isSubMenu ? "#333" : "#666",
