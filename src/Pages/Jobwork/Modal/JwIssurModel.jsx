@@ -81,7 +81,7 @@ const JwIssurModel = ({ openModal, setOpenModal, datewiseFetchData }) => {
     },
     {
       field: "alts",
-      headerName: "Alternative",
+      headerName: "Alternative", 
       width: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.alts_status === "ALT" && row.alts.length > 0 ? row.alts.map((alt) => alt.alt_component_part).join(", ") : "--"} />,
     },

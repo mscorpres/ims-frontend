@@ -23,6 +23,7 @@ import MyButton from "../../Components/MyButton";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
+  { title: "Opening", description: "--" },
   {
     title: "Closing",
     description: "--",
