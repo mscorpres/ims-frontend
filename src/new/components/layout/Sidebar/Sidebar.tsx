@@ -52,11 +52,24 @@ const Sidebar = ({
     path?: string,
     isInSubMenu: boolean = false
   ) => {
+    // If interacting within the second sidebar, ensure it is open and expanded
+    if (isInSubMenu) {
+      if (!isSecondSidebarOpen) setIsSecondSidebarOpen(true);
+      if (isSecondSidebarCollapsed) setIsSecondSidebarCollapsed(false);
+    }
     if (hasChildren) {
-      setActiveKey((prev) => (prev === key ? null : key));
-      setIsSecondSidebarOpen(activeKey !== key);
-      if (activeKey !== key) {
-        setIsSecondSidebarCollapsed(false); // Reset collapse state when opening new submenu
+      if (isInSubMenu) {
+        // Do not change top-level activeKey when clicking inside sub sidebar
+        // Keep second sidebar open and expanded
+        setIsSecondSidebarOpen(true);
+        setIsSecondSidebarCollapsed(false);
+      } else {
+        setActiveKey((prev) => (prev === key ? null : key));
+        const nextOpen = activeKey !== key;
+        setIsSecondSidebarOpen(nextOpen);
+        if (nextOpen) {
+          setIsSecondSidebarCollapsed(false); // Reset collapse when opening new submenu
+        }
       }
     } else if (path) {
       // Navigate to the path if it exists
@@ -295,36 +308,33 @@ const Sidebar = ({
               opacity: 1;
             }
           }
+          .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+          .hide-scrollbar::-webkit-scrollbar { width: 0; height: 0; }
         `}
       </style>
       <div
+        className="flex fixed top-0 left-0 h-screen z-[5] transition-[width] duration-300 ease-in-out"
         style={{
-          display: "flex",
-          position: "fixed",
           top: 0,
           left: 0,
           width: rootWidth,
-          height: "100vh",
-          zIndex: 5,
-          fontFamily:
-            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          transition: "width 0.3s ease",
         }}
       >
         {/* Main Sidebar */}
         <div
-          style={{
-            height: "100%",
-            width: showSideBar ? 280 : 56,
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: "#f8f9fa",
-            overflowY: "auto",
-            position: "relative",
-            zIndex: 99,
-            flex: "none",
-            borderRight: "1px solid #e0e0e0",
-            boxShadow: showSideBar ? "2px 0 8px rgba(0,0,0,0.1)" : "none",
-          }}
+          className={`h-full 
+          ${
+            showSideBar
+              ? "w-[280px] shadow-[2px_0_8px_rgba(0,0,0,0.1)]"
+              : "w-[56px] shadow-none"
+          } 
+          transition-all duration-300 ease-in-out 
+          bg-[#f8f9fa] 
+          overflow-y-auto 
+          relative 
+          z-[99] 
+          flex-none 
+          border-r border-[#e0e0e0]`}
         >
           {/* Logo/Brand */}
           <div
@@ -387,7 +397,7 @@ const Sidebar = ({
             style={{
               position: "absolute",
               bottom: "16px",
-              right: "16px",
+              right: "12px",
               width: "32px",
               height: "32px",
               backgroundColor: "#007acc",
@@ -429,11 +439,12 @@ const Sidebar = ({
         {/* Sub Sidebar: appears on click */}
         {subSidebarOpen && (
           <div
+            className={isSecondSidebarCollapsed ? "hide-scrollbar" : undefined}
             style={{
               height: "100%",
               width: secondSidebarWidth,
               background: "#f6f0e3",
-              overflowY: "auto",
+              overflowY: isSecondSidebarCollapsed ? "hidden" : "auto",
               borderRight: "1px solid #e0e0e0",
               position: "absolute",
               top: 0,
