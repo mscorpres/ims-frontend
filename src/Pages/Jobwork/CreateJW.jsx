@@ -88,12 +88,14 @@ const newPurchaseOrder = {
   sgst: "",
   igst: "",
   description: "",
+  location: "",
 };
 
 export default function CreateJW({}) {
   // initialize loading state
   const [loading, setLoading] = useLoading();
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [asyncLocationOptions, setAsyncLocationOptions] = useState([]);
   const [requestByOptions, setRequestByOptions] = useState([]);
   const [vendorBranchOptions, setVendorBranchOptions] = useState([]);
   const [projectDescription, setProjectDescription] = useState("");
@@ -175,6 +177,29 @@ export default function CreateJW({}) {
       toast.error("Some error occured while getting vendor address ");
     }
   };
+
+  const getData = (response) => {
+    const { data } = response;
+    if (data) {
+      if (data.length) {
+        const arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
+
+        setAsyncLocationOptions(arr);
+      }
+    }
+  };
+
+  const getLocatonOptions = async (search) => {
+    setLoading("selectLocation");
+    const response = await imsAxios.post("/backend/fetchLocation", {
+      searchTerm: search,
+    });
+    getData(response);
+  };
+
   //   get cost center options
 
   const handleFetchCostCenterOptions = async (search) => {
@@ -434,6 +459,7 @@ export default function CreateJW({}) {
       vendor_type: values.vendortype,
       vendor_branch: values.vendorbranch,
       vendor_address: values.vendoraddress,
+      location: values.location,
       product: [values.component],
       qty: [values.qty],
       rate: [values.rate],
@@ -1160,6 +1186,25 @@ export default function CreateJW({}) {
               </Col>
             </Row>
             <Row gutter={6}>
+              <Col span={4}>
+                <Form.Item
+                  label="Location"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Select a Location!",
+                    },
+                  ]}
+                  name="location"
+                >
+                  <MyAsyncSelect
+                    onBlur={() => setAsyncLocationOptions([])}
+                    loadOptions={getLocatonOptions}
+                    optionsState={asyncLocationOptions}
+                    selectLoading={loading === "selectLocation"}
+                  />
+                </Form.Item>
+              </Col>
               <Col span={4}>
                 <Form.Item
                   name="hsn"
