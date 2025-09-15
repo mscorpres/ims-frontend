@@ -322,7 +322,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
                   `Are you sure you want to delete (${row?.part_no}) ${row?.component_name} ,  The action is irreversible ?`,
                 onOk() {
                   deleteRow(row);
-                },
+                }, 
                 onCancel() {
                   // setEditingVBT(null);
                 },
@@ -331,6 +331,12 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           }}
         />
       ),
+    },
+    {
+      field: "index",
+      headerName: "S No.",
+      width: 80,
+      renderCell: ({ row }) => <span>{row.index}</span>,
     },
     {
       field: "part_no",
@@ -366,7 +372,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           />
         </div>
       ),
-      width: 120,
+      width: 180,
     },
     {
       field: "availableQty",
@@ -383,7 +389,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           />
         </div>
       ),
-      width: 120,
+      width: 180,
     },
     {
       field: "assign_rate",
@@ -475,6 +481,10 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     if (data.code == 200) {
       let arr = rows;
       arr = arr.filter((row) => row.id !== i.id);
+      arr = arr.map((row, index) => ({
+        ...row,
+        index: index + 1,
+      }));
       setRows(arr);
       // getDetails();
     } else if (data.code == 500) {
