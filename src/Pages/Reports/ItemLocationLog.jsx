@@ -20,6 +20,7 @@ import { downloadCSV } from "../../Components/exportToCSV";
 import { getComponentOptions } from "../../api/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
+import { toast } from "react-toastify";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
@@ -113,6 +114,11 @@ export default function ItemLocationLog() {
         part_code: values.component,
       });
       getDetails(values);
+      if(response?.data?.status === "error"){
+        toast.error(response?.data?.message?.msg);
+        setLoading(false);
+        return
+      }
       const { data } = response;
       const {
         header,
