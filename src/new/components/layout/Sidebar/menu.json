@@ -195,7 +195,7 @@
                 "key": "D8",
                 "label": "GST RECO",
                 "icon": "GavelIcon",
-               "path": "/addgstdetails"
+                "path": "/addgstdetails"
               }
             ]
           }
@@ -285,17 +285,15 @@
                 "key": "B18",
                 "label": "Bill Of Material",
                 "icon": "ListIcon",
-                
-                    "path": "/master/bom/create"
-                  
+
+                "path": "/master/bom/create"
               },
               {
                 "key": "B19",
                 "label": "Vendor / Supplier",
                 "icon": "BusinessIcon",
-                
-                    "path": "/vendor"
-                 
+
+                "path": "/vendor"
               },
               {
                 "key": "clients/add",
@@ -383,35 +381,31 @@
                 "key": "warehouse/minedit",
                 "label": "MIN Edit/Reverse",
                 "icon": "EditIcon",
-               
-                    "path": "/update-rm"
-                 
+
+                "path": "/update-rm"
               },
               {
                 "key": "B43",
                 "label": "FG (s) Inwarding",
                 "icon": "InventoryIcon",
-                
-                    "path": "/completedFG"
-                 
+
+                "path": "/completedFG"
               },
               {
                 "key": "B35",
                 "label": "FG(s) Out",
                 "icon": "OutputIcon",
-               
-                    "path": "/create-fgOut"
-                 
+
+                "path": "/create-fgOut"
               },
               {
                 "key": "B38",
                 "label": "FG(s) Return",
                 "icon": "ReturnIcon",
-              
-                    "path": "/createFgReturn"
-                 
+
+                "path": "/createFgReturn"
               },
-              
+
               {
                 "key": "B37",
                 "label": "Rejection Out",
@@ -452,7 +446,7 @@
                 "key": "B6",
                 "label": "Jobwork",
                 "icon": "MdQueryStats",
-                "isHeading":true,
+                "isHeading": true,
                 "children": [
                   {
                     "key": "B61",
@@ -478,7 +472,7 @@
                 "key": "B7",
                 "label": "Work Order",
                 "icon": "WorkIcon",
-                "isHeading":true,
+                "isHeading": true,
                 "children": [
                   {
                     "key": "B71",
@@ -530,7 +524,6 @@
                   }
                 ]
               }
-             
             ]
           },
           {
@@ -538,34 +531,33 @@
             "label": "Material Transfer",
             "icon": "SwapHorizIcon",
             "isHeading": true,
-           
-                "children": [
-                  {
-                    "key": "B361",
-                    "label": "RM To RM",
-                    "icon": "SwapHorizIcon",
-                    "path": "/rm-to-rm"
-                  },
-                  {
-                    "key": "B363",
-                    "label": "RM To REJ",
-                    "icon": "BlockIcon",
-                    "path": "/re-to-rej"
-                  },
-                  {
-                    "key": "B364",
-                    "label": "Pending Transfer(s)",
-                    "icon": "PendingIcon",
-                    "path": "/pending-transfer"
-                  }
-                ]
-             
+
+            "children": [
+              {
+                "key": "B361",
+                "label": "RM To RM",
+                "icon": "SwapHorizIcon",
+                "path": "/rm-to-rm"
+              },
+              {
+                "key": "B363",
+                "label": "RM To REJ",
+                "icon": "BlockIcon",
+                "path": "/re-to-rej"
+              },
+              {
+                "key": "B364",
+                "label": "Pending Transfer(s)",
+                "icon": "PendingIcon",
+                "path": "/pending-transfer"
+              }
+            ]
           },
           {
             "key": "C5",
             "label": "Sales Order",
             "icon": "TbReportAnalytics",
-            "isHeading":true,
+            "isHeading": true,
             "children": [
               {
                 "key": "E51",
@@ -597,8 +589,8 @@
             "key": "B4",
             "label": "Print",
             "icon": "TbReportAnalytics",
-            "isHeading":true,
-            
+            "isHeading": true,
+
             "children": [
               {
                 "key": "B42",
@@ -610,7 +602,7 @@
                 "key": "B41",
                 "label": "Inventory Reports",
                 "icon": "AssessmentIcon",
-                "isHeading":true,
+                "isHeading": true,
                 "children": [
                   {
                     "key": "B411",
@@ -638,7 +630,7 @@
                   }
                 ]
               },
-              
+
               {
                 "key": "B43",
                 "label": "E-Way Bill Report",
@@ -651,7 +643,7 @@
             "key": "B5",
             "label": "Query",
             "icon": "MdQueryStats",
-            "isHeading":true,
+            "isHeading": true,
             "children": [
               {
                 "key": "C51",
@@ -678,18 +670,15 @@
                 "key": "C11",
                 "label": "Material Requisition",
                 "icon": "RequestQuoteIcon",
-               
-                    "path": "/reqWithBom"
-                 
-               
+
+                "path": "/reqWithBom"
               },
               {
                 "key": "C12",
                 "label": "Production and Plan (s)",
                 "icon": "ScheduleIcon",
-               
-                    "path": "/create-ppr"
-                  
+
+                "path": "/create-ppr"
               },
               {
                 "key": "D1",
@@ -707,7 +696,7 @@
                 "key": "C14",
                 "label": "Location Movement",
                 "icon": "SwapHorizIcon",
-                "isHeading":true,
+                "isHeading": true,
                 "children": [
                   {
                     "key": "C141",
@@ -757,9 +746,6 @@
               }
             ]
           }
-          
-         
-          
         ]
       },
       {
@@ -898,7 +884,13 @@
                 "key": "products/create",
                 "label": "Create Product",
                 "icon": "CategoryIcon",
-                "path": "/research-and-development/products/create"
+                "path": "/research-and-development/products"
+              },
+              {
+                "key": "products/approval",
+                "label": "Product Approval",
+                "icon": "CategoryIcon",
+                "path": "/research-and-development/products/approval"
               }
             ]
           },
@@ -913,6 +905,18 @@
                 "label": "Create BOM",
                 "icon": "ListIcon",
                 "path": "/research-and-development/bom/create"
+              },
+              {
+                "key": "bom/list",
+                "label": "BOM List",
+                "icon": "ListIcon",
+                "path": "/research-and-development/bom/list"
+              },
+              {
+                "key": "bom/drafts",
+                "label": "Draft BOM List",
+                "icon": "ListIcon",
+                "path": "/research-and-development/bom/drafts"
               }
             ]
           }
