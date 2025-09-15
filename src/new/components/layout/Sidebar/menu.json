@@ -11,12 +11,21 @@
             "key": "D1",
             "label": "Account",
             "icon": "MdAccountBox",
-            "path": "/tally/ChartOfAccounts"
+            "isHeading": true,
+            "children": [
+              {
+                "key": "D11",
+                "label": "Chart of Accounts",
+                "icon": "MdAccountBox",
+                "path": "/tally/ChartOfAccounts"
+              }
+            ]
           },
           {
             "key": "D2",
             "label": "Taxation",
             "icon": "IoBookSharp",
+            "isHeading": true,
             "children": [
               {
                 "key": "D21",
@@ -36,6 +45,7 @@
             "key": "D3",
             "label": "Vendor Bills",
             "icon": "RiBillFill",
+            "isHeading": true,
             "children": [
               {
                 "key": "D31",
@@ -55,6 +65,7 @@
             "key": "D4",
             "label": "Accounting Voucher",
             "icon": "IoJournalSharp",
+            "isHeading": true,
             "children": [
               {
                 "key": "D41",
@@ -104,6 +115,7 @@
             "key": "report",
             "label": "Report",
             "icon": "AlignRightOutlined",
+            "isHeading": true,
             "children": [
               {
                 "key": "D12",
@@ -165,6 +177,7 @@
             "key": "D9",
             "label": "Others",
             "icon": "MoreHorizIcon",
+            "isHeading": true,
             "children": [
               {
                 "key": "vendor-reco",
@@ -182,44 +195,7 @@
                 "key": "D8",
                 "label": "GST RECO",
                 "icon": "GavelIcon",
-                "children": [
-                  {
-                    "key": "D81",
-                    "label": "Add Book Details",
-                    "icon": "AddIcon",
-                    "path": "/addbookdetails"
-                  },
-                  {
-                    "key": "D82",
-                    "label": "Add Gst Details",
-                    "icon": "AddIcon",
-                    "path": "/addgstdetails"
-                  },
-                  {
-                    "key": "D83",
-                    "label": "Reconciled Details",
-                    "icon": "CheckCircleIcon",
-                    "path": "/viewreconciled"
-                  },
-                  {
-                    "key": "D84",
-                    "label": "Summary",
-                    "icon": "SummarizeIcon",
-                    "path": "/viewsummary"
-                  },
-                  {
-                    "key": "D85",
-                    "label": "View Book Data",
-                    "icon": "VisibilityIcon",
-                    "path": "/viewbookdata"
-                  },
-                  {
-                    "key": "D86",
-                    "label": "View Gst Data",
-                    "icon": "VisibilityIcon",
-                    "path": "/viewgstdata"
-                  }
-                ]
+               "path": "/addgstdetails"
               }
             ]
           }
@@ -231,10 +207,18 @@
         "icon": "MdDashboard",
         "children": [
           {
-            "key": "2",
-            "label": "SKU Costing",
-            "icon": "CalculateIcon",
-            "path": "/dashboard/sku_costing"
+            "key": "A1",
+            "label": "Analytics",
+            "icon": "TbReportAnalytics",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "2",
+                "label": "SKU Costing",
+                "icon": "CalculateIcon",
+                "path": "/dashboard/sku_costing"
+              }
+            ]
           }
         ]
       },
@@ -259,20 +243,7 @@
                 "key": "B12",
                 "label": "Component",
                 "icon": "ExtensionIcon",
-                "children": [
-                  {
-                    "key": "Component/B121",
-                    "label": "Material",
-                    "icon": "InventoryIcon",
-                    "path": "/material"
-                  },
-                  {
-                    "key": "Component/B122",
-                    "label": "Services",
-                    "icon": "BuildIcon",
-                    "path": "/services"
-                  }
-                ]
+                "path": "/material"
               },
               {
                 "key": "Component/B13",
@@ -314,27 +285,17 @@
                 "key": "B18",
                 "label": "Bill Of Material",
                 "icon": "ListIcon",
-                "children": [
-                  {
-                    "key": "B181",
-                    "label": "Create BOM",
-                    "icon": "AddIcon",
+                
                     "path": "/master/bom/create"
-                  }
-                ]
+                  
               },
               {
                 "key": "B19",
                 "label": "Vendor / Supplier",
                 "icon": "BusinessIcon",
-                "children": [
-                  {
-                    "key": "B191",
-                    "label": "Add / Rectify",
-                    "icon": "PersonAddIcon",
+                
                     "path": "/vendor"
-                  }
-                ]
+                 
               },
               {
                 "key": "clients/add",
@@ -422,103 +383,35 @@
                 "key": "warehouse/minedit",
                 "label": "MIN Edit/Reverse",
                 "icon": "EditIcon",
-                "children": [
-                  {
-                    "key": "warehouse/minedit/edit",
-                    "label": "Edit MIN",
-                    "icon": "EditIcon",
+               
                     "path": "/update-rm"
-                  },
-                  {
-                    "key": "warehouse/minedit/reverse",
-                    "label": "Reverse MIN",
-                    "icon": "UndoIcon",
-                    "path": "/reverse-min"
-                  }
-                ]
+                 
               },
               {
                 "key": "B43",
                 "label": "FG (s) Inwarding",
                 "icon": "InventoryIcon",
-                "children": [
-                  {
-                    "key": "B431",
-                    "label": "Pending FG (s)",
-                    "icon": "PendingIcon",
-                    "path": "/PendingFG"
-                  },
-                  {
-                    "key": "B432",
-                    "label": "Completed FG (s)",
-                    "icon": "CheckCircleIcon",
+                
                     "path": "/completedFG"
-                  }
-                ]
+                 
               },
               {
                 "key": "B35",
                 "label": "FG(s) Out",
                 "icon": "OutputIcon",
-                "children": [
-                  {
-                    "key": "B351",
-                    "label": "Create FG Out",
-                    "icon": "AddIcon",
+               
                     "path": "/create-fgOut"
-                  },
-                  {
-                    "key": "B352",
-                    "label": "View FG Out",
-                    "icon": "VisibilityIcon",
-                    "path": "/view-fgOut"
-                  }
-                ]
+                 
               },
               {
                 "key": "B38",
                 "label": "FG(s) Return",
                 "icon": "ReturnIcon",
-                "children": [
-                  {
-                    "key": "B381",
-                    "label": "Create FG Return",
-                    "icon": "AddIcon",
+              
                     "path": "/createFgReturn"
-                  },
-                  {
-                    "key": "B382",
-                    "label": "Pending Reversals",
-                    "icon": "PendingIcon",
-                    "path": "/pendingFgReturn"
-                  }
-                ]
+                 
               },
-              {
-                "key": "B36",
-                "label": "Material Transfer",
-                "icon": "SwapHorizIcon",
-                "children": [
-                  {
-                    "key": "B361",
-                    "label": "RM To RM",
-                    "icon": "SwapHorizIcon",
-                    "path": "/rm-to-rm"
-                  },
-                  {
-                    "key": "B363",
-                    "label": "RM To REJ",
-                    "icon": "BlockIcon",
-                    "path": "/re-to-rej"
-                  },
-                  {
-                    "key": "B364",
-                    "label": "Pending Transfer(s)",
-                    "icon": "PendingIcon",
-                    "path": "/pending-transfer"
-                  }
-                ]
-              },
+              
               {
                 "key": "B37",
                 "label": "Rejection Out",
@@ -526,9 +419,40 @@
                 "path": "/rejection"
               },
               {
+                "key": "B38",
+                "label": "RGP - DC",
+                "icon": "DescriptionIcon",
+                "path": "/create-dc"
+              },
+              {
+                "key": "B35",
+                "label": "Branch Transfer Challan",
+                "icon": "SwapHorizIcon",
+                "path": "/branchtransferchallan"
+              },
+              {
+                "key": "B39",
+                "label": "Gatepass (RGP / NRGP)",
+                "icon": "SecurityIcon",
+                "path": "/create-gp"
+              },
+              {
+                "key": "B40",
+                "label": "Physical Stock (Store)",
+                "icon": "InventoryIcon",
+                "path": "/warehouse/physical/create"
+              },
+              {
+                "key": "B41",
+                "label": "Part Code Conversion",
+                "icon": "TransformIcon",
+                "path": "/warehouse/part-code-conversion"
+              },
+              {
                 "key": "B6",
                 "label": "Jobwork",
                 "icon": "MdQueryStats",
+                "isHeading":true,
                 "children": [
                   {
                     "key": "B61",
@@ -554,6 +478,7 @@
                 "key": "B7",
                 "label": "Work Order",
                 "icon": "WorkIcon",
+                "isHeading":true,
                 "children": [
                   {
                     "key": "B71",
@@ -604,43 +529,43 @@
                     "path": "/woreport"
                   }
                 ]
-              },
-              {
-                "key": "B38",
-                "label": "RGP - DC",
-                "icon": "DescriptionIcon",
-                "path": "/create-dc"
-              },
-              {
-                "key": "B35",
-                "label": "Branch Transfer Challan",
-                "icon": "SwapHorizIcon",
-                "path": "/branchtransferchallan"
-              },
-              {
-                "key": "B39",
-                "label": "Gatepass (RGP / NRGP)",
-                "icon": "SecurityIcon",
-                "path": "/create-gp"
-              },
-              {
-                "key": "B40",
-                "label": "Physical Stock (Store)",
-                "icon": "InventoryIcon",
-                "path": "/warehouse/physical/create"
-              },
-              {
-                "key": "B41",
-                "label": "Part Code Conversion",
-                "icon": "TransformIcon",
-                "path": "/warehouse/part-code-conversion"
               }
+             
             ]
+          },
+          {
+            "key": "B36",
+            "label": "Material Transfer",
+            "icon": "SwapHorizIcon",
+            "isHeading": true,
+           
+                "children": [
+                  {
+                    "key": "B361",
+                    "label": "RM To RM",
+                    "icon": "SwapHorizIcon",
+                    "path": "/rm-to-rm"
+                  },
+                  {
+                    "key": "B363",
+                    "label": "RM To REJ",
+                    "icon": "BlockIcon",
+                    "path": "/re-to-rej"
+                  },
+                  {
+                    "key": "B364",
+                    "label": "Pending Transfer(s)",
+                    "icon": "PendingIcon",
+                    "path": "/pending-transfer"
+                  }
+                ]
+             
           },
           {
             "key": "C5",
             "label": "Sales Order",
             "icon": "TbReportAnalytics",
+            "isHeading":true,
             "children": [
               {
                 "key": "E51",
@@ -670,13 +595,22 @@
           },
           {
             "key": "B4",
-            "label": "Reports",
+            "label": "Print",
             "icon": "TbReportAnalytics",
+            "isHeading":true,
+            
             "children": [
+              {
+                "key": "B42",
+                "label": "Print and View MIN Label",
+                "icon": "PrintIcon",
+                "path": "/warehouse/print-view-min"
+              },
               {
                 "key": "B41",
                 "label": "Inventory Reports",
                 "icon": "AssessmentIcon",
+                "isHeading":true,
                 "children": [
                   {
                     "key": "B411",
@@ -704,12 +638,7 @@
                   }
                 ]
               },
-              {
-                "key": "B42",
-                "label": "Print and View MIN Label",
-                "icon": "PrintIcon",
-                "path": "/warehouse/print-view-min"
-              },
+              
               {
                 "key": "B43",
                 "label": "E-Way Bill Report",
@@ -722,6 +651,7 @@
             "key": "B5",
             "label": "Query",
             "icon": "MdQueryStats",
+            "isHeading":true,
             "children": [
               {
                 "key": "C51",
@@ -748,50 +678,36 @@
                 "key": "C11",
                 "label": "Material Requisition",
                 "icon": "RequestQuoteIcon",
-                "children": [
-                  {
-                    "key": "C111",
-                    "label": "Req With BOM",
-                    "icon": "ListIcon",
+               
                     "path": "/reqWithBom"
-                  },
-                  {
-                    "key": "C112",
-                    "label": "Req Without BOM",
-                    "icon": "ListIcon",
-                    "path": "/reqWithoutBom"
-                  }
-                ]
+                 
+               
               },
               {
                 "key": "C12",
                 "label": "Production and Plan (s)",
                 "icon": "ScheduleIcon",
-                "children": [
-                  {
-                    "key": "C121",
-                    "label": "Create PPR",
-                    "icon": "AddIcon",
+               
                     "path": "/create-ppr"
-                  },
-                  {
-                    "key": "C122",
-                    "label": "Pending PPR",
-                    "icon": "PendingIcon",
-                    "path": "/pending-ppr"
-                  },
-                  {
-                    "key": "C123",
-                    "label": "Completed PPR",
-                    "icon": "CheckCircleIcon",
-                    "path": "/completed-ppr"
-                  }
-                ]
+                  
+              },
+              {
+                "key": "D1",
+                "label": "Production MIS",
+                "icon": "MdAccountBox",
+                "path": "/production/prodMis"
+              },
+              {
+                "key": "D5",
+                "label": "Physical Stock",
+                "icon": "MdAccountBox",
+                "path": "/production/physical-stock/create"
               },
               {
                 "key": "C14",
                 "label": "Location Movement",
                 "icon": "SwapHorizIcon",
+                "isHeading":true,
                 "children": [
                   {
                     "key": "C141",
@@ -840,70 +756,10 @@
                 "path": "/report-qc"
               }
             ]
-          },
-          {
-            "key": "C3",
-            "label": "Query",
-            "icon": "MdQueryStats",
-            "children": [
-              {
-                "key": "C31",
-                "label": "Q1 - Q6",
-                "icon": "HelpIcon",
-                "path": "/item-all-logs"
-              }
-            ]
-          },
-          {
-            "key": "C4",
-            "label": "Reports",
-            "icon": "TbReportAnalytics",
-            "children": [
-              {
-                "key": "C41",
-                "label": "Inventory Reports",
-                "icon": "AssessmentIcon",
-                "children": [
-                  {
-                    "key": "C411",
-                    "label": "MIN Register",
-                    "icon": "ListIcon",
-                    "path": "/transaction-In"
-                  },
-                  {
-                    "key": "C412",
-                    "label": "RM Issue Register",
-                    "icon": "OutputIcon",
-                    "path": "/transaction-Out"
-                  },
-                  {
-                    "key": "C413",
-                    "label": "Weekly Audit",
-                    "icon": "AuditIcon",
-                    "path": "/weeklyAudit"
-                  },
-                  {
-                    "key": "C414",
-                    "label": "Reports R1 - R35",
-                    "icon": "DescriptionIcon",
-                    "path": "/r1"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "key": "D1",
-            "label": "Production MIS",
-            "icon": "MdAccountBox",
-            "path": "/production/prodMis"
-          },
-          {
-            "key": "D5",
-            "label": "Physical Stock",
-            "icon": "MdAccountBox",
-            "path": "/production/physical-stock/create"
           }
+          
+         
+          
         ]
       },
       {
@@ -966,15 +822,31 @@
         "children": [
           {
             "key": "E1",
-            "label": "CPM Analysis",
+            "label": "Analysis",
             "icon": "AnalyticsIcon",
-            "path": "/CPM/CPM-analysis"
+            "isHeading": true,
+            "children": [
+              {
+                "key": "E11",
+                "label": "CPM Analysis",
+                "icon": "AnalyticsIcon",
+                "path": "/CPM/CPM-analysis"
+              }
+            ]
           },
           {
-            "key": "reports/cpm",
-            "label": "CPM Finance",
+            "key": "E2",
+            "label": "Finance",
             "icon": "AccountBalanceIcon",
-            "path": "/CPM/report"
+            "isHeading": true,
+            "children": [
+              {
+                "key": "reports/cpm",
+                "label": "CPM Finance",
+                "icon": "AccountBalanceIcon",
+                "path": "/CPM/report"
+              }
+            ]
           }
         ]
       },
@@ -985,15 +857,23 @@
         "children": [
           {
             "key": "F1",
-            "label": "Paytm QC Report",
-            "icon": "AssessmentIcon",
-            "path": "/analysis/paytm-qc"
-          },
-          {
-            "key": "F2",
-            "label": "Paytm Refurbishment",
-            "icon": "BuildIcon",
-            "path": "/analysis/paytm-refurbishment"
+            "label": "Paytm",
+            "icon": "SiPaytm",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "F11",
+                "label": "Paytm QC Report",
+                "icon": "AssessmentIcon",
+                "path": "/analysis/paytm-qc"
+              },
+              {
+                "key": "F12",
+                "label": "Paytm Refurbishment",
+                "icon": "BuildIcon",
+                "path": "/analysis/paytm-refurbishment"
+              }
+            ]
           }
         ]
       },
@@ -1009,16 +889,32 @@
         "icon": "ExperimentOutlined",
         "children": [
           {
-            "key": "products/create",
+            "key": "RD1",
             "label": "Products",
             "icon": "CategoryIcon",
-            "path": "/research-and-development/products/create"
+            "isHeading": true,
+            "children": [
+              {
+                "key": "products/create",
+                "label": "Create Product",
+                "icon": "CategoryIcon",
+                "path": "/research-and-development/products/create"
+              }
+            ]
           },
           {
-            "key": "bom/create",
+            "key": "RD2",
             "label": "Bill of Material",
             "icon": "ListIcon",
-            "path": "/research-and-development/bom/create"
+            "isHeading": true,
+            "children": [
+              {
+                "key": "bom/create",
+                "label": "Create BOM",
+                "icon": "ListIcon",
+                "path": "/research-and-development/bom/create"
+              }
+            ]
           }
         ]
       }
