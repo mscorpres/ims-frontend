@@ -174,20 +174,13 @@ const Dashboard: React.FC = () => {
             <CircularProgress size={24} />
           </Box>
         ) : (
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {items.map((it, idx) => (
               <Grid key={`${it.title}-${idx}`} item xs={12} sm={6} md={3}>
                 <Card
                   sx={{
-                    background:
-                      idx % 4 === 0
-                        ? "#eef2ff"
-                        : idx % 4 === 1
-                        ? "#ecfeff"
-                        : idx % 4 === 2
-                        ? "#fef9c3"
-                        : "#fce7f3",
-                    border: 0,
+                    backgroundColor: "background.paper",
+                    borderRadius: 2,
                   }}
                 >
                   <CardContent>
@@ -229,7 +222,7 @@ const Dashboard: React.FC = () => {
   );
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
+    <Box sx={{ flexGrow: 1, p: 3, paddingBottom: "80px" }}>
       <Box
         sx={{
           display: "flex",
@@ -250,7 +243,7 @@ const Dashboard: React.FC = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {renderSummaryGrid("Master Summary", masterSummary, loading.master)}
 
         <Grid item xs={12} md={6}>
