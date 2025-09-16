@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Route,
   Routes,
@@ -27,7 +28,7 @@ import socket from "./Components/socket.js";
 import Notifications from "./Components/Notifications";
 import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
-import Layout, { Content, Header } from "antd/lib/layout/layout";
+import Layout, { Content } from "antd/lib/layout/layout";
 import { Badge, Row, Select, Space, Switch, Typography } from "antd";
 // icons import
 import {
@@ -42,6 +43,7 @@ import {
 } from "@ant-design/icons";
 import { Tooltip, IconButton } from "@mui/material";
 import { SiSocketdotio } from "react-icons/si";
+import { AppHeader } from "./new/components/layout/Header";
 import InternalNav from "./Components/InternalNav";
 import { imsAxios } from "./axiosInterceptor";
 import MyAsyncSelect from "./Components/MyAsyncSelect";
@@ -699,239 +701,103 @@ const App = () => {
         )}
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
-            <Header
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                zIndex: 10,
-                height: 45,
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <Row style={{ width: "100%" }} justify="space-between">
-                <Space size="large">
-                  <MenuOutlined
-                    onClick={() => {
-                      setShowSideBar((open) => !open);
-                    }}
-                    style={{
-                      color: "white",
-                      marginLeft: 12,
-                      fontSize: window.innerWidth > 1600 && "1rem",
-                    }}
+            <AppHeader
+              onToggleSidebar={() => setShowSideBar((open) => !open)}
+              logo={<Logo />}
+              title="IMS"
+              branchOptions={options}
+              sessionOptions={sessionOptions}
+              branchValue={user.company_branch}
+              sessionValue={user.session}
+              onChangeBranch={(value) => handleSelectCompanyBranch(value)}
+              onChangeSession={(value) => handleSelectSession(value)}
+              showSearch
+              searchComponent={
+                <MyAsyncSelect
+                  style={{ color: "black" }}
+                  placeholder="Select users"
+                  onBlur={() => setModulesOptions([])}
+                  noBorder={true}
+                  hideArrow={true}
+                  searchIcon={false}
+                  color="white"
+                  optionsState={modulesOptions}
+                  loadOptions={getModuleSearchOptions}
+                  value={searchModule}
+                  onChange={setSearchModule}
+                  onMouseEnter={showRecentSearch}
+                  options={showHisList}
+                />
+              }
+              testSwitchVisible={
+                user?.type && user?.type.toLowerCase() == "developer"
+              }
+              testSwitchValue={testPage}
+              testSwitchLoading={testToggleLoading}
+              onChangeTestSwitch={(value) => handleChangePageStatus(value)}
+              showControlIcon={
+                user?.type && user?.type.toLowerCase() == "developer"
+              }
+              onClickControl={() => navToControl()}
+              socketConnected={isConnected}
+              socketLoading={isLoading}
+              onRefreshSocket={() => refreshConnection()}
+              notificationsCount={
+                notifications.filter((not) => not?.type != "message")?.length
+              }
+              onClickNotifications={() => setShowNotifications((n) => !n)}
+              messagesCount={
+                notifications.filter((not) => not?.type == "message").length
+              }
+              onClickMessages={() => setShowTickets(true)}
+              userMenu={
+                <UserMenu
+                  user={user}
+                  logoutHandler={logoutHandler}
+                  setShowSettings={setShowSetting}
+                />
+              }
+              extraRight={
+                showSetting ? (
+                  <SettingDrawer
+                    open={showSetting}
+                    hide={() => setShowSetting(false)}
                   />
-
-                  <Link to="/">
-                    <Space
-                      style={{
-                        color: "white",
-                        fontSize: "1rem",
-                      }}
-                    >
-                      <Logo />
-                      <span style={{ color: "white" }}>IMS</span>
-                    </Space>
-                  </Link>
-                  <div className="location-select">
-                    <Select
-                      style={{ width: 200, color: "white" }}
-                      options={options}
-                      bordered={false}
-                      placeholder="Select Company Branch"
-                      onChange={(value) => handleSelectCompanyBranch(value)}
-                      value={user.company_branch}
-                    />
-                  </div>
-                  <div className="location-select">
-                    <Select
-                      style={{ width: 200, color: "white" }}
-                      options={sessionOptions}
-                      bordered={false}
-                      placeholder="Select Session"
-                      onChange={(value) => handleSelectSession(value)}
-                      value={user.session}
-                    />
-                  </div>
-                </Space>
-                <Space>
-                  <div className="location-select">
-                    <Space>
-                      <Typography.Text style={{ color: "white" }}>
-                        <SearchOutlined />
-                      </Typography.Text>
-                      <div style={{ width: 250, color: "white" }}>
-                        <MyAsyncSelect
-                          style={{ color: "black" }}
-                          // placeholder={
-                          //   <span style={{ color: "#000000" }}>
-                          //     Search here...
-                          //   </span>
-                          // }
-                          placeholder="Select users"
-                          onBlur={() => setModulesOptions([])}
-                          noBorder={true}
-                          hideArrow={true}
-                          searchIcon={false}
-                          color="white"
-                          optionsState={modulesOptions}
-                          loadOptions={getModuleSearchOptions}
-                          value={searchModule}
-                          onChange={setSearchModule}
-                          onMouseEnter={showRecentSearch}
-                          options={showHisList}
-                        />
-                      </div>
-                    </Space>
-                  </div>
-                </Space>
-                <Space
-                  size="large"
+                ) : null
+              }
+            />
+            {showNotifications &&
+              createPortal(
+                <div
+                  id="notifications-panel"
                   style={{
-                    position: "relative",
+                    position: "fixed",
+                    top: 60,
+                    right: 12,
+                    zIndex: 10000,
+                    width: 420,
+                    maxHeight: "calc(100vh - 72px)",
+                    overflowY: "auto",
+                    background: "#fff",
+                    borderRadius: 10,
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    pointerEvents: "auto",
+                    outline: "1px solid transparent",
                   }}
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {user?.type && user?.type.toLowerCase() == "developer" && (
-                    <>
-                      <Switch
-                        loading={testToggleLoading}
-                        checked={testPage}
-                        onChange={(value) => handleChangePageStatus(value)}
-                        checkedChildren="Test"
-                        unCheckedChildren="Live"
-                      />
-
-                      <ControlOutlined
-                        style={{
-                          fontSize: 18,
-                          color: "white",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => navToControl()}
-                      />
-                    </>
-                  )}
-                  <Tooltip
-                    title={`Socket ${
-                      isConnected ? "Connected" : "Disconnected"
-                    }`}
-                    placement="bottom"
-                  >
-                    <IconButton
-                      onClick={() => refreshConnection()}
-                      disabled={isLoading}
-                    >
-                      <SiSocketdotio
-                        style={{
-                          fontSize: "25px",
-                          color: isConnected ? "#10b981" : "#ef4444",
-                          animation: isLoading
-                            ? "spin 1s linear infinite"
-                            : "none",
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  {/* {favLoading ? (
-                    <LoadingOutlined
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  ) : user?.favPages?.filter(
-                      (fav) => fav.url == pathname
-                    )[0] ? (
-                    <StarFilled
-                      onClick={() => handleFavPages(true)}
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  ) : (
-                    <StarOutlined
-                      onClick={() => handleFavPages(false)}
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  )} */}
-
-                  <div>
-                    <Badge
-                      size="small"
-                      style={{
-                        background: notifications.filter(
-                          (not) => not?.loading || not?.status == "pending"
-                        )[0]
-                          ? "#EAAE0F"
-                          : "green",
-                      }}
-                      count={
-                        notifications.filter((not) => not?.type != "message")
-                          ?.length
-                      }
-                    >
-                      <BellFilled
-                        onClick={() => setShowNotifications((n) => !n)}
-                        style={{
-                          fontSize: 18,
-                          color: "white",
-                          // marginRight: 8,
-                        }}
-                      />
-                    </Badge>
-                    {showNotifications && (
-                      <Notifications
-                        source={"notifications"}
-                        showNotifications={showNotifications}
-                        notifications={notifications.filter(
-                          (not) => not?.type != "message"
-                        )}
-                        deleteNotification={deleteNotification}
-                      />
+                  <Notifications
+                    source={"notifications"}
+                    showNotifications={showNotifications}
+                    notifications={notifications.filter(
+                      (not) => not?.type != "message"
                     )}
-                  </div>
-                  <div>
-                    <Badge
-                      size="small"
-                      count={
-                        notifications.filter((not) => not?.type == "message")
-                          .length
-                      }
-                    >
-                      <CustomerServiceOutlined
-                        onClick={() => setShowTickets(true)}
-                        style={{
-                          fontSize: 18,
-                          cursor: "pointer",
-                          color: "white",
-                        }}
-                      />
-                    </Badge>
-                  </div>
-                  <UserMenu
-                    user={user}
-                    logoutHandler={logoutHandler}
-                    setShowSettings={setShowSetting}
+                    deleteNotification={deleteNotification}
                   />
-                  {showSetting && (
-                    <SettingDrawer
-                      open={showSetting}
-                      hide={() => setShowSetting(false)}
-                    />
-                  )}
-                </Space>
-              </Row>
-            </Header>
+                </div>,
+                document.body
+              )}
           </Layout>
         )}
         {/* header ends */}

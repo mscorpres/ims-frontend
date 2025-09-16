@@ -310,6 +310,12 @@ const Sidebar = ({
           }
           .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
           .hide-scrollbar::-webkit-scrollbar { width: 0; height: 0; }
+          .sub-sidebar-scroll { overflow-y: auto; }
+          .sub-sidebar-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+          @media (max-width: 768px) {
+            .sub-sidebar-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+            .sub-sidebar-scroll::-webkit-scrollbar { width: 0; height: 0; }
+          }
         `}
       </style>
       <div
@@ -444,7 +450,6 @@ const Sidebar = ({
               height: "100%",
               width: secondSidebarWidth,
               background: "#f6f0e3",
-              overflowY: isSecondSidebarCollapsed ? "hidden" : "auto",
               borderRight: "1px solid #e0e0e0",
               position: "absolute",
               top: 0,
@@ -559,19 +564,29 @@ const Sidebar = ({
               </div>
             </div>
 
-            {/* Sub Menu Items */}
-            {!isSecondSidebarCollapsed && (
-              <div style={{ padding: "8px 0" }}>
-                {renderList(hoveredItem.children, true, true)}
-              </div>
-            )}
+            {/* Scrollable Content Area */}
+            <div
+              className={`sub-sidebar-scroll ${
+                isSecondSidebarCollapsed ? "hide-scrollbar" : ""
+              }`}
+              style={{
+                height: "calc(100% - 56px)",
+                padding: "8px 0 64px 0",
+                overflowY: isSecondSidebarCollapsed ? "hidden" : "auto",
+              }}
+            >
+              {!isSecondSidebarCollapsed && (
+                <div style={{ padding: "8px 0" }}>
+                  {renderList(hoveredItem.children, true, true)}
+                </div>
+              )}
 
-            {/* Collapsed Sub Menu Items - Show only icons */}
-            {isSecondSidebarCollapsed && (
-              <div style={{ padding: "8px 0" }}>
-                {renderList(hoveredItem.children, false, true)}
-              </div>
-            )}
+              {isSecondSidebarCollapsed && (
+                <div style={{ padding: "8px 0" }}>
+                  {renderList(hoveredItem.children, false, true)}
+                </div>
+              )}
+            </div>
 
             {/* Collapse/Expand Button for Second Sidebar - Bottom Right */}
             <button
