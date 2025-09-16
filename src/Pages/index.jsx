@@ -59,7 +59,7 @@ export { default as ItemLocationLog } from "./Reports/ItemLocationLog";
 export { default as R1 } from "./Reports/R/R1";
 
 // QCA
-export { default as Dashboard } from "./Dashboard";
+export { default as Dashboard } from "../new/pages/dashboard";
 export { default as SampleQC } from "./Production/Qca/SampleQC";
 export { default as PendingQC } from "./Production/Qca/PendingQC";
 export { default as CompletedQC } from "./Production/Qca/CompletedQC";

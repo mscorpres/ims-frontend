@@ -7,6 +7,7 @@ import { Store } from "./Features/Store";
 import "./index.css";
 // import { unregister as unregisterServiceWorker } from "./serviceWorkerRegistration";
 import { ConfigProvider } from "antd";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 const theme = {
   token: {
@@ -14,6 +15,7 @@ const theme = {
     colorInfo: "#04b0a8",
     colorSuccess: "#04b0a8",
     fontSizeHeading5: 16,
+    fontFamily: "MsCorpres EmberFont, sans-serif",
   },
   components: {
     Button: {
@@ -63,14 +65,26 @@ const theme = {
   },
 };
 
+const muiTheme = createTheme({
+  typography: {
+    fontFamily: "MsCorpres EmberFont, sans-serif",
+    fontWeightLight: 200,
+    fontWeightRegular: 500,
+    fontWeightMedium: 500,
+    fontWeightBold: 700,
+  },
+});
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 // unregisterServiceWorker();
 root.render(
-  <ConfigProvider theme={theme}>
-    <Provider store={Store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
-  </ConfigProvider>
+  <ThemeProvider theme={muiTheme}>
+    <ConfigProvider theme={theme}>
+      <Provider store={Store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </ConfigProvider>
+  </ThemeProvider>
 );

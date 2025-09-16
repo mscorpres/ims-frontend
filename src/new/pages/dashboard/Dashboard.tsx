@@ -1,168 +1,358 @@
-import React from "react";
-import { Box, Grid, Card, CardContent, Typography, Paper } from "@mui/material";
+import React, { useEffect, useMemo } from "react";
 import {
-  TrendingUp,
-  Inventory,
-  AccountBalance,
-  Factory,
-} from "@mui/icons-material";
-import { DashboardWidget } from "../../types";
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Paper,
+  Chip,
+  CircularProgress,
+  Divider,
+} from "@mui/material";
+import { Launch as LaunchIcon } from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+// @ts-ignore - JS module without types
+import { imsAxios } from "../../../axiosInterceptor";
+import { toast } from "react-toastify";
+// @ts-ignore - JS module without types
+import MyDatePicker from "../../../Components/MyDatePicker";
+import {
+  fetchGatePassSummary,
+  fetchMasterSummary,
+  fetchMfgProducts,
+  fetchMinSummary,
+  fetchPendingSummary,
+  fetchTransactionsSummary,
+  setSummaryDate,
+} from "../../../Features/dashboardSlice/dashboardSlice";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as ReTooltip,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  Legend,
+} from "recharts";
+
+type SummaryItem = {
+  title: string;
+  value: string | number | null | undefined;
+  date?: string | null | undefined;
+  link?: string;
+  key?: string;
+};
+
+type LoadingState = {
+  master: boolean;
+  transactions: boolean;
+  gatePass: boolean;
+  min: boolean;
+  pendingSummary: boolean;
+};
+
+type MfgProduct = { product: string; sku: string; qty: number };
+
+const CHART_COLORS = [
+  "#6366F1",
+  "#06B6D4",
+  "#F59E0B",
+  "#EC4899",
+  "#10B981",
+  "#3B82F6",
+  "#F97316",
+  "#14B8A6",
+];
 
 const Dashboard: React.FC = () => {
-  // Mock data - replace with real API calls
-  const widgets: DashboardWidget[] = [
-    {
-      id: "1",
-      title: "Total Inventory Value",
-      value: "₹2,45,67,890",
-      change: 12.5,
-      changeType: "increase",
-      icon: <Inventory />,
-    },
-    {
-      id: "2",
-      title: "Active Production Orders",
-      value: "24",
-      change: -3.2,
-      changeType: "decrease",
-      icon: <Factory />,
-    },
-    {
-      id: "3",
-      title: "Monthly Revenue",
-      value: "₹1,23,45,678",
-      change: 8.7,
-      changeType: "increase",
-      icon: <AccountBalance />,
-    },
-    {
-      id: "4",
-      title: "Growth Rate",
-      value: "15.3%",
-      change: 2.1,
-      changeType: "increase",
-      icon: <TrendingUp />,
-    },
-  ];
+  const dispatch = useDispatch();
+  const {
+    summaryDate,
+    masterSummary,
+    transactionSummary,
+    gatePassSummary,
+    minSummary,
+    pendingTransactionSummary,
+    mfgProducts,
+    loading,
+  } = useSelector((state: any) => state.dashboard);
 
-  const StatCard: React.FC<{ widget: DashboardWidget }> = ({ widget }) => (
-    <Card sx={{ height: "100%" }}>
-      <CardContent>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+  const transactionsChartData = useMemo(
+    () =>
+      (transactionSummary || []).map((i: SummaryItem) => ({
+        name: i.title,
+        value: Number(i.value ?? 0),
+      })),
+    [transactionSummary]
+  );
+
+  const gatePassChartData = useMemo(
+    () =>
+      (gatePassSummary || []).map((i: SummaryItem) => ({
+        name: i.title,
+        value: Number(i.value ?? 0),
+      })),
+    [gatePassSummary]
+  );
+
+  const pendingChartData = useMemo(
+    () =>
+      (pendingTransactionSummary || []).map((i: SummaryItem) => ({
+        name: i.title,
+        value: Number(i.value ?? 0),
+      })),
+    [pendingTransactionSummary]
+  );
+
+  const topMfgProducts = useMemo(
+    () =>
+      (mfgProducts || [])
+        .slice(0, 10)
+        .map((p: MfgProduct) => ({ name: p.product, qty: Number(p.qty ?? 0) })),
+    [mfgProducts]
+  );
+
+  useEffect(() => {
+    if (summaryDate && summaryDate.split("-").length > 2) {
+      // @ts-ignore
+      dispatch(fetchTransactionsSummary(summaryDate));
+      // @ts-ignore
+      dispatch(fetchGatePassSummary(summaryDate));
+      // @ts-ignore
+      dispatch(fetchMinSummary(summaryDate));
+      // @ts-ignore
+      dispatch(fetchPendingSummary(summaryDate));
+      // @ts-ignore
+      dispatch(fetchMfgProducts(summaryDate));
+    }
+  }, [summaryDate]);
+
+  useEffect(() => {
+    // @ts-ignore
+    dispatch(fetchMasterSummary());
+  }, []);
+
+  const renderSummaryGrid = (
+    title: string,
+    items: SummaryItem[],
+    loadingFlag: boolean,
+    subtitle?: string
+  ) => (
+    <Grid item xs={12}>
+      <Paper sx={{ p: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 1,
+          }}
+        >
+          <Typography variant="h6">{title}</Typography>
+          {subtitle && (
+            <Typography variant="body2" color="text.secondary">
+              {subtitle}
+            </Typography>
+          )}
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        {loadingFlag ? (
           <Box
             sx={{
-              p: 1,
-              borderRadius: 2,
-              backgroundColor: "primary.main",
-              color: "white",
-              mr: 2,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              py: 4,
             }}
           >
-            {widget.icon}
+            <CircularProgress size={24} />
           </Box>
-          <Typography variant="h6" component="div">
-            {widget.title}
-          </Typography>
-        </Box>
-
-        <Typography variant="h4" component="div" sx={{ mb: 1 }}>
-          {widget.value}
-        </Typography>
-
-        {widget.change && (
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography
-              variant="body2"
-              sx={{
-                color:
-                  widget.changeType === "increase"
-                    ? "success.main"
-                    : "error.main",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <TrendingUp
-                sx={{
-                  fontSize: 16,
-                  mr: 0.5,
-                  transform:
-                    widget.changeType === "decrease"
-                      ? "rotate(180deg)"
-                      : "none",
-                }}
-              />
-              {Math.abs(widget.change)}%
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-              vs last month
-            </Typography>
-          </Box>
+        ) : (
+          <Grid container spacing={2}>
+            {items.map((it, idx) => (
+              <Grid key={`${it.title}-${idx}`} item xs={12} sm={6} md={3}>
+                <Card
+                  sx={{
+                    background:
+                      idx % 4 === 0
+                        ? "#eef2ff"
+                        : idx % 4 === 1
+                        ? "#ecfeff"
+                        : idx % 4 === 2
+                        ? "#fef9c3"
+                        : "#fce7f3",
+                    border: 0,
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      {it.title}
+                    </Typography>
+                    <Typography variant="h5" sx={{ my: 0.5 }}>
+                      {it.value ?? "-"}
+                    </Typography>
+                    {it?.date && (
+                      <Typography variant="caption" color="text.secondary">
+                        Last: {it.date}
+                      </Typography>
+                    )}
+                    {it?.link && (
+                      <Box sx={{ mt: 1 }}>
+                        <Chip
+                          size="small"
+                          icon={<LaunchIcon fontSize="small" />}
+                          label="Details"
+                          color="primary"
+                          variant="outlined"
+                          clickable
+                          onClick={() => {
+                            // simple navigate
+                            window.location.href = it.link as string;
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         )}
-      </CardContent>
-    </Card>
+      </Paper>
+    </Grid>
   );
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>
-        Dashboard
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5">Dashboard</Typography>
+        <Box sx={{ minWidth: 260 }}>
+          <MyDatePicker
+            setDateRange={(v: string) => {
+              // @ts-ignore
+              dispatch(setSummaryDate(v));
+            }}
+            startingDate={true as any}
+          />
+        </Box>
+      </Box>
 
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        {widgets.map((widget) => (
-          <Grid item xs={12} sm={6} md={3} key={widget.id}>
-            <StatCard widget={widget} />
-          </Grid>
-        ))}
-      </Grid>
+      <Grid container spacing={2}>
+        {renderSummaryGrid("Master Summary", masterSummary, loading.master)}
 
-      {/* Charts and Tables Section */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 2, height: 400 }}>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, height: 360 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Production Overview
+              Transactions Overview
             </Typography>
-            <Box
-              sx={{
-                height: 300,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "grey.50",
-                borderRadius: 1,
-              }}
-            >
-              <Typography color="text.secondary">
-                Chart will be implemented here
-              </Typography>
-            </Box>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={transactionsChartData}>
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <ReTooltip />
+                <Legend />
+                <Bar dataKey="value" name="Count">
+                  {transactionsChartData.map((_: any, idx: number) => (
+                    <Cell
+                      key={`tc-${idx}`}
+                      fill={CHART_COLORS[idx % CHART_COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2, height: 400 }}>
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, height: 360 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Recent Activities
+              Pending Summary
             </Typography>
-            <Box
-              sx={{
-                height: 300,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "grey.50",
-                borderRadius: 1,
-              }}
-            >
-              <Typography color="text.secondary">
-                Recent activities will be shown here
-              </Typography>
-            </Box>
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={pendingChartData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={110}
+                >
+                  {pendingChartData.map((_: any, idx: number) => (
+                    <Cell
+                      key={`pc-${idx}`}
+                      fill={CHART_COLORS[idx % CHART_COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <ReTooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </Paper>
         </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, height: 360 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Gate Pass Overview
+            </Typography>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={gatePassChartData}>
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <ReTooltip />
+                <Legend />
+                <Bar dataKey="value" name="Count">
+                  {gatePassChartData.map((_: any, idx: number) => (
+                    <Cell
+                      key={`gp-${idx}`}
+                      fill={CHART_COLORS[idx % CHART_COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, height: 360 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Top MFG Products
+            </Typography>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={topMfgProducts}>
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} hide={false} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <ReTooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="qty"
+                  name="Qty"
+                  stroke="#6366F1"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {renderSummaryGrid("MIN Summary", minSummary, loading.min)}
       </Grid>
     </Box>
   );
