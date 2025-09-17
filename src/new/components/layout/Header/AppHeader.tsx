@@ -163,14 +163,18 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
             {showSearch && (
               <div className="location-select">
                 <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                  className="header-search group flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/20 px-3 h-9 transition-all backdrop-blur-sm focus-within:ring-2 focus-within:ring-white/60"
+                  style={{ border: "1px solid #ffffff", boxShadow: "none" }}
                 >
-                  <Typography style={{ color: "white" }}>
-                    <SearchIcon />
-                  </Typography>
-                  <div style={{ width: 250, color: "white" }}>
-                    {searchComponent}
+                  <div className="pl-1 flex items-center justify-center text-white">
+                    <SearchIcon
+                      sx={{ fontSize: 18, color: "white", marginLeft: "2px" }}
+                    />
                   </div>
+                  <div className="w-[320px] text-white">{searchComponent}</div>
+                  <span className="ml-2 hidden md:inline-block text-[11px] text-white/70">
+                    Ctrl K
+                  </span>
                 </div>
               </div>
             )}

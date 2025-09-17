@@ -159,23 +159,34 @@ const App = () => {
   };
 
   const getModuleSearchOptions = (search) => {
-    let arr = [];
-    let modOpt = [];
-    internalLinks.map((row) => {
-      let a = row;
-      arr.push(...a);
-    });
-    arr.map((row) => {
-      if (row.routeName?.toLowerCase().includes(search)) {
-        let obj = {
-          text: row.routeName,
-          value: row.routePath,
-        };
-        modOpt.push(obj);
-      }
-    });
-    setSearchHis(modOpt);
-    setModulesOptions(modOpt);
+    const term = (search || "").toLowerCase().trim();
+    if (!term) {
+      setModulesOptions([]);
+      return;
+    }
+
+    const flatLinks = (internalLinks || []).flatMap((group) => group || []);
+
+    const matched = flatLinks
+      .filter((row) => {
+        const name = (row?.routeName || "").toLowerCase();
+        const path = (row?.routePath || "").toLowerCase();
+        const placeholder = (row?.placeholder || "").toLowerCase();
+        return (
+          name.includes(term) ||
+          path.includes(term) ||
+          placeholder.includes(term)
+        );
+      })
+      .map((row) => ({ text: row.routeName, value: row.routePath }));
+
+    // Deduplicate by value, cap to 50 results to keep dropdown fast
+    const unique = Array.from(
+      new Map(matched.map((m) => [m.value, m])).values()
+    ).slice(0, 50);
+
+    setSearchHis(unique);
+    setModulesOptions(unique);
   };
   useEffect(() => {
     if (modulesOptions?.length === 0) {
@@ -714,8 +725,8 @@ const App = () => {
               showSearch
               searchComponent={
                 <MyAsyncSelect
-                  style={{ color: "black" }}
-                  placeholder="Select users"
+                  // style={{ color: "black" }}
+                  placeholder="Select Module"
                   onBlur={() => setModulesOptions([])}
                   noBorder={true}
                   hideArrow={true}

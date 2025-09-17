@@ -173,7 +173,7 @@ const Sidebar = ({
                   display: "flex",
                   alignItems: "center",
                   gap: shouldShowText ? 12 : 0,
-                  fontSize: 14,
+                  fontSize: 16,
                   // fontWeight: isActive ? "500" : "400",
                   backgroundColor: isActive
                     ? isSubMenu
