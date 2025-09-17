@@ -832,6 +832,11 @@ const App = () => {
                 setShowSideBar={setShowSideBar}
                 showSideBar={showSideBar}
                 useJsonConfig={true}
+                topOffset={
+                  path.includes("dev.mscorpres") || path.includes("localhost")
+                    ? 60
+                    : 45
+                }
                 onWidthChange={(w) => {
                   const layout = document.querySelector(
                     "#app-content-left-margin"

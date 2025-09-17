@@ -12,6 +12,7 @@ const Sidebar = ({
   items1,
   onWidthChange,
   useJsonConfig = false,
+  topOffset = 45,
 }: {
   showSideBar: boolean;
   setShowSideBar: (v: boolean) => void;
@@ -19,6 +20,7 @@ const Sidebar = ({
   items1?: AnyItem[];
   onWidthChange?: (w: number) => void;
   useJsonConfig?: boolean;
+  topOffset?: number;
 }) => {
   const navigate = useNavigate();
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
@@ -194,7 +196,7 @@ const Sidebar = ({
                     display: "inline-flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    fontSize: 16,
+                    fontSize: 14,
                   }}
                 >
                   {c.icon}
@@ -319,11 +321,12 @@ const Sidebar = ({
         `}
       </style>
       <div
-        className="flex fixed top-0 left-0 h-screen z-[5] transition-[width] duration-300 ease-in-out"
+        className="flex fixed left-0 z-[5] transition-[width] duration-300 ease-in-out"
         style={{
-          top: 0,
+          top: topOffset,
           left: 0,
           width: rootWidth,
+          height: `calc(100vh - ${topOffset}px)`,
         }}
       >
         {/* Main Sidebar */}
@@ -468,7 +471,7 @@ const Sidebar = ({
                 padding: "16px",
                 color: "#333",
                 // fontWeight: "600",
-                fontSize: 16,
+                fontSize: 14,
                 borderBottom: "1px solid #e0e0e0",
                 display: "flex",
                 alignItems: "center",
@@ -499,7 +502,7 @@ const Sidebar = ({
                     cursor: "pointer",
                     background: "none",
                     border: "none",
-                    fontSize: 16,
+                    fontSize: 14,
                     color: "#666",
                     padding: "4px",
                     borderRadius: "4px",
