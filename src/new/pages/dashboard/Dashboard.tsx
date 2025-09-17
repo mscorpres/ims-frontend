@@ -22,6 +22,7 @@ import {
   fetchPendingSummary,
   fetchTransactionsSummary,
   setSummaryDate,
+// @ts-ignore
 } from "../../../Features/dashboardSlice/dashboardSlice";
 import {
   ResponsiveContainer,
