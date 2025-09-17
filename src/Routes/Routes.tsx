@@ -20,6 +20,7 @@ import {
   CreatePPR,
   PendingPPR,
   CreatePo,
+  CreatePO,
   ManagePO,
   CompletedPo,
   Uom,
@@ -795,7 +796,10 @@ const Routes = [
     path: "/create-po",
     main: () => <CreatePo />,
   },
-
+  {
+    path: "/create-po-new",
+    main: () => <CreatePO />,
+  },
   {
     path: "/manage-po",
     main: () => <ManagePO />,

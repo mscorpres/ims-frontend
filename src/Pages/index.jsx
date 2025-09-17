@@ -84,6 +84,8 @@ export { default as CreatePPR } from "./Production/Production & Planning/CreateP
 export { default as PendingPPR } from "./Production/Production & Planning/PendingPPR/PendingPPR";
 // export { default as CompletedPPR } from "./Production/Production & Planning/CompletedPPR";
 // Purchase Order
+
+export const CreatePO = lazy(() => import("../new/pages/procurement/CreatePO/CreatePO.tsx"));
 export { default as CompletedPo } from "./PurchaseOrder/CompletedPO/CompletedPo";
 export { default as ManagePO } from "./PurchaseOrder/ManagePO/ManagePo";
 export { default as EditPO } from "./PurchaseOrder/ManagePO/EditPO/EditPO";
