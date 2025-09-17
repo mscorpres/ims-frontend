@@ -118,19 +118,18 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (summaryDate && summaryDate.split("-").length > 2) {
       dispatch(fetchTransactionsSummary(summaryDate));
-      
+
       dispatch(fetchGatePassSummary(summaryDate));
-      
+
       dispatch(fetchMinSummary(summaryDate));
-      
+
       dispatch(fetchPendingSummary(summaryDate));
-      
+
       dispatch(fetchMfgProducts(summaryDate));
     }
   }, [summaryDate]);
 
   useEffect(() => {
-    
     dispatch(fetchMasterSummary());
   }, []);
 
@@ -141,7 +140,17 @@ const Dashboard: React.FC = () => {
     subtitle?: string
   ) => (
     <Grid item xs={12}>
-      <Paper sx={{ p: 2 }}>
+      <Paper
+        sx={{
+          p: 2,
+          boxShadow:
+            "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          "&:hover": {
+            boxShadow:
+              "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+          },
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -177,6 +186,12 @@ const Dashboard: React.FC = () => {
                   sx={{
                     backgroundColor: "background.paper",
                     borderRadius: 2,
+                    boxShadow:
+                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                    "&:hover": {
+                      boxShadow:
+                        "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                    },
                   }}
                 >
                   <CardContent>
@@ -231,7 +246,6 @@ const Dashboard: React.FC = () => {
         <Box sx={{ minWidth: 260 }}>
           <MyDatePicker
             setDateRange={(v: string) => {
-              
               dispatch(setSummaryDate(v));
             }}
             startingDate={true as any}
@@ -243,7 +257,18 @@ const Dashboard: React.FC = () => {
         {renderSummaryGrid("Master Summary", masterSummary, loading.master)}
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2, height: 360 }}>
+          <Paper
+            sx={{
+              p: 2,
+              height: 360,
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              "&:hover": {
+                boxShadow:
+                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              },
+            }}
+          >
             <Typography variant="h6" sx={{ mb: 2 }}>
               Transactions Overview
             </Typography>
@@ -267,7 +292,18 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2, height: 360 }}>
+          <Paper
+            sx={{
+              p: 2,
+              height: 360,
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              "&:hover": {
+                boxShadow:
+                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              },
+            }}
+          >
             <Typography variant="h6" sx={{ mb: 2 }}>
               Pending Summary
             </Typography>
@@ -294,7 +330,18 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2, height: 360 }}>
+          <Paper
+            sx={{
+              p: 2,
+              height: 360,
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              "&:hover": {
+                boxShadow:
+                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              },
+            }}
+          >
             <Typography variant="h6" sx={{ mb: 2 }}>
               Gate Pass Overview
             </Typography>
@@ -318,7 +365,18 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2, height: 360 }}>
+          <Paper
+            sx={{
+              p: 2,
+              height: 360,
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+              "&:hover": {
+                boxShadow:
+                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+              },
+            }}
+          >
             <Typography variant="h6" sx={{ mb: 2 }}>
               Top MFG Products
             </Typography>
