@@ -1,5 +1,6 @@
 export { default as Login } from "./Login/Login";
 export { default as ProductDetail } from "../Pages/Store/ProductDetail";
+import { lazy } from "react";
 // export { default as MaterialTransaction } from "./Store/MaterialTransaction/MaterialTransaction";
 
 export { default as Uom } from "./Master/Uom.tsx";
@@ -59,7 +60,7 @@ export { default as ItemLocationLog } from "./Reports/ItemLocationLog";
 export { default as R1 } from "./Reports/R/R1";
 
 // QCA
-export { default as Dashboard } from "../new/pages/dashboard";
+export const Dashboard = lazy(() => import("../new/pages/dashboard"));
 export { default as SampleQC } from "./Production/Qca/SampleQC";
 export { default as PendingQC } from "./Production/Qca/PendingQC";
 export { default as CompletedQC } from "./Production/Qca/CompletedQC";

@@ -12,11 +12,8 @@ import {
 } from "@mui/material";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-// @ts-ignore - JS module without types
-import { imsAxios } from "../../../axiosInterceptor";
-import { toast } from "react-toastify";
-// @ts-ignore - JS module without types
-import MyDatePicker from "../../../Components/MyDatePicker";
+// @ts-ignore
+import MyDatePicker from "../../../Components/MyDatePicker.jsx";
 import {
   fetchGatePassSummary,
   fetchMasterSummary,
@@ -120,21 +117,20 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (summaryDate && summaryDate.split("-").length > 2) {
-      // @ts-ignore
       dispatch(fetchTransactionsSummary(summaryDate));
-      // @ts-ignore
+      
       dispatch(fetchGatePassSummary(summaryDate));
-      // @ts-ignore
+      
       dispatch(fetchMinSummary(summaryDate));
-      // @ts-ignore
+      
       dispatch(fetchPendingSummary(summaryDate));
-      // @ts-ignore
+      
       dispatch(fetchMfgProducts(summaryDate));
     }
   }, [summaryDate]);
 
   useEffect(() => {
-    // @ts-ignore
+    
     dispatch(fetchMasterSummary());
   }, []);
 
@@ -235,7 +231,7 @@ const Dashboard: React.FC = () => {
         <Box sx={{ minWidth: 260 }}>
           <MyDatePicker
             setDateRange={(v: string) => {
-              // @ts-ignore
+              
               dispatch(setSummaryDate(v));
             }}
             startingDate={true as any}
@@ -258,7 +254,7 @@ const Dashboard: React.FC = () => {
                 <ReTooltip />
                 <Legend />
                 <Bar dataKey="value" name="Count">
-                  {transactionsChartData.map((_: any, idx: number) => (
+                  {transactionsChartData?.map((_: any, idx: number) => (
                     <Cell
                       key={`tc-${idx}`}
                       fill={CHART_COLORS[idx % CHART_COLORS.length]}
