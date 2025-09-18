@@ -13,18 +13,18 @@ export const convertSelectOptions = (
   }
 };
 
-export const removeHtml = (value) => {
+export const removeHtml = (value:any) => {
   return value.replace(/<[^>]*>/g, " ");
 };
-export const getInt = (value, decimal) => {
+export const getInt = (value:any, decimal:any) => {
   return +Number(value ?? "0").toFixed(decimal ?? 4);
 };
 
-export const convertDate = (date, format = "DD-MM-YYYY") => {
+export const convertDate = (date:any, format = "DD-MM-YYYY") => {
   return dayjs(date).format(format);
 };
 
-export const downloadFromLink = (uri) => {
+export const downloadFromLink = (uri:any) => {
   const splitArr = uri.split("/");
   const name = splitArr[splitArr.length - 1];
   var link = document.createElement("a");
