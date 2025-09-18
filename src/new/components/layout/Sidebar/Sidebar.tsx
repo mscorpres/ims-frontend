@@ -138,7 +138,7 @@ const Sidebar = ({
                   }
                   style={{
                     padding: "16px 16px 8px 16px",
-                    color: "#999",
+                    color: "#474545",
                     fontSize: 11,
                     fontWeight: "600",
                     textTransform: "uppercase",
