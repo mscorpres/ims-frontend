@@ -3,6 +3,33 @@
     "title": "Main Navigation",
     "items": [
       {
+        "key": "A",
+        "label": "Dashboard",
+        "icon": "MdDashboard",
+        "children": [
+          {
+            "key": "A1",
+            "label": "Analytics",
+            "icon": "TbReportAnalytics",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "A11",
+                "label": "Dashboard",
+                "icon": "MdDashboard",
+                "path": "/dashboard"
+              },
+              {
+                "key": "2",
+                "label": "SKU Costing",
+                "icon": "CalculateIcon",
+                "path": "/dashboard/sku_costing"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "key": "D",
         "label": "Finance",
         "icon": "BiMoney",
@@ -201,27 +228,7 @@
           }
         ]
       },
-      {
-        "key": "A",
-        "label": "Dashboard",
-        "icon": "MdDashboard",
-        "children": [
-          {
-            "key": "A1",
-            "label": "Analytics",
-            "icon": "TbReportAnalytics",
-            "isHeading": true,
-            "children": [
-              {
-                "key": "2",
-                "label": "SKU Costing",
-                "icon": "CalculateIcon",
-                "path": "/dashboard/sku_costing"
-              }
-            ]
-          }
-        ]
-      },
+     
       {
         "key": "B",
         "label": "Material Management",
@@ -413,22 +420,16 @@
                 "path": "/rejection"
               },
               {
-                "key": "B38",
+                "key": "B34",
                 "label": "RGP - DC",
                 "icon": "DescriptionIcon",
                 "path": "/create-dc"
               },
               {
-                "key": "B35",
+                "key": "B36",
                 "label": "Branch Transfer Challan",
                 "icon": "SwapHorizIcon",
                 "path": "/branchtransferchallan"
-              },
-              {
-                "key": "B39",
-                "label": "Gatepass (RGP / NRGP)",
-                "icon": "SecurityIcon",
-                "path": "/create-gp"
               },
               {
                 "key": "B40",
@@ -443,86 +444,92 @@
                 "path": "/warehouse/part-code-conversion"
               },
               {
-                "key": "B6",
-                "label": "Jobwork",
-                "icon": "MdQueryStats",
-                "isHeading": true,
-                "children": [
-                  {
-                    "key": "B61",
-                    "label": "Jobwork & Analysis",
-                    "icon": "AnalyticsIcon",
-                    "path": "/create-jw"
-                  },
-                  {
-                    "key": "B63",
-                    "label": "Jobwork Update",
-                    "icon": "UpdateIcon",
-                    "path": "/jobwork/update/supplementary"
-                  },
-                  {
-                    "key": "B62",
-                    "label": "Vendor SFG MIN",
-                    "icon": "BusinessIcon",
-                    "path": "/jobwork/vendor/sfg/min"
-                  }
-                ]
+                "key": "B39",
+                "label": "Gatepass (RGP / NRGP)",
+                "icon": "SecurityIcon",
+                "path": "/create-gp"
+              }
+            ]
+          },
+          {
+            "key": "B6",
+            "label": "Jobwork",
+            "icon": "MdQueryStats",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "B61",
+                "label": "Jobwork & Analysis",
+                "icon": "AnalyticsIcon",
+                "path": "/create-jw"
               },
               {
-                "key": "B7",
-                "label": "Work Order",
-                "icon": "WorkIcon",
-                "isHeading": true,
-                "children": [
-                  {
-                    "key": "B71",
-                    "label": "Create Work-order",
-                    "icon": "AddIcon",
-                    "path": "/createwo"
-                  },
-                  {
-                    "key": "B72",
-                    "label": "WO Analysis",
-                    "icon": "AnalyticsIcon",
-                    "path": "/woanalysis"
-                  },
-                  {
-                    "key": "B73",
-                    "label": "WO Create Challan",
-                    "icon": "ReceiptIcon",
-                    "path": "/wocreatechallan"
-                  },
-                  {
-                    "key": "B74",
-                    "label": "WO SCRAPE Challan",
-                    "icon": "DeleteIcon",
-                    "path": "/wocreatescrapechallan"
-                  },
-                  {
-                    "key": "B75",
-                    "label": "WO Shipment",
-                    "icon": "LocalShippingIcon",
-                    "path": "/woShipment"
-                  },
-                  {
-                    "key": "B76",
-                    "label": "WO View Challan",
-                    "icon": "VisibilityIcon",
-                    "path": "/woviewchallan"
-                  },
-                  {
-                    "key": "B77",
-                    "label": "WO Completed",
-                    "icon": "CheckCircleIcon",
-                    "path": "/wocompleted"
-                  },
-                  {
-                    "key": "B78",
-                    "label": "WO Report",
-                    "icon": "AssessmentIcon",
-                    "path": "/woreport"
-                  }
-                ]
+                "key": "B63",
+                "label": "Jobwork Update",
+                "icon": "UpdateIcon",
+                "path": "/jobwork/update/supplementary"
+              },
+              {
+                "key": "B62",
+                "label": "Vendor SFG MIN",
+                "icon": "BusinessIcon",
+                "path": "/jobwork/vendor/sfg/min"
+              }
+            ]
+          },
+          {
+            "key": "B7",
+            "label": "Work Order",
+            "icon": "WorkIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "B71",
+                "label": "Create Work-order",
+                "icon": "AddIcon",
+                "path": "/createwo"
+              },
+              {
+                "key": "B72",
+                "label": "WO Analysis",
+                "icon": "AnalyticsIcon",
+                "path": "/woanalysis"
+              },
+              {
+                "key": "B73",
+                "label": "WO Create Challan",
+                "icon": "ReceiptIcon",
+                "path": "/wocreatechallan"
+              },
+              {
+                "key": "B74",
+                "label": "WO SCRAPE Challan",
+                "icon": "DeleteIcon",
+                "path": "/wocreatescrapechallan"
+              },
+              {
+                "key": "B75",
+                "label": "WO Shipment",
+                "icon": "LocalShippingIcon",
+                "path": "/woShipment"
+              },
+              {
+                "key": "B76",
+                "label": "WO View Challan",
+                "icon": "VisibilityIcon",
+                "path": "/woviewchallan"
+              },
+              {
+                "key": "B77",
+                "label": "WO Completed",
+                "icon": "CheckCircleIcon",
+                "path": "/wocompleted"
+              },
+              {
+                "key": "B78",
+                "label": "WO Report",
+                "icon": "AssessmentIcon",
+                "path": "/woreport"
               }
             ]
           },
@@ -691,26 +698,26 @@
                 "label": "Physical Stock",
                 "icon": "MdAccountBox",
                 "path": "/production/physical-stock/create"
+              }
+            ]
+          },
+          {
+            "key": "C3",
+            "label": "Location Movement",
+            "icon": "SwapHorizIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "C141",
+                "label": "SF To SF",
+                "icon": "SwapHorizIcon",
+                "path": "/sf-to-sf"
               },
               {
-                "key": "C14",
-                "label": "Location Movement",
-                "icon": "SwapHorizIcon",
-                "isHeading": true,
-                "children": [
-                  {
-                    "key": "C141",
-                    "label": "SF To SF",
-                    "icon": "SwapHorizIcon",
-                    "path": "/sf-to-sf"
-                  },
-                  {
-                    "key": "C142",
-                    "label": "SF To REJ",
-                    "icon": "BlockIcon",
-                    "path": "/sf-to-rej"
-                  }
-                ]
+                "key": "C142",
+                "label": "SF To REJ",
+                "icon": "BlockIcon",
+                "path": "/sf-to-rej"
               }
             ]
           },

@@ -29,6 +29,7 @@ const Sidebar = ({
     useState<boolean>(false);
   const [isSecondSidebarCollapsed, setIsSecondSidebarCollapsed] =
     useState<boolean>(false);
+  const [expandedHeading, setExpandedHeading] = useState<string | null>(null);
 
   // Load configuration based on useJsonConfig flag
   const config = useMemo(() => {
@@ -61,6 +62,8 @@ const Sidebar = ({
     }
     if (hasChildren) {
       if (isInSubMenu) {
+        // Accordion behavior for sub-sidebar headings: only one heading expanded at a time
+        setExpandedHeading((prev) => (prev === key ? null : key));
         // Do not change top-level activeKey when clicking inside sub sidebar
         // Keep second sidebar open and expanded
         setIsSecondSidebarOpen(true);
@@ -123,12 +126,16 @@ const Sidebar = ({
           const isVisible = isSubSidebarVisible(c.key);
           const isActive = activeKey === c.key;
           const isHeading = c.isHeading;
+          const isHeadingExpanded = expandedHeading === c.key;
 
           // Render heading differently
           if (isHeading && shouldShowText) {
             return (
               <li key={c.key}>
                 <div
+                  onClick={() =>
+                    handleItemClick(c.key, hasChildren, undefined, isSubMenu)
+                  }
                   style={{
                     padding: "16px 16px 8px 16px",
                     color: "#999",
@@ -138,11 +145,39 @@ const Sidebar = ({
                     letterSpacing: "0.5px",
                     borderTop: "1px solid #e0e0e0",
                     marginTop: 8,
+                    cursor: hasChildren ? "pointer" : "default",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    transition: "background-color 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (hasChildren) {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (hasChildren) {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }
                   }}
                 >
-                  {c.label}
+                  <span>{c.label}</span>
+                  {hasChildren && (
+                    <span
+                      style={{
+                        fontSize: 12,
+                        transform: isHeadingExpanded
+                          ? "rotate(90deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.3s ease",
+                      }}
+                    >
+                      ▶
+                    </span>
+                  )}
                 </div>
-                {hasChildren && (
+                {hasChildren && isHeadingExpanded && (
                   <div style={{ padding: "8px 0" }}>
                     {renderList(c.children, true, true)}
                   </div>
@@ -307,6 +342,7 @@ const Sidebar = ({
     setIsSecondSidebarOpen(false);
     setActiveKey(null);
     setIsSecondSidebarCollapsed(false);
+    setExpandedHeading(null);
   };
 
   return (
