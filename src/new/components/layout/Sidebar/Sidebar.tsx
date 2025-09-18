@@ -188,6 +188,19 @@ const Sidebar = ({
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   justifyContent: shouldShowText ? "flex-start" : "center",
                 }}
+                //@ts-ignore
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = isSubMenu
+                      ? "#e8f4fd"
+                      : "#d4edda";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }
+                }}
               >
                 <span
                   style={{
@@ -196,7 +209,7 @@ const Sidebar = ({
                     display: "inline-flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    fontSize: 14,
+                    fontSize: 18,
                   }}
                 >
                   {c.icon}

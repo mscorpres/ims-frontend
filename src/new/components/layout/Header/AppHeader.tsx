@@ -2,7 +2,6 @@ import React from "react";
 import {
   Badge,
   Switch,
-  Typography,
   IconButton,
   Select,
   MenuItem,
@@ -86,7 +85,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
   } = props;
   const navigate = useNavigate();
   return (
-    <div className="fixed top-0 left-0 right-0 z-10 h-[45px] w-full flex items-center bg-[var(--ant-layout-header-background,#047780)]">
+    <div className="fixed top-0 left-0 right-0 z-10 h-[45px] w-full flex items-center bg-[var(--ant-layout-header-background,#1d252c)]">
       <div className="w-full pr-[26px]">
         <div className="flex justify-between items-center w-full">
           <div className="flex items-center gap-[24px]">
