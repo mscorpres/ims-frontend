@@ -409,33 +409,32 @@ const Sidebar = ({
               minHeight: "56px",
             }}
           >
-            <div
-              style={{
-                width: 24,
-                height: 24,
-                background: "#007acc",
-                borderRadius: 4,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontSize: 12,
-                // fontWeight: "700",
-              }}
-            >
-              I
-            </div>
-            <span
-              style={{
-                opacity: showSideBar ? 1 : 0,
-                transform: showSideBar ? "translateX(0)" : "translateX(-10px)",
-                transition: "all 0.3s ease",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-              }}
-            >
-              IMS
-            </span>
+            {/* Show two different logos depending on sidebar open/close */}
+            {showSideBar ? (
+              <img
+                src="/assets/images/ms.png"
+                alt="IMS Full Logo"
+                style={{
+                  height: 32,
+                  width: "auto",
+                  opacity: 1,
+                  transition: "all 0.3s ease",
+                  display: "block",
+                }}
+              />
+            ) : (
+              <img
+                src="/assets/images/mscorpres_auto_logo.png"
+                alt="IMS Icon Logo"
+                style={{
+                  height: 32,
+                  width: 32,
+                  opacity: 1,
+                  transition: "all 0.3s ease",
+                  display: "block",
+                }}
+              />
+            )}
           </div>
 
           {/* Main Menu Items */}
