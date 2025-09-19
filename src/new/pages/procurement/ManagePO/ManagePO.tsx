@@ -61,7 +61,7 @@ const ManagePO: React.FC = () => {
     initialState: { density: "compact" },
     enableStickyHeader: true,
     enablePagination: false,
-    muiTableContainerProps: { sx: { maxHeight: "70vh", height: "70vh" } },
+    muiTableContainerProps: { sx: { maxHeight: "70vh" } },
   });
 
   // Format yyyy-mm-dd to dd-mm-yyyy
