@@ -22,7 +22,7 @@ type Item = {
   amount: number;
 };
 
-type CreatePoState = {
+type POState = {
   vendor: Vendor | null;
   vendorOptions: Option[];
   loading: boolean;
@@ -59,7 +59,7 @@ type CreatePoState = {
   userOptions?: Option[];
 };
 
-const initialState: CreatePoState = {
+const initialState: POState = {
   vendor: null,
   vendorOptions: [],
   loading: false,
@@ -71,7 +71,7 @@ const initialState: CreatePoState = {
 };
 
 export const fetchVendors = createAsyncThunk<Option[], string>(
-  "createPo/fetchVendors",
+  "po/fetchVendors",
   async (query: string) => {
     const { data } = await imsAxios.get(`/backend/vendor/options`, {
       params: { q: query },
@@ -85,10 +85,9 @@ export const fetchVendors = createAsyncThunk<Option[], string>(
 );
 
 export const submitPo = createAsyncThunk<void, void>(
-  "createPo/submitPo",
+  "po/submitPo",
   async (_, { getState }) => {
-    const st = (getState() as any).createPo as CreatePoState;
-    // Only vendor scaffold for now
+    const st = (getState() as any).po as POState;
     await imsAxios.post(`/backend/po/create`, {
       vendorId: st.vendor?.id,
       remarks: st.vendor?.remarks,
@@ -97,16 +96,13 @@ export const submitPo = createAsyncThunk<void, void>(
 );
 
 const slice = createSlice({
-  name: "createPo",
+  name: "po",
   initialState,
   reducers: {
     setVendor(state, action: PayloadAction<Vendor>) {
       state.vendor = action.payload;
     },
-    setField(
-      state,
-      action: PayloadAction<{ key: keyof CreatePoState; value: any }>
-    ) {
+    setField(state, action: PayloadAction<{ key: keyof POState; value: any }>) {
       // @ts-ignore
       state[action.payload.key] = action.payload.value;
     },
@@ -161,3 +157,4 @@ export const {
   removeItem,
 } = slice.actions;
 export default slice.reducer;
+
