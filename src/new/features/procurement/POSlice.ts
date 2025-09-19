@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+// @ts-ignore
 import { imsAxios } from "../../../axiosInterceptor";
-
-type Option = { label: string; value: string };
+import { ManagePOTableType } from "../../pages/procurement/POType";
 
 type Vendor = { id: string; name: string; remarks?: string };
 type Address = {
@@ -24,7 +24,6 @@ type Item = {
 
 type POState = {
   vendor: Vendor | null;
-  vendorOptions: Option[];
   loading: boolean;
   error?: string;
   billTo: Address;
@@ -50,18 +49,10 @@ type POState = {
   comments?: string;
   requestedBy?: string;
   advancePayment?: 0 | 1;
-  // select option caches
-  branchOptions?: Option[];
-  billToOptions?: Option[];
-  shipToOptions?: Option[];
-  costCenterOptions?: Option[];
-  projectOptions?: Option[];
-  userOptions?: Option[];
 };
 
 const initialState: POState = {
   vendor: null,
-  vendorOptions: [],
   loading: false,
   billTo: { line1: "" },
   shipTo: { line1: "" },
@@ -69,20 +60,6 @@ const initialState: POState = {
   poType: "N",
   vendorType: "v01",
 };
-
-export const fetchVendors = createAsyncThunk<Option[], string>(
-  "po/fetchVendors",
-  async (query: string) => {
-    const { data } = await imsAxios.get(`/backend/vendor/options`, {
-      params: { q: query },
-    });
-    const list = Array.isArray(data?.data) ? data.data : [];
-    return list.map((v: any) => ({
-      label: v.label ?? v.name,
-      value: v.value ?? v.id,
-    }));
-  }
-);
 
 export const submitPo = createAsyncThunk<void, void>(
   "po/submitPo",
@@ -94,6 +71,18 @@ export const submitPo = createAsyncThunk<void, void>(
     });
   }
 );
+
+export const fetchManagePO = createAsyncThunk<
+  ManagePOTableType[],
+  { data: any; wise: string }
+>("po/fetchManagePO", async (payload: { data: any; wise: string }) => {
+  console.log(payload);
+  const { data } = await imsAxios.post(`/purchaseOrder/fetchPendingData4PO`, {
+    data: payload.data,
+    wise: payload.wise,
+  });
+  return data.data;
+});
 
 const slice = createSlice({
   name: "po",
@@ -131,19 +120,7 @@ const slice = createSlice({
     },
   },
   extraReducers(builder) {
-    builder
-      .addCase(fetchVendors.pending, (state) => {
-        state.loading = true;
-        state.error = undefined;
-      })
-      .addCase(fetchVendors.fulfilled, (state, action) => {
-        state.loading = false;
-        state.vendorOptions = action.payload;
-      })
-      .addCase(fetchVendors.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      });
+    // Add any PO-specific async thunk reducers here if needed
   },
 });
 
@@ -157,4 +134,3 @@ export const {
   removeItem,
 } = slice.actions;
 export default slice.reducer;
-

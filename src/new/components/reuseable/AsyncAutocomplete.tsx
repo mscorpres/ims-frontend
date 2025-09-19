@@ -1,81 +1,152 @@
+import React, { useState, useEffect } from "react";
+import {
+  Autocomplete,
+  Chip,
+  CircularProgress,
+  InputAdornment,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Search } from "@mui/icons-material";
 import useDebounce from "@/hooks/useDebounce";
-import { Card, CardContent, CircularProgress, TextField } from "@mui/material";
-import { useState, useEffect } from "react";
 
-// Define props interface
-type AsyncAutocompleteProps<T> = {
-  loadOptions: any// API endpoint to fetch from
-  onSelect: (item: T) => void; // callback when user selects an item
-  labelKey?: keyof T; // key for displaying text
-  valueKey?: keyof T; // key for unique value
+interface AsyncAutocompleteProps<T> {
+  label?: string;
+  qtkMethod: any; // RTK trigger
+  value: any | null;
+  onChange: (value: T | null) => void;
+  optionLabelKey?: keyof T; // e.g. "name"
+  optionKey?: keyof T | any; // e.g. "userID"
+  renderOptionExtra?: (option: T) => React.ReactNode;
   placeholder?: string;
-  minChars?: number; // min characters before search
+  debounceTime?: number;
+  multiple?: boolean; // allow multi-select if needed
+  isFallback?: boolean;
+  loading?: boolean;
+  icon?: any;
+  size?: "small" | "medium";
+  showIcon?: boolean;
+  width?: any;
+}
 
-  loading: boolean;
-};
-
-const AsyncAutocomplete = <T extends Record<string, any>>({
+function AsyncAutocomplete<T extends Record<string, any>>({
+  label = "Select Option",
+  qtkMethod,
+  value,
+  onChange,
+  optionLabelKey = "name",
+  optionKey,
+  renderOptionExtra,
+  placeholder = "Type to search...",
+  debounceTime = 500,
+  multiple = false,
+  isFallback = false,
   loading,
-  loadOptions,
-  onSelect,
-  labelKey = "label",
-  valueKey = "id",
-  placeholder = "Search...",
-  minChars = 2,
-}: AsyncAutocompleteProps<T>) => {
-  const [query, setQuery] = useState<string>("");
-  const debouncedQuery = useDebounce(query);
-  const [results, setResults] = useState<T[]>([]);
-  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  icon = <Search sx={{ color: "#666", mr: 1 }} />,
+  size = "medium",
+  showIcon = true,
+  width,
+}: AsyncAutocompleteProps<T>) {
+  const [inputValue, setInputValue] = useState("");
+  const [options, setOptions] = useState<T[]>([]);
 
+  const debouncedValue: any = useDebounce(inputValue, debounceTime);
 
-    useEffect(() => {
-      if (debouncedQuery.length >= 3) {
-        loadOptions(debouncedQuery);
+  useEffect(() => {
+    const fetchOptions = async () => {
+      if (!debouncedValue) {
+        setOptions([]);
+        return;
       }
-    }, [debouncedQuery]);
 
- 
+      try {
+        const res = await qtkMethod({ search: debouncedValue }).unwrap();
+
+        const data = Array.isArray(res) ? res : res?.data;
+
+        if (Array.isArray(data) && data.length > 0) {
+          setOptions(data);
+        } else {
+          setOptions(
+            isFallback
+              ? [
+                  {
+                    [optionLabelKey]: debouncedValue,
+                  } as T,
+                ]
+              : []
+          );
+        }
+      } catch {
+        setOptions([]);
+      }
+    };
+
+    fetchOptions();
+  }, [debouncedValue, qtkMethod]);
+
+  const handleOnChange = (newValue: any) => {
+    onChange(newValue);    
+  };
+
+  const getOptionLabel = (option: T | string) => {
+    if (typeof option === "string") return option; // fallback string case
+    return (option?.[optionLabelKey] as string) || "";
+  };
 
   return (
-    <div className="relative w-full max-w-md">
-      <TextField
-        placeholder={placeholder}
-        value={query}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setShowDropdown(true);
-        }}
-        onFocus={() => setShowDropdown(true)}
-      />
-
-      {showDropdown && (results.length > 0 || loading) && (
-        <Card className="absolute mt-1 w-full z-10 max-h-60 overflow-y-auto shadow-lg">
-          <CardContent className="p-0">
-            {loading ? (
-              <div className="flex items-center justify-center p-3 text-gray-500">
-                <CircularProgress size={20} /> Loading...
-              </div>
-            ) : (
-              results.map((item) => (
-                <div
-                  key={String(item[valueKey])}
-                  className="cursor-pointer px-3 py-2 hover:bg-gray-100"
-                  onClick={() => {
-                    onSelect(item);
-                    setQuery(String(item[labelKey]));
-                    setShowDropdown(false);
-                  }}
-                >
-                  {String(item[labelKey])}
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+    <Autocomplete
+      disableClearable
+      popupIcon={null}
+      multiple={multiple}
+      sx={{ width: width && width}}
+      value={value}
+      options={options}
+      loading={loading}
+      getOptionLabel={getOptionLabel}
+      onChange={(_, newVal: any) => handleOnChange(newVal)}
+      onInputChange={(_, newVal) => setInputValue(newVal)}
+      filterOptions={(x) => x}
+      noOptionsText="No Data Found"
+      renderOption={(props, option: any) => (
+        <li
+          {...props}
+          key={optionKey ? option[optionKey] : getOptionLabel(option)}
+        >
+          <div className="flex flex-col">
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {getOptionLabel(option)}
+            </Typography>
+            {renderOptionExtra && renderOptionExtra(option)}
+          </div>
+        </li>
       )}
-    </div>
-  );
-};
 
-export default AsyncAutocomplete;
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          placeholder={placeholder}
+          size={size}
+          fullWidth
+          InputProps={{
+            ...params.InputProps,
+            startAdornment: showIcon && (
+              <InputAdornment position="start">{icon}</InputAdornment>
+            ),
+            endAdornment: (
+              <>
+                {loading ? (
+                  <CircularProgress color="inherit" size={16} />
+                ) : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
+    />
+  );
+}
+
+export default React.memo(AsyncAutocomplete);
