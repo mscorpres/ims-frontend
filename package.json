@@ -40,7 +40,7 @@
     "i": "^0.3.7",
     "js-file-download": "^0.4.12",
     "lodash": "^4.17.21",
-    "material-react-table": "^1.15.1",
+    "material-react-table": "^3.2.1",
     "moment": "^2.29.4",
     "npm": "^8.19.4",
     "print-js": "^1.6.0",

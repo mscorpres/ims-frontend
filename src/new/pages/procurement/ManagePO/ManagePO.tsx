@@ -1,5 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
-import MaterialReactTable, { type MRT_ColumnDef } from "material-react-table";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  type MRT_ColumnDef,
+} from "material-react-table";
 import {
   Box,
   Button,
@@ -49,6 +53,16 @@ const ManagePO: React.FC = () => {
     () => ManagePOColumns,
     []
   );
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: { density: "compact" },
+    enableStickyHeader: true,
+    enablePagination: false,
+    muiTableContainerProps: { sx: { maxHeight: "70vh", height: "70vh" } },
+  });
 
   // Format yyyy-mm-dd to dd-mm-yyyy
   const formatDateForApi = (dateStr?: string) => {
@@ -169,7 +183,16 @@ const ManagePO: React.FC = () => {
                 placeholder="Search Vendor"
                 qtkMethod={fetchVendors}
                 value={selectedVendor}
-                onChange={(e) => setSelectedVendor(e)}
+                onChange={(e: any) =>
+                  setSelectedVendor(
+                    e
+                      ? ({ label: e.label, value: e.value } as {
+                          label: string;
+                          value: string;
+                        })
+                      : null
+                  )
+                }
                 label="okk"
               />
             </div>
@@ -227,15 +250,7 @@ const ManagePO: React.FC = () => {
         </div>
       </div>
       <div className="h-[70vh]">
-        <MaterialReactTable
-          columns={columns}
-          data={rows || []}
-          state={{ isLoading: loading }}
-          enableStickyHeader
-          muiTableContainerProps={{ sx: { maxHeight: "70vh", height: "70vh" } }}
-          enablePagination={false}
-          initialState={{ density: "compact" }}
-        />
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );
