@@ -7,12 +7,13 @@ import {
 import {
   Box,
   Button,
-  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   TextField,
+  LinearProgress,
+  Stack,
 } from "@mui/material";
 
 import dayjs from "dayjs";
@@ -25,7 +26,7 @@ import {
 } from "@/new/pages/procurement/POType";
 import { fetchManagePO } from "@/new/features/procurement/POSlice";
 import { useCommonData } from "@/new/hooks/useCommonData";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AsyncAutocomplete from "@/new/components/reuseable/AsyncAutocomplete";
 // import { imsAxios } from "../../../../axiosInterceptor.js";
@@ -48,6 +49,9 @@ const ManagePO: React.FC = () => {
 
   const dispatch = useDispatch();
   const { vendorOptions, vendorLoading, fetchVendors } = useCommonData();
+  const { managePOList, managePOLoading } = useSelector(
+    (state: any) => state.createPo
+  );
 
   const columns = useMemo<MRT_ColumnDef<ManagePOTableType>[]>(
     () => ManagePOColumns,
@@ -56,12 +60,19 @@ const ManagePO: React.FC = () => {
 
   const table = useMaterialReactTable({
     columns: columns,
-    data: rows || [],
+    data: managePOList || [],
     enableDensityToggle: false,
     initialState: { density: "compact" },
     enableStickyHeader: true,
     enablePagination: false,
     muiTableContainerProps: { sx: { maxHeight: "70vh" } },
+    state: { isLoading: managePOLoading },
+    renderTopToolbar: () =>
+      managePOLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress />
+        </Box>
+      ) : null,
   });
 
   // Format yyyy-mm-dd to dd-mm-yyyy
@@ -144,10 +155,44 @@ const ManagePO: React.FC = () => {
     }
   }, [wise]);
 
+  const shortcutsItems = [
+    {
+      label: "This Week",
+      getValue: () => {
+        const today = dayjs();
+        return [today.startOf("week"), today.endOf("week")];
+      },
+    },
+    {
+      label: "Last Week",
+      getValue: () => {
+        const today = dayjs();
+        const prevWeek = today.subtract(7, "day");
+        return [prevWeek.startOf("week"), prevWeek.endOf("week")];
+      },
+    },
+    {
+      label: "Last 7 Days",
+      getValue: () => {
+        const today = dayjs();
+        return [today.subtract(7, "day"), today];
+      },
+    },
+    {
+      label: "Current Month",
+      getValue: () => {
+        const today = dayjs();
+        return [today.startOf("month"), today.endOf("month")];
+      },
+    },
+    // Next Month removed to avoid future dates
+    { label: "Reset", getValue: () => [null, null] },
+  ];
+
   return (
     <div style={{ padding: 12 }}>
-      <div className="flex flex-col gap-3 mb-3">
-        <div className="flex gap-2 items-center flex-wrap">
+      <div className="flex flex-col gap-3" style={{ paddingBottom: 16 }}>
+        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <FormControl size="small" sx={{ minWidth: 180 }}>
               <InputLabel id="managepo-search-type-label">
@@ -209,6 +254,8 @@ const ManagePO: React.FC = () => {
                     ? dayjs(searchDateRange.endDate)
                     : null,
                 ]}
+                disableFuture
+                maxDate={dayjs()}
                 onChange={(
                   newValue: [dayjs.Dayjs | null, dayjs.Dayjs | null]
                 ) => {
@@ -218,17 +265,11 @@ const ManagePO: React.FC = () => {
                     endDate: end ? dayjs(end).format("YYYY-MM-DD") : "",
                   });
                 }}
-                renderInput={(startProps: any, endProps: any) => (
-                  <div className="flex gap-2 items-center">
-                    <TextField
-                      size="small"
-                      label="Start Date"
-                      {...startProps}
-                    />
-                    <span>to</span>
-                    <TextField size="small" label="End Date" {...endProps} />
-                  </div>
-                )}
+                slotProps={{
+                  shortcuts: { items: shortcutsItems },
+                  actionBar: { actions: [] },
+                  textField: { size: "small", sx: { minWidth: 150 } },
+                }}
               />
             </LocalizationProvider>
           )}
@@ -247,7 +288,7 @@ const ManagePO: React.FC = () => {
           >
             {loading ? "Searching..." : "Search"}
           </Button>
-        </div>
+        </Stack>
       </div>
       <div className="h-[70vh]">
         <MaterialReactTable table={table} />

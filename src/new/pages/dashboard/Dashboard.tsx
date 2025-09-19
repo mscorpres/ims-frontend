@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import {
   Box,
-  Grid,
   Card,
   CardContent,
   Typography,
@@ -10,6 +9,8 @@ import {
   CircularProgress,
   Divider,
 } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 // @ts-ignore
@@ -22,7 +23,7 @@ import {
   fetchPendingSummary,
   fetchTransactionsSummary,
   setSummaryDate,
-// @ts-ignore
+  // @ts-ignore
 } from "../../../Features/dashboardSlice/dashboardSlice";
 import {
   ResponsiveContainer,
@@ -140,7 +141,7 @@ const Dashboard: React.FC = () => {
     loadingFlag: boolean,
     subtitle?: string
   ) => (
-    <Grid item xs={12}>
+    <Box sx={{ width: "100%" }}>
       <Paper
         sx={{
           p: 2,
@@ -180,229 +181,258 @@ const Dashboard: React.FC = () => {
             <CircularProgress size={24} />
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "1fr 1fr",
+                md: "repeat(4, 1fr)",
+              },
+              gap: 3,
+            }}
+          >
             {items.map((it, idx) => (
-              <Grid key={`${it.title}-${idx}`} item xs={12} sm={6} md={3}>
-                <Card
-                  sx={{
-                    backgroundColor: "background.paper",
-                    borderRadius: 2,
+              <Card
+                key={`${it.title}-${idx}`}
+                sx={{
+                  backgroundColor: "background.paper",
+                  borderRadius: 2,
+                  boxShadow:
+                    "4px 4px 6px -1px rgba(0, 0, 0, 0.1), 4px 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                  "&:hover": {
                     boxShadow:
-                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                    "&:hover": {
-                      boxShadow:
-                        "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-                    },
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {it.title}
+                      "4px 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                  },
+                }}
+              >
+                <CardContent>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {it.title}
+                  </Typography>
+                  <Typography variant="h5" sx={{ my: 0.5 }}>
+                    {it.value ?? "-"}
+                  </Typography>
+                  {it?.date && (
+                    <Typography variant="caption" color="text.secondary">
+                      Last: {it.date}
                     </Typography>
-                    <Typography variant="h5" sx={{ my: 0.5 }}>
-                      {it.value ?? "-"}
-                    </Typography>
-                    {it?.date && (
-                      <Typography variant="caption" color="text.secondary">
-                        Last: {it.date}
-                      </Typography>
-                    )}
-                    {it?.link && (
-                      <Box sx={{ mt: 1 }}>
-                        <Chip
-                          size="small"
-                          icon={<LaunchIcon fontSize="small" />}
-                          label="Details"
-                          color="primary"
-                          variant="outlined"
-                          clickable
-                          onClick={() => {
-                            // simple navigate
-                            window.location.href = it.link as string;
-                          }}
-                        />
-                      </Box>
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid>
+                  )}
+                  {it?.link && (
+                    <Box sx={{ mt: 1 }}>
+                      <Chip
+                        size="small"
+                        icon={<LaunchIcon fontSize="small" />}
+                        label="Details"
+                        color="primary"
+                        variant="outlined"
+                        clickable
+                        onClick={() => {
+                          window.location.href = it.link as string;
+                        }}
+                      />
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
             ))}
-          </Grid>
+          </Box>
         )}
       </Paper>
-    </Grid>
+    </Box>
   );
 
-  return (
-    <Box sx={{ flexGrow: 1, p: 3, paddingBottom: "80px" }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 2,
-        }}
-      >
-        <Typography variant="h5">Dashboard</Typography>
-        <Box sx={{ minWidth: 260 }}>
-          <MyDatePicker
-            setDateRange={(v: string) => {
-              dispatch(setSummaryDate(v));
-            }}
-            startingDate={true as any}
-          />
-        </Box>
-      </Box>
+  const theme = createTheme();
 
-      <Grid container spacing={3}>
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ flexGrow: 1, p: 3, paddingBottom: "80px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h5">Dashboard</Typography>
+          <Box sx={{ minWidth: 260 }}>
+            <MyDatePicker
+              setDateRange={(v: string) => {
+                dispatch(setSummaryDate(v));
+              }}
+              startingDate={true as any}
+            />
+          </Box>
+        </Box>
+
         {renderSummaryGrid("Master Summary", masterSummary, loading.master)}
 
-        <Grid item xs={12} md={6}>
-          <Paper
-            sx={{
-              p: 2,
-              height: 360,
-              boxShadow:
-                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              "&:hover": {
+        {/* Row 2: Transactions Overview and Pending Summary */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 3,
+            mb: 3,
+          }}
+        >
+          <Box>
+            <Paper
+              sx={{
+                p: 2,
+                height: 360,
                 boxShadow:
-                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-              },
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Transactions Overview
-            </Typography>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={transactionsChartData}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <ReTooltip />
-                <Legend />
-                <Bar dataKey="value" name="Count">
-                  {transactionsChartData?.map((_: any, idx: number) => (
-                    <Cell
-                      key={`tc-${idx}`}
-                      fill={CHART_COLORS[idx % CHART_COLORS.length]}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
+                  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                "&:hover": {
+                  boxShadow:
+                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Transactions Overview
+              </Typography>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={transactionsChartData}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <ReTooltip />
+                  <Legend />
+                  <Bar dataKey="value" name="Count">
+                    {transactionsChartData?.map((_: any, idx: number) => (
+                      <Cell
+                        key={`tc-${idx}`}
+                        fill={CHART_COLORS[idx % CHART_COLORS.length]}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Box>
+          <Box>
+            <Paper
+              sx={{
+                p: 2,
+                height: 360,
+                boxShadow:
+                  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                "&:hover": {
+                  boxShadow:
+                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Pending Summary
+              </Typography>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={pendingChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={110}
+                  >
+                    {pendingChartData.map((_: any, idx: number) => (
+                      <Cell
+                        key={`pc-${idx}`}
+                        fill={CHART_COLORS[idx % CHART_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <ReTooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Box>
+        </Box>
 
-        <Grid item xs={12} md={6}>
-          <Paper
-            sx={{
-              p: 2,
-              height: 360,
-              boxShadow:
-                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              "&:hover": {
+        {/* Row 3: Gate Pass Overview and Top MFG Products */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 3,
+            mb: 3,
+          }}
+        >
+          <Box>
+            <Paper
+              sx={{
+                p: 2,
+                height: 360,
                 boxShadow:
-                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-              },
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Pending Summary
-            </Typography>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={pendingChartData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={110}
-                >
-                  {pendingChartData.map((_: any, idx: number) => (
-                    <Cell
-                      key={`pc-${idx}`}
-                      fill={CHART_COLORS[idx % CHART_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <ReTooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper
-            sx={{
-              p: 2,
-              height: 360,
-              boxShadow:
-                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              "&:hover": {
+                  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                "&:hover": {
+                  boxShadow:
+                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Gate Pass Overview
+              </Typography>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={gatePassChartData}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <ReTooltip />
+                  <Legend />
+                  <Bar dataKey="value" name="Count">
+                    {gatePassChartData.map((_: any, idx: number) => (
+                      <Cell
+                        key={`gp-${idx}`}
+                        fill={CHART_COLORS[idx % CHART_COLORS.length]}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Box>
+          <Box>
+            <Paper
+              sx={{
+                p: 2,
+                height: 360,
                 boxShadow:
-                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-              },
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Gate Pass Overview
-            </Typography>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={gatePassChartData}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <ReTooltip />
-                <Legend />
-                <Bar dataKey="value" name="Count">
-                  {gatePassChartData.map((_: any, idx: number) => (
-                    <Cell
-                      key={`gp-${idx}`}
-                      fill={CHART_COLORS[idx % CHART_COLORS.length]}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper
-            sx={{
-              p: 2,
-              height: 360,
-              boxShadow:
-                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-              "&:hover": {
-                boxShadow:
-                  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-              },
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Top MFG Products
-            </Typography>
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={topMfgProducts}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} hide={false} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <ReTooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="qty"
-                  name="Qty"
-                  stroke="#6366F1"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Paper>
-        </Grid>
+                  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                "&:hover": {
+                  boxShadow:
+                    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+                },
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Top MFG Products
+              </Typography>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={topMfgProducts}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} hide={false} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <ReTooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="qty"
+                    name="Qty"
+                    stroke="#6366F1"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Paper>
+          </Box>
+        </Box>
 
         {renderSummaryGrid("MIN Summary", minSummary, loading.min)}
-      </Grid>
-    </Box>
+      </Box>
+    </ThemeProvider>
   );
 };
 

@@ -2,56 +2,10 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 // @ts-ignore
 import { imsAxios } from "../../../axiosInterceptor";
 import { ManagePOTableType } from "../../pages/procurement/POType";
+import { Address, Item, POState, Vendor } from "@/new/features/procurement/POType";
 
-type Vendor = { id: string; name: string; remarks?: string };
-type Address = {
-  id?: string;
-  line1: string;
-  line2?: string;
-  city?: string;
-  state?: string;
-  pin?: string;
-};
-type Item = {
-  id: string;
-  sku: string;
-  description?: string;
-  qty: number;
-  uom?: string;
-  rate: number;
-  amount: number;
-};
 
-type POState = {
-  vendor: Vendor | null;
-  loading: boolean;
-  error?: string;
-  billTo: Address;
-  shipTo: Address;
-  items: Item[];
-  // PO meta
-  poType: "N" | "S";
-  originalPo?: string;
-  vendorType: "j01" | "v01";
-  vendorBranch?: string;
-  vendorAddress?: string;
-  gstin?: string;
-  msmeType?: string;
-  msmeId?: string;
-  // terms
-  termsCondition?: string;
-  quotationDetail?: string;
-  paymentTerms?: string;
-  dueDays?: number;
-  costCenter?: string;
-  projectId?: string;
-  projectDesc?: string;
-  comments?: string;
-  requestedBy?: string;
-  advancePayment?: 0 | 1;
-};
-
-const initialState: POState = {
+export const initialState: POState = {
   vendor: null,
   loading: false,
   billTo: { line1: "" },
@@ -59,6 +13,8 @@ const initialState: POState = {
   items: [],
   poType: "N",
   vendorType: "v01",
+  managePOList:[],
+  managePOLoading:false,
 };
 
 export const submitPo = createAsyncThunk<void, void>(
@@ -81,6 +37,7 @@ export const fetchManagePO = createAsyncThunk<
     data: payload.data,
     wise: payload.wise,
   });
+  console.log(data)
   return data.data;
 });
 
@@ -120,7 +77,20 @@ const slice = createSlice({
     },
   },
   extraReducers(builder) {
-    // Add any PO-specific async thunk reducers here if needed
+    builder
+    .addCase(fetchManagePO.pending, (state) => {
+      state.managePOLoading = true;
+      state.managePOList = [];
+    })
+    .addCase(fetchManagePO.fulfilled, (state, action) => {
+      state.managePOLoading = false;
+      state.managePOList = action.payload;
+    })
+    .addCase(fetchManagePO.rejected, (state) => {
+      state.managePOLoading = false;
+      state.managePOList = [];
+    });
+   
   },
 });
 
