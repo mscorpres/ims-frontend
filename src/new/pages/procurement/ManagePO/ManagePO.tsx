@@ -17,9 +17,7 @@ import {
 } from "@mui/material";
 
 import dayjs from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateRangePicker } from "@mui/x-date-pickers-pro";
+import DateRangeField from "@/new/components/shared/DateRangeField";
 import {
   ManagePOColumns,
   ManagePOTableType,
@@ -244,34 +242,13 @@ const ManagePO: React.FC = () => {
           )}
 
           {wise === "single_date_wise" && (
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateRangePicker
-                value={[
-                  searchDateRange?.startDate
-                    ? dayjs(searchDateRange.startDate)
-                    : null,
-                  searchDateRange?.endDate
-                    ? dayjs(searchDateRange.endDate)
-                    : null,
-                ]}
-                disableFuture
-                maxDate={dayjs()}
-                onChange={(
-                  newValue: [dayjs.Dayjs | null, dayjs.Dayjs | null]
-                ) => {
-                  const [start, end] = newValue || [];
-                  setSearchDateRange({
-                    startDate: start ? dayjs(start).format("YYYY-MM-DD") : "",
-                    endDate: end ? dayjs(end).format("YYYY-MM-DD") : "",
-                  });
-                }}
-                slotProps={{
-                  shortcuts: { items: shortcutsItems },
-                  actionBar: { actions: [] },
-                  textField: { size: "small", sx: { minWidth: 150 } },
-                }}
-              />
-            </LocalizationProvider>
+            <DateRangeField
+              value={searchDateRange}
+              onChange={(next) => setSearchDateRange(next)}
+              size="small"
+              minInputWidth={150}
+              disableFuture
+            />
           )}
 
           <Button
