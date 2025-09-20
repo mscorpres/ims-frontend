@@ -26,7 +26,7 @@ import { fetchManagePO } from "@/new/features/procurement/POSlice";
 import { useCommonData } from "@/new/hooks/useCommonData";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import AsyncAutocomplete from "@/new/components/reuseable/AsyncAutocomplete";
+import ReusableAsyncSelect from "@/Components/ReusableAsyncSelect";
 // import { imsAxios } from "../../../../axiosInterceptor.js";
 
 type SearchType = "po_wise" | "vendor_wise" | "single_date_wise";
@@ -46,7 +46,6 @@ const ManagePO: React.FC = () => {
   } | null>(null);
 
   const dispatch = useDispatch();
-  const { vendorOptions, vendorLoading, fetchVendors } = useCommonData();
   const { managePOList, managePOLoading } = useSelector(
     (state: any) => state.createPo
   );
@@ -90,7 +89,7 @@ const ManagePO: React.FC = () => {
       search = null;
     }
 
-    if (searchInput || search) {
+    if (searchInput || search || selectedVendor) {
       setLoading(true);
 
       let searchData: any;
@@ -139,10 +138,12 @@ const ManagePO: React.FC = () => {
     }
   };
 
-  const handleVendorSearch = (query: string) => {
-    if (query.length > 2) {
-      fetchVendors(query);
-    }
+  // Transform function for vendor data
+  const transformVendorData = (data: any[]) => {
+    return data.map((vendor) => ({
+      label: vendor.text,
+      value: vendor.id,
+    }));
   };
 
   // Clear vendor options when switching away from vendor_wise
@@ -222,9 +223,11 @@ const ManagePO: React.FC = () => {
 
           {wise === "vendor_wise" && (
             <div className="flex gap-2 items-center">
-              <AsyncAutocomplete
+              <ReusableAsyncSelect
                 placeholder="Search Vendor"
-                qtkMethod={fetchVendors}
+                endpoint="/backend/vendorList"
+                transform={transformVendorData}
+                fetchOptionWith="payload"
                 value={selectedVendor}
                 onChange={(e: any) =>
                   setSelectedVendor(
@@ -236,7 +239,9 @@ const ManagePO: React.FC = () => {
                       : null
                   )
                 }
-                label="okk"
+                label="Select Vendor"
+                size="small"
+                sx={{ minWidth: 300 }}
               />
             </div>
           )}
