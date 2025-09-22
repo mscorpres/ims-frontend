@@ -2,8 +2,12 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 // @ts-ignore
 import { imsAxios } from "../../../axiosInterceptor";
 import { ManagePOTableType } from "../../pages/procurement/POType";
-import { Address, Item, POState, Vendor } from "@/new/features/procurement/POType";
-
+import {
+  Address,
+  Item,
+  POState,
+  Vendor,
+} from "@/new/features/procurement/POType";
 
 export const initialState: POState = {
   vendor: null,
@@ -13,8 +17,22 @@ export const initialState: POState = {
   items: [],
   poType: "N",
   vendorType: "v01",
-  managePOList:[],
-  managePOLoading:false,
+  managePOList: [],
+  managePOLoading: false,
+
+  // Action states
+  printLoading: false,
+  downloadLoading: false,
+  componentData: null,
+  componentLoading: false,
+  poLogs: [],
+  poLogsLoading: false,
+  poDetails: null,
+  poDetailsLoading: false,
+  showCancelPO: null,
+  showViewSidebar: false,
+  showUploadDoc: null,
+  showEditPO: null,
 };
 
 export const submitPo = createAsyncThunk<void, void>(
@@ -37,9 +55,90 @@ export const fetchManagePO = createAsyncThunk<
     data: payload.data,
     wise: payload.wise,
   });
-  console.log(data)
   return data.data;
 });
+
+export const printPO = createAsyncThunk<string, string>(
+  "po/printPO",
+  async (poid: string) => {
+    const { data } = await imsAxios.post("/poPrint", { poid });
+    return data.data.buffer.data;
+  }
+);
+
+export const downloadPO = createAsyncThunk<string, string>(
+  "po/downloadPO",
+  async (poid: string) => {
+    const { data } = await imsAxios.post("/poPrint", { poid });
+    return data.data.buffer.data;
+  }
+);
+
+export const checkPOStatus = createAsyncThunk<string, string>(
+  "po/checkPOStatus",
+  async (poid: string) => {
+    const { data } = await imsAxios.post("/purchaseOrder/fetchStatus4PO", {
+      purchaseOrder: poid,
+    });
+    if (data.code === 200) {
+      return poid;
+    } else {
+      throw new Error("PO is already cancelled");
+    }
+  }
+);
+
+export const fetchComponentData = createAsyncThunk<
+  any,
+  { poid: string; status: string }
+>("po/fetchComponentData", async ({ poid, status }) => {
+  const { data } = await imsAxios.post("/purchaseOrder/fetchComponentList4PO", {
+    poid,
+  });
+  if (data.code === 200) {
+    const components = data.data.map((row: any, index: number) => ({
+      ...row,
+      id: index,
+    }));
+    return { poid, components, status };
+  } else {
+    throw new Error(data.message);
+  }
+});
+
+export const fetchPOLogs = createAsyncThunk<any[], string>(
+  "po/fetchPOLogs",
+  async (po_id: string) => {
+    const { data } = await imsAxios.post("/purchaseOthers/pologs", { po_id });
+    if (data.code === "200" || data.code === 200) {
+      return data.data.reverse();
+    } else {
+      throw new Error("Failed to fetch PO logs");
+    }
+  }
+);
+
+export const fetchPODetails = createAsyncThunk<any, string>(
+  "po/fetchPODetails",
+  async (poid: string) => {
+    const { data, message } = await imsAxios.post(
+      "/purchaseOrder/fetchData4Update",
+      {
+        pono: poid.replaceAll("_", "/"),
+      }
+    );
+    if (data?.code === 200) {
+      return {
+        ...data.data.bill,
+        materials: data.data.materials,
+        ...data.data.ship,
+        ...data.data.vendor[0],
+      };
+    } else {
+      throw new Error(data?.message || message);
+    }
+  }
+);
 
 const slice = createSlice({
   name: "po",
@@ -75,22 +174,97 @@ const slice = createSlice({
     removeItem(state, action: PayloadAction<string>) {
       state.items = state.items.filter((i) => i.id !== action.payload);
     },
+    // Action handlers
+    setShowCancelPO(state, action: PayloadAction<string | null>) {
+      state.showCancelPO = action.payload;
+    },
+    setShowViewSidebar(state, action: PayloadAction<boolean>) {
+      state.showViewSidebar = action.payload;
+    },
+    setShowUploadDoc(state, action: PayloadAction<string | null>) {
+      state.showUploadDoc = action.payload;
+    },
+    setShowEditPO(state, action: PayloadAction<any>) {
+      state.showEditPO = action.payload;
+    },
+    clearComponentData(state) {
+      state.componentData = null;
+      state.poLogs = [];
+    },
   },
   extraReducers(builder) {
     builder
-    .addCase(fetchManagePO.pending, (state) => {
-      state.managePOLoading = true;
-      state.managePOList = [];
-    })
-    .addCase(fetchManagePO.fulfilled, (state, action) => {
-      state.managePOLoading = false;
-      state.managePOList = action.payload;
-    })
-    .addCase(fetchManagePO.rejected, (state) => {
-      state.managePOLoading = false;
-      state.managePOList = [];
-    });
-   
+      // Fetch Manage PO
+      .addCase(fetchManagePO.pending, (state) => {
+        state.managePOLoading = true;
+        state.managePOList = [];
+      })
+      .addCase(fetchManagePO.fulfilled, (state, action) => {
+        state.managePOLoading = false;
+        state.managePOList = action.payload;
+      })
+      .addCase(fetchManagePO.rejected, (state) => {
+        state.managePOLoading = false;
+        state.managePOList = [];
+      })
+      // Print PO
+      .addCase(printPO.pending, (state) => {
+        state.printLoading = true;
+      })
+      .addCase(printPO.fulfilled, (state) => {
+        state.printLoading = false;
+      })
+      .addCase(printPO.rejected, (state) => {
+        state.printLoading = false;
+      })
+      // Download PO
+      .addCase(downloadPO.pending, (state) => {
+        state.downloadLoading = true;
+      })
+      .addCase(downloadPO.fulfilled, (state) => {
+        state.downloadLoading = false;
+      })
+      .addCase(downloadPO.rejected, (state) => {
+        state.downloadLoading = false;
+      })
+      // Check PO Status
+      .addCase(checkPOStatus.fulfilled, (state, action) => {
+        state.showCancelPO = action.payload;
+      })
+      // Fetch Component Data
+      .addCase(fetchComponentData.pending, (state) => {
+        state.componentLoading = true;
+      })
+      .addCase(fetchComponentData.fulfilled, (state, action) => {
+        state.componentLoading = false;
+        state.componentData = action.payload;
+        state.showViewSidebar = true;
+      })
+      .addCase(fetchComponentData.rejected, (state) => {
+        state.componentLoading = false;
+      })
+      // Fetch PO Logs
+      .addCase(fetchPOLogs.pending, (state) => {
+        state.poLogsLoading = true;
+      })
+      .addCase(fetchPOLogs.fulfilled, (state, action) => {
+        state.poLogsLoading = false;
+        state.poLogs = action.payload;
+      })
+      .addCase(fetchPOLogs.rejected, (state) => {
+        state.poLogsLoading = false;
+      })
+      // Fetch PO Details
+      .addCase(fetchPODetails.pending, (state) => {
+        state.poDetailsLoading = true;
+      })
+      .addCase(fetchPODetails.fulfilled, (state, action) => {
+        state.poDetailsLoading = false;
+        state.showEditPO = action.payload;
+      })
+      .addCase(fetchPODetails.rejected, (state) => {
+        state.poDetailsLoading = false;
+      });
   },
 });
 
@@ -102,5 +276,10 @@ export const {
   addItem,
   updateItem,
   removeItem,
+  setShowCancelPO,
+  setShowViewSidebar,
+  setShowUploadDoc,
+  setShowEditPO,
+  clearComponentData,
 } = slice.actions;
 export default slice.reducer;

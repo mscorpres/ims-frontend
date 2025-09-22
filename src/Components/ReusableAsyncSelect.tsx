@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   Autocomplete,
   CircularProgress,
@@ -43,90 +48,127 @@ const ReusableAsyncSelect = <T,>({
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Debounce input value
+  // Memoized API call function
+  const fetchOptions = useCallback(
+    async (searchTerm: string) => {
+      setLoading(true);
+      try {
+        const response =
+          fetchOptionWith === "query"
+            ? await imsAxios.get(
+                `${endpoint}?search=${encodeURIComponent(searchTerm)}`
+              )
+            : await imsAxios.post(endpoint, { search: searchTerm });
+
+        const data = response.data?.data || response.data;
+        const transformedData = Array.isArray(data) ? transform(data) : [];
+        setOptions(transformedData);
+      } catch (error) {
+        console.error("Error fetching options:", error);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [endpoint, fetchOptionWith, transform]
+  );
+
+  // Debounced search effect
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (inputValue.length >= 2 || inputValue.length === 0) {
+      if (inputValue.length >= 3 || inputValue.length === 0) {
         fetchOptions(inputValue);
       }
     }, 300);
-
     return () => clearTimeout(timer);
-  }, [inputValue]);
+  }, [inputValue, fetchOptions]);
 
-  const fetchOptions = async (searchTerm: string) => {
-    setLoading(true);
-    try {
-      let response;
-
-      if (fetchOptionWith === "query") {
-        response = await imsAxios.get(
-          `${endpoint}?search=${encodeURIComponent(searchTerm)}`
-        );
-      } else if (fetchOptionWith === "payload") {
-        response = await imsAxios.post(endpoint, { search: searchTerm });
-      } else {
-        response = await imsAxios.get(endpoint);
-      }
-
-      const data = response.data?.data || response.data;
-      const transformedData = Array.isArray(data) ? transform(data) : [];
-      setOptions(transformedData);
-    } catch (error) {
-      console.error("Error fetching options:", error);
-      setOptions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpen = () => {
+  // Event handlers
+  const handleOpen = useCallback(() => {
     setIsOpen(true);
-    // Load initial options when opened
     if (options.length === 0) {
       fetchOptions("");
     }
-  };
+  }, [options.length, fetchOptions]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
 
-  const handleChange = (event: any, newValue: any) => {
-    onChange(newValue);
-  };
-
-  const handleInputChange = (event: any, newInputValue: string) => {
-    setInputValue(newInputValue);
-  };
-
-  const getOptionLabel = (option: any) => {
-    if (typeof option === "string") return option;
-    return option?.label || "";
-  };
-
-  const isOptionEqualToValue = (option: any, value: any) => {
-    return option?.value === value?.value;
-  };
-
-  const renderLoading = () => (
-    <Box sx={{ p: 2 }}>
-      {[...Array(5)].map((_, index) => (
-        <Skeleton
-          key={index}
-          variant="text"
-          height={20}
-          width="100%"
-          sx={{ mb: 1 }}
-        />
-      ))}
-    </Box>
+  const handleChange = useCallback(
+    (event: any, newValue: any) => {
+      onChange(newValue);
+    },
+    [onChange]
   );
 
-  const renderNoOptions = () => (
-    <Box sx={{ p: 2, textAlign: "center", color: "text.secondary" }}>
-      {loading ? "Loading..." : "No options found"}
-    </Box>
+  const handleInputChange = useCallback((event: any, newInputValue: string) => {
+    setInputValue(newInputValue);
+  }, []);
+
+  // Memoized utility functions
+  const getOptionLabel = useCallback((option: any) => {
+    return typeof option === "string" ? option : option?.label || "";
+  }, []);
+
+  const isOptionEqualToValue = useCallback((option: any, value: any) => {
+    return option?.value === value?.value;
+  }, []);
+
+  // Memoized render functions
+  const renderLoading = useMemo(
+    () => (
+      <Box sx={{ p: 2 }}>
+        {[...Array(5)].map((_, index) => (
+          <Skeleton
+            key={index}
+            variant="text"
+            height={20}
+            width="100%"
+            sx={{ mb: 1 }}
+          />
+        ))}
+      </Box>
+    ),
+    []
+  );
+
+  const renderNoOptions = useMemo(
+    () => (
+      <Box sx={{ p: 2, textAlign: "center", color: "text.secondary" }}>
+        {loading ? "Loading..." : "No options found"}
+      </Box>
+    ),
+    [loading]
+  );
+
+  const renderInput = useCallback(
+    (params: any) => (
+      <TextField
+        {...params}
+        label={label}
+        placeholder={placeholder}
+        InputProps={{
+          ...params.InputProps,
+          endAdornment: (
+            <>
+              {loading && <CircularProgress color="inherit" size={20} />}
+              {params.InputProps.endAdornment}
+            </>
+          ),
+        }}
+      />
+    ),
+    [label, placeholder, loading]
+  );
+
+  const renderOption = useCallback(
+    (props: any, option: any) => (
+      <li {...props} key={option.value}>
+        {option.label}
+      </li>
+    ),
+    []
   );
 
   return (
@@ -145,32 +187,11 @@ const ReusableAsyncSelect = <T,>({
       fullWidth={fullWidth}
       size={size}
       sx={sx}
-      filterOptions={(x) => x} // Disable client-side filtering
-      noOptionsText={renderNoOptions()}
-      loadingText={renderLoading()}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          placeholder={placeholder}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-        />
-      )}
-      renderOption={(props, option) => (
-        <li {...props} key={option.value}>
-          {option.label}
-        </li>
-      )}
+      filterOptions={(x) => x}
+      noOptionsText={renderNoOptions}
+      loadingText={renderLoading}
+      renderInput={renderInput}
+      renderOption={renderOption}
     />
   );
 };

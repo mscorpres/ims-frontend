@@ -45,7 +45,21 @@ export type POState = {
   requestedBy?: string;
   advancePayment?: 0 | 1;
 
-  
+  // Manage PO state
   managePOList: any[];
-  managePOLoading:boolean;
+  managePOLoading: boolean;
+
+  // Action states
+  printLoading: boolean;
+  downloadLoading: boolean;
+  componentData: any;
+  componentLoading: boolean;
+  poLogs: any[];
+  poLogsLoading: boolean;
+  poDetails: any;
+  poDetailsLoading: boolean;
+  showCancelPO: string | null;
+  showViewSidebar: boolean;
+  showUploadDoc: string | null;
+  showEditPO: any;
 };

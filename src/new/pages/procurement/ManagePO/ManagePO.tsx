@@ -15,25 +15,34 @@ import {
   LinearProgress,
   Stack,
 } from "@mui/material";
+import { Download } from "@mui/icons-material";
 
 import dayjs from "dayjs";
 import DateRangeField from "@/new/components/shared/DateRangeField";
 import {
-  ManagePOColumns,
   ManagePOTableType,
+  getManagePOColumns,
+  usePOActions,
+  POMenu,
+  POModals,
 } from "@/new/pages/procurement/POType";
 import { fetchManagePO } from "@/new/features/procurement/POSlice";
 import { useCommonData } from "@/new/hooks/useCommonData";
 import { useDispatch, useSelector } from "react-redux";
+// @ts-ignore
+import { Store } from "../../../../Features/Store";
 import { toast } from "react-toastify";
 import ReusableAsyncSelect from "@/Components/ReusableAsyncSelect";
-// import { imsAxios } from "../../../../axiosInterceptor.js";
+// @ts-ignore
+import { downloadCSV } from "../../../../Components/exportToCSV";
 
 type SearchType = "po_wise" | "vendor_wise" | "single_date_wise";
 
 const ManagePO: React.FC = () => {
   const [rows, setRows] = useState<ManagePOTableType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [viewLoading, setViewLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [wise, setWise] = useState<SearchType>("po_wise");
   const [searchDateRange, setSearchDateRange] = useState<{
@@ -45,14 +54,78 @@ const ManagePO: React.FC = () => {
     value: string;
   } | null>(null);
 
-  const dispatch = useDispatch();
-  const { managePOList, managePOLoading } = useSelector(
-    (state: any) => state.createPo
-  );
+  // Additional state for modals and functionality
+  const [materialInward, setMaterialInward] = useState<any>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+
+  const dispatch = useDispatch<typeof Store.dispatch>();
+  const {
+    managePOList,
+    managePOLoading,
+    showCancelPO,
+    showViewSidebar,
+    componentData,
+    poLogs,
+    showEditPO,
+    showUploadDoc,
+    printLoading,
+    downloadLoading,
+    componentLoading,
+    poLogsLoading,
+    poDetailsLoading,
+  } = useSelector((state: any) => state.createPo);
+
+  // Use action handlers from POType
+  const {
+    handlePrint,
+    handleDownload,
+    handleCancelPO,
+    handleView,
+    handleEdit,
+    handleUpload,
+  } = usePOActions();
+
+  // Menu handlers
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, row: any) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedRow(row);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedRow(null);
+  };
+
+  const handleAction = (action: string) => {
+    if (!selectedRow) return;
+
+    switch (action) {
+      case "edit":
+        handleEdit(selectedRow.po_transaction);
+        break;
+      case "view":
+        handleView(selectedRow.po_transaction, selectedRow.po_status);
+        break;
+      case "download":
+        handleDownload(selectedRow.po_transaction);
+        break;
+      case "print":
+        handlePrint(selectedRow.po_transaction);
+        break;
+      case "cancel":
+        handleCancelPO(selectedRow.po_transaction);
+        break;
+      case "upload":
+        handleUpload(selectedRow.po_transaction);
+        break;
+    }
+    handleMenuClose();
+  };
 
   const columns = useMemo<MRT_ColumnDef<ManagePOTableType>[]>(
-    () => ManagePOColumns,
-    []
+    () => getManagePOColumns(handleMenuClick),
+    [handleMenuClick]
   );
 
   const table = useMaterialReactTable({
@@ -63,9 +136,20 @@ const ManagePO: React.FC = () => {
     enableStickyHeader: true,
     enablePagination: false,
     muiTableContainerProps: { sx: { maxHeight: "70vh" } },
-    state: { isLoading: managePOLoading },
+    state: {
+      isLoading:
+        managePOLoading ||
+        searchLoading ||
+        componentLoading ||
+        poLogsLoading ||
+        poDetailsLoading,
+    },
     renderTopToolbar: () =>
-      managePOLoading ? (
+      managePOLoading ||
+      searchLoading ||
+      componentLoading ||
+      poLogsLoading ||
+      poDetailsLoading ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
@@ -154,40 +238,6 @@ const ManagePO: React.FC = () => {
     }
   }, [wise]);
 
-  const shortcutsItems = [
-    {
-      label: "This Week",
-      getValue: () => {
-        const today = dayjs();
-        return [today.startOf("week"), today.endOf("week")];
-      },
-    },
-    {
-      label: "Last Week",
-      getValue: () => {
-        const today = dayjs();
-        const prevWeek = today.subtract(7, "day");
-        return [prevWeek.startOf("week"), prevWeek.endOf("week")];
-      },
-    },
-    {
-      label: "Last 7 Days",
-      getValue: () => {
-        const today = dayjs();
-        return [today.subtract(7, "day"), today];
-      },
-    },
-    {
-      label: "Current Month",
-      getValue: () => {
-        const today = dayjs();
-        return [today.startOf("month"), today.endOf("month")];
-      },
-    },
-    // Next Month removed to avoid future dates
-    { label: "Reset", getValue: () => [null, null] },
-  ];
-
   return (
     <div style={{ padding: 12 }}>
       <div className="flex flex-col gap-3" style={{ paddingBottom: 16 }}>
@@ -270,11 +320,48 @@ const ManagePO: React.FC = () => {
           >
             {loading ? "Searching..." : "Search"}
           </Button>
+
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() =>
+              downloadCSV(managePOList || [], columns, "Manage PO Report")
+            }
+            disabled={!managePOList || managePOList.length === 0}
+            startIcon={<Download />}
+          >
+            Download CSV
+          </Button>
         </Stack>
       </div>
+
+      {/* Action Menu */}
+      <POMenu
+        anchorEl={anchorEl}
+        selectedRow={selectedRow}
+        onClose={handleMenuClose}
+        onAction={handleAction}
+      />
+
       <div className="h-[70vh]">
         <MaterialReactTable table={table} />
       </div>
+
+      {/* Modals and Sidebars */}
+      <POModals
+        showUploadDoc={showUploadDoc}
+        showCancelPO={showCancelPO}
+        showEditPO={showEditPO}
+        showViewSidebar={showViewSidebar}
+        componentData={componentData}
+        poLogs={poLogs}
+        materialInward={materialInward}
+        setMaterialInward={setMaterialInward}
+        getSearchResults={getSearchResults}
+        setRows={setRows}
+        rows={rows}
+        dispatch={dispatch}
+      />
     </div>
   );
 };
