@@ -572,6 +572,7 @@ const Login = () => {
                     htmlType="submit"
                     style={{ marginTop: "2em" }}
                     onClick={() => validatecreateNewUser()}
+                    disabled
                   >
                     Sign Up
                   </Button>
