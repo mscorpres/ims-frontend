@@ -340,7 +340,6 @@ const CreateScrapeChallan = () => {
       },
       material: {
         id: values.components.map((r) => r.rowID),
-        id: values.components.map((r) => r.rowID),
         component: values.components.map((r) => r.componentKey),
         qty: values.components.map((r) => r.qty),
         rate: values.components.map((r) => r.rate),

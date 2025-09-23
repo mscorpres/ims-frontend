@@ -274,8 +274,6 @@ function CreateShipment({
           rate: m.item_rate,
           inrValue:
             +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),
-          pickLocation: m.item_pick_location.loc_key,
-
           // foreignValueCombined: m.currency_symbol + " " + m.taxablevalue,
           foreignValue:
             +Number(m.item_qty).toFixed(2) * +Number(m.item_rate).toFixed(2),

@@ -398,7 +398,6 @@ export default function CreateVBT6({ editingVBT, setEditingVBT, setVBTData }) {
           uom: row.comp_unit,
           maxQty: row.qty,
           c_part_no: row.c_part_no,
-          comp_unit: row.comp_unit,
           in_gst_cgst:
             row.in_gst_cgst == "--" ? 0 : Number(row.in_gst_cgst).toFixed(3),
           in_gst_igst:
@@ -474,7 +473,6 @@ export default function CreateVBT6({ editingVBT, setEditingVBT, setVBTData }) {
         tdsGL: { label: "", value: "" },
         value: 0,
         comp_unit: "",
-        freight: true,
       };
       arr = [...arr, freightRow];
       setRows(arr);

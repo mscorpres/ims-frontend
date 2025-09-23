@@ -473,7 +473,6 @@ export default function EditVBT1({ editingVBT, setEditingVBT }) {
           bill_qty: row.bill_qty,
           maxQty: row.qty,
           c_part_no: row.item,
-          comp_unit: row.comp_unit,
           in_gst_cgst: row.cgst == "--" ? 0 : row.cgst,
           in_gst_igst: row.igst == "--" ? 0 : row.igst,
           in_gst_sgst: row.sgst == "--" ? 0 : row.sgst,

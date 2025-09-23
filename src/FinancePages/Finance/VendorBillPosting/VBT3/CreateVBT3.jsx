@@ -554,7 +554,6 @@ export default function CreateVBT3({ editingVBT, setEditingVBT, setVBTData }) {
           uom: row.comp_unit,
           maxQty: row.qty,
           c_part_no: row.c_part_no,
-          comp_unit: row.comp_unit,
           // in_gst_cgst:
           //   row.in_gst_cgst == "--" ? 0 : Number(row.in_gst_cgst).toFixed(3),
           in_gst_igst:

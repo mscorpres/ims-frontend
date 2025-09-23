@@ -92,13 +92,12 @@ const Login = () => {
           emailConfirmed: data.other.e_v,
           passwordChanged: data.other.c_p ?? "C",
           company_branch: JSON.parse(localStorage.getItem("otherData"))
-            ?.company_branch,
+            ?.company_branch || "BRMSC012",
           currentLink: JSON.parse(localStorage.getItem("otherData"))
             ?.currentLink,
           id: data.crn_id,
           showlegal: data.department === "legal" ? true : false,
           session: "25-26",
-          company_branch: "BRMSC012",
         };
         dispatch(setUser(obj));
         dispatch(setSettings(data.data.settings));

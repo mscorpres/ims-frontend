@@ -768,7 +768,6 @@ export default function ProductMIN() {
       headerName: <CommonIcons action="addRow" onClick={addRow} />,
       width: 40,
       field: "add",
-      sortable: false,
       renderCell: ({ row }) =>
         materialInward.indexOf(row) >= 1 && (
           <CommonIcons action="removeRow" onClick={() => removeRow(row?.id)} />

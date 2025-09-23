@@ -48,7 +48,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
           )[0];
           let tdsPercentage;
           if (tdsPerc) {
-            tdsPercentage = +Number(tdsPerc.percentage)?.toFixed(2) ?? 0;
+            tdsPercentage = +Number(tdsPerc.percentage)?.toFixed(2) || 0;
             tdsPercentage = tdsPercentage + "%";
           }
 

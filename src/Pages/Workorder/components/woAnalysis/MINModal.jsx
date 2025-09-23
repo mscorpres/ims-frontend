@@ -468,7 +468,7 @@ const gstRateOptions = [
 const getArrSum = (list, key) => {
   const arr = list?.map((row) => row[key]);
   // console.log(arr);
-  return arr?.reduce((a, b) => a + +Number(b).toFixed(2) ?? 0, 0);
+  return arr?.reduce((a, b) => a + +Number(b).toFixed(2) || 0, 0);
 };
 
 const rules = {

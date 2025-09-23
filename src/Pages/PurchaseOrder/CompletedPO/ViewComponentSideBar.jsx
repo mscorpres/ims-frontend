@@ -34,7 +34,6 @@ export default function ViewComponentSideBar({
     {
       headerName: "Ordered Qty",
       field: "ordered qty",
-      field: "ordered_qty",
       id: "ordered_qty",
       width: 170,
     },

@@ -435,7 +435,6 @@ export default function CreateVBT4({ editingVBT, setEditingVBT, setVBTData }) {
           tdsData: row.ven_tds,
           tdsGL: "",
           value: row.value,
-          comp_unit: row.comp_unit,
           item_description: row.item_description,
         };
       });

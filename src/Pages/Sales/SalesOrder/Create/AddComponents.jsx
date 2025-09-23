@@ -400,7 +400,6 @@ export default function AddComponents({
             rate_cap: data.data.project_rate,
             project_req_qty: data.data.project_qty,
             po_exec_qty: data.data.po_ord_qty,
-            po_exec_qty: data.data.po_ord_qty,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
             componentKey: data.data.key,
           };
@@ -606,7 +605,6 @@ export default function AddComponents({
     },
     {
       headerName: "GST Rate",
-      headerName: "GST RATE",
       width: 100,
       field: "gstrate",
       sortable: false,

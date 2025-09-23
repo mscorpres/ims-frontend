@@ -288,12 +288,6 @@ const rules = {
       message: "Party Name is required",
     },
   ],
-  partyAddress: [
-    {
-      required: true,
-      message: "Party Address is required",
-    },
-  ],
   partyType: [
     {
       required: true,

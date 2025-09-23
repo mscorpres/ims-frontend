@@ -244,7 +244,7 @@ const ViewGstData = () => {
         Validate Data
       </Button>
       <MyButton
-        style={{ marginLeft: "2rem", marginLeft: "1rem" }}
+        style={{ marginLeft: "2rem" }}
         onClick={() => downloadCSV(gstData, columns, "gstdata")}
         variant="download"
       >

@@ -262,10 +262,6 @@ function VBT02Report({
         currency: values.components.map((component) => component.currency),
         custom_duty: values.components.map((component) => component.customDuty),
         exchange: values.components.map((component) => component.currencyRate),
-        freight: values.components.map((component) => component.freightAmount),
-        gst_ass_vals: values.components.map(
-          (component) => component.gstAssValue
-        ),
         insurance: values.components.map((component) =>
           component.insurance.toString()
         ),
@@ -374,9 +370,6 @@ function VBT02Report({
         custom_duty: values.components.map((component) => component.customDuty),
         exchange: values.components.map((component) => component.currencyRate),
         freight: values.components.map((component) => component.freightAmount),
-        gst_ass_vals: values.components.map(
-          (component) => component.gstAssValue
-        ),
         insurance: values.components.map((component) =>
           component.insurance.toString()
         ),
@@ -563,7 +556,6 @@ function VBT02Report({
         igstAmount: row?.igstAmount,
         vbtOtherData: row?.vbtOtherData,
         currency: row?.currencyType,
-        currency: row?.currencyType,
         // gstAssValue,
         // igstAmount: row.igsts,
         // miscCharges: row.misc,
@@ -717,7 +709,6 @@ function VBT02Report({
         sgstAmount: row.in_gst_sgst,
         igstAmount: row.in_gst_igst,
         venAddress: row.in_vendor_addr,
-        igstAmount: row.in_gst_igst,
         ven_name: row.in_gst_igst,
         // glName: row.tds?.tdsName,
         // glCode: row?.tds?.tdsGlKey,
@@ -761,7 +752,7 @@ function VBT02Report({
         venAmmount: +Number(row.value),
         // totalFreight: 0,
         // totalMisc: 0,
-        freight: 0,
+        // freight: 0,
         // portCode: "INDEL4",
         // portName: "Delhi Air Cargo",
         // boeNo: "",

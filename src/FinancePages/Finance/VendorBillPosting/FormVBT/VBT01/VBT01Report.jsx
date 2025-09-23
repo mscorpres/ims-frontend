@@ -162,7 +162,6 @@ function VBT01Report({
         sgstAmount: row.in_gst_sgst,
         igstAmount: row.in_gst_igst,
         venAddress: row.in_vendor_addr,
-        igstAmount: row.in_gst_igst,
         ven_name: row.in_gst_igst,
         // gstType: row.in_gst_type,
 

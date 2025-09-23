@@ -359,7 +359,6 @@ export default function AddComponents({
             rate_cap: data.data.project_rate,
             project_req_qty: data.data.project_qty,
             po_exec_qty: data.data.po_ord_qty,
-            po_exec_qty: data.data.po_ord_qty,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
           };
           return obj;
@@ -531,7 +530,7 @@ export default function AddComponents({
           params,
           params.row.tol_price,
           inputHandler,
-          params.row.diffPercentage + "%" ?? "--"
+          params.row.diffPercentage + "%" || "--"
         ),
     },
     {
@@ -586,7 +585,6 @@ export default function AddComponents({
       renderCell: (params) => gstTypeCell(params, inputHandler),
     },
     {
-      headerName: "GST Rate",
       headerName: "GST Rate",
       width: 100,
       field: "gstrate",

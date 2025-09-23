@@ -200,10 +200,10 @@ const AddUserModal = ({
               } else {
                 obj[data.id] = {
                   id: data.id,
-                  create: type === "Create" ?? e.target.checked,
-                  read: type === "Read" ?? e.target.checked,
-                  update: type === "Update" ?? e.target.checked,
-                  delete: type === "Delete" ?? e.target.checked,
+                  create: type === "Create" ? e.target.checked : false,
+                  read: type === "Read" ? e.target.checked : false,
+                  update: type === "Update" ? e.target.checked : false,
+                  delete: type === "Delete" ? e.target.checked : false,
                 };
                 permissionPages.push(obj);
               }

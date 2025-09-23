@@ -439,7 +439,6 @@ export default function CreateJW({}) {
       rate: [values.rate],
       duedate: [values.dueDate],
       part_remark: [values.description],
-      part_remark: [values.description],
       hsncode: [values.hsn],
       gsttype: [values.gstType],
       gstrate: [values.gstRate],

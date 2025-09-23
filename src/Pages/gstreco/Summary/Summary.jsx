@@ -102,7 +102,6 @@ const Summary = () => {
         style={{
           marginTop: "1rem",
           marginLeft: "2rem",
-          marginLeft: "2rem",
           marginBottom: "1rem",
         }}
         onClick={() => downloadCSV(summaryData, columns, "Summary")}
