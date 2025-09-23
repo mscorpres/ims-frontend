@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
-import { Box, Typography, Divider, Button, Paper } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { Box, Typography, Divider, Button } from "@mui/material";
+import { useDispatch } from "react-redux";
 // @ts-ignore
-import { submitPo } from "@/new/features/procurement/createPoSlice";
 import CustomFieldBox from "@/new/components/reuseable/CustomFieldBox";
 
 const CreatePO: React.FC = () => {
@@ -20,7 +19,7 @@ const CreatePO: React.FC = () => {
           <Button
             size="small"
             variant="contained"
-            onClick={() => dispatch<any>(submitPo())}
+            onClick={() => {}}
           >
             Submit
           </Button>
