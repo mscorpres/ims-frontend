@@ -86,7 +86,6 @@ export default function ReqdComponentModal({
             allStock: value.branchstock,
             type: value.bom_catergory.id,
             rqdQty: value.rqd_qty,
-            bomQty: value.bom_qty,
           };
         } else {
           toast.error(data.message.msg);

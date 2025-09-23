@@ -7,12 +7,6 @@ import CustomFieldBox from "@/new/components/reuseable/CustomFieldBox";
 
 const CreatePO: React.FC = () => {
   const dispatch = useDispatch();
-  const { vendorOptions, loading } = useSelector((s: any) => s.createPo);
-
-  useEffect(() => {
-    // @ts-ignore
-    // dispatch(fetchVendors(""));
-  }, []);
 
   return (
     <Box  sx={{ height: "calc(100vh - 45px)" }}>

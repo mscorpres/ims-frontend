@@ -491,7 +491,7 @@ const links = [
     { routeName: "CREATE JW PO", routePath: "/create-jw" },
     {
       routeName: "JW Approval",
-      routePath: "/approval-jw"
+      routePath: "/approval-jw",
     },
     { routeName: "PO ANALYSIS", routePath: "/po-analysis" },
     { routeName: "JW RM ISSUE", routePath: "/jw-rw-issue" },
@@ -1182,7 +1182,6 @@ const links = [
       routePath: routeConstants.researchAndDevelopment.bom.list,
     },
     {
-      routeName: "BOM Drafts",
       routeName: "BOM Drafts",
       routePath: routeConstants.researchAndDevelopment.bom.drafts,
     },

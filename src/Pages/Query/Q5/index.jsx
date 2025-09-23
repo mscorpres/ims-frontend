@@ -92,7 +92,7 @@ const QueryQ5 = () => {
             a.loc_name.localeCompare(b.loc_name)
           ),
           unit: data.component.unit,
-          openingTotal: data.total_opening,
+          openingTotal1: data.total_opening,
           openingTotal: data.total_closing,
         };
         switch (element) {
@@ -204,7 +204,9 @@ const QueryQ5 = () => {
                     Weighted Average Rate
                   </Typography.Text>
                   <br />
-                  <Typography.Text>{headerData?.weightedPurchaseRate}</Typography.Text>
+                  <Typography.Text>
+                    {headerData?.weightedPurchaseRate}
+                  </Typography.Text>
                 </Col>
                 <Divider />
                 <Col span={24}>

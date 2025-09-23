@@ -80,7 +80,6 @@ export default function JounralPostingView({ jvId, setJvId }) {
           )}
         </>
       ),
-      sortable: false,
     },
     {
       headerName: "Comment",

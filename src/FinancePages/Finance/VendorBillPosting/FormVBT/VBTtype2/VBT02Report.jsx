@@ -369,7 +369,6 @@ function VBT02Report({
         currency: values.components.map((component) => component.currency),
         custom_duty: values.components.map((component) => component.customDuty),
         exchange: values.components.map((component) => component.currencyRate),
-        freight: values.components.map((component) => component.freightAmount),
         insurance: values.components.map((component) =>
           component.insurance.toString()
         ),

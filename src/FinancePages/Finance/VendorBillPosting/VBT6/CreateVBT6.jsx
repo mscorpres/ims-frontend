@@ -471,7 +471,6 @@ export default function CreateVBT6({ editingVBT, setEditingVBT, setVBTData }) {
         tdsCodes: [{ text: "--", value: "--" }, ...tdsC],
         tdsData: editingVBT[0].ven_tds,
         value: 0,
-        comp_unit: "",
       };
       arr = [...arr, freightRow];
       setRows(arr);

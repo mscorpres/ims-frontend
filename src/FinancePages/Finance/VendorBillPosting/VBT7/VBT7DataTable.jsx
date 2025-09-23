@@ -163,7 +163,7 @@ export default function VBT1DataTable({
         <div style={{ width: "100%" }}>
           {/* <ToolTipEllipses text={row.CGSTGL} /> */}
           <MySelect
-            disabled={row.in_gst_type === "Interstate" ?? true}
+            disabled={row.in_gst_type === "Interstate" || true}
             onChange={(value) => inputHandler("CGSTGL", value, row.id)}
             options={gstGlOptions}
             value={row.CGSTGL}
@@ -190,7 +190,7 @@ export default function VBT1DataTable({
         <div style={{ width: "100%" }}>
           {/* <ToolTipEllipses text={row.CGSTGL} /> */}
           <MySelect
-            disabled={row.in_gst_type === "Interstate" ?? true}
+            disabled={row.in_gst_type === "Interstate" || true}
             options={gstGlOptions}
             onChange={(value) => inputHandler("SGSTGL", value, row.id)}
             value={row.SGSTGL}
@@ -218,7 +218,7 @@ export default function VBT1DataTable({
         <div style={{ width: "100%" }}>
           {/* <ToolTipEllipses text={row.CGSTGL} /> */}
           <MySelect
-            disabled={row.in_gst_type === "Local" ?? true}
+            disabled={row.in_gst_type === "Local" || true}
             options={gstGlOptions}
             onChange={(value) => inputHandler("IGSTGL", value, row.id)}
             value={row.IGSTGL}

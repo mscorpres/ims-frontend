@@ -196,7 +196,7 @@ function VBT01Report({
             ? "TP672531876660"
             : "",
         glCode: glCodes,
-        freight: "(Freight Inward)800105",
+        // freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
       getGl();
