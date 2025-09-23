@@ -47,7 +47,7 @@ import { imsAxios } from "./axiosInterceptor";
 import MyAsyncSelect from "./Components/MyAsyncSelect";
 import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
-import { items, items1 } from "./utils/sidebarRoutes.jsx";
+import { items, items1 , itemsforD16 } from "./utils/sidebarRoutes.jsx";
 // import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 
@@ -84,6 +84,8 @@ const App = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSetting, setShowSetting] = useState(false);
+  let branch = JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "BRMSC012";
+
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -648,6 +650,7 @@ const App = () => {
     { label: "A-21 [BRMSC012]", value: "BRMSC012" },
     { label: "B-29 [BRMSC029]", value: "BRMSC029" },
     { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+    { label: "D1-16", value: "D116" },
   ];
   const sessionOptions = [
     { label: "Session 22-23", value: "22-23" },
@@ -936,7 +939,7 @@ const App = () => {
           />
           {user && user.passwordChanged === "C" && (
             <Sidebar
-              items={items(user)}
+              items={branch !== "D116" ? items(user) : itemsforD16(user)}
               items1={items1(user, setShowTickets)}
               className="site-layout-background"
               key={1}

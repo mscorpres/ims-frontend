@@ -755,6 +755,224 @@ export const items = (user) => [
   //     )
   //   : "",
 ];
+export const itemsforD16 = (user) => [
+ 
+  getItem("Dashboard", "A", <MdDashboard />, [
+    getItem(
+      <Link to="/">Dashboard</Link>,
+      "2"
+      // <AiOutlineMinus />
+    ),
+  ]),
+  // getItem("Material Management", "B", <BiTransfer />, [
+    getItem("Master", "B1", <BsFillHddStackFill />, [
+      getItem(
+        <Link to="/uom">UoM</Link>,
+        "Material Management/B11"
+        // <AiOutlineMinus />
+      ),
+      getItem("Component", "B12", <MdDashboard />, [
+        getItem(
+          <Link to="/material">Material</Link>,
+          "Component/B121"
+          //   // <AiOutlineMinus />
+        ),
+        getItem(
+          <Link to="/services">Services</Link>,
+          "Component/B122"
+          // <AiOutlineMinus />
+        ),
+      ]),
+      getItem(
+        <Link to="/masters/products/fg">Products</Link>,
+        "Component/B13"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/hsn-map">HSN Map</Link>,
+        "hsn-map/B14"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/location">Location</Link>,
+        "B114"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/group">Groups</Link>,
+        "B15"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/billingAddress">Billing Address</Link>,
+        "B16"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/shippingAddress">Shipping Address</Link>,
+        "B17"
+        // <AiOutlineMinus />
+      ),
+      // getItem(
+      //   <Link to="/doc_numbering">Doc(s) Number</Link>,
+      //   "B17"
+      //   // <AiOutlineMinus />
+      // ),
+      getItem("Bill Of Material", "B18", <MdDashboard />, [
+        getItem(
+          <Link to="/master/bom/create">Create BOM</Link>,
+          "B181"
+          // <MdDashboard />
+        ),
+      ]),
+      getItem("Vendor / Supplier", "B19", <MdDashboard />, [
+        getItem(
+          <Link to="/vendor">Add / Rectify</Link>,
+          "B191"
+          // <MdDashboard />
+        ),
+      ]),
+      getItem(
+        <Link to="tally/clients/add">Clients</Link>,
+        "clients/add"
+        // <AiOutlineMinus />
+      ),
+      // getItem("WorkOrder", "B28", <MdDashboard />, [
+      //   getItem(
+      //     <Link to="/addClient">Create Client</Link>,
+      //     "B281"
+      //     // <MdDashboard />
+      //   ),
+      // ]),
+      getItem(
+        <Link to="/master/reports/projects">Projects</Link>,
+        "/master/reports/projects/B20"
+        // <MdDashboard />
+      ),
+      getItem(
+        <Link to="/master/reports/r19">Reports</Link>,
+        "B21"
+        // <MdDashboard />
+      ),
+    ]),
+    getItem("Procurement", "B2", <ImCart />, [
+      getItem(
+        <Link to="/create-po">Create PO</Link>,
+        "B21"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/manage-po">Manage PO</Link>,
+        "B22"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/completed-po">Completed PO</Link>,
+        "B23"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/vendor-pricing">Vendor Pricing</Link>,
+        "B24"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/approval-po">Po Approval</Link>,
+        "B25"
+        // <AiOutlineMinus />
+      ),
+    ]),
+    getItem("Warehouse", "B3", <FaWarehouse />, [
+      getItem(<Link to="/warehouse/material-in">RM MATLS IN</Link>, "B32"),
+      ///
+      getItem(
+        <Link to="/warehouse/prod-return-MIN">Prod. Return MIN</Link>,
+        "B33"
+        // <AiOutlineMinus />
+      ),
+      getItem("Jobwork", "B6", <MdQueryStats />, [
+        getItem(
+          <Link to="/create-jw">Jobwork & Analysis</Link>,
+          "B61"
+          // <AiOutlineMinus />
+        ),
+        getItem(
+          <Link to="/jobwork/update/supplementary">Jobwork Update</Link>,
+
+          "B63"
+          // <AiOutlineMinus />
+        ),
+        getItem(
+          <Link to="/jobwork/vendor/sfg/min">Vendor SFG MIN</Link>,
+
+          "B62"
+          // <AiOutlineMinus />
+        ),
+      ]),
+    ]),
+    getItem("Sales Order", "C5", <TbReportAnalytics />, [
+      getItem(<Link to="/sales/order/register">Register</Link>, "E51"),
+      getItem(
+        <Link to="/sales/order/create">Create order</Link>,
+        "C52"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/sales/order/challan">Challan</Link>,
+        "C53"
+        // <AiOutlineMinus />
+      ),
+      getItem(
+        <Link to="/sales/order/shipments">Shipment</Link>,
+        "C54"
+        // <AiOutlineMinus />
+      ),
+    ]),
+    getItem("Reports", "B4", <TbReportAnalytics />, [
+      getItem("Inventory Reports", "B41", <MdDashboard />, [
+        getItem(
+          <Link to="/transaction-In">MIN Register</Link>,
+          "B411"
+          // <AiOutlineMinus />
+        ),
+
+        getItem(
+          <Link to="/transaction-Out">RM Issue Register</Link>,
+          "B412"
+          // <AiOutlineMinus />
+        ),
+        // getItem(
+        //   <Link to="/weeklyaudit">Weekly Audit</Link>,
+        //   "B414"
+        //   // <AiOutlineMinus />
+        // ),
+        getItem(
+          <Link to="/r1">Reports R1 - R37 </Link>,
+
+          "B413"
+          // <AiOutlineMinus />
+        ),
+      ]),
+      getItem(
+        <Link to="/warehouse/print-view-min">Print and View MIN Label</Link>,
+        "B42"
+        // <AiOutlineMinus />
+      ),
+    ]),
+    getItem("Query", "B5", <MdQueryStats />, [
+      getItem(
+        <Link to="/item-all-logs">Q1 - Q6</Link>,
+        "C51"
+        // <AiOutlineMinus />
+      ),
+      // getItem(
+      //   <Link to="/sku-query">SKU Query</Link>,
+      //   "B52"
+      //   // <AiOutlineMinus />
+      // ),
+    ]),
+  // ]),
+];
 
 export const items1 = (user, setShowTickets) => [
   // getItem(

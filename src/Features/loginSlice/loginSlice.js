@@ -185,8 +185,9 @@ const loginSlice = createSlice({
       localStorage.setItem(
         "otherData",
         JSON.stringify({
-          company_branch: "BRMSC012",
-          session: "23-24",
+          company_branch:
+            action.payload?.company_branch ?? obj.company_branch ?? "BRMSC012",
+          session: action.payload?.session ?? obj.session ?? "23-24",
         })
       );
     },
