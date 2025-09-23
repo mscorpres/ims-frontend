@@ -650,7 +650,7 @@ const App = () => {
     { label: "A-21 [BRMSC012]", value: "BRMSC012" },
     { label: "B-29 [BRMSC029]", value: "BRMSC029" },
     { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
-    { label: "D1-16", value: "D116" },
+    { label: "D1-16", value: "BRBAD116" },
   ];
   const sessionOptions = [
     { label: "Session 22-23", value: "22-23" },
@@ -939,7 +939,7 @@ const App = () => {
           />
           {user && user.passwordChanged === "C" && (
             <Sidebar
-              items={branch !== "D116" ? items(user) : itemsforD16(user)}
+              items={branch !== "BRBAD116" ? items(user) : itemsforD16(user)}
               items1={items1(user, setShowTickets)}
               className="site-layout-background"
               key={1}
