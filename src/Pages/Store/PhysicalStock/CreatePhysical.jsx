@@ -143,7 +143,6 @@ const Manual = () => {
         rem: "",
         phyStock: "",
         uom: "",
-        rem: "",
       },
     ]);
   };

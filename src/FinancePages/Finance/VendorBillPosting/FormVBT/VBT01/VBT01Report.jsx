@@ -532,7 +532,6 @@ function VBT01Report({
         comment: values.comment,
         component: values.components.map((component) => component.partName),
         eff_date: values.effectiveDate,
-        freight: values.components.map((component) => component.freightAmount),
         g_l_codes: values.components.map(
           (component) => component.purchase_gl.value
         ),

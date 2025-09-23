@@ -100,7 +100,6 @@ export default function DebitView({
           )}
         </>
       ),
-      sortable: false,
     },
     {
       headerName: "Comment",

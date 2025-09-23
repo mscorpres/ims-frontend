@@ -129,7 +129,6 @@ function MINDrawer({ transactionInwarding, setTransactionInwarding }) {
     let finalObj = {
       qty: rows.map((row) => row.qty),
       component: rows.map((row) => row.key),
-      component: rows.map((row) => row.key),
       location: rows.map(() => "--"),
       remark: rows.map((row) => row.minRemark),
       vendor: transactionInwarding.vendor.value,

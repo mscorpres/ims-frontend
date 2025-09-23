@@ -100,7 +100,6 @@ export default function CreditView({
           )}
         </>
       ),
-      sortable: false,
     },
     {
       headerName: "Comment",

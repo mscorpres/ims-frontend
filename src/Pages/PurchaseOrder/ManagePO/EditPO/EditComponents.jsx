@@ -539,7 +539,6 @@ export default function EditComponent({
             </Popconfirm>
           )
         ),
-      sortable: false,
     },
     {
       headerName: "Component",

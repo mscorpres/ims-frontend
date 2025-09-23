@@ -470,7 +470,6 @@ export default function CreateVBT6({ editingVBT, setEditingVBT, setVBTData }) {
         //vendor amount is equal to gst asset value - tds amount
         tdsCodes: [{ text: "--", value: "--" }, ...tdsC],
         tdsData: editingVBT[0].ven_tds,
-        tdsGL: { label: "", value: "" },
         value: 0,
         comp_unit: "",
       };
