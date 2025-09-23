@@ -648,7 +648,7 @@ const App = () => {
     { label: "A-21 [BRMSC012]", value: "BRMSC012" },
     { label: "B-29 [BRMSC029]", value: "BRMSC029" },
     { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
-    { label: "D1-16", value: "BRBAD116" },
+    { label: "D-160", value: "BRBAD116" },
   ];
   const sessionOptions = [
     { label: "Session 22-23", value: "22-23" },
