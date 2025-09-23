@@ -189,9 +189,20 @@ const Sidebar = ({
           return (
             <li key={c.key}>
               <div
-                onMouseEnter={() => handleItemHover(c.key, hasChildren)}
-                onMouseLeave={() => {
+                onMouseEnter={(e) => {
+                  handleItemHover(c.key, hasChildren);
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = isSubMenu
+                      ? "#e8f4fd"
+                      : "#d4edda";
+                  }
+                }
+                }
+                onMouseLeave={(e) => {
                   if (!activeKey) setHoveredKey(null);
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                  }
                 }}
                 onClick={() =>
                   handleItemClick(c.key, hasChildren, c.path, isSubMenu)
@@ -222,19 +233,6 @@ const Sidebar = ({
                     : "3px solid transparent",
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   justifyContent: shouldShowText ? "flex-start" : "center",
-                }}
-                //@ts-ignore
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = isSubMenu
-                      ? "#e8f4fd"
-                      : "#d4edda";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }
                 }}
               >
                 <span

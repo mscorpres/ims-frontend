@@ -1,10 +1,8 @@
 import React, { useEffect } from "react";
 import { Box, Typography, Divider, Button, Paper } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchVendors,
-  submitPo,
-} from "../../../features/procurement/createPoSlice";
+// @ts-ignore
+import { submitPo } from "@/new/features/procurement/createPoSlice";
 import CustomFieldBox from "@/new/components/reuseable/CustomFieldBox";
 
 const CreatePO: React.FC = () => {
