@@ -98,10 +98,18 @@ const columns = [
   },
 
   {
-    headerName: "Transaction Id",
+    headerName: "Txn Id",
     field: "transactionId",
     renderCell: ({ row }: { row: R34Type }) => (
       <ToolTipEllipses text={row.transactionId} />
+    ),
+    width: 150,
+  },
+   {
+    headerName: "Ref Id",
+    field: "refId",
+    renderCell: ({ row }: { row: R34Type }) => (
+      <ToolTipEllipses text={row.executionId} />
     ),
     width: 150,
   },
