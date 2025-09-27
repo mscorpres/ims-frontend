@@ -3,6 +3,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  MRT_ActionMenuItem,
 } from "material-react-table";
 import {
   Box,
@@ -15,20 +16,33 @@ import {
   LinearProgress,
   Stack,
 } from "@mui/material";
-import { Download } from "@mui/icons-material";
-
-import dayjs from "dayjs";
+import {
+  Download,
+  Edit,
+  Visibility,
+  Print,
+  Cancel,
+  Upload,
+} from "@mui/icons-material";
 import DateRangeField from "@/new/components/shared/DateRangeField";
 import {
   ManagePOTableType,
   getManagePOColumns,
-  usePOActions,
-  POMenu,
   POModals,
 } from "@/new/pages/procurement/POType";
-import { fetchManagePO } from "@/new/features/procurement/POSlice";
-import { useCommonData } from "@/new/hooks/useCommonData";
+import {
+  fetchManagePO,
+  printPO,
+  downloadPO,
+  checkPOStatus,
+  fetchComponentData,
+  fetchPOLogs,
+  fetchPODetails,
+  setShowUploadDoc,
+} from "@/new/features/procurement/POSlice";
 import { useDispatch, useSelector } from "react-redux";
+import printFunction from "@/new/utils/printFunction";
+import { downloadFunction } from "@/new/utils/printFunction";
 // @ts-ignore
 import { Store } from "../../../../Features/Store";
 import { toast } from "react-toastify";
@@ -56,8 +70,6 @@ const ManagePO: React.FC = () => {
 
   // Additional state for modals and functionality
   const [materialInward, setMaterialInward] = useState<any>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedRow, setSelectedRow] = useState<any>(null);
 
   const dispatch = useDispatch<typeof Store.dispatch>();
   const {
@@ -76,57 +88,67 @@ const ManagePO: React.FC = () => {
     poDetailsLoading,
   } = useSelector((state: any) => state.createPo);
 
-  // Use action handlers from POType
-  const {
-    handlePrint,
-    handleDownload,
-    handleCancelPO,
-    handleView,
-    handleEdit,
-    handleUpload,
-  } = usePOActions();
-
-  // Menu handlers
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, row: any) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRow(row);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedRow(null);
-  };
-
-  const handleAction = (action: string) => {
-    if (!selectedRow) return;
-
-    switch (action) {
-      case "edit":
-        handleEdit(selectedRow.po_transaction);
-        break;
-      case "view":
-        handleView(selectedRow.po_transaction, selectedRow.po_status);
-        break;
-      case "download":
-        handleDownload(selectedRow.po_transaction);
-        break;
-      case "print":
-        handlePrint(selectedRow.po_transaction);
-        break;
-      case "cancel":
-        handleCancelPO(selectedRow.po_transaction);
-        break;
-      case "upload":
-        handleUpload(selectedRow.po_transaction);
-        break;
-    }
-    handleMenuClose();
-  };
+  // Use optimized row actions
 
   const columns = useMemo<MRT_ColumnDef<ManagePOTableType>[]>(
-    () => getManagePOColumns(handleMenuClick),
-    [handleMenuClick]
+    () => getManagePOColumns(),
+    []
   );
+  const handlePrint = async (poid: string) => {
+    try {
+      const result = await dispatch(printPO(poid));
+      if (printPO.fulfilled.match(result)) {
+        printFunction(result.payload);
+      } else {
+        toast.error("Error printing PO");
+      }
+    } catch (error) {
+      toast.error("Error printing PO");
+    }
+  };
+
+  const handleDownload = async (poid: string) => {
+    try {
+      const result = await dispatch(downloadPO(poid));
+      if (downloadPO.fulfilled.match(result)) {
+        const filename = `PO ${poid}`;
+        downloadFunction(result.payload, filename);
+      } else {
+        toast.error("Error downloading PO");
+      }
+    } catch (error) {
+      toast.error("Error downloading PO");
+    }
+  };
+
+  const handleCancelPO = async (poid: string) => {
+    try {
+      await dispatch(checkPOStatus(poid));
+    } catch (error) {
+      toast.error("PO is already cancelled");
+    }
+  };
+
+  const handleView = async (poid: string, status: string) => {
+    try {
+      await dispatch(fetchComponentData({ poid, status }));
+      await dispatch(fetchPOLogs(poid));
+    } catch (error) {
+      toast.error("Error fetching component data");
+    }
+  };
+
+  const handleEdit = async (poid: string) => {
+    try {
+      await dispatch(fetchPODetails(poid));
+    } catch (error) {
+      toast.error("Error fetching PO details");
+    }
+  };
+
+  const handleUpload = (poid: string) => {
+    dispatch(setShowUploadDoc(poid));
+  };
 
   const table = useMaterialReactTable({
     columns: columns,
@@ -135,6 +157,7 @@ const ManagePO: React.FC = () => {
     initialState: { density: "compact" },
     enableStickyHeader: true,
     enablePagination: false,
+    enableRowActions: true,
     muiTableContainerProps: { sx: { maxHeight: "70vh" } },
     state: {
       isLoading:
@@ -154,6 +177,53 @@ const ManagePO: React.FC = () => {
           <LinearProgress />
         </Box>
       ) : null,
+    renderRowActionMenuItems: ({ row, table }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit />}
+        key="edit"
+        label="Edit"
+        onClick={() => handleEdit(row?.original?.po_transaction)}
+        table={table}
+        disabled={row.original.approval_status === "C"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Visibility />}
+        key="view"
+        label="View"
+        onClick={() => handleView(row.original?.po_transaction, row?.original?.approval_status ?? "")}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download />}
+        key="download"
+        label="Download"
+        onClick={() => handleDownload(row?.original?.po_transaction)}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print />}
+        key="print"
+        label="Print"
+        onClick={() => handlePrint(row?.original?.po_transaction)}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Cancel />}
+        key="cancel"
+        label="Cancel"
+        onClick={() => handleCancelPO(row?.original?.po_transaction)}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Upload />}
+        key="upload"
+        label="Upload File"
+        onClick={() => handleUpload(row?.original?.po_transaction)}
+        table={table}
+      />,
+    ],
   });
 
   // Format yyyy-mm-dd to dd-mm-yyyy
@@ -335,32 +405,14 @@ const ManagePO: React.FC = () => {
         </Stack>
       </div>
 
-      {/* Action Menu */}
-      <POMenu
-        anchorEl={anchorEl}
-        selectedRow={selectedRow}
-        onClose={handleMenuClose}
-        onAction={handleAction}
-      />
-
       <div className="h-[70vh]">
         <MaterialReactTable table={table} />
       </div>
 
       {/* Modals and Sidebars */}
       <POModals
-        showUploadDoc={showUploadDoc}
-        showCancelPO={showCancelPO}
-        showEditPO={showEditPO}
-        showViewSidebar={showViewSidebar}
-        componentData={componentData}
-        poLogs={poLogs}
         materialInward={materialInward}
         setMaterialInward={setMaterialInward}
-        getSearchResults={getSearchResults}
-        setRows={setRows}
-        rows={rows}
-        dispatch={dispatch}
       />
     </div>
   );
