@@ -190,7 +190,12 @@ const ManagePO: React.FC = () => {
         icon={<Visibility />}
         key="view"
         label="View"
-        onClick={() => handleView(row.original?.po_transaction, row?.original?.approval_status ?? "")}
+        onClick={() =>
+          handleView(
+            row.original?.po_transaction,
+            row?.original?.approval_status ?? ""
+          )
+        }
         table={table}
       />,
       <MRT_ActionMenuItem

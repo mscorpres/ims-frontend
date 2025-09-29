@@ -1,19 +1,12 @@
 import React from "react";
-import { Chip } from "@mui/material";
+import { Chip, ChipProps } from "@mui/material";
 
 interface StatusChipProps {
   value: string;
   size?: "small" | "medium";
   variant?: "outlined" | "filled";
   type?: "approval" | "payment" | "custom";
-  customColor?:
-    | "default"
-    | "primary"
-    | "secondary"
-    | "error"
-    | "info"
-    | "success"
-    | "warning";
+  customColor?: ChipProps["color"];
 }
 
 export const StatusChip: React.FC<StatusChipProps> = ({
@@ -23,37 +16,30 @@ export const StatusChip: React.FC<StatusChipProps> = ({
   type = "approval",
   customColor,
 }) => {
-  const getColor = () => {
-    if (customColor) return customColor;
+  const getColorAndLabel = (): { color: ChipProps["color"]; label: string } => {
+    if (customColor) return { color: customColor, label: value };
 
     if (type === "approval") {
-      switch (value) {
-        case "APPROVED":
-          return "success";
-        case "PENDING":
-          return "warning";
-        default:
-          return "error";
-      }
+      const colorMap: Record<string, ChipProps["color"]> = {
+        APPROVED: "success",
+        PENDING: "warning",
+      };
+      return { color: colorMap[value] || "error", label: value };
     }
 
     if (type === "payment") {
-      return value === "0" ? "default" : "primary";
+      return {
+        color: value === "0" ? "default" : "primary",
+        label: value === "0" ? "NO" : "YES",
+      };
     }
 
-    return "default";
+    return { color: "default", label: value };
   };
 
-  const getLabel = () => {
-    if (type === "payment") {
-      return value === "0" ? "NO" : "YES";
-    }
-    return value;
-  };
+  const { color, label } = getColorAndLabel();
 
-  return (
-    <Chip label={getLabel()} size={size} variant={variant} color={getColor()} />
-  );
+  return <Chip label={label} size={size} variant={variant} color={color} />;
 };
 
 export default StatusChip;

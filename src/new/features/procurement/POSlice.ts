@@ -33,6 +33,16 @@ export const initialState: POState = {
   showViewSidebar: false,
   showUploadDoc: null,
   showEditPO: null,
+
+  // Action loading states
+  actionLoading: {
+    print: false,
+    download: false,
+    cancel: false,
+    view: false,
+    edit: false,
+    upload: false,
+  },
 };
 
 export const submitPo = createAsyncThunk<void, void>(
@@ -191,6 +201,23 @@ const slice = createSlice({
       state.componentData = null;
       state.poLogs = [];
     },
+    // Action loading reducers
+    setActionLoading(
+      state,
+      action: PayloadAction<{
+        action: keyof POState["actionLoading"];
+        loading: boolean;
+      }>
+    ) {
+      state.actionLoading[action.payload.action] = action.payload.loading;
+    },
+    // Modal management - close all modals when opening a new one
+    closeAllModals(state) {
+      state.showCancelPO = null;
+      state.showViewSidebar = false;
+      state.showUploadDoc = null;
+      state.showEditPO = null;
+    },
   },
   extraReducers(builder) {
     builder
@@ -281,5 +308,7 @@ export const {
   setShowUploadDoc,
   setShowEditPO,
   clearComponentData,
+  setActionLoading,
+  closeAllModals,
 } = slice.actions;
 export default slice.reducer;

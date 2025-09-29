@@ -62,4 +62,14 @@ export type POState = {
   showViewSidebar: boolean;
   showUploadDoc: string | null;
   showEditPO: any;
+
+  // Action loading states
+  actionLoading: {
+    print: boolean;
+    download: boolean;
+    cancel: boolean;
+    view: boolean;
+    edit: boolean;
+    upload: boolean;
+  };
 };
