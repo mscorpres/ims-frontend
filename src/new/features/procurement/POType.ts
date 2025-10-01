@@ -72,4 +72,22 @@ export type POState = {
     edit: boolean;
     upload: boolean;
   };
+
+  // Edit PO Modal states
+  vendorOptions: any[];
+  costCenterOptions: any[];
+  billingAddresses: any[];
+  shippingAddresses: any[];
+  vendorBranches: any[];
+  vendorAddress: any;
+  billingAddress: any;
+  shippingAddress: any;
+  vendorOptionsLoading: boolean;
+  costCenterOptionsLoading: boolean;
+  billingAddressesLoading: boolean;
+  shippingAddressesLoading: boolean;
+  vendorBranchesLoading: boolean;
+  vendorAddressLoading: boolean;
+  billingAddressLoading: boolean;
+  shippingAddressLoading: boolean;
 };

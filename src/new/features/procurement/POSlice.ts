@@ -43,6 +43,24 @@ export const initialState: POState = {
     edit: false,
     upload: false,
   },
+
+  // Edit PO Modal states
+  vendorOptions: [],
+  costCenterOptions: [],
+  billingAddresses: [],
+  shippingAddresses: [],
+  vendorBranches: [],
+  vendorAddress: null,
+  billingAddress: null,
+  shippingAddress: null,
+  vendorOptionsLoading: false,
+  costCenterOptionsLoading: false,
+  billingAddressesLoading: false,
+  shippingAddressesLoading: false,
+  vendorBranchesLoading: false,
+  vendorAddressLoading: false,
+  billingAddressLoading: false,
+  shippingAddressLoading: false,
 };
 
 export const submitPo = createAsyncThunk<void, void>(
@@ -147,6 +165,119 @@ export const fetchPODetails = createAsyncThunk<any, string>(
     } else {
       throw new Error(data?.message || message);
     }
+  }
+);
+
+// Edit PO Modal API calls
+export const fetchVendorOptions = createAsyncThunk<any[], string>(
+  "po/fetchVendorOptions",
+  async (search: string) => {
+    const { data } = await imsAxios.post("/backend/vendorList", { search });
+    return data.map((vendor: any) => ({
+      label: vendor.text,
+      value: vendor.id,
+    }));
+  }
+);
+
+export const fetchCostCenterOptions = createAsyncThunk<any[], string>(
+  "po/fetchCostCenterOptions",
+  async (search: string) => {
+    const { data } = await imsAxios.post("/backend/costCenterList", { search });
+    return data.map((center: any) => ({
+      label: center.text,
+      value: center.id,
+    }));
+  }
+);
+
+export const fetchBillingAddresses = createAsyncThunk<any[], void>(
+  "po/fetchBillingAddresses",
+  async () => {
+    const { data } = await imsAxios.post("/backend/billingAddressList", {
+      search: "",
+    });
+    return data.map((d: any) => ({
+      text: d.text,
+      value: d.id,
+    }));
+  }
+);
+
+export const fetchShippingAddresses = createAsyncThunk<any[], void>(
+  "po/fetchShippingAddresses",
+  async () => {
+    const { data } = await imsAxios.post("/backend/shipingAddressList", {
+      searchInput: "",
+    });
+    return data.map((d: any) => ({
+      text: d.text,
+      value: d.id,
+    }));
+  }
+);
+
+export const fetchVendorBranches = createAsyncThunk<any[], string>(
+  "po/fetchVendorBranches",
+  async (vendorCode: string) => {
+    const { data } = await imsAxios.post("/backend/vendorBranchList", {
+      vendorcode: vendorCode,
+    });
+    if (data.code === 200) {
+      return data.data.map((row: any) => ({
+        text: row.text,
+        value: row.id,
+      }));
+    } else {
+      throw new Error(data.message.msg);
+    }
+  }
+);
+
+export const fetchVendorAddress = createAsyncThunk<
+  any,
+  { vendorcode: string; branchcode: string }
+>("po/fetchVendorAddress", async ({ vendorcode, branchcode }) => {
+  const { data } = await imsAxios.post("backend/vendorAddress", {
+    vendorcode,
+    branchcode,
+  });
+  if (data.code === 200) {
+    return {
+      address: data.data.address.replaceAll("<br>", "\n"),
+      gstin: data.data.gstin,
+      pan: data.data.pan,
+    };
+  } else {
+    throw new Error(data.message.msg);
+  }
+});
+
+export const fetchBillingAddress = createAsyncThunk<any, string>(
+  "po/fetchBillingAddress",
+  async (billingCode: string) => {
+    const { data } = await imsAxios.post("/backend/billingAddress", {
+      billing_code: billingCode,
+    });
+    return {
+      gstin: data?.data?.gstin,
+      pan: data?.data?.pan,
+      address: data.data?.address.replaceAll("<br>", "\n"),
+    };
+  }
+);
+
+export const fetchShippingAddress = createAsyncThunk<any, string>(
+  "po/fetchShippingAddress",
+  async (shippingCode: string) => {
+    const { data } = await imsAxios.post("/backend/shippingAddress", {
+      shipping_code: shippingCode,
+    });
+    return {
+      gstin: data?.data.gstin,
+      pan: data?.data.pan,
+      address: data.data?.address.replaceAll("<br>", "\n"),
+    };
   }
 );
 
@@ -291,6 +422,94 @@ const slice = createSlice({
       })
       .addCase(fetchPODetails.rejected, (state) => {
         state.poDetailsLoading = false;
+      })
+      // Fetch Vendor Options
+      .addCase(fetchVendorOptions.pending, (state) => {
+        state.vendorOptionsLoading = true;
+      })
+      .addCase(fetchVendorOptions.fulfilled, (state, action) => {
+        state.vendorOptionsLoading = false;
+        state.vendorOptions = action.payload;
+      })
+      .addCase(fetchVendorOptions.rejected, (state) => {
+        state.vendorOptionsLoading = false;
+      })
+      // Fetch Cost Center Options
+      .addCase(fetchCostCenterOptions.pending, (state) => {
+        state.costCenterOptionsLoading = true;
+      })
+      .addCase(fetchCostCenterOptions.fulfilled, (state, action) => {
+        state.costCenterOptionsLoading = false;
+        state.costCenterOptions = action.payload;
+      })
+      .addCase(fetchCostCenterOptions.rejected, (state) => {
+        state.costCenterOptionsLoading = false;
+      })
+      // Fetch Billing Addresses
+      .addCase(fetchBillingAddresses.pending, (state) => {
+        state.billingAddressesLoading = true;
+      })
+      .addCase(fetchBillingAddresses.fulfilled, (state, action) => {
+        state.billingAddressesLoading = false;
+        state.billingAddresses = action.payload;
+      })
+      .addCase(fetchBillingAddresses.rejected, (state) => {
+        state.billingAddressesLoading = false;
+      })
+      // Fetch Shipping Addresses
+      .addCase(fetchShippingAddresses.pending, (state) => {
+        state.shippingAddressesLoading = true;
+      })
+      .addCase(fetchShippingAddresses.fulfilled, (state, action) => {
+        state.shippingAddressesLoading = false;
+        state.shippingAddresses = action.payload;
+      })
+      .addCase(fetchShippingAddresses.rejected, (state) => {
+        state.shippingAddressesLoading = false;
+      })
+      // Fetch Vendor Branches
+      .addCase(fetchVendorBranches.pending, (state) => {
+        state.vendorBranchesLoading = true;
+      })
+      .addCase(fetchVendorBranches.fulfilled, (state, action) => {
+        state.vendorBranchesLoading = false;
+        state.vendorBranches = action.payload;
+      })
+      .addCase(fetchVendorBranches.rejected, (state) => {
+        state.vendorBranchesLoading = false;
+      })
+      // Fetch Vendor Address
+      .addCase(fetchVendorAddress.pending, (state) => {
+        state.vendorAddressLoading = true;
+      })
+      .addCase(fetchVendorAddress.fulfilled, (state, action) => {
+        state.vendorAddressLoading = false;
+        state.vendorAddress = action.payload;
+      })
+      .addCase(fetchVendorAddress.rejected, (state) => {
+        state.vendorAddressLoading = false;
+      })
+      // Fetch Billing Address
+      .addCase(fetchBillingAddress.pending, (state) => {
+        state.billingAddressLoading = true;
+      })
+      .addCase(fetchBillingAddress.fulfilled, (state, action) => {
+        state.billingAddressLoading = false;
+        state.billingAddress = action.payload;
+      })
+      .addCase(fetchBillingAddress.rejected, (state) => {
+        state.billingAddressLoading = false;
+      })
+      // Fetch Shipping Address
+      .addCase(fetchShippingAddress.pending, (state) => {
+        state.shippingAddressLoading = true;
+      })
+      .addCase(fetchShippingAddress.fulfilled, (state, action) => {
+        state.shippingAddressLoading = false;
+        state.shippingAddress = action.payload;
+      })
+      .addCase(fetchShippingAddress.rejected, (state) => {
+        state.shippingAddressLoading = false;
       });
   },
 });
