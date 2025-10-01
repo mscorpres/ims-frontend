@@ -20,11 +20,7 @@ function MaterialTransfer({ type }) {
 
   const [allData, setAllData] = useState({
     locationSel: "",
-
-    componentName: "",
-    qty: "",
-    rejLoc: "",
-    tobranch: "",
+    dropBranch: "",
   });
   const { executeFun, loading: loading1 } = useApi();
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -40,7 +36,6 @@ function MaterialTransfer({ type }) {
       componentName: "",
       qty: "",
       rejLoc: "",
-      tobranch: "",
       restDetail: {},
       address: "",
       comment: "",
@@ -138,6 +133,8 @@ function MaterialTransfer({ type }) {
     // validations
     if (!allData?.locationSel)
       return toast.error("Please select a Pick Location");
+    if (!allData?.dropBranch) return toast.error("Please select Drop Branch");
+
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       if (!r.componentName)
@@ -145,7 +142,11 @@ function MaterialTransfer({ type }) {
       if (!r.qty) return toast.error(`Row ${i + 1}: Please enter Qty`);
       if (!r.rejLoc)
         return toast.error(`Row ${i + 1}: Please select Drop Location`);
-      if ((r.rejLoc == allData.locationSel) && (r.tobranch == JSON.parse(localStorage.getItem("otherData"))?.company_branch))
+      if (
+        r.rejLoc == allData.locationSel &&
+        allData.dropBranch ==
+          JSON.parse(localStorage.getItem("otherData"))?.company_branch
+      )
         return toast.error(`Row ${i + 1}: Both Location Same`);
     }
 
@@ -153,7 +154,6 @@ function MaterialTransfer({ type }) {
     const tolocations = rows.map((r) => r.rejLoc);
     const qtys = rows.map((r) => r.qty);
     const comments = rows.map((r) => r.comment || "");
-    const tobranches = rows.map((r) => r.tobranch);
 
     setLoading(true);
     const { data } = await imsAxios.post(
@@ -165,24 +165,20 @@ function MaterialTransfer({ type }) {
         tolocation: tolocations,
         qty: qtys,
         type: type == "sftorej" ? "SF2REJ" : "SF2SF",
-        tobranch: tobranches,
+        tobranch: allData.dropBranch,
       }
     );
 
     if (data.code == 200) {
       setAllData({
         locationSel: "",
-        componentName: "",
-        qty: "",
-        rejLoc: "",
-        tobranch: "",
+        dropBranch: "",
       });
       setRows([
         {
           componentName: "",
           qty: "",
           rejLoc: "",
-          tobranch: "",
           restDetail: {},
           address: "",
           comment: "",
@@ -200,16 +196,13 @@ function MaterialTransfer({ type }) {
   const reset = () => {
     setAllData({
       locationSel: "",
-      componentName: "",
-      qty: "",
-      rejLoc: "",
+      dropBranch: "",
     });
     setRows([
       {
         componentName: "",
         qty: "",
         rejLoc: "",
-        tobranch: "",
         restDetail: {},
         address: "",
         comment: "",
@@ -224,7 +217,6 @@ function MaterialTransfer({ type }) {
         componentName: "",
         qty: "",
         rejLoc: "",
-        tobranch: "",
         restDetail: {},
         address: "",
         comment: "",
@@ -232,7 +224,7 @@ function MaterialTransfer({ type }) {
     ]);
   };
 
-  const handleBranchSelection = async (rowIndex, branchCode) => {
+  const handleBranchSelection = async (branchCode) => {
     try {
       const { data } = await imsAxios.post("/location/fetchLocationBranch", {
         branch: branchCode,
@@ -242,15 +234,14 @@ function MaterialTransfer({ type }) {
       if (Array.isArray(list)) {
         list.map((a) => arr.push({ text: a.text, value: a.id }));
       }
-      setRows((prev) => {
-        const updated = [...prev];
-        updated[rowIndex] = {
-          ...updated[rowIndex],
-          dropOptions: arr,
-          rejLoc: "",
-        };
-        return updated;
-      });
+      // Update global location options and reset all row locations
+      setLocRejDetail(arr);
+      setRows((prev) =>
+        prev.map((row) => ({
+          ...row,
+          rejLoc: "", // Reset location when branch changes
+        }))
+      );
     } catch (error) {
       console.error("Error fetching locations for branch", error);
       toast.error("Failed to fetch drop locations for selected branch");
@@ -301,6 +292,23 @@ function MaterialTransfer({ type }) {
               <Col span={24} style={{ padding: "5px" }}>
                 <TextArea disabled value={locDetail} />
               </Col>
+              <Col span={24} style={{ padding: "5px" }}>
+                <span>DROP BRANCH</span>
+                <MySelect
+                  options={[
+                    { text: "A-21 [BRMSC012]", value: "BRMSC012" },
+                    { text: "B-29 [BRMSC029]", value: "BRMSC029" },
+                    { text: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+                    { text: "D-160", value: "BRBAD116" },
+                  ]}
+                  placeholder="Select Drop Branch"
+                  value={allData.dropBranch}
+                  onChange={async (e) => {
+                    setAllData((prev) => ({ ...prev, dropBranch: e }));
+                    await handleBranchSelection(e);
+                  }}
+                />
+              </Col>
             </Row>
           </Card>
         </Col>
@@ -330,21 +338,20 @@ function MaterialTransfer({ type }) {
               >
                 <thead style={{ backgroundColor: "grey", color: "white" }}>
                   <tr>
-                    <th style={{ width: "18vw" }}>Component/Part</th>
-                    <th style={{ width: "12vw" }}>In Stock Qty</th>
-                    <th style={{ width: "12vw" }}>Transfer Qty</th>
-                    <th style={{ width: "14vw" }}>DROP (+) Branch</th>
-                    <th style={{ width: "14vw" }}>DROP (+) Loc</th>
-                    <th style={{ width: "12vw" }}>Weighted Average Rate</th>
-                    <th style={{ width: "22vw" }}>Address</th>
-                    <th style={{ width: "22vw" }}>Comment</th>
+                    <th style={{ width: "20vw" }}>Component/Part</th>
+                    <th style={{ width: "14vw" }}>In Stock Qty</th>
+                    <th style={{ width: "14vw" }}>Transfer Qty</th>
+                    <th style={{ width: "18vw" }}>DROP (+) Loc</th>
+                    <th style={{ width: "14vw" }}>Weighted Average Rate</th>
+                    <th style={{ width: "24vw" }}>Address</th>
+                    <th style={{ width: "24vw" }}>Comment</th>
                     <th style={{ width: "10vw" }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r, idx) => (
                     <tr key={idx}>
-                      <td style={{ width: "18vw" }}>
+                      <td style={{ width: "20vw" }}>
                         <MyAsyncSelect
                           loadOptions={getComponent}
                           optionsState={asyncOptions}
@@ -363,14 +370,14 @@ function MaterialTransfer({ type }) {
                           }}
                         />
                       </td>
-                      <td style={{ textAlign: "center", width: "12vw" }}>
+                      <td style={{ textAlign: "center", width: "14vw" }}>
                         <paragraph>
                           {r?.restDetail?.available_qty
                             ? `${r?.restDetail?.available_qty} ${r?.restDetail?.unit}`
                             : "0"}
                         </paragraph>
                       </td>
-                      <td style={{ width: "12vw" }}>
+                      <td style={{ width: "14vw" }}>
                         <Input
                           value={r.qty}
                           onChange={(e) =>
@@ -385,29 +392,9 @@ function MaterialTransfer({ type }) {
                           }
                         />
                       </td>
-                      <td style={{ width: "14vw" }}>
+                      <td style={{ width: "18vw" }}>
                         <MySelect
-                          options={[
-                            { text: "A-21 [BRMSC012]", value: "BRMSC012" },
-                            { text: "B-29 [BRMSC029]", value: "BRMSC029" },
-                            { text: "B-36 Alwar [BRBA036]", value: "BRBA036" },
-                            { text: "D-160", value: "BRBAD116" },
-                          ]}
-                          placeholder="Check Location"
-                          value={r.tobranch}
-                          onChange={async (e) => {
-                            setRows((prev) => {
-                              const updated = [...prev];
-                              updated[idx] = { ...updated[idx], tobranch: e };
-                              return updated;
-                            });
-                            handleBranchSelection(idx, e);
-                          }}
-                        />
-                      </td>
-                      <td style={{ width: "14vw" }}>
-                        <MySelect
-                          options={r.dropOptions ?? locRejDetail}
+                          options={locRejDetail}
                           placeholder="Check Location"
                           value={r.rejLoc}
                           onChange={async (e) => {
@@ -420,17 +407,17 @@ function MaterialTransfer({ type }) {
                           }}
                         />
                       </td>
-                      <td style={{ width: "12vw" }}>
+                      <td style={{ width: "14vw" }}>
                         <Input disabled value={r?.restDetail?.avr_rate} />
                       </td>
-                      <td style={{ width: "22vw" }}>
+                      <td style={{ width: "24vw" }}>
                         <TextArea
                           disabled
                           value={r.address}
                           style={{ resize: "none" }}
                         />
                       </td>
-                      <td style={{ width: "22vw" }}>
+                      <td style={{ width: "24vw" }}>
                         <TextArea
                           rows={2}
                           value={r.comment}
