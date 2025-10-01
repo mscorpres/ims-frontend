@@ -319,7 +319,7 @@ function RmtoRm() {
                     text: "B-36 Alwar [BRBA036]",
                     value: "BRBA036",
                   },
-                  { text: "D-160", value: "BRBAD116" },
+                  { text: "D-160 [BRBAD116]", value: "BRBAD116" },
                 ]}
                 placeholder="Select Drop Branch"
                 value={allData.dropBranch}
