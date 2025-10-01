@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import MySelect from "../../../Components/MySelect";
 import { toast } from "react-toastify";
 import { Col, Row, Select, Button, Input } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -19,6 +19,7 @@ function RmtoRm() {
     locationTo: "",
     component: "",
     qty1: "",
+    tobranch: "",
   });
   // console.log(allData);
 
@@ -102,6 +103,7 @@ function RmtoRm() {
         tolocation: [allData.locationTo],
         qty: [allData.qty1],
         type: "RM2RM",
+        tobranch: allData.tobranch,
       });
       if (data.code == 200) {
         // setAllData({
@@ -118,6 +120,7 @@ function RmtoRm() {
           locationTo: "",
           component: "",
           qty1: "",
+          tobranch: "",
         });
         setbBanchName("");
         setLocationName("");
@@ -127,6 +130,24 @@ function RmtoRm() {
         toast.error(data.message.msg);
         setLoading(false);
       }
+    }
+  };
+
+  const handleBranchSelection = async (branchCode) => {
+    try {
+      const { data } = await imsAxios.post("/location/fetchLocationBranch", {
+        branch: branchCode,
+      });
+      let arr = [];
+      const list = data?.data ?? data; // support both shapes
+      if (Array.isArray(list)) {
+        list.map((a) => arr.push({ label: a.text, value: a.id }));
+      }
+      setloctionDataTo(arr);
+      setAllData((prev) => ({ ...prev, locationTo: "" }));
+    } catch (error) {
+      console.error("Error fetching locations for branch", error);
+      toast.error("Failed to fetch drop locations for selected branch");
     }
   };
 
@@ -146,6 +167,7 @@ function RmtoRm() {
       locationTo: "",
       component: "",
       qty1: "",
+      tobranch: "",
     });
     setbBanchName("");
     setLocationName("");
@@ -218,73 +240,116 @@ function RmtoRm() {
         <Col span={18}>
           <Row gutter={10}>
             <Col span={24}>
-              <table>
-                <tr>
-                  <th className="an">Component/Part No.</th>
-                  <th className="an">STOCK QUANTITY</th>
-                  <th className="an">TRANSFERING QTY</th>
-                  <th className="an">DROP (+) Loc</th>
-                  <th className="an">Weighted Average Rate</th>
-                </tr>
-                <tr>
-                  <td>
-                    <MyAsyncSelect
-                      style={{ width: "100%" }}
-                      loadOptions={getComponentList}
-                      onBlur={() => setAsyncOptions([])}
-                      onInputChange={(e) => setSearch(e)}
-                      placeholder="Part Name/Code"
-                      value={allData.component}
-                      optionsState={asyncOptions}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, component: e };
-                        })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      suffix={qty?.unit}
-                      // style={{ width: "100%" }}
-                      disabled
-                      value={
-                        qty?.available_qty
-                          ? `${qty?.available_qty} ${qty?.unit}`
-                          : "0"
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      // style={{ width: "20%" }}
-                      value={allData?.qty1}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, qty1: e.target.value };
-                        })
-                      }
-                      suffix={qty?.unit}
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      style={{ width: "100%" }}
-                      options={locDataTo}
-                      value={allData.locationTo}
-                      placeholder="Location"
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, locationTo: e };
-                        })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input disabled value={qty?.avr_rate} />
-                  </td>
-                </tr>
-              </table>
+              <div
+                style={{
+                  overflowX: "auto",
+                  overflowY: "auto",
+                  maxHeight: "38vh",
+                }}
+              >
+                <table
+                  style={{
+                    tableLayout: "fixed",
+                    width: "100%",
+                    minWidth: 1200,
+                  }}
+                >
+                  <tr>
+                    <th className="an" style={{ width: "18vw" }}>
+                      Component/Part No.
+                    </th>
+                    <th className="an" style={{ width: "12vw" }}>
+                      STOCK QUANTITY
+                    </th>
+                    <th className="an" style={{ width: "12vw" }}>
+                      TRANSFERING QTY
+                    </th>
+                    <th className="an" style={{ width: "14vw" }}>
+                      DROP (+) Branch
+                    </th>
+                    <th className="an" style={{ width: "14vw" }}>
+                      DROP (+) Loc
+                    </th>
+                    <th className="an" style={{ width: "12vw" }}>
+                      Weighted Average Rate
+                    </th>
+                  </tr>
+                  <tr>
+                    <td style={{ width: "18vw" }}>
+                      <MyAsyncSelect
+                        style={{ width: "100%" }}
+                        loadOptions={getComponentList}
+                        onBlur={() => setAsyncOptions([])}
+                        onInputChange={(e) => setSearch(e)}
+                        placeholder="Part Name/Code"
+                        value={allData.component}
+                        optionsState={asyncOptions}
+                        onChange={(e) =>
+                          setAllData((allData) => {
+                            return { ...allData, component: e };
+                          })
+                        }
+                      />
+                    </td>
+                    <td style={{ width: "12vw" }}>
+                      <Input
+                        suffix={qty?.unit}
+                        // style={{ width: "100%" }}
+                        disabled
+                        value={
+                          qty?.available_qty
+                            ? `${qty?.available_qty} ${qty?.unit}`
+                            : "0"
+                        }
+                      />
+                    </td>
+                    <td style={{ width: "12vw" }}>
+                      <Input
+                        // style={{ width: "20%" }}
+                        value={allData?.qty1}
+                        onChange={(e) =>
+                          setAllData((allData) => {
+                            return { ...allData, qty1: e.target.value };
+                          })
+                        }
+                        suffix={qty?.unit}
+                      />
+                    </td>
+                    <td style={{ width: "14vw" }}>
+                      <MySelect
+                        options={[
+                          { text: "A-21 [BRMSC012]", value: "BRMSC012" },
+                          { text: "B-29 [BRMSC029]", value: "BRMSC029" },
+                          { text: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+                          { text: "D-160", value: "BRBAD116" },
+                        ]}
+                        placeholder="Check Location"
+                        value={allData.tobranch}
+                        onChange={async (e) => {
+                          setAllData((prev) => ({ ...prev, tobranch: e }));
+                          await handleBranchSelection(e);
+                        }}
+                      />
+                    </td>
+                    <td style={{ width: "14vw" }}>
+                      <Select
+                        style={{ width: "100%" }}
+                        options={locDataTo}
+                        value={allData.locationTo}
+                        placeholder="Location"
+                        onChange={(e) =>
+                          setAllData((allData) => {
+                            return { ...allData, locationTo: e };
+                          })
+                        }
+                      />
+                    </td>
+                    <td style={{ width: "12vw", textAlign: "center" }}>
+                      <Input disabled value={qty?.avr_rate} />
+                    </td>
+                  </tr>
+                </table>
+              </div>
             </Col>
             {allData.locationTo && (
               <Col span={24}>

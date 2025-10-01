@@ -24,6 +24,7 @@ function MaterialTransfer({ type }) {
     componentName: "",
     qty: "",
     rejLoc: "",
+    tobranch: "",
   });
   const { executeFun, loading: loading1 } = useApi();
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -39,6 +40,7 @@ function MaterialTransfer({ type }) {
       componentName: "",
       qty: "",
       rejLoc: "",
+      tobranch: "",
       restDetail: {},
       address: "",
       comment: "",
@@ -143,7 +145,7 @@ function MaterialTransfer({ type }) {
       if (!r.qty) return toast.error(`Row ${i + 1}: Please enter Qty`);
       if (!r.rejLoc)
         return toast.error(`Row ${i + 1}: Please select Drop Location`);
-      if (r.rejLoc == allData.locationSel)
+      if ((r.rejLoc == allData.locationSel) && (r.tobranch == JSON.parse(localStorage.getItem("otherData"))?.company_branch))
         return toast.error(`Row ${i + 1}: Both Location Same`);
     }
 
@@ -151,6 +153,7 @@ function MaterialTransfer({ type }) {
     const tolocations = rows.map((r) => r.rejLoc);
     const qtys = rows.map((r) => r.qty);
     const comments = rows.map((r) => r.comment || "");
+    const tobranches = rows.map((r) => r.tobranch);
 
     setLoading(true);
     const { data } = await imsAxios.post(
@@ -162,6 +165,7 @@ function MaterialTransfer({ type }) {
         tolocation: tolocations,
         qty: qtys,
         type: type == "sftorej" ? "SF2REJ" : "SF2SF",
+        tobranch: tobranches,
       }
     );
 
@@ -171,12 +175,14 @@ function MaterialTransfer({ type }) {
         componentName: "",
         qty: "",
         rejLoc: "",
+        tobranch: "",
       });
       setRows([
         {
           componentName: "",
           qty: "",
           rejLoc: "",
+          tobranch: "",
           restDetail: {},
           address: "",
           comment: "",
@@ -203,6 +209,7 @@ function MaterialTransfer({ type }) {
         componentName: "",
         qty: "",
         rejLoc: "",
+        tobranch: "",
         restDetail: {},
         address: "",
         comment: "",
@@ -217,11 +224,37 @@ function MaterialTransfer({ type }) {
         componentName: "",
         qty: "",
         rejLoc: "",
+        tobranch: "",
         restDetail: {},
         address: "",
         comment: "",
       },
     ]);
+  };
+
+  const handleBranchSelection = async (rowIndex, branchCode) => {
+    try {
+      const { data } = await imsAxios.post("/location/fetchLocationBranch", {
+        branch: branchCode,
+      });
+      let arr = [];
+      const list = data?.data ?? data; // support both shapes
+      if (Array.isArray(list)) {
+        list.map((a) => arr.push({ text: a.text, value: a.id }));
+      }
+      setRows((prev) => {
+        const updated = [...prev];
+        updated[rowIndex] = {
+          ...updated[rowIndex],
+          dropOptions: arr,
+          rejLoc: "",
+        };
+        return updated;
+      });
+    } catch (error) {
+      console.error("Error fetching locations for branch", error);
+      toast.error("Failed to fetch drop locations for selected branch");
+    }
   };
 
   const removeRow = (index) => {
@@ -300,6 +333,7 @@ function MaterialTransfer({ type }) {
                     <th style={{ width: "18vw" }}>Component/Part</th>
                     <th style={{ width: "12vw" }}>In Stock Qty</th>
                     <th style={{ width: "12vw" }}>Transfer Qty</th>
+                    <th style={{ width: "14vw" }}>DROP (+) Branch</th>
                     <th style={{ width: "14vw" }}>DROP (+) Loc</th>
                     <th style={{ width: "12vw" }}>Weighted Average Rate</th>
                     <th style={{ width: "22vw" }}>Address</th>
@@ -353,7 +387,27 @@ function MaterialTransfer({ type }) {
                       </td>
                       <td style={{ width: "14vw" }}>
                         <MySelect
-                          options={locRejDetail}
+                          options={[
+                            { text: "A-21 [BRMSC012]", value: "BRMSC012" },
+                            { text: "B-29 [BRMSC029]", value: "BRMSC029" },
+                            { text: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+                            { text: "D-160", value: "BRBAD116" },
+                          ]}
+                          placeholder="Check Location"
+                          value={r.tobranch}
+                          onChange={async (e) => {
+                            setRows((prev) => {
+                              const updated = [...prev];
+                              updated[idx] = { ...updated[idx], tobranch: e };
+                              return updated;
+                            });
+                            handleBranchSelection(idx, e);
+                          }}
+                        />
+                      </td>
+                      <td style={{ width: "14vw" }}>
+                        <MySelect
+                          options={r.dropOptions ?? locRejDetail}
                           placeholder="Check Location"
                           value={r.rejLoc}
                           onChange={async (e) => {

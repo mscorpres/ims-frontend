@@ -19,6 +19,7 @@ import {
   Modal,
   Row,
   Typography,
+  Select,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
@@ -40,6 +41,7 @@ const Login = () => {
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
+    company_branch: "BRMSC012",
   });
   const { Title, Link, Text } = Typography;
   const [signUp] = Form.useForm();
@@ -91,14 +93,15 @@ const Login = () => {
           mobileConfirmed: data.other.m_v,
           emailConfirmed: data.other.e_v,
           passwordChanged: data.other.c_p ?? "C",
-          company_branch: JSON.parse(localStorage.getItem("otherData"))
-            ?.company_branch,
+          company_branch:
+            inpVal.company_branch ||
+            JSON.parse(localStorage.getItem("otherData"))?.company_branch ||
+            "BRMSC012",
           currentLink: JSON.parse(localStorage.getItem("otherData"))
             ?.currentLink,
           id: data.crn_id,
           showlegal: data.department === "legal" ? true : false,
           session: "25-26",
-          company_branch: "BRMSC012",
         };
         dispatch(setUser(obj));
         dispatch(setSettings(data.data.settings));
@@ -297,7 +300,7 @@ const Login = () => {
           >
             <Col span={12}>
               {signUpPage === "1" ? (
-                <Card style={{ height: 350 }}>
+                <Card style={{ height: 500 }}>
                   <Title
                     style={{
                       color: "gray",
@@ -315,6 +318,19 @@ const Login = () => {
                     autoComplete="off"
                     form={signUp}
                   >
+                    <Form.Item label="Company Branch" name="company_branch">
+                      <Select
+                        value={inpVal.company_branch}
+                        onChange={(v) => inputHandler("company_branch", v)}
+                        options={[
+                          { label: "A-21 [BRMSC012]", value: "BRMSC012" },
+                          { label: "B-29 [BRMSC029]", value: "BRMSC029" },
+                          { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+                          { label: "D1-16", value: "D116" },
+                        ]}
+                        size="medium"
+                      />
+                    </Form.Item>
                     <Form.Item
                       label="Username / Mobile / CRN Number"
                       name="username"
@@ -352,6 +368,7 @@ const Login = () => {
                         size="large"
                       />
                     </Form.Item>
+
                     {forgotPassword === "0" ? (
                       <>
                         {/* <Form.Item
@@ -375,9 +392,13 @@ const Login = () => {
                         {/* <Link onClick={() => setForgotPassword("1")}>
                           Forgot Password
                         </Link> */}
-                         <div className="flex justify-center">
-                          <ReCAPTCHA sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR" onChange={handleRecaptchaChange}  key={recaptchaKey}/>
-                        </div> 
+                        <div className="flex justify-center">
+                          <ReCAPTCHA
+                            sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                            onChange={handleRecaptchaChange}
+                            key={recaptchaKey}
+                          />
+                        </div>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
                             loading={loading("submit")}
@@ -572,7 +593,6 @@ const Login = () => {
                     htmlType="submit"
                     style={{ marginTop: "2em" }}
                     onClick={() => validatecreateNewUser()}
-                    disabled
                   >
                     Sign Up
                   </Button>
