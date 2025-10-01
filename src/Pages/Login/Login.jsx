@@ -19,12 +19,14 @@ import {
   Modal,
   Row,
   Typography,
+  Alert,
   Select,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
 import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
 import ReCAPTCHA from "react-google-recaptcha";
+import { ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons";
 
 const Login = () => {
   document.title = "IMS Login";
@@ -34,6 +36,10 @@ const Login = () => {
   const [ispassSame, setIsPassSame] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
+  const [showOTP, setShowOTP] = useState(false);
+  const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
+  const [otpTimer, setOtpTimer] = useState(600); // 10 minutes in seconds
+  const [userCredentials, setUserCredentials] = useState(null);
   const { executeFun, loading } = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -71,7 +77,7 @@ const Login = () => {
     } else if (password === "") {
       toast.error("password fill is empty");
     } else {
-      const { data, success } = await executeFun(
+      const res = await executeFun(
         () =>
           imsAxios.post("/auth/signin", {
             username: username,
@@ -79,37 +85,53 @@ const Login = () => {
           }),
         "submit"
       );
-      console.log("data.message success", success);
+      const { success } = res || {};
+      console.log("login success flag", success);
 
       if (success) {
-        console.log("this is the login data", data);
-        const obj = {
-          email: data.crn_email,
-          phone: data.crn_mobile,
-          userName: data.username,
-          token: data.token,
-          favPages: JSON.parse(data.fav_pages),
-          type: data.crn_type,
-          mobileConfirmed: data.other.m_v,
-          emailConfirmed: data.other.e_v,
-          passwordChanged: data.other.c_p ?? "C",
-          company_branch:
-            inpVal.company_branch ||
-            JSON.parse(localStorage.getItem("otherData"))?.company_branch ||
-            "BRMSC012",
-          currentLink: JSON.parse(localStorage.getItem("otherData"))
-            ?.currentLink,
-          id: data.crn_id,
-          showlegal: data.department === "legal" ? true : false,
-          session: "25-26",
-        };
-        dispatch(setUser(obj));
-        dispatch(setSettings(data.data.settings));
+        console.log("login response", res);
+        const isTwoStep = res?.isTwoStep ?? res?.data?.isTwoStep;
+        if (isTwoStep === "Y") {
+          // Two-step login, show OTP screen
+          setUserCredentials({
+            username,
+            token: res?.token,
+            qrCode: res?.qrCode,
+          });
+          setShowOTP(true);
+          setOtpTimer(600); // Reset timer to 10 minutes
+          toast.success("OTP sent to your registered email address");
+        } else {
+          // Normal login flow (no OTP)
+          const payload = res?.data ?? res;
+          const obj = {
+            email: payload.crn_email,
+            phone: payload.crn_mobile,
+            userName: payload.username,
+            token: payload.token,
+            favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
+            type: payload.crn_type,
+            mobileConfirmed: payload.other?.m_v,
+            emailConfirmed: payload.other?.e_v,
+            passwordChanged: payload.other?.c_p ?? "C",
+            company_branch: JSON.parse(localStorage.getItem("otherData"))
+              ?.company_branch,
+            currentLink: JSON.parse(localStorage.getItem("otherData"))
+              ?.currentLink,
+            id: payload.crn_id,
+            showlegal: payload.department === "legal" ? true : false,
+            session: "25-26",
+            company_branch: "BRMSC012",
+          };
+          dispatch(setUser(obj));
+          if (payload.settings) dispatch(setSettings(payload.settings));
+          toast.success("Login successful!");
+          navigate("/");
+        }
       } else {
         setRecaptchaValue(null);
         setRecaptchaKey(Math.random());
-        // console.log("data.message", data);
-        toast.error(data.message);
+        toast.error(res?.message);
       }
       // dispatch(
       //   loginAuth({ username: inpVal.username, password: inpVal.password })
@@ -232,6 +254,125 @@ const Login = () => {
     setRecaptchaValue(value);
   };
 
+  // OTP Timer Effect
+  useEffect(() => {
+    let interval = null;
+    if (showOTP && otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((timer) => timer - 1);
+      }, 1000);
+    } else if (otpTimer === 0) {
+      toast.error("OTP has expired. Please login again.");
+      setShowOTP(false);
+      setOtpCode(["", "", "", "", "", ""]);
+    }
+    return () => clearInterval(interval);
+  }, [showOTP, otpTimer]);
+
+  // OTP Input Handler
+  const handleOtpChange = (index, value) => {
+    if (value.length <= 1 && /^\d*$/.test(value)) {
+      const newOtpCode = [...otpCode];
+      newOtpCode[index] = value;
+      setOtpCode(newOtpCode);
+
+      // Auto-focus next input
+      if (value && index < 5) {
+        const nextInput = document.getElementById(`otp-input-${index + 1}`);
+        if (nextInput) nextInput.focus();
+      }
+    }
+  };
+
+  // OTP Backspace Handler
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otpCode[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-input-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
+  // Verify OTP
+  const verifyOTP = async () => {
+    const otpString = otpCode.join("");
+    if (otpString.length !== 6) {
+      toast.error("Please enter the complete 6-digit OTP");
+      return;
+    }
+
+    if (!userCredentials?.token) {
+      toast.error("Session expired. Please login again.");
+      backToLogin();
+      return;
+    }
+
+    try {
+      const res = await executeFun(
+        () =>
+          imsAxios.post(
+            "/auth/verify",
+            { otp: otpString },
+            {
+              headers: {
+                "x-csrf-token": userCredentials.token,
+                Authorization: `${userCredentials.token}`,
+              },
+            }
+          ),
+        "verifyOtp"
+      );
+
+      // debugger
+      if (res?.success) {
+        const payload = res?.data ?? res;
+        const obj = {
+          email: payload.crn_email,
+          phone: payload.crn_mobile,
+          userName: payload.username,
+          token: payload.token,
+          favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
+          type: payload.crn_type,
+          mobileConfirmed: payload.other?.m_v,
+          emailConfirmed: payload.other?.e_v,
+          passwordChanged: payload.other?.c_p ?? "C",
+          company_branch: JSON.parse(localStorage.getItem("otherData"))
+            ?.company_branch,
+          currentLink: JSON.parse(localStorage.getItem("otherData"))
+            ?.currentLink,
+          id: payload.crn_id,
+          showlegal: payload.department === "legal" ? true : false,
+          session: "25-26",
+          company_branch: "BRMSC012",
+        };
+        dispatch(setUser(obj));
+        if (payload.settings) dispatch(setSettings(payload.settings));
+        toast.success("Login successful!");
+        navigate("/");
+      } else {
+        toast.error(res?.message || "Invalid OTP. Please try again.");
+        setOtpCode(["", "", "", "", "", ""]);
+      }
+    } catch (error) {
+      toast.error("Invalid OTP. Please try again.");
+      setOtpCode(["", "", "", "", "", ""]);
+    }
+  };
+
+  // Back to login
+  const backToLogin = () => {
+    setShowOTP(false);
+    setOtpCode(["", "", "", "", "", ""]);
+    setOtpTimer(600);
+    setUserCredentials(null);
+  };
+
+  // Format timer display
+  const formatTimer = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
   // console.log("ispassSame", ispassSame);
   return (
     <div style={{ height: "100vh" }}>
@@ -299,8 +440,126 @@ const Login = () => {
             gutter={[5, 5]}
           >
             <Col span={12}>
-              {signUpPage === "1" ? (
-                <Card style={{ height: 500 }}>
+              {showOTP ? (
+                <Card
+                  style={{
+                    height: 500,
+                    borderRadius: 12,
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <Title
+                    style={{
+                      color: "#04b0a8",
+                      textAlign: "center",
+                      marginBottom: 20,
+                      fontSize: 24,
+                      fontWeight: "bold",
+                    }}
+                    level={3}
+                  >
+                    Two-Factor Authentication
+                  </Title>
+
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      display: "block",
+                      marginBottom: 30,
+                      color: "#666",
+                      fontSize: 14,
+                    }}
+                  >
+                    Enter the 6-digit verification code sent to your registered
+                    Email address (expires in 5 minutes)
+                  </Text>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 12,
+                      marginBottom: 20,
+                    }}
+                  >
+                    {otpCode.map((digit, index) => (
+                      <Input
+                        key={index}
+                        id={`otp-input-${index}`}
+                        value={digit}
+                        onChange={(e) => handleOtpChange(index, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                        maxLength={1}
+                        style={{
+                          width: 50,
+                          height: 50,
+                          textAlign: "center",
+                          fontSize: 18,
+                          fontWeight: "bold",
+                          border: digit
+                            ? "2px solid #04b0a8"
+                            : "1px solid #d9d9d9",
+                          borderRadius: 8,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      display: "block",
+                      marginBottom: 30,
+                      color: "#666",
+                      fontSize: 14,
+                    }}
+                  >
+                    Code expires in {formatTimer(otpTimer)}
+                  </Text>
+
+                  <Button
+                    type="primary"
+                    size="large"
+                    block
+                    onClick={verifyOTP}
+                    loading={loading("verifyOtp")}
+                    style={{
+                      height: 45,
+                      fontSize: 16,
+                      fontWeight: "bold",
+                      marginBottom: 20,
+                      backgroundColor: "#04b0a8",
+                      borderColor: "#04b0a8",
+                    }}
+                  >
+                    Verify & Continue
+                  </Button>
+
+                  <div style={{ textAlign: "center" }}>
+                    <Button
+                      type="link"
+                      onClick={backToLogin}
+                      style={{ color: "#666" }}
+                    >
+                      <ArrowLeftOutlined /> Back to Sign In
+                    </Button>
+                  </div>
+
+                  <Alert
+                    message="For your security, this code will expire in 5 minutes. Never share this code with anyone."
+                    type="info"
+                    showIcon
+                    icon={<SafetyOutlined />}
+                    style={{
+                      marginTop: 20,
+                      backgroundColor: "#e6f7ff",
+                      borderColor: "#91d5ff",
+                      borderRadius: 8,
+                    }}
+                  />
+                </Card>
+              ) : signUpPage === "1" ? (
+                <Card style={{ height: 350 }}>
                   <Title
                     style={{
                       color: "gray",
