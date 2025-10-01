@@ -348,6 +348,7 @@ const Login = () => {
         if (payload.settings) dispatch(setSettings(payload.settings));
         toast.success("Login successful!");
         navigate("/");
+        window.location.reload();
       } else {
         toast.error(res?.message || "Invalid OTP. Please try again.");
         setOtpCode(["", "", "", "", "", ""]);
