@@ -741,6 +741,7 @@ const App = () => {
                       placeholder="Select Company Branch"
                       onChange={(value) => handleSelectCompanyBranch(value)}
                       value={user.company_branch}
+                      disabled
                     />
                   </div>
                   <div className="location-select">
