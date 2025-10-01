@@ -489,19 +489,21 @@ function RmtoRm() {
                             />
                           </td>
                         </tr>
-                        <tr>
-                          <td colSpan="7" style={{ padding: "8px" }}>
-                            <TextArea
-                              disabled
-                              value={row.address || ""}
-                              placeholder={`Row ${
-                                index + 1
-                              } - Location Address`}
-                              rows={2}
-                              style={{ width: "100%" }}
-                            />
-                          </td>
-                        </tr>
+                        {row.locationTo && row.address && (
+                          <tr>
+                            <td colSpan="7" style={{ padding: "8px" }}>
+                              <TextArea
+                                disabled
+                                value={row.address}
+                                placeholder={`Row ${
+                                  index + 1
+                                } - Location Address`}
+                                rows={2}
+                                style={{ width: "100%" }}
+                              />
+                            </td>
+                          </tr>
+                        )}
                       </React.Fragment>
                     ))}
                   </tbody>

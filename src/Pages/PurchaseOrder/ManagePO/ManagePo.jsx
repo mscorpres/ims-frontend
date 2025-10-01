@@ -228,7 +228,9 @@ const ManagePO = () => {
     {
       headerName: "Advance Payment",
       field: "advPayment",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.advPayment=="0"?"NO":"YES"} />,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.advPayment == "0" ? "NO" : "YES"} />
+      ),
       flex: 1,
       minWidth: 150,
     },
@@ -340,18 +342,18 @@ const ManagePO = () => {
   };
   const getPoDetail = async (poid) => {
     setLoading(true);
-    const  {data,message}  = await imsAxios.post("/purchaseOrder/fetchData4Update", {
-      pono: poid.replaceAll("_", "/"),
-    }).then((res) => {
-      if(res.code == 500){
-        toast.error(res.message.msg);
-        setLoading(false);
-      }
-      else{
-        return res
-      }
-    }
-    );
+    const { data, message } = await imsAxios
+      .post("/purchaseOrder/fetchData4Update", {
+        pono: poid.replaceAll("_", "/"),
+      })
+      .then((res) => {
+        if (res.code == 500) {
+          toast.error(res.message.msg);
+          setLoading(false);
+        } else {
+          return res;
+        }
+      });
     setLoading(false);
     if (data?.code == 200) {
       setUpdatePoId({
@@ -361,7 +363,7 @@ const ManagePO = () => {
         ...data.data.vendor[0],
       });
     } else {
-      toast.error(data?.message||message);
+      toast.error(data?.message || message);
     }
   };
   useEffect(() => {
