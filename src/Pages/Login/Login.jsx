@@ -97,6 +97,7 @@ const Login = () => {
             username,
             token: res?.token,
             qrCode: res?.qrCode,
+            company_branch: inpVal.company_branch, // Store selected branch for OTP flow
           });
           setShowOTP(true);
           setOtpTimer(600); // Reset timer to 10 minutes
@@ -114,14 +115,12 @@ const Login = () => {
             mobileConfirmed: payload.other?.m_v,
             emailConfirmed: payload.other?.e_v,
             passwordChanged: payload.other?.c_p ?? "C",
-            company_branch: JSON.parse(localStorage.getItem("otherData"))
-              ?.company_branch,
+            company_branch: inpVal.company_branch, // Use selected branch from login form
             currentLink: JSON.parse(localStorage.getItem("otherData"))
               ?.currentLink,
             id: payload.crn_id,
             showlegal: payload.department === "legal" ? true : false,
             session: "25-26",
-            company_branch: "BRMSC012",
           };
           dispatch(setUser(obj));
           if (payload.settings) dispatch(setSettings(payload.settings));
@@ -335,14 +334,12 @@ const Login = () => {
           mobileConfirmed: payload.other?.m_v,
           emailConfirmed: payload.other?.e_v,
           passwordChanged: payload.other?.c_p ?? "C",
-          company_branch: JSON.parse(localStorage.getItem("otherData"))
-            ?.company_branch,
+          company_branch: userCredentials.company_branch, // Use stored branch from login
           currentLink: JSON.parse(localStorage.getItem("otherData"))
             ?.currentLink,
           id: payload.crn_id,
           showlegal: payload.department === "legal" ? true : false,
           session: "25-26",
-          company_branch: "BRMSC012",
         };
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
@@ -586,7 +583,7 @@ const Login = () => {
                           { label: "A-21 [BRMSC012]", value: "BRMSC012" },
                           { label: "B-29 [BRMSC029]", value: "BRMSC029" },
                           { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
-                          { label: "D1-16", value: "D116" },
+                          { label: "D-160", value: "D116" },
                         ]}
                         size="medium"
                       />

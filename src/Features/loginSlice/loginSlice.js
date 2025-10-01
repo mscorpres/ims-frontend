@@ -182,14 +182,23 @@ const loginSlice = createSlice({
       let obj = { ...state.user, ...action.payload };
       state.user = obj;
       localStorage.setItem("loggedInUser", JSON.stringify(obj));
+
+      // Update axios headers with selected branch and session
+      const company_branch =
+        action.payload?.company_branch ?? obj.company_branch ?? "BRMSC012";
+      const session = action.payload?.session ?? obj.session ?? "25-26";
+
       localStorage.setItem(
         "otherData",
         JSON.stringify({
-          company_branch:
-            action.payload?.company_branch ?? obj.company_branch ?? "BRMSC012",
-          session: action.payload?.session ?? obj.session ?? "23-24",
+          company_branch,
+          session,
         })
       );
+
+      // Update axios headers immediately
+      imsAxios.defaults.headers["Company-Branch"] = company_branch;
+      imsAxios.defaults.headers["Session"] = session;
     },
     setSettings: (state, action) => {
       let obj = { ...state.settings, ...action.payload };

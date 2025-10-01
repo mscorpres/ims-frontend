@@ -406,8 +406,9 @@ const App = () => {
     }
     if (user && user.token) {
       imsAxios.defaults.headers["x-csrf-token"] = user.token;
-      imsAxios.defaults.headers["Company-Branch"] = "BRMSC012";
-      imsAxios.defaults.headers["Session"] = "24-25";
+      imsAxios.defaults.headers["Company-Branch"] =
+        user.company_branch || "BRMSC012";
+      imsAxios.defaults.headers["Session"] = user.session || "25-26";
       socket.emit("fetch_notifications", {
         source: "react",
       });
