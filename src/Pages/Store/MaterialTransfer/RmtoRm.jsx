@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-
+import MySelect from "../../../Components/MySelect";
 import { toast } from "react-toastify";
 import { Col, Row, Select, Button, Input } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import "./Modal/style.css";
 import { imsAxios } from "../../../axiosInterceptor";
 import NavFooter from "../../../Components/NavFooter";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import { v4 } from "uuid";
 const { TextArea } = Input;
 
 function RmtoRm() {
@@ -15,21 +17,58 @@ function RmtoRm() {
   const [allData, setAllData] = useState({
     locationFrom: "",
     companyBranch: "",
-    comment: "",
-    locationTo: "",
-    component: "",
-    qty1: "",
+    dropBranch: "",
   });
-  // console.log(allData);
+
+  // Convert to multiple rows structure
+  const [rows, setRows] = useState([
+    {
+      id: v4(),
+      component: "",
+      qty1: "",
+      locationTo: "",
+      stockQty: "",
+      unit: "",
+      avrRate: "",
+      address: "",
+      comment: "",
+    },
+  ]);
 
   const [locData, setloctionData] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locDataTo, setloctionDataTo] = useState([]);
   const [branchName, setbBanchName] = useState([]);
-  const [qty, setQty] = useState([]);
   const [seacrh, setSearch] = useState(null);
-  const [locationName, setLocationName] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
+
+  // Add row functionality
+  const addRow = () => {
+    setRows((prev) => [
+      ...prev,
+      {
+        id: v4(),
+        component: "",
+        qty1: "",
+        locationTo: "",
+        stockQty: "",
+        unit: "",
+        avrRate: "",
+        address: "",
+        comment: "",
+      },
+    ]);
+  };
+
+  // Remove row functionality
+  const removeRow = (id) => {
+    if (rows.length > 1) {
+      setRows((prev) => prev.filter((row) => row.id !== id));
+    } else {
+      toast.error("At least one row is required");
+    }
+  };
+
   // console.log(branchName);
   const getLocationFunction = async () => {
     const { data } = await imsAxios.post("/godown/fetchLocationForRM2RM_from");
@@ -70,71 +109,143 @@ function RmtoRm() {
     }
   };
 
-  const getQtyFuction = async () => {
+  const getQtyFuction = async (rowIndex, componentValue) => {
+    const row = rows[rowIndex];
+    const component = componentValue ?? row?.component;
+    if (!allData.locationFrom || !component) return;
+
     const { data } = await imsAxios.post("/godown/godownStocks", {
-      component: allData.component,
+      component: component,
       location: allData.locationFrom,
     });
 
-    // console.log(data);
-
-    setQty(data.data);
+    setRows((prev) => {
+      const updated = [...prev];
+      updated[rowIndex] = {
+        ...updated[rowIndex],
+        stockQty: data.data?.available_qty || "0",
+        unit: data.data?.unit || "",
+        avrRate: data.data?.avr_rate || "",
+      };
+      return updated;
+    });
   };
 
   const saveRmToRm = async () => {
+    // Validations
     if (!allData.locationFrom) {
-      toast.error("Please enter location");
-    } else if (!allData.component) {
-      toast.error("Please Enter component");
-    } else if (!allData.qty1) {
-      toast.error("Please Enter a qty");
-    } else if (!allData.locationTo) {
-      toast.error("Please enter location");
-    } else if (allData.locationFrom == allData.locationTo) {
-      toast.error("Both Location Same....");
-    } else {
-      setLoading(true);
-      const { data } = await imsAxios.post("/godown/transferRM2RM", {
-        // companybranch: "BRMSC012",
-        comment: allData.comment,
-        fromlocation: allData.locationFrom,
-        component: [allData.component],
-        tolocation: [allData.locationTo],
-        qty: [allData.qty1],
-        type: "RM2RM",
+      return toast.error("Please select a Pick Location");
+    }
+
+    if (!allData.dropBranch) {
+      return toast.error("Please select Drop Branch");
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row.component) {
+        return toast.error(`Row ${i + 1}: Please select Component`);
+      }
+      if (!row.qty1) {
+        return toast.error(`Row ${i + 1}: Please enter Qty`);
+      }
+      if (!row.locationTo) {
+        return toast.error(`Row ${i + 1}: Please select Drop Location`);
+      }
+      if (row.locationTo == allData.locationFrom) {
+        return toast.error(`Row ${i + 1}: Both Location Same`);
+      }
+    }
+
+    setLoading(true);
+
+    // Prepare arrays for payload
+    const components = rows.map((row) => row.component);
+    const tolocations = rows.map((row) => row.locationTo);
+    const qtys = rows.map((row) => row.qty1);
+    const comments = rows.map((row) => row.comment || "");
+
+    const { data } = await imsAxios.post("/godown/transferRM2RM", {
+      comment: comments,
+      fromlocation: allData.locationFrom,
+      component: components,
+      tolocation: tolocations,
+      qty: qtys,
+      type: "RM2RM",
+      tobranch: allData.dropBranch,
+    });
+
+    if (data.code == 200) {
+      toast.success(data.message.toString()?.replaceAll("<br/>", ""));
+      // Reset form
+      setAllData({
+        locationFrom: "",
+        companyBranch: "",
+        dropBranch: "",
       });
-      if (data.code == 200) {
-        // setAllData({
-        //   comment: "",
-        // });
-        // toast.success(
-        //   "This Component Transfer `${allData.locationTo.label} -> ${allData.locationFrom.label}`"
-        // );
-        toast.success(data.message.toString()?.replaceAll("<br/>", ""));
-        setAllData({
-          locationFrom: "",
-          companyBranch: "",
-          comment: "",
-          locationTo: "",
+      setRows([
+        {
+          id: v4(),
           component: "",
           qty1: "",
-        });
-        setbBanchName("");
-        setLocationName("");
-        setQty("");
-        setLoading(false);
-      } else if (data.code == 500) {
-        toast.error(data.message.msg);
-        setLoading(false);
-      }
+          locationTo: "",
+          stockQty: "",
+          unit: "",
+          avrRate: "",
+          address: "",
+          comment: "",
+        },
+      ]);
+      setbBanchName("");
+      setLoading(false);
+    } else if (data.code == 500) {
+      toast.error(data.message.msg);
+      setLoading(false);
     }
   };
 
-  const getLocationName = async () => {
+  const handleBranchSelection = async (branchCode) => {
+    try {
+      const { data } = await imsAxios.post("/location/fetchLocationBranch", {
+        branch: branchCode,
+      });
+      let arr = [];
+      const list = data?.data ?? data; // support both shapes
+      if (Array.isArray(list)) {
+        list.map((a) => arr.push({ label: a.text, value: a.id }));
+      }
+
+      // Update global location options and reset all row locations
+      setloctionDataTo(arr);
+      setRows((prev) =>
+        prev.map((row) => ({
+          ...row,
+          locationTo: "", // Reset location when branch changes
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching locations for branch", error);
+      toast.error("Failed to fetch drop locations for selected branch");
+    }
+  };
+
+  const getLocationName = async (rowIndex, locationValue) => {
+    const row = rows[rowIndex];
+    const location = locationValue ?? row?.locationTo;
+    if (!location) return;
+
     const { data } = await imsAxios.post("/godown/fetchLocationDetail_to", {
-      location_key: allData?.locationTo,
+      location_key: location,
     });
-    setLocationName(data.data);
+
+    setRows((prev) => {
+      const updated = [...prev];
+      updated[rowIndex] = {
+        ...updated[rowIndex],
+        address: data.data,
+      };
+      return updated;
+    });
   };
 
   const reset = async (e) => {
@@ -142,14 +253,22 @@ function RmtoRm() {
     setAllData({
       locationFrom: "",
       companyBranch: "",
-      comment: "",
-      locationTo: "",
-      component: "",
-      qty1: "",
+      dropBranch: "",
     });
+    setRows([
+      {
+        id: v4(),
+        component: "",
+        qty1: "",
+        locationTo: "",
+        stockQty: "",
+        unit: "",
+        avrRate: "",
+        address: "",
+        comment: "",
+      },
+    ]);
     setbBanchName("");
-    setLocationName("");
-    setQty("");
   };
 
   useEffect(() => {
@@ -162,18 +281,6 @@ function RmtoRm() {
       branchInfoFunction();
     }
   }, [allData?.locationFrom]);
-
-  useEffect(() => {
-    if (allData?.locationFrom && allData?.component) {
-      getQtyFuction();
-    }
-  }, [allData?.locationFrom, allData?.component]);
-
-  useEffect(() => {
-    if (allData.locationTo) {
-      getLocationName();
-    }
-  }, [allData.locationTo]);
 
   return (
     <div style={{ height: "95%" }}>
@@ -201,15 +308,25 @@ function RmtoRm() {
               <TextArea rows={2} disabled value={branchName} />
             </Col>
             <Col span={24} style={{ marginTop: "10px" }}>
-              <TextArea
-                rows={2}
-                value={allData.comment}
-                placeholder="Comment Optional"
-                onChange={(e) =>
-                  setAllData((allData) => {
-                    return { ...allData, comment: e.target.value };
-                  })
-                }
+              <span>DROP BRANCH</span>
+            </Col>
+            <Col span={24}>
+              <MySelect
+                options={[
+                  { text: "A-21 [BRMSC012]", value: "BRMSC012" },
+                  { text: "B-29 [BRMSC029]", value: "BRMSC029" },
+                  {
+                    text: "B-36 Alwar [BRBA036]",
+                    value: "BRBA036",
+                  },
+                  { text: "D-160", value: "BRBAD116" },
+                ]}
+                placeholder="Select Drop Branch"
+                value={allData.dropBranch}
+                onChange={async (e) => {
+                  setAllData((prev) => ({ ...prev, dropBranch: e }));
+                  await handleBranchSelection(e);
+                }}
               />
             </Col>
           </Row>
@@ -218,79 +335,179 @@ function RmtoRm() {
         <Col span={18}>
           <Row gutter={10}>
             <Col span={24}>
-              <table>
-                <tr>
-                  <th className="an">Component/Part No.</th>
-                  <th className="an">STOCK QUANTITY</th>
-                  <th className="an">TRANSFERING QTY</th>
-                  <th className="an">DROP (+) Loc</th>
-                  <th className="an">Weighted Average Rate</th>
-                </tr>
-                <tr>
-                  <td>
-                    <MyAsyncSelect
-                      style={{ width: "100%" }}
-                      loadOptions={getComponentList}
-                      onBlur={() => setAsyncOptions([])}
-                      onInputChange={(e) => setSearch(e)}
-                      placeholder="Part Name/Code"
-                      value={allData.component}
-                      optionsState={asyncOptions}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, component: e };
-                        })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      suffix={qty?.unit}
-                      // style={{ width: "100%" }}
-                      disabled
-                      value={
-                        qty?.available_qty
-                          ? `${qty?.available_qty} ${qty?.unit}`
-                          : "0"
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input
-                      // style={{ width: "20%" }}
-                      value={allData?.qty1}
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, qty1: e.target.value };
-                        })
-                      }
-                      suffix={qty?.unit}
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      style={{ width: "100%" }}
-                      options={locDataTo}
-                      value={allData.locationTo}
-                      placeholder="Location"
-                      onChange={(e) =>
-                        setAllData((allData) => {
-                          return { ...allData, locationTo: e };
-                        })
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Input disabled value={qty?.avr_rate} />
-                  </td>
-                </tr>
-              </table>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginBottom: 10,
+                }}
+              >
+                <Button type="primary" onClick={addRow}>
+                  Add Row
+                </Button>
+              </div>
+              <div
+                style={{
+                  overflowX: "auto",
+                  overflowY: "auto",
+                  maxHeight: "38vh",
+                }}
+              >
+                <table
+                  style={{
+                    tableLayout: "fixed",
+                    width: "100%",
+                    minWidth: 1200,
+                  }}
+                >
+                  <thead>
+                    <tr>
+                      <th className="an" style={{ width: "18vw" }}>
+                        Component/Part No.
+                      </th>
+                      <th className="an" style={{ width: "12vw" }}>
+                        STOCK QUANTITY
+                      </th>
+                      <th className="an" style={{ width: "12vw" }}>
+                        TRANSFERING QTY
+                      </th>
+                      <th className="an" style={{ width: "16vw" }}>
+                        DROP (+) Loc
+                      </th>
+                      <th className="an" style={{ width: "12vw" }}>
+                        Weighted Average Rate
+                      </th>
+                      <th className="an" style={{ width: "16vw" }}>
+                        Comment
+                      </th>
+                      <th className="an" style={{ width: "2vw" }}>
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, index) => (
+                      <React.Fragment key={row.id}>
+                        <tr>
+                          <td style={{ width: "18vw" }}>
+                            <MyAsyncSelect
+                              style={{ width: "100%" }}
+                              loadOptions={getComponentList}
+                              onBlur={() => setAsyncOptions([])}
+                              onInputChange={(e) => setSearch(e)}
+                              placeholder="Part Name/Code"
+                              value={row.component}
+                              optionsState={asyncOptions}
+                              onChange={(e) => {
+                                setRows((prev) => {
+                                  const updated = [...prev];
+                                  updated[index] = {
+                                    ...updated[index],
+                                    component: e,
+                                  };
+                                  return updated;
+                                });
+                                getQtyFuction(index, e);
+                              }}
+                            />
+                          </td>
+                          <td style={{ width: "12vw" }}>
+                            <Input
+                              suffix={row.unit}
+                              disabled
+                              value={
+                                row.stockQty
+                                  ? `${row.stockQty} ${row.unit}`
+                                  : "0"
+                              }
+                            />
+                          </td>
+                          <td style={{ width: "12vw" }}>
+                            <Input
+                              value={row.qty1}
+                              onChange={(e) => {
+                                setRows((prev) => {
+                                  const updated = [...prev];
+                                  updated[index] = {
+                                    ...updated[index],
+                                    qty1: e.target.value,
+                                  };
+                                  return updated;
+                                });
+                              }}
+                              suffix={row.unit}
+                            />
+                          </td>
+                          <td style={{ width: "16vw" }}>
+                            <Select
+                              style={{ width: "100%" }}
+                              options={locDataTo}
+                              value={row.locationTo}
+                              placeholder="Location"
+                              onChange={(e) => {
+                                setRows((prev) => {
+                                  const updated = [...prev];
+                                  updated[index] = {
+                                    ...updated[index],
+                                    locationTo: e,
+                                  };
+                                  return updated;
+                                });
+                                getLocationName(index, e);
+                              }}
+                            />
+                          </td>
+                          <td style={{ width: "12vw", textAlign: "center" }}>
+                            <Input disabled value={row.avrRate} />
+                          </td>
+                          <td style={{ width: "16vw" }}>
+                            <TextArea
+                              rows={2}
+                              value={row.comment}
+                              placeholder="Comment Optional"
+                              onChange={(e) => {
+                                setRows((prev) => {
+                                  const updated = [...prev];
+                                  updated[index] = {
+                                    ...updated[index],
+                                    comment: e.target.value,
+                                  };
+                                  return updated;
+                                });
+                              }}
+                            />
+                          </td>
+                          <td style={{ width: "2vw", textAlign: "center" }}>
+                            <Button
+                              type="text"
+                              danger
+                              size="small"
+                              icon={<DeleteOutlined />}
+                              onClick={() => removeRow(row.id)}
+                              disabled={rows.length === 1}
+                              title="Delete Row"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="7" style={{ padding: "8px" }}>
+                            <TextArea
+                              disabled
+                              value={row.address || ""}
+                              placeholder={`Row ${
+                                index + 1
+                              } - Location Address`}
+                              rows={2}
+                              style={{ width: "100%" }}
+                            />
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </Col>
-            {allData.locationTo && (
-              <Col span={24}>
-                <TextArea disabled value={locationName} />
-              </Col>
-            )}
           </Row>
         </Col>
       </Row>

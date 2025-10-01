@@ -6,7 +6,6 @@ import {
   IoFileTrayStacked,
   IoJournalSharp,
 } from "react-icons/io5";
-
 import {
   StarFilled,
   StarOutlined,
@@ -70,7 +69,6 @@ export const items = (user) => [
       getItem(
         <Link to="/tally/vendorbillposting/VB1">Vendor Bill Posting</Link>,
         "D31"
-
         // <AiOutlineMinus />
       ),
       getItem(
@@ -78,11 +76,9 @@ export const items = (user) => [
           VBT Records
         </Link>,
         "D32"
-
         // <AiOutlineMinus />
       ),
     ]),
-
     getItem("Accounting Voucher", "D4", <IoJournalSharp />, [
       getItem(
         <Link to="/tally/journal-posting">Journal</Link>,
@@ -178,7 +174,7 @@ export const items = (user) => [
       getItem(
         <Link to="/tally/vouchers/reference/misReport">MIS Report</Link>,
         "reports/tdsReport"
-        // <AiOutlineMinus />)
+        // <AiOutlineMinus />
       ),
       getItem(
         <Link to="/tally/vouchers/reference/gst/gstReport1">GSTR1</Link>,
@@ -206,14 +202,14 @@ export const items = (user) => [
         getItem(<Link to="/viewgstdata">View Gst Data</Link>, "D86"),
       ]),
     ]),
-  ]),
+  ], null, 100002),
   getItem("Dashboard", "A", <MdDashboard />, [
     getItem(
       <Link to="/dashboard/sku_costing">SKU Costing</Link>,
       "2"
       // <AiOutlineMinus />
     ),
-  ]),
+  ], null, 100008),
   getItem("Material Management", "B", <BiTransfer />, [
     getItem("Master", "B1", <BsFillHddStackFill />, [
       getItem(
@@ -304,7 +300,7 @@ export const items = (user) => [
         "B21"
         // <MdDashboard />
       ),
-    ]),
+    ], null, 100005),
     getItem("Procurement", "B2", <ImCart />, [
       getItem(
         <Link to="/create-po">Create PO</Link>,
@@ -331,7 +327,7 @@ export const items = (user) => [
         "B25"
         // <AiOutlineMinus />
       ),
-    ]),
+    ], null, 827364),
     getItem("Warehouse", "B3", <FaWarehouse />, [
       getItem(
         <Link to="/approved-transaction">MR Approval</Link>,
@@ -357,7 +353,6 @@ export const items = (user) => [
           // <AiOutlineMinus />
         ),
       ]),
-
       getItem("FG (s) Inwarding", "B43", <MdDashboard />, [
         getItem(
           <Link to="/PendingFG">Pending FG (s)</Link>,
@@ -429,13 +424,11 @@ export const items = (user) => [
         ),
         getItem(
           <Link to="/jobwork/update/supplementary">Jobwork Update</Link>,
-
           "B63"
           // <AiOutlineMinus />
         ),
         getItem(
           <Link to="/jobwork/vendor/sfg/min">Vendor SFG MIN</Link>,
-
           "B62"
           // <AiOutlineMinus />
         ),
@@ -480,7 +473,7 @@ export const items = (user) => [
         "B41"
         // <AiOutlineMinus />
       ),
-    ]),
+    ], null, 100004),
     getItem("Sales Order", "C5", <TbReportAnalytics />, [
       getItem(<Link to="/sales/order/register">Register</Link>, "E51"),
       getItem(
@@ -498,7 +491,7 @@ export const items = (user) => [
         "C54"
         // <AiOutlineMinus />
       ),
-    ]),
+    ], null, 100003),
     getItem("Reports", "B4", <TbReportAnalytics />, [
       getItem("Inventory Reports", "B41", <MdDashboard />, [
         getItem(
@@ -506,7 +499,6 @@ export const items = (user) => [
           "B411"
           // <AiOutlineMinus />
         ),
-
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "B414"),
         getItem(
           <Link to="/transaction-Out">RM Issue Register</Link>,
@@ -520,7 +512,6 @@ export const items = (user) => [
         // ),
         getItem(
           <Link to="/r1">Reports R1 - R37 </Link>,
-
           "B413"
           // <AiOutlineMinus />
         ),
@@ -535,7 +526,7 @@ export const items = (user) => [
         "B42"
         // <AiOutlineMinus />
       ),
-    ]),
+    ], null, 100006),
     getItem("Query", "B5", <MdQueryStats />, [
       getItem(
         <Link to="/item-all-logs">Q1 - Q6</Link>,
@@ -547,9 +538,8 @@ export const items = (user) => [
       //   "B52"
       //   // <AiOutlineMinus />
       // ),
-    ]),
-  ]),
-
+    ], null, 100007),
+  ], null, 100001),
   getItem("Production", "C", <IoFileTrayStacked />, [
     getItem("PPC", "C1", <MdDashboard />, [
       getItem("Material Requisition", "C11", <MdDashboard />, [
@@ -581,7 +571,6 @@ export const items = (user) => [
           // <AiOutlineMinus />
         ),
       ]),
-
       getItem("Location Movement", "C14", <MdDashboard />, [
         getItem(
           <Link to="/sf-to-sf">SF To SF</Link>,
@@ -629,7 +618,6 @@ export const items = (user) => [
       //   // <AiOutlineMinus />
       // ),
     ]),
-
     getItem("Reports", "C4", <TbReportAnalytics />, [
       getItem("Inventory Reports", "C41", <MdDashboard />, [
         getItem(
@@ -639,10 +627,8 @@ export const items = (user) => [
         ),
         getItem(<Link to="/transaction-Out">RM Issue Register</Link>, "C412"),
         getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
-
         getItem(
           <Link to="/r1">Reports R1 - R35</Link>,
-
           "C413"
           // <AiOutlineMinus />
         ),
@@ -658,11 +644,10 @@ export const items = (user) => [
       "D5",
       <MdAccountBox />
     ),
-  ]),
+  ], null, 100009),
   //Legal
   // user?.showlegal
   // ?
-
   // getItem("Legal", "X", <FontAwesomeIcon icon={faScaleBalanced} />, [
   //   getItem("Master", "X1", <DeliveredProcedureOutlined />, [
   //     getItem(<Link to="/legal/addparty">Add Party</Link>, "X11"),
@@ -677,7 +662,6 @@ export const items = (user) => [
   //   ]),
   // ]),
   // : null,
-
   //MES
   getItem("MES", "Z", <DeploymentUnitOutlined />, [
     getItem("QA Process", "Z1", <DeliveredProcedureOutlined />, [
@@ -692,12 +676,11 @@ export const items = (user) => [
       getItem(<Link to="/qccheck">QC Check</Link>, "Z22"),
       getItem(<Link to="/mes-report-qc">QC Report</Link>, "Z23"),
     ]),
-  ]),
+  ], null, 100010),
   // getItem("MES", "Z", <DeploymentUnitOutlined />, [
   //   getItem(
   //     <Link to="/mes/process/create">Create Process</Link>,
   //     "G1",
-
   //     []
   //   ),
   //   // getItem('QCA', 'G2',<CheckCircleOutlined />,[
@@ -709,7 +692,7 @@ export const items = (user) => [
   getItem("CPM", "E", <CalculatorFilled />, [
     getItem(<Link to="/CPM/CPM-analysis">CPM Analysis</Link>, "E1"),
     getItem(<Link to="/CPM/report">CPM Finance</Link>, "reports/cpm"),
-  ]),
+  ], null, 100011),
   getItem("Analysis", "F", <SiPaytm />, [
     // getItem(
     //   <Link to="/paytm-qc/upload">Paytm QC Upload updated to check</Link>,
@@ -721,12 +704,15 @@ export const items = (user) => [
       <Link to="/analysis/paytm-refurbishment">Paytm Refurbishment</Link>,
       "F2"
     ),
-  ]),
+  ], null, 100012),
   // getItem(<Link to="/sop">SOP's</Link>, "/sop", <FormOutlined />),
   getItem(
     <Link to="/invoice/create">Sales & Distribution</Link>,
     "/invoice/create",
-    <UnorderedListOutlined />
+    <UnorderedListOutlined />,
+    null,
+    null,
+    100013
   ),
   getItem(
     "Research and Development",
@@ -745,7 +731,9 @@ export const items = (user) => [
         </Link>,
         routeConstants.researchAndDevelopment.bom.create
       ),
-    ]
+    ],
+    null,
+    100014
   ),
   // user?.type == "developer"
   //   ? getItem(
@@ -755,7 +743,6 @@ export const items = (user) => [
   //     )
   //   : "",
 ];
-
 export const items1 = (user, setShowTickets) => [
   // getItem(
   //   <Link onClick={() => setShowTickets(true)}>Tickets</Link>,
@@ -765,11 +752,13 @@ export const items1 = (user, setShowTickets) => [
   getItem(<Link to="/myprofile">Profile</Link>, "A", <UserOutlined />),
   // getItem(<Link to="/messenger">Messenger</Link>, "C", <MessageOutlined />),
 ];
-function getItem(label, key, icon, children) {
+function getItem(label, key, icon, children, type, module_key) {
   return {
     key,
     icon,
     children,
     label,
+    type,
+    module_key,
   };
 }

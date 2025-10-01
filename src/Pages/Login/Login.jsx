@@ -20,6 +20,7 @@ import {
   Row,
   Typography,
   Alert,
+  Select,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
@@ -46,6 +47,7 @@ const Login = () => {
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
+    company_branch: "BRMSC012",
   });
   const { Title, Link, Text } = Typography;
   const [signUp] = Form.useForm();
@@ -575,6 +577,19 @@ const Login = () => {
                     autoComplete="off"
                     form={signUp}
                   >
+                    <Form.Item label="Company Branch" name="company_branch">
+                      <Select
+                        value={inpVal.company_branch}
+                        onChange={(v) => inputHandler("company_branch", v)}
+                        options={[
+                          { label: "A-21 [BRMSC012]", value: "BRMSC012" },
+                          { label: "B-29 [BRMSC029]", value: "BRMSC029" },
+                          { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+                          { label: "D1-16", value: "D116" },
+                        ]}
+                        size="medium"
+                      />
+                    </Form.Item>
                     <Form.Item
                       label="Username / Mobile / CRN Number"
                       name="username"
@@ -612,6 +627,7 @@ const Login = () => {
                         size="large"
                       />
                     </Form.Item>
+
                     {forgotPassword === "0" ? (
                       <>
                         {/* <Form.Item
@@ -836,7 +852,6 @@ const Login = () => {
                     htmlType="submit"
                     style={{ marginTop: "2em" }}
                     onClick={() => validatecreateNewUser()}
-                    disabled
                   >
                     Sign Up
                   </Button>

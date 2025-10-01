@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Form, Row, Space } from "antd";
+import { Button, Card, Col, Form, Row,Input, Space } from "antd";
 import React from "react";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import MySelect from "../../../Components/MySelect";
@@ -26,6 +26,7 @@ const R26 = () => {
       const response = await imsAxios.post("/report/xmlViewOut", {
         wise: filter.wise,
         data: filter.date,
+         ...(filter.wise === "fg-dismantle" && { txnId: filter.txnId }),
       });
       // console.log("response", response);
       const { data } = response;
@@ -85,6 +86,7 @@ const R26 = () => {
     const otherdata = JSON.stringify({
       type: filter.wise,
       date: filter.date,
+      ...(filter.wise === "fg-dismantle" && { txnId: filter.txnId }),
     });
     socket.emit("generate_xml_report", {
       otherdata,
@@ -96,17 +98,22 @@ const R26 = () => {
     const otherdata = JSON.stringify({
       type: filter.wise,
       date: filter.date,
+      ...(filter.wise === "fg-dismantle" && { txnId: filter.txnId }),
     });
     socket.emit("generate_xml_report", {
       otherdata,
       notificationId: v4(),
     });
   };
-  useEffect(() => {
+    useEffect(() => {
     if (wiseOption) {
       setRows([]);
+     
+      if (wiseOption !== "fg-dismantle") {
+        filterForm.setFieldsValue({ txnId: undefined });
+      }
     }
-  }, [wiseOption]);
+  }, [wiseOption, filterForm]);
 
   return (
     <Row gutter={6} style={{ height: "90%", padding: "0px 5px" }}>
@@ -126,6 +133,15 @@ const R26 = () => {
                 setDate={(date) => filterForm.setFieldValue("date", date)}
               />
             </Form.Item>
+                        {wiseOption === "fg-dismantle" && (
+              <Form.Item
+                rules={rules.txnId}
+                name="txnId"
+                label="Transaction ID"
+              >
+                <Input placeholder="Enter Transaction ID" />
+              </Form.Item>
+            )}
             {/* )} */}
           </Form>
           <Row justify="end">
@@ -364,6 +380,9 @@ const rules = {
       required: true,
       message: "Please select a date",
     },
+  ],
+   txnId: [
+    { required: true, message: "Please enter a Transaction ID" },
   ],
 };
 
