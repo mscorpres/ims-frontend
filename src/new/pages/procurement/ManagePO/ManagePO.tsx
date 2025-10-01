@@ -15,6 +15,7 @@ import {
   TextField,
   LinearProgress,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import {
   Download,
@@ -28,8 +29,13 @@ import DateRangeField from "@/new/components/shared/DateRangeField";
 import {
   ManagePOTableType,
   getManagePOColumns,
-  POModals,
 } from "@/new/pages/procurement/POType";
+import {
+  CancelPOModal,
+  ViewPOModal,
+  EditPOModal,
+  UploadDocModal,
+} from "@/new/components/shared/modals";
 import {
   fetchManagePO,
   printPO,
@@ -39,6 +45,9 @@ import {
   fetchPOLogs,
   fetchPODetails,
   setShowUploadDoc,
+  setShowCancelPO,
+  setShowViewSidebar,
+  setShowEditPO,
 } from "@/new/features/procurement/POSlice";
 import { useDispatch, useSelector } from "react-redux";
 import printFunction from "@/new/utils/printFunction";
@@ -150,6 +159,13 @@ const ManagePO: React.FC = () => {
     dispatch(setShowUploadDoc(poid));
   };
 
+  // Refresh data after successful operations
+  const handleRefreshData = () => {
+    if (searchInput || searchDateRange || selectedVendor) {
+      getSearchResults();
+    }
+  };
+
   const table = useMaterialReactTable({
     columns: columns,
     data: managePOList || [],
@@ -179,15 +195,21 @@ const ManagePO: React.FC = () => {
       ) : null,
     renderRowActionMenuItems: ({ row, table }) => [
       <MRT_ActionMenuItem
-        icon={<Edit />}
+        icon={poDetailsLoading ? <CircularProgress size={16} /> : <Edit />}
         key="edit"
         label="Edit"
         onClick={() => handleEdit(row?.original?.po_transaction)}
         table={table}
-        disabled={row.original.approval_status === "C"}
+        disabled={row.original.approval_status === "C" || poDetailsLoading}
       />,
       <MRT_ActionMenuItem
-        icon={<Visibility />}
+        icon={
+          componentLoading || poLogsLoading ? (
+            <CircularProgress size={16} />
+          ) : (
+            <Visibility />
+          )
+        }
         key="view"
         label="View"
         onClick={() =>
@@ -197,22 +219,23 @@ const ManagePO: React.FC = () => {
           )
         }
         table={table}
+        disabled={componentLoading || poLogsLoading}
       />,
       <MRT_ActionMenuItem
-        icon={<Download />}
+        icon={downloadLoading ? <CircularProgress size={16} /> : <Download />}
         key="download"
         label="Download"
         onClick={() => handleDownload(row?.original?.po_transaction)}
         table={table}
-        disabled={row.original.approval_status === "P"}
+        disabled={row.original.approval_status === "P" || downloadLoading}
       />,
       <MRT_ActionMenuItem
-        icon={<Print />}
+        icon={printLoading ? <CircularProgress size={16} /> : <Print />}
         key="print"
         label="Print"
         onClick={() => handlePrint(row?.original?.po_transaction)}
         table={table}
-        disabled={row.original.approval_status === "P"}
+        disabled={row.original.approval_status === "P" || printLoading}
       />,
       <MRT_ActionMenuItem
         icon={<Cancel />}
@@ -415,9 +438,30 @@ const ManagePO: React.FC = () => {
       </div>
 
       {/* Modals and Sidebars */}
-      <POModals
-        materialInward={materialInward}
-        setMaterialInward={setMaterialInward}
+      <CancelPOModal
+        showCancelPO={showCancelPO}
+        setShowCancelPO={(value) => dispatch(setShowCancelPO(value))}
+        onCancelSuccess={handleRefreshData}
+      />
+
+      <ViewPOModal
+        showViewSidebar={showViewSidebar}
+        setShowViewSidebar={(value) => dispatch(setShowViewSidebar(value))}
+        componentData={componentData}
+        poLogs={poLogs}
+        onRefreshLogs={(poId) => dispatch(fetchPOLogs(poId))}
+      />
+
+      <EditPOModal
+        showEditPO={showEditPO}
+        setShowEditPO={(value) => dispatch(setShowEditPO(value))}
+        onEditSuccess={handleRefreshData}
+      />
+
+      <UploadDocModal
+        showUploadDoc={showUploadDoc}
+        setShowUploadDoc={(value) => dispatch(setShowUploadDoc(value))}
+        onUploadSuccess={handleRefreshData}
       />
     </div>
   );

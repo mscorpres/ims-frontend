@@ -1,28 +1,6 @@
 import { MRT_ColumnDef } from "material-react-table";
-import { Chip } from "@mui/material";
 import CopyableChip from "@/new/components/shared/CopyableChip";
 import StatusChip from "@/new/components/shared/StatusChip";
-import { useDispatch, useSelector } from "react-redux";
-// @ts-ignore
-import { Store } from "../../../Features/Store";
-import {
-  fetchPOLogs,
-  setShowUploadDoc,
-  setShowCancelPO,
-  setShowViewSidebar,
-  setShowEditPO,
-  setField,
-} from "../../features/procurement/POSlice";
-// @ts-ignore
-import ViewComponentSideBar from "../../../Pages/PurchaseOrder/ManagePO/Sidebars/ViewComponentSideBar";
-// @ts-ignore
-import EditPO from "../../../Pages/PurchaseOrder/ManagePO/EditPO/EditPO";
-// @ts-ignore
-import MateirialInward from "../../../Pages/PurchaseOrder/ManagePO/MaterialIn/MateirialInward";
-// @ts-ignore
-import CancelPO from "../../../Pages/PurchaseOrder/ManagePO/Sidebars/CancelPO";
-// @ts-ignore
-import UploadDoc from "../../../Pages/PurchaseOrder/ManagePO/UploadDoc";
 
 export type ManagePOTableType = {
   id: string;
@@ -41,72 +19,8 @@ export type ManagePOTableType = {
   po_comment?: string;
 };
 
-// Modals and Sidebars component
-export const POModals = ({
-  materialInward,
-  setMaterialInward,
-}: {
-  materialInward: any;
-  setMaterialInward: (value: any) => void;
-}) => {
-  const dispatch = useDispatch<typeof Store.dispatch>();
-  const {
-    showUploadDoc,
-    showCancelPO,
-    showEditPO,
-    showViewSidebar,
-    componentData,
-    poLogs,
-  } = useSelector((s: any) => s.createPo);
-  const getSearchResults = () => {};
-  const setRows = (_rows: any[]) => {};
-  const rows: any[] = [];
-  return (
-    <>
-      <UploadDoc
-        setShowUploadDocModal2={(value: any) =>
-          dispatch(setShowUploadDoc(value))
-        }
-        showUploadDocModal2={showUploadDoc}
-      />
-
-      <CancelPO
-        getSearchResults={getSearchResults}
-        setShowCancelPO={(value: any) => dispatch(setShowCancelPO(value))}
-        showCancelPO={showCancelPO}
-        setRows={setRows}
-        rows={rows}
-      />
-
-      {showEditPO && (
-        <EditPO
-          updatePoId={showEditPO}
-          setUpdatePoId={(value: any) => dispatch(setShowEditPO(value))}
-        />
-      )}
-
-      <MateirialInward
-        materialInward={materialInward}
-        setMaterialInward={setMaterialInward}
-        asyncOptions={[]}
-        setAsyncOptions={() => {}}
-      />
-
-      <ViewComponentSideBar
-        getPoLogs={(po_id: string) => dispatch(fetchPOLogs(po_id))}
-        newPoLogs={poLogs}
-        setnewPoLogs={(logs: any) =>
-          dispatch(setField({ key: "poLogs", value: logs }))
-        }
-        setShowViewSideBar={(show: boolean) =>
-          dispatch(setShowViewSidebar(show))
-        }
-        showViewSidebar={showViewSidebar}
-        componentData={componentData}
-      />
-    </>
-  );
-};
+// Note: POModals component has been replaced with individual modal components
+// in the new structure. See ManagePO.tsx for the new implementation.
 
 export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
   {
