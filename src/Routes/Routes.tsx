@@ -263,6 +263,7 @@ import Products from "@/Pages/R&D/products/index.js";
 import ApprovalList from "@/Pages/R&D/products/approvalList.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
+import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -1448,6 +1449,12 @@ const Routes = [
   {
     path: routeConstants.far.upload,
     main: () => <FARUpload />,
+  },
+
+  // version files
+  {
+    path: "/version/files",
+    main: () => <VersionDownload />,
   },
 
   // should always be at the end

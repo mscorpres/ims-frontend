@@ -7,19 +7,15 @@ import {
   IoJournalSharp,
 } from "react-icons/io5";
 import {
-  StarFilled,
-  StarOutlined,
-  MenuOutlined,
   UserOutlined,
   CalculatorFilled,
-  FormOutlined,
   AlignRightOutlined,
-  CustomerServiceOutlined,
   UnorderedListOutlined,
   DeploymentUnitOutlined,
   DeliveredProcedureOutlined,
   CheckCircleOutlined,
   ExperimentOutlined,
+  ContainerOutlined,
 } from "@ant-design/icons";
 import { RiBillFill } from "react-icons/ri";
 import { BiMoney, BiTransfer } from "react-icons/bi";
@@ -749,6 +745,7 @@ export const items1 = (user, setShowTickets) => [
   //   "B",
   //   <CustomerServiceOutlined />
   // ),
+  getItem(<Link to="/version/files">Version</Link>, "V", <ContainerOutlined />),
   getItem(<Link to="/myprofile">Profile</Link>, "A", <UserOutlined />),
   // getItem(<Link to="/messenger">Messenger</Link>, "C", <MessageOutlined />),
 ];
