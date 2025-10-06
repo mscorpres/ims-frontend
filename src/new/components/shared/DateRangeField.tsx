@@ -155,6 +155,8 @@ export const DateRangeField: React.FC<DateRangeFieldProps> = ({
         startIcon={<CalendarToday />}
         sx={{
           minWidth: minInputWidth,
+          height:
+            size === "small" ? "40px" : size === "medium" ? "48px" : "56px", // Match Select component height
           justifyContent: "space-between",
           textTransform: "none",
           color: "text.primary",
