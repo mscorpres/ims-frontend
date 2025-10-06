@@ -61,6 +61,7 @@ export const initialState: POState = {
   vendorAddressLoading: false,
   billingAddressLoading: false,
   shippingAddressLoading: false,
+  updatePOLoading: false,
 };
 
 export const submitPo = createAsyncThunk<void, void>(
@@ -278,6 +279,22 @@ export const fetchShippingAddress = createAsyncThunk<any, string>(
       pan: data?.data.pan,
       address: data.data?.address.replaceAll("<br>", "\n"),
     };
+  }
+);
+
+// Update PO Data - Save API from EditPO.jsx
+export const updatePOData = createAsyncThunk<any, any>(
+  "po/updatePOData",
+  async (poData: any) => {
+    const { data } = await imsAxios.post(
+      "/purchaseOrder/updateData4Update",
+      poData
+    );
+    if (data.code === 200) {
+      return { success: true, message: data.message, data: data.data };
+    } else {
+      throw new Error(data.message || "Failed to update PO");
+    }
   }
 );
 
@@ -510,6 +527,17 @@ const slice = createSlice({
       })
       .addCase(fetchShippingAddress.rejected, (state) => {
         state.shippingAddressLoading = false;
+      })
+      // Update PO Data
+      .addCase(updatePOData.pending, (state) => {
+        state.updatePOLoading = true;
+      })
+      .addCase(updatePOData.fulfilled, (state, action) => {
+        state.updatePOLoading = false;
+        state.showEditPO = null; // Close the edit modal on success
+      })
+      .addCase(updatePOData.rejected, (state) => {
+        state.updatePOLoading = false;
       });
   },
 });

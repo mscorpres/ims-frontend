@@ -38,6 +38,7 @@ import {
   fetchVendorAddress,
   fetchBillingAddress,
   fetchShippingAddress,
+  updatePOData,
 } from "@/new/features/procurement/POSlice";
 
 interface Material {
@@ -81,7 +82,6 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
     const [resetDetailsData, setResetDetailsData] = useState<any>(null);
     const [showDetailsConfirm, setShowDetailsConfirm] = useState(false);
     const [materials, setMaterials] = useState<Material[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Get data from Redux store
     const {
@@ -101,6 +101,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
       vendorAddressLoading,
       billingAddressLoading,
       shippingAddressLoading,
+      updatePOLoading,
     } = useSelector((state: any) => state.createPo);
 
     const vendorDetailsOptions = [
@@ -136,7 +137,14 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
     );
 
     const handleCostCenterChange = useCallback((value: any) => {
-      handleInputChange("costcenter", value);
+      setFormData((prev: any) => {
+        const newData = {
+          ...prev,
+          costcenter: value,
+        };
+        setPurchaseOrder(newData);
+        return newData;
+      });
     }, []);
 
     useEffect(() => {
@@ -337,6 +345,11 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
             ...obj,
             [name]: value,
           };
+        } else if (name === "costcenter") {
+          obj = {
+            ...obj,
+            [name]: value,
+          };
         } else {
           obj = {
             ...obj,
@@ -375,25 +388,158 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
       setActiveTab(0); // Go back to first tab
     }, []);
 
+    // Validation function similar to EditPO.jsx
+    const validateData = () => {
+      let validation = true;
+      let components: any = {
+        component: [],
+        qty: [],
+        rate: [],
+        currency: [],
+        exchange_rate: [],
+        date: [],
+        hsn: [],
+        gsttype: [],
+        gstrate: [],
+        sgst: [],
+        igst: [],
+        cgst: [],
+        updaterow: [],
+        remark: [],
+        rate_cap: [],
+        project_qty: [],
+        exq_po_qty: [],
+      };
+
+      // Validate materials
+      materials.forEach((row) => {
+        if (
+          !row.currency ||
+          !row.exchange_rate ||
+          !row.component ||
+          !row.qty ||
+          !row.rate ||
+          !row.hsncode ||
+          !row.gsttype
+        ) {
+          validation = false;
+        }
+      });
+
+      if (!validation) {
+        toast.error("Please fill all the component fields");
+        return null;
+      }
+
+      // Build components data structure
+      materials.forEach((row) => {
+        components = {
+          component: [...components.component, row.component?.value],
+          qty: [...components.qty, row.qty],
+          rate: [...components.rate, row.rate],
+          currency: [...components.currency, row.currency],
+          exchange_rate: [...components.exchange_rate, row.exchange_rate],
+          date: [...components.date, row.duedate],
+          hsn: [...components.hsn, row.hsncode],
+          gsttype: [...components.gsttype, row.gsttype],
+          gstrate: [...components.gstrate, row.gstrate],
+          sgst: [...components.sgst, row.sgst],
+          igst: [...components.igst, row.igst],
+          cgst: [...components.cgst, row.cgst],
+          remark: [...components.remark, row.remark],
+          rate_cap: [...components.rate_cap, row.project_rate],
+          project_qty: [...components.project_qty, row.project_qty],
+          exq_po_qty: [...components.exq_po_qty, row.po_ord_qty],
+          updaterow: [
+            ...components.updaterow,
+            row.updateRow ? row.updateRow : "",
+          ],
+        };
+      });
+
+      // Validate currency consistency
+      if (
+        components.currency.filter((v: any, i: any, a: any) => v === a[0])
+          .length !== components.currency.length
+      ) {
+        validation = false;
+        toast.error("Currency of all components should be the same");
+        return null;
+      }
+
+      // Validate GST type consistency
+      if (
+        components.gsttype.filter((v: any, i: any, a: any) => v === a[0])
+          .length !== components.gsttype.length
+      ) {
+        validation = false;
+        toast.error("GST Type of all components should be the same");
+        return null;
+      }
+
+      return components;
+    };
+
     const handleSubmit = async () => {
-      setIsSubmitting(true);
       try {
-        // Prepare the complete PO data with materials
-        const completeData = {
-          ...formData,
-          materials: materials,
+        // Validate data first
+        const components = validateData();
+        if (!components) {
+          return;
+        }
+        console.log("Form Data:", formData);
+        console.log("Cost Center Value:", formData?.costcenter);
+
+        // Helper function to extract value from select objects
+        const getSelectValue = (field: any) => {
+          if (typeof field === "string") return field;
+          if (field && typeof field === "object" && field.value) {
+            return field.value;
+          }
+          return "";
         };
 
-        // Here you would implement the actual update API call
-        // const { data } = await imsAxios.post("/purchaseOrder/updatePO", completeData);
+        // Build final PO data structure exactly like EditPO.jsx
+        const finalPO = {
+          poid: showEditPO?.orderid,
+          vendor_name: getSelectValue(formData?.vendorcode),
+          vendor_type: formData?.vendortype_value?.trim() || "",
+          vendor_branch: getSelectValue(formData?.vendorbranch),
+          vendor_address: formData?.vendoraddress?.trim() || "",
+          paymentterms: formData?.paymentterms?.trim() || "",
+          quotationterms: formData?.termsofquotation?.trim() || "",
+          termsandcondition: formData?.termsofcondition?.trim() || "",
+          costcenter: getSelectValue(formData?.costcenter),
+          ship_address_id: formData?.addrshipid || "",
+          ship_address: formData?.shipaddress?.trim() || "",
+          projectname: formData?.projectname?.trim() || "",
+          pocomment: formData?.pocomment?.trim() || "",
+          bill_address_id: formData?.addrbillid || "",
+          billaddress: formData?.billaddress?.trim() || "",
+          termsday: formData?.paymenttermsday || "",
+          advancePayment: formData?.advancePayment || 0,
+          ...components,
+          materials: null,
+        };
 
-        toast.success("PO updated successfully");
-        setShowEditPO(null);
-        onEditSuccess(); // Refresh the data
+        console.log("Final PO Payload:", finalPO);
+        console.log("Cost Center in Payload:", finalPO.costcenter);
+        console.log(
+          "getSelectValue result for costcenter:",
+          getSelectValue(formData?.costcenter)
+        );
+        // Make API call using Redux slice
+        const result = await dispatch(updatePOData(finalPO));
+
+        if (updatePOData.fulfilled.match(result)) {
+          toast.success(result.payload.message);
+          onEditSuccess(); // Refresh the data
+        } else {
+          toast.error("Failed to update PO");
+        }
       } catch (error) {
-        toast.error("Error updating PO");
-      } finally {
-        setIsSubmitting(false);
+        console.error("Error updating PO:", error);
+        toast.error("Error updating PO. Please try again.");
       }
     };
 
@@ -559,7 +705,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                             fetchOptionWith="payload"
                             value={formData.vendorcode}
                             onChange={handleVendorChange}
-                            label="Vendor Name"
+                            label={formData.vendorname || "Vendor Name"}
                             size="medium"
                           />
                         </Box>
@@ -605,7 +751,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                                   },
                               }}
                               disabled={vendorBranchesLoading}
-                              label="Vendor Branch"
+                              label={"Vendor Branch"}
                             >
                               {vendorBranches.length > 0 ? (
                                 vendorBranches.map((branch: any) => (
@@ -1077,7 +1223,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                   materials={materials}
                   onSave={handleMaterialsSave}
                   onCancel={handleMaterialsCancel}
-                  loading={isSubmitting}
+                  loading={updatePOLoading}
                 />
               </Box>
             )}
@@ -1128,7 +1274,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                 <Button
                   variant="contained"
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={updatePOLoading}
                   sx={{
                     px: 4,
                     bgcolor: "#0d9488",
@@ -1136,12 +1282,12 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                     color: "white",
                   }}
                   startIcon={
-                    isSubmitting ? (
+                    updatePOLoading ? (
                       <CircularProgress size={16} color="inherit" />
                     ) : null
                   }
                 >
-                  {isSubmitting ? "Saving..." : "Save PO"}
+                  {updatePOLoading ? "Saving..." : "Save PO"}
                 </Button>
               )}
             </Box>

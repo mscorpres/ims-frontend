@@ -1,9 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-} from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Autocomplete,
   CircularProgress,
@@ -108,11 +103,27 @@ const ReusableAsyncSelect = <T,>({
 
   // Memoized utility functions
   const getOptionLabel = useCallback((option: any) => {
-    return typeof option === "string" ? option : option?.label || "";
+    if (typeof option === "string") {
+      return option;
+    }
+    if (option && typeof option === "object") {
+      // Handle nested object structure
+      if (option.label && typeof option.label === "object") {
+        return option.label.label || option.label.value || "";
+      }
+      return option.label || option.value || "";
+    }
+    return "";
   }, []);
 
   const isOptionEqualToValue = useCallback((option: any, value: any) => {
-    return option?.value === value?.value;
+    if (!option || !value) return false;
+
+    // Handle nested object structure
+    const optionValue = option.value || (option.label && option.label.value);
+    const valueValue = value.value || (value.label && value.label.value);
+
+    return optionValue === valueValue;
   }, []);
 
   // Memoized render functions
