@@ -64,21 +64,6 @@ const VersionDownload = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
-
   if (loading) {
     return (
       <Box
@@ -187,7 +172,7 @@ const VersionDownload = () => {
                   sx={{ display: "flex", alignItems: "center" }}
                 >
                   <CalendarToday sx={{ fontSize: 16, mr: 1 }} />
-                  {formatDate(file.uploaded_date)}
+                  {(file.uploaded_date)}
                 </Typography>
 
                 <Typography
