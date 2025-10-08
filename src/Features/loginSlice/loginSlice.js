@@ -158,9 +158,15 @@ const loginSlice = createSlice({
       let user = state.user;
       user = { ...user, company_branch: action.payload };
       state.user = user;
+      const existingOtherData = JSON.parse(
+        localStorage.getItem("otherData") || "{}"
+      );
       localStorage.setItem(
         "otherData",
-        JSON.stringify({ company_branch: user.company_branch })
+        JSON.stringify({
+          ...existingOtherData,
+          company_branch: user.company_branch,
+        })
       );
     },
     setSession: (state, action) => {
@@ -170,9 +176,12 @@ const loginSlice = createSlice({
       let user = state.user;
       user = { ...user, session: action.payload };
       state.user = user;
+      const existingOtherData = JSON.parse(
+        localStorage.getItem("otherData") || "{}"
+      );
       localStorage.setItem(
         "otherData",
-        JSON.stringify({ session: user.session })
+        JSON.stringify({ ...existingOtherData, session: user.session })
       );
     },
     setCurrentLink: (state, action) => {
