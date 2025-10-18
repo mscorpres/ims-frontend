@@ -58,14 +58,13 @@ import { toast } from "react-toastify";
 import ReusableAsyncSelect from "@/Components/ReusableAsyncSelect";
 // @ts-ignore
 import { downloadCSV } from "../../../../Components/exportToCSV";
+import CustomButton from "@/new/components/reuseable/CustomButton";
 
 type SearchType = "po_wise" | "vendor_wise" | "single_date_wise";
 
 const ManagePO: React.FC = () => {
   const [rows, setRows] = useState<ManagePOTableType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [viewLoading, setViewLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [wise, setWise] = useState<SearchType>("po_wise");
   const [searchDateRange, setSearchDateRange] = useState<{
@@ -76,9 +75,6 @@ const ManagePO: React.FC = () => {
     label: string;
     value: string;
   } | null>(null);
-
-  // Additional state for modals and functionality
-  const [materialInward, setMaterialInward] = useState<any>(null);
 
   const dispatch = useDispatch<typeof Store.dispatch>();
   const {
@@ -174,21 +170,29 @@ const ManagePO: React.FC = () => {
     enableStickyHeader: true,
     enablePagination: false,
     enableRowActions: true,
-    muiTableContainerProps: { sx: { maxHeight: "70vh" } },
-    state: {
-      isLoading:
-        managePOLoading ||
-        searchLoading ||
-        componentLoading ||
-        poLogsLoading ||
-        poDetailsLoading,
+    muiTableContainerProps: {
+      sx: {
+        maxHeight: "calc(100vh - 260px)",
+        minHeight: "calc(100vh - 260px)",
+      },
     },
+    renderEmptyRowsFallback: () => (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "calc(100vh - 360px)",
+          color: "text.secondary",
+          fontSize: "0.9rem",
+        }}
+      >
+        No Purchase Orders Found
+      </Box>
+    ),
+
     renderTopToolbar: () =>
-      managePOLoading ||
-      searchLoading ||
-      componentLoading ||
-      poLogsLoading ||
-      poDetailsLoading ? (
+      managePOLoading || componentLoading ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
@@ -404,10 +408,10 @@ const ManagePO: React.FC = () => {
             />
           )}
 
-          <Button
-            variant="contained"
-            size="small"
-            onClick={getSearchResults}
+          <CustomButton
+            title="Search"
+            onclick={getSearchResults}
+            loading={loading}
             disabled={
               loading ||
               (wise === "po_wise" && !searchInput) ||
@@ -415,25 +419,24 @@ const ManagePO: React.FC = () => {
               (wise === "single_date_wise" &&
                 (!searchDateRange?.startDate || !searchDateRange?.endDate))
             }
-          >
-            {loading ? "Searching..." : "Search"}
-          </Button>
-
-          <Button
-            variant="outlined"
             size="small"
-            onClick={() =>
+          />
+
+      
+          <CustomButton
+            title="Download CSV"
+            size="small"
+            onclick={() =>
               downloadCSV(managePOList || [], columns, "Manage PO Report")
             }
             disabled={!managePOList || managePOList.length === 0}
-            startIcon={<Download />}
-          >
-            Download CSV
-          </Button>
-        </Stack>
+            starticon={<Download />}
+            variant="outlined"
+          />
+        </Stack>  
       </div>
 
-      <div className="h-[70vh]">
+      <div className="h-[calc(100vh-300px)]">
         <MaterialReactTable table={table} />
       </div>
 

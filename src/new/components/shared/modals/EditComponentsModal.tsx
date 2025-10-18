@@ -1,13 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Alert,
-  CircularProgress,
-  TextField,
-  MenuItem,
-} from "@mui/material";
+import { Box, Typography, Button, Alert, TextField } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
@@ -15,9 +7,10 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
-  type MRT_Row,
-  type MRT_TableInstance,
 } from "material-react-table";
+import CustomButton from "../../reuseable/CustomButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CustomIconButton from "../../reuseable/CustomIconButton";
 
 interface Material {
   id: string;
@@ -403,6 +396,12 @@ const EditComponentsModal: React.FC<EditComponentsModalProps> = ({
     enableDensityToggle: true,
     enableFullScreenToggle: true,
     enableHiding: true,
+    muiTableContainerProps: {
+      sx: {
+        minHeight: "calc(100vh - 510px)",
+        maxHeight: "calc(100vh - 510px)",
+      },
+    },
     initialState: {
       pagination: { pageSize: 10, pageIndex: 0 },
       density: "compact",
@@ -427,7 +426,7 @@ const EditComponentsModal: React.FC<EditComponentsModalProps> = ({
     },
     renderRowActions: ({ row }) => (
       <Box sx={{ display: "flex", gap: 1 }}>
-        <Button
+        {/* <Button
           size="small"
           color="error"
           variant="outlined"
@@ -439,21 +438,28 @@ const EditComponentsModal: React.FC<EditComponentsModalProps> = ({
           }}
         >
           Delete
-        </Button>
+        </Button> */}
+        <CustomIconButton
+          size="small"
+          onclick={() => {
+            setComponents((prev) =>
+              prev.filter((comp) => comp.id !== row.original.id)
+            );
+            setIsDirty(true);
+          }}
+          hoverColor="#ffe8e8"
+        >
+          <DeleteIcon fontSize="small" color="error" />
+        </CustomIconButton>
       </Box>
     ),
     renderTopToolbarCustomActions: () => (
-      <Button
-        variant="contained"
-        startIcon={<AddIcon />}
-        onClick={handleAddRow}
-        sx={{
-          bgcolor: "#0d9488",
-          "&:hover": { bgcolor: "#0f766e" },
-        }}
-      >
-        Add Component
-      </Button>
+      <CustomButton
+        title="Add Component"
+        starticon={<AddIcon />}
+        onclick={handleAddRow}
+        size="small"
+      />
     ),
     renderEmptyRowsFallback: () => (
       <Box sx={{ textAlign: "center", py: 4 }}>
@@ -496,23 +502,18 @@ const EditComponentsModal: React.FC<EditComponentsModalProps> = ({
           borderTop: "1px solid #e5e7eb",
         }}
       >
-        <Button variant="outlined" onClick={handleCancel} disabled={loading}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleSave}
+        <CustomButton
+          title="Cancel"
+          variant="text"
+          onclick={handleCancel}
+          disabled={loading}
+        />
+
+        <CustomButton
+          title="Save Components"
+          onclick={handleSave}
           disabled={loading || components.length === 0}
-          sx={{
-            bgcolor: "#0d9488",
-            "&:hover": { bgcolor: "#0f766e" },
-          }}
-          startIcon={
-            loading ? <CircularProgress size={16} color="inherit" /> : null
-          }
-        >
-          {loading ? "Saving..." : "Save Components"}
-        </Button>
+        />
       </Box>
     </Box>
   );

@@ -196,8 +196,7 @@ const Sidebar = ({
                       ? "#e8f4fd"
                       : "#d4edda";
                   }
-                }
-                }
+                }}
                 onMouseLeave={(e) => {
                   if (!activeKey) setHoveredKey(null);
                   if (!isActive) {
@@ -582,33 +581,6 @@ const Sidebar = ({
                   >
                     ‹
                   </span>
-                </button>
-                <button
-                  onClick={closeSecondSidebar}
-                  style={{
-                    cursor: "pointer",
-                    background: "none",
-                    border: "none",
-                    fontSize: 18,
-                    color: "#666",
-                    padding: "4px",
-                    borderRadius: "4px",
-                    transition: "background-color 0.2s ease",
-                    width: "24px",
-                    height: "24px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#e0e0e0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                  title="Close"
-                >
-                  ×
                 </button>
               </div>
             </div>

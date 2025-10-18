@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Drawer,
   Tabs,
@@ -14,14 +14,7 @@ import {
   FormControlLabel,
   Radio,
   Typography,
-  Divider,
-  Alert,
-  Paper,
   CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,8 +23,6 @@ import { Store } from "../../../../Features/Store";
 import ReusableAsyncSelect from "@/Components/ReusableAsyncSelect";
 import EditComponentsModal from "./EditComponentsModal";
 import {
-  fetchVendorOptions,
-  fetchCostCenterOptions,
   fetchBillingAddresses,
   fetchShippingAddresses,
   fetchVendorBranches,
@@ -40,6 +31,11 @@ import {
   fetchShippingAddress,
   updatePOData,
 } from "@/new/features/procurement/POSlice";
+import CustomFieldBox from "../../reuseable/CustomFieldBox";
+import ConfirmationDialog from "../../reuseable/ConfirmationDialog";
+import CustomButton from "../../reuseable/CustomButton";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { vendorDetailsOptions } from "@/new/optionsData/options";
 
 interface Material {
   id: string;
@@ -73,7 +69,7 @@ interface EditPOModalProps {
   onEditSuccess: () => void; // Callback to refresh data after edit
 }
 
-export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
+export const  EditPOModal: React.FC<EditPOModalProps> = React.memo(
   ({ showEditPO, setShowEditPO, onEditSuccess }) => {
     const dispatch = useDispatch<typeof Store.dispatch>();
     const [activeTab, setActiveTab] = useState(0);
@@ -85,29 +81,17 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
 
     // Get data from Redux store
     const {
-      vendorOptions,
-      costCenterOptions,
       billingAddresses,
       shippingAddresses,
       vendorBranches,
       vendorAddress,
       billingAddress,
       shippingAddress,
-      vendorOptionsLoading,
-      costCenterOptionsLoading,
       billingAddressesLoading,
       shippingAddressesLoading,
       vendorBranchesLoading,
-      vendorAddressLoading,
-      billingAddressLoading,
-      shippingAddressLoading,
       updatePOLoading,
     } = useSelector((state: any) => state.createPo);
-
-    const vendorDetailsOptions = [
-      { text: "JWI (Job Work In)", value: "j01" },
-      { text: "Vendor", value: "v01" },
-    ];
 
     // Memoized transform functions to prevent unnecessary re-renders
     const vendorTransform = useCallback(
@@ -551,26 +535,6 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
 
     return (
       <>
-        {/* Reset Confirmation Dialog */}
-        <Dialog
-          open={showDetailsConfirm}
-          onClose={() => setShowDetailsConfirm(false)}
-        >
-          <DialogTitle>Confirm Reset!</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Are you sure to reset details of this Purchase Order to the
-              details it was created with?
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShowDetailsConfirm(false)}>No</Button>
-            <Button onClick={resetDetails} variant="contained">
-              Yes
-            </Button>
-          </DialogActions>
-        </Dialog>
-
         <Drawer
           anchor="right"
           open={!!showEditPO}
@@ -583,7 +547,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
               Updating PO: {showEditPO?.orderid}
             </Typography>
 
-            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
               <Tabs
                 value={activeTab}
                 onChange={(_, newValue) => setActiveTab(newValue)}
@@ -595,7 +559,7 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
 
             {activeTab === 0 && (
               <Box
-                sx={{ height: "calc(100% - 120px)", overflow: "auto", p: 2 }}
+                sx={{ height: "calc(100% - 200px)", overflow: "auto", p: 2 }}
               >
                 {/* Two Column Card Layout */}
                 <Box
@@ -610,35 +574,10 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                     sx={{ display: "flex", flexDirection: "column", gap: 3 }}
                   >
                     {/* Vendor Details Card */}
-                    <Paper
-                      sx={{
-                        borderRadius: 2,
-                        boxShadow: 2,
-                        border: "1px solid #e5e7eb",
-                        "&:hover": { boxShadow: 4 },
-                      }}
+                    <CustomFieldBox
+                      title="Vendor Details"
+                      subtitle="Type Name or Code of the vendor"
                     >
-                      <Box
-                        sx={{
-                          bgcolor: "#eff6ff",
-                          px: 3,
-                          py: 2,
-                          borderBottom: "1px solid #e5e7eb",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "#111827" }}
-                        >
-                          Vendor Details
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#6b7280", mt: 0.5 }}
-                        >
-                          Type Name or Code of the vendor
-                        </Typography>
-                      </Box>
                       <Box
                         sx={{
                           p: 3,
@@ -784,38 +723,13 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                           sx={{ fontSize: "0.875rem" }}
                         />
                       </Box>
-                    </Paper>
+                    </CustomFieldBox>
 
                     {/* Billing Details Card */}
-                    <Paper
-                      sx={{
-                        borderRadius: 2,
-                        boxShadow: 2,
-                        border: "1px solid #e5e7eb",
-                        "&:hover": { boxShadow: 4 },
-                      }}
+                    <CustomFieldBox
+                      title="Billing Details"
+                      subtitle="Provide billing information"
                     >
-                      <Box
-                        sx={{
-                          bgcolor: "#eff6ff",
-                          px: 3,
-                          py: 2,
-                          borderBottom: "1px solid #e5e7eb",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "#111827" }}
-                        >
-                          Billing Details
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#6b7280", mt: 0.5 }}
-                        >
-                          Provide billing information
-                        </Typography>
-                      </Box>
                       <Box
                         sx={{
                           p: 3,
@@ -912,43 +826,17 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                           sx={{ fontSize: "0.875rem" }}
                         />
                       </Box>
-                    </Paper>
+                    </CustomFieldBox>
                   </Box>
 
                   {/* Right Column */}
                   <Box
                     sx={{ display: "flex", flexDirection: "column", gap: 3 }}
                   >
-                    {/* PO Terms Card */}
-                    <Paper
-                      sx={{
-                        borderRadius: 2,
-                        boxShadow: 2,
-                        border: "1px solid #e5e7eb",
-                        "&:hover": { boxShadow: 4 },
-                      }}
+                    <CustomFieldBox
+                      title="PO Terms"
+                      subtitle="Provide PO terms and other information"
                     >
-                      <Box
-                        sx={{
-                          bgcolor: "#eff6ff",
-                          px: 3,
-                          py: 2,
-                          borderBottom: "1px solid #e5e7eb",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "#111827" }}
-                        >
-                          PO Terms
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#6b7280", mt: 0.5 }}
-                        >
-                          Provide PO terms and other information
-                        </Typography>
-                      </Box>
                       <Box
                         sx={{
                           p: 3,
@@ -1083,38 +971,13 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                           </RadioGroup>
                         </FormControl>
                       </Box>
-                    </Paper>
-
+                    </CustomFieldBox>
                     {/* Shipping Details Card */}
-                    <Paper
-                      sx={{
-                        borderRadius: 2,
-                        boxShadow: 2,
-                        border: "1px solid #e5e7eb",
-                        "&:hover": { boxShadow: 4 },
-                      }}
+
+                    <CustomFieldBox
+                      title="Shipping Details"
+                      subtitle="Provide shipping information"
                     >
-                      <Box
-                        sx={{
-                          bgcolor: "#eff6ff",
-                          px: 3,
-                          py: 2,
-                          borderBottom: "1px solid #e5e7eb",
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 600, color: "#111827" }}
-                        >
-                          Shipping Details
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#6b7280", mt: 0.5 }}
-                        >
-                          Provide shipping information
-                        </Typography>
-                      </Box>
                       <Box
                         sx={{
                           p: 3,
@@ -1211,14 +1074,14 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                           sx={{ fontSize: "0.875rem" }}
                         />
                       </Box>
-                    </Paper>
+                    </CustomFieldBox>
                   </Box>
                 </Box>
               </Box>
             )}
 
             {activeTab === 1 && (
-              <Box sx={{ height: "calc(100% - 120px)", p: 2 }}>
+              <Box sx={{ height: "calc(100% - 200px)", p: 2 }}>
                 <EditComponentsModal
                   materials={materials}
                   onSave={handleMaterialsSave}
@@ -1235,64 +1098,44 @@ export const EditPOModal: React.FC<EditPOModalProps> = React.memo(
                 gap: 2,
                 justifyContent: "space-between",
                 alignItems: "center",
-                mt: 4,
+                mt: 2,
                 pt: 3,
                 borderTop: "1px solid #e5e7eb",
               }}
             >
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Button
-                  variant="outlined"
-                  onClick={handleCancel}
-                  sx={{ px: 3 }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => setShowDetailsConfirm(true)}
-                  sx={{ px: 3 }}
-                >
-                  Reset
-                </Button>
+                <CustomButton title="Cancel" variant="text" onclick={handleCancel} />
+                <CustomButton
+                  title="Reset"
+                  onclick={() => setShowDetailsConfirm(true)}
+                />
               </Box>
               {activeTab === 0 ? (
-                <Button
-                  variant="contained"
-                  onClick={() => setActiveTab(1)}
-                  sx={{
-                    px: 4,
-                    bgcolor: "#0d9488",
-                    "&:hover": { bgcolor: "#0f766e" },
-                    color: "white",
-                  }}
-                  endIcon={<span style={{ marginLeft: "4px" }}>→</span>}
-                >
-                  Next
-                </Button>
+                <CustomButton
+                  title="Next"
+                  onclick={() => setActiveTab(1)}
+                  endicon={<ArrowForwardIcon fontSize="small" />}
+                />
               ) : (
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  disabled={updatePOLoading}
-                  sx={{
-                    px: 4,
-                    bgcolor: "#0d9488",
-                    "&:hover": { bgcolor: "#0f766e" },
-                    color: "white",
-                  }}
-                  startIcon={
-                    updatePOLoading ? (
-                      <CircularProgress size={16} color="inherit" />
-                    ) : null
-                  }
-                >
-                  {updatePOLoading ? "Saving..." : "Save PO"}
-                </Button>
+                
+                <CustomButton
+                  title="Save Po"
+                  onclick={handleSubmit}
+                  loading={updatePOLoading}
+                />
               )}
             </Box>
           </Box>
         </Drawer>
+
+        <ConfirmationDialog
+          open={showDetailsConfirm}
+          close={() => setShowDetailsConfirm(false)}
+          title="Confirm Reset!"
+          description="Are you sure to reset details of this Purchase Order to the
+              details it was created with?"
+          onConfirm={resetDetails}
+        />
       </>
     );
   }

@@ -24,6 +24,7 @@ const CustomFieldBox: React.FC<Props> = ({ title, subtitle, children}) => {
           </Typography>
         }
         className="bg-[#e0f2f1] px-[10px] py-[5px]"
+        
       />
       <CardContent >{children}</CardContent>
     </Card>
