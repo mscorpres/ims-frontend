@@ -120,3 +120,65 @@ export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 150,
   },
 ];
+
+export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+
+  {
+    accessorKey: "cost_center",
+    header: "Cost Center",
+    size: 150,
+  },
+  {
+    accessorKey: "vendor_name",
+    header: "Vendor Name",
+    size: 200,
+  },
+  {
+    accessorKey: "vendor_id",
+    header: "Vendor Code",
+    size: 100,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+  {
+    accessorKey: "po_reg_date",
+    header: "Po Reg. Date",
+    size: 150,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+
+  {
+    accessorKey: "po_reg_by",
+    header: "Created By",
+    size: 150,
+  },
+
+  {
+    accessorKey: "po_comment",
+    header: "Comment",
+    size: 150,
+  },
+    {
+    accessorKey: "po_transaction_code",
+    header: "PO ID",
+    size: 150,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+];

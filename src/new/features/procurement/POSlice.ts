@@ -9,7 +9,7 @@ import {
   Vendor,
 } from "@/new/features/procurement/POType";
 
-export const initialState: POState = {
+export const initialState: any = {
   vendor: null,
   loading: false,
   billTo: { line1: "" },
@@ -86,6 +86,17 @@ export const fetchManagePO = createAsyncThunk<
   });
   return data.data;
 });
+export const fetchCompletedPO = createAsyncThunk<
+  any[],
+  { data: any; wise: string }
+>("po/fetchCompletedPO", async (payload: { data: any; wise: string }) => {
+
+  const { data } = await imsAxios.post(`/purchaseOrder/fetchCompletePO`, {
+    data: payload.data,
+    wise: payload.wise,
+  });
+  return data.data;
+});
 
 export const printPO = createAsyncThunk<string, string>(
   "po/printPO",
@@ -134,6 +145,8 @@ export const fetchComponentData = createAsyncThunk<
     throw new Error(data.message);
   }
 });
+
+
 
 export const fetchPOLogs = createAsyncThunk<any[], string>(
   "po/fetchPOLogs",
@@ -322,7 +335,7 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ id: string; patch: Partial<Item> }>
     ) {
-      const idx = state.items.findIndex((i) => i.id === action.payload.id);
+      const idx = state.items.findIndex((i:any) => i.id === action.payload.id);
       if (idx >= 0)
         state.items[idx] = {
           ...state.items[idx],
@@ -330,7 +343,7 @@ const slice = createSlice({
         } as Item;
     },
     removeItem(state, action: PayloadAction<string>) {
-      state.items = state.items.filter((i) => i.id !== action.payload);
+      state.items = state.items.filter((i:any) => i.id !== action.payload);
     },
     // Action handlers
     setShowCancelPO(state, action: PayloadAction<string | null>) {
@@ -370,6 +383,18 @@ const slice = createSlice({
   extraReducers(builder) {
     builder
       // Fetch Manage PO
+        .addCase(fetchCompletedPO.pending, (state) => {
+        state.completedPOLoading = true;
+        state.completedPOList = [];
+      })
+      .addCase(fetchCompletedPO.fulfilled, (state, action) => {
+        state.completedPOLoading = false;
+        state.completedPOList = action.payload;
+      })
+      .addCase(fetchCompletedPO.rejected, (state) => {
+        state.completedPOLoading = false;
+        state.completedPOList = [];
+      })
       .addCase(fetchManagePO.pending, (state) => {
         state.managePOLoading = true;
         state.managePOList = [];

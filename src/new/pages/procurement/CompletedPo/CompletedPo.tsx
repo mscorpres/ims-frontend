@@ -28,6 +28,7 @@ import {
 import DateRangeField from "@/new/components/shared/DateRangeField";
 import {
   ManagePOTableType,
+  getCompletedPOColumns,
   getManagePOColumns,
 } from "@/new/pages/procurement/POType";
 import {
@@ -37,7 +38,7 @@ import {
   UploadDocModal,
 } from "@/new/components/shared/modals";
 import {
-  fetchManagePO,
+  fetchCompletedPO,
   printPO,
   downloadPO,
   checkPOStatus,
@@ -63,8 +64,6 @@ import CustomButton from "@/new/components/reuseable/CustomButton";
 type SearchType = "po_wise" | "vendor_wise" | "single_date_wise";
 
 const CompletedPo: React.FC = () => {
-  const [rows, setRows] = useState<ManagePOTableType[]>([]);
-  const [loading, setLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [wise, setWise] = useState<SearchType>("po_wise");
   const [searchDateRange, setSearchDateRange] = useState<{
@@ -78,8 +77,6 @@ const CompletedPo: React.FC = () => {
 
   const dispatch = useDispatch<typeof Store.dispatch>();
   const {
-    managePOList,
-    managePOLoading,
     showCancelPO,
     showViewSidebar,
     componentData,
@@ -90,13 +87,14 @@ const CompletedPo: React.FC = () => {
     downloadLoading,
     componentLoading,
     poLogsLoading,
-    poDetailsLoading,
+    completedPOList,
+    completedPOLoading,
   } = useSelector((state: any) => state.createPo);
 
   // Use optimized row actions
 
-  const columns = useMemo<MRT_ColumnDef<ManagePOTableType>[]>(
-    () => getManagePOColumns(),
+  const columns = useMemo<MRT_ColumnDef<any>[]>(
+    () => getCompletedPOColumns(),
     []
   );
   const handlePrint = async (poid: string) => {
@@ -126,13 +124,7 @@ const CompletedPo: React.FC = () => {
     }
   };
 
-  const handleCancelPO = async (poid: string) => {
-    try {
-      await dispatch(checkPOStatus(poid));
-    } catch (error) {
-      toast.error("PO is already cancelled");
-    }
-  };
+
 
   const handleView = async (poid: string, status: string) => {
     try {
@@ -141,18 +133,6 @@ const CompletedPo: React.FC = () => {
     } catch (error) {
       toast.error("Error fetching component data");
     }
-  };
-
-  const handleEdit = async (poid: string) => {
-    try {
-      await dispatch(fetchPODetails(poid));
-    } catch (error) {
-      toast.error("Error fetching PO details");
-    }
-  };
-
-  const handleUpload = (poid: string) => {
-    dispatch(setShowUploadDoc(poid));
   };
 
   // Refresh data after successful operations
@@ -164,7 +144,7 @@ const CompletedPo: React.FC = () => {
 
   const table = useMaterialReactTable({
     columns: columns,
-    data: managePOList || [],
+    data: completedPOList || [],
     enableDensityToggle: false,
     initialState: { density: "compact" },
     enableStickyHeader: true,
@@ -192,20 +172,12 @@ const CompletedPo: React.FC = () => {
     ),
 
     renderTopToolbar: () =>
-      managePOLoading || componentLoading ? (
+      completedPOLoading || componentLoading ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress />
         </Box>
       ) : null,
     renderRowActionMenuItems: ({ row, table }) => [
-      <MRT_ActionMenuItem
-        icon={poDetailsLoading ? <CircularProgress size={16} /> : <Edit />}
-        key="edit"
-        label="Edit"
-        onClick={() => handleEdit(row?.original?.po_transaction)}
-        table={table}
-        disabled={row.original.approval_status === "C" || poDetailsLoading}
-      />,
       <MRT_ActionMenuItem
         icon={
           componentLoading || poLogsLoading ? (
@@ -218,7 +190,7 @@ const CompletedPo: React.FC = () => {
         label="View"
         onClick={() =>
           handleView(
-            row.original?.po_transaction,
+            row.original?.po_transaction_code,
             row?.original?.approval_status ?? ""
           )
         }
@@ -229,7 +201,7 @@ const CompletedPo: React.FC = () => {
         icon={downloadLoading ? <CircularProgress size={16} /> : <Download />}
         key="download"
         label="Download"
-        onClick={() => handleDownload(row?.original?.po_transaction)}
+        onClick={() => handleDownload(row?.original?.po_transaction_code)}
         table={table}
         disabled={row.original.approval_status === "P" || downloadLoading}
       />,
@@ -237,23 +209,9 @@ const CompletedPo: React.FC = () => {
         icon={printLoading ? <CircularProgress size={16} /> : <Print />}
         key="print"
         label="Print"
-        onClick={() => handlePrint(row?.original?.po_transaction)}
+        onClick={() => handlePrint(row?.original?._code)}
         table={table}
         disabled={row.original.approval_status === "P" || printLoading}
-      />,
-      <MRT_ActionMenuItem
-        icon={<Cancel />}
-        key="cancel"
-        label="Cancel"
-        onClick={() => handleCancelPO(row?.original?.po_transaction)}
-        table={table}
-      />,
-      <MRT_ActionMenuItem
-        icon={<Upload />}
-        key="upload"
-        label="Upload File"
-        onClick={() => handleUpload(row?.original?.po_transaction)}
-        table={table}
       />,
     ],
   });
@@ -267,7 +225,7 @@ const CompletedPo: React.FC = () => {
   };
 
   const getSearchResults = async () => {
-    setRows([]);
+  
     let search;
     if (wise === "single_date_wise") {
       search = searchDateRange;
@@ -276,7 +234,6 @@ const CompletedPo: React.FC = () => {
     }
 
     if (searchInput || search || selectedVendor) {
-      setLoading(true);
 
       let searchData: any;
       if (wise === "vendor_wise") {
@@ -292,26 +249,18 @@ const CompletedPo: React.FC = () => {
 
       try {
         const res = await dispatch(
-          fetchManagePO({
+          fetchCompletedPO({
             data: searchData,
             wise: wise,
           }) as any
         );
 
-        setLoading(false);
-        if (res.payload) {
-          const mapped = (res.payload || []).map((r: any, index: number) => ({
-            id: r.po_transaction ?? String(index),
-            ...r,
-          }));
-          setRows(mapped);
-        } else {
-          setRows([]);
-        }
+     
+
       } catch (error) {
-        setLoading(false);
+     
         toast.error("Error fetching data");
-        setRows([]);
+    
       }
     } else {
       if (wise === "single_date_wise" && searchDateRange === null) {
@@ -411,9 +360,9 @@ const CompletedPo: React.FC = () => {
           <CustomButton
             title="Search"
             onclick={getSearchResults}
-            loading={loading}
+            loading={completedPOLoading}
             disabled={
-              loading ||
+           completedPOLoading ||
               (wise === "po_wise" && !searchInput) ||
               (wise === "vendor_wise" && !selectedVendor) ||
               (wise === "single_date_wise" &&
@@ -422,18 +371,17 @@ const CompletedPo: React.FC = () => {
             size="small"
           />
 
-      
           <CustomButton
             title="Download CSV"
             size="small"
             onclick={() =>
-              downloadCSV(managePOList || [], columns, "Manage PO Report")
+              downloadCSV(completedPOList || [], columns, "Completed PO Report")
             }
-            disabled={!managePOList || managePOList.length === 0}
+            disabled={!completedPOList || completedPOList.length === 0}
             starticon={<Download />}
             variant="outlined"
           />
-        </Stack>  
+        </Stack>
       </div>
 
       <div className="h-[calc(100vh-300px)]">
@@ -453,18 +401,6 @@ const CompletedPo: React.FC = () => {
         componentData={componentData}
         poLogs={poLogs}
         onRefreshLogs={(poId) => dispatch(fetchPOLogs(poId))}
-      />
-
-      <EditPOModal
-        showEditPO={showEditPO}
-        setShowEditPO={(value) => dispatch(setShowEditPO(value))}
-        onEditSuccess={handleRefreshData}
-      />
-
-      <UploadDocModal
-        showUploadDoc={showUploadDoc}
-        setShowUploadDoc={(value) => dispatch(setShowUploadDoc(value))}
-        onUploadSuccess={handleRefreshData}
       />
     </div>
   );

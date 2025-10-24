@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { imsAxios } from "../../../../axiosInterceptor";
 import printFunction from "../../../utils/printFunction";
 import { downloadFunction } from "../../../utils/printFunction";
+import CustomButton from "../../reuseable/CustomButton";
 
 interface ViewPOModalProps {
   showViewSidebar: boolean;
@@ -100,7 +101,12 @@ export const ViewPOModal: React.FC<ViewPOModalProps> = ({
     initialState: { density: "compact" },
     enableStickyHeader: true,
     enablePagination: false,
-    muiTableContainerProps: { sx: { maxHeight: "70vh" } },
+      muiTableContainerProps: {
+      sx: {
+        maxHeight: "calc(100vh - 224px)",
+        minHeight: "calc(100vh - 224px)",
+      },
+    },
   });
 
   return (
@@ -132,41 +138,40 @@ export const ViewPOModal: React.FC<ViewPOModalProps> = ({
             </h2>
           </div>
           <Space>
-            <Button
-              variant="outlined"
-              startIcon={
+            <CustomButton
+              title="Print"
+              onclick={printFun}
+              disabled={loading === "print"}
+              starticon={
                 loading === "print" ? <CircularProgress size={16} /> : <Print />
               }
-              onClick={printFun}
-              disabled={loading === "print"}
-            >
-              Print
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={
+            />
+
+            <CustomButton
+              title="Download"
+              size="small"
+              onclick={handleDownload}
+              disabled={loading === "download"}
+              starticon={
                 loading === "download" ? (
                   <CircularProgress size={16} />
                 ) : (
                   <Download />
                 )
               }
-              onClick={handleDownload}
-              disabled={loading === "download"}
-            >
-              Download
-            </Button>
+              variant="outlined"
+            />
           </Space>
         </div>
 
-        <Row gutter={20} style={{ height: "95%" }}>
+        <Row gutter={20} style={{ height: "90%" }}>
           <Col span={16}>
-            <div style={{ height: "100%" }}>
+            <div style={{ minHeight: "100%" }}>
               <MaterialReactTable table={table} />
             </div>
           </Col>
           <Col span={8}>
-            <Card title="PO logs" sx={{ maxHeight: "100%", height: "100%" }}>
+            <Card title="PO logs" sx={{ maxHeight: "100%", height: "100%", p:2 }}>
               <Timeline
                 items={poLogs.map((row) => ({
                   children: (
