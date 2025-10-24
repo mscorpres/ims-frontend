@@ -24,6 +24,7 @@ import {
   ManagePO,
   ManagePONew,//new
   CompletedPo,
+  CompletedPoNew,//new
   Uom,
   Product,
   Group,
@@ -812,6 +813,10 @@ const Routes = [
   {
     path: "/completed-po",
     main: () => <CompletedPo />,
+  },
+   {
+    path: "/completed-po-new",
+    main: () => <CompletedPoNew />,
   },
   {
     path: "/approval-po",

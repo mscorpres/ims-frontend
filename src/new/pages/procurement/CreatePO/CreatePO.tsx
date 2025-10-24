@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,6 +9,9 @@ import {
   Select,
   MenuItem,
   TextField,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 // @ts-ignore
@@ -18,6 +21,7 @@ import { POoption, vendorDetailsOptions } from "@/new/optionsData/options";
 import ReusableAsyncSelect from "@/Components/ReusableAsyncSelect";
 import { fetchBillingAddress } from "@/new/features/procurement/POSlice";
 import { transformData } from "@/new/utils/transforme/transform";
+
 
 const CreatePO: React.FC = () => {
   const dispatch = useDispatch();
@@ -41,6 +45,21 @@ const CreatePO: React.FC = () => {
     setFormData(newData);
   };
 
+
+//  const handleProjectChange = async (value:any) => {
+//     const response = await imsAxios.post("/backend/projectDescription", {
+//       project_name: value,
+//     });
+  
+//     const { data } = response;
+//     if (data) {
+//       if (data.code === 200) {
+//         setProjectDesc(data.data.description);
+//       } else {
+//         // toast.error(data.message.msg);
+//       }
+//     }
+//   };
   return (
     <Box sx={{ height: "calc(100vh - 45px)" }}>
       {/* <Paper className="p-4 md:p-6 h-full"> */}
@@ -237,43 +256,216 @@ const CreatePO: React.FC = () => {
                 fullWidth
                 label="Terms and Conditions"
                 value={formData.termscondition || ""}
-                 onChange={() => handleInputChange("termscondition", null)}
+                onChange={(e) =>
+                  handleInputChange("termscondition", e.target.value)
+                }
                 sx={{ fontSize: "0.875rem" }}
               />{" "}
               <TextField
                 fullWidth
-                label="MSME Type"
-                value={formData.msmeType || ""}
-                 onChange={() => handleInputChange("vendorbranch", null)}
+                label="Quotation"
+                value={formData.quotation || ""}
+                onChange={(e) => handleInputChange("quotation", e.target.value)}
                 sx={{ fontSize: "0.875rem" }}
               />{" "}
               <TextField
                 fullWidth
-                label="MSME Id"
-                value={formData.msmeid || ""}
-                 onChange={() => handleInputChange("vendorbranch", null)}
+                label="Payment Terms"
+                value={formData.paymentterms || ""}
+                onChange={(e) =>
+                  handleInputChange("paymentterms", e.target.value)
+                }
                 sx={{ fontSize: "0.875rem" }}
               />
-                  <TextField
+              <TextField
                 fullWidth
-                label="MSME Id"
-                value={formData.msmeid || ""}
-                 onChange={() => handleInputChange("vendorbranch", null)}
+                label="Due Date (in days)"
+                value={formData.duedate || ""}
+                onChange={(e) => handleInputChange("duedate", e.target.value)}
                 sx={{ fontSize: "0.875rem" }}
               />
+              <ReusableAsyncSelect
+                placeholder="Cost Center"
+                endpoint="/backend/costCenter"
+                transform={(data) => transformData(data)}
+                fetchOptionWith="payload"
+                value={formData.costCenter}
+                onChange={() => handleInputChange("costCenter", null)}
+                label={"Const Center"}
+                size="medium"
+              />{" "}
+              <ReusableAsyncSelect
+                placeholder="Project Id"
+                endpoint="/backend/poProjectName"
+                transform={(data) => transformData(data)}
+                fetchOptionWith="payload"
+                value={formData.projectId}
+                onChange={() => handleInputChange("projectId", null)}
+                label={"Project Id"}
+                size="medium"
+              />{" "}
+              <TextField
+                fullWidth
+                label="Project Description"
+                value={formData.projectDescription || ""}
+                onChange={()=>{}}
+                sx={{ fontSize: "0.875rem" }}
+                disabled
+              />
+              <TextField
+                fullWidth
+                label="Comment"
+                value={formData.comment || ""}
+                onChange={(e) => handleInputChange("comment", e.target.value)}
+                sx={{ fontSize: "0.875rem" }}
+              />{" "}
+              <ReusableAsyncSelect
+                placeholder="Required By"
+                endpoint="/backend/fetchAllUser"
+                transform={(data) => transformData(data)}
+                fetchOptionWith="payload"
+                value={formData.requestedBy}
+                onChange={() => handleInputChange("requestedBy", null)}
+                label={"Requested By"}
+                size="medium"
+              />
+              <FormControl fullWidth>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mb: 1,
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  Advance Payment
+                </Typography>
+                <RadioGroup
+                  value={formData.advancePayment || 0}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "advancePayment",
+                      parseInt(e.target.value)
+                    )
+                  }
+                  sx={{ flexDirection: "row" }}
+                >
+                  <FormControlLabel
+                    value={1}
+                    control={<Radio size="small" />}
+                    label="Yes"
+                    sx={{ fontSize: "0.875rem" }}
+                  />
+                  <FormControlLabel
+                    value={0}
+                    control={<Radio size="small" />}
+                    label="No"
+                    sx={{ fontSize: "0.875rem" }}
+                  />
+                </RadioGroup>
+              </FormControl>
             </Box>
           </CustomFieldBox>
-          <CustomFieldBox title="PO Type" subtitle="">
-            <h5>Po Type Field</h5>
+          <CustomFieldBox
+            title="Billing Details"
+            subtitle="Provide billing information"
+          >
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: 2,
+                mb: 2,
+              }}
+            >
+              <ReusableAsyncSelect
+                placeholder="Billing Id"
+                endpoint="/backend/billingAddressList"
+                transform={(data) => transformData(data)}
+                fetchOptionWith="payload"
+                value={formData.billingId}
+                onChange={() => handleInputChange("billingId", null)}
+                label={"Billing Id"}
+                size="medium"
+              />{" "}
+              <TextField
+                fullWidth
+                label="Pan No."
+                value={formData.panNo || ""}
+                onChange={(e) =>
+                  handleInputChange("po_transaction", e.target.value)
+                }
+                sx={{ fontSize: "0.875rem" }}
+              />{" "}
+              <TextField
+                fullWidth
+                label="GSTIN / UIN"
+                value={formData.gstin || ""}
+                onChange={(e) => handleInputChange("gstin", e.target.value)}
+                sx={{ fontSize: "0.875rem" }}
+              />{" "}
+            </Box>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Billing Address"
+              value={formData.billingaddress || ""}
+              onChange={(e) =>
+                handleInputChange("billingaddress", e.target.value)
+              }
+              sx={{ fontSize: "0.875rem" }}
+            />
           </CustomFieldBox>
-          <CustomFieldBox title="PO Type" subtitle="">
-            <h5>Po Type Field</h5>
-          </CustomFieldBox>
-          <CustomFieldBox title="PO Type" subtitle="">
-            <h5>Po Type Field</h5>
-          </CustomFieldBox>
-          <CustomFieldBox title="PO Type" subtitle="">
-            <h5>Po Type Field</h5>
+          <CustomFieldBox
+            title="Shipping Details"
+            subtitle="Provide shipping information
+"
+          >
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: 2,
+                mb: 2,
+              }}
+            >
+              <ReusableAsyncSelect
+                placeholder="Shipping Id"
+                endpoint="/backend/billingAddressList"
+                transform={(data) => transformData(data)}
+                fetchOptionWith="payload"
+                value={formData.billingId}
+                onChange={() => handleInputChange("shippingId", null)}
+                label={"Shipping Id"}
+                size="medium"
+              />{" "}
+              <TextField
+                fullWidth
+                label="Pan No."
+                value={formData.s_panNo || ""}
+                onChange={(e) => handleInputChange("s_panNo", e.target.value)}
+                sx={{ fontSize: "0.875rem" }}
+              />{" "}
+              <TextField
+                fullWidth
+                label="GSTIN / UIN"
+                value={formData.s_gstin || ""}
+                onChange={(e) => handleInputChange("s_gstin", e.target.value)}
+                sx={{ fontSize: "0.875rem" }}
+              />{" "}
+            </Box>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Shipping Address"
+              value={formData.shippingaddress || ""}
+              onChange={(e) =>
+                handleInputChange("shippingaddress", e.target.value)
+              }
+              sx={{ fontSize: "0.875rem" }}
+            />
           </CustomFieldBox>
         </Box>
       </Box>

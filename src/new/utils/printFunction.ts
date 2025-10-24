@@ -36,3 +36,6 @@ export const downloadFromLink = (link: string) => {
 
 export { downloadFunction, downloadExcel };
 export default printFunction;
+
+
+

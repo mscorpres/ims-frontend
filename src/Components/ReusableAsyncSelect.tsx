@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import {
   Autocomplete,
   CircularProgress,
@@ -46,6 +46,10 @@ const ReusableAsyncSelect = <T,>({
   // Memoized API call function
   const fetchOptions = useCallback(
     async (searchTerm: string) => {
+      if(searchTerm.length === 0){
+        setOptions([]);
+        return;
+      }
       setLoading(true);
       try {
         const response =
@@ -207,4 +211,4 @@ const ReusableAsyncSelect = <T,>({
   );
 };
 
-export default ReusableAsyncSelect;
+export default memo(ReusableAsyncSelect);
