@@ -182,3 +182,116 @@ export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     ),
   },
 ];
+
+
+export const getVendorPricingUploadColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+
+
+  {
+    accessorKey: "vendor_id",
+    header: "Vendor Code",
+    size: 100,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+  {
+    accessorKey: "part_code",
+    header: "Part Code",
+    size: 150,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+
+  {
+    accessorKey: "part_name",
+    header: "Part Name",
+    size: 150,
+  },
+
+  {
+    accessorKey: "rate",
+    header: "Rate",
+    size: 150,
+  },
+    
+];
+
+
+export const getApprovedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+   {
+    accessorKey: "po_transaction_code",
+    header: "PO ID",
+    size: 150,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+ {
+    accessorKey: "serialNo",
+    header: "Sr No.",
+    size: 80,
+    enableSorting: false,
+    enableColumnFilter: false,
+    Cell: ({ row }) => row.index + 1, 
+  },
+  {
+    accessorKey: "cost_center",
+    header: "Cost Center",
+    size: 150,
+  },
+    {
+    accessorKey: "project_id",
+    header: "Project Id",
+    size: 200,
+  },
+   {
+    accessorKey: "project_name",
+    header: "Project Name",
+    size: 150,
+  },
+  {
+    accessorKey: "vendor_name",
+    header: "Vendor",
+    size: 200,
+  },
+
+  {
+    accessorKey: "po_reg_date",
+    header: "Po Reg. Date",
+    size: 150,
+    Cell: ({ cell }) => (
+      <CopyableChip
+        value={cell.getValue<string>()}
+        size="small"
+        variant="outlined"
+      />
+    ),
+  },
+
+  {
+    accessorKey: "po_reg_by",
+    header: "Created By",
+    size: 150,
+  },
+
+  {
+    accessorKey: "deviation_comment",
+    header: "Deviation Comment",
+    size: 150,
+  },
+   
+];

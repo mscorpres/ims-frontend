@@ -128,6 +128,8 @@ import {
   AllPages,
   AllUsers,
   JobworkApproval,
+  VendorPricingUploadNew,
+  ApprovalPoNew
 } from "../Pages/index.jsx";
 
 import {
@@ -267,6 +269,7 @@ import ApprovalList from "@/Pages/R&D/products/approvalList.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import Loader from "@/new/components/common/loader/Loader.js";
+import { Approval } from "@mui/icons-material";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -823,9 +826,18 @@ const Routes = [
     main: () => <PoApproval />,
     text: "Po Approval",
   },
+   {
+    path: "/approval-po-new",
+    main: () => <ApprovalPoNew />,
+    text: "Po Approval",
+  },
   {
     path: "/vendor-pricing",
     main: () => <VendorPricingUpload />,
+  },
+    {
+    path: "/vendor-pricing-new",
+    main: () => <VendorPricingUploadNew />,
   },
   {
     path: "/dashboard/sku_costing",
