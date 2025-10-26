@@ -170,16 +170,17 @@ export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 150,
   },
     {
-    accessorKey: "po_transaction_code",
+    accessorKey: "po_transaction_style",
     header: "PO ID",
     size: 150,
     Cell: ({ cell }) => (
-      <CopyableChip
-        value={cell.getValue<string>()}
-        size="small"
-        variant="outlined"
-      />
-    ),
+    <span
+      dangerouslySetInnerHTML={{
+        //@ts-ignore
+        __html: cell.getValue() ?? "",
+      }}
+    />
+  ),
   },
 ];
 

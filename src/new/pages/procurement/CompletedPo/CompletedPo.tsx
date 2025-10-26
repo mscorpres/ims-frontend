@@ -19,36 +19,25 @@ import {
 } from "@mui/material";
 import {
   Download,
-  Edit,
   Visibility,
   Print,
-  Cancel,
-  Upload,
 } from "@mui/icons-material";
 import DateRangeField from "@/new/components/shared/DateRangeField";
 import {
-  ManagePOTableType,
   getCompletedPOColumns,
-  getManagePOColumns,
 } from "@/new/pages/procurement/POType";
 import {
   CancelPOModal,
   ViewPOModal,
-  EditPOModal,
-  UploadDocModal,
 } from "@/new/components/shared/modals";
 import {
   fetchCompletedPO,
   printPO,
   downloadPO,
-  checkPOStatus,
   fetchComponentData,
   fetchPOLogs,
-  fetchPODetails,
-  setShowUploadDoc,
   setShowCancelPO,
   setShowViewSidebar,
-  setShowEditPO,
 } from "@/new/features/procurement/POSlice";
 import { useDispatch, useSelector } from "react-redux";
 import printFunction from "@/new/utils/printFunction";
@@ -124,8 +113,6 @@ const CompletedPo: React.FC = () => {
     }
   };
 
-
-
   const handleView = async (poid: string, status: string) => {
     try {
       await dispatch(fetchComponentData({ poid, status }));
@@ -148,12 +135,18 @@ const CompletedPo: React.FC = () => {
     enableDensityToggle: false,
     initialState: { density: "compact" },
     enableStickyHeader: true,
-    enablePagination: false,
+    // enablePagination: false,
     enableRowActions: true,
     muiTableContainerProps: {
       sx: {
-        maxHeight: "calc(100vh - 260px)",
-        minHeight: "calc(100vh - 260px)",
+        maxHeight:
+          completedPOLoading || componentLoading || poLogsLoading
+            ? "calc(100vh - 210px)"
+            : "calc(100vh - 260px)",
+        minHeight:
+          completedPOLoading || componentLoading || poLogsLoading
+            ? "calc(100vh - 210px)"
+            : "calc(100vh - 260px)",
       },
     },
     renderEmptyRowsFallback: () => (
@@ -177,31 +170,29 @@ const CompletedPo: React.FC = () => {
           <LinearProgress />
         </Box>
       ) : null,
-    renderRowActionMenuItems: ({ row, table }) => [
+    renderRowActionMenuItems: ({ row, table, closeMenu }: any) => [
       <MRT_ActionMenuItem
-        icon={
-          componentLoading || poLogsLoading ? (
-            <CircularProgress size={16} />
-          ) : (
-            <Visibility />
-          )
-        }
         key="view"
         label="View"
-        onClick={() =>
-          handleView(
-            row.original?.po_transaction_code,
-            row?.original?.approval_status ?? ""
-          )
-        }
+        icon={<Visibility />}
+        onClick={async () => {
+          closeMenu?.();
+          await handleView(
+            row.original.po_transaction_code,
+            row.original.approval_status
+          );
+        }}
         table={table}
-        disabled={componentLoading || poLogsLoading}
       />,
+
       <MRT_ActionMenuItem
         icon={downloadLoading ? <CircularProgress size={16} /> : <Download />}
         key="download"
         label="Download"
-        onClick={() => handleDownload(row?.original?.po_transaction_code)}
+        onClick={async () => {
+          closeMenu?.();
+          await handleDownload(row?.original?.po_transaction_code);
+        }}
         table={table}
         disabled={row.original.approval_status === "P" || downloadLoading}
       />,
@@ -209,7 +200,10 @@ const CompletedPo: React.FC = () => {
         icon={printLoading ? <CircularProgress size={16} /> : <Print />}
         key="print"
         label="Print"
-        onClick={() => handlePrint(row?.original?._code)}
+        onClick={async () => {
+          handlePrint(row?.original?._code);
+          closeMenu?.();
+        }}
         table={table}
         disabled={row.original.approval_status === "P" || printLoading}
       />,
@@ -225,7 +219,6 @@ const CompletedPo: React.FC = () => {
   };
 
   const getSearchResults = async () => {
-  
     let search;
     if (wise === "single_date_wise") {
       search = searchDateRange;
@@ -234,7 +227,6 @@ const CompletedPo: React.FC = () => {
     }
 
     if (searchInput || search || selectedVendor) {
-
       let searchData: any;
       if (wise === "vendor_wise") {
         searchData = selectedVendor?.value || searchInput;
@@ -254,13 +246,8 @@ const CompletedPo: React.FC = () => {
             wise: wise,
           }) as any
         );
-
-     
-
       } catch (error) {
-     
         toast.error("Error fetching data");
-    
       }
     } else {
       if (wise === "single_date_wise" && searchDateRange === null) {
@@ -362,7 +349,7 @@ const CompletedPo: React.FC = () => {
             onclick={getSearchResults}
             loading={completedPOLoading}
             disabled={
-           completedPOLoading ||
+              completedPOLoading ||
               (wise === "po_wise" && !searchInput) ||
               (wise === "vendor_wise" && !selectedVendor) ||
               (wise === "single_date_wise" &&
