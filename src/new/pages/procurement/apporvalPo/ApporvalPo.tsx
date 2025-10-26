@@ -135,9 +135,9 @@ const ApporvalPo: React.FC = () => {
   const table = useMaterialReactTable({
     columns: columns,
     data: completedPOList || [],
-      enableRowSelection: true,      // ✅ enables row checkboxes
-  enableMultiRowSelection: true, // ✅ allows "Select All"
-  enableSelectAll: true, 
+    enableRowSelection: true, // ✅ enables row checkboxes
+    enableMultiRowSelection: true, // ✅ allows "Select All"
+    enableSelectAll: true,
     enableDensityToggle: false,
     initialState: { density: "compact" },
     enableStickyHeader: true,
