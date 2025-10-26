@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Drawer, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
 
 export default function UploadDocs({ files, setFiles, disable, size }) {
   const props = {
@@ -21,7 +22,7 @@ export default function UploadDocs({ files, setFiles, disable, size }) {
 
   return (
     <Upload {...props}>
-      <Button
+      {/* <Button
         disabled={disable}
         type="primary"
         size={size && "large"}
@@ -29,7 +30,13 @@ export default function UploadDocs({ files, setFiles, disable, size }) {
         icon={<UploadOutlined />}
       >
         Upload File
-      </Button>
+      </Button> */}
+      <CustomButton
+        title="Upload File"
+        starticon={<UploadOutlined />}
+        disabled={disable}
+        size={"small"}
+      />
     </Upload>
   );
 }

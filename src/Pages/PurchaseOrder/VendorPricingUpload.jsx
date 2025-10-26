@@ -4,10 +4,15 @@ import { toast } from "react-toastify";
 import MyDataTable from "../../Components/MyDataTable";
 import NavFooter from "../../Components/NavFooter";
 import { v4 } from "uuid";
-import { Button, Card, Col, Row, Space } from "antd";
+import { Card, Col, Row, Space } from "antd";
 import { downloadCSVCustomColumns } from "../../Components/exportToCSV";
 import { imsAxios } from "../../axiosInterceptor";
 import MyButton from "../../Components/MyButton";
+import { Typography } from "@mui/material";
+import CustomButton from "../../new/components/reuseable/CustomButton";
+import SaveAltIcon from "@mui/icons-material/SaveAlt";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 export default function VendorPricingUpload() {
   const [file, setFile] = useState(null);
@@ -70,10 +75,10 @@ export default function VendorPricingUpload() {
   };
 
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "calc(100vh - 80px)", marginTop: 8 }}>
       <Row
         gutter={8}
-        style={{ height: "100%", padding: "0 10px" }}
+        style={{ height: "100%", padding: "4px 10px" }}
         className="vendor-price-upload"
       >
         <Col span={10}>
@@ -83,7 +88,13 @@ export default function VendorPricingUpload() {
             }}
             className="image-upload-btn"
           >
-            <Card size="small" title="Upload Vendor Pricing Files">
+            <Typography gutterBottom variant="subtitle1">
+              Upload Vendor Pricing Files
+            </Typography>
+            <Card
+              size="small"
+              className="!bg-[#e1fffc] border border-[#0d9488]"
+            >
               {!file && (
                 <div
                   style={{
@@ -104,7 +115,7 @@ export default function VendorPricingUpload() {
                     style={{
                       opacity: 0,
                       // width: "100%",
-                      // background: "red",
+                      // backgroundColor:"red",
                       height: "200px",
                       zIndex: 2,
                       width: "100%",
@@ -130,7 +141,7 @@ export default function VendorPricingUpload() {
                       <BsFillCloudArrowUpFill
                         style={{
                           fontSize: 70,
-                          color: "dodgerblue",
+                          color: "#0d9488",
                           opacity: 0.6,
                           zIndex: 1,
                           marginRight: "20px",
@@ -158,7 +169,30 @@ export default function VendorPricingUpload() {
           </form>
           <Row justify="end">
             <Space style={{ marginTop: 10 }} justify="start">
-              <MyButton
+              <CustomButton
+                title={"Sample File"}
+                size="small"
+                variant="text"
+                starticon={<SaveAltIcon fontSize="small" />}
+                onclick={() =>
+                  downloadCSVCustomColumns(sampleData, "POVENDORPRICNG")
+                }
+              />
+              <CustomButton
+                title={"Reset"}
+                size="small"
+                starticon={<RestartAltIcon fontSize="small" />}
+                onClick={resetFunction}
+                disabled={!file || previewLoading ? true : false}
+              />
+              <CustomButton
+                title={"Next"}
+                size="small"
+                endicon={<ArrowForwardIcon fontSize="small" />}
+                onclick={previewFile}
+                disabled={!file || previewLoading ? true : false}
+              />
+              {/* <MyButton
                 loading={previewLoading}
                 type="primary"
                 onClick={previewFile}
@@ -166,15 +200,15 @@ export default function VendorPricingUpload() {
                 variant="next"
               >
                 Next
-              </MyButton>
-              <MyButton
+              </MyButton> */}
+              {/* <MyButton
                 onClick={resetFunction}
                 disabled={!file || previewLoading ? true : false}
                 variant="reset"
               >
                 Reset File
-              </MyButton>
-              <MyButton
+              </MyButton> */}
+              {/* <MyButton
                 onClick={() =>
                   downloadCSVCustomColumns(sampleData, "POVENDORPRICNG")
                 }
@@ -182,14 +216,14 @@ export default function VendorPricingUpload() {
                 variant="downloadSample"
               >
                 Download Sample File
-              </MyButton>
+              </MyButton> */}
             </Space>
           </Row>
         </Col>
         <Col
           span={14}
           style={{
-            height: "93%",
+            height: "calc(100vh - 180px)",
             borderRadius: 5,
           }}
         >

@@ -71,7 +71,7 @@ export default function InternalNav({
       size="small"
       mode="horizontal"
       style={{
-        marginBottom: 5,
+        marginBottom: 8,
         width: "100%",
         background: "white",
         // background: "rgb(235, 235, 235)",

@@ -100,9 +100,7 @@ function CustomNoRowsOverlay() {
   );
 }
 export default function MyDataTable(props) {
-  const [rows, setRows] = useState([]);
   function CustomToolbar() {
-    let arr = [];
 
     return (
       <GridToolbarContainer>
@@ -116,33 +114,57 @@ export default function MyDataTable(props) {
   }
 
   return (
-    <DataGrid
-      onCellKeyDown={(params, events) => events.stopPropagation()}
-      rows={props.data}
-      rowLength={100}
-      disableColumnMenu={props.hideHeaderMenu}
-      columns={props.columns}
-      components={{
-        Toolbar: CustomToolbar,
-        NoRowsOverlay: CustomNoRowsOverlay,
-      }}
-      componentsProps={{
-        footer: { rows: props.data },
-      }}
-      pageSize={100}
-      rowsPerPageOptions={[1000]}
-      density="compact"
-      sx={{
-        "& .MuiDataGrid-cell": {
-          fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.9rem",
-        },
-        "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
-          outline: "none !important",
-          border: "none !important",
-        },
-      }}
-      loading={props.loading}
-      {...props}
-    />
+    <Box sx={{ position: "relative", height: "100%", scrollBehavior:"smooth" }}>
+      {props.loading && (
+        <LinearProgress
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            zIndex: 10,
+            "& .MuiLinearProgress-bar": {
+              backgroundColor: "#0d9488", // custom bar color
+            },
+            backgroundColor: "#e1fffc", // optional track color
+          }}
+        />
+      )}
+      <DataGrid
+        onCellKeyDown={(params, events) => events.stopPropagation()}
+        rows={props.data || []}
+        // rowLength={100}
+        rowsPerPageOptions={[1000]}
+        disableColumnMenu={props.hideHeaderMenu}
+        columns={props.columns}
+        components={{
+          Toolbar: CustomToolbar,
+          NoRowsOverlay: CustomNoRowsOverlay,
+        }}
+        componentsProps={{
+          footer: { rows: props.data },
+        }}
+        pageSize={100}
+    
+        density="compact"
+        sx={{
+          "& .MuiDataGrid-cell": {
+            fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.9rem",
+          },
+          "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
+            border: "none !important",
+          },
+           "& .MuiDataGrid-virtualScroller": {
+      scrollBehavior: "smooth",
+    },
+    "& .MuiDataGrid-virtualScrollerRenderZone": {
+      scrollBehavior: "smooth",
+    },
+        }}
+        loading={props.loading}
+        {...props}
+      />
+    </Box>
   );
 }

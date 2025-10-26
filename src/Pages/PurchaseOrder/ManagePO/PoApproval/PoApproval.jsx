@@ -25,6 +25,8 @@ import {
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton";
+import SearchIcon from "@mui/icons-material/Search";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 
 export default function PoApproval() {
   const [loading, setLoading] = useState(false);
@@ -206,7 +208,13 @@ export default function PoApproval() {
     setSearchInput("");
   }, [wise]);
   return (
-    <div style={{ height: "90%", padding: 5, paddingTop: 0 }}>
+    <div
+      style={{
+        height: "calc(100vh - 160px)",
+        marginTop: 8,
+        padding: "8px 8px",
+      }}
+    >
       <PoRejectModa
         getRows={getRows}
         open={rejectPo}
@@ -224,9 +232,9 @@ export default function PoApproval() {
         viewPoDetails={viewPoDetails}
         setViewPoDetails={setViewPoDetails}
       />
-      <Row justify="space-between">
+      <Row justify="space-between" style={{ paddingTop: 5, paddingBottom: 8 }}>
         <Col span={18}>
-          <Row gutter={6}>
+          <Row gutter={6} style={{ display: "flex", gap: 8 }}>
             <Col span={4}>
               <MySelect
                 options={wiseOptions}
@@ -271,15 +279,37 @@ export default function PoApproval() {
             </Col>
             <Col>
               <Space>
-                <MyButton
+                {/* <MyButton
                   loading={loading === "fetch"}
                   type="primary"
                   onClick={getRows}
                   variant="search"
                 >
                   Fetch
-                </MyButton>
-                <Button
+                </MyButton> */}
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<SearchIcon fontSize="small" />}
+                  loading={loading === "fetch"}
+                  onclick={getRows}
+                />
+                <CustomButton
+                  size="small"
+                  title={" Approve Selected Po's"}
+              
+                  disabled={selectedPo.length === 0 || loading === "fetch"}
+                  onclick={ApproveSelectedPo}
+                />
+                <CustomButton
+                  size="small"
+                  title={"Reject Selected Po's"}
+             
+                  disabled={selectedPo.length === 0 || loading === "fetch"}
+                  onclick={RejectSelectedPo}
+                />
+
+                {/* <Button
                   loading={loading === "fetch"}
                   disabled={selectedPo.length === 0}
                   onClick={ApproveSelectedPo}
@@ -292,7 +322,7 @@ export default function PoApproval() {
                   onClick={RejectSelectedPo}
                 >
                   Reject Selected Po's
-                </Button>
+                </Button> */}
               </Space>
             </Col>
           </Row>

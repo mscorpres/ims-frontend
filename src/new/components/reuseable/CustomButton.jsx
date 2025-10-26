@@ -1,17 +1,8 @@
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import React, { FC } from "react";
-type CustomButtonProps = {
-  title: string;
-  variant?: "contained" | "text" | "outlined";
-  onclick: () => void;
-  loading?: boolean;
-  starticon?: React.ReactNode;
-  endicon?: React.ReactNode;
-  disabled?: boolean;
-  size?: "small" | "medium";
-};
 
-const CustomButton: FC<CustomButtonProps> = ({
+
+const CustomButton = ({
   title,
   starticon,
   endicon,
@@ -20,15 +11,17 @@ const CustomButton: FC<CustomButtonProps> = ({
   variant = "contained",
   size = "medium",
   onclick,
+  htmlType = "button",
 }) => {
   return (
     <Button
+    type={htmlType}
       variant={variant}
       onClick={onclick} 
       size={size}
       sx={{
-        px: size === "small" ? 1.8 : 3,
-        py:0.9,
+        px: size === "small" ? 2 : 3,
+        py:0.7,
         bgcolor: variant==="text" || variant==="outlined"  ? "transparent" : "#0d9488",
         "&:hover": { bgcolor: variant==="text" || variant==="outlined" ? "#e1fffc" : "#0f766e" },
         color: variant==="text" || variant==="outlined" ? "#0d9488" : "white",
@@ -37,9 +30,9 @@ const CustomButton: FC<CustomButtonProps> = ({
       }}
     disabled={disabled}
       endIcon={endicon && endicon}
-      startIcon={starticon && starticon}
+      startIcon={loading ? <CircularProgress size={16} color="inhert" /> : starticon && starticon }
     >
-      {loading ? "Loading..." : title}
+      { title}
     </Button>
   );
 };

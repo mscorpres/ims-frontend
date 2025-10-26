@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Col, Input, Row, Space } from "antd";
+import {  Col, Input, Row, Space } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { toast } from "react-toastify";
 import printFunction, {
@@ -14,16 +14,15 @@ import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import UploadDoc from "./UploadDoc";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import TableActions, {
-  CommonIcons,
-} from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
-import MyButton from "../../../Components/MyButton";
+import SearchIcon from "@mui/icons-material/Search";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 
 const ManagePO = () => {
   const [loading, setLoading] = useState(false);
@@ -90,8 +89,18 @@ const ManagePO = () => {
         <GridActionsCellItem
           showInMenu
           // disabled={disabled}
+          style={{}}
           label={"Edit"}
           onClick={() => getPoDetail(row.po_transaction)}
+          sx={{
+            color: "#0d9488",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "#e1fffc",
+              color: "#0f766e",
+            },
+          }}
         />,
         // VIEW Icon
         <GridActionsCellItem
@@ -99,6 +108,15 @@ const ManagePO = () => {
           // disabled={disabled}
           label="View"
           onClick={() => getComponentData(row.po_transaction, row.po_status)}
+           sx={{
+            color: "#0d9488",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "#e1fffc",
+              color: "#0f766e",
+            },
+          }}
         />,
 
         // Download icon
@@ -108,6 +126,15 @@ const ManagePO = () => {
           label="Download"
           disabled={row.approval_status === "P"}
           onClick={() => handleDownload(row.po_transaction)}
+           sx={{
+            color: "#0d9488",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "#e1fffc",
+              color: "#0f766e",
+            },
+          }}
         />,
 
         // Print Icon
@@ -117,6 +144,15 @@ const ManagePO = () => {
           label="Print"
           disabled={row.approval_status === "P"}
           onClick={() => printFun(row.po_transaction)}
+           sx={{
+            color: "#0d9488",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "#e1fffc",
+              color: "#0f766e",
+            },
+          }}
         />,
 
         // Close PO icon
@@ -126,6 +162,15 @@ const ManagePO = () => {
           label="Cancel"
           // disabled={row.approval_status == "C"}
           onClick={() => handleCancelPO(row.po_transaction)}
+           sx={{
+            color: "#0d9488",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "#e1fffc",
+              color: "#0f766e",
+            },
+          }}
         />,
 
         // Upload DOC Icon
@@ -134,11 +179,20 @@ const ManagePO = () => {
           // disabled={disabled}
           label="Upload FIle"
           // disabled={row.approval_status == "C"}
+           sx={{
+            color: "#0d9488",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            "&:hover": {
+              backgroundColor: "#e1fffc",
+              color: "#0f766e",
+            },
+          }}
         />,
       ],
     },
     {
-      headerName: "#.",
+      headerName: "#",
       field: "index",
       width: 30,
     },
@@ -228,7 +282,9 @@ const ManagePO = () => {
     {
       headerName: "Advance Payment",
       field: "advPayment",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.advPayment=="0"?"NO":"YES"} />,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.advPayment == "0" ? "NO" : "YES"} />
+      ),
       flex: 1,
       minWidth: 150,
     },
@@ -340,18 +396,18 @@ const ManagePO = () => {
   };
   const getPoDetail = async (poid) => {
     setLoading(true);
-    const  {data,message}  = await imsAxios.post("/purchaseOrder/fetchData4Update", {
-      pono: poid.replaceAll("_", "/"),
-    }).then((res) => {
-      if(res.code == 500){
-        toast.error(res.message.msg);
-        setLoading(false);
-      }
-      else{
-        return res
-      }
-    }
-    );
+    const { data, message } = await imsAxios
+      .post("/purchaseOrder/fetchData4Update", {
+        pono: poid.replaceAll("_", "/"),
+      })
+      .then((res) => {
+        if (res.code == 500) {
+          toast.error(res.message.msg);
+          setLoading(false);
+        } else {
+          return res;
+        }
+      });
     setLoading(false);
     if (data?.code == 200) {
       setUpdatePoId({
@@ -361,7 +417,7 @@ const ManagePO = () => {
         ...data.data.vendor[0],
       });
     } else {
-      toast.error(data?.message||message);
+      toast.error(data?.message || message);
     }
   };
   useEffect(() => {
@@ -369,13 +425,17 @@ const ManagePO = () => {
   }, [wise]);
 
   return (
-    <div className="manage-po" style={{ position: "relative", height: "100%" }}>
-      <Row
-        justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
-      >
+    <div
+      className="manage-po"
+      style={{
+        position: "relative",
+        height: "calc(100vh - 80px)",
+        marginTop: 8,
+      }}
+    >
+      <Row justify="space-between" style={{ padding: "4px 10px" }}>
         <Col>
-          <Space>
+          <Space style={{ paddingTop: 5, paddingBottom: 8 }}>
             <div style={{ width: 150 }}>
               <MySelect options={wiseOptions} onChange={setWise} value={wise} />
             </div>
@@ -410,7 +470,7 @@ const ManagePO = () => {
                 )
               )}
             </div>
-            <MyButton
+            {/* <MyButton
               disabled={
                 wise === "single_date_wise"
                   ? searchDateRange === ""
@@ -427,7 +487,23 @@ const ManagePO = () => {
               variant="search"
             >
               Search
-            </MyButton>
+            </MyButton> */}
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<SearchIcon fontSize="small" />}
+              loading={searchLoading}
+              disabled={
+                wise === "single_date_wise"
+                  ? searchDateRange === ""
+                    ? true
+                    : false
+                  : !searchInput
+                  ? true
+                  : false
+              }
+              onclick={getSearchResults}
+            />
           </Space>
         </Col>
         <Col>
@@ -437,6 +513,19 @@ const ManagePO = () => {
               onClick={() => downloadCSV(rows, columns, "Pending PO Report")}
               disabled={rows.length == 0}
             />
+            {/* <CustomButton
+              title={"Download"}
+              starticon={<DownloadIcon />}
+              onclick={() => downloadCSV(rows, columns, "Pending PO Report")}
+              disabled={rows.length == 0}
+            /> */}
+            {/* <CustomIconButton
+              title={"Download"}
+              onclick={() => downloadCSV(rows, columns, "Pending PO Report")}
+              disabled={rows.length == 0}
+            >
+              <DownloadIcon sx={{ color: "#0d9488" }} />
+            </CustomIconButton> */}
           </Space>
         </Col>
       </Row>

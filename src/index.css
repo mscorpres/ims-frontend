@@ -307,7 +307,7 @@ textarea {
 .nav-footer {
   left: 0;
   background-color: white;
-  box-shadow: 0px -1px 3px 0px gray;
+  box-shadow: 0px -1px 3px 0px rgb(185, 185, 185);
 }
 .ant-layout-header,
 .ant-menu.ant-menu-dark .ant-menu-sub {
@@ -343,9 +343,9 @@ textarea {
   color: #245181;
 }
 *::-webkit-scrollbar {
-  width: 10px !important;
+  width: 6px !important;
   cursor: pointer;
-  height: 10px;
+  height: 6px;
 }
 *::-webkit-scrollbar-track:active {
   width: 10px !important;
@@ -359,16 +359,16 @@ textarea {
 }
 /* Handle */
 *::-webkit-scrollbar-thumb {
-  background: #24518196 !important;
+  background: #0d9488 !important;
   cursor: pointer;
   border-radius: 500px;
 }
 
 /* Handle on hover */
-*::-webkit-scrollbar-thumb:hover {
+/* *::-webkit-scrollbar-thumb:hover {
   background: #187bd8 !important;
   cursor: pointer;
-}
+} */
 .ant-menu-horizontal {
   border: none !important;
   margin: 0 !important;

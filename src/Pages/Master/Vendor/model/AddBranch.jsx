@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "../../Modal/modal.css";
-import { Button, Row, Col, Input, Drawer, Skeleton, Form, Space } from "antd";
+import { Button, Row, Col, Input, Drawer, Skeleton, Form, Space, Divider } from "antd";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import errorToast from "../../../../Components/errorToast";
 import { imsAxios } from "../../../../axiosInterceptor";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
 
 const { TextArea } = Input;
 
@@ -135,7 +136,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
       width="50vw"
     >
       <Form
-        style={{ marginTop: -10, height: "95%", overflowY: "auto" }}
+        style={{ marginTop: -10, height: "calc(100vh - 130px)", overflowY: "auto" }}
         layout="vertical"
         size="small"
       >
@@ -245,19 +246,32 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
           </>
         </Row>
       </Form>
+      <Divider />
       <Row justify="end">
         <Space>
-          <Button onClick={reset} size="default">
+          <CustomButton
+          title={"Reset"}
+          onclick={reset}
+          size="small"
+          variant="outlined"
+          />
+          <CustomButton
+          title={"Submit"}
+          onClick={addBranch}
+          size="small"
+          loading={submitLoading}
+          />
+          {/* <Button onClick={reset} size="default">
             Reset
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             size="default"
             type="primary"
             loading={submitLoading}
             onClick={addBranch}
           >
             Submit
-          </Button>
+          </Button> */}
         </Space>
       </Row>
     </Drawer>

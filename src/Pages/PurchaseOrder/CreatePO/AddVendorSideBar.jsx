@@ -18,6 +18,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 const AddVendorSideBar = ({ setOpen, open }) => {
   const [addVendor, setAddVendor] = useState({
@@ -188,7 +189,14 @@ const AddVendorSideBar = ({ setOpen, open }) => {
       bodyStyle={{ paddingTop: 5 }}
     >
       <Form style={{ height: "100%" }} form={addVendorForm} layout="vertical">
-        <div style={{ height: "97%", overflowY: "auto", overflowX: "hidden" }}>
+        <div
+          style={{
+            height: "calc(100% - 45px)",
+            overflowY: "auto",
+            overflowX: "hidden",
+            paddingRight: "10px",
+          }}
+        >
           <Divider orientation="center">VendorDetails</Divider>
           <Row gutter={16}>
             <Col span={24}>
@@ -507,10 +515,12 @@ const AddVendorSideBar = ({ setOpen, open }) => {
             </Col>
           </Row>
         </div>
+        <Divider />
         <Row justify="end">
           <Col>
             <Space>
-              <Button onClick={reset}>Reset</Button>
+              {/* <Button onClick={reset}>Reset</Button> */}
+              <CustomButton size="small" title={"Reset"} onclick={reset} variant="outlined" />
               {/* <Popconfirm
                 title="Submit Confirm"
                 description="Are you sure you want to create this vendor?"
@@ -519,14 +529,15 @@ const AddVendorSideBar = ({ setOpen, open }) => {
                 cancelText="No"
                 // okButtonProps={{ loading: submitLoading }}
               > */}
-              <Button
+              {/* <Button
                 // htmlType="submit"
                 // loading={submitLoading}
                 onClick={showModal}
                 type="primary"
               >
                 Submit
-              </Button>
+              </Button> */}
+              <CustomButton size="small" title={"Submit"} onclick={showModal} />
               {/* </Popconfirm> */}
             </Space>
           </Col>

@@ -18,7 +18,8 @@ import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import { getVendorOptions } from "../../../api/general.ts";
-import MyButton from "../../../Components/MyButton";
+import SearchIcon from "@mui/icons-material/Search";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 
 const CompletedPo = () => {
   const [loading, setLoading] = useState(false);
@@ -294,17 +295,10 @@ const CompletedPo = () => {
   }, [wise]);
 
   return (
-    <div style={{ height: "100%" }}>
-      <Row
-        justify="space-between"
-        style={{
-          padding: "0px 10px",
-          paddingBottom: 5,
-          width: "100%",
-        }}
-      >
+    <div style={{ height: "calc(100vh - 80px)", marginTop: 8 }}>
+      <Row justify="space-between" style={{ padding: "4px 10px" }}>
         <Col className="left">
-          <Space>
+          <Space style={{ paddingTop: 5, paddingBottom: 8 }}>
             <div style={{ width: 150 }}>
               <MySelect
                 size="medium"
@@ -350,7 +344,7 @@ const CompletedPo = () => {
                 )
               )}{" "}
             </div>
-            <MyButton
+            {/* <MyButton
               loading={searchLoading}
               disabled={
                 wise === "single_date_wise"
@@ -366,7 +360,23 @@ const CompletedPo = () => {
               variant="search"
             >
               Search
-            </MyButton>
+            </MyButton> */}
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<SearchIcon fontSize="small" />}
+              loading={searchLoading}
+              disabled={
+                wise === "single_date_wise"
+                  ? searchDateRange === ""
+                    ? true
+                    : false
+                  : !searchInput
+                  ? true
+                  : false
+              }
+              onclick={getSearchResults}
+            />
           </Space>
         </Col>
         <Col>

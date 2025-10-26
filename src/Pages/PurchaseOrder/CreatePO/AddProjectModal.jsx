@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 export default function AddProjectModal({
   showAddProjectConfirm,
@@ -62,7 +63,7 @@ export default function AddProjectModal({
       </Modal>
       <Row style={{ height: "90%", width: "100%" }}>
         <Form
-          style={{ width: "100%" }}
+          style={{ width: "100%",  }}
           layout="vertical"
           form={addProjectForm}
           onFinish={validateHandler}
@@ -77,11 +78,12 @@ export default function AddProjectModal({
                   message: "Please Enter new projec ID!",
                 },
               ]}
+              style={{ marginBottom: 18 }}
             >
               <Input />
             </Form.Item>
           </Col>
-          <Col span={24}>
+          <Col span={24} >
             <Form.Item
               label="Project Description"
               name="projectDescription"
@@ -91,15 +93,17 @@ export default function AddProjectModal({
                   message: "Please Enter new project description!",
                 },
               ]}
+              style={{ marginBottom: 30 }}
             >
               <Input.TextArea rows={4} />
             </Form.Item>
           </Col>
           <Col span={24}>
             <Row>
-              <Button htmlType="submit" type="primary">
+              {/* <Button htmlType="submit" type="primary">
                 Submit
-              </Button>
+              </Button> */}
+              <CustomButton htmlType="submit" title="Submit" size="small" />
             </Row>
           </Col>
         </Form>

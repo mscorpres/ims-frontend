@@ -14,11 +14,11 @@ import {
   Modal,
   Row,
   Tabs,
-  Radio
+  Radio,
 } from "antd";
 import MySelect from "../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import TextArea from "antd/lib/input/TextArea";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { v4 } from "uuid";
 import {
@@ -27,6 +27,7 @@ import {
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import { rules } from "../../../../utils/rules/rule.js";
 
 export default function EditPO({ updatePoId, setUpdatePoId }) {
   const [purchaseOrder, setPurchaseOrder] = useState(null);
@@ -50,7 +51,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       };
     });
   };
-  
+
   const selectInputHandler = async (name, value) => {
     if (value) {
       let obj = purchaseOrder;
@@ -218,7 +219,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       setResetDetailsData(obj);
       getVendorBranches(obj.vendorcode.value);
       form.setFieldsValue(obj);
-      form.setFieldValue("advancePayment",Number(updatePoId?.advPayment));
+      form.setFieldValue("advancePayment", Number(updatePoId?.advPayment));
     }
 
     updatePoId?.materials?.map((row, index) =>
@@ -271,7 +272,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       <Tabs
         activeKey={activeTab}
         style={{
-          marginTop: -24,
+          marginTop: -10,
           height: "100%",
         }}
         size="small"
@@ -315,13 +316,263 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
           >
             <div
               style={{
+                height: "calc(100vh - 180px)",
+                overflowY: "scroll",
+                overflowX: "hidden",
+                padding: "6px 5px",
+              }}
+            >
+              <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                <CustomFieldBox
+                  title="Vendor Details"
+                  subtitle="Type Name or Code of the vendor"
+                >
+                  <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                    <Form.Item
+                      label="Vendor Type"
+                      name="vendortype_value"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please Select a vendor Type!",
+                        },
+                      ]}
+                    >
+                      <MySelect size="default" options={vendorDetailsOptions} />
+                    </Form.Item>
+                    <Form.Item
+                      label="Vendor Name"
+                      name="vendorcode"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please Select a vendor!",
+                        },
+                      ]}
+                    >
+                      <MyAsyncSelect
+                        onBlur={() => setAsyncOptions([])}
+                        optionsState={asyncOptions}
+                        labelInValue
+                        loadOptions={getVendors}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="vendorbranch"
+                      label="Vendor Branch"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please Select a vendor Branch!",
+                        },
+                      ]}
+                    >
+                      <MySelect
+                        size="default"
+                        labelInValue
+                        options={vendorBranches}
+                      />
+                    </Form.Item>
+                    <Form.Item label="GSTIN">
+                      <Input size="default" value="--" disabled />
+                    </Form.Item>
+                  </div>
+                  <Form.Item
+                    name="vendoraddress"
+                    label="Bill From Address"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter vendor address!",
+                      },
+                    ]}
+                  >
+                    <Input.TextArea style={{ resize: "none" }} rows={4} />
+                  </Form.Item>
+                </CustomFieldBox>
+                <CustomFieldBox
+                  title="PO Terms"
+                  subtitle="Provide PO Terms and other information"
+                >
+                  <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                    <Form.Item
+                      name="termsofcondition"
+                      label="Terms and Conditions"
+                    >
+                      <Input size="default" />
+                    </Form.Item>
+                    <Form.Item name="termsofquotation" label="Quotation">
+                      <Input size="default" />
+                    </Form.Item>
+                    <Form.Item name="paymentterms" label="Payment Terms">
+                      <Input size="default" />
+                    </Form.Item>
+                    <Form.Item
+                      label="Due Date (in days)"
+                      name="paymenttermsday"
+                    >
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        size="default"
+                        min={1}
+                        max={999}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      name="costcenter"
+                      label="Cost Center"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please Select a Cost Center!",
+                        },
+                      ]}
+                    >
+                      <MyAsyncSelect
+                        onBlur={() => setAsyncOptions([])}
+                        optionsState={asyncOptions}
+                        loadOptions={getCostCenteres}
+                      />
+                    </Form.Item>
+                    <Form.Item name="projectname" label="Project">
+                      <Input
+                        size="default"
+                        value={purchaseOrder?.projectname}
+                      />
+                    </Form.Item>
+                    <Form.Item name="pocomment" label="Comments">
+                      <Input size="default" />
+                    </Form.Item>
+                    <Form.Item label="Advance Payment" name="advancePayment">
+                      <Radio.Group>
+                        <Radio value={1}>Yes</Radio>
+                        <Radio value={0}>No</Radio>
+                      </Radio.Group>
+                    </Form.Item>
+                  </div>
+                </CustomFieldBox>
+                <CustomFieldBox
+                  title="Billing Details"
+                  subtitle="Provide billing information"
+                >
+                  <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                    <Form.Item
+                      name="addrbillid"
+                      label="Billing Id"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select a billing address!",
+                        },
+                      ]}
+                    >
+                      <MySelect options={billingOptions} />
+                    </Form.Item>
+                    <Form.Item
+                      name="billpanno"
+                      label="Pan No."
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter billing address PAN number!",
+                        },
+                      ]}
+                    >
+                      <Input size="default" />
+                    </Form.Item>
+                    <Form.Item
+                      name="billgstid"
+                      label="GSTIN / UIN"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter billing address GSTIN number!",
+                        },
+                      ]}
+                    >
+                      <Input size="default" />
+                    </Form.Item>
+                  </div>
+                  <Form.Item
+                    name="billaddress"
+                    label="Billing Address"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please enter billing address details!",
+                      },
+                    ]}
+                  >
+                    <Input.TextArea style={{ resize: "none" }} rows={4} />
+                  </Form.Item>
+                </CustomFieldBox>
+                <CustomFieldBox
+                  title="Shipping Details"
+                  subtitle="Provide shipping information"
+                >
+                  <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                    <Form.Item
+                      name="addrshipid"
+                      label="Shipping Id"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select a shipping address!",
+                        },
+                      ]}
+                    >
+                      <MySelect options={shippingOptions} />
+                    </Form.Item>
+                    <Form.Item
+                      name="shippanno"
+                      label="Pan No."
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter shipping address PAN number!",
+                        },
+                      ]}
+                    >
+                      <Input size="default" />
+                    </Form.Item>
+                    <Form.Item
+                      name="shipgstid"
+                      label="GSTIN / UIN"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter shipping address GST number!",
+                        },
+                      ]}
+                    >
+                      <Input size="default" />
+                    </Form.Item>
+                  </div>
+                  <Col span={18}>
+                    <Form.Item
+                      name="shipaddress"
+                      label="Shipping Address"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please enter shipping address details!",
+                        },
+                      ]}
+                    >
+                      <Input.TextArea style={{ resize: "none" }} rows={4} />
+                    </Form.Item>
+                  </Col>
+                </CustomFieldBox>
+              </div>
+            </div>
+            {/* <div
+              style={{
                 height: "100%",
                 overflowY: "scroll",
                 overflowX: "hidden",
               }}
             >
-              {/* reset vendor form */}
-              {/* vendor */}
+       
               <Row>
                 <Col span={4}>
                   <Descriptions title="Vendor Details">
@@ -332,7 +583,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                 </Col>
                 <Col span={20}>
                   <Row gutter={16}>
-                    {/* vendor type */}
+                
                     <Col span={6}>
                       <Form.Item
                         label="Vendor Type"
@@ -350,7 +601,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         />
                       </Form.Item>
                     </Col>
-                    {/* vendor name */}
+                
                     <Col span={6}>
                       <Form.Item
                         label="Vendor Name"
@@ -370,7 +621,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         />
                       </Form.Item>
                     </Col>
-                    {/* venodr branch */}
+               
                     <Col span={6}>
                       <Form.Item
                         name="vendorbranch"
@@ -425,7 +676,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                 </Col>
                 <Col span={20}>
                   <Row gutter={16}>
-                    {/* terms and conditions */}
+                  
                     <Col span={6}>
                       <Form.Item
                         name="termsofcondition"
@@ -434,19 +685,19 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         <Input size="default" />
                       </Form.Item>
                     </Col>
-                    {/* quotations */}
+                   
                     <Col span={6}>
                       <Form.Item name="termsofquotation" label="Quotation">
                         <Input size="default" />
                       </Form.Item>
                     </Col>
-                    {/* payment terms */}
+         
                     <Col span={6}>
                       <Form.Item name="paymentterms" label="Payment Terms">
                         <Input size="default" />
                       </Form.Item>
                     </Col>
-                    {/* po due date*/}
+                  
                     <Col span={6}>
                       <Form.Item
                         label="Due Date (in days)"
@@ -482,7 +733,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         />
                       </Form.Item>
                     </Col>
-                    {/* project name */}
+              
                     <Col span={6}>
                       <Form.Item name="projectname" label="Project">
                         <Input
@@ -491,7 +742,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         />
                       </Form.Item>
                     </Col>
-                    {/* comments */}
+                
                     <Col span={6}>
                       <Form.Item name="pocomment" label="Comments">
                         <Input size="default" />
@@ -519,7 +770,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                 </Col>
                 <Col span={20}>
                   <Row gutter={16}>
-                    {/* billing id */}
+                  
                     <Col span={6}>
                       <Form.Item
                         name="addrbillid"
@@ -534,7 +785,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         <MySelect options={billingOptions} />
                       </Form.Item>
                     </Col>
-                    {/* pan number */}
+                  
                     <Col span={6}>
                       <Form.Item
                         name="billpanno"
@@ -549,7 +800,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         <Input size="default" />
                       </Form.Item>
                     </Col>
-                    {/* gstin uin */}
+                 
                     <Col span={6}>
                       <Form.Item
                         name="billgstid"
@@ -566,7 +817,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                       </Form.Item>
                     </Col>
                   </Row>
-                  {/* billing address */}
+                
                   <Row gutter={16}>
                     <Col span={18}>
                       <Form.Item
@@ -598,7 +849,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
 
                 <Col span={20}>
                   <Row gutter={16}>
-                    {/* shipping id */}
+                  
                     <Col span={6}>
                       <Form.Item
                         name="addrshipid"
@@ -613,7 +864,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         <MySelect options={shippingOptions} />
                       </Form.Item>
                     </Col>
-                    {/* pan number */}
+        
                     <Col span={6}>
                       <Form.Item
                         name="shippanno"
@@ -629,7 +880,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         <Input size="default" />
                       </Form.Item>
                     </Col>
-                    {/* gstin uin */}
+                
                     <Col span={6}>
                       <Form.Item
                         name="shipgstid"
@@ -646,7 +897,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                       </Form.Item>
                     </Col>
                   </Row>
-                  {/* shipping address */}
+             
                   <Row gutter={16}>
                     <Col span={18}>
                       <Form.Item
@@ -665,8 +916,8 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                   </Row>
                 </Col>
               </Row>
-              {/* <Divider  /> */}
-            </div>
+           
+            </div> */}
             <NavFooter
               backFunction={() => setUpdatePoId(null)}
               submithtmlType="submit"

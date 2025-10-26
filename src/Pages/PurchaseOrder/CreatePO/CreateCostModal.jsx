@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Drawer, Form, Input, Row } from "antd";
+import { Button, Divider, Drawer, Form, Input, Row } from "antd";
 import { imsAxios } from "../../../axiosInterceptor";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 export default function CreateCostModal({
   setShowAddCostModal,
@@ -51,7 +52,7 @@ export default function CreateCostModal({
       onClose={() => setShowAddCostModal(null)}
       open={showAddCostModal}
     >
-      <Form layout="vertical" style={{ height: "95%" }}>
+      <Form layout="vertical" style={{ height: "calc(100vh - 140px)"}}>
         <Form.Item label="Cost Center Id">
           <Input
             value={newCostCenter.cost_center_name}
@@ -71,14 +72,16 @@ export default function CreateCostModal({
           />
         </Form.Item>
       </Form>
+      <Divider />
       <Row justify="end">
-        <Button
+        {/* <Button
           onClick={submitCostCenter}
           loading={submitLoading}
           type="primary"
         >
           Submit
-        </Button>
+        </Button> */}
+        <CustomButton title="Submit" loading={submitLoading} size="small"  onclick={submitCostCenter}  />
       </Row>
     </Drawer>
   );
