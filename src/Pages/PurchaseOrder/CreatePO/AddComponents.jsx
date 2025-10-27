@@ -26,6 +26,7 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 export default function AddComponents({
   rowCount,
   setRowCount,
@@ -471,13 +472,16 @@ export default function AddComponents({
   };
   const columns = [
     {
-      headerName: <CommonIcons action="addRow" onClick={addRows} />,
+      headerName: <div className="flex ">
+         <CommonIcons action="addRow" onClick={addRows} /></div>,
       width: 40,
       field: "add",
       sortable: false,
       renderCell: ({ row }) =>
         row.index >= 2 && (
-          <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
+       
+           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
+         
         ),
       // sortable: false,
     },
@@ -632,7 +636,7 @@ export default function AddComponents({
   return (
     <div
       style={{
-        height: "100%",
+        height: "calc(100vh - 190px)",
         overflow: "auto",
         overflowX: "hidden",
       }}
@@ -685,159 +689,126 @@ export default function AddComponents({
           setShowCurrencyModal={setShowCurrencyModal}
         />
       )}
-      <Row style={{ height: "95%" }} gutter={8}>
-        <Col style={{ height: "100%" }} span={6}>
-          <Row gutter={[0, 4]} style={{ height: "100%" }}>
-            {/* vendor card */}
-            <Col span={24} style={{ height: "50%" }}>
-              <Card
-                style={{ height: "100%" }}
-                // bodyStyle={{ height: "90%" }}
-                title="Vendor Detail"
-              >
-                <Row gutter={[0, 8]}>
-                  <Col span={24}>
-                    <Typography.Title
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                      }}
-                      level={5}
-                    >
-                      Vendor Name
-                    </Typography.Title>
 
-                    <Typography.Text
+      <div
+        className=" h-[calc(100%_-_210px)] grid grid-cols-[1fr_3fr]"
+        style={{ gap: 12 }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <CustomFieldBox title="Vendor Detail">
+            <Typography.Title
+              style={{
+                fontSize: window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+              }}
+              level={5}
+            >
+              Vendor Name
+            </Typography.Title>
+            <Typography.Text
+              style={{
+                fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+              }}
+            >
+              <ToolTipEllipses text={newPurchaseOrder?.vendorname?.label} />
+            </Typography.Text>
+            <Typography.Title
+              style={{
+                fontSize: window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+              }}
+              level={5}
+            >
+              Vendor Address
+            </Typography.Title>
+            <Typography.Text
+              style={{
+                fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+              }}
+            >
+              <ToolTipEllipses
+                type="Paragraph"
+                text={newPurchaseOrder?.vendoraddress?.replaceAll("<br>", " ")}
+              />
+            </Typography.Text>{" "}
+            <Typography.Title
+              style={{
+                fontSize: window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+              }}
+              level={5}
+            >
+              Vendor GSTIN
+            </Typography.Title>
+            <Typography.Text
+              style={{
+                fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+              }}
+            >
+              {newPurchaseOrder?.gstin}
+            </Typography.Text>
+          </CustomFieldBox>
+          <CustomFieldBox title="Tax Detail">
+            <Row gutter={[0, 4]}>
+              {totalValues?.map((row) => (
+                <Col span={24} key={row.label}>
+                  <Row>
+                    <Col
+                      span={18}
                       style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        fontSize: "0.8rem",
+                        fontWeight:
+                          totalValues?.indexOf(row) == totalValues.length - 1 &&
+                          600,
                       }}
                     >
-                      <ToolTipEllipses
-                        text={newPurchaseOrder?.vendorname?.label}
-                      />
-                    </Typography.Text>
-                  </Col>
-                  <Col span={24}>
-                    <Typography.Title
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                      }}
-                      level={5}
-                    >
-                      Vendor Address
-                    </Typography.Title>
-
-                    <Typography.Text
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                      }}
-                    >
-                      <ToolTipEllipses
-                        type="Paragraph"
-                        text={newPurchaseOrder?.vendoraddress?.replaceAll(
-                          "<br>",
-                          " "
-                        )}
-                      />
-                    </Typography.Text>
-                  </Col>
-                  <Col span={24}>
-                    <Typography.Title
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                      }}
-                      level={5}
-                    >
-                      Vendor GSTIN
-                    </Typography.Title>
-
-                    <Typography.Text
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                      }}
-                    >
-                      {newPurchaseOrder?.gstin}
-                    </Typography.Text>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-            {/* tax detail card */}
-            <Col span={24} style={{ height: "50%" }}>
-              <Card
-                style={{ height: "100%" }}
-                // bodyStyle={{ height: "90%" }}
-                title="Tax Detail"
-              >
-                <Row gutter={[0, 4]}>
-                  {totalValues?.map((row) => (
-                    <Col span={24} key={row.label}>
-                      <Row>
-                        <Col
-                          span={18}
+                      {row.label}
+                    </Col>
+                    <Col span={6} className="right">
+                      {row.sign.toString() == "" ? (
+                        ""
+                      ) : (
+                        <span
                           style={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.7rem",
                             fontWeight:
                               totalValues?.indexOf(row) ==
                                 totalValues.length - 1 && 600,
                           }}
                         >
-                          {row.label}
-                        </Col>
-                        <Col span={6} className="right">
-                          {row.sign.toString() == "" ? (
-                            ""
-                          ) : (
-                            <span
-                              style={{
-                                fontSize: "0.7rem",
-                                fontWeight:
-                                  totalValues?.indexOf(row) ==
-                                    totalValues.length - 1 && 600,
-                              }}
-                            >
-                              ({row.sign.toString()}){" "}
-                            </span>
-                          )}
-                          <span
-                            style={{
-                              fontSize: "0.8rem",
-                              fontWeight:
-                                totalValues?.indexOf(row) ==
-                                  totalValues.length - 1 && 600,
-                            }}
-                          >
-                            {Number(
-                              row.values?.reduce((partialSum, a) => {
-                                return partialSum + Number(a);
-                              }, 0)
-                            ).toFixed(2)}
-                          </span>
-                        </Col>
-                      </Row>
+                          ({row.sign.toString()}){" "}
+                        </span>
+                      )}
+                      <span
+                        style={{
+                          fontSize: "0.8rem",
+                          fontWeight:
+                            totalValues?.indexOf(row) ==
+                              totalValues.length - 1 && 600,
+                        }}
+                      >
+                        {Number(
+                          row.values?.reduce((partialSum, a) => {
+                            return partialSum + Number(a);
+                          }, 0)
+                        ).toFixed(2)}
+                      </span>
                     </Col>
-                  ))}
-                </Row>
-              </Card>
-            </Col>
-          </Row>
-        </Col>
-        <Col
-          span={18}
+                  </Row>
+                </Col>
+              ))}
+            </Row>
+          </CustomFieldBox>
+        </div>
+        <div
           style={{
-            height: "100%",
+            height: "calc(100vh - 200px)",
             padding: 0,
-            border: "1px solid #EEEEEE",
+            overflow: "auto",
           }}
+          className="h-[calc(100vh - 200px)] overflow-auto"
         >
           <FormTable columns={columns} data={rowCount} />
-        </Col>
-      </Row>
+        </div>
+      </div>
+
       <NavFooter
         resetFunction={() => setConfirmReset(true)}
         nextLabel="Submit"

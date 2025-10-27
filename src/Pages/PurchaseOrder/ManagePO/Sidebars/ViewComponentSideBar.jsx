@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button, Card, Col, Drawer, Row, Space, Timeline } from "antd";
+import { useState } from "react";
+import {  Card, Col, Drawer, Row, Space, Timeline } from "antd";
 import MyDataTable from "../../../../Components/MyDataTable";
 import printFunction, {
   downloadFunction,
@@ -11,12 +11,9 @@ export default function ViewComponentSideBar({
   showViewSidebar,
   setShowViewSideBar,
   componentData,
-  getPoLogs,
-  setnewPoLogs,
   newPoLogs,
 }) {
-  // console.log("po lgs", getPoLogs);
-  console.log("po newPoLogs", newPoLogs);
+
   const [loading, setLoading] = useState(null);
   const printFun = async () => {
     setLoading("print");

@@ -108,7 +108,7 @@ export function CommonIcons({
       return (
         <PlusSquareOutlined
           onClick={onClick}
-          style={{ cursor: "pointer", fontSize: "1.3rem" }}
+          style={{ cursor: "pointer", fontSize: "1.3rem", }}
         />
       );
     } else if (action == "removeRow") {

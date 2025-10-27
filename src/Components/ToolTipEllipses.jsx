@@ -1,28 +1,30 @@
-import { Tooltip, Typography } from "antd";
+import { Tooltip } from "antd";
 import React from "react";
+import { Typography } from "@mui/material";
 
-export default function ToolTipEllipses({ text, type, copy, width }) {
+ function ToolTipEllipses({ text, type, copy, width }) {
   return (
     <Tooltip
       overlayStyle={{ fontSize: "0.7rem", color: "white" }}
-      placement="topLeft"
+      placement="bottom"
       title={text}
-      color="#047780"
+      color="#0d9488"
     >
       {type == "Paragraph" ? (
-        <Typography.Text ellipsis={{ width: "100%" }}> {text} </Typography.Text>
+        <Typography > {text} </Typography>
       ) : (
-        <Typography.Text
+        <Typography
           copyable={copy && { tooltips: false }}
           style={{
             fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
             width: "100%",
           }}
-          ellipsis={{ width: "100%" }}
+        variant="subtitle"
         >
           {text}
-        </Typography.Text>
+        </Typography>
       )}
     </Tooltip>
   );
 }
+export default React.memo(ToolTipEllipses);

@@ -70,6 +70,7 @@ export default function VendorPricingUpload() {
     },
   ];
   const resetFunction = () => {
+   
     setFile(null);
     setPreviewRows([]);
   };
@@ -93,7 +94,7 @@ export default function VendorPricingUpload() {
             </Typography>
             <Card
               size="small"
-              className="!bg-[#e1fffc] border border-[#0d9488]"
+              className="!bg-[#e0f2f1] border border-[white]"
             >
               {!file && (
                 <div
@@ -182,7 +183,7 @@ export default function VendorPricingUpload() {
                 title={"Reset"}
                 size="small"
                 starticon={<RestartAltIcon fontSize="small" />}
-                onClick={resetFunction}
+                onclick={resetFunction}
                 disabled={!file || previewLoading ? true : false}
               />
               <CustomButton

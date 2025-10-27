@@ -23,7 +23,7 @@ const CustomButton = ({
         px: size === "small" ? 2 : 3,
         py:0.7,
         bgcolor: variant==="text" || variant==="outlined"  ? "transparent" : "#0d9488",
-        "&:hover": { bgcolor: variant==="text" || variant==="outlined" ? "#e1fffc" : "#0f766e" },
+        "&:hover": { bgcolor: variant==="text" || variant==="outlined" ? "#e0f2f1" : "#0f766e" },
         color: variant==="text" || variant==="outlined" ? "#0d9488" : "white",
         borderColor: variant==="outlined" ? "#0d9488" : "transparent",
         fontWeight: variant==="text" ? 600 : "normal",

@@ -35,6 +35,7 @@ import {
 import { convertSelectOptions } from "../../../utils/general.ts";
 import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 import { rules } from "../../../utils/rules/rule.js";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 
 export default function CreatePo() {
   const [totalValues, setTotalValues] = useState([]);
@@ -609,17 +610,26 @@ export default function CreatePo() {
         open={showSubmitConfirm}
         onCancel={() => setShowSubmitConfirm(false)}
         footer={[
-          <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
-            No
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
+          // <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
+          //   No
+          // </Button>
+          <CustomButton
+            title="No"
+            onclick={() => setShowSubmitConfirm(false)}
+          />,
+          // <Button
+          //   key="submit"
+          //   type="primary"
+          //   loading={submitLoading}
+          //   onClick={submitHandler}
+          // >
+          //   Yes
+          // </Button>
+          <CustomButton
             loading={submitLoading}
-            onClick={submitHandler}
-          >
-            Yes
-          </Button>,
+            title="Yes"
+            onclick={submitHandler}
+          />,
         ]}
       >
         <p>Are you sure you want to generate this Purchase Order?</p>
@@ -631,12 +641,14 @@ export default function CreatePo() {
         onOk={resetFunction}
         onCancel={() => setShowDetailsConfirm(false)}
         footer={[
-          <Button key="back" onClick={() => setShowDetailsConfirm(false)}>
-            No
-          </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction}>
-            Yes
-          </Button>,
+          <CustomButton
+            size="small"
+            title="No"
+            variant="text"
+            onclick={() => setShowsetShowDetailsConfirmubmitConfirm(false)}
+          />,
+
+          <CustomButton title="Yes" size="small" onclick={resetFunction} />,
         ]}
       >
         <p>Are you sure to reset details of this Purchase Order?</p>
@@ -668,7 +680,7 @@ export default function CreatePo() {
             activeKey={activeTab}
             size="small"
           >
-            <Tabs.TabPane tab="Purchase Order Details" key="1">
+            <Tabs.TabPane tab="" key="1">
               {pageLoading && <Loading />}
               {/* vendor */}
               <Form
@@ -687,7 +699,7 @@ export default function CreatePo() {
               >
                 <div
                   style={{
-                    height: "calc(100vh - 220px)",
+                    height: "calc(100vh - 205px)",
                     overflowY: "scroll",
                     overflowX: "hidden",
                     padding: "6px 5px",
@@ -817,7 +829,7 @@ export default function CreatePo() {
                                         "Please Select a vendor first"
                                       );
                                 }}
-                                style={{ color: "#1890FF",    cursor: "pointer", }}
+                                style={{ color: "#1890FF", cursor: "pointer" }}
                               >
                                 Add Branch
                               </span>
@@ -1064,11 +1076,7 @@ export default function CreatePo() {
                 />
               </Form>
             </Tabs.TabPane>
-            <Tabs.TabPane
-              tab="Add Components Details"
-              style={{ height: "98%" }}
-              key="2"
-            >
+            <Tabs.TabPane tab="" style={{ height: "98%" }} key="2">
               <div style={{ height: "100%" }}>
                 <AddComponent
                   newPurchaseOrder={newPurchaseOrder}

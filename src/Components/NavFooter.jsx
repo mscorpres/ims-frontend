@@ -79,7 +79,7 @@ export default function NavFooter({
           // >
           //   {nextLabel ? nextLabel : "Next"}
           // </Button>
-          <CustomButton size="small" title={nextLabel ? nextLabel : "Next"} loading={loading} disabled={nextDisabled || disabled?.next} onclick={submitFunction && submitFunction} endicon={<ArrowForwardIcon fontSize="small"/>} />
+          <CustomButton htmlType={submithtmlType && submithtmlType} size="small" title={nextLabel ? nextLabel : "Next"} loading={loading} disabled={nextDisabled || disabled?.next} onclick={submitFunction && submitFunction} endicon={<ArrowForwardIcon fontSize="small"/>} />
           
         )}
       </Space>

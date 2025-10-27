@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {  Col, Input, Row, Space } from "antd";
+import { useState, useEffect, useMemo } from "react";
+import { Col, Input, Row, Space } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { toast } from "react-toastify";
 import printFunction, {
@@ -9,20 +9,32 @@ import ViewComponentSideBar from "./Sidebars/ViewComponentSideBar";
 import EditPO from "./EditPO/EditPO";
 import MateirialInward from "./MaterialIn/MateirialInward";
 import CancelPO from "./Sidebars/CancelPO";
-import MyDataTable from "../../../Components/MyDataTable";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import UploadDoc from "./UploadDoc";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import SearchIcon from "@mui/icons-material/Search";
 import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { getManagePOColumns } from "../../../new/pages/procurement/POType.jsx";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  Download,
+  Edit,
+  Visibility,
+  Print,
+  Cancel,
+  Upload,
+} from "@mui/icons-material";
 
 const ManagePO = () => {
   const [loading, setLoading] = useState(false);
@@ -47,7 +59,8 @@ const ManagePO = () => {
     { value: "po_wise", text: "PO ID Wise" },
     { value: "vendor_wise", text: "Vendor Wise" },
   ];
-  const printFun = async (poid) => {
+  const printFun = async (poid, close) => {
+    close?.();
     setLoading(true);
     const { data } = await imsAxios.post("/poPrint", {
       poid: poid,
@@ -57,7 +70,8 @@ const ManagePO = () => {
     setLoading(false);
   };
 
-  const handleCancelPO = async (poid) => {
+  const handleCancelPO = async (poid, close) => {
+    close?.();
     setLoading(true);
     const { data } = await imsAxios.post("/purchaseOrder/fetchStatus4PO", {
       purchaseOrder: poid,
@@ -69,7 +83,8 @@ const ManagePO = () => {
       toast.error("PO is already cancelled");
     }
   };
-  const handleDownload = async (poid) => {
+  const handleDownload = async (poid, close) => {
+    close?.();
     setLoading(true);
     const { data } = await imsAxios.post("/poPrint", {
       poid: poid,
@@ -79,224 +94,102 @@ const ManagePO = () => {
     downloadFunction(data.data.buffer.data, filename);
   };
 
-  const columns = [
-    {
-      headerName: "",
-      type: "actions",
-      width: 30,
-      getActions: ({ row }) => [
-        // Edit icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          style={{}}
-          label={"Edit"}
-          onClick={() => getPoDetail(row.po_transaction)}
-          sx={{
-            color: "#0d9488",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            "&:hover": {
-              backgroundColor: "#e1fffc",
-              color: "#0f766e",
-            },
-          }}
-        />,
-        // VIEW Icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="View"
-          onClick={() => getComponentData(row.po_transaction, row.po_status)}
-           sx={{
-            color: "#0d9488",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            "&:hover": {
-              backgroundColor: "#e1fffc",
-              color: "#0f766e",
-            },
-          }}
-        />,
+  
+  const columns = useMemo(() => getManagePOColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading || viewLoading || searchLoading
+            ? "calc(100vh - 240px)"
+            : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "calc(100vh - 360px)",
+          color: "text.secondary",
+          fontSize: "0.9rem",
+        }}
+      >
+        No Purchase Orders Found
+      </Box>
+    ),
 
-        // Download icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Download"
-          disabled={row.approval_status === "P"}
-          onClick={() => handleDownload(row.po_transaction)}
-           sx={{
-            color: "#0d9488",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            "&:hover": {
-              backgroundColor: "#e1fffc",
-              color: "#0f766e",
-            },
-          }}
-        />,
-
-        // Print Icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Print"
-          disabled={row.approval_status === "P"}
-          onClick={() => printFun(row.po_transaction)}
-           sx={{
-            color: "#0d9488",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            "&:hover": {
-              backgroundColor: "#e1fffc",
-              color: "#0f766e",
-            },
-          }}
-        />,
-
-        // Close PO icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Cancel"
-          // disabled={row.approval_status == "C"}
-          onClick={() => handleCancelPO(row.po_transaction)}
-           sx={{
-            color: "#0d9488",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            "&:hover": {
-              backgroundColor: "#e1fffc",
-              color: "#0f766e",
-            },
-          }}
-        />,
-
-        // Upload DOC Icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Upload FIle"
-          // disabled={row.approval_status == "C"}
-           sx={{
-            color: "#0d9488",
-            fontWeight: 600,
-            fontSize: "0.9rem",
-            "&:hover": {
-              backgroundColor: "#e1fffc",
-              color: "#0f766e",
-            },
-          }}
-        />,
-      ],
-    },
-    {
-      headerName: "#",
-      field: "index",
-      width: 30,
-    },
-    {
-      headerName: "PO ID",
-      field: "po_transaction",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.po_transaction} copy={true} />
-      ),
-      width: 150,
-    },
-    {
-      headerName: "Cost Center",
-      field: "cost_center",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.cost_center} />,
-      flex: 1,
-      minWidth: 150,
-    },
-
-    {
-      headerName: "Vendor Name",
-      field: "vendor_name",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vendor_name} />,
-      flex: 2,
-      minWidth: 200,
-    },
-    {
-      headerName: "Vendor Code",
-      field: "vendor_id",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.vendor_id} copy={true} />
-      ),
-      width: 100,
-    },
-    {
-      headerName: "Project ID",
-      field: "project_id",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.project_id} copy={true} />
-      ),
-      minWidth: 150,
-      flex: 1,
-    },
-    {
-      headerName: "Project Name",
-      field: "project_name",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.project_name} />,
-      minWidth: 150,
-      flex: 1,
-    },
-    {
-      headerName: "Requested By",
-      field: "requested_by",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.requested_by} />,
-      minWidth: 150,
-      flex: 1,
-    },
-    {
-      headerName: "Approved By/Rejected By",
-      field: "approved_by",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.approved_by} />,
-      minWidth: 200,
-      flex: 1,
-    },
-
-    {
-      headerName: "Po Reg. Date",
-      field: "po_reg_date",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.po_reg_date} />,
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Created By",
-      field: "po_reg_by",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.po_reg_by} />,
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Approval Status",
-      field: "approval_status",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.approval_status} />,
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Advance Payment",
-      field: "advPayment",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.advPayment == "0" ? "NO" : "YES"} />
-      ),
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Comment",
-      field: "po_comment",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.po_comment} />,
-      flex: 1,
-      minWidth: 150,
-    },
-  ];
-  //getting rows from database from all 3 filter po wise, data wise, vendor wise
+    renderTopToolbar: () =>
+      loading || viewLoading || searchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit />}
+        key="edit"
+        label="Edit"
+        onClick={() => getPoDetail(row?.original?.po_transaction, closeMenu)}
+        table={table}
+        disabled={row.original.approval_status === "C" || viewLoading}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Visibility />}
+        key="view"
+        label="View"
+        onClick={() =>
+          getComponentData(
+            row.original?.po_transaction,
+            row?.original?.approval_status,
+            closeMenu
+          )
+        }
+        table={table}
+        disabled={viewLoading}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download />}
+        key="download"
+        label="Download"
+        onClick={() => handleDownload(row?.original?.po_transaction, closeMenu)}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print />}
+        key="print"
+        label="Print"
+        onClick={() => printFun(row?.original?.po_transaction, closeMenu)}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Cancel />}
+        key="cancel"
+        label="Cancel"
+        onClick={() => handleCancelPO(row?.original?.po_transaction, closeMenu)}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Upload />}
+        key="upload"
+        label="Upload File"
+        onClick={() => {}}
+        table={table}
+      />,
+    ],
+  });
   const getSearchResults = async () => {
     setRows([]);
     let search;
@@ -359,7 +252,8 @@ const ManagePO = () => {
     }
   };
   //getting component view data
-  const getComponentData = async (poid, status) => {
+  const getComponentData = async (poid, status, close) => {
+    close?.();
     setViewLoading(true);
     const { data } = await imsAxios.post(
       "/purchaseOrder/fetchComponentList4PO",
@@ -394,7 +288,8 @@ const ManagePO = () => {
       // console.logg("data for po logs", arr);
     }
   };
-  const getPoDetail = async (poid) => {
+  const getPoDetail = async (poid, close) => {
+    close?.();
     setLoading(true);
     const { data, message } = await imsAxios
       .post("/purchaseOrder/fetchData4Update", {
@@ -429,7 +324,7 @@ const ManagePO = () => {
       className="manage-po"
       style={{
         position: "relative",
-        height: "calc(100vh - 80px)",
+        height: "calc(100vh - 100px)",
         marginTop: 8,
       }}
     >
@@ -470,24 +365,7 @@ const ManagePO = () => {
                 )
               )}
             </div>
-            {/* <MyButton
-              disabled={
-                wise === "single_date_wise"
-                  ? searchDateRange === ""
-                    ? true
-                    : false
-                  : !searchInput
-                  ? true
-                  : false
-              }
-              type="primary"
-              loading={searchLoading}
-              onClick={getSearchResults}
-              id="submit"
-              variant="search"
-            >
-              Search
-            </MyButton> */}
+          
             <CustomButton
               size="small"
               title={"Search"}
@@ -513,19 +391,6 @@ const ManagePO = () => {
               onClick={() => downloadCSV(rows, columns, "Pending PO Report")}
               disabled={rows.length == 0}
             />
-            {/* <CustomButton
-              title={"Download"}
-              starticon={<DownloadIcon />}
-              onclick={() => downloadCSV(rows, columns, "Pending PO Report")}
-              disabled={rows.length == 0}
-            /> */}
-            {/* <CustomIconButton
-              title={"Download"}
-              onclick={() => downloadCSV(rows, columns, "Pending PO Report")}
-              disabled={rows.length == 0}
-            >
-              <DownloadIcon sx={{ color: "#0d9488" }} />
-            </CustomIconButton> */}
           </Space>
         </Col>
       </Row>
@@ -541,9 +406,8 @@ const ManagePO = () => {
         rows={rows}
       />
 
-      {updatePoId && (
-        <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} />
-      )}
+      <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} />
+
       <MateirialInward
         materialInward={materialInward}
         setMaterialInward={setMaterialInward}
@@ -556,11 +420,8 @@ const ManagePO = () => {
           padding: "0 10px",
         }}
       >
-        <MyDataTable
-          loading={loading || viewLoading || searchLoading}
-          rows={rows}
-          columns={columns}
-        />
+    
+        <MaterialReactTable table={table} />
       </div>
       <ViewComponentSideBar
         getPoLogs={getPoLogs}

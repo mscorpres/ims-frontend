@@ -8,6 +8,8 @@ import MyButton from "../../Components/MyButton";
 import useApi from "../../hooks/useApi.ts";
 import { createUOM, getUOMList } from "../../api/master/uom";
 import { ResponseType } from "../../types/general.ts";
+import { Typography } from "@mui/material";
+// import CustomButton from "../../new/"
 
 const Uom = () => {
   const [uomData, setUomData] = useState([]);
@@ -106,42 +108,46 @@ const Uom = () => {
   }, []);
 
   return (
-    <div style={{ height: "100%" }}>
-      <Row gutter={6} style={{ padding: 10 }} justify="center">
-        <Col span={4}>
-          <Card size="small" title="Create UOM">
-            <Form form={form} layout="vertical">
-              <Form.Item name="name" label="Unit">
-                <Input />
-              </Form.Item>
-              <Form.Item name="details" label="Specification">
-                <Input.TextArea rows={3} />
-              </Form.Item>
-              <Row justify="center">
-                <Space>
-                  <MyButton onClick={resetHandler} variant="reset" />
-                  <MyButton
-                    loading={loading("submit")}
-                    onClick={submitHandler}
-                    variant="submit"
-                  />
-                </Space>
-              </Row>
-            </Form>
-          </Card>
-        </Col>
-        <Col span={8}>
-          <div className="m-2" style={{ height: "100%" }}>
-            <div style={{ height: "80vh" }}>
-              <MyDataTable
-                loading={loading("fetch")}
-                data={uomData}
-                columns={columns}
+    <div
+      style={{ height: "calc(100vh - 130px)", marginTop: 8, padding: 10, gap:12 }}
+      className="grid grid-cols-[2fr_4fr] gap-4"
+    >
+      <div>
+        <Typography variant="subtitle1">Create UOM</Typography>
+        
+  
+      <Card size="small">
+        <Form form={form} layout="vertical">
+          <Form.Item name="name" label="Unit">
+            <Input />
+          </Form.Item>
+          <Form.Item name="details" label="Specification">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Row justify="center">
+            <Space>
+              {/* <CustomButton /> */}
+              <MyButton onClick={resetHandler} variant="reset" />
+              
+              <MyButton
+                loading={loading("submit")}
+                onClick={submitHandler}
+                variant="submit"
               />
-            </div>
-          </div>
-        </Col>
-      </Row>
+            </Space>
+          </Row>
+        </Form>
+      </Card>
+      </div>
+
+      <div style={{ height: "calc(100vh - 130px)" }}>
+        <MyDataTable
+          loading={loading("fetch")}
+          data={uomData}
+          columns={columns}
+        />
+      </div>
+
     </div>
   );
 };

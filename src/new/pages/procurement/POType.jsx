@@ -1,35 +1,18 @@
-import { MRT_ColumnDef } from "material-react-table";
+
 import CopyableChip from "@/new/components/shared/CopyableChip";
 import StatusChip from "@/new/components/shared/StatusChip";
-
-export type ManagePOTableType = {
-  id: string;
-  po_transaction: string;
-  vendor_name: string;
-  cost_center?: string;
-  project_name?: string;
-  approval_status?: string;
-  po_reg_date?: string;
-  vendor_id?: string;
-  project_id?: string;
-  requested_by?: string;
-  approved_by?: string;
-  po_reg_by?: string;
-  advPayment?: string;
-  po_comment?: string;
-};
 
 // Note: POModals component has been replaced with individual modal components
 // in the new structure. See ManagePO.tsx for the new implementation.
 
-export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+export const getManagePOColumns = () => [
   {
     accessorKey: "po_transaction",
     header: "PO ID",
     size: 150,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -51,7 +34,7 @@ export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 100,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -63,7 +46,7 @@ export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 150,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -100,7 +83,7 @@ export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 150,
     Cell: ({ cell }) => (
       <StatusChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         type="approval"
       />
@@ -111,7 +94,7 @@ export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     header: "Advance Payment",
     size: 150,
     Cell: ({ cell }) => (
-      <StatusChip value={cell.getValue<string>()} size="small" type="payment" />
+      <StatusChip value={cell.getValue()} size="small" type="payment" />
     ),
   },
   {
@@ -121,7 +104,7 @@ export const getManagePOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
   },
 ];
 
-export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+export const getCompletedPOColumns = () => [
 
   {
     accessorKey: "cost_center",
@@ -139,7 +122,7 @@ export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 100,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -151,7 +134,7 @@ export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 150,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -185,7 +168,7 @@ export const getCompletedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
 ];
 
 
-export const getVendorPricingUploadColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+export const getVendorPricingUploadColumns = () => [
 
 
   {
@@ -194,7 +177,7 @@ export const getVendorPricingUploadColumns = (): MRT_ColumnDef<ManagePOTableType
     size: 100,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -206,7 +189,7 @@ export const getVendorPricingUploadColumns = (): MRT_ColumnDef<ManagePOTableType
     size: 150,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -228,14 +211,14 @@ export const getVendorPricingUploadColumns = (): MRT_ColumnDef<ManagePOTableType
 ];
 
 
-export const getApprovedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
+export const getApprovedPOColumns = () => [
    {
     accessorKey: "po_transaction_code",
     header: "PO ID",
     size: 150,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />
@@ -276,7 +259,7 @@ export const getApprovedPOColumns = (): MRT_ColumnDef<ManagePOTableType>[] => [
     size: 150,
     Cell: ({ cell }) => (
       <CopyableChip
-        value={cell.getValue<string>()}
+        value={cell.getValue()}
         size="small"
         variant="outlined"
       />

@@ -95,13 +95,19 @@ function CustomNoRowsOverlay() {
           </g>
         </g>
       </svg>
-      <Box sx={{ mt: 1 }}>No Rows</Box>
+      <Box sx={{ mt: 1 }}>No Data Found</Box>
+    </StyledGridOverlay>
+  );
+}
+function CustomNoResultsOverlay() {
+  return (
+    <StyledGridOverlay>
+      <Box sx={{ mt: 1 }}>No matching records</Box>
     </StyledGridOverlay>
   );
 }
 export default function MyDataTable(props) {
   function CustomToolbar() {
-
     return (
       <GridToolbarContainer>
         {props.filterIcon && <GridToolbarFilterButton />}
@@ -114,7 +120,9 @@ export default function MyDataTable(props) {
   }
 
   return (
-    <Box sx={{ position: "relative", height: "100%", scrollBehavior:"smooth" }}>
+    <Box
+      sx={{ position: "relative", height: "100%", scrollBehavior: "smooth" }}
+    >
       {props.loading && (
         <LinearProgress
           sx={{
@@ -137,30 +145,33 @@ export default function MyDataTable(props) {
         rowsPerPageOptions={[1000]}
         disableColumnMenu={props.hideHeaderMenu}
         columns={props.columns}
-        components={{
-          Toolbar: CustomToolbar,
-          NoRowsOverlay: CustomNoRowsOverlay,
+        slots={{
+          toolbar: CustomToolbar,
+          noRowsOverlay: CustomNoRowsOverlay,
+          noResultsOverlay: CustomNoResultsOverlay,
         }}
-        componentsProps={{
+        slotProps={{
           footer: { rows: props.data },
         }}
         pageSize={100}
-    
-        density="compact"
+        rowBuffer={5}
+        rowThreshold={10}
+        experimentalFeatures={{ lazyLoading: true }}
         sx={{
+          "& .MuiDataGrid-virtualScroller": {
+            scrollBehavior: "auto",
+            willChange: "transform",
+            contain: "strict",
+          },
+          "& .MuiDataGrid-virtualScrollerRenderZone": {
+            willChange: "transform",
+          },
+          "& .MuiDataGrid-row": {
+            transform: "translateZ(0)",
+          },
           "& .MuiDataGrid-cell": {
-            fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.9rem",
+            contain: "paint layout",
           },
-          "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
-            outline: "none !important",
-            border: "none !important",
-          },
-           "& .MuiDataGrid-virtualScroller": {
-      scrollBehavior: "smooth",
-    },
-    "& .MuiDataGrid-virtualScrollerRenderZone": {
-      scrollBehavior: "smooth",
-    },
         }}
         loading={props.loading}
         {...props}

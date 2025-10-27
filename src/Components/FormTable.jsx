@@ -29,7 +29,7 @@ export default function FormTable({ columns, data, loading }) {
     // <TableContainer
     //   sx={{ height: "100%", width: "100vw", overflowX: "scroll" }}
     // >
-    <TableContainer style={{ height: "100%", border: "1px solid white" }}>
+    <TableContainer style={{ height: "100%", border: "1px solid white", p: 0 }}>
       <Card
         size="small"
         style={{ width: "100%", height: "100%" }}
@@ -38,13 +38,15 @@ export default function FormTable({ columns, data, loading }) {
           height: "100%",
           width: "100%",
           overflow: "auto",
+          backgroundColor: "#ffffff",
         }}
       >
         <Table
           stickyHeader
-          sx={{ width: "100%", overflowX: "auto" }}
+          sx={{ width: "100%", overflow: "auto",}}
           size="small"
           aria-label="a dense table"
+       
         >
           <TableHead>
             <TableRow>
@@ -54,8 +56,10 @@ export default function FormTable({ columns, data, loading }) {
                     width: `${row.width && row.width}px !important`,
                     maxWidth: `${row.width && row.width}px !important`,
                     minWidth: `${row.width && row.width}px !important`,
-                    background: "rgb(240, 240, 240)",
+                    background: "#e0f2f1",
                     padding: "0px 10px",
+                    border: "none",
+
                     // textAlign: "center",
                   }}
                   key={index}
@@ -66,9 +70,9 @@ export default function FormTable({ columns, data, loading }) {
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody >
             {data?.map((row) => (
-              <TableRow key={row?.id}>
+              <TableRow key={row?.id } >
                 {columns.map((col, index) => (
                   <TableCell
                     key={index}
@@ -82,6 +86,7 @@ export default function FormTable({ columns, data, loading }) {
                       padding: "2px 5px",
 
                       border: "none",
+                    
                     }}
                   >
                     {col.renderCell({ row })}

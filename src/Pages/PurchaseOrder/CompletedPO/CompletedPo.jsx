@@ -20,6 +20,7 @@ import { convertSelectOptions } from "../../../utils/general.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import SearchIcon from "@mui/icons-material/Search";
 import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Typography } from "@mui/material";
 
 const CompletedPo = () => {
   const [loading, setLoading] = useState(false);
@@ -146,7 +147,7 @@ const CompletedPo = () => {
     {
       headerName: "PO ID",
       renderCell: ({ row }) => (
-        <span dangerouslySetInnerHTML={{ __html: row.po_transaction_style }} />
+        <Typography variant="caption" dangerouslySetInnerHTML={{ __html: row.po_transaction_style }} />
       ),
       field: "po_transaction_code",
       flex: 1,
