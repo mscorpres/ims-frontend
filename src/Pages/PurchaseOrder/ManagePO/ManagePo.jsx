@@ -94,7 +94,6 @@ const ManagePO = () => {
     downloadFunction(data.data.buffer.data, filename);
   };
 
-  
   const columns = useMemo(() => getManagePOColumns(), []);
   const table = useMaterialReactTable({
     columns: columns,
@@ -132,7 +131,14 @@ const ManagePO = () => {
     renderTopToolbar: () =>
       loading || viewLoading || searchLoading ? (
         <Box sx={{ width: "100%" }}>
-          <LinearProgress />
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488", 
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
         </Box>
       ) : null,
     renderRowActionMenuItems: ({ row, table, closeMenu }) => [
@@ -365,7 +371,7 @@ const ManagePO = () => {
                 )
               )}
             </div>
-          
+
             <CustomButton
               size="small"
               title={"Search"}
@@ -420,7 +426,6 @@ const ManagePO = () => {
           padding: "0 10px",
         }}
       >
-    
         <MaterialReactTable table={table} />
       </div>
       <ViewComponentSideBar
