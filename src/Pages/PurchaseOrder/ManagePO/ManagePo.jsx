@@ -35,11 +35,11 @@ import {
   Cancel,
   Upload,
 } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
 
 const ManagePO = () => {
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [viewLoading, setViewLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showViewSidebar, setShowViewSideBar] = useState(false);
@@ -114,18 +114,7 @@ const ManagePO = () => {
       },
     },
     renderEmptyRowsFallback: () => (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "calc(100vh - 360px)",
-          color: "text.secondary",
-          fontSize: "0.9rem",
-        }}
-      >
-        No Purchase Orders Found
-      </Box>
+      <EmptyRowsFallback message="No Purchase Orders Found" />
     ),
 
     renderTopToolbar: () =>
@@ -134,7 +123,7 @@ const ManagePO = () => {
           <LinearProgress
             sx={{
               "& .MuiLinearProgress-bar": {
-                backgroundColor: "#0d9488", 
+                backgroundColor: "#0d9488",
               },
               backgroundColor: "#e1fffc",
             }}

@@ -1,13 +1,16 @@
-import React from "react";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
-import { useState } from "react";
-import { useEffect } from "react";
-import { Drawer, Space, Typography } from "antd";
-import MyDataTable from "../../../../Components/MyDataTable";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+import { useState, useEffect, useMemo } from "react";
+import { Drawer, Space } from "antd";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../../Components/exportToCSV";
+import { getViewApprovedPOColumns } from "../../../../new/pages/procurement/POType";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 
 export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
   const [rows, setRows] = useState([]);
@@ -36,67 +39,41 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
       }
     }
   };
-  const columns = [
-    { headerName: "Sr. No", field: "id", width: 80 },
-    {
-      headerName: "Component",
-      field: "po_components",
-      width: 250,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.po_components} />,
+
+  const columns = useMemo(() => getViewApprovedPOColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
     },
-    {
-      headerName: "Comp. Status",
-      field: "po_part_status",
-      width: 120,
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 190px)",
+      },
     },
-    {
-      headerName: "Qty",
-      field: "ordered_qty",
-      width: 120,
-    },
-    {
-      headerName: "UoM",
-      field: "uom",
-      width: 100,
-    },
-    {
-      headerName: "Comp. Status",
-      field: "po_part_status",
-      width: 120,
-    },
-    {
-      headerName: "Approval Remark",
-      field: "approval_remark",
-      renderCell: ({ row }) => (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            // overflowX: "auto",
-          }}
-        >
-          <Typography.Text
-            ellipsis={{
-              tooltip: row.approval_remark,
+
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
+    ),
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
             }}
-            style={{
-              width: "100%",
-              // overflowX: "auto",
-              fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.9rem",
-              // alignSelf: "center",
-            }}
-          >
-            {row.approval_remark}
-          </Typography.Text>
-          {/* <ToolTipEllipses copy={true} text={row.approval_remark} /> */}
-        </div>
-      ),
-      // width: "100%",
-      flex: 1,
-    },
-  ];
+          />
+        </Box>
+      ) : null,
+  });
+
   useEffect(() => {
     if (viewPoDetails) {
       getRows();
@@ -107,7 +84,12 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
       title={`PO : ${viewPoDetails}`}
       placement="right"
       width="100vw"
-      onClose={() => setViewPoDetails(false)}
+      onClose={(e) => {
+        if (e === "escape") {
+          setViewPoDetails(false);
+        }
+        setViewPoDetails(false);
+      }}
       open={viewPoDetails}
       bodyStyle={{
         padding: 5,
@@ -122,12 +104,15 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
         </Space>
       }
     >
-      <div style={{ height: "100%", overflowX: "auto", width: "100%" }}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          columns={columns}
-          rows={rows}
-        />
+      <div
+        style={{
+          height: "100%",
+          overflowX: "auto",
+          width: "100%",
+          padding: "4px 8px",
+        }}
+      >
+        <MaterialReactTable table={table} />
       </div>
     </Drawer>
   );

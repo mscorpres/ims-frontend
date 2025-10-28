@@ -1,11 +1,17 @@
-import { useState } from "react";
-import {  Card, Col, Drawer, Row, Space, Timeline } from "antd";
-import MyDataTable from "../../../../Components/MyDataTable";
+import { useState, useMemo } from "react";
+import { Card, Col, Drawer, Row, Space, Timeline } from "antd";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import printFunction, {
   downloadFunction,
 } from "../../../../Components/printFunction";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { getViewManagePOColumns } from "../../../../new/pages/procurement/POType";
 
 export default function ViewComponentSideBar({
   showViewSidebar,
@@ -33,40 +39,40 @@ export default function ViewComponentSideBar({
     let filename = `PO ${componentData?.poid}`;
     downloadFunction(data.data.buffer.data, filename);
   };
-  const columns = [
-    {
-      headerName: "SR. No",
-      field: "po_transaction",
-      valueGetter: ({ row }) => {
-        return `${componentData?.components?.indexOf(row) + 1}`;
-      },
-      width: 80,
-      id: "Sr. No",
-    },
-    {
-      headerName: "Component Name / Part No.",
-      field: "componentPartId",
-      valueGetter: ({ row }) => {
-        return `${row.po_components} / ${row.componentPartID}`;
-      },
-      id: "po_components",
-      flex: 1,
-    },
-    {
-      headerName: "Ordered Qty",
-      field: "ordered_qty",
-      id: "ordered_qty",
-      width: 120,
-    },
-    {
-      headerName: "Pending QTY",
-      field: "pending_qty",
 
-      id: "pending_qty",
-      width: 120,
+  const columns = useMemo(() => getViewManagePOColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: componentData?.components || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
     },
-  ];
-  console.log(componentData);
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: "calc(100vh - 200px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
     <Drawer
       bodyStyle={{ padding: 5 }}
@@ -104,22 +110,18 @@ export default function ViewComponentSideBar({
         </Space>
       }
     >
-      <Row gutter={20} style={{ height: "95%" }}>
+      <Row gutter={12} style={{ height: "95%" }}>
         <Col span={16}>
           <div style={{ height: "100%" }} className="remove-table-footer">
-            <MyDataTable
-              pagination={undefined}
-              rows={componentData?.components}
-              columns={columns}
-            />
+            <MaterialReactTable table={table} />
           </div>
         </Col>
         <Col span={8}>
           <Card
             title="PO logs"
             size="small"
-            style={{ maxHeight: "100%" }}
-            bodyStyle={{ height: "95%" }}
+            style={{ maxHeight: "100%", backgroundColor: "#e0f2f1" }}
+            bodyStyle={{ height: "95%", backgroundColor: "#e0f2f1" }}
           >
             <Timeline
               items={newPoLogs.map((row) => ({

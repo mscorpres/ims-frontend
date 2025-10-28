@@ -1,18 +1,22 @@
-import React, { useState, useeffect } from "react";
+import { useState, useMemo } from "react";
 import { BsFillCloudArrowUpFill } from "react-icons/bs";
 import { toast } from "react-toastify";
-import MyDataTable from "../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import NavFooter from "../../Components/NavFooter";
 import { v4 } from "uuid";
-import { Card, Col, Row, Space } from "antd";
+import { Card, Col, Empty, Row, Space } from "antd";
 import { downloadCSVCustomColumns } from "../../Components/exportToCSV";
 import { imsAxios } from "../../axiosInterceptor";
-import MyButton from "../../Components/MyButton";
 import { Typography } from "@mui/material";
 import CustomButton from "../../new/components/reuseable/CustomButton";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { getVendorPricingUploadColumns } from "../../new/pages/procurement/POType";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
 
 export default function VendorPricingUpload() {
   const [file, setFile] = useState(null);
@@ -56,12 +60,38 @@ export default function VendorPricingUpload() {
       toast.error(data.message.msg);
     }
   };
-  const previewColumns = [
-    { headerName: "Vendor Code", field: "VENDOR_CODE", flex: 1 },
-    { headerName: "PART Code", field: "PART_CODE", flex: 1 },
-    { headerName: "Part Name", field: "PART_NAME", flex: 1 },
-    { headerName: "Rate", field: "RATE", flex: 1 },
-  ];
+
+  const columns = useMemo(() => getVendorPricingUploadColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: previewRows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   const sampleData = [
     {
       VENDOR_CODE: "VEN0000",
@@ -70,7 +100,6 @@ export default function VendorPricingUpload() {
     },
   ];
   const resetFunction = () => {
-   
     setFile(null);
     setPreviewRows([]);
   };
@@ -92,10 +121,7 @@ export default function VendorPricingUpload() {
             <Typography gutterBottom variant="subtitle1">
               Upload Vendor Pricing Files
             </Typography>
-            <Card
-              size="small"
-              className="!bg-[#e0f2f1] border border-[white]"
-            >
+            <Card size="small" className="!bg-[#e0f2f1] border border-[white]">
               {!file && (
                 <div
                   style={{
@@ -193,31 +219,6 @@ export default function VendorPricingUpload() {
                 onclick={previewFile}
                 disabled={!file || previewLoading ? true : false}
               />
-              {/* <MyButton
-                loading={previewLoading}
-                type="primary"
-                onClick={previewFile}
-                disabled={!file || previewLoading ? true : false}
-                variant="next"
-              >
-                Next
-              </MyButton> */}
-              {/* <MyButton
-                onClick={resetFunction}
-                disabled={!file || previewLoading ? true : false}
-                variant="reset"
-              >
-                Reset File
-              </MyButton> */}
-              {/* <MyButton
-                onClick={() =>
-                  downloadCSVCustomColumns(sampleData, "POVENDORPRICNG")
-                }
-                type="link"
-                variant="downloadSample"
-              >
-                Download Sample File
-              </MyButton> */}
             </Space>
           </Row>
         </Col>
@@ -228,11 +229,7 @@ export default function VendorPricingUpload() {
             borderRadius: 5,
           }}
         >
-          <MyDataTable
-            columns={previewColumns}
-            data={previewRows}
-            headText="center"
-          />
+          <MaterialReactTable table={table} />
         </Col>
       </Row>
       <NavFooter
