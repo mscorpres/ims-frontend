@@ -1,46 +1,75 @@
-import React, { useEffect, useState } from "react";
-// import { toast } from "react-toastify";
-import { Card, Col, Form, Input, Row, Space } from "antd";
-import MyDataTable from "../../Components/MyDataTable";
-// import { v4 } from "uuid";
-// import { imsAxios } from "../../axiosInterceptor";
+import { useEffect, useMemo, useState } from "react";
+import { Card, Form, Input, Row, Space } from "antd";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
 import MyButton from "../../Components/MyButton";
 import useApi from "../../hooks/useApi.ts";
 import { createUOM, getUOMList } from "../../api/master/uom";
 import { ResponseType } from "../../types/general.ts";
-import { Typography } from "@mui/material";
-// import CustomButton from "../../new/"
+import { Box, LinearProgress, Typography } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { CheckOutlined, Refresh } from "@mui/icons-material";
 
 const Uom = () => {
   const [uomData, setUomData] = useState([]);
-
-  // old code
-  // const [loading, setLoading] = useState(false);
-  // const [newUom, setNewUom] = useState({
-  //   uom: "",
-  //   description: "",
-  // });
-
   const { executeFun, loading } = useApi();
   const [form] = Form.useForm();
+
+  const getUOMColumns = () => [
+    {
+      accessorKey: "id",
+      header: "#",
+      size: 150,
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      size: 200,
+    },
+    {
+      accessorKey: "details",
+      header: "Specification",
+      size: 150,
+    },
+  ];
+
+  const columns = useMemo(() => getUOMColumns(), []);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: uomData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderTopToolbar: () =>
+      loading("fetch") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   //   fetch uom
   const handleFetchUOMList = async () => {
     const response = await executeFun(() => getUOMList(), "fetch");
     setUomData(response.data ?? []);
-
-    // old code
-    // setLoading(true);
-    // const { data } = await imsAxios.get("/uom");
-    // let arr = data.data.map((row, index) => {
-    //   return {
-    //     ...row,
-    //     index: index + 1,
-    //     id: v4(),
-    //   };
-    // });
-    // setUomData(arr);
-    // setLoading(false);
   };
 
   //   add UOM
@@ -55,53 +84,11 @@ const Uom = () => {
       handleFetchUOMList();
     }
 
-    // old code
-    // e.preventDefault();
-    // if (!newUom.uom) {
-    //   toast.error("Please Add UoM");
-    // } else if (!newUom.description) {
-    //   toast.error("Please Add Description");
-    // } else {
-    //   setLoading(true);
-    //   const { data } = await imsAxios.post("/uom/insert", {
-    //     uom: newUom.uom,
-    //     description: newUom.description,
-    //   });
-    //   if (data.code === 200) {
-    //     setNewUom({
-    //       uom: "",
-    //       description: "",
-    //     });
-    //     fetchUOm();
-    //     setLoading(false);
-    //   } else {
-    //     toast.error(data.message.msg);
-    //     setLoading(false);
-    //   }
-    // }
-  };
+    };
 
   const resetHandler = () => {
     form.resetFields();
-
-    //old code
-    // setNewUom({
-    //   uom: "",
-    //   description: "",
-    // });
   };
-
-  const columns = [
-    { field: "id", headerName: "#", width: 30 },
-    { field: "name", headerName: "Unit", minWidth: 170, flex: 1 },
-    { field: "details", headerName: "Specification", minWidth: 170, flex: 1 },
-  ];
-  // old code
-  // const columns = [
-  //   { field: "index", headerName: "S.No", width: 170 },
-  //   { field: "units_name", headerName: "Unit", width: 170 },
-  //   { field: "units_details", headerName: "Specification", width: 170 },
-  // ];
 
   useEffect(() => {
     handleFetchUOMList();
@@ -109,45 +96,59 @@ const Uom = () => {
 
   return (
     <div
-      style={{ height: "calc(100vh - 130px)", marginTop: 8, padding: 10, gap:12 }}
+      style={{
+        height: "calc(100vh - 130px)",
+        marginTop: 8,
+        padding: 10,
+        gap: 12,
+      }}
       className="grid grid-cols-[2fr_4fr] gap-4"
     >
       <div>
         <Typography variant="subtitle1">Create UOM</Typography>
-        
-  
-      <Card size="small">
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Unit">
-            <Input />
-          </Form.Item>
-          <Form.Item name="details" label="Specification">
-            <Input.TextArea rows={3} />
-          </Form.Item>
-          <Row justify="center">
-            <Space>
-              {/* <CustomButton /> */}
-              <MyButton onClick={resetHandler} variant="reset" />
-              
-              <MyButton
-                loading={loading("submit")}
-                onClick={submitHandler}
-                variant="submit"
-              />
-            </Space>
-          </Row>
-        </Form>
-      </Card>
+
+        <Card size="small">
+          <Form form={form} layout="vertical">
+            <Form.Item name="name" label="Unit">
+              <Input />
+            </Form.Item>
+            <Form.Item name="details" label="Specification">
+              <Input.TextArea rows={3} />
+            </Form.Item>
+            <Row justify="center">
+              <Space>
+                {/* <CustomButton /> */}
+                <CustomButton
+                  size="small"
+                  title={"Reset"}
+                  starticon={<Refresh fontSize="small" />}
+                  onclick={resetHandler}
+                  variant="outlined"
+                  htmlType="reset"
+                />
+
+                <CustomButton
+                  size="small"
+                  title={"Submit"}
+                  starticon={<CheckOutlined fontSize="small" />}
+                  loading={loading("submit")}
+                  onclick={submitHandler}
+                  htmlType="submit"
+                />
+              </Space>
+            </Row>
+          </Form>
+        </Card>
       </div>
 
-      <div style={{ height: "calc(100vh - 130px)" }}>
-        <MyDataTable
-          loading={loading("fetch")}
-          data={uomData}
-          columns={columns}
-        />
+      <div
+        style={{
+          height: "85%",
+          padding: "0 10px",
+        }}
+      >
+        <MaterialReactTable table={table} />
       </div>
-
     </div>
   );
 };
