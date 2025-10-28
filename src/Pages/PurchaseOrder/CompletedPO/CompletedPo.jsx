@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import ViewComponentSideBar from "./ViewComponentSideBar";
 import MyDatePicker from "../../../Components/MyDatePicker";
-import MyDataTable from "../../../Components/MyDataTable";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { Button, Col, Input, Row, Space } from "antd";
@@ -10,17 +9,23 @@ import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import TableActions, {
-  CommonIcons,
-} from "../../../Components/TableActions.jsx/TableActions";
-import ToolTipEllipses from "../../../Components/ToolTipEllipses";
+import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import SearchIcon from "@mui/icons-material/Search";
 import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
-import { Typography } from "@mui/material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { getCompletedPOColumns } from "../../../new/pages/procurement/POType.jsx";
+import { Download, Visibility, Print } from "@mui/icons-material";
+import { Box } from "@mui/system";
+import { LinearProgress } from "@mui/material";
 
 const CompletedPo = () => {
   const [loading, setLoading] = useState(false);
@@ -33,7 +38,6 @@ const CompletedPo = () => {
   const [selectLoading, setSelectLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [viewLoading, seViewLoading] = useState(false);
-
   const [componentData, setComponentData] = useState(null);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
@@ -138,80 +142,79 @@ const CompletedPo = () => {
     downloadFunction(data.data.buffer.data, filename);
   };
 
-  const columns = [
-    {
-      headerName: "Serial No.",
-      field: "index",
-      width: 100,
+  const columns = useMemo(() => getCompletedPOColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
     },
-    {
-      headerName: "PO ID",
-      renderCell: ({ row }) => (
-        <Typography variant="caption" dangerouslySetInnerHTML={{ __html: row.po_transaction_style }} />
-      ),
-      field: "po_transaction_code",
-      flex: 1,
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading || viewLoading || searchLoading
+            ? "calc(100vh - 240px)"
+            : "calc(100vh - 290px)",
+      },
     },
-    {
-      headerName: "Cost Center",
-      field: "cost_center",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.cost_center} />,
-      flex: 1,
-    },
-    {
-      headerName: "Vendor Name",
-      field: "vendor_name",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vendor_name} />,
-      flex: 2,
-    },
-    {
-      headerName: "Vendor Code",
-      field: "vendor_id",
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
+    ),
 
-      flex: 1,
-    },
-    {
-      headerName: "PO REG. DATE",
-      field: "po_reg_date",
-      flex: 1,
-    },
-    {
-      headerName: "Created By",
-      field: "po_reg_by",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.po_reg_by} />,
-      flex: 1,
-    },
-    {
-      headerName: "Comments",
-      field: "po_comment",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.po_comment} />,
-      flex: 1,
-    },
-    {
-      headerName: "Actions",
-      type: "actions",
-      id: "actions",
-      flex: 1,
-      getActions: ({ row }) => [
-        <TableActions
-          action="view"
-          onClick={() => getComponentData(row.po_transaction_code)}
-        />,
+    renderTopToolbar: () =>
+      loading || viewLoading || searchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Visibility />}
+        key="view"
+        label="View"
+        onClick={() => {
+          closeMenu?.();
+          getComponentData(row.original?.po_transaction_code);
+        }}
+        table={table}
+        disabled={viewLoading}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download />}
+        key="download"
+        label="Download"
+        onClick={() => {
+          closeMenu?.();
+          handleDownload(row?.original?.po_transaction_code, closeMenu);
+        }}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print />}
+        key="print"
+        label="Print"
+        onClick={() => {
+          closeMenu?.();
+          printFun(row?.original?.po_transaction_code, closeMenu);
+        }}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+    ],
+  });
 
-        <TableActions
-          action="print"
-          onClick={() => {
-            printFun(row.po_transaction_code);
-          }}
-        />,
-
-        <TableActions
-          action="download"
-          onClick={() => handleDownload(row.po_transaction_code)}
-        />,
-      ],
-    },
-  ];
   const additional = () => (
     <Space>
       <div style={{ width: 150 }}>
@@ -345,23 +348,7 @@ const CompletedPo = () => {
                 )
               )}{" "}
             </div>
-            {/* <MyButton
-              loading={searchLoading}
-              disabled={
-                wise === "single_date_wise"
-                  ? searchDateRange === ""
-                    ? true
-                    : false
-                  : !searchInput
-                  ? true
-                  : false
-              }
-              type="primary"
-              onClick={getSearchResults}
-              variant="search"
-            >
-              Search
-            </MyButton> */}
+
             <CustomButton
               size="small"
               title={"Search"}
@@ -391,13 +378,7 @@ const CompletedPo = () => {
         </Col>
       </Row>
       <div style={{ height: "85%", padding: "0px 10px" }}>
-        <MyDataTable
-          loading={loading || viewLoading}
-          data={rows}
-          columns={columns}
-          pagination={true}
-          headText="center"
-        />
+        <MaterialReactTable table={table} />
       </div>
 
       <ViewComponentSideBar

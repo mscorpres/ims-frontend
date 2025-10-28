@@ -1,32 +1,33 @@
-import { Button, Col, Input, Popconfirm, Row, Space, Tooltip } from "antd";
-import React from "react";
-import { useState } from "react";
+import { Col, Input, Row, Space } from "antd";
+import { useMemo, useState, useEffect } from "react";
 import MySelect from "../../../../Components/MySelect";
 import MyDatePicker from "../../../../Components/MyDatePicker";
-import { useEffect } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
-import TableActions, {
-  CommonIcons,
-} from "../../../../Components/TableActions.jsx/TableActions";
-import MyDataTable from "../../../../Components/MyDataTable";
+import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import PoDetailsView from "./PoDetailsView";
 import { downloadCSV } from "../../../../Components/exportToCSV";
 import PoRejectModa from "./PoRejectModa";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import { CloseOutlined, CheckOutlined, EyeOutlined } from "@ant-design/icons";
 import PoApprovalModel from "./PoApprovalModel";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import {
   getProjectOptions,
   getVendorOptions,
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
-import MyButton from "../../../../Components/MyButton";
 import SearchIcon from "@mui/icons-material/Search";
 import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { getApprovedPOColumns } from "../../../../new/pages/procurement/POType.jsx";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box } from "@mui/system";
+import { LinearProgress } from "@mui/material";
+import { Visibility } from "@mui/icons-material";
 
 export default function PoApproval() {
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ export default function PoApproval() {
   const [rows, setRows] = useState([]);
   const [approvePo, setApprovePo] = useState(null);
   const [selectedPo, setSelectedPo] = useState([]);
+  const [rowSelection, setRowSelection] = useState({});
   const { executeFun, loading: loading1 } = useApi();
   const wiseOptions = [
     { text: "Date Wise", value: "datewise" },
@@ -126,84 +128,64 @@ export default function PoApproval() {
     setRejectPo(arr);
     // setApprovePo(arr);
   };
-  const columns = [
-    {
-      headerName: "",
-      field: "actions",
-      width: 30,
-      type: "actions",
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          onClick={() => {
-            setViewPoDetails(row.po_transaction);
-          }}
-          label="View"
-        />,
-      ],
+
+  const columns = useMemo(() => getApprovedPOColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
     },
-    {
-      headerName: "Sr. No",
-      field: "id",
-      width: 80,
+    enableStickyHeader: true,
+    enableRowActions: true,
+    enableRowSelection: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 250px)" : "calc(100vh - 300px)",
+      },
     },
-    {
-      headerName: "PO ID",
-      field: "po_transaction",
-      width: 150,
-    },
-    {
-      headerName: "Cost Center",
-      field: "po_costcenter",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Project ID",
-      field: "po_projectname",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Project Name",
-      field: "project_description",
-      minWidth: 200,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.project_description} />
-      ),
-    },
-    {
-      headerName: "Vendor",
-      field: "vendor_name",
-      flex: 1,
-      minWidth: 200,
-    },
-    {
-      headerName: "PO Date / Time",
-      field: "po_reg_date",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Deviation Comment",
-      field: "deviation_remark",
-      flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.deviation_remark} />,
-      minWidth: 150,
-    },
-    {
-      headerName: "PO Created By",
-      field: "po_reg_by",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "PO Requested By",
-      field: "requested_by",
-      flex: 1,
-      minWidth: 200,
-    },
-  ];
+
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
+    ),
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Visibility />}
+        key="view"
+        label="View"
+        onClick={() => {
+          closeMenu?.();
+          setViewPoDetails(row?.original?.po_transaction);
+        }}
+        table={table}
+        disabled={loading}
+      />,
+    ],
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
+  });
+  useEffect(() => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .flatRows.map((r) => r.original);
+    setSelectedPo(selectedRows);
+  }, [rowSelection, table]);
+
   useEffect(() => {
     setSearchInput("");
   }, [wise]);
@@ -279,14 +261,6 @@ export default function PoApproval() {
             </Col>
             <Col>
               <Space>
-                {/* <MyButton
-                  loading={loading === "fetch"}
-                  type="primary"
-                  onClick={getRows}
-                  variant="search"
-                >
-                  Fetch
-                </MyButton> */}
                 <CustomButton
                   size="small"
                   title={"Search"}
@@ -297,32 +271,23 @@ export default function PoApproval() {
                 <CustomButton
                   size="small"
                   title={" Approve Selected Po's"}
-              
-                  disabled={selectedPo.length === 0 || loading === "fetch"}
+                  disabled={
+                    Object.keys(rowSelection).length === 0 ||
+                    selectedPo.length === 0 ||
+                    loading === "fetch"
+                  }
                   onclick={ApproveSelectedPo}
                 />
                 <CustomButton
                   size="small"
                   title={"Reject Selected Po's"}
-             
-                  disabled={selectedPo.length === 0 || loading === "fetch"}
+                  disabled={
+                    Object.keys(rowSelection).length === 0 ||
+                    selectedPo.length === 0 ||
+                    loading === "fetch"
+                  }
                   onclick={RejectSelectedPo}
                 />
-
-                {/* <Button
-                  loading={loading === "fetch"}
-                  disabled={selectedPo.length === 0}
-                  onClick={ApproveSelectedPo}
-                >
-                  Approve Selected Po's
-                </Button>
-                <Button
-                  loading={loading === "fetch"}
-                  disabled={selectedPo.length === 0}
-                  onClick={RejectSelectedPo}
-                >
-                  Reject Selected Po's
-                </Button> */}
               </Space>
             </Col>
           </Row>
@@ -335,17 +300,7 @@ export default function PoApproval() {
         </Col>
       </Row>
       <div style={{ height: "100%", paddingTop: 5 }}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          columns={columns}
-          checkboxSelection
-          rows={rows}
-          onSelectionModelChange={(selected) => {
-            console.log(selected);
-            console.log(rows);
-            setSelectedPo(selected);
-          }}
-        />
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );
