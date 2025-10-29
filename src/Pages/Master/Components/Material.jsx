@@ -48,7 +48,6 @@ const Material = () => {
   const [selectLoading, setSelectLoading] = useState(false);
   const [materialModal, setMaterialModal] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  console.log("right page");
   const { executeFun } = useApi();
 
   const allComponent = async () => {
@@ -96,12 +95,7 @@ const Material = () => {
 
   const fetchUOM = async () => {
     const response = await executeFun(() => getUOMList(), "fetch");
-    console.log("uom response", response);
     setUom(response.data);
-    // const { data } = await imsAxios.post("/uom/uomSelect2");
-    // let a = [];
-    // data?.data?.map((x) => a.push({ text: x.text, value: x.id }));
-    // setUom(a);
   };
 
   const fetchSelectGropu = async (e) => {
@@ -346,7 +340,6 @@ const Material = () => {
     }
   }, [searchInput]);
   useEffect(() => {
-    console.log("fetching uom ");
     fetchUOM();
   }, []);
 

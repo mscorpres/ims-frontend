@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useMemo } from "react";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import MyDataTable from "../../../../Components/MyDataTable";
-import { imsAxios } from "../../../../axiosInterceptor";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
+import { Edit, Visibility, Upload } from "@mui/icons-material";
 
 export default function ComponentsTable({
   actionColumn,
@@ -11,14 +15,90 @@ export default function ComponentsTable({
   setComponents,
   loading,
   setLoading,
+  setUploadingImage,
+  setShowImages,
 }) {
+  const columns = useMemo(() => materialColumn(), []);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: components || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderTopToolbar: () =>
+      loading==="fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit />}
+        key="edit"
+        label="Update"
+        onClick={() => {
+          window.open(
+            `/master/component/${row?.original?.key}`,
+            "_blank",
+            "noreferrer"
+          );
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Visibility />}
+        key="view"
+        label="View Images"
+        onClick={() => {
+          setShowImages({
+            partNumber: row?.original.key,
+            partCode: row?.original?.partCode,
+          });
+          closeMenu();
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Upload />}
+        key="upload"
+        label="Upload Images"
+        onClick={() => {
+          setUploadingImage({
+            key: row?.original?.key,
+            label: row?.original?.componentName,
+          });
+          closeMenu();
+        }}
+        table={table}
+      />,
+    ],
+  });
   return (
-    <MyDataTable
-      loading={loading === "fetch"}
-      data={components}
-      columns={[actionColumn, ...columns]}
-    />
+    <div
+      style={{
+        height: "85%",
+        padding: "0 10px",
+      }}
+    >
+      <MaterialReactTable table={table} />
+    </div>
   );
 }
 
@@ -44,5 +124,23 @@ const columns = [
     headerName: "UoM",
     field: "unit",
     width: 150,
+  },
+];
+
+const materialColumn = () => [
+  {
+    accessorKey: "componentName",
+    header: "Name",
+    size: 300,
+  },
+  {
+    accessorKey: "partCode",
+    header: "Part Code",
+    size: 150,
+  },
+  {
+    accessorKey: "unit",
+    header: "UoM",
+    size: 150,
   },
 ];

@@ -21,14 +21,16 @@ import {
   DeliveredProcedureOutlined,
   CheckCircleOutlined,
   ExperimentOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import { RiBillFill } from "react-icons/ri";
 import { BiMoney, BiTransfer } from "react-icons/bi";
 import { FaWarehouse } from "react-icons/fa";
 import { TbReportAnalytics } from "react-icons/tb";
 import { SiPaytm } from "react-icons/si";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';// Default icon for items without specific icons
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 
-// Default icon for items without specific icons
 const DefaultIcon = () => <MenuOutlined />;
 
 // Icon mapping object
@@ -63,6 +65,7 @@ const iconMap: Record<string, React.ComponentType> = {
   DeliveredProcedureOutlined: DeliveredProcedureOutlined,
   CheckCircleOutlined: CheckCircleOutlined,
   ExperimentOutlined: ExperimentOutlined,
+  PlusIcon: PlusOutlined,
 
   // Material-UI Icons (as fallbacks)
   SettingsIcon: MenuOutlined,
@@ -133,6 +136,8 @@ const iconMap: Record<string, React.ComponentType> = {
   DashboardIcon: MdDashboard,
   PublicIcon: MenuOutlined,
   BarChartIcon: TbReportAnalytics,
+  DownloadIcon: FileDownloadIcon,
+  ResetIcon: AutorenewIcon,
 };
 
 // Function to get icon component
