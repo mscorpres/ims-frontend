@@ -1,13 +1,17 @@
-import { Button, Card, Col, Row, Space, Upload, Form } from "antd";
-import React, { useState, useeffect } from "react";
-import { BsFillCloudArrowUpFill } from "react-icons/bs";
+import { Card, Col, Row, Space, Upload, Form } from "antd";
+import { useState, useMemo } from "react";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
-import MyDataTable from "../../../../Components/MyDataTable";
-import { InboxOutlined } from "@ant-design/icons";
+import { BsFillCloudArrowUpFill } from "react-icons/bs";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import MyButton from "../../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
+import { renderIcon } from "../../../../new/components/layout/Sidebar/iconMapper";
 
 function StockControl() {
   const [loading, setLoading] = useState(false);
@@ -21,13 +25,42 @@ function StockControl() {
       SF_CTRL_QTY: "0",
     },
   ];
-  const previewColumns = [
-    { headerName: "#", field: "id", width: 30 },
-    { headerName: "Component", field: "part_name", flex: 1 },
-    { headerName: "PART Code", field: "part_no", width: 100 },
-    { headerName: "SF Quantity", field: "sf_ctrl_qty", width: 100 },
+  const columns = () => [
+    { header: "#", accessorKey: "id", width: 20 },
+    { header: "Component", accessorKey: "part_name", flex: 1 },
+    { header: "PART Code", accessorKey: "part_no", width: 100 },
+    { header: "SF Quantity", accessorKey: "sf_ctrl_qty", width: 100 },
   ];
-  const previewRows = [];
+  const stockColumns = useMemo(() => columns(), []);
+
+  const table = useMaterialReactTable({
+    columns: stockColumns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   const displayDataTable = async () => {
     setLoading("fetch");
@@ -118,7 +151,15 @@ function StockControl() {
                   >
                     <Upload.Dragger name="files" {...props}>
                       <p className="ant-upload-drag-icon">
-                        <InboxOutlined />
+                        <BsFillCloudArrowUpFill
+                          style={{
+                            fontSize: 70,
+                            color: "#0d9488",
+                            opacity: 0.6,
+                            zIndex: 1,
+                            marginRight: "20px",
+                          }}
+                        />
                       </p>
                       <p className="ant-upload-text">
                         Click or drag file to this area to upload
@@ -134,29 +175,28 @@ function StockControl() {
           </Form>
           <Row justify="end">
             <Space style={{ marginTop: 10 }}>
-              <MyButton
-                loading={loading === "submitting"}
-                onClick={reset}
-                variant="reset"
-              >
-                Reset
-              </MyButton>
-              <Button
-                loading={loading === "submitting"}
-                type="primary"
-                onClick={submitFile}
-              >
-                Submit
-              </Button>
-              <MyButton
-                type="link"
-                onClick={() =>
+              <CustomButton
+                variant="text"
+                onclick={() =>
                   downloadCSVCustomColumns(sampleData, "Stock Control Sample")
                 }
-                variant="downloadSample"
-              >
-                Download Sample File
-              </MyButton>
+                title="Download Sample File"
+                endicon={renderIcon("DownloadIcon")}
+                size="small"
+              />
+              <CustomButton
+                variant="outlined"
+                onclick={reset}
+                title="Reset"
+                endicon={renderIcon("ResetIcon")}
+              />
+              <CustomButton
+                variant="submit"
+                onclick={submitFile}
+                title="Submit"
+                endicon={renderIcon("CheckCircleOutlined")}
+                loading={loading === "submitting"}
+              />
             </Space>
           </Row>
         </Col>
@@ -167,11 +207,7 @@ function StockControl() {
             borderRadius: 5,
           }}
         >
-          <MyDataTable
-            loading={loading === "fetch"}
-            columns={previewColumns}
-            data={rows}
-          ></MyDataTable>
+          <MaterialReactTable table={table} />
         </Col>
       </Row>
     </div>
