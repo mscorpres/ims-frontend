@@ -5,6 +5,7 @@ import useApi from "../../hooks/useApi.ts";
 import { createUOM, getUOMList } from "../../api/master/uom";
 import { ResponseType } from "../../types/general.ts";
 import { Box, LinearProgress, Typography } from "@mui/material";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -82,8 +83,7 @@ const Uom = () => {
       form.resetFields();
       handleFetchUOMList();
     }
-
-    };
+  };
 
   const resetHandler = () => {
     form.resetFields();
@@ -104,11 +104,7 @@ const Uom = () => {
       className="grid grid-cols-[2fr_4fr] gap-4"
     >
       <div>
-        <Typography variant="subtitle1">Create UOM</Typography>
-
-        <Card size="small" style={{
-          backgroundColor: "#e0f2f1",
-        }}>
+        <CustomFieldBox title="Create UOM" subtitle="Unit of Measurement">
           <Form form={form} layout="vertical">
             <Form.Item name="name" label="Unit">
               <Input />
@@ -139,7 +135,7 @@ const Uom = () => {
               </Space>
             </Row>
           </Form>
-        </Card>
+        </CustomFieldBox>
       </div>
 
       <div
