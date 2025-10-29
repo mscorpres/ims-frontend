@@ -36,7 +36,6 @@ import {
 } from "./TableCollumns";
 import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import CurrenceModal from "../CurrenceModal";
-import UploadDocs from "./UploadDocs";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import FormTable from "../../../../Components/FormTable";
@@ -52,7 +51,9 @@ import {
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
-import MyButton from "../../../../Components/MyButton";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 
 export default function MaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
@@ -67,7 +68,6 @@ export default function MaterialInWithPO({}) {
   });
   const [showCurrency, setShowCurrenncy] = useState(null);
   const [invoices, setInvoices] = useState([]);
-  const [showUploadDoc, setShowUploadDoc] = useState(false);
   const [autoConsumptionOptions, setAutoConsumptionOption] = useState([]);
   const [totalValues, setTotalValues] = useState([
     { label: "cgst", sign: "+", values: [] },
@@ -129,9 +129,6 @@ export default function MaterialInWithPO({}) {
       let formData = new FormData();
       let values = await form.validateFields();
       let a = values.components;
-      // let a = values.components.map((comp) => {
-      //   formData.append("files", comp.file[0]?.originFileObj);
-      // });
       if (a?.length) {
         if (!values?.components[0]?.file) {
           toast.info("Please upload Files");
@@ -756,57 +753,8 @@ export default function MaterialInWithPO({}) {
     setPoData({ materials: [] });
     setResetPoData({ materials: [] });
   };
-  const additional = () => (
-    <Space>
-      <div style={{ width: 250 }}>
-        <MyAsyncSelect
-          allowClear
-          size="default"
-          selectLoading={selectLoading}
-          onBlur={() => setAsyncOptions([])}
-          value={searchData.vendor == "" ? null : searchData.vendor}
-          onChange={(value) =>
-            setSearchData((searchData) => ({ ...searchData, vendor: value }))
-          }
-          loadOptions={getVendors}
-          optionsState={asyncOptions}
-          placeholder="Select Vendor..."
-        />
-      </div>
-      <div style={{ width: 150 }}>
-        <Input
-          allowClear
-          placeholder="PO Number"
-          value={searchData.poNumber}
-          onChange={(e) =>
-            setSearchData((searchData) => ({
-              ...searchData,
-              poNumber: e.target.value,
-            }))
-          }
-        />
-      </div>
-      <Button
-        disabled={searchData.vendor == "" || searchData.poNumber == ""}
-        type="primary"
-        loading={searchLoading}
-        onClick={getDetail}
-        id="submit"
-      >
-        Search
-      </Button>
-
-      {/* <CommonIcons
-        action="downloadButton"
-        onClick={() => downloadCSV(rows, columns, "Pending PO Report")}
-        disabled={rows.length == 0}
-      /> */}
-    </Space>
-  );
 
   useEffect(() => {
-    // getDetail();
-    // getLocation();
     getCurrencies();
     getAutoComnsumptionOptions();
   }, []);
@@ -830,7 +778,13 @@ export default function MaterialInWithPO({}) {
   // log
   const { Text } = Typography;
   return (
-    <div style={{ height: "90%", position: "relative" }}>
+    <div
+      style={{
+        height: "calc(100vh - 170px)",
+        position: "relative",
+        marginTop: 12,
+      }}
+    >
       <Row
         justify="space-between"
         style={{ padding: "0px 10px", paddingBottom: 5 }}
@@ -869,25 +823,14 @@ export default function MaterialInWithPO({}) {
                 }
               />
             </div>
-            <MyButton
+
+            <CustomButton
               disabled={searchData.vendor == "" || searchData.poNumber == ""}
-              type="primary"
+              title="Search"
+              starticon={<Search fontSize="small" />}
+              onclick={getDetail}
               loading={searchLoading}
-              onClick={getDetail}
-              id="submit"
-              variant="search"
-            >
-              Search
-            </MyButton>
-          </Space>
-        </Col>
-        <Col>
-          <Space>
-            {/* <CommonIcons
-              action="downloadButton"
-              onClick={() => downloadCSV(rows, columns, "Pending PO Report")}
-              disabled={rows.length == 0}
-            /> */}
+            />
           </Space>
         </Col>
       </Row>
@@ -986,421 +929,433 @@ export default function MaterialInWithPO({}) {
       {/* upload doc modal */}
 
       {!materialInSuccess && (
-        <Row gutter={8} style={{ height: "100%", padding: "0px 10px" }}>
-          <Col span={6}>
-            <Row
-              style={{
-                height: "76%",
-              }}
-              gutter={[0, 4]}
-            >
-              {/* vendor details */}
-              <Row style={{ height: "50%", width: "100%" }}>
-                <Card
-                  size="small"
-                  style={{ height: "100%", width: "100%" }}
-                  bodyStyle={{ overflowY: "auto", maxHeight: "80%" }}
-                  title="Vendor Details"
-                >
-                  <Row gutter={[0, 8]}>
+        <div
+          className="grid grid-cols-[1fr_3fr] h-[calc(100vh-210px)]  "
+          style={{ gap: 12, padding: 12 }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              overflowY: "auto",
+                paddingBottom:8,
+              paddingRight:6
+            }}
+          >
+            <CustomFieldBox title="Vendor Details">
+              <div className="max-h-[120px] overflow-y-auto  ">
+                <Row gutter={[0, 8]}>
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Vendor Type
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        {poData?.headers?.vendortype}
+                      </Typography.Text>
+                    )}
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Vendor Name
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        {poData?.headers?.vendorname}
+                      </Typography.Text>
+                    )}
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Vendor Address
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        <ToolTipEllipses
+                          type="Paragraph"
+                          text={poData?.headers?.vendoraddress?.replaceAll(
+                            "<br>",
+                            " "
+                          )}
+                        />
+                      </Typography.Text>
+                    )}
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Vendor GSTIN
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        {poData?.headers?.gstin}
+                      </Typography.Text>
+                    )}
                     <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Vendor Type
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          {poData?.headers?.vendortype}
-                        </Typography.Text>
-                      )}
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
+                      {/* <Form.Item name="QR"> */}
+                      <Checkbox
+                        checked={isScan}
+                        onChange={(e) => setIsScan(e.target.checked)}
+                      ></Checkbox>
+                      <Typography.Text
+                        style={{
+                          fontSize: 11,
+                          marginLeft: "4px",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Scan with QR Code
+                      </Typography.Text>
+                      {/* </Form.Item> */}
                     </Col>
-                    <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Vendor Name
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          {poData?.headers?.vendorname}
-                        </Typography.Text>
-                      )}
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
-                    </Col>
-                    <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Vendor Address
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          <ToolTipEllipses
-                            type="Paragraph"
-                            text={poData?.headers?.vendoraddress?.replaceAll(
-                              "<br>",
-                              " "
-                            )}
-                          />
-                        </Typography.Text>
-                      )}
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
-                    </Col>
-                    <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Vendor GSTIN
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          {poData?.headers?.gstin}
-                        </Typography.Text>
-                      )}
-                      <Col span={24}>
-                        {/* <Form.Item name="QR"> */}
-                        <Checkbox
-                          checked={isScan}
-                          onChange={(e) => setIsScan(e.target.checked)}
-                        ></Checkbox>
-                        <Typography.Text
-                          style={{
-                            fontSize: 11,
-                            marginLeft: "4px",
-                            marginBottom: "4px",
-                          }}
-                        >
-                          Scan with QR Code
-                        </Typography.Text>
-                        {/* </Form.Item> */}
-                      </Col>
-                      <span display="flex">
-                        <Row gutter={[0, 0]}>
-                          <Col span={10}>
-                            <Typography.Title
-                              style={{
-                                marginTop: "5px",
-                                fontSize:
-                                  window.innerWidth < 1600
-                                    ? "0.85rem"
-                                    : "0.95rem",
-                              }}
-                              level={5}
-                            >
-                              Acknowledgment Number
-                            </Typography.Title>
-                          </Col>
-                          <Col span={14}>
-                            <Input
-                              style={{
-                                marginTop: "5px",
-                              }}
-                              placeholder="Please enter Acknowledgment Number"
-                              onChange={(e) => setIrnNum(e.target.value)}
-                            />
-                          </Col>
-                        </Row>
-                      </span>
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
-                    </Col>
-                    <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Cost Center
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          {poData?.headers?.cost_center_name}
-                        </Typography.Text>
-                      )}
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
-                    </Col>
-
-                    <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Project Code
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          {poData?.headers?.project_code}
-                        </Typography.Text>
-                      )}
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
-                    </Col>
-
-                    <Col span={24}>
-                      {!searchLoading && (
-                        <Typography.Title
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                          }}
-                          level={5}
-                        >
-                          Project Description
-                        </Typography.Title>
-                      )}
-                      {!searchLoading && (
-                        <Typography.Text
-                          style={{
-                            fontSize:
-                              window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                          }}
-                        >
-                          {poData?.headers?.project_description ?? "--"}
-                        </Typography.Text>
-                      )}
-                      <Skeleton
-                        paragraph={false}
-                        style={{ width: "100%" }}
-                        rows={1}
-                        loading={searchLoading}
-                        active
-                      />
-                    </Col>
-                  </Row>
-                </Card>
-              </Row>
-
-              {/* tax details */}
-              <Col span={24} style={{ width: "100%", height: "50%" }}>
-                <Card
-                  size="small"
-                  style={{ width: "100%", height: "100%" }}
-                  bodyStyle={{ overflowY: "auto", maxHeight: "74%" }}
-                  title="Tax Details"
-                >
-                  <Row gutter={[0, 4]}>
-                    {totalValues?.map((row) => (
-                      <Col span={24} key={row.label}>
-                        <Row>
-                          <Col
-                            span={18}
+                    <span display="flex">
+                      <Row gutter={[0, 0]}>
+                        <Col span={10}>
+                          <Typography.Title
                             style={{
-                              fontSize: "0.8rem",
+                              marginTop: "5px",
+                              fontSize:
+                                window.innerWidth < 1600
+                                  ? "0.85rem"
+                                  : "0.95rem",
+                            }}
+                            level={5}
+                          >
+                            Acknowledgment Number
+                          </Typography.Title>
+                        </Col>
+                        <Col span={14}>
+                          <Input
+                            style={{
+                              marginTop: "5px",
+                            }}
+                            placeholder="Please enter Acknowledgment Number"
+                            onChange={(e) => setIrnNum(e.target.value)}
+                          />
+                        </Col>
+                      </Row>
+                    </span>
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Cost Center
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        {poData?.headers?.cost_center_name}
+                      </Typography.Text>
+                    )}
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Project Code
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        {poData?.headers?.project_code}
+                      </Typography.Text>
+                    )}
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+
+                  <Col span={24}>
+                    {!searchLoading && (
+                      <Typography.Title
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                        }}
+                        level={5}
+                      >
+                        Project Description
+                      </Typography.Title>
+                    )}
+                    {!searchLoading && (
+                      <Typography.Text
+                        style={{
+                          fontSize:
+                            window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        }}
+                      >
+                        {poData?.headers?.project_description ?? "--"}
+                      </Typography.Text>
+                    )}
+                    <Skeleton
+                      paragraph={false}
+                      style={{ width: "100%" }}
+                      rows={1}
+                      loading={searchLoading}
+                      active
+                    />
+                  </Col>
+                </Row>
+              </div>
+            </CustomFieldBox>
+
+            <CustomFieldBox title="Tax Details">
+              <Row gutter={[0, 4]}>
+                {totalValues?.map((row) => (
+                  <Col span={24} key={row.label}>
+                    <Row>
+                      <Col
+                        span={18}
+                        style={{
+                          fontSize: "0.8rem",
+                          fontWeight:
+                            totalValues?.indexOf(row) ==
+                              totalValues.length - 1 && 600,
+                        }}
+                      >
+                        {row.label}
+                      </Col>
+                      <Col span={6} className="right">
+                        {row.sign.toString() == "" ? (
+                          ""
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: "0.7rem",
                               fontWeight:
                                 totalValues?.indexOf(row) ==
                                   totalValues.length - 1 && 600,
                             }}
                           >
-                            {row.label}
-                          </Col>
-                          <Col span={6} className="right">
-                            {row.sign.toString() == "" ? (
-                              ""
-                            ) : (
-                              <span
-                                style={{
-                                  fontSize: "0.7rem",
-                                  fontWeight:
-                                    totalValues?.indexOf(row) ==
-                                      totalValues.length - 1 && 600,
-                                }}
-                              >
-                                ({row.sign.toString()}){" "}
-                              </span>
-                            )}
-                            <span
-                              style={{
-                                fontSize: "0.8rem",
-                                fontWeight:
-                                  totalValues?.indexOf(row) ==
-                                    totalValues.length - 1 && 600,
-                              }}
-                            >
-                              {Number(
-                                row.values?.reduce((partialSum, a) => {
-                                  return partialSum + Number(a);
-                                }, 0)
-                              ).toFixed(2)}
-                            </span>
-                          </Col>
-                        </Row>
+                            ({row.sign.toString()}){" "}
+                          </span>
+                        )}
+                        <span
+                          style={{
+                            fontSize: "0.8rem",
+                            fontWeight:
+                              totalValues?.indexOf(row) ==
+                                totalValues.length - 1 && 600,
+                          }}
+                        >
+                          {Number(
+                            row.values?.reduce((partialSum, a) => {
+                              return partialSum + Number(a);
+                            }, 0)
+                          ).toFixed(2)}
+                        </span>
                       </Col>
-                    ))}
-                  </Row>
-                </Card>
-              </Col>
-              <Col span={24} style={{ height: "10%" }}>
-                <Button onClick={() => setUploadClicked(true)}>
-                  {" "}
-                  Upload Documents
-                </Button>
-              </Col>
-              <Modal
-                open={uplaoaClicked}
-                layout="vertical"
-                width={700}
-                title={"Upload Document"}
-                // destroyOnClose={true}
-                onCancel={() => setUploadClicked(false)}
-                onOk={() => setUploadClicked(false)}
-                // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
-              >
-                <Form
-                  initialValues={defaultValues}
-                  form={form}
-                  layout="vertical"
-                >
-                  <Card style={{ height: "20rem", overflowY: "scroll" }}>
-                    <div style={{ flex: 1 }}>
-                      <Col
-                        span={24}
-                        style={{
-                          overflowX: "hidden",
-                          overflowY: "auto",
-                        }}
-                      >
-                        <Form.List name="components">
-                          {(fields, { add, remove }) => (
-                            <>
-                              <Col>
-                                {fields.map((field, index) => (
-                                  <Form.Item noStyle>
-                                    <SingleProduct
-                                      fields={fields}
-                                      field={field}
-                                      index={index}
-                                      add={add}
-                                      form={form}
-                                      remove={remove}
-                                      // setFiles={setFiles}
-                                      // files={files}
-                                    />
-                                  </Form.Item>
-                                ))}
-                                <Row justify="center">
-                                  <Typography.Text type="secondary">
-                                    ----End of the List----
-                                  </Typography.Text>
-                                </Row>
-                              </Col>
-                            </>
-                          )}
-                        </Form.List>
-                      </Col>
-                    </div>
-                  </Card>
-                </Form>{" "}
-              </Modal>
-            </Row>
-          </Col>
-          <Col
-            span={18}
-            style={{ height: "85%", padding: 0, border: "1px solid #eeeeee " }}
-          >
-            {" "}
-            {pageLoading || (loading1("select") && <Loading />)}
-            <FormTable columns={columns} data={poData?.materials} />
-          </Col>
+                    </Row>
+                  </Col>
+                ))}
+              </Row>
+            </CustomFieldBox>
 
+            <div>
+              <CustomButton
+                size="small"
+                title={"Upload Documents "}
+                onclick={() => setUploadClicked(true)}
+              />
+            </div>
+          </div>
+          <Modal
+            open={uplaoaClicked}
+            layout="vertical"
+            width={700}
+            title={"Upload Document"}
+            // destroyOnClose={true}
+            onCancel={() => setUploadClicked(false)}
+            onOk={() => setUploadClicked(false)}
+            footer={
+              <div className="flex justify-end " style={{ gap: "1rem" }}>
+                <CustomButton
+                  size="small"
+                  title={"Close"}
+                  onclick={() => setUploadClicked(false)}
+                  variant="text"
+                />
+                <CustomButton
+                  size="small"
+                  title={"Upload"}
+                  onclick={() => setUploadClicked(false)}
+                />
+              </div>
+            }
+            // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
+          >
+            <Form initialValues={defaultValues} form={form} layout="vertical">
+              <Card
+                style={{
+                  height: "20rem",
+                  overflowY: "scroll",
+                  backgroundColor: "#e0f2f181",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <Col
+                    span={24}
+                    style={{
+                      overflowX: "hidden",
+                      overflowY: "auto",
+                    }}
+                  >
+                    <Form.List name="components">
+                      {(fields, { add, remove }) => (
+                        <>
+                          <Col>
+                            {fields.map((field, index) => (
+                              <Form.Item noStyle>
+                                <SingleProduct
+                                  fields={fields}
+                                  field={field}
+                                  index={index}
+                                  add={add}
+                                  form={form}
+                                  remove={remove}
+                                  // setFiles={setFiles}
+                                  // files={files}
+                                />
+                              </Form.Item>
+                            ))}
+                            <Row justify="center">
+                              <Typography.Text type="secondary">
+                                ----End of the List----
+                              </Typography.Text>
+                            </Row>
+                          </Col>
+                        </>
+                      )}
+                    </Form.List>
+                  </Col>
+                </div>
+              </Card>
+            </Form>{" "}
+          </Modal>{" "}
+          <div
+            style={{
+              height: "calc(100vh - 225px)",
+              padding: 0,
+              border: "1px solid #eeeeee ",
+              overflowY: "auto",
+            }}
+          >
+            {pageLoading || (loading1("select") && <Loading />)}
+            <FormTable columns={columns} data={poData?.materials} />{" "}
+          </div>
           <NavFooter
             backFunction={backFunction}
             hideHeaderMenu
@@ -1417,8 +1372,9 @@ export default function MaterialInWithPO({}) {
               back: !poData.headers,
             }}
           />
-        </Row>
+        </div>
       )}
+
       {materialInSuccess && (
         <SuccessPage
           newMinFunction={newMinFunction}
