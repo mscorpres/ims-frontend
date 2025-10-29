@@ -33,6 +33,9 @@ import {
   downloadComponentMaster,
   downloadElectronicReport,
 } from "../../../../api/master/component.ts";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import { renderIcon } from "../../../../new/components/layout/Sidebar/iconMapper";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
@@ -130,7 +133,6 @@ const Material = () => {
   };
 
   const getUomOptions = async () => {
-    console.log("here");
     try {
       setLoading("fetch");
       const response = await imsAxios.post("uom/uomSelect2");
@@ -142,7 +144,6 @@ const Material = () => {
           value: row.id,
         }));
 
-        console.log("arr", arr);
         setUomOptions(arr);
       } else {
         toast.error(data.message.msg);
@@ -190,9 +191,6 @@ const Material = () => {
 
   const modalConfirmMaterial = async () => {
     const headerValues = await headerForm.validateFields();
-    // console.log("headerValues", headerValues);
-    console.log("attributeValues", attributeValues);
-    console.log("manfCode", manfCode);
     // return;
     let atrrRes = {
       multipler: attributeValues?.multiplier,
@@ -305,7 +303,6 @@ const Material = () => {
       "/component/addComponent/verify",
       payload
     );
-    console.log("response", response);
     const { data } = response;
     if (data.code === 200) {
       Modal.confirm({
@@ -318,31 +315,13 @@ const Material = () => {
       });
     } else {
       toast.error(data.message.msg);
-      // Modal.confirm({
-      //   title: "Are you sure you want to submit this Material?",
-      //   content: `${data.message.msg}`,
-      //   // onOk() {
-      //   //   submitHandler(payload);
-      //   // },
-      //   onCancel() {},
-      // });
     }
-  };
-  const validateHandler = async () => {
-    Modal.confirm({
-      title: "Creating a new component",
-      content: "Please check all the values before proceeding",
-      okText: "Create",
-      // onOk: () => modalConfirmMaterial(payload),
-      // onOk: () => submitHandler(payload),
-    });
   };
 
   const submitHandler = async (payload) => {
     try {
       setLoading("submit");
       // return;
-      console.log("Here in submit handler");
       const response = await imsAxios.post(
         "/component/addComponent/save",
         payload
@@ -464,7 +443,6 @@ const Material = () => {
   }, [selectedCategory]);
   const typeIs = headerForm.getFieldValue("attrCategory");
 
-  // console.log("generatedCompName", generatedCompName);
   useEffect(() => {
     if (generatedCompName) {
       setGeneratedCompName(generatedCompName);
@@ -486,7 +464,10 @@ const Material = () => {
         >
           <Row gutter={[6, 6]}>
             <Col span={24}>
-              <Card size="small" title="Add New Component">
+              <CustomFieldBox
+                title="Add New Component"
+                subtitle="Add a new component to the system"
+              >
                 <Form
                   form={headerForm}
                   initialValues={headerInitialValues}
@@ -615,39 +596,47 @@ const Material = () => {
                     <Col span={24}>
                       <Row justify="end">
                         <Flex wrap="wrap" gap={10}>
-                          <MyButton
+                          <CustomButton
                             loading={loading1("download")}
-                            text="Electronic Report"
-                            variant="downloadSample"
-                            onClick={handleDownloadElectronicReport}
+                            variant="text"
+                            onclick={handleDownloadElectronicReport}
+                            title="Electronic Report"
+                            endicon={renderIcon("DownloadIcon")}
+                            size="small"
                           />
-                          <MyButton
+                          <CustomButton
                             loading={loading1("download")}
-                            text="Master"
-                            variant="downloadSample"
-                            onClick={handleDownloadMaster}
+                            variant="text"
+                            onclick={handleDownloadMaster}
+                            title="Master"
+                            endicon={renderIcon("DownloadIcon")}
+                            size="small"
                           />
-                          <MyButton
-                            variant="reset"
-                            onClick={resetConfirmHandler}
+                          <CustomButton
+                            variant="outlined"
+                            onclick={resetConfirmHandler}
+                            title="Reset"
+                            endicon={renderIcon("ResetIcon")}
                           />
-                          <MyButton
+                          <CustomButton
                             variant="submit"
-                            text="Create"
-                            onClick={modalConfirmMaterial}
+                            onclick={modalConfirmMaterial}
+                            title="Create"
+                            endicon={renderIcon("CheckCircleOutlined")}
                           />
                         </Flex>
                       </Row>
                     </Col>
                   </Row>
                 </Form>
-              </Card>
+              </CustomFieldBox>
             </Col>
+
             <Col span={24}>
               <Row>
                 <Col span={24}>
-                  <Card
-                    size="small"
+                  
+                  <CustomFieldBox
                     title={`HSN Codes : ${hsnRows.length} Codes Added`}
                   >
                     <Form
@@ -681,7 +670,12 @@ const Material = () => {
                           </Form.Item>
                         </Col>
                         <Col span={2}>
-                          <MyButton variant="add" onClick={addHsnRow} />
+                          <CustomButton
+                            endicon={renderIcon("PlusIcon")}
+                            onclick={addHsnRow}
+                            title="Add"
+                            size="small"
+                          />
                         </Col>
                       </Row>
                     </Form>
@@ -754,7 +748,7 @@ const Material = () => {
                         </Row>
                       </Col>
                     )}
-                  </Card>
+                  </CustomFieldBox>
                 </Col>
               </Row>
             </Col>
@@ -768,13 +762,14 @@ const Material = () => {
             setComponents={setComponents}
             setLoading={setLoading}
             loading={loading}
+            setShowImages={setShowImages}
+            setUploadingImage={setUploadingImage}
           />
         </Col>
       </Row>
       <MaterialUpdate
         materialModal={materialModal}
         setMaterialModal={setMaterialModal}
-        // allComponent={allComponent}
       />
       <CategoryModal
         show={showAttributesModal}
@@ -798,11 +793,6 @@ const Material = () => {
 };
 
 export default Material;
-
-const categoryOptions = [
-  { text: "Component", value: "C" },
-  { text: "Other", value: "O" },
-];
 
 const hsnInitialValues = {
   code: "",
@@ -864,7 +854,6 @@ const CategoryModal = ({
   var result;
   const value = Form.useWatch("value", form);
   const getCategoryFields = async (categoryKey) => {
-    console.log("category key", categoryKey.label);
     setSelectedCategory(categoryKey);
     try {
       setLoading("fetch");
@@ -918,7 +907,6 @@ const CategoryModal = ({
             },
           ]);
         }
-        console.log("fieldsss is here", fieldSelectOptions);
       });
     } catch (error) {}
     setLoading(false);
@@ -935,10 +923,8 @@ const CategoryModal = ({
         getWholeNumber(value, decimalVal);
       } else {
         let newNum = removeAndCountTrailingZeros(value);
-        // console.log("newNum", newNum);
         getAlpha = removeTrailingZerosUsingSwitch(newNum.count);
         extractednum = newNum.stringWithoutTrailingZeros;
-        // console.log("extractednum", extractednum);
       }
     }
   };
@@ -947,33 +933,26 @@ const CategoryModal = ({
     return num.toString().padStart(5, "0");
   }
   const getComponentValueForName = (value) => {
-    // console.log("value===========", value);
     let componentVal;
     let categorSnip = selectedCategory?.label?.toUpperCase();
     let newSnip = categorSnip?.substr(0, 3);
     if (newSnip != "CAP") {
       if (value <= 999) {
-        // console.log("R", value + "R");
         componentVal = value + "R";
       } else if (value <= 999999 && value >= 1000) {
         componentVal = +Number(value / 1000).toFixed(1) + "K";
-        // console.log("K", componentVal + "K");
       } else if (value > 1000000) {
         componentVal = +Number(value / 1000000).toFixed(1) + "M";
-        // console.log("M", componentVal + "M");
       }
     } else {
       componentVal = value;
     }
     setValForName(componentVal);
-    // console.log("componentVal", componentVal);
     return componentVal;
   };
   //generate code
   const getUniqueNo = async (compCode) => {
-    // console.log("alpha getUniqueNo", alpha);
     let values = await form.validateFields();
-    // console.log("valuesvalues-----------", values);
     setAttributeValues(values);
     //
     let makingString;
@@ -982,11 +961,8 @@ const CategoryModal = ({
     } else {
       makingString = extractednum + alpha;
     }
-    // console.log("makingString", makingString);
-
     let categorSnip = selectedCategory.label.toUpperCase();
     let newSnip = categorSnip.substr(0, 3);
-    // console.log("categorSnip=", newSnip);
     if (newSnip == "CAP") {
       let compName =
         values.package_size.key +
@@ -1004,7 +980,6 @@ const CategoryModal = ({
         "-" +
         "Capacitor";
 
-      console.log("compName", compCode);
       setGeneratedCompName(compName);
 
       let filledFields =
@@ -1014,15 +989,10 @@ const CategoryModal = ({
         "(" +
         values.package_size.key +
         ")" +
-        // values.power_rating.value +
         values.tolerance.key +
         values.voltage.key;
-      // console.log("filledFields", filledFields);
-
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
-
-        // console.log("!codeValue!", filledFields + codeValue + values.si_unit);
         setUniqueId(filledFields + codeValue + values.si_unit.key);
       }
       //the Filledfields are change
@@ -1041,7 +1011,6 @@ const CategoryModal = ({
         "-" +
         "Resistor";
 
-      console.log("compName", compCode);
       setGeneratedCompName(compName);
       headerForm.setFieldValue("componentname", compName);
 
@@ -1054,25 +1023,16 @@ const CategoryModal = ({
         ")" +
         values.power_rating.key +
         values.tolerance.key;
-      // console.log("filledFields", filledFields);
+     
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
-        // console.log("codeValue ", filledFields, codeValue);
-
         setUniqueId(filledFields + codeValue);
-        // console.log("codeValue ", filledFields + codeValue);
       }
     } else if (newSnip == "IND") {
-      // console.log(
-      //   " values.current_SI_Unit.label",
-      //   values.current_SI_Unit.label.split(" ")
-      // );
       let siUnit = values.current_SI_Unit.label.split(" ")[0];
       let siVal = values.current_SI_UnitText;
       let fqVal = values.frequencyText;
-      console.log("siUnit", siUnit);
-      console.log("siVal", siVal);
       let compName =
         values.mounting_style.label +
         "-" +
@@ -1086,7 +1046,6 @@ const CategoryModal = ({
         siVal +
         siUnit;
 
-      // console.log("compName", compCode);
       setGeneratedCompName(compName);
       headerForm.setFieldValue("componentname", compName);
 
@@ -1099,20 +1058,13 @@ const CategoryModal = ({
         ")" +
         values.power_rating?.key +
         values.tolerance.key;
-      // console.log("filledFields", filledFields);
 
       if (makingString.length <= 5) {
         let codeValue = zeroPad(makingString);
         setUniqueId(filledFields + codeValue);
-        // console.log("codeValue ", filledFields + codeValue);
       }
     }
-    // console.log("valuesvalues=", values);
-    // //
-    else {
-      console.log("makingString greater than 5  =", makingString);
-    }
-  };
+   };
 
   //without decimal value functions
   function addZerosToTen(numZeros) {
@@ -1120,7 +1072,6 @@ const CategoryModal = ({
     return parseInt(result);
   }
   function getLetterFromNumber(number) {
-    console.log("number number", number);
     const mapping = {
       1: "A",
       10: "B",
@@ -1138,19 +1089,13 @@ const CategoryModal = ({
     const result = Object.entries(mapping).find(
       ([key, value]) => parseInt(key) === number
     );
-    console.log("resultresult", result);
     form.setFieldValue("multiplier", result[1]);
     return result ? result[1] : "Number not found";
   }
   function removeTrailingZerosUsingSwitch(numbers, letter) {
-    let numberpowerOfTen;
-
     let number = addZerosToTen(numbers);
-    console.log("number ->", number);
     alpha = getLetterFromNumber(number);
-    console.log("apl", alpha);
     setAttributeValues({ multipler: alpha });
-    // form.setFieldValue("multiplier", alpha);
   }
   function removeAndCountTrailingZeros(number) {
     // Convert number to string
@@ -1210,22 +1155,17 @@ const CategoryModal = ({
   const getWholeNumber = (num, decimalVal) => {
     wholeVal = num * decimalVal;
     wholeVal = Number(wholeVal).toFixed(0);
-    // console.log("num is here", wholeVal);
   };
   // ---
   useEffect(() => {
     if (value) {
       let a = getComponentValueForName(value);
-      // console.log("value a", a);
-      // console.log("valueis added", value);
-      // console.log("alpha added", alpha);
       checkDecimal(value);
       getUniqueNo(a);
     }
   }, [value, alpha]);
   useEffect(() => {
     let a = getComponentValueForName(value);
-    // console.log("value a", a);
     setValForName(a);
   }, [value]);
 
@@ -1245,7 +1185,6 @@ const CategoryModal = ({
     }
   };
   const sortedFields = [...fields].sort((a, b) => {
-    // console.log("ff", fields);
     if (a.type === b.type) {
       return a.label.localeCompare(b.label);
     }
@@ -1255,7 +1194,6 @@ const CategoryModal = ({
     if (show) {
       setStage(0);
       getCategoryFields(show.selectedCategory);
-      console.log("show.selectedCategory", show.selectedCategory);
       setTypeOfComp(show.selectedCategory);
     }
   }, [show]);
@@ -1291,27 +1229,20 @@ const CategoryModal = ({
       }
     >
       <Row>
-        {" "}
-        {/* <Divider /> */}
         <Col span={24}>
           <Flex justify="center" gap={5}>
             <Typography.Text underline strong>
               Selected Category: {selectedCategory?.label}
             </Typography.Text>
-
-            {/* <Typography.Text>{show?.selectedCategory?.label} </Typography.Text> */}
           </Flex>
         </Col>
         <Divider />
         <Col span={24} style={{ marginTop: 10 }}>
           <Row>
             <Col span={14}>
-              {/* <Flex justify="center"> */}
               <Typography.Text strong>Unique Id: {uniqueId}</Typography.Text>
             </Col>
             <Col span={10}>
-              {/* <Flex justify="center"> */}
-              {/* <Typography.Text strong>Manufacturing Code: {uniqueId}</Typography.Text> */}
               <Input
                 placeholder="Manufacturing Code"
                 onChange={(e) => setManfCode(e.target.value)}
@@ -1319,7 +1250,6 @@ const CategoryModal = ({
             </Col>
           </Row>
         </Col>
-        {/* <Divider /> */}
         <Col span={24} style={{ marginTop: 10 }}>
           <Typography.Text strong>
             Component Name: {generatedCompName}
