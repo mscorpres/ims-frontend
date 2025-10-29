@@ -18,7 +18,7 @@ import {
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import Loading from "../../../../Components/Loading";
-
+import UploadIcon from "@mui/icons-material/Upload";
 import MySelect from "../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import CurrenceModal from "../../../../Components/CurrenceModal";
@@ -50,6 +50,8 @@ import {
 import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 import MyDataTable from "../../../../Components/MyDataTable.jsx";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 
 const defaultValues = {
   vendorType: "v01",
@@ -188,7 +190,6 @@ export default function MaterialInWithoutPO() {
         "submit"
       );
     }
-    console.log("fileResponse-------", fileResponse);
 
     if (fileResponse?.success || vendorType == "p01") {
       fileName = fileResponse?.data?.data;
@@ -197,7 +198,6 @@ export default function MaterialInWithoutPO() {
         () => materialInWithoutPo(values, fileName, vendorType),
         "submit"
       );
-      console.log("response-------", response);
       if (response.success) {
         // const { data } = response.data;
         if (response.data.code == 200) {
@@ -221,7 +221,6 @@ export default function MaterialInWithoutPO() {
           setPreviewRows([]);
           setPreview(false);
         } else {
-          // console.log("r/esponse.data.message", response.data.message);
           toast.error(response.data.message);
         }
       } else {
@@ -237,7 +236,6 @@ export default function MaterialInWithoutPO() {
     );
     let arr = [];
     if (response.success) {
-      // console.log("Respomse", response);
       if (response.data[0].piaStatus == "Y") {
         toast.info(
           `PIA Status is enabled for ${response.data[0].newPart} Part Code.`
@@ -408,18 +406,7 @@ export default function MaterialInWithoutPO() {
       }
     }
   };
-  const vendorResetFunction = () => {
-    // let obj = {
-    //   vendorType: "v01",
-    //   vendorName: "",
-    //   vendorBranch: "",
-    //   gstin: "",
-    //   vendorAddress: "",
-    // };
-    // // setVendorDetails(obj);
-    // setShowResetConfirm(false);
-    // form.setFieldsValue(obj);
-  };
+  const vendorResetFunction = () => {};
   const calculation = (rowId, obj) => {
     const { gstRate, gstType, qty, rate, exchangeRate, currency } = obj;
     const inrValue = getInt(qty) * getInt(rate) * getInt(exchangeRate ?? 1);
@@ -445,7 +432,6 @@ export default function MaterialInWithoutPO() {
       currency === "364907247" ? 0 : foreignValue
     );
   };
-  // const columns = [
   //   {
   //     headerName: <CommonIcons action="addRow" onClick={addRow} />,
   //     width: 40,
@@ -985,14 +971,7 @@ export default function MaterialInWithoutPO() {
     );
     if (response?.data?.status == "success") {
       let { data } = response;
-      let rows = data.data;
-      // const formattedRows = data.data.rows.map((row) => {
-      //   let rowObject = {};
-      //   data.data.headers.forEach((header, index) => {
-      //     rowObject[header] = row[index];
-      //   });
-      //   return rowObject;
-      // });
+
       const formattedHeaders = data.data.headers.map((header) =>
         header
           .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
@@ -1037,7 +1016,9 @@ export default function MaterialInWithoutPO() {
     }
   };
   return (
-    <div style={{ height: "97%", overflow: "hidden", padding: 10 }}>
+    <div
+      style={{ height: "calc(100vh - 65px)", overflow: "hidden", padding: 10 }}
+    >
       {showCurrency != null && (
         <CurrenceModal
           showCurrency={showCurrency}
@@ -1088,11 +1069,17 @@ export default function MaterialInWithoutPO() {
           >
             <Col
               span={6}
-              style={{ height: "100%", overflowY: "auto", overflowX: "hidden" }}
+              style={{
+                height: "calc(100% - 25px)",
+                overflowY: "auto",
+                overflowX: "hidden",
+                paddingBottom: 4,
+                paddingRight: 6,
+              }}
             >
               {loading("fetch") && <Loading />}
               <Flex vertical gap={6}>
-                <Card size="small">
+                <CustomFieldBox title="Material Inward Details">
                   <Row gutter={4}>
                     <Col span={24}>
                       <Form.Item name="vendorType" label="Vendor Type">
@@ -1271,53 +1258,26 @@ export default function MaterialInWithoutPO() {
                       }}
                     >
                       <Col>
-                        <MyButton
-                          variant="upload"
-                          text="Documents"
-                          onClick={() => setUploadClicked(true)}
-                        ></MyButton>
+                        <CustomButton
+                          size="small"
+                          title={"Documents"}
+                          starticon={<UploadIcon fontSize="small" />}
+                          onclick={() => setUploadClicked(true)}
+                        />
                       </Col>
                       <Col>
-                        <MyButton
-                          variant="upload"
-                          text="Excel"
-                          onClick={() => setOpen(true)}
-                        >
-                          Excel
-                        </MyButton>
+                        <CustomButton
+                          size="small"
+                          title={"Excel"}
+                          starticon={<UploadIcon fontSize="small" />}
+                          onclick={() => setOpen(true)}
+                        />
                       </Col>
                     </Row>
                   </Row>
-                </Card>
-                {/* <Card size="small">
-                  <Form.Item label="Invoice / Document">
-                    <Form.Item
-                      name="invoice"
-                      valuePropName="file"
-                      getValueFromEvent={(e) => e?.file}
-                      noStyle
-                    >
-                      <Upload.Dragger
-                        name="invoice"
-                        beforeUpload={() => false}
-                        maxCount={1}
-                        multiple={false}
-                      >
-                        <p className="ant-upload-drag-icon">
-                          <InboxOutlined />
-                        </p>
-                        <p className="ant-upload-text">
-                          Click or drag file to this area to upload
-                        </p>
-                        <p className="ant-upload-hint">
-                          Upload vendor invoice / Document.
-                        </p>
-                      </Upload.Dragger>
-                    </Form.Item>
-                  </Form.Item>
-                </Card> */}
+                </CustomFieldBox>
 
-                <Card size="small">
+                <CustomFieldBox title="Total Values">
                   <Row gutter={[0, 4]}>
                     {totalValues?.map((row) => (
                       <Col span={24} key={row.label}>
@@ -1368,11 +1328,16 @@ export default function MaterialInWithoutPO() {
                       </Col>
                     ))}
                   </Row>
-                </Card>
+                </CustomFieldBox>
               </Flex>
             </Col>
             <Col style={{ height: "100%" }} span={18}>
-              <div style={{ height: "98%", border: "1px solid #EEEEEE" }}>
+              <div
+                style={{
+                  height: "calc(100% - 20px)",
+                  border: "1px solid #EEEEEE",
+                }}
+              >
                 {pageLoading && <Loading />}
                 <FormTable2
                   form={form}

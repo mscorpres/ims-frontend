@@ -1,17 +1,13 @@
-
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import React from "react";
 
-
-
-
-const CustomFieldBox = ({ title, subtitle, children}) => {
+const CustomFieldBox = ({ title, subtitle, children }) => {
   return (
-    <Card sx={{ flexGrow: 1, flexShrink: 0 }} >
+    <Card sx={{ flexGrow: 0, flexShrink: 0, backgroundColor: "#e0f0ef5b" }}>
       <CardHeader
         title={
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-           {title}
+            {title}
           </Typography>
         }
         subheader={
@@ -19,10 +15,9 @@ const CustomFieldBox = ({ title, subtitle, children}) => {
             {subtitle}
           </Typography>
         }
-        className="bg-[#e0f2f1] px-[10px] py-[5px]"
-        
+        className="bg-[#29a39983] px-[10px] py-[5px]"
       />
-      <CardContent >{children}</CardContent>
+      <CardContent>{children}</CardContent>
     </Card>
   );
 };

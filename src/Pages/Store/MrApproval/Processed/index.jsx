@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, Col, Form, Radio, Row, Space } from "antd";
 import useLoading from "../../../../hooks/useLoading";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
@@ -6,12 +6,23 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
 import MyButton from "../../../../Components/MyButton";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import MyDataTable from "../../../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
 import { toast } from "react-toastify";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import ViewMRTransaction from "../../ApprovedTransaction/ViewMRTransaction";
 import { downloadCSV } from "../../../../Components/exportToCSV";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { Visibility } from "@mui/icons-material";
+import { getMrRequestColumns } from "../columns";
 
 const ProccessedMrRequest = () => {
   const [loading, setLoading] = useLoading();
@@ -72,61 +83,92 @@ const ProccessedMrRequest = () => {
   const handleDownload = () => {
     downloadCSV(rows, columns, "MR Approved Requests");
   };
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 20,
-    getActions: ({ row }) => [
-      // VIEW Icon
-      <GridActionsCellItem
-        showInMenu
-        // disabled={disabled}
+
+  const columns = useMemo(() => getMrRequestColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading["fetch"]  ? "calc(100vh - 240px)" : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No MR Requests Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading["fetch"]  ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Visibility />}
+        key="view"
         label="View"
         onClick={() => {
-          setShowDetails(row.requestId);
+          closeMenu?.();
+          setShowDetails(row?.original?.requestId);
         }}
+        table={table}
+        disabled={viewLoading}
       />,
     ],
-  };
+  });
 
-  useEffect(() => {
-    console.log("this is the show details", showDetails);
-  }, [showDetails]);
   return (
-    <Row gutter={6} style={{ height: "95%", padding: 10 }}>
-      <Col span={4}>
-        <Card size="small" title="Filters">
-          <Form form={filterForm} layout="vertical">
-            <Form.Item name="user" label="User">
-              <MyAsyncSelect
-                selectLoading={loading("select")}
-                onBlur={() => setAsyncOptions([])}
-                loadOptions={getUser}
-                optionsState={asyncOptions}
-              />
-            </Form.Item>
-            <Form.Item name="date" label="Select Date">
-              <SingleDatePicker
-                setDate={(value) => filterForm.setFieldValue("date", value)}
-              />
-            </Form.Item>
+    <div className="grid grid-cols-[1fr_3fr] " style={{ gap: 12, padding: 12 }}>
+      <CustomFieldBox title="Filters">
+        <Form form={filterForm} layout="vertical">
+          <Form.Item name="user" label="User">
+            <MyAsyncSelect
+              selectLoading={loading("select")}
+              onBlur={() => setAsyncOptions([])}
+              loadOptions={getUser}
+              optionsState={asyncOptions}
+            />
+          </Form.Item>
+          <Form.Item name="date" label="Select Date">
+            <SingleDatePicker
+              setDate={(value) => filterForm.setFieldValue("date", value)}
+            />
+          </Form.Item>
 
-            <Row justify="end">
-              <Space>
-                <CommonIcons action="downloadButton" onClick={handleDownload} />
-                <MyButton
-                  variant="search"
-                  loading={loading("fetch")}
-                  onClick={getRows}
-                />
-              </Space>
-            </Row>
-          </Form>
-        </Card>
-      </Col>
-      <Col span={10}>
-        <MyDataTable data={rows} columns={[actionColumn, ...columns]} />
-      </Col>
+          <Row justify="end">
+            <Space>
+              <CommonIcons action="downloadButton" onClick={handleDownload} />
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search />}
+                loading={loading("fetch")}
+                onclick={getRows}
+              />
+            </Space>
+          </Row>
+        </Form>
+      </CustomFieldBox>
+
+      {/* <MyDataTable data={rows} columns={[actionColumn, ...columns]} /> */}
+      <MaterialReactTable table={table} />
+
       {showDetails && (
         <Col span={10} style={{ height: "100%", overflowY: "hidden" }}>
           <Card
@@ -146,42 +188,8 @@ const ProccessedMrRequest = () => {
           </Card>
         </Col>
       )}
-    </Row>
+    </div>
   );
 };
 
 export default ProccessedMrRequest;
-
-const columns = [
-  {
-    headerName: "#",
-    field: "id",
-    width: 30,
-  },
-  {
-    headerName: "Request Date",
-    field: "requestDate",
-    minWidth: 150,
-    flex: 1,
-  },
-  {
-    headerName: "Request ID",
-    field: "requestId",
-    minWidth: 150,
-    flex: 1,
-    renderCell: ({ row }) => (
-      <ToolTipEllipses text={row.requestId} copy={true} />
-    ),
-  },
-  {
-    headerName: "RM qty",
-    field: "rmQty",
-    width: 100,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.rmQty} />,
-  },
-  {
-    headerName: "Pick Location",
-    field: "pickLocation",
-    width: 120,
-  },
-];

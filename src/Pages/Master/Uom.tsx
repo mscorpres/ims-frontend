@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, Form, Input, Row, Space } from "antd";
 import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
-import MyButton from "../../Components/MyButton";
 import useApi from "../../hooks/useApi.ts";
 import { createUOM, getUOMList } from "../../api/master/uom";
 import { ResponseType } from "../../types/general.ts";
@@ -107,7 +106,9 @@ const Uom = () => {
       <div>
         <Typography variant="subtitle1">Create UOM</Typography>
 
-        <Card size="small">
+        <Card size="small" style={{
+          backgroundColor: "#e0f2f1",
+        }}>
           <Form form={form} layout="vertical">
             <Form.Item name="name" label="Unit">
               <Input />

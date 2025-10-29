@@ -187,6 +187,13 @@ const AddVendorSideBar = ({ setOpen, open }) => {
       onClose={() => setOpen(null)}
       open={open}
       bodyStyle={{ paddingTop: 5 }}
+      styles={{
+        header: {
+          backgroundColor: "#e0f2f1",
+
+          fontWeight: 600,
+        },
+      }}
     >
       <Form style={{ height: "100%" }} form={addVendorForm} layout="vertical">
         <div
@@ -519,26 +526,14 @@ const AddVendorSideBar = ({ setOpen, open }) => {
         <Row justify="end">
           <Col>
             <Space>
-              {/* <Button onClick={reset}>Reset</Button> */}
-              <CustomButton size="small" title={"Reset"} onclick={reset} variant="outlined" />
-              {/* <Popconfirm
-                title="Submit Confirm"
-                description="Are you sure you want to create this vendor?"
-                onConfirm={() => {}}
-                okText="Yes"
-                cancelText="No"
-                // okButtonProps={{ loading: submitLoading }}
-              > */}
-              {/* <Button
-                // htmlType="submit"
-                // loading={submitLoading}
-                onClick={showModal}
-                type="primary"
-              >
-                Submit
-              </Button> */}
+              <CustomButton
+                size="small"
+                title={"Reset"}
+                onclick={reset}
+                variant="outlined"
+              />
+
               <CustomButton size="small" title={"Submit"} onclick={showModal} />
-              {/* </Popconfirm> */}
             </Space>
           </Col>
         </Row>

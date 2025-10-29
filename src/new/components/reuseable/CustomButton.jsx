@@ -1,7 +1,6 @@
 import { Button, CircularProgress } from "@mui/material";
 import React, { FC } from "react";
 
-
 const CustomButton = ({
   title,
   starticon,

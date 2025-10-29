@@ -8,6 +8,8 @@ import MySelect from "../../../../Components/MySelect";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import Loading from "../../../../Components/Loading";
 import useLoading from "../../../../hooks/useLoading";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
 
 const RequestApproveModal = ({ show, hide, getRows }) => {
   const [form] = Form.useForm();
@@ -150,7 +152,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         component: values.component,
         remark: values.remarks,
       };
-      link = "/storeApproval/AllowComponentsCancellation"; 
+      link = "/storeApproval/AllowComponentsCancellation";
     }
 
     Modal.confirm({
@@ -226,24 +228,36 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
       open={show}
       width="70vw"
       centered={true}
-      okButtonProps={{
-        disabled: !action,
-      }}
-      okText="Submit"
-      cancelText="Back"
-      onOk={validateHandler}
-      confirmLoading={loading("submit")}
+      // okButtonProps={{
+      //   disabled: !action,
+      // }}
+      // okText="Submit"
+      // cancelText="Back"
+      // onOk={validateHandler}
+      // confirmLoading={loading("submit")}
       onCancel={hide}
+      footer={
+        <Flex justify="end" gap={10}>
+          {" "}
+          <CustomButton
+            title={"Reset"}
+            variant="outlined"
+            size="small"
+            onclick={hide}
+          />
+          <CustomButton
+            title={"Submit"}
+            size="small"
+            onclick={validateHandler}
+            loading={loading("submit")}
+          />
+        </Flex>
+      }
     >
       <Form layout="vertical" form={form} initialValues={initialValues}>
-        <Row gutter={6}>
-          <Col span={4}>
-            <Card
-              size="small"
-              title="Request Details"
-              style={{ height: "100%" }}
-              bodyStyle={{ height: "95%" }}
-            >
+      
+           <div className="grid grid-cols-[1fr_2fr_3fr] " style={{ gap: 12 }}>
+            <CustomFieldBox title={"Request Details"}>
               <Row gutter={[6, 6]}>
                 <Col span={24}>
                   <Typography.Text strong type="secondary">
@@ -283,15 +297,9 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   )}
                 </Col>
               </Row>
-            </Card>
-          </Col>
-          <Col span={10}>
-            <Card
-              size="small"
-              style={{ height: "100%" }}
-              bodyStyle={{ height: "100%" }}
-              title="Request Components"
-            >
+            </CustomFieldBox>
+         
+            <CustomFieldBox title={"Request Components"}>
               <Flex
                 vertical
                 style={{ height: "90%" }}
@@ -316,13 +324,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                     overflow: "hidden",
                   }}
                 >
-                  <div
-                    style={{
-                      flex: 1,
-                      // height: "100%",
-                      overflow: "auto",
-                    }}
-                  >
+              
                     <Form.Item
                       name="component"
                       label="Select Part Code"
@@ -348,14 +350,13 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                         </Row>
                       </Radio.Group>
                     </Form.Item>
-                  </div>
+              
                 </Flex>
               </Flex>
-            </Card>
-          </Col>
-
-          <Col span={10}>
-            <Card size="small" title="Component Transfer Details">
+            </CustomFieldBox>
+          
+          
+            <CustomFieldBox title={"Component Transfer Details"}>
               <Row justify="center" gutter={6}>
                 <Col span={24} style={{ marginBottom: 10 }}>
                   <Flex justify="end">
@@ -396,7 +397,6 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   )}
                   <Divider />
                 </Col>
-              
 
                 <Col span={8}>
                   <Typography.Text style={{ fontSize: 12 }} strong>
@@ -415,7 +415,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   <Divider />
                 </Col>
                 <Col span={8}>
-                <Typography.Text style={{ fontSize: 12 }} strong>
+                  <Typography.Text style={{ fontSize: 12 }} strong>
                     Weighted Average Rate
                   </Typography.Text>
                   <br />
@@ -425,7 +425,6 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   {!loading("fetchStock") && (
                     <Typography.Text style={{ fontSize: 12 }}>
                       {weightedRate ?? 0}{" "}
-                      
                     </Typography.Text>
                   )}
                   <Divider />
@@ -458,9 +457,8 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   </Form.Item>
                 </Col>
               </Row>
-            </Card>
-          </Col>
-        </Row>
+            </CustomFieldBox>
+         </div>
       </Form>
     </Modal>
   );

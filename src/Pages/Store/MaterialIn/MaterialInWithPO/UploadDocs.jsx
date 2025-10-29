@@ -1,6 +1,6 @@
-import React from "react";
-import { Button, Drawer, Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+
+import { Upload } from "antd";
+import UploadIcon from '@mui/icons-material/Upload';
 import CustomButton from "../../../../new/components/reuseable/CustomButton";
 
 export default function UploadDocs({ files, setFiles, disable, size }) {
@@ -33,7 +33,7 @@ export default function UploadDocs({ files, setFiles, disable, size }) {
       </Button> */}
       <CustomButton
         title="Upload File"
-        starticon={<UploadOutlined />}
+        starticon={<UploadIcon fontSize="small" />}
         disabled={disable}
         size={"small"}
       />

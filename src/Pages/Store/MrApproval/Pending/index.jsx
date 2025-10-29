@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import { Row, Col, Input } from "antd";
-import MyDataTable from "../../../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import printFunction, {
   downloadFunction,
@@ -10,6 +14,11 @@ import printFunction, {
 import RequestApproveModal from "./RequestApproveModal";
 import { Form, Modal } from "antd/es";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { getMrPendingColumns } from "../columns";
+import { Download, Print, Cancel, Loop } from "@mui/icons-material";
+
 const PendingApproval = () => {
   const [loading, setLoading] = useState("fetch");
   const [rows, setRows] = useState([]);
@@ -35,7 +44,6 @@ const PendingApproval = () => {
             requestId: row.transaction_id,
             requestDate: row.insert_full_date,
           }));
-          console.log(data.response.data);
           setRows(arr);
         } else {
           toast.error(data.message.msg);
@@ -153,17 +161,89 @@ const PendingApproval = () => {
   useEffect(() => {
     getRows();
   }, []);
+
+  const columns = useMemo(() => getMrPendingColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 210px)" : "calc(100vh - 255px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Loop />}
+        key="process"
+        label="Process"
+        onClick={() => {
+          closeMenu?.();
+          setShowApproveModal({
+            requestId: row?.original?.requestId,
+          });
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download />}
+        key="download"
+        label="Download"
+        onClick={() => {
+          closeMenu?.();
+          handleDownload("download", row?.original?.requestId);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print />}
+        key="print"
+        label="Print"
+        onClick={() => {
+          closeMenu?.();
+          handleDownload("print", row?.original?.requestId);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Cancel />}
+        key="cancel"
+        label="Cancel"
+        onClick={() => {
+          closeMenu?.();
+          showSubmitConfirmationModal(row);
+        }}
+        table={table}
+      />,
+    ],
+  });
+
   return (
-    <Row
-      justify="center"
-      style={{ height: "100%", padding: 15, paddingBottom: 55 }}
-    >
-      <Col span={14}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          data={rows}
-          columns={[actionColums, ...columns]}
-        />
+    <Row justify="center" style={{ height: "100%", padding: 15 }}>
+      <Col span={24}>
+        <MaterialReactTable table={table} />
       </Col>
       <RequestApproveModal
         getRows={getRows}
@@ -175,29 +255,3 @@ const PendingApproval = () => {
 };
 
 export default PendingApproval;
-
-const columns = [
-  {
-    headerName: "#",
-    width: 30,
-    field: "id",
-  },
-  {
-    headerName: "Requested From",
-    minWidth: 20,
-    flex: 1,
-    field: "requestedFrom",
-  },
-  {
-    headerName: "Request Id",
-    width: 250,
-    minWidth: 250,
-    flex: 1,
-    field: "requestId",
-  },
-  {
-    headerName: "Request Date",
-    width: 200,
-    field: "requestDate",
-  },
-];

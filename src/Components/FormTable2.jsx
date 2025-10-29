@@ -85,7 +85,7 @@ const FormTable2 = ({
       <tbody
         style={{
           display: "block",
-          height: "99%",
+          height: "calc(100% - 40px)",
           width: "100%",
         }}
       >
@@ -239,7 +239,7 @@ const columnHeaderStyle = (col) => ({
   width: col?.width,
   flex: col?.flex && 1,
   margin: "0px 1px",
-  background: "#f5f5f5",
+  background: "#e0f0ef5b",
   borderRadius: 3,
 });
 
