@@ -3,7 +3,7 @@ import React from "react";
 
 const CustomFieldBox = ({ title, subtitle, children }) => {
   return (
-    <Card sx={{ flexGrow: 0, flexShrink: 0, backgroundColor: "#e0f0ef5b" }}>
+    <Card sx={{ flexGrow: 0, flexShrink: 0 }}>
       <CardHeader
         title={
           <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
@@ -15,7 +15,7 @@ const CustomFieldBox = ({ title, subtitle, children }) => {
             {subtitle}
           </Typography>
         }
-        className="bg-[#29a39983] px-[10px] py-[5px]"
+        className="bg-[#e0f2f1] px-[10px] py-[5px]"
       />
       <CardContent>{children}</CardContent>
     </Card>

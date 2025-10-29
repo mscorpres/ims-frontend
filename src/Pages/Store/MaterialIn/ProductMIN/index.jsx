@@ -54,6 +54,8 @@ import {
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 
 export default function ProductMIN() {
   const [showCurrency, setShowCurrenncy] = useState(null);
@@ -276,7 +278,7 @@ export default function ProductMIN() {
           };
           setSubmitLoading(true);
           let response = await executeFun(() => savefginward(final), "select");
-          const { data } = response
+          const { data } = response;
           setSubmitLoading(false);
           if (data.code == "200") {
             // setvalues(false);
@@ -301,77 +303,10 @@ export default function ProductMIN() {
         }
       } else {
         return toast.error("Please add at least one file!!");
-
-        // let final = {
-        //   companybranch: "BRMSC012",
-        //   attachment: fileData ? fileData.data : "",
-        // };
-        // let venDetails = {
-        //   companybranch: vendorDetails.companybranch,
-        //   vendor: vendorDetails.vendorName,
-        //   vendorbranch: vendorDetails.vendorBranch,
-        //   address: vendorDetails.vendorAddress,
-        //   vendortype: vendorDetails.vendorType,
-        //   ewaybill: vendorDetails.ewaybill ?? "--",
-        // };
-        // final = { ...final, ...values.componentData, ...venDetails };
-        // setSubmitLoading(true);
-
-        // const { data } = await imsAxios.post("/fgMIN/savefginward", final);
-        // setSubmitLoading(false);
-        // if (data.code == "200") {
-        //   setActiveTab("1");
-        //   setShowSuccessPage({
-        //     materialInId: data.data.txn,
-        //     vendor: { vendorname: vendorDetails.vendor },
-        //     components: materialInward.map((row, index) => {
-        //       return {
-        //         id: index,
-        //         componentName: row.component.label,
-        //         inQuantity: row.orderqty,
-        //         invoiceNumber: row.invoiceId,
-        //         invoiceDate: row.invoiceDate,
-        //         location: row.locationName,
-        //       };
-        //     }),
-        //   });
-        //   vendorResetFunction();
-        //   materialResetFunction();
-        // } else {
-        //   toast.error(data.message.msg);
-        // }
       }
     });
   };
   const validateInvoices = async (values) => {
-    // try {
-    //   const vendorValues = await form.validateFields();
-    //   setSubmitLoading(true);
-    //   const { data } = await imsAxios.post("/backend/checkInvoice", {
-    //     invoice: [vendorValues.docId],
-    //   });
-    //   if (data) {
-    //     setSubmitLoading(false);
-    //     if (data.invoicesFound) {
-    //       return Modal.confirm({
-    //         title:
-    //           "Following invoices are already found in our records, Do you still wish to continue?",
-    //         // icon: <ExclamationCircleFilled />,
-    //         content: <Row>{data.invoicesFound.map((inv) => `${inv}, `)}</Row>,
-    //         onOk() {
-    //           submitMIN(values);
-    //         },
-    //       });
-    //     } else {
-    //       submitMIN(values);
-    //     }
-    //   } else {
-    //     console.log("some error occured");
-    //   }
-    // } catch (error) {
-    // } finally {
-    //   setSubmitLoading(false);
-    // }
     submitMIN(values);
   };
   const getProductOptions = async (e) => {
@@ -676,24 +611,7 @@ export default function ProductMIN() {
     setVendorBranchOptions(arr);
     return arr;
   };
-  // const getCostCenteres = async (searchInput) => {
-  //   if (searchInput.length > 2) {
-  //     setSelectLoading(true);
-  //     const { data } = await imsAxios.post("/backend/costCenter", {
-  //       search: searchInput,
-  //     });
-  //     setSelectLoading(false);
-  //     let arr = [];
-  //     if (!data.msg) {
-  //       arr = data.map((d) => {
-  //         return { text: d.text, value: d.id };
-  //       });
-  //       setAsyncOptions(arr);
-  //     } else {
-  //       setAsyncOptions([]);
-  //     }
-  //   }
-  // };
+
   const handleFetchCostCenterOptions = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
@@ -710,21 +628,7 @@ export default function ProductMIN() {
     );
     setAsyncOptions(response.data);
   };
-  const handleProjectChange = async (value) => {
-    setPageLoading(true);
-    const response = await imsAxios.post("/backend/projectDescription", {
-      project_name: value,
-    });
-    setPageLoading(false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        form.setFieldValue("projectName", data.data.description);
-      } else {
-        toast.error(data.message.msg);
-      }
-    }
-  };
+
   const vendorResetFunction = () => {
     let obj = {
       vendorType: "v01",
@@ -803,13 +707,7 @@ export default function ProductMIN() {
       renderCell: (params) => rateCell(params, inputHandler, currencies),
       width: 180,
     },
-    // {
-    //   headerName: "Currency",
-    //   field: "currency",
-    //   sortable: false,
-    //   renderCell: (params) => currencyCell(params, inputHandler, currencies),
-    //   width: 80,
-    // },
+
     {
       headerName: "Taxable Value",
       field: "inrValue",
@@ -880,14 +778,7 @@ export default function ProductMIN() {
         locationCell(params, inputHandler, locationOptions),
       width: 150,
     },
-    // {
-    //   headerName: "Auto Consump",
-    //   field: "autoConsumption",
-    //   sortable: false,
-    //   renderCell: (params) =>
-    //     autoConsumptionCell(params, inputHandler, autoConsumptionOptions),
-    //   width: 150,
-    // },
+
     {
       headerName: "Remarks",
       field: "orderremark",
@@ -903,8 +794,7 @@ export default function ProductMIN() {
       field: "componentName",
       flex: 1,
     },
-    // { headerName: "Part No.", field: "partNo", flex: 1 },
-    // { headerName: "PO Quantity", field: "poQuantity", flex: 1 },
+
     { headerName: "In Quantity", field: "inQuantity", flex: 1 },
 
     // { headerName: "Location", field: "location", flex: 1 },
@@ -946,7 +836,13 @@ export default function ProductMIN() {
     }
   }, [vendorDetails.vendorType]);
   return (
-    <div style={{ height: "95%", overflow: "hidden" }}>
+    <div
+      style={{
+        height: "calc(100vh - 100px)",
+        overflow: "hidden",
+        marginTop: 12,
+      }}
+    >
       {/* <TaxModal bottom={-80} visibleBottom={110} totalValues={totalValues} /> */}
       {showCurrency != null && (
         <CurrenceModal
@@ -961,20 +857,38 @@ export default function ProductMIN() {
         title="Reset!"
         open={showResetConfirm}
         onCancel={() => setShowResetConfirm(false)}
-        footer={[
-          <Button key="back" onClick={() => setShowResetConfirm(false)}>
-            No
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={
-              activeTab == "1" ? vendorResetFunction : materialResetFunction
-            }
-          >
-            Yes
-          </Button>,
-        ]}
+        footer={
+          <div className="flex justify-end" style={{ gap: 8 }}>
+            <CustomButton
+              title={"No"}
+              size="small"
+              variant="text"
+              onclick={() => setShowResetConfirm(false)}
+            />
+            <CustomButton
+              title={"Yes"}
+              size="small"
+           
+              onclick={
+                activeTab == "1" ? vendorResetFunction : materialResetFunction
+              }
+            />
+          </div>
+          // ,[
+          //   <Button key="back" onClick={() => setShowResetConfirm(false)}>
+          //     No
+          //   </Button>,
+          //   <Button
+          //     key="submit"
+          //     type="primary"
+          //     onClick={
+          //       activeTab == "1" ? vendorResetFunction : materialResetFunction
+          //     }
+          //   >
+          //     Yes
+          //   </Button>,
+          // ]
+        }
       >
         <p>
           Are you sure you want to reset the entered{" "}
@@ -992,20 +906,21 @@ export default function ProductMIN() {
       />
 
       {!showSuccessPage && (
-        <Row
-          gutter={8}
-          style={{
-            height: "90%",
-            padding: "0px 10px",
-            overflowY: "auto",
-            overflowX: "hidden",
-          }}
+        <div
+          className="grid grid-cols-[1fr_3fr] h-[calc(100vh-160px)]   "
+          style={{ gap: 12, padding: 12 }}
         >
-          <Col
-            span={6}
-            style={{ height: "98%", overflowY: "auto", overflowX: "hidden" }}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              overflowY: "auto",
+              paddingBottom: 10,
+              paddingRight: 10,
+            }}
           >
-            <Card size="small" title="Customer details">
+            <CustomFieldBox title="Customer details">
               <Form
                 initialValues={vendorDetails}
                 form={form}
@@ -1029,153 +944,15 @@ export default function ProductMIN() {
                       <Input />
                     </Form.Item>
                   </Col>
-                  {/* <Col span={24}>
-                    <Form.Item
-                      name="vendorType"
-                      label="Vendor Type"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Select a vendor Type!",
-                      //   },
-                      // ]}
-                    >
-                      <MySelect size="default" options={vendorDetailsOptions} />
-                    </Form.Item>
-                  </Col> */}
+
                   <Col span={24}>
-                    <Form.Item
-                      name="customerName"
-                      label="Customer Name"
-                      // label={
-                      //   <div
-                      //     style={{
-                      //       display: "flex",
-                      //       justifyContent: "space-between",
-                      //       width: 350,
-                      //     }}
-                      //   >
-                      //     Vendor Name
-                      //     <span
-                      //       onClick={() => setShowAddVendorModal(true)}
-                      //       style={{ color: "#1890FF", cursor: "pointer" }}
-                      //     >
-                      //       Add Vendor
-                      //     </span>
-                      //   </div>
-                      // }
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Select a vendor Name!",
-                      //   },
-                      // ]}
-                    >
+                    <Form.Item name="customerName" label="Customer Name">
                       <Input />
                     </Form.Item>
                   </Col>
-                  {/* <Col span={24}>
-                    <Form.Item
-                      name="vendorBranch"
-                      label={
-                        <div
-                          style={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            width: 350,
-                          }}
-                        >
-                          Vendor Branch
-                          <span
-                            onClick={() => {
-                              vendorDetails.vendorName
-                                ? setShowBranchModal({
-                                    vendor_code: vendorDetails.vendorName,
-                                  })
-                                : toast.error("Please Select a vendor first");
-                            }}
-                            style={{ color: "#1890FF" }}
-                          >
-                            Add Branch
-                          </span>
-                        </div>
-                      }
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Select a vendor Branch!",
-                      //   },
-                      // ]}
-                    >
-                      <MySelect
-                        disabled={form.getFieldValue("vendorType") == "p01"}
-                        options={vendorBranchOptions}
-                      />
-                    </Form.Item>
-                  </Col> */}
-                  {/* <Col span={24}>
-                    <Row gutter={4}> */}
-                  {/* <Col
-                        span={
-                          form.getFieldValue("vendorType") == "j01" ? 12 : 24
-                        }
-                      >
-                        <Form.Item name="gstin" label="GSTIN">
-                          <Input size="default" disabled />
-                        </Form.Item>
-                      </Col> */}
-                  {/* {form.getFieldValue("vendorType") == "j01" && (
-                        <Col span={12}>
-                          <Form.Item name="ewaybill" label="E-Way Bill Number">
-                            <Input size="default" />
-                          </Form.Item>
-                        </Col>
-                      )}*/}
-                  {/* </Row>
-                  </Col> */}
-                  {/* <Col span={24}>
-                    <Form.Item label="Cost Center" name="costCenter">
-                      <MyAsyncSelect
-                        selectLoading={selectLoading}
-                        onBlur={() => setAsyncOptions([])}
-                        optionsState={asyncOptions}
-                        loadOptions={getCostCenteres}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24}>
-                    <Row gutter={6}>
-                      <Col span={12}>
-                        <Form.Item label="Project ID" name="projectID">
-                          <MyAsyncSelect
-                            selectLoading={selectLoading}
-                            onBlur={() => setAsyncOptions([])}
-                            optionsState={asyncOptions}
-                            loadOptions={getProjectOptions}
-                            onChange={handleProjectChange}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item label="Project Name" name="projectName">
-                          <Input size="default" disabled />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Col> */}
 
                   <Col span={24}>
-                    <Form.Item
-                      name="customerAddress"
-                      label="Customer Address"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Enter bill from address!",
-                      //   },
-                      // ]}
-                    >
+                    <Form.Item name="customerAddress" label="Customer Address">
                       <Input.TextArea
                         rows={4}
                         // disabled={form.getFieldValue("vendorType") == "p01"}
@@ -1185,22 +962,14 @@ export default function ProductMIN() {
                   </Col>
                 </Row>
               </Form>
-              <Col span={24} style={{ height: "10%" }}>
-                <Row className="material-in-upload">
-                  <UploadDocs
-                    // disable={poData?.materials?.length == 0}
-                    setFiles={setInvoices}
-                    files={invoices}
-                  />
-                </Row>
-              </Col>
-            </Card>
-            <Card
-              className="small-text"
-              size="small"
-              style={{ marginTop: 5 }}
-              title="Tax Detail"
-            >
+
+              <UploadDocs
+                // disable={poData?.materials?.length == 0}
+                setFiles={setInvoices}
+                files={invoices}
+              />
+            </CustomFieldBox>
+            <CustomFieldBox title={"Tax Detail"}>
               <Row gutter={[0, 4]}>
                 {totalValues?.map((row) => (
                   <Col span={24} key={row.label}>
@@ -1251,15 +1020,21 @@ export default function ProductMIN() {
                   </Col>
                 ))}
               </Row>
-            </Card>
-          </Col>
-          <Col style={{ height: "100%" }} span={18}>
-            <div style={{ height: "98%", border: "1px solid #EEEEEE" }}>
-              {pageLoading ||loading1("select")&& <Loading />}
-              <FormTable columns={columns} data={materialInward} />
-            </div>
-          </Col>
-        </Row>
+            </CustomFieldBox>
+          </div>
+
+          <div
+            style={{
+              height: "calc(100vh - 185px)",
+              padding: 0,
+              border: "1px solid #eeeeee ",
+              overflowY: "auto",
+            }}
+          >
+            {pageLoading || (loading1("select") && <Loading />)}
+            <FormTable columns={columns} data={materialInward} />
+          </div>
+        </div>
       )}
       <NavFooter
         // uploadFun={() => {
