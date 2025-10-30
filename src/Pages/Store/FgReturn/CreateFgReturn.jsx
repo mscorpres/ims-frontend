@@ -7,6 +7,7 @@ import { getProductsOptions } from "../../../api/general.ts";
 import { imsAxios } from "../../../axiosInterceptor";
 import MySelect from "../../../Components/MySelect";
 import { toast } from "react-toastify";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 
 function CreateFgReturn() {
   const [loading, setLoading] = useState(false);
@@ -110,153 +111,106 @@ function CreateFgReturn() {
   }, [selectedStatus]);
 
   return (
-    <div style={{ height: "90%" }}>
-      <Row gutter={10} style={{ margin: "10px" }} justify="center">
-        <Form form={fgReturn} layout="vertical">
-          <Row>
-            <Col span={6}>
-              <Descriptions size="small" title="FG Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
-                >
-                  Enter FG details like SKU and BOM.
-                </Descriptions.Item>
-              </Descriptions>
-            </Col>
-            <Col span={18}>
-              <Row gutter={16}>
-                <Col span={8}>
-                  <Form.Item
-                    label="SKU Code"
-                    name="sku"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please provide the sku.",
-                      },
-                    ]}
-                  >
-                    <MyAsyncSelect
-                      loadOptions={getOption}
-                      optionsState={asyncOptions}
-                      onBlur={() => setAsyncOptions([])}
-                      labelInValue
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    name="bom"
-                    label="BOM"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please provide the BOM.",
-                      },
-                    ]}
-                  >
-                    <MyAsyncSelect
-                      loadOptions={getExistingDetails}
-                      optionsState={bomOptions}
-                      onBlur={() => setAsyncOptions([])}
-                      labelInValue
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    name="uom"
-                    label="UoM"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please provide the UoM.",
-                      },
-                    ]}
-                  >
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
-          <Divider />
-          <Row>
-            <Col span={6}>
-              <Descriptions size="small" title="Return Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
-                >
-                  Enter Item details like Qty,location and its usage condition.
-                </Descriptions.Item>
-              </Descriptions>
-            </Col>
-            <Col span={18}>
-              <Row gutter={16}>
-                <Col span={6}>
-                  <Form.Item
-                    label="Quantity"
-                    name="qty"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please provide the Quantity.",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    name="status"
-                    label="Condition of Item"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please provide the Condition of Item.",
-                      },
-                    ]}
-                  >
-                    <MySelect options={statusOptions} />
-                  </Form.Item>
-                </Col>
-                {/* {selectedStatus == "okay" && ( */}
-                <Col span={6}>
-                  <Form.Item
-                    name="location"
-                    label="Location"
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Please provide the Location.",
-                    //   },
-                    // ]}
-                  >
-                    <MyAsyncSelect
-                      disabled={selectedStatus != "okay"}
-                      loadOptions={getLocations}
-                      optionsState={locationlist}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={10}>
-                  {" "}
-                  <Form.Item name="remarks" label="Remarks">
-                    <Input.TextArea rows={3} />
-                  </Form.Item>
-                </Col>
-                {/* )} */}
-              </Row>
-            </Col>
-          </Row>
-        </Form>{" "}
-        <Divider />
-      </Row>
+    <div style={{ height: "90%", marginTop: 12, padding: "4px 12px" }}>
+      <Form form={fgReturn} layout="vertical">
+        <div className="grid grid-cols-2  " style={{ gap: 12 }}>
+          <CustomFieldBox title={"FG Details"}>
+            <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+              <Form.Item
+                label="SKU Code"
+                name="sku"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the sku.",
+                  },
+                ]}
+              >
+                <MyAsyncSelect
+                  loadOptions={getOption}
+                  optionsState={asyncOptions}
+                  onBlur={() => setAsyncOptions([])}
+                  labelInValue
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="bom"
+                label="BOM"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the BOM.",
+                  },
+                ]}
+              >
+                <MyAsyncSelect
+                  loadOptions={getExistingDetails}
+                  optionsState={bomOptions}
+                  onBlur={() => setAsyncOptions([])}
+                  labelInValue
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="uom"
+                label="UoM"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the UoM.",
+                  },
+                ]}
+              >
+                <Input disabled />
+              </Form.Item>
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title={"Return Details"}
+       
+          >
+            <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+              <Form.Item
+                label="Quantity"
+                name="qty"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the Quantity.",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="status"
+                label="Condition of Item"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the Condition of Item.",
+                  },
+                ]}
+              >
+                <MySelect options={statusOptions} />
+              </Form.Item>
+
+              <Form.Item name="location" label="Location">
+                <MyAsyncSelect
+                  disabled={selectedStatus != "okay"}
+                  loadOptions={getLocations}
+                  optionsState={locationlist}
+                />
+              </Form.Item>
+            </div>
+            <Form.Item name="remarks" label="Remarks">
+              <Input.TextArea rows={3} />
+            </Form.Item>
+          </CustomFieldBox>
+        </div>
+      </Form>{" "}
       <NavFooter
         resetFunction={resetFunction}
         submitFunction={validateHandler}

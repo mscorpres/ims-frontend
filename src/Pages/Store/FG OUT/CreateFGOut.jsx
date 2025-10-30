@@ -2,18 +2,23 @@ import React, { useEffect, useState } from "react";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
-import { Col, Row, Select, Button, Input } from "antd";
+import { Col, Row, Select, Button, Input, Typography } from "antd";
 import MyDataTable from "../../../Components/MyDataTable";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { IconButton } from "@mui/material";
 
 const { TextArea } = Input;
 const CreateFGOut = () => {
   const [loading, setLoading] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [selLoading, setSelLoading] = useState(false);
-  const options = [{ label: "Sale", value: "SL001" },{ label: "Other", value: "OT001" }];
+  const options = [
+    { label: "Sale", value: "SL001" },
+    { label: "Other", value: "OT001" },
+  ];
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [createFgOut, setCreateFgOut] = useState({
@@ -23,7 +28,6 @@ const CreateFGOut = () => {
     pro: [],
     qty: [],
     remark: [],
-    // uom: [],`
   });
 
   const [addRowData, setAddRowData] = useState([
@@ -36,8 +40,6 @@ const CreateFGOut = () => {
       uom: "",
     },
   ]);
-  console.log(addRowData);
-  // console.log(restValue);
 
   const plusRow = () => {
     setAddRowData((addRowData) => [
@@ -180,15 +182,9 @@ const CreateFGOut = () => {
   const columns = [
     {
       headerName: (
-        <span onClick={plusRow}>
-          <PlusCircleTwoTone
-            style={{
-              cursor: "pointer",
-              fontSize: "1.2rem",
-            }}
-          />
-          {/* <PlusSquareFilled style={{ cursor: "pointer", fontSize: "1.5rem" }} /> */}
-        </span>
+        <IconButton onClick={plusRow}>
+          <PlusCircleTwoTone twoToneColor={["#0d9488", "#e0f2f1"]} />
+        </IconButton>
       ),
       width: 80,
       field: "add",
@@ -197,15 +193,10 @@ const CreateFGOut = () => {
       sortable: false,
       renderCell: ({ row }) =>
         addRowData.findIndex((r) => r.id == row.id) >= 1 && (
-          <MinusCircleTwoTone
-            onClick={() => minusRow(row?.id)}
-            style={{
-              fontSize: "1.1rem",
-              cursor: "pointer",
-            }}
-          />
+          <IconButton onClick={() => minusRow(row?.id)}>
+            <MinusCircleTwoTone twoToneColor={["#0d9488", "#e0f2f1"]} />
+          </IconButton>
         ),
-      // sortable: false,
     },
 
     {
@@ -222,13 +213,11 @@ const CreateFGOut = () => {
           value={addRowData?.product}
           optionsState={asyncOptions}
           onChange={(e) => compInputHandler("product", row.id, e)}
-          // placeholder="Part/Name"
         />
       ),
     },
     {
       headerName: "	Stock In Hand",
-      // field: "qty",
       width: 170,
       renderCell: ({ row }) => (
         <Input suffix={row?.uom} disabled value={row?.total} />
@@ -264,27 +253,33 @@ const CreateFGOut = () => {
 
   return (
     <>
-      <Row gutter={10} style={{ margin: "5px", height: "85%" }}>
+      <Row
+        gutter={10}
+        style={{ margin: "10px", height: "calc(100vh - 180px)" }}
+      >
         <Col span={5}>
           <Row gutter={16}>
             <Col span={24}>
-              <Select
-                style={{
-                  width: "100%",
-                  marginBottom: "10px",
-                }}
-                options={options}
-                placeholder="Select"
-                value={createFgOut.selectType}
-                onChange={(e) =>
-                  setCreateFgOut((createFgOut) => {
-                    return {
-                      ...createFgOut,
-                      selectType: e,
-                    };
-                  })
-                }
-              />
+              <div>
+                <Typography>Select Type</Typography>
+                <Select
+                  style={{
+                    width: "100%",
+                    marginBottom: "10px",
+                  }}
+                  options={options}
+                  placeholder="Select"
+                  value={createFgOut.selectType}
+                  onChange={(e) =>
+                    setCreateFgOut((createFgOut) => {
+                      return {
+                        ...createFgOut,
+                        selectType: e,
+                      };
+                    })
+                  }
+                />
+              </div>
             </Col>
             <Col span={24}>
               <TextArea
@@ -315,26 +310,19 @@ const CreateFGOut = () => {
       </Row>
       <Row style={{ margin: "10px" }}>
         <Col span={24}>
-          <div style={{ textAlign: "end" }}>
-            <MyButton
-              onClick={resetFunction}
-              // style={{
-              //   backgroundColor: "red",
-              //   color: "white",
-              //   marginRight: "5px",
-              // }}
-              variant="reset"
-            >
-              Reset{" "}
-            </MyButton>
-            <Button
-              type="primary"
-              onClick={addFGOut}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <CustomButton
+              onclick={resetFunction}
+              size="small"
+              variant="text"
+              title={"Reset"}
+            />
+            <CustomButton
+              onclick={addFGOut}
               loading={loadingUpdate}
-              // style={{ backgroundColor: "#0e5185", color: "white" }}
-            >
-              Create Fg Out{" "}
-            </Button>
+              size="small"
+              title={"Create Fg Out"}
+            />
           </div>
         </Col>
       </Row>

@@ -89,3 +89,96 @@ export const getFgCompletedColumns = () => [
     size: 150,
   },
 ];
+
+export const getViewFgColumns = () => [
+  {
+    header: "Date",
+    accessorKey: "approvedate",
+    size: 150,
+  },
+  { accessorKey: "sku", header: "SKU", size: 150 },
+  { accessorKey: "name", header: "Product", size: 380 },
+  { accessorKey: "approveqty", header: "Out Qty", size: 100 },
+  { accessorKey: "approveby", header: "Out By", size: 320 },
+  { accessorKey: "fg_type", header: "FG TYPE", size: 100 },
+];
+
+export const getPendingFGReversal = () => [
+  {
+    header: "#",
+    accessorKey: "id",
+    size: 30,
+  },
+
+  {
+    header: "SKU",
+    accessorKey: "sku",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} />,
+    size: 100,
+  },
+  {
+    header: "Product",
+    accessorKey: "name",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+    size: 200,
+    flex: 1,
+  },
+
+  {
+    header: "Inserted By",
+    accessorKey: "insertedBy",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.insertedBy} />,
+    size: 100,
+  },
+  {
+    header: "Insert Date",
+    accessorKey: "insertedDate",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.insertedDate} />,
+    size: 150,
+  },
+  {
+    header: "Location In",
+    accessorKey: "inLocation",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.inLocation} />,
+    size: 100,
+  },
+
+  {
+    header: "UoM",
+    accessorKey: "uom",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.uom} />,
+    size: 100,
+  },
+  {
+    header: "Return Qty",
+    accessorKey: "returnQty",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.returnQty} />,
+    size: 80,
+  },
+  {
+    header: "Exec. Qty",
+    accessorKey: "executedQty",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.executedQty} />,
+    size: 80,
+  },
+  {
+    header: "Rem. Qty",
+    accessorKey: "remainingQty",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.remainingQty} />,
+    size: 80,
+  },
+
+  {
+    header: "Status",
+    accessorKey: "status",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.status} />,
+    size: 100,
+  },
+  {
+    header: "Remark",
+    accessorKey: "remarks",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.remarks} />,
+    size: 200,
+    flex: 1,
+  },
+];

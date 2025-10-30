@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import moment from "moment";
-import { Button, Col, DatePicker, Row, Select } from "antd";
+import { Col, Row, Select } from "antd";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import MyDataTable from "../../../Components/MyDataTable";
 import { imsAxios } from "../../../axiosInterceptor";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
-import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { getViewFgColumns } from "../FoodGoods/fgcolunms";
 
 const ViewFGOut = () => {
   const [loading, setLoading] = useState(false);
@@ -17,7 +23,6 @@ const ViewFGOut = () => {
   const [selectDate, setSelectDate] = useState("");
   const opt = [{ label: "Out", value: "O" }];
   const [fetchDataFromDate, setFetchDataFromDate] = useState([]);
-  // console.log(fetchDataFromDate);
 
   const dateWise = async (e) => {
     e.preventDefault();
@@ -48,19 +53,6 @@ const ViewFGOut = () => {
     }
   };
 
-  const columns = [
-    {
-      headerName: "Date",
-      field: "approvedate",
-      width: 150,
-    },
-    { field: "sku", headerName: "SKU", width: 150 },
-    { field: "name", headerName: "Product", width: 380 },
-    { field: "approveqty", headerName: "Out Qty", width: 100 },
-    { field: "approveby", headerName: "Out By", width: 320 },
-    { field: "fg_type", headerName: "FG TYPE", width: 100 },
-  ];
-
   const handleDownloadingCSV = () => {
     let arr = [];
     let csvData = [];
@@ -77,6 +69,40 @@ const ViewFGOut = () => {
     });
     downloadCSV(csvData);
   };
+
+  const columns = useMemo(() => getViewFgColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: fetchDataFromDate || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback  />
+    ),
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
     <div style={{ height: "90%" }}>
@@ -99,33 +125,27 @@ const ViewFGOut = () => {
         <Col span={4} className="gutter-row">
           <div>
             <SingleDatePicker setDate={setSelectDate} />
-            {/* <DatePicker
-              style={{
-                width: "100%",
-              }}
-              onChange={(e) => setSelectDate(moment(e).format("DD-MM-YYYY"))}
-            /> */}
           </div>
         </Col>
         <Col span={2} className="gutter-row">
           <div>
-            <MyButton
-              onClick={dateWise}
-              type="primary"
+            <CustomButton
+              onclick={dateWise}
+              title={"Search"}
+              size="small"
+              starticon={<Search fontSize="small" />}
               loading={loading}
-              variant="search"
-            >
-              Fetch
-            </MyButton>
+            />
           </div>
         </Col>
       </Row>
       <div style={{ height: "90%", margin: "10px" }}>
-        <MyDataTable
+        {/* <MyDataTable
           loading={loading}
           data={fetchDataFromDate}
           columns={columns}
-        />
+        /> */}
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );
