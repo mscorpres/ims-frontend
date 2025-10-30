@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Card, Col, Form, Input, Row } from "antd";
+import { useEffect, useState } from "react";
+import { Col, Form, Input, Row } from "antd";
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import { getComponentOptions, getHsnOptions } from "@/api/general";
 import useApi from "@/hooks/useApi";
 import { convertSelectOptions } from "@/utils/general";
 import FormTable2 from "@/Components/FormTable2.jsx";
-import MyButton from "../../../Components/MyButton";
 import { getHsnList, mapHsn } from "@/api/master/component";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { renderIcon } from "@/new/components/layout/Sidebar/iconMapper";
 
 const HsnMap = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -61,7 +63,7 @@ const HsnMap = () => {
     >
       <Row justify="center" gutter={16} style={{ padding: 10, height: "100%" }}>
         <Col sm={8} xxl={4}>
-          <Card size="small" title="Map HSN">
+          <CustomFieldBox title="Component">
             <Form.Item
               name="component"
               label="Component Name"
@@ -74,15 +76,17 @@ const HsnMap = () => {
                 selectLoading={loading("select")}
               />
             </Form.Item>
+
             <Row justify="center">
-              <MyButton
-                onClick={submitHandler}
+              <CustomButton
+                onclick={submitHandler}
                 loading={loading("submit")}
                 variant="submit"
-                text="Save"
+                title="Save"
+                endicon={renderIcon("CheckCircleIcon")}
               />
             </Row>
-          </Card>
+          </CustomFieldBox>
         </Col>
         <Col
           sm={12}

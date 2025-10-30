@@ -1,10 +1,20 @@
-import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
-import MyDataTable from "../../../Components/MyDataTable.jsx";
-import TableActions from "../../../Components/TableActions.jsx/TableActions.jsx";
 import { ProductType } from "@/types/master";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSVnested2 } from "../../../Components/exportToCSV";
 import { Row } from "antd";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+  MRT_ToggleGlobalFilterButton,
+  MRT_ToggleFiltersButton,
+  MRT_ShowHideColumnsButton,
+  MRT_ToggleDensePaddingButton,
+  MRT_ToggleFullScreenButton,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
+import { renderIcon } from "@/new/components/layout/Sidebar/iconMapper";
+import { useMemo } from "react";
 
 interface PropTypes {
   rows: ProductType[];
@@ -22,75 +32,124 @@ function View({
   productType,
   setShowImages,
 }: PropTypes) {
-  const actionColumn = [
-    {
-      headerName: "Actions",
-      width: 100,
-      type: "actions",
-      getActions: ({ row }: { row: ProductType }) => [
-        <TableActions
-          action="edit"
-          onClick={() => row.productKey && setEditingProduct(row.productKey)}
-        />,
-        <TableActions action="view" onClick={() => setShowImages(row)} />,
-        <TableActions
-          disabled={productType === "sfg"}
-          action="upload"
-          onClick={() => setUpdatingImage(row)}
-        />,
-      ],
+  const columns = useMemo(() => productColumn(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
     },
-  ];
-  const handleDownload = () => {
-    downloadCSVnested2(rows, columns, "Products");
-  };
-  return (
-    <div style={{ height: "100%" }}>
-      <Row justify="end" style={{ margin: "5x 0" }}>
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderToolbarInternalActions: ({ table }) => (
+      <>
+        <MRT_ToggleGlobalFilterButton table={table} />
+        <MRT_ToggleFiltersButton table={table} />
+        <MRT_ShowHideColumnsButton table={table} />
+        <MRT_ToggleDensePaddingButton table={table} />
+        <MRT_ToggleFullScreenButton table={table} />
         <CommonIcons
           disabled={rows.length === 0}
           onClick={handleDownload}
           action="downloadButton"
         />
-      </Row>
-      <MyDataTable
-        loading={loading}
-        data={rows}
-        columns={[...columns, ...actionColumn]}
-      />
+      </>
+    ),
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={renderIcon("EditIcon")}
+        key="edit"
+        label="Update"
+        onClick={() => {
+          row?.original?.productKey &&
+            setEditingProduct(row?.original?.productKey);
+          closeMenu();
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={renderIcon("VisibilityIcon")}
+        key="view"
+        label="View Images"
+        onClick={() => {
+          setShowImages(row?.original);
+          closeMenu();
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={renderIcon("UploadIcon")}
+        key="upload"
+        label="Upload Images"
+        onClick={() => {
+          setUpdatingImage(row?.original);
+          closeMenu();
+        }}
+        table={table}
+        disabled={productType === "sfg"}
+      />,
+    ],
+  });
+
+  const handleDownload = () => {
+    downloadCSVnested2(rows, columns, "Products");
+  };
+  return (
+    <div style={{ height: "100%" }}>
+      <MaterialReactTable table={table} />
     </div>
   );
 }
 
 export default View;
-const columns = [
-  { headerName: "#", field: "id", width: 30 },
+const productColumn = () => [
+  { header: "#", accessorKey: "id", width: 30 },
   {
-    headerName: "Product Name",
-    field: "name",
+    header: "Product Name",
+    accessorKey: "name",
     flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+    // Cell: ({ row }) => <ToolTipEllipses text={row.name} />,
   },
   {
-    headerName: "SKU",
-    field: "sku",
+    header: "SKU",
+    accessorKey: "sku",
     width: 100,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+    // renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
-    headerName: "Unit",
-    field: "uom",
+    header: "Unit",
+    accessorKey: "uom",
     width: 80,
   },
   {
-    headerName: "Category",
-    field: "category",
+    header: "Category",
+    accessorKey: "category",
     width: 100,
-    renderCell: ({ row }) => (
+    Cell: ({ row }) => (
       <>
-        {row?.category == ""
+        {row?.original?.category == ""
           ? "--"
-          : row?.category == "services"
+          : row?.original?.category == "services"
           ? "Services"
           : "Goods"}
       </>

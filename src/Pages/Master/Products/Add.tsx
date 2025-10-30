@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
-import { Button, Card, Col, Form, Input, Row, Space } from "antd";
+import { Col, Form, Input, Row, Space } from "antd";
 import MySelect from "../../../Components/MySelect";
-import MyButton from "../../../Components/MyButton";
 import { addProduct } from "../../../api/master/products";
 import { ResponseType } from "../../../types/general";
 import useApi from "../../../hooks/useApi";
+//@ts-ignore
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { renderIcon } from "@/new/components/layout/Sidebar/iconMapper";
 
 const Add = ({ uomOptions, productType, getProductRows }) => {
   const [addProductForm] = Form.useForm();
@@ -30,11 +32,10 @@ const Add = ({ uomOptions, productType, getProductRows }) => {
   const resetHandler = () => {
     addProductForm.resetFields();
   };
-  useEffect(() => {}, []);
+
   return (
     <div style={{ height: "90%" }}>
-      <Card
-        size="small"
+      <CustomFieldBox
         title={productType === "sfg" ? "Add New SFG" : "Add New FG"}
       >
         <Form
@@ -75,29 +76,28 @@ const Add = ({ uomOptions, productType, getProductRows }) => {
               <Row justify="end">
                 <Space>
                   <Form.Item>
-                    <MyButton
-                      // htmlType="button"
-                      onClick={resetHandler}
-                      variant="reset"
-                    >
-                      Reset
-                    </MyButton>
+                    <CustomButton
+                      variant="outlined"
+                      onclick={resetHandler}
+                      title="Reset"
+                      endicon={renderIcon("ResetIcon")}
+                    />
                   </Form.Item>
                   <Form.Item>
-                    <Button
+                    <CustomButton
+                      variant="submit"
+                      onclick={submitHandler}
+                      title="Save"
+                      endicon={renderIcon("CheckCircleOutlined")}
                       loading={loading("submit")}
-                      type="primary"
-                      onClick={submitHandler}
-                    >
-                      Save
-                    </Button>
+                    />
                   </Form.Item>
                 </Space>
               </Row>
             </Col>
           </Row>
         </Form>
-      </Card>
+      </CustomFieldBox>
     </div>
   );
 };

@@ -21,7 +21,9 @@ import {
   DeliveredProcedureOutlined,
   CheckCircleOutlined,
   ExperimentOutlined,
-  PlusOutlined
+  PlusOutlined,
+  UploadOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { RiBillFill } from "react-icons/ri";
 import { BiMoney, BiTransfer } from "react-icons/bi";
@@ -66,6 +68,7 @@ const iconMap: Record<string, React.ComponentType> = {
   CheckCircleOutlined: CheckCircleOutlined,
   ExperimentOutlined: ExperimentOutlined,
   PlusIcon: PlusOutlined,
+  UploadIcon: UploadOutlined,
 
   // Material-UI Icons (as fallbacks)
   SettingsIcon: MenuOutlined,
@@ -93,7 +96,7 @@ const iconMap: Record<string, React.ComponentType> = {
   AddIcon: MenuOutlined,
   CheckCircleIcon: CheckCircleOutlined,
   SummarizeIcon: TbReportAnalytics,
-  VisibilityIcon: MenuOutlined,
+  VisibilityIcon: EyeOutlined,
   CalculateIcon: CalculatorFilled,
   StraightenIcon: MenuOutlined,
   ExtensionIcon: MenuOutlined,
