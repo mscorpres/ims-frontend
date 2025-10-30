@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button, Col, Popover, Row } from "antd";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import MyDataTable from "../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { InfoCircleFilled } from "@ant-design/icons";
 import MinReverseModal from "./Modal/MinReverseModal";
 import { imsAxios } from "../../axiosInterceptor";
 import MyButton from "../../Components/MyButton";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { getRevMinColumns } from "./mincolums";
 
 function ReverseMin() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -17,7 +22,6 @@ function ReverseMin() {
   const [inputStore, setInputStore] = useState("");
   const [mainData, setMainData] = useState([]);
   const [headerData, setHeaderData] = useState([]);
-  console.log(headerData);
 
   const getOption = async (e) => {
     if (e?.length > 2) {
@@ -37,7 +41,6 @@ function ReverseMin() {
     const { data } = await imsAxios.post("/reversal/fetchMINData", {
       transaction: inputStore,
     });
-    // console.log(data);
     if (data.code == 200) {
       let arr = data.data.map((row, index) => {
         return {
@@ -54,107 +57,6 @@ function ReverseMin() {
       setLoading(false);
     }
   };
-
-  const columns = [
-    {
-      field: "componentName",
-      headerName: "Component",
-      width: 550,
-    },
-    {
-      field: "partno",
-      headerName: "Part",
-      width: 90,
-    },
-    {
-      field: "hsncode",
-      headerName: "HSN",
-      width: 90,
-    },
-    {
-      field: "gstrate",
-      headerName: "GST",
-      width: 80,
-    },
-    {
-      field: "inward_qty",
-      headerName: "Qty",
-      width: 90,
-    },
-    {
-      field: "uom",
-      headerName: "UoM",
-      width: 90,
-    },
-    {
-      field: "min_date",
-      headerName: "Min Date",
-      width: 160,
-    },
-    {
-      field: "location",
-      headerName: "Drop(+) To",
-      width: 120,
-    },
-    {
-      field: "invoice_id",
-      headerName: "Invoice",
-      width: 150,
-    },
-    // {
-    //   field: "hsncode",
-    //   headerName: "HSN",
-    //   width: 80,
-    // },
-    // {
-    //   field: "gstrate",
-    //   headerName: "GST",
-    //   width: 80,
-    // },
-    // {
-    //   field: "inward_qty",
-    //   headerName: "QTY|UOM",
-    //   width: 130,
-    //   renderCell: ({ row }) => (
-    //     <Input
-    //       suffix={row?.uom}
-    //       disabled
-    //       value={row?.inward_qty}
-    //       placeholder="Qty"
-    //       // onChange={(e) => inputHandler("rate", row.id, e.target.value)}
-    //     />
-    //   ),
-    // },
-    // {
-    //   field: "min_date",
-    //   headerName: "MIN DATE",
-    //   width: 160,
-    // },
-    // {
-    //   field: "invoice_id",
-    //   headerName: "INVOICE",
-    //   width: 160,
-    //   renderCell: ({ row }) => (
-    //     <Input
-    //       value={row?.invoice_id}
-    //       placeholder="Invoice"
-    //       onChange={(e) => inputHandler("invoice_id", row.id, e.target.value)}
-    //     />
-    //   ),
-    // },
-    // {
-    //   field: "remark",
-    //   headerName: "REMARK",
-    //   width: 350,
-    //   renderCell: ({ row }) => (
-    //     <Input
-    //       value={row?.remark}
-    //       placeholder="Remark"
-    //       onChange={(e) => inputHandler("remark", row.id, e.target.value)}
-    //     />
-    //   ),
-    // },
-  ];
 
   const resetFun = () => {
     setMainData([]);
@@ -189,8 +91,44 @@ function ReverseMin() {
     </div>
   );
 
+  const columns = useMemo(() => getRevMinColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: mainData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    positionActionsColumn: "last",
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 238px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Product Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <div>
+    <div style={{ marginTop: 12 }}>
       <Row gutter={10} style={{ margin: "5px" }}>
         <Col span={5}>
           <MyAsyncSelect
@@ -228,10 +166,9 @@ function ReverseMin() {
           </Col>
         )}
       </Row>
-      <div style={{ height: "72vh", margin: "10px" }}>
-        <div style={{ height: "100%" }}>
-          <MyDataTable data={mainData} columns={columns} loading={loading} />
-        </div>
+
+      <div style={{ height: "calc(100vh - 180px)", margin: 10 }}>
+        <MaterialReactTable table={table} />
       </div>
 
       {mainData?.length > 0 && (

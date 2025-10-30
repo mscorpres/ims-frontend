@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import PendingFGModal from "./Modal/PendingFGModal";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import { Button, Col, Row, Select, Skeleton } from "antd";
-import MyDataTable from "../../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import { GoArrowRight } from "react-icons/go";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../axiosInterceptor";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { getFgColumns } from "./fgcolunms";
 
 const PendingFG = () => {
   const [pending, setPending] = useState([]);
@@ -38,44 +42,6 @@ const PendingFG = () => {
       });
   };
 
-  const columns = [
-    {
-      headerName: "Req.ID",
-      field: "mfg_transaction",
-      renderCell: ({ row }) => (
-        <span> {row.mfg_transaction + " / " + row.mfg_ref_id}</span>
-      ),
-      width: 200,
-    },
-    { field: "typeOfPPR", headerName: "Type", width: 150 },
-    { field: "mfg_full_date", headerName: "Data/Time", width: 180 },
-    { field: "mfg_sku", headerName: "SKU", width: 100 },
-    { field: "p_name", headerName: "Product", width: 220 },
-    {
-      field: "mfg_prod_planing_qty",
-      headerName: "MFG/STIN Qty",
-      width: 160,
-      renderCell: ({ row }) => (
-        <span>{row.mfg_prod_planing_qty + "/" + row.completedQTY}</span>
-      ),
-    },
-    {
-      field: "actions",
-      headerName: "Action",
-      width: 140,
-      type: "actions",
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          icon={
-            <GoArrowRight
-              onClick={() => setFGModal(row)}
-              style={{ color: "#62AAFF", fontSize: "20px" }}
-            />
-          }
-        />,
-      ],
-    },
-  ];
 
   const handleDownloadingCSV = () => {
     let arr = [];
@@ -96,22 +62,54 @@ const PendingFG = () => {
   useEffect(() => {
     getPendingData();
   }, []);
+  const columns = useMemo(() => getFgColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: pending || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    positionActionsColumn: "last",
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <CustomButton
+        size="small"
+        title={"Process"}
+        variant="text"
+        onclick={() => setFGModal(row)}
+      />
+    ),
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 210px)" : "calc(100vh - 260px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Product Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
     <div style={{ height: "90%" }}>
       <Row style={{ margin: "10px" }}>
-        {/* <Col span={4} className="gutter-row">
-          <div>
-            <Select options={options} placeholder="Pending" style={{ width: "100%" }} />
-          </div>
-        </Col> */}
-        {/* <Col span={3} className="gutter-row">
-          <div>
-            <Button type="primary" onClick={getPendingData}>
-              Pending Data
-            </Button>
-          </div>
-        </Col> */}
         {pending.length > 1 && (
           <Col span={2} offset={19} className="gutter-row">
             <Button onClick={handleDownloadingCSV}>
@@ -122,9 +120,7 @@ const PendingFG = () => {
       </Row>
 
       <div style={{ height: "90%", margin: "10px" }}>
-        {/* <Skeleton loading={loading}> */}
-        <MyDataTable data={pending} columns={columns} loading={loading} />
-        {/* </Skeleton> */}
+        <MaterialReactTable table={table} />
       </div>
 
       <PendingFGModal

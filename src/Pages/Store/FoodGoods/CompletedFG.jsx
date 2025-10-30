@@ -1,16 +1,25 @@
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Row, Select } from "antd";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { v4 } from "uuid";
-import MyDataTable from "../../../Components/MyDataTable";
+
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import useApi from "../../../hooks/useApi.ts";
 import { getProductsOptions } from "../../../api/general.ts";
 import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import { getFgCompletedColumns } from "./fgcolunms.jsx";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, IconButton, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 
 const CompletedFG = () => {
   const [loading, setLoading] = useState(false);
@@ -87,27 +96,6 @@ const CompletedFG = () => {
     }
   };
 
-  const columns = [
-    { field: "index", headerName: "No.", width: 100 },
-    { field: "ppr_type", headerName: "Type", width: 150 },
-    {
-      headerName: "Req. Id",
-      field: "mfg_transaction",
-      renderCell: ({ row }) => (
-        <span> {row.mfg_transaction + " / " + row.ppr_transaction}</span>
-      ),
-      width: 200,
-    },
-    { field: "mfg_date", headerName: "Date/Time", width: 170 },
-    { field: "ppr_sku", headerName: "SKU", width: 100 },
-    { field: "sku_name", headerName: "Product", width: 420 },
-    {
-      field: "completed_qty",
-      headerName: "MFG/STIN Qty",
-      width: 160,
-    },
-  ];
-
   const handleDownloadingCSV = () => {
     let arr = [];
     if (all.info === "datewise") {
@@ -129,9 +117,45 @@ const CompletedFG = () => {
     downloadCSVCustomColumns(csvData, "Completed FG");
   };
 
+  const columns = useMemo(() => getFgCompletedColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: dateData || skuData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    positionActionsColumn: "last",
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 238px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Product Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
     <div style={{ height: "90%" }}>
-      <Row gutter={5} style={{ margin: "5px" }}>
+      <Row gutter={5} style={{ margin: "10px" }}>
         <Col span={3}>
           <Select
             options={options}
@@ -186,59 +210,35 @@ const CompletedFG = () => {
                   />
                 </div>
               </Col>
-              <Col span={2} className="gutter-row">
-                <MyButton onClick={skuWise} type="primary" variant="search">
-                  Fetch
-                </MyButton>
+              <Col span={6} className="gutter-row">
+                <div className="flex " style={{ gap: 12 }}>
+                  <CustomButton
+                    size="small"
+                    title={"Search"}
+                    onclick={skuWise}
+                    starticon={<Search fontSize="small" />}
+                  />
+                  {skuData.length > 0 && (
+                    <CustomButton
+                      size="small"
+                      title={"Download"}
+                      onclick={handleDownloadingCSV}
+                      starticon={<MdOutlineDownloadForOffline />}
+                    />
+                  )}
+                </div>
               </Col>
-              {skuData.length > 0 && (
-                <Col span={2} offset={11} className="gutter-row">
-                  <div>
-                    <Button onClick={handleDownloadingCSV}>
-                      <MdOutlineDownloadForOffline
-                        style={{ fontSize: "20px" }}
-                      />
-                    </Button>
-                  </div>
-                </Col>
-              )}
             </>
           </>
         ) : (
           ""
         )}
-
-        {/* {dateData.length >= 1 ? (
-          <Col span={3} className="gutter-row">
-            <div>
-              <Button>
-                <DownloadOutlined
-                  onClick={handleDownloadingCSV}
-                  style={{ fontSize: "18px" }}
-                  color="#5D7788"
-                />
-              </Button>
-            </div>
-          </Col>
-        ) : (
-          <Col span={3} className="gutter-row">
-            <div>
-              <Button>
-                <DownloadOutlined
-                  onClick={handleDownloadingCSV}
-                  style={{ fontSize: "18px" }}
-                  color="#5D7788"
-                />
-              </Button>
-            </div>
-          </Col>
-        )} */}
       </Row>
-      <div style={{ height: "93%", margin: "5px" }}>
+      <div style={{ height: "calc(100% - 60px)", margin: "10px" }}>
         {all.info == "datewise" ? (
-          <MyDataTable loading={loading} data={dateData} columns={columns} />
+          <MaterialReactTable table={table} />
         ) : (
-          <MyDataTable loading={loading} data={skuData} columns={columns} />
+          <MaterialReactTable table={table} />
         )}
       </div>
     </div>

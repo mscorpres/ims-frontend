@@ -1,17 +1,18 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { Button, Col, Form, Input, Modal, Row, Space } from "antd";
-import MySelect from "../../Components/MySelect";
+import { useState, useMemo } from "react";
+import { Col, Row, Space } from "antd";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import MyDatePicker from "../../Components/MyDatePicker";
-import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import MyDataTable from "../../Components/MyDataTable";
 import { imsAxios } from "../../axiosInterceptor";
-import { v4 } from "uuid";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import { EyeFilled } from "@ant-design/icons";
 import SFTransferDrawer from "./SFTransferDrawer";
 import { toast } from "react-toastify";
-import MyButton from "../../Components/MyButton";
+import SearchIcon from "@mui/icons-material/Search";
+import { getProductReturnColumns } from "./sfcolummns";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import CustomButton from "../../new/components/reuseable/CustomButton";
 function Pending() {
   const [searchInput, setSearchInput] = useState("");
   const [rows, setRows] = useState([]);
@@ -40,67 +41,51 @@ function Pending() {
     }
     setLoading(false);
   };
-  const columns = [
-    // {
-    //   headerName: "k",
-    //   field: "actions",
-    //   width: 10,
-    //   type: "actions",
-    //   getActions: ({ row }) => (
-    //     <GridActionsCellItem
-    //       //   showInMenu
-    //       //   disabled={loading}
-    //       onClick={() => {
-    //         // setViewReportData(row.vbt_code);
-    //       }}
-    //       label="View"
-    //     />
-    //   ),
-    // },
-    {
-      headerName: "#",
-      width: 30,
-      field: "id",
-    },
-    {
-      field: "insert_date",
-      headerName: "Registeration Date",
-      flex: 1,
-    },
-    {
-      field: "insert_by",
-      headerName: "Created By",
-      flex: 1,
-    },
 
-    {
-      field: "trans_id",
-      headerName: "Transaction Id",
-      flex: 1,
+  const columns = useMemo(() => getProductReturnColumns(), []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
     },
-    {
-      field: "remark",
-      headerName: "Remark",
-      flex: 1,
+    positionActionsColumn: "last",
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <CustomButton
+        size="small"
+        title={"Process"}
+        variant="text"
+        onclick={() => setDrawerData(row?.original)}
+      />
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 238px)" : "calc(100vh - 290px)",
+      },
     },
-    {
-      headerName: "Action",
-      flex: 1,
-      renderCell: ({ row }) => (
-        <div>
-          <Button
-            // icon={<DownloadOutlined />}
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Product Found" />
+    ),
 
-            onClick={() => setDrawerData(row)}
-            // onClick={() => downloadFunction(row.inv, seoice)}
-            type="primary"
-          >
-            Process
-          </Button>
-        </div>
-      ),
-    },
-  ];
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
     <Row
       style={{
@@ -115,22 +100,20 @@ function Pending() {
             <div style={{ paddingTop: 10, paddingBottom: 10 }}>
               <Space>
                 <MyDatePicker setDateRange={setSearchInput} />
-
-                <MyButton
-                  onClick={getRows}
+                <CustomButton
+                  size="small"
+                  title="Search"
+                  starticon={<SearchIcon fontSize="small" />}
                   loading={loading}
-                  type="primary"
-                  variant="search"
-                >
-                  Fetch
-                </MyButton>
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Col>
         </Row>
       </Col>
       <Col span={24} style={{ height: "95%" }}>
-        <MyDataTable laoding={loading} data={rows} columns={columns} />
+        <MaterialReactTable table={table} />
       </Col>
       {drawerData && (
         <SFTransferDrawer
@@ -140,14 +123,6 @@ function Pending() {
           drawerData={drawerData}
         />
       )}
-
-      {/* <ViewModal showView={showView} setShowView={setShowView} />
-     
-      <FinalizeModal
-        getRows={getRows}
-        showView={showFinalizeModal}
-        setShowView={setShowFinalizeModal}
-      /> */}
     </Row>
   );
 }
