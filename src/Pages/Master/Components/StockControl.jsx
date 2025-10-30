@@ -1,6 +1,5 @@
-import { Button, Card, Col, Row, Space, Upload, message, Form } from "antd";
-import React, { useState, useeffect } from "react";
-import { BsFillCloudArrowUpFill } from "react-icons/bs";
+import { Button, Card, Col, Row, Space, Upload, Form } from "antd";
+import { useState } from "react";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
 import MyDataTable from "../../../Components/MyDataTable";
 import { InboxOutlined } from "@ant-design/icons";
@@ -21,12 +20,11 @@ function StockControl() {
     },
   ];
   const previewColumns = [
-    { headerName: "#", field: "id", width: 30 },
-    { headerName: "Component", field: "part_name", flex: 1 },
-    { headerName: "PART Code", field: "part_no", width: 100 },
-    { headerName: "SF Quantity", field: "sf_ctrl_qty", width: 100 },
+    { header: "#", accessorKey: "id", width: 30 },
+    { header: "Component", accessorKey: "part_name", flex: 1 },
+    { header: "PART Code", accessorKey: "part_no", width: 100 },
+    { header: "SF Quantity", accessorKey: "sf_ctrl_qty", width: 100 },
   ];
-  const previewRows = [];
 
   const displayDataTable = async () => {
     setLoading("fetch");

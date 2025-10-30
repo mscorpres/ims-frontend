@@ -21,16 +21,9 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MySelect from "../../../../Components/MySelect";
 import MyButton from "../../../../Components/MyButton";
-
 import Loading from "../../../../Components/Loading";
-import { Link } from "react-router-dom";
 import CategoryDrawer from "./CategoryDrawer";
-
 import useApi from "../../../../hooks/useApi.ts";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import MyDataTable from "../../../gstreco/myDataTable";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-
 import AlternatePartCode from "./AlternatePartCode";
 
 export default function UpdateComponent() {
