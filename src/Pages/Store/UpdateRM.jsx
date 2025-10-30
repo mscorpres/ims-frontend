@@ -1,21 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Breadcrumb, Button, Card, Col, Divider, Input, Row } from "antd";
-import axios from "axios";
+import { useState } from "react";
+import { Button, Card, Col, Divider, Input, Row } from "antd";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import {
-  UserOutlined,
-  MailOutlined,
-  MobileOutlined,
-  PrinterTwoTone,
-  CloseCircleTwoTone,
-} from "@ant-design/icons";
-import { FaUserCircle } from "react-icons/fa";
-import MyDataTable from "../../Components/MyDataTable";
+import { MailOutlined, CloseCircleTwoTone } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
 import FormTable from "../../Components/FormTable";
-import MyButton from "../../Components/MyButton";
+import CustomButton from "../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
 
 function UpdateRM() {
   const [updteModal, setUpdteModal] = useState(false);
@@ -26,7 +18,6 @@ function UpdateRM() {
   const [mainData, setMainData] = useState([]);
   const [headerData, setHeaderData] = useState([]);
 
-  // console.log(mainData);
   const getOption = async (e) => {
     if (e?.length > 2) {
       setSelLoading(true);
@@ -138,16 +129,7 @@ function UpdateRM() {
       field: "inward_qty",
       headerName: "Qty",
       width: 90,
-      renderCell: ({ row }) => (
-        <span>{`${row?.inward_qty} ${row?.uom}`}</span>
-        // <Input
-        //   suffix={row?.uom}
-        //   disabled
-        //   value={row?.inward_qty}
-        //   placeholder="Qty"
-        //   // onChange={(e) => inputHandler("rate", row.id, e.target.value)}
-        // />
-      ),
+      renderCell: ({ row }) => <span>{`${row?.inward_qty} ${row?.uom}`}</span>,
     },
     {
       field: "min_date",
@@ -215,10 +197,10 @@ function UpdateRM() {
     console.log(data);
   };
   return (
-    <Row gutter={10} style={{ margin: "5px" }}>
+    <Row gutter={10} style={{ marginTop: "12px", padding: 3 }}>
       <Col span={6} style={{}}>
         <Row gutter={10}>
-          <Col span={18}>
+          <Col span={16}>
             <MyAsyncSelect
               selectLoading={selLoading}
               style={{ width: "100%" }}
@@ -231,18 +213,18 @@ function UpdateRM() {
             />
           </Col>
           <Col span={1}>
-            <MyButton
+            <CustomButton
+              title={"Search"}
+              onclick={fetchInputData}
+              size="small"
+              starticon={<Search fontSize="small" />}
               loading={loading}
-              type="primary"
-              onClick={fetchInputData}
-              variant="search"
-            >
-              Fetch
-            </MyButton>
+            />
           </Col>
-          <Divider orientation="left"></Divider>
+
           {mainData?.length > 0 && (
             <>
+              <Divider orientation="left" />
               <Col span={24}>
                 <Card
                   type="inner"
@@ -282,21 +264,12 @@ function UpdateRM() {
         </Row>
       </Col>
       <Col span={18} style={{}}>
-        <div style={{ height: "85vh", padding: "0px 10px" }}>
-          <FormTable
-            // loading={loading}
-            data={mainData}
-            columns={columns}
-          />
+        <div style={{ height: "calc(100vh - 130px)", padding: "0px 10px" }}>
+          <FormTable data={mainData} columns={columns} />
         </div>
       </Col>
     </Row>
   );
 }
 
-{
-  /* <div>
-  <FaUserCircle size={25} style={{ marginTop: "5px" }} />:{headerData?.insert_by}
-</div>insert_by_useremail/insert_by_usermobile */
-}
 export default UpdateRM;

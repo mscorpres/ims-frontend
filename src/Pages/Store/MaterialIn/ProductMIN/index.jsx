@@ -868,26 +868,12 @@ export default function ProductMIN() {
             <CustomButton
               title={"Yes"}
               size="small"
-           
               onclick={
                 activeTab == "1" ? vendorResetFunction : materialResetFunction
               }
             />
           </div>
-          // ,[
-          //   <Button key="back" onClick={() => setShowResetConfirm(false)}>
-          //     No
-          //   </Button>,
-          //   <Button
-          //     key="submit"
-          //     type="primary"
-          //     onClick={
-          //       activeTab == "1" ? vendorResetFunction : materialResetFunction
-          //     }
-          //   >
-          //     Yes
-          //   </Button>,
-          // ]
+         
         }
       >
         <p>
@@ -907,7 +893,7 @@ export default function ProductMIN() {
 
       {!showSuccessPage && (
         <div
-          className="grid grid-cols-[1fr_3fr] h-[calc(100vh-160px)]   "
+          className="grid grid-cols-[1fr_3fr] h-[calc(100vh-170px)]   "
           style={{ gap: 12, padding: 12 }}
         >
           <div
@@ -1025,7 +1011,7 @@ export default function ProductMIN() {
 
           <div
             style={{
-              height: "calc(100vh - 185px)",
+              height: "calc(100vh - 190px)",
               padding: 0,
               border: "1px solid #eeeeee ",
               overflowY: "auto",

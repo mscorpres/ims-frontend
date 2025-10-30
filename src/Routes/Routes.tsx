@@ -254,7 +254,7 @@ import R33 from "../Pages/Reports/R/R33";
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
-import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal";
+import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal/index.jsx";
 import R34 from "@/Pages/Reports/R/R34/index.js";
 import FARUpload from "@/Pages/far/index.js";
 import R35 from "@/Pages/Reports/R/R35.jsx";

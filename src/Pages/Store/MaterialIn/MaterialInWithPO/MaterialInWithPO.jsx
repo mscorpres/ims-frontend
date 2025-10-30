@@ -1347,7 +1347,7 @@ export default function MaterialInWithPO({}) {
           </Modal>{" "}
           <div
             style={{
-              height: "calc(100vh - 225px)",
+              height: "calc(100vh - 230px)",
               padding: 0,
               border: "1px solid #eeeeee ",
               overflowY: "auto",
