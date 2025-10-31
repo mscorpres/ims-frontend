@@ -48,7 +48,7 @@ function Services() {
       },
     },
     renderTopToolbar: () =>
-      loading === "fetch" ? (
+      loading  ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress
             sx={{

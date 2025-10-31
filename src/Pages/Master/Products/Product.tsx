@@ -53,11 +53,7 @@ const Product = () => {
   }, [productType]);
 
   return (
-    <Row
-      gutter={6}
-      justify="center"
-      style={{ height: "90%", padding: "0px 5px" }}
-    >
+    <Row gutter={6} justify="start" align="top" style={{ padding: "0px 5px" }}>
       <ComponentImages showImages={showImages} setShowImages={setShowImages} />
       <Edit
         editingProduct={editingProduct}
@@ -71,14 +67,14 @@ const Product = () => {
         setUpdatingImage={setUpdatingImage}
         getProductRows={getProductRows}
       />
-      <Col sm={8} xl={6} xxl={4}>
+      <Col xs={24} md={8} lg={8} xl={8} xxl={6}>
         <Add
           uomOptions={uomOptions}
           getProductRows={getProductRows}
           productType={productType}
         />
       </Col>
-      <Col span={10}>
+      <Col xs={24} md={16} lg={16} xl={16} xxl={18}>
         <View
           rows={rows}
           loading={loading("fetch")}
