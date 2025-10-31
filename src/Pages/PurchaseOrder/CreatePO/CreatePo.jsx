@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 import AddComponent from "./AddComponents";
 import { toast } from "react-toastify";
@@ -8,20 +8,7 @@ import AddBranch from "../../Master/Vendor/model/AddBranch";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
-import {
-  Col,
-  Descriptions,
-  Divider,
-  Form,
-  Input,
-  Row,
-  Tabs,
-  Modal,
-  Button,
-  InputNumber,
-  Radio,
-} from "antd";
-import TextArea from "antd/lib/input/TextArea";
+import { Form, Input, Tabs, Modal, InputNumber, Radio } from "antd";
 import Loading from "../../../Components/Loading";
 import SuccessPage from "./SuccessPage";
 import { imsAxios } from "../../../axiosInterceptor";
@@ -106,7 +93,6 @@ export default function CreatePo() {
   const [successData, setSuccessData] = useState(false);
   const [projectDesc, setProjectDesc] = useState("");
   const [form] = Form.useForm();
-  console.log("newPurchaseOrder", newPurchaseOrder);
   const { executeFun, loading: loading1 } = useApi();
   const validatePO = () => {
     let newPo = {};
@@ -299,7 +285,6 @@ export default function CreatePo() {
           vendorBranch: arr[0].value,
         });
         let paymentTermsDay = await getPaymentTermsDay(value.value);
-        // console.log("paymentTermsDay", paymentTermsDay);
         obj = {
           ...obj,
           [name]: value,
@@ -349,7 +334,6 @@ export default function CreatePo() {
           [name]: value,
         };
       }
-      console.log(obj);
       form.setFieldsValue(obj);
       setnewPurchaseOrder(obj);
     }
@@ -362,7 +346,6 @@ export default function CreatePo() {
     { text: "JWI (Job Work In)", value: "j01" },
     { text: "Vendor", value: "v01" },
   ];
-  //getting users list
   const getusers = async (s) => {
     if (s?.length > 2) {
       setSelectLoading(true);
@@ -477,7 +460,6 @@ export default function CreatePo() {
     });
     setPageLoading(false);
     setStateCode(data?.data?.statecode);
-    // console.log("stateCodeeeeeeeeeeeeee", data.data.statecode);
     return {
       gstin: data.data?.gstin,
       pan: data.data?.pan,
@@ -509,8 +491,6 @@ export default function CreatePo() {
       advancePayment: "",
     };
 
-    // form.reset
-    // form.resetFields();
     form.setFieldsValue(obj);
     setnewPurchaseOrder(obj);
     form.setFieldValue("advancePayment", "");
@@ -610,21 +590,11 @@ export default function CreatePo() {
         open={showSubmitConfirm}
         onCancel={() => setShowSubmitConfirm(false)}
         footer={[
-          // <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
-          //   No
-          // </Button>
           <CustomButton
             title="No"
             onclick={() => setShowSubmitConfirm(false)}
           />,
-          // <Button
-          //   key="submit"
-          //   type="primary"
-          //   loading={submitLoading}
-          //   onClick={submitHandler}
-          // >
-          //   Yes
-          // </Button>
+
           <CustomButton
             loading={submitLoading}
             title="Yes"

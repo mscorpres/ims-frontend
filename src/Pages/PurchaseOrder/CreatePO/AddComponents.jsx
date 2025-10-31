@@ -27,6 +27,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import { toast } from "react-toastify";
 export default function AddComponents({
   rowCount,
   setRowCount,
@@ -36,7 +37,6 @@ export default function AddComponents({
   totalValues,
   submitLoading,
   newPurchaseOrder,
-  setStateCode,
   stateCode,
 }) {
   const [currencies, setCurrencies] = useState([]);
@@ -108,7 +108,6 @@ export default function AddComponents({
       if (row.id == id) {
         let obj = row;
         if (name == "rate") {
-          console.log("row.gsttype", row.gsttype);
           if (row.gsttype == "L") {
             let percentage = obj.gstrate / 2;
             obj = {
@@ -216,16 +215,6 @@ export default function AddComponents({
               (row) => row.value == value.currency
             ),
           };
-          // let rate = +Number(obj.rate).toString();
-          // let diff = obj.rate_cap * value.rate - rate * value.rate;
-          // let diff1 = obj.rate_cap - rate;
-          // let perc = (diff1 * 100) / obj.rate_cap;
-          // perc = perc.toFixed(2);
-          // obj = {
-          //   ...obj,
-          //   diffPercentage: perc,
-          //   tol_price: diff,
-          // };
         } else if (name == "currency") {
           if (value == "364907247") {
             setShowCurrencyUpdateConfirmModal({ value: value, id: id });
@@ -294,11 +283,8 @@ export default function AddComponents({
         return row;
       }
     });
-    // "/purchaseOrder/getComponentDetailsByCode",
-    // /purchaseOrdertest/getComponentDetailsByCode
-    // console.log(arr);
+
     if (name == "component") {
-      console.log(newPurchaseOrder);
       setPageLoading(true);
       const { data } = await imsAxios.post(
         "/purchaseOrder/getComponentDetailsByCode",
@@ -308,6 +294,12 @@ export default function AddComponents({
           project: newPurchaseOrder.project_name,
         }
       );
+      if (data.code == 400 || data.code == 500) {
+        toast.error(data.message.vencode[0] || data.message.msg);
+        setPageLoading(false);
+        return;
+      }
+
       setPageLoading(false);
       let arr1 = rowCount;
       arr1 = arr1.map((row) => {
@@ -376,11 +368,6 @@ export default function AddComponents({
   };
   const getComponents = async (searchInput) => {
     if (searchInput.length > 2) {
-      // setSelectLoading(true);
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: searchInput,
-      // });
-      // setSelectLoading(false);
       const response = await executeFun(
         () => getComponentOptions(searchInput),
         "select"
@@ -472,16 +459,17 @@ export default function AddComponents({
   };
   const columns = [
     {
-      headerName: <div className="flex ">
-         <CommonIcons action="addRow" onClick={addRows} /></div>,
+      headerName: (
+        <div className="flex ">
+          <CommonIcons action="addRow" onClick={addRows} />
+        </div>
+      ),
       width: 40,
       field: "add",
       sortable: false,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.index >= 2 && (
-       
-           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
-         
+          <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
         ),
       // sortable: false,
     },
@@ -490,7 +478,7 @@ export default function AddComponents({
       width: 250,
       field: "component",
       sortable: false,
-      renderCell: (params) =>
+      render: (params) =>
         componentSelect(
           params,
           inputHandler,
@@ -506,7 +494,7 @@ export default function AddComponents({
       headerName: "Ord. Qty",
       field: "qty",
       sortable: false,
-      renderCell: (params) => quantityCell(params, inputHandler),
+      render: (params) => quantityCell(params, inputHandler),
       width: 130,
     },
     {
@@ -514,14 +502,14 @@ export default function AddComponents({
       width: 170,
       field: "rate",
       sortable: false,
-      renderCell: (params) => rateCell(params, inputHandler, currencies),
+      render: (params) => rateCell(params, inputHandler, currencies),
     },
     {
       headerName: "Rate Cap",
       width: 100,
       field: "rate_cap",
       sortable: false,
-      renderCell: (params) =>
+      render: (params) =>
         disabledCell(params, params.row.rate_cap, inputHandler),
     },
     {
@@ -529,7 +517,7 @@ export default function AddComponents({
       width: 120,
       field: "tol_price",
       sortable: false,
-      renderCell: (params) =>
+      render: (params) =>
         disabledCell(
           params,
           params.row.tol_price,
@@ -542,7 +530,7 @@ export default function AddComponents({
       width: 120,
       field: "project_req_qty",
       sortable: false,
-      renderCell: (params) =>
+      render: (params) =>
         disabledCell(params, params.row.project_req_qty, inputHandler),
     },
     {
@@ -550,7 +538,7 @@ export default function AddComponents({
       width: 100,
       field: "po_exec_qty",
       sortable: false,
-      renderCell: (params) =>
+      render: (params) =>
         disabledCell(params, params.row.po_exec_qty, inputHandler),
     },
     {
@@ -558,69 +546,69 @@ export default function AddComponents({
       width: 150,
       field: "inrValue",
       sortable: false,
-      renderCell: (params) => taxableCell(params), //ask
+      render: (params) => taxableCell(params), //ask
     },
     {
       headerName: "Foreign Value",
       width: 150,
       field: "usdValue",
       sortable: false,
-      renderCell: (params) => foreignCell(params),
+      render: (params) => foreignCell(params),
     },
     {
       headerName: "Due Date",
       width: 150,
       field: "duedate",
       sortable: false,
-      renderCell: (params) => invoiceDateCell(params, inputHandler), //ask
+      render: (params) => invoiceDateCell(params, inputHandler), //ask
     },
     {
       headerName: "HSN Code",
       width: 150,
       field: "hsncode",
       sortable: false,
-      renderCell: (params) => HSNCell(params, inputHandler),
+      render: (params) => HSNCell(params, inputHandler),
     },
     {
       headerName: "GST Type",
       width: 150,
       field: "gsttype",
       sortable: false,
-      renderCell: (params) => gstTypeCell(params, inputHandler),
+      render: (params) => gstTypeCell(params, inputHandler),
     },
     {
       headerName: "GST Rate",
       width: 100,
       field: "gstrate",
       sortable: false,
-      renderCell: (params) => gstRate(params, inputHandler),
+      render: (params) => gstRate(params, inputHandler),
     },
     {
       headerName: "CGST",
       width: 150,
       field: "cgst",
       sortable: false,
-      renderCell: (params) => CGSTCell(params, inputHandler),
+      render: (params) => CGSTCell(params, inputHandler),
     },
     {
       headerName: "SGST",
       width: 150,
       field: "sgst",
       sortable: false,
-      renderCell: (params) => SGSTCell(params, inputHandler),
+      render: (params) => SGSTCell(params, inputHandler),
     },
     {
       headerName: "IGST",
       width: 150,
       field: "igst",
       sortable: false,
-      renderCell: (params) => IGSTCell(params, inputHandler),
+      render: (params) => IGSTCell(params, inputHandler),
     },
 
     {
       headerName: "Item Description",
       width: 250,
-      renderCell: (params) => itemDescriptionCell(params, inputHandler),
+      render: (params) => itemDescriptionCell(params, inputHandler),
     },
   ];
   useEffect(() => {
