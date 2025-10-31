@@ -1,26 +1,29 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { Button, Row, Space, Tooltip, Popover, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
-import { v4 } from "uuid";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { DownloadOutlined, MessageOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import { set } from "lodash";
 import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import MyButton from "../../../Components/MyButton";
+import { Search } from "@mui/icons-material";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Box } from "@mui/system";
+import { LinearProgress } from "@mui/material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
 
 function ViewBranchTransfer() {
   const [searchLoading, setSearchLoading] = useState(false);
@@ -45,7 +48,6 @@ function ViewBranchTransfer() {
         trans_id: trans_id,
       }
     );
-    console.log(data);
     let arr = data.data.map((row, index) => ({
       id: index,
       index: index + 1,
@@ -194,9 +196,41 @@ function ViewBranchTransfer() {
     field: "failReason",
     renderCell: ({ row }) => <ToolTipEllipses text={row.failReason} />,
   };
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: searchLoading ? "calc(100vh - 260px)" : "calc(100vh - 310px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
     <>
-      <div style={{ height: "90%", marginTop: 10 }}>
+      <div style={{ height: "calc(100vh - 310px)", marginTop: 10 }}>
         <Row
           justify="space-between"
           style={{ padding: "0px 10px", marginBottom: -15 }}
@@ -244,15 +278,13 @@ function ViewBranchTransfer() {
                   </div>
                 )}
 
-                <MyButton
-                  variant="search"
-                  type="primary"
-                  loading={loading === "rows"}
-                  onClick={getRows}
-                  id="submit"
-                >
-                  Search
-                </MyButton>
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
+                  loading={loading == "rows"}
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Form>
@@ -272,12 +304,8 @@ function ViewBranchTransfer() {
             />
           </Space>
         </Row>
-        <div style={{ height: "93%", padding: "0px 10px" }}>
-          <MyDataTable
-            columns={[actionColumn, ...columns]}
-            data={rows}
-            loading={searchLoading}
-          />
+        <div style={{ height: "calc(100vh - 310px)", padding: "20px 10px" }}>
+          <MaterialReactTable table={table} />
         </div>
       </div>
       <ViewModal
@@ -294,41 +322,41 @@ function ViewBranchTransfer() {
 }
 const columns = [
   {
-    headerName: "#",
-    width: 50,
-    field: "index",
+    header: "#",
+    size: 50,
+    accessorKey: "index",
   },
   {
-    headerName: "Vendor Name",
-    width: 250,
-    field: "vendor",
+    header: "Vendor Name",
+    size: 250,
+    accessorKey: "vendor",
   },
   {
-    headerName: "Transaction Id",
-    width: 180,
-    field: "trans_id",
+    header: "Transaction Id",
+    size: 180,
+    accessorKey: "trans_id",
   },
   {
-    headerName: "Pick Up Location",
-    width: 180,
-    field: "from_location",
+    header: "Pick Up Location",
+    size: 180,
+    accessorKey: "from_location",
   },
   {
-    headerName: "Drop Location",
-    width: 180,
-    field: "to_location",
+    header: "Drop Location",
+    size: 180,
+    accessorKey: "to_location",
   },
   {
-    headerName: "Vechile Number",
-    flex: 1,
-    minWidth: 200,
-    field: "vehicle_no",
+    header: "Vechile Number",
+
+    size: 200,
+    accessorKey: "vehicle_no",
   },
   {
-    headerName: "Description",
-    flex: 1,
-    minWidth: 200,
-    field: "narration",
+    header: "Description",
+
+    size: 200,
+    accessorKey: "narration",
   },
 ];
 
@@ -350,10 +378,8 @@ const ViewModal = ({
   show,
   setshow,
   detaildata,
-  status,
   component,
 }) => {
-  console.log(detaildata);
   const viewcolumns = [
     {
       headerName: "#",

@@ -1,5 +1,4 @@
-import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   asyncSelectComponent,
@@ -9,17 +8,16 @@ import { v4 } from "uuid";
 import FormTable from "../../../../Components/FormTable";
 import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
-import { Button, Modal } from "antd";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MySelect from "../../../../Components/MySelect";
 import { getComponentOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 export default function AddDCComponents({
   newGatePass,
   setActiveTab,
   detailsResetFunction,
-  setSuccessPage,
   setPageLoading,
   pickuplocs,
   droplocs,
@@ -36,18 +34,12 @@ export default function AddDCComponents({
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const getComponents = async (searchInput) => {
     if (searchInput.length > 2) {
-      // setSelectLoading(true);
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: searchInput,
-      // });
-      // setSelectLoading(false);
       const response = await executeFun(
         () => getComponentOptions(searchInput),
         "select"
@@ -216,7 +208,7 @@ export default function AddDCComponents({
       width: 40,
       field: "add",
       sortable: false,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         rows.indexOf(row) >= 1 && (
           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
         ),
@@ -226,7 +218,7 @@ export default function AddDCComponents({
       headerName: "Component",
       field: "component",
       width: 300,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         asyncSelectComponent({
           row: row,
           inputHandler: inputHandler,
@@ -241,7 +233,7 @@ export default function AddDCComponents({
       headerName: "Qty",
       field: "qty",
       width: 150,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         inputComponent({
           row: row,
           inputHandler: inputHandler,
@@ -253,7 +245,7 @@ export default function AddDCComponents({
       headerName: "Pick up Location",
       field: "pickup",
       flex: 1,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <MySelect
           options={pickuplocs}
           onChange={(e) => {
@@ -266,7 +258,7 @@ export default function AddDCComponents({
       headerName: "Drop Location",
       field: "drop",
       flex: 1,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <MySelect
           options={droplocs}
           onChange={(e) => {
@@ -279,7 +271,7 @@ export default function AddDCComponents({
       headerName: "HSN/SAC",
       field: "hsn",
       flex: 1,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         inputComponent({
           row: row,
           value: "hsn",
@@ -291,7 +283,7 @@ export default function AddDCComponents({
       headerName: "Description",
       field: "description",
       width: 350,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         inputComponent({
           row: row,
           value: "description",
@@ -306,19 +298,22 @@ export default function AddDCComponents({
         title="Confirm Create Delivery Challan!"
         open={showSubmitConfirm}
         onCancel={() => setShowSubmitConfirm(false)}
-        footer={[
-          <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
-            No
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            loading={submitLoading}
-            onClick={submitHandler}
-          >
-            Yes
-          </Button>,
-        ]}
+        footer={
+          <div className="flex justify-end " style={{ gap: 6 }}>
+            <CustomButton
+              size="small"
+              variant="text"
+              title={"No"}
+              onclick={() => setShowSubmitConfirm(false)}
+            />
+            <CustomButton
+              size="small"
+              title={"Yes"}
+              onclick={submitHandler}
+              loading={submitLoading}
+            />
+          </div>
+        }
       >
         <p>Are you sure you want to generate this Delivery Challan?</p>
       </Modal>
@@ -327,14 +322,17 @@ export default function AddDCComponents({
         title="Confirm Reset!"
         open={showResetConfirm}
         onCancel={() => setShowResetConfirm(false)}
-        footer={[
-          <Button key="back" onClick={() => setShowResetConfirm(false)}>
-            No
-          </Button>,
-          <Button key="submit" type="primary" onClick={resetFunction}>
-            Yes
-          </Button>,
-        ]}
+        footer={
+          <div className="flex justify-end " style={{ gap: 6 }}>
+            <CustomButton
+              size="small"
+              variant="text"
+              title={"No"}
+              onclick={() => setShowResetConfirm(false)}
+            />
+            <CustomButton size="small" title={"Yes"} onclick={resetFunction} />
+          </div>
+        }
       >
         <p>
           Are you sure you want to reset the components of this Delivery

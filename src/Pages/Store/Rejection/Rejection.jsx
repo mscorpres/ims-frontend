@@ -7,7 +7,15 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDataTable from "../../../Components/MyDataTable";
 import { DeleteTwoTone, DeleteOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyButton from "../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 const { TextArea } = Input;
 
@@ -123,10 +131,10 @@ const Rejection = () => {
 
   const columns = [
     {
-      field: "Actions",
-      headerName: "Actions",
-      width: 100,
-      renderCell: ({ row }) => (
+      accessorKey: "Actions",
+      header: "Actions",
+      size: 100,
+      Cell: ({ row }) => (
         <>
           <DeleteTwoTone
             onClick={() => resetData(row.id)}
@@ -136,15 +144,15 @@ const Rejection = () => {
         </>
       ),
     },
-    { field: "componentName", headerName: "Component", width: 300 },
-    { field: "partno", headerName: "Part", width: 100 },
-    { field: "hsncode", headerName: "HSN", width: 100 },
-    { field: "gsttype", headerName: "GST", width: 100 },
+    { accessorKey: "componentName", header: "Component", size: 300 },
+    { accessorKey: "partno", header: "Part", size: 100 },
+    { accessorKey: "hsncode", header: "HSN", size: 100 },
+    { accessorKey: "gsttype", header: "GST", size: 100 },
     {
-      field: "inward_qty",
-      headerName: "Total",
-      width: 140,
-      renderCell: ({ row }) => (
+      accessorKey: "inward_qty",
+      header: "Total",
+      size: 140,
+      Cell: ({ row }) => (
         <>
           <Input
             suffix={row.uom}
@@ -157,22 +165,55 @@ const Rejection = () => {
         </>
       ),
     },
-    { field: "rejected_qty", headerName: "Reject Qty", width: 100 },
-    { field: "min_date", headerName: "Date", width: 180 },
-    { field: "location", headerName: "Pick(-) From", width: 120 },
+    { accessorKey: "rejected_qty", header: "Reject Qty", size: 100 },
+    { accessorKey: "min_date", header: "Date", size: 180 },
+    { accessorKey: "location", header: "Pick(-) From", size: 120 },
     {
-      field: "loc",
-      headerName: "Drop (+)To",
-      width: 160,
-      renderCell: ({ row }) => (
+      accessorKey: "loc",
+      header: "Drop (+)To",
+      size: 160,
+      Cell: ({ row }) => (
         <Select
-          style={{ width: "100%" }}
+          style={{ size: "100%" }}
           options={loctionData}
           onChange={(e) => compInputHandler("loc", e, row.id)}
         />
       ),
     },
   ];
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: allDataComes || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   const rejectionFun = async () => {
     setLoadingRejection(true);
@@ -225,15 +266,14 @@ const Rejection = () => {
             }
           />
         </Col>
-        <Col span={2}>
-          <MyButton
-            variant="search"
-            type="primary"
-            onClick={rejectListFunction}
+        <Col span={3}>
+          <CustomButton
+            size="small"
+            title={"Search"}
+            starticon={<Search fontSize="small" />}
             loading={loading}
-          >
-            Fetch
-          </MyButton>
+            onclick={rejectListFunction}
+          />
         </Col>
         {allDataComes.length > 0 && (
           <Col span={8} offset={10}>
@@ -242,13 +282,11 @@ const Rejection = () => {
         )}
       </Row>
 
-      <Skeleton loading={loading}>
-        <div style={{ height: "69vh", margin: "15px" }}>
-          <div style={{ height: "100%" }}>
-            <MyDataTable data={allDataComes} columns={columns} />
-          </div>
-        </div>
-      </Skeleton>
+      <div style={{ height: "69vh", margin: "15px" }}>
+        {/* <MyDataTable data={allDataComes} columns={columns} />
+         */}
+        <MaterialReactTable table={table} />
+      </div>
 
       {allDataComes.length > 0 && (
         <Row gutter={16} style={{ margin: "10px" }}>

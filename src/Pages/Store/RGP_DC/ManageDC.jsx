@@ -1,86 +1,49 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Input, Row, Select } from "antd";
-import { Link } from "react-router-dom";
-import MyDataTable from "../../../Components/MyDataTable";
 import { v4 as uuidv4 } from "uuid";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import EditDC from "./EditDC/EditDC";
-import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyButton from "../../../Components/MyButton";
 import validateResponse from "../../../Components/validateResponse";
-import printFunction, { downloadFunction } from "../../../Components/printFunction";
+import printFunction, {
+  downloadFunction,
+} from "../../../Components/printFunction";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { Create, Download, Edit, Print, Search } from "@mui/icons-material";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 const SELECT_OPTIONS = [
   { label: "Date Wise", value: "datewise" },
   { label: "GP ID Wise", value: "gpwise" },
 ];
 
-
-
 function ManageDC() {
-  const COLUMNS = [
-  {
-    headerName: "",
-    width: 30,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        key="edit"
-        showInMenu
-        label="Edit"
-        onClick={() => setUpdateDCId(row.transaction_id)}
-      />,
-      <GridActionsCellItem
-        key="download"
-        showInMenu
-        label="Download"
-        onClick={() => downloadFun(row.transaction_id)}
-      />,
-      <GridActionsCellItem
-        key="print"
-        showInMenu
-        label="Print"
-        onClick={() => printFun(row.transaction_id)}
-      />,
-      <GridActionsCellItem
-        key="ewaybill"
-        showInMenu
-        label={
-          <Link
-            style={{ textDecoration: "none", color: "black" }}
-            to={`/warehouse/e-way/dc/${row.transaction_id.replaceAll("/", "_")}`}
-            target="_blank"
-          >
-            Create E-Way Bill
-          </Link>
-        }
-      />,
-    ],
-  },
-  {
-    field: "transaction_id",
-    headerName: "Journal ID",
-    width: 200,
-    renderCell: ({ row }) => (
-      <ToolTipEllipses text={row.transaction_id} copy />
-    ),
-  },
-  { field: "vendor_name", headerName: "To (Name)", width: 500 },
-  { field: "insert_date", headerName: "Created Date/Time", width: 200 },
-  { field: "component_name", headerName: "Component Name", width: 200 },
-  { field: "part_no", headerName: "Part No.", width: 200 },
-  { field: "quantity", headerName: "Quantity", width: 200 },
-  { field: "rate", headerName: "Rate", width: 200 },
-  { field: "hsn", headerName: "HSN", width: 200 },
-  { field: "total", headerName: "Amount", width: 200 },
-  { field: "ewaybill_status", headerName: "E WayBill Status", width: 200 },
-  { field: "ewaybill_no", headerName: "E WayBill No.", width: 200 },
-];
+  const columns = [
+    {
+      accessorKey: "transaction_id",
+      header: "Journal ID",
+      size: 200,
+    },
+    { accessorKey: "vendor_name", header: "To (Name)", size: 500 },
+    { accessorKey: "insert_date", header: "Created Date/Time", size: 200 },
+    { accessorKey: "component_name", header: "Component Name", size: 200 },
+    { accessorKey: "part_no", header: "Part No.", size: 200 },
+    { accessorKey: "quantity", header: "Quantity", size: 200 },
+    { accessorKey: "rate", header: "Rate", size: 200 },
+    { accessorKey: "hsn", header: "HSN", size: 200 },
+    { accessorKey: "total", header: "Amount", size: 200 },
+    { accessorKey: "ewaybill_status", header: "E WayBill Status", size: 200 },
+    { accessorKey: "ewaybill_no", header: "E WayBill No.", size: 200 },
+  ];
   const [state, setState] = useState({
     selType: "",
     gpInput: "",
@@ -181,6 +144,87 @@ function ManageDC() {
     }
   }, []);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: tableData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit />}
+        key="edit"
+        label="Edit"
+        onClick={() => {
+          closeMenu?.();
+          setUpdateDCId(row?.original?.transaction_id);
+        }}
+        table={table}
+      />,
+
+      <MRT_ActionMenuItem
+        icon={<Download />}
+        key="download"
+        label="Download"
+        onClick={() => {
+          closeMenu?.();
+          downloadFun(row?.original?.po_transaction);
+        }}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print />}
+        key="print"
+        label="Print"
+        onClick={() => {
+          closeMenu?.();
+          printFun(row?.original?.po_transaction);
+        }}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Create />}
+        key="ewaybill"
+        label="Create E-Way Bill"
+        onClick={() => {
+          closeMenu?.();
+          const url = `/warehouse/e-way/dc/${row.transaction_id.replaceAll(
+            "/",
+            "_"
+          )}`;
+          window.open(url, "_blank");
+        }}
+        table={table}
+      />,
+    ],
+  });
+
   return (
     <div style={{ height: "90%", padding: "10px" }}>
       {updatedDCId && (
@@ -210,14 +254,14 @@ function ManageDC() {
               />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
-                type="primary"
-                onClick={fetchData}
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
+                loading={loading}
                 disabled={loading || !dateRange}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchData}
+              />
             </Col>
           </>
         )}
@@ -235,15 +279,15 @@ function ManageDC() {
                 aria-label="Gate Pass ID"
               />
             </Col>
-            <Col span={2}>
-              <MyButton
-                variant="search"
-                type="primary"
-                onClick={fetchData}
+            <Col span={3}>
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
+                loading={loading}
                 disabled={loading || !state.gpInput.trim()}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchData}
+              />
             </Col>
           </>
         )}
@@ -256,7 +300,7 @@ function ManageDC() {
         )}
       </Row>
       <div style={{ height: "95%", margin: "10px" }}>
-        <MyDataTable loading={loading} data={tableData} columns={COLUMNS} />
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );
