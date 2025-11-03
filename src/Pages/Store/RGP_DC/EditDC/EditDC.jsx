@@ -1,28 +1,22 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import {
-  Col,
-  Descriptions,
-  Divider,
   Form,
   Input,
-  Row,
   Modal,
   Button,
   Tabs,
   Drawer,
-  Skeleton,
 } from "antd";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import NavFooter from "../../../../Components/NavFooter";
-import axios from "axios";
 import EditDCComponents from "./EditDCComponents";
-import Loading from "../../../../Components/Loading";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import { getVendorOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 
 export default function EditDC({ updatedDCId, setUpdateDCId }) {
   const [newGatePass, setNewGatePass] = useState({
@@ -233,8 +227,7 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
       width="100vw"
     >
       {!skeletonLoading && (
-        <div style={{ height: "100%" }}>
-          {pageLoading && <Loading />}
+        <div style={{ height: "calc(100% - 30px)" }}>
           <Tabs
             style={{
               padding: "0 10px",
@@ -246,17 +239,14 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
             activeKey={activeTab}
             size="small"
           >
-            <Tabs.TabPane
-              tab={<span onClick={() => setActiveTab("1")}>DC Details</span>}
-              key="1"
-            >
+            <Tabs.TabPane tab={""} key="1">
               <>
                 <div
                   style={{
-                    height: "95%",
+                    height: "calc(100% - 260px)",
                     overflowY: "scroll",
                     overflowX: "hidden",
-                    padding: "0vh 20px",
+                    padding: "6px 20px",
                   }}
                 >
                   {/* reset confirm modal */}
@@ -286,603 +276,455 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
                     </p>
                   </Modal>
                   {/* vendor */}
-                  <Row>
-                    <Col span={4}>
-                      <Descriptions size="small" title="Pass Type">
-                        <Descriptions.Item
-                          contentStyle={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                          }}
-                        >
-                          Provide Gate pass type
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Col>
-                    <Col span={20}>
-                      <Row gutter={16}>
-                        {/* PO type */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Pass Type
-                                </span>
-                              }
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Please Select a PO Type!",
-                                },
-                              ]}
-                            >
-                              <MySelect
-                                size="default"
-                                options={passTypes}
-                                value={newGatePass.passType}
-                                onChange={(value) =>
-                                  inputHandler("passType", value)
-                                }
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                  <Divider />
-                  <Row>
-                    <Col span={4}>
-                      <Descriptions size="small" title="Party Details">
-                        <Descriptions.Item
-                          contentStyle={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                          }}
-                        >
-                          Type Name or Code of the vendor
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Col>
-
-                    <Col span={20}>
-                      <Row gutter={16}>
-                        {/* vendor type */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Vendor Name
-                                </span>
-                              }
-                            >
-                              <MyAsyncSelect
-                                selectLoading={loading1("select")}
-                                size="default"
-                                labelInValue
-                                // onBlur={() => setAsyncOptions([])}
-                                optionsState={asyncOptions}
-                                value={newGatePass.vendorName}
-                                onChange={(value) => {
-                                  inputHandler("vendorName", value);
+                  <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                    <CustomFieldBox
+                      title="Pass Type"
+                      subtitle={`Provide Gate pass type`}
+                    >
+                      <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
                                 }}
-                                loadOptions={getVendors}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-
-                        {/* venodr branch */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <div
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    width: 350,
-                                    // background: "red",
-                                  }}
-                                >
-                                  Vendor Branch
-                                  {/* <span
-                        onClick={() => {
-                          newGatePass.vendorname.value
-                            ? setShowBranchModal({
-                                vendor_code: newGatePass.vendorname.value,
-                              })
-                            : toast.error("Please Select a vendor first");
-                        }}
-                        style={{ color: "#1890FF" }}
-                      >
-                        Add Branch
-                      </span> */}
-                                </div>
+                              >
+                                Pass Type
+                              </span>
+                            }
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please Select a PO Type!",
+                              },
+                            ]}
+                          >
+                            <MySelect
+                              size="default"
+                              options={passTypes}
+                              value={newGatePass.passType}
+                              onChange={(value) =>
+                                inputHandler("passType", value)
                               }
-                            >
-                              <MySelect
-                                value={newGatePass.vendorBranch}
-                                onChange={(value) => {
-                                  inputHandler("vendorBranch", value);
+                            />
+                          </Form.Item>
+                        </Form>
+                      </div>
+                    </CustomFieldBox>
+                    <CustomFieldBox
+                      title="DC Terms"
+                      subtitle={`Provide Gate Pass terms and other information`}
+                    >
+                      <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
                                 }}
-                                options={vendorBranches}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item label="GSTIN">
-                              <Input
-                                size="default"
-                                value={newGatePass.vendorGSTIN}
-                                disabled
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                      <Row gutter={8}>
-                        <Col span={18}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Bill From Address
-                                </span>
+                              >
+                                Vendor Name
+                              </span>
+                            }
+                          >
+                            <MyAsyncSelect
+                              selectLoading={loading1("select")}
+                              size="default"
+                              labelInValue
+                              // onBlur={() => setAsyncOptions([])}
+                              optionsState={asyncOptions}
+                              value={newGatePass.vendorName}
+                              onChange={(value) => {
+                                inputHandler("vendorName", value);
+                              }}
+                              loadOptions={getVendors}
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                  // background: "red",
+                                }}
+                              >
+                                Vendor Branch
+                              </div>
+                            }
+                          >
+                            <MySelect
+                              value={newGatePass.vendorBranch}
+                              onChange={(value) => {
+                                inputHandler("vendorBranch", value);
+                              }}
+                              options={vendorBranches}
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item label="GSTIN">
+                            <Input
+                              size="default"
+                              value={newGatePass.vendorGSTIN}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item label="GSTIN">
+                            <Input
+                              size="default"
+                              value={newGatePass.vendorGSTIN}
+                              disabled
+                            />
+                          </Form.Item>
+                        </Form>
+                      </div>
+                    </CustomFieldBox>
+                    <CustomFieldBox
+                      title="Party Details"
+                      subtitle={`Type Name or Code of the vendor`}
+                    >
+                      <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Mode / Terms and Conditions
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler("paymentTerms", e.target.value)
                               }
-                            >
-                              <Input.TextArea
-                                rows={4}
-                                value={newGatePass?.vendorAddress?.replaceAll(
-                                  "<br>",
-                                  "\n"
-                                )}
-                                onChange={(e) => {
-                                  inputHandler("vendorAddress", e.target.value);
+                              value={newGatePass.paymentTerms}
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
                                 }}
-                                style={{ resize: "none" }}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                  <Divider />
-                  {/* PASS TERMS */}
-                  <Row>
-                    <Col span={4}>
-                      <Descriptions size="small" title="DC Terms">
-                        <Descriptions.Item
-                          contentStyle={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                          }}
+                              >
+                                Reference Number & Date
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler("referenceDate", e.target.value)
+                              } // onChange={inputHandler}
+                              value={newGatePass.referenceDate}
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Other Terms
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              value={newGatePass.otherReferences}
+                              onChange={(e) =>
+                                inputHandler("otherReferences", e.target.value)
+                              }
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                  // background: "red",
+                                }}
+                              >
+                                Buyer's Order Number
+                              </div>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              value={newGatePass.buyerOrderNumber}
+                              onChange={(e) =>
+                                inputHandler("buyerOrderNumber", e.target.value)
+                              }
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Dispatch Doc Number
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler(
+                                  "dispatchDocNumber",
+                                  e.target.value
+                                )
+                              }
+                              value={newGatePass.dispatchDocNumber}
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Dispatched Through
+                              </span>
+                            }
+                          >
+                            <Input
+                              onChange={(e) =>
+                                inputHandler("dipatchThrough", e.target.value)
+                              }
+                              value={newGatePass.dipatchThrough}
+                            />
+                          </Form.Item>
+                        </Form>{" "}
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                }}
+                              >
+                                Destination
+                              </div>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler("destination", e.target.value)
+                              }
+                              value={newGatePass.destination}
+                            />
+                          </Form.Item>
+                        </Form>{" "}
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Terms of Delivery
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler("deliveryTerms", e.target.value)
+                              }
+                              value={newGatePass.deliveryTerms}
+                            />
+                          </Form.Item>
+                        </Form>{" "}
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Vehicle Number
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler("vehicleNumber", e.target.value)
+                              }
+                              value={newGatePass.vehicleNumber}
+                            />
+                          </Form.Item>
+                        </Form>{" "}
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Vehicle Number
+                              </span>
+                            }
+                          >
+                            <Input
+                              size="default"
+                              onChange={(e) =>
+                                inputHandler("vehicleNumber", e.target.value)
+                              }
+                              value={newGatePass.vehicleNumber}
+                            />
+                          </Form.Item>
+                        </Form>
+                      </div>
+                    </CustomFieldBox>
+                    <CustomFieldBox
+                      title="Warehouse Details"
+                      subtitle={`Provide warehouse information`}
+                    >
+                      <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                Billing Id
+                              </span>
+                            }
+                          >
+                            <MySelect
+                              size="default"
+                              value={newGatePass.billingId}
+                              onChange={(value) => {
+                                inputHandler("billingId", value);
+                              }}
+                              options={billToOptions}
+                            />
+                          </Form.Item>
+                        </Form>
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                PAN
+                              </span>
+                            }
+                          >
+                            <Input
+                              disabled
+                              size="default"
+                              name="bill_pan"
+                              value={newGatePass.billingPan}
+                            />
+                          </Form.Item>
+                        </Form>{" "}
+                        <Form size="small" layout="vertical">
+                          <Form.Item
+                            label={
+                              <span
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                }}
+                              >
+                                GSTIN / UIN
+                              </span>
+                            }
+                          >
+                            <Input
+                              disabled
+                              size="default"
+                              name="bill_gstin"
+                              value={newGatePass.billingGSTIN}
+                            />
+                          </Form.Item>
+                        </Form>{" "}
+                      </div>
+                      <Form size="small" layout="vertical">
+                        <Form.Item
+                          label={
+                            <span
+                              style={{
+                                fontSize: window.innerWidth < 1600 && "0.7rem",
+                              }}
+                            >
+                              Billing Address
+                            </span>
+                          }
                         >
-                          Provide Gate Pass terms and other information
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Col>
-                    <Col span={20}>
-                      <Row gutter={16}>
-                        {/* terms and conditions */}
-
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Mode / Terms and Conditions
-                                </span>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                onChange={(e) =>
-                                  inputHandler("paymentTerms", e.target.value)
-                                }
-                                value={newGatePass.paymentTerms}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* reference and date */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Reference Number & Date
-                                </span>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                onChange={(e) =>
-                                  inputHandler("referenceDate", e.target.value)
-                                } // onChange={inputHandler}
-                                value={newGatePass.referenceDate}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* other refrences */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Other Terms
-                                </span>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                value={newGatePass.otherReferences}
-                                onChange={(e) =>
-                                  inputHandler(
-                                    "otherReferences",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                      <Row gutter={16}>
-                        {/* buyer order number */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <div
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    width: 350,
-                                    // background: "red",
-                                  }}
-                                >
-                                  Buyer's Order Number
-                                </div>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                value={newGatePass.buyerOrderNumber}
-                                onChange={(e) =>
-                                  inputHandler(
-                                    "buyerOrderNumber",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* dispatch doc number */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Dispatch Doc Number
-                                </span>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                onChange={(e) =>
-                                  inputHandler(
-                                    "dispatchDocNumber",
-                                    e.target.value
-                                  )
-                                }
-                                value={newGatePass.dispatchDocNumber}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* dispatch trough */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Dispatched Through
-                                </span>
-                              }
-                            >
-                              <Input
-                                onChange={(e) =>
-                                  inputHandler("dipatchThrough", e.target.value)
-                                }
-                                value={newGatePass.dipatchThrough}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                      <Row gutter={16}>
-                        {/* destination */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <div
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    width: 350,
-                                  }}
-                                >
-                                  Destination
-                                </div>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                onChange={(e) =>
-                                  inputHandler("destination", e.target.value)
-                                }
-                                value={newGatePass.destination}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* delivery terms */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Terms of Delivery
-                                </span>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                onChange={(e) =>
-                                  inputHandler("deliveryTerms", e.target.value)
-                                }
-                                value={newGatePass.deliveryTerms}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* vehicle number */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Vehicle Number
-                                </span>
-                              }
-                            >
-                              <Input
-                                size="default"
-                                onChange={(e) =>
-                                  inputHandler("vehicleNumber", e.target.value)
-                                }
-                                value={newGatePass.vehicleNumber}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col span={18}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Narration
-                                </span>
-                              }
-                            >
-                              <Input.TextArea
-                                rows={4}
-                                value={newGatePass?.narration}
-                                onChange={(e) =>
-                                  inputHandler("narration", e.target.value)
-                                }
-                                style={{ resize: "none" }}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-
-                  <Divider />
-                  <Row>
-                    <Col span={4}>
-                      <Descriptions size="small" title="Warehouse Details">
-                        <Descriptions.Item
-                          contentStyle={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                          }}
-                        >
-                          Provide warehouse information
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Col>
-                    <Col span={20}>
-                      <Row gutter={16}>
-                        {/* billing id */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Billing Id
-                                </span>
-                              }
-                            >
-                              <MySelect
-                                size="default"
-                                value={newGatePass.billingId}
-                                onChange={(value) => {
-                                  inputHandler("billingId", value);
-                                }}
-                                options={billToOptions}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* pan number */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  PAN
-                                </span>
-                              }
-                            >
-                              <Input
-                                disabled
-                                size="default"
-                                name="bill_pan"
-                                value={newGatePass.billingPan}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                        {/* gstin */}
-                        <Col span={6}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  GSTIN / UIN
-                                </span>
-                              }
-                            >
-                              <Input
-                                disabled
-                                size="default"
-                                name="bill_gstin"
-                                value={newGatePass.billingGSTIN}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                      {/* billing address */}
-                      <Row>
-                        <Col span={18}>
-                          <Form size="small" layout="vertical">
-                            <Form.Item
-                              label={
-                                <span
-                                  style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
-                                  }}
-                                >
-                                  Billing Address
-                                </span>
-                              }
-                            >
-                              <Input.TextArea
-                                style={{ resize: "none" }}
-                                rows={4}
-                                onChange={(e) =>
-                                  inputHandler("billinAddress", e.target.value)
-                                }
-                                value={newGatePass.billinAddress?.replaceAll(
-                                  "<br>",
-                                  " "
-                                )}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </Row>
-                    </Col>
-                  </Row>
-                  <Divider />
+                          <Input.TextArea
+                            style={{ resize: "none" }}
+                            rows={4}
+                            onChange={(e) =>
+                              inputHandler("billinAddress", e.target.value)
+                            }
+                            value={newGatePass.billinAddress?.replaceAll(
+                              "<br>",
+                              " "
+                            )}
+                          />
+                        </Form.Item>
+                      </Form>
+                    </CustomFieldBox>
+                  </div>
                 </div>
                 <NavFooter
                   backFunction={() => setUpdateDCId(false)}
@@ -893,9 +735,7 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
             </Tabs.TabPane>
             <Tabs.TabPane
               style={{ height: "100%", overflow: "hidden" }}
-              tab={
-                <span onClick={() => setActiveTab("2")}>Component Details</span>
-              }
+              tab={""}
               key="2"
             >
               <div style={{ height: "95%", overflow: "hidden" }}>
@@ -915,7 +755,7 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
           </Tabs>
         </div>
       )}
-      {skeletonLoading && (
+      {/* {skeletonLoading && (
         <>
           <Row>
             <Col span={4}>
@@ -952,7 +792,7 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
             </Col>
           </Row>
           <Divider />
-          {/* PASS TERMS */}
+      
           <Row>
             <Col span={4}>
               <Descriptions size="small" title="DC Terms">
@@ -988,7 +828,7 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
             </Col>
           </Row>
         </>
-      )}
+      )} */}
       {/* {successPage && (
         <SuccessPage
           successInfo={successPage}

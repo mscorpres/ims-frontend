@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import useApi from "../../../hooks/useApi.ts";
-import { Col, Row } from "antd";
 import {
   getPhysicalStockWithStatus,
   updateStatus,
 } from "../../../api/store/physical-stock";
-import MyDataTable from "../../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 
 const PendingPhysicalStock = () => {
   const [rows, setRows] = useState([]);
@@ -46,53 +51,81 @@ const PendingPhysicalStock = () => {
     }
   };
 
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // reject icon
-      <GridActionsCellItem
-        showInMenu
-        // disabled={disabled}
-        label={"Reject"}
-        onClick={() =>
-          handleUpdateStatus({
-            auditKey: row.auditKey,
-            componentKey: row.componentKey,
-            status: "reject",
-          })
-        }
-      />,
-      // approve icon
-      <GridActionsCellItem
-        showInMenu
-        // disabled={disabled}
-        label={"Approve"}
-        onClick={() =>
-          handleUpdateStatus({
-            auditKey: row.auditKey,
-            componentKey: row.componentKey,
-            status: "approved",
-          })
-        }
-      />,
-    ],
-  };
   useEffect(() => {
     handleGetRows();
   }, []);
-  return (
-    <div style={{ height: "95%", padding: 10 }}>
-      <Row style={{ height: "100%" }} justify="center">
-        <Col span={20}>
-          <MyDataTable
-            loading={loading("fetch") || loading("updateStatus")}
-            data={rows}
-            columns={[actionColumn, ...columns]}
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <Box sx={{ display: "flex", gap: "0.5rem" }}>
+        <Tooltip title="Reject">
+          <IconButton
+            onClick={() =>
+              handleUpdateStatus({
+                auditKey: row?.original?.auditKey,
+                componentKey: row?.original?.componentKey,
+                status: "reject",
+              })
+            }
+            color="error"
+            size="small"
+          >
+            <ThumbDownIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Approve">
+          <IconButton
+            onClick={() =>
+              handleUpdateStatus({
+                auditKey: row?.original?.auditKey,
+                componentKey: row?.original?.componentKey,
+                status: "approved",
+              })
+            }
+            size="small"
+            color="success"
+          >
+            <ThumbUpIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 200px)"
+          : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("updateStatus") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
           />
-        </Col>
-      </Row>
+        </Box>
+      ) : null,
+  });
+  return (
+    <div style={{ padding: 10, my: 2 }}>
+      <MaterialReactTable table={table} />
     </div>
   );
 };
@@ -101,45 +134,45 @@ export default PendingPhysicalStock;
 
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Component",
-    minWidth: 120,
-    flex: 1,
-    field: "component",
+    header: "Component",
+    size: 120,
+
+    accessorKey: "component",
   },
   {
-    headerName: "Part COde",
-    width: 150,
-    field: "partCode",
+    header: "Part COde",
+    size: 150,
+    accessorKey: "partCode",
   },
   {
-    headerName: "Audit Qty",
-    width: 150,
-    field: "auditQty",
+    header: "Audit Qty",
+    size: 150,
+    accessorKey: "auditQty",
   },
   {
-    headerName: "IMS Qty",
-    width: 150,
-    field: "imsQty",
+    header: "IMS Qty",
+    size: 150,
+    accessorKey: "imsQty",
   },
   {
-    headerName: "Audit Date",
-    width: 150,
-    field: "auditDate",
+    header: "Audit Date",
+    size: 150,
+    accessorKey: "auditDate",
   },
   {
-    headerName: "Audit By",
-    width: 150,
-    field: "auditBy",
+    header: "Audit By",
+    size: 150,
+    accessorKey: "auditBy",
   },
   {
-    headerName: "Remark",
-    minWidth: 120,
-    flex: 1,
-    field: "remark",
+    header: "Remark",
+    size: 120,
+
+    accessorKey: "remark",
   },
 ];

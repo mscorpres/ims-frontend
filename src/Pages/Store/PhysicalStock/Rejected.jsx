@@ -5,8 +5,15 @@ import {
   getPhysicalStockWithStatus,
   updateAudit,
 } from "../../../api/store/physical-stock";
-import MyDataTable from "../../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
+import { Box } from "@mui/system";
+import { Edit } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { IconButton, LinearProgress, Tooltip } from "@mui/material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 
 const RejectedPhysicalStock = () => {
   const [rows, setRows] = useState([]);
@@ -54,28 +61,63 @@ const RejectedPhysicalStock = () => {
       handleGetRows();
     }
   };
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // edit icon
-      <GridActionsCellItem
-        showInMenu
-        // disabled={disabled}
-        label={"Update"}
-        onClick={() => {
-          setSelectedAudit(row);
-          setShowUpdateModal(true);
-        }}
-      />,
-    ],
-  };
+
   useEffect(() => {
     handleGetRows();
   }, []);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <Box sx={{ display: "flex", gap: "0.5rem" }}>
+        <Tooltip title="Reject">
+          <IconButton
+            onClick={() => {
+              setSelectedAudit(row?.original);
+              setShowUpdateModal(true);
+            }}
+            color="inherit"
+            size="small"
+          >
+            <Edit fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 200px)"
+          : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("updateStatus") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <div style={{ height: "95%", padding: 10 }}>
+    <div style={{ padding: 10 }}>
       <UpdateModal
         open={showUpdateModal}
         hide={hideUpdateModal}
@@ -83,15 +125,8 @@ const RejectedPhysicalStock = () => {
         updateHandler={handleUpdateAudit}
         loading={loading("submit")}
       />
-      <Row style={{ height: "100%" }} justify="center">
-        <Col span={20}>
-          <MyDataTable
-            loading={loading("fetch") || loading("updateStatus")}
-            data={rows}
-            columns={[actionColumn, ...columns]}
-          />
-        </Col>
-      </Row>
+
+      <MaterialReactTable table={table} />
     </div>
   );
 };
@@ -99,46 +134,48 @@ const RejectedPhysicalStock = () => {
 export default RejectedPhysicalStock;
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Component",
-    minWidth: 120,
+    header: "Component",
+
+    size: 120,
     flex: 1,
-    field: "component",
+    accessorKey: "component",
   },
   {
-    headerName: "Part COde",
-    width: 150,
-    field: "partCode",
+    header: "Part COde",
+    size: 150,
+    accessorKey: "partCode",
   },
   {
-    headerName: "Audit Qty",
-    width: 150,
-    field: "auditQty",
+    header: "Audit Qty",
+    size: 150,
+    accessorKey: "auditQty",
   },
   {
-    headerName: "IMS Qty",
-    width: 150,
-    field: "imsQty",
+    header: "IMS Qty",
+    size: 150,
+    accessorKey: "imsQty",
   },
   {
-    headerName: "Audit Date",
-    width: 150,
-    field: "auditDate",
+    header: "Audit Date",
+    size: 150,
+    accessorKey: "auditDate",
   },
   {
-    headerName: "Audit By",
-    width: 150,
-    field: "auditBy",
+    header: "Audit By",
+    size: 150,
+    accessorKey: "auditBy",
   },
   {
-    headerName: "Remark",
-    minWidth: 120,
+    header: "Remark",
+
+    size: 120,
     flex: 1,
-    field: "remark",
+    accessorKey: "remark",
   },
 ];
 
@@ -156,14 +193,28 @@ const UpdateModal = ({ open, hide, selectedAudit, updateHandler, loading }) => {
       title="Update Audit Qty"
       open={open}
       onCancel={hide}
-      okText="Submit"
-      confirmLoading={loading}
-      onOk={() =>
-        updateHandler(
-          selectedAudit?.componentKey,
-          selectedAudit?.auditKey,
-          form.getFieldValue("qty")
-        )
+      footer={
+        <div>
+          <CustomButton
+            title={"cancel"}
+            size="small"
+            variant="text"
+            onclick={hide}
+            disabled={loading}
+          />
+          <CustomButton
+            title={"submit"}
+            size="small"
+            loading={loading}
+            onclick={() =>
+              updateHandler(
+                selectedAudit?.componentKey,
+                selectedAudit?.auditKey,
+                form.getFieldValue("qty")
+              )
+            }
+          />
+        </div>
       }
     >
       <Row>

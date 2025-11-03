@@ -18,18 +18,18 @@ import Loading from "@/Components/Loading.jsx";
 import MyAsyncSelect from "@/Components/MyAsyncSelect";
 //module components
 import SingleProduct from "./SingleProduct";
-// types
-import { ModalType, SelectOptionType } from "@/types/general";
+
 //hooks
 import useApi from "@/hooks/useApi";
 //apis
 import { fetchBoxDetails, updateBoxQty } from "@/api/store/material-in.js";
 import { getComponentOptions, getComponentStock } from "@/api/general";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
 
 function PIAScan() {
   const [ready, setReady] = useState(false);
   const [selectedPartCode, setSelectedPartCode] = useState(null);
-  const [asyncOptions, setAsyncOptions] = useState<SelectOptionType[]>([]);
+  const [asyncOptions, setAsyncOptions] = useState([]);
   const [successData, setSuccessData] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [stock, setStock] = useState(0);
@@ -51,7 +51,7 @@ function PIAScan() {
   const selectedComponent = Form.useWatch("part", scan);
 
   // fetching data from qr code and setting into form and validating same part code
-  const handleScan = (value: string) => {
+  const handleScan = (value) => {
     try {
       const parsed = JSON.parse(value.toString().split("/n")[0]);
       if (
@@ -79,7 +79,7 @@ function PIAScan() {
     }
   };
   // getting box details and adding it to the form
-  const handleFetchDetails = async (minId: string, boxLabel: string) => {
+  const handleFetchDetails = async (minId, boxLabel) => {
     const response = await executeFun(
       () => fetchBoxDetails(minId, boxLabel),
       boxLabel
@@ -103,7 +103,7 @@ function PIAScan() {
     }
   };
   //fetching component stock from RM location
-  const handleFetchComponentStock = async (componentKey?: string) => {
+  const handleFetchComponentStock = async (componentKey) => {
     const values = await scan.validateFields();
     const response = await executeFun(
       () => getComponentStock(componentKey ?? values.part, "rm"),
@@ -117,13 +117,13 @@ function PIAScan() {
   };
 
   // calculating total available qty
-  const getTotalAvailableQty = (components: []) => {
+  const getTotalAvailableQty = (components) => {
     return components?.reduce((partialSum, a) => {
       return partialSum + +Number(a.availabelQty ?? 0).toFixed(2);
     }, 0);
   };
   // veryfying stock and total available qty
-  const handleVerify = async (componentKey: string) => {
+  const handleVerify = async (componentKey) => {
     const stock = await handleFetchComponentStock(componentKey);
     const values = await scan.validateFields();
     const total = getTotalAvailableQty(values.components);
@@ -164,13 +164,13 @@ function PIAScan() {
     }
   };
   // storing part code in state to validate same part code after scanning labels
-  const handleGetPartCode = (componentKey: string) => {
+  const handleGetPartCode = (componentKey) => {
     const foundComponent = asyncOptions.find(
-      (row: SelectOptionType) => row.value === componentKey
+      (row) => row.value === componentKey
     );
     setSelectedPartCode(foundComponent?.partCode);
   };
-  const handleFetchComponentOptions = async (search: string) => {
+  const handleFetchComponentOptions = async (search) => {
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
@@ -213,8 +213,8 @@ function PIAScan() {
       layout="vertical"
       form={scan}
       style={{
-        padding: 20,
-        height: "100%",
+        padding: 8,
+        height: "calc(100vh - 100px)",
         overflow: "hidden",
       }}
     >
@@ -237,17 +237,19 @@ function PIAScan() {
 
       <Row
         justify="center"
-        gutter={8}
+        gutter={10}
         style={{
-          padding: "0px 5px",
-          height: "100%",
-
-          overflow: "hidden",
+          padding: "0px 4px",
         }}
       >
-        <Col sm={4} xl={6} xxl={5}>
+        <Col
+          sm={4}
+          xl={6}
+          xxl={5}
+          style={{ height: "calc(100vh - 140px)", overflow: "auto" }}
+        >
           <Flex gap={10} vertical>
-            <Card size="small">
+            <CustomFieldBox>
               <Form.Item label="Component" name="part">
                 <MyAsyncSelect
                   onBlur={() => setAsyncOptions([])}
@@ -310,8 +312,8 @@ function PIAScan() {
                   variant="reset"
                 />
               </Flex>
-            </Card>
-            <Card size="small" title="Scan Summary">
+            </CustomFieldBox>
+            <CustomFieldBox title={"Scan Summary"}>
               <Flex gap={10} wrap="wrap" justify="space-between">
                 <SingleDetail
                   label="Stock Qty"
@@ -342,7 +344,7 @@ function PIAScan() {
                   )?.toString()}
                 />
               </Flex>
-            </Card>
+            </CustomFieldBox>
           </Flex>
           {/* hidden input */}
           {/* <Form.Item name="raw"> */}
@@ -385,7 +387,7 @@ function PIAScan() {
           xl={18}
           xxl={19}
           style={{
-            height: "100%",
+            height: "calc(100vh - 140px)",
             overflowY: "hidden",
             border: "1px solid #eee",
             borderRadius: 10,
@@ -513,13 +515,7 @@ function PIAScan() {
 
 export default PIAScan;
 
-const SingleDetail = ({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | React.ReactNodez;
-}) => {
+const SingleDetail = ({ label, value }) => {
   return (
     <Flex vertical gap={5}>
       <Typography.Text style={{ fontSize: "0.8rem" }} strong>
@@ -534,16 +530,6 @@ const initialValues = {
   components: [],
 };
 
-interface ConfirmProps {
-  show: boolean;
-  hide: () => void;
-  loading: true;
-  stockQty: string | number;
-  count: number;
-  totalQty: string | number;
-  component: string;
-  submitHandler: () => void;
-}
 const SubmitConfirm = ({
   show,
   hide,
@@ -553,7 +539,7 @@ const SubmitConfirm = ({
   totalQty,
   component,
   submitHandler,
-}: ConfirmProps) => {
+}) => {
   return (
     <Modal
       confirmLoading={loading}
@@ -578,10 +564,7 @@ const SubmitConfirm = ({
   );
 };
 
-interface ResetProps extends ModalType {
-  resetHandler: () => void;
-}
-const ResetConfirm = (props: ResetProps) => {
+const ResetConfirm = (props) => {
   return (
     <Modal
       open={props.show}

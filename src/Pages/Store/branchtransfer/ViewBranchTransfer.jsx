@@ -136,7 +136,6 @@ function ViewBranchTransfer() {
     try {
       setRows([]);
       const values = await qcReportForm.validateFields();
-      console.log(values);
       let fetchdata = "";
       if (values.status === "date") {
         fetchdata = {
@@ -159,8 +158,6 @@ function ViewBranchTransfer() {
         toast.error(data.message);
       } else if (data.status === "success") {
         if (data.code === 200) {
-          console.log("coming here");
-          console.log(data);
           const arr = data.data.map((row, index) => {
             return {
               key: index,

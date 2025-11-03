@@ -9,16 +9,14 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
-import PIAScan from "@/Pages/Store/MINLabel/PIAScan.tsx";
+import PIAScan from "../MINLabel/PIAScan.jsx";
+
 const { RangePicker } = DatePicker;
 
 function CreatePhysical() {
-  // console.log(addrow);
-
   return (
     <Tabs
       defaultActiveKey="1"
-      // type="card"
       tabPosition="left"
       size={"small"}
       style={{ margin: 10, height: "95%" }}
@@ -60,9 +58,6 @@ const Manual = () => {
 
   const getComponent = async (e) => {
     if (e?.length > 2) {
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: e,
-      // });
       const response = await executeFun(() => getComponentOptions(e), "select");
       const { data } = response;
       let arr = [];

@@ -13,6 +13,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
 import { Box, LinearProgress } from "@mui/material";
 import { getFgColumns } from "./fgcolunms";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 const PendingFG = () => {
   const [pending, setPending] = useState([]);
@@ -41,7 +42,6 @@ const PendingFG = () => {
         setLoading(false);
       });
   };
-
 
   const handleDownloadingCSV = () => {
     let arr = [];
