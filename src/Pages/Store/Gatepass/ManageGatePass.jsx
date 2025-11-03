@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import MyDataTable from "../../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MySelect from "../../../Components/MySelect";
 import printFunction, {
@@ -14,6 +17,10 @@ import TableActions, {
 } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import { Download, Print, Search } from "@mui/icons-material";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 export default function ManageGatePass() {
   const [wise, setWise] = useState("datewise");
@@ -30,44 +37,24 @@ export default function ManageGatePass() {
   ];
   const columns = [
     {
-      headerName: "Serial No.",
-      field: "index",
-      width: 100,
+      header: "Serial No.",
+      accessorKey: "index",
+      size: 100,
     },
     {
-      headerName: "Jounral ID",
-      field: "transaction_id",
-      flex: 1,
+      header: "Jounral ID",
+      accessorKey: "transaction_id",
+      size: 100,
     },
     {
-      headerName: "To (Name)",
-      field: "recipient",
-      flex: 1,
+      header: "To (Name)",
+      accessorKey: "recipient",
+      size: 100,
     },
     {
-      headerName: "Created Date/Time",
-      field: "gp_reg_date",
-      flex: 1,
-    },
-    {
-      headerName: "Action",
-      field: "action",
-      type: "actions",
-      flex: 1,
-      getActions: ({ row }) => [
-        <TableActions
-          action="print"
-          onClick={() => {
-            printFun(row.transaction_id);
-          }}
-        />,
-        <TableActions
-          action="download"
-          onClick={() => {
-            downloadFun(row.transaction_id);
-          }}
-        />,
-      ],
+      header: "Created Date/Time",
+      accessorKey: "gp_reg_date",
+      size: 100,
     },
   ];
   const downloadFun = async (id) => {
@@ -121,74 +108,73 @@ export default function ManageGatePass() {
       );
     }
   };
-  const additional = () => (
-    <Space>
-      <div style={{ width: 150 }}>
-        <MySelect options={wiseOptions} onChange={setWise} value={wise} />
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <div className="space-x-4">
+        <Tooltip title="Print">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={() => {
+              printFun(row?.original?.transaction_id);
+            }}
+          >
+            <Print fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Download">
+          <IconButton
+            size="small"
+            color="inherit"
+            onClick={() => {
+              downloadFun(row?.original?.transaction_id);
+            }}
+          >
+            <Download fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </div>
-      <div style={{ width: 300 }}>
-        {wise === "datewise" ? (
-          <div style={{ width: 300 }}>
-            <MyDatePicker
-              setDateRange={setSearchDateRange}
-              dateRange={searchDateRange}
-              value={searchDateRange}
-              size="default"
-            />
-          </div>
-        ) : wise === "gpwise" ? (
-          <div style={{ width: 300 }}>
-            <Input
-              type="text"
-              // className="form-control w-100 "
-              placeholder="Enter GP ID"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-          </div>
-        ) : (
-          wise === "mobemailwise" && (
-            <div style={{ width: 300 }}>
-              <Input
-                type="text"
-                // className="form-control w-100 "
-                placeholder="Enter Email / Phone Number"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-            </div>
-          )
-        )}
-      </div>
-      <Button
-        loading={searchLoading}
-        disabled={
-          wise === "datewise"
-            ? searchDateRange === ""
-              ? true
-              : false
-            : !searchInput
-            ? true
-            : false
-        }
-        type="primary"
-        onClick={getRows}
-        id="submit"
-      >
-        Search
-      </Button>
-      <CommonIcons
-        action="downloadButton"
-        onClick={() => downloadCSV(rows, columns, "GatePass Report")}
-        disabled={rows.length == 0}
-      />
-    </Space>
-  );
+    ),
+
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading || searchLoading
+            ? "calc(100vh - 240px)"
+            : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading || searchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
     <div style={{ position: "relative", height: "95%" }}>
       <Row
         justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
+        style={{ padding: "12px 10px", paddingBottom: 5 }}
       >
         <Col>
           <Space>
@@ -229,8 +215,11 @@ export default function ManageGatePass() {
                 )
               )}
             </div>
-            <MyButton
-              variant="search"
+
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<Search fontSize="small" />}
               loading={searchLoading}
               disabled={
                 wise === "datewise"
@@ -241,12 +230,8 @@ export default function ManageGatePass() {
                   ? true
                   : false
               }
-              type="primary"
-              onClick={getRows}
-              id="submit"
-            >
-              Search
-            </MyButton>
+              onclick={getRows}
+            />
           </Space>
         </Col>
         <Col>
@@ -265,13 +250,7 @@ export default function ManageGatePass() {
           padding: "0px 10px",
         }}
       >
-        <MyDataTable
-          pagination={true}
-          data={rows}
-          columns={columns}
-          headText="center"
-          loading={loading || searchLoading}
-        />
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

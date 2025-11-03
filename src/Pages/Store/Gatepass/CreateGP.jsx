@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { v4 } from "uuid";
@@ -13,12 +13,12 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 
 import useApi from "../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 export default function CreateGP() {
   const [rows, setRows] = useState([
     { id: v4(), item: "", qty: 0, uom: "", remark: "" },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [fetchDetailsLoading, setFetchDetailsLoading] = useState(false);
   const [otherData, setOtherData] = useState({
     name: "",
@@ -32,12 +32,6 @@ export default function CreateGP() {
   const { executeFun, loading: loading1 } = useApi();
 
   const getComponentDetail = async (searchInputText) => {
-    // setSelectLoading(true);
-
-    // const { data } = await imsAxios.post("backend/getComponentByNameAndNo", {
-    //   search: searchInputText,
-    // });
-    // setSelectLoading(false);
     const response = await executeFun(
       () => getComponentOptions(searchInputText),
       "select"
@@ -149,7 +143,7 @@ export default function CreateGP() {
       width: 80,
       type: "actions",
       field: "add",
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.index > 0 ? (
           <CommonIcons
             action="removeRow"
@@ -164,7 +158,7 @@ export default function CreateGP() {
     {
       headerName: "Component",
       width: 300,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <MyAsyncSelect
           onBlur={() => setAsyncOptions([])}
           value={rows.filter((r) => r.id == row.id)[0]?.component}
@@ -180,7 +174,7 @@ export default function CreateGP() {
     {
       headerName: "UoM",
       width: 200,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           onChange={(e) => inputHandler("qty", e.target.value, row.id)}
           value={row.qty}
@@ -196,7 +190,7 @@ export default function CreateGP() {
     },
     {
       headerName: "Remarks",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           name="remark"
           onChange={(e) => inputHandler("remark", e.target.value, row.id)}
@@ -286,271 +280,208 @@ export default function CreateGP() {
   return (
     <div
       style={{
-        position: "relative",
-        height: "90%",
+        height: "calc(100vh - 170px)",
         overflowY: "auto",
         overflowX: "hidden",
-        paddingBottom: 50,
+        padding: "18px 14px",
       }}
     >
       {loading && <Loading />}
       <div
+        className="grid grid-cols-[1fr_2fr] "
         style={{
-          opacity: loading ? 0.5 : 1,
-          pointerEvents: loading ? "none" : "all",
-          padding: "20px",
+          gap: 10,
         }}
       >
-        <Row>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Basic Details</p>}
-            >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+        <div className="grid grid-cols-1" style={{ gap: 12 }}>
+          <CustomFieldBox
+            title="Basic Details"
+            subtitle="Pass type and name of the recipent"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 10 }}>
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      PO Type
+                    </span>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Select a Pass Type!",
+                    },
+                  ]}
+                >
+                  <MySelect
+                    size="default"
+                    options={passTypes}
+                    value={otherData.passType}
+                    onChange={(value) => otherInputHandler("passType", value)}
+                  />
+                </Form.Item>
+              </Form>
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title="Basic Details"
+            subtitle="Pass type and name of the recipent"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 10 }}>
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      Name
+                    </span>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter name",
+                    },
+                  ]}
+                >
+                  <Input
+                    value={otherData.name}
+                    onChange={(e) => otherInputHandler("name", e.target.value)}
+                    size="default"
+                  />
+                </Form.Item>
+              </Form>{" "}
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      Mobile
+                    </span>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Enter Mobile Number!",
+                    },
+                  ]}
+                >
+                  <Input
+                    size="default"
+                    value={otherData.mobile}
+                    onChange={(e) =>
+                      otherInputHandler("mobile", e.target.value)
+                    }
+                  />
+                </Form.Item>
+              </Form>{" "}
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      Email
+                    </span>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Enter Email!",
+                    },
+                  ]}
+                >
+                  <Input
+                    size="default"
+                    value={otherData.email}
+                    onChange={(e) => otherInputHandler("email", e.target.value)}
+                  />
+                </Form.Item>
+              </Form>
+            </div>
+            <Form size="small" layout="vertical">
+              <Form.Item
+                label={
+                  <span
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                    }}
+                  >
+                    Address
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Enter Address!",
+                  },
+                ]}
               >
-                Pass type and name of the recipent
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-
-          <Col span={20}>
-            <Row gutter={16}>
-              {/* Pass type */}
-
-              <Col span={6}>
-                <Form size="small" layout="vertical">
-                  <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontSize: window.innerWidth < 1600 && "0.7rem",
-                        }}
-                      >
-                        PO Type
-                      </span>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please Select a Pass Type!",
-                      },
-                    ]}
-                  >
-                    <MySelect
-                      size="default"
-                      options={passTypes}
-                      value={otherData.passType}
-                      onChange={(value) => otherInputHandler("passType", value)}
-                    />
-                  </Form.Item>
-                </Form>
-              </Col>
-              {/* name type */}
-              <Col span={6}>
-                <Form size="small" layout="vertical">
-                  <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontSize: window.innerWidth < 1600 && "0.7rem",
-                        }}
-                      >
-                        Name
-                      </span>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please enter name",
-                      },
-                    ]}
-                  >
-                    <Input
-                      value={otherData.name}
-                      onChange={(e) =>
-                        otherInputHandler("name", e.target.value)
-                      }
-                      size="default"
-                    />
-                  </Form.Item>
-                </Form>
-              </Col>
-              {/* mobile */}
-              <Col span={6}>
-                <Form size="small" layout="vertical">
-                  <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontSize: window.innerWidth < 1600 && "0.7rem",
-                        }}
-                      >
-                        Mobile
-                      </span>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please Enter Mobile Number!",
-                      },
-                    ]}
-                  >
-                    <Input
-                      size="default"
-                      value={otherData.mobile}
-                      onChange={(e) =>
-                        otherInputHandler("mobile", e.target.value)
-                      }
-                    />
-                  </Form.Item>
-                </Form>
-              </Col>
-              {/* email */}
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form size="small" layout="vertical">
-                  <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontSize: window.innerWidth < 1600 && "0.7rem",
-                        }}
-                      >
-                        Address
-                      </span>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please Enter Address!",
-                      },
-                    ]}
-                  >
-                    <TextArea
-                      style={{ resize: "none" }}
-                      row={4}
-                      size="default"
-                      value={otherData.address}
-                      onChange={(e) =>
-                        otherInputHandler("address", e.target.value)
-                      }
-                    />
-                  </Form.Item>
-                </Form>
-              </Col>
-              <Col span={6}>
-                <Form size="small" layout="vertical">
-                  <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontSize: window.innerWidth < 1600 && "0.7rem",
-                        }}
-                      >
-                        Email
-                      </span>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please Enter Email!",
-                      },
-                    ]}
-                  >
-                    <Input
-                      size="default"
-                      value={otherData.email}
-                      onChange={(e) =>
-                        otherInputHandler("email", e.target.value)
-                      }
-                    />
-                  </Form.Item>
-                </Form>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        {/* second section */}
-        <Row>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Narration</p>}
-            >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
-              >
-                Narration for the pass
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-
-          <Col span={20}>
-            <Row gutter={16}>
-              {/* narration */}
-              <Col span={18}>
-                <Form size="small" layout="vertical">
-                  <Form.Item
-                    label={
-                      <span
-                        style={{
-                          fontSize: window.innerWidth < 1600 && "0.7rem",
-                        }}
-                      >
-                        Narration
-                      </span>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please Enter Mobile Number!",
-                      },
-                    ]}
-                  >
-                    <Input
-                      size="default"
-                      value={otherData.narration}
-                      onChange={(e) =>
-                        otherInputHandler("narration", e.target.value)
-                      }
-                    />
-                  </Form.Item>
-                </Form>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Item Details</p>}
-            ></Descriptions>
-          </Col>
-
-          <Col span={20}>
-            <Row gutter={16}>
-              {fetchDetailsLoading && <Loading />}
-              {/* narration */}
-              <Col span={18} style={{ maxHeight: 350, overflowY: "auto" }}>
-                <FormTable
-                  // density="comfortable"
-                  columns={columns}
-                  data={rows}
+                <TextArea
+                  style={{ resize: "none" }}
+                  row={4}
+                  size="default"
+                  value={otherData.address}
+                  onChange={(e) => otherInputHandler("address", e.target.value)}
                 />
-              </Col>
-            </Row>
-          </Col>
-        </Row>
+              </Form.Item>
+            </Form>
+          </CustomFieldBox>
+
+          <CustomFieldBox title="Narration" subtitle="Narration for the pass">
+            <div className="grid grid-cols-2" style={{ gap: 10 }}>
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      Narration
+                    </span>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Enter Mobile Number!",
+                    },
+                  ]}
+                >
+                  <Input
+                    size="default"
+                    value={otherData.narration}
+                    onChange={(e) =>
+                      otherInputHandler("narration", e.target.value)
+                    }
+                  />
+                </Form.Item>
+              </Form>
+            </div>
+          </CustomFieldBox>
+        </div>
+        <div>
+          <CustomFieldBox title="Items" subtitle="Items to be passed">
+            {" "}
+            {fetchDetailsLoading && <Loading />}{" "}
+            <FormTable
+              // density="comfortable"
+              columns={columns}
+              data={rows}
+            />
+          </CustomFieldBox>
+        </div>
       </div>
       <NavFooter
         submitFunction={submitFunction}
