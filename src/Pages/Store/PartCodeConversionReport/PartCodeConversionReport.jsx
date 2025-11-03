@@ -2,13 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Row,
   Col,
-  Input,
   Space,
-  Button,
-  Switch,
   Table,
-  Pagination,
-  Spin,
 } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
@@ -17,12 +12,10 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import Exceljs from "exceljs";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import MyButton from "../../../Components/MyButton";
+import { Search } from "@mui/icons-material";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 const PartCodeConversionReport = () => {
   const wiseOptions = [
     {
@@ -302,7 +295,7 @@ const PartCodeConversionReport = () => {
   return (
     <>
       <Row
-        style={{ margin: 4, padding: "1rem", paddingTop: 0 }}
+        style={{ margin: "12px 0px", padding: "1rem", paddingTop: 0 }}
         justify="space-between"
       >
         <Col>
@@ -333,15 +326,13 @@ const PartCodeConversionReport = () => {
                   <MyDatePicker setDateRange={setSearchInput} />
                 )}
 
-                <MyButton
-                  variant="search"
-                  onClick={handleSubmit}
-                  // //   onClick={getRows}
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "fetch"}
-                  type="primary"
-                >
-                  Fetch
-                </MyButton>
+                  onclick={handleSubmit}
+                />
               </Space>
             </div>
           </Space>
@@ -353,7 +344,12 @@ const PartCodeConversionReport = () => {
         />
       </Row>
       <Row
-        style={{ width: "92vw", marginLeft: "1.5rem", marginRight: "1.5rem" }}
+        style={{
+          width: "92vw",
+          marginLeft: "1.5rem",
+          marginRight: "1.5rem",
+          height: "calc(100% - 200px)",
+        }}
       >
         <Table
           columns={columns}
@@ -372,7 +368,7 @@ const PartCodeConversionReport = () => {
             pageSize: 50,
           }}
           scroll={{
-            y: 550,
+            y: "calc(100% - 300px)", // adjust the 300px offset for header/footer space
           }}
           loading={loading}
         />

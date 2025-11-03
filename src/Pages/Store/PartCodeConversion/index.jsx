@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Button,
-  Card,
   Col,
-  Divider,
   Empty,
   Form,
   Input,
@@ -12,18 +10,16 @@ import {
   Space,
   Typography,
 } from "antd";
-import TableActions, {
-  CommonIcons,
-} from "../../../Components/TableActions.jsx/TableActions";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import { EditFilled, DeleteFilled } from "@ant-design/icons";
-import MyButton from "../../../Components/MyButton";
 import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 const PartCodeConversion = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -45,14 +41,6 @@ const PartCodeConversion = () => {
 
   const getComponentOption = async (search) => {
     try {
-      const payload = {
-        search,
-      };
-      // setLoading("select");
-      // const response = await imsAxios.post(
-      //   "/backend/getComponentByNameAndNo",
-      //   payload
-      // );
       const response = await executeFun(
         () => getComponentOptions(search),
         "select"
@@ -256,24 +244,37 @@ const PartCodeConversion = () => {
     if (type === isEditing.type) {
       return (
         <Space>
-          <Button onClick={() => handleCancelEditing(type)}>Cancel</Button>
-          <Button onClick={() => saveEditing(type)} type="primary">
-            Save
-          </Button>
+          <CustomButton
+            variant="text"
+            size="small"
+            title={"cancel"}
+            onclick={() => handleCancelEditing(type)}
+          />
+          <CustomButton
+            size="small"
+            title={"save"}
+            onclick={() => saveEditing(type)}
+          />
         </Space>
       );
     } else {
       return (
         <Space>
-          <MyButton variant="reset" onClick={() => formResetHandler(type)} />
-          <MyButton
+          <CustomButton
+            variant="outlined"
+            size="small"
+            title={"reset"}
+            onclick={() => formResetHandler(type)}
+          />
+          <CustomButton
+            size="small"
+            title={"add"}
             disabled={
               (addedComponents.out?.component && type === "final") ||
               componentStock === "0 Pcs" ||
               comQtyVal > componentStock
             }
-            variant="add"
-            onClick={() => addComponent(type)}
+            onclick={() => addComponent(type)}
           />
         </Space>
       );
@@ -389,10 +390,12 @@ const PartCodeConversion = () => {
   return (
     <div
       style={{
-        height: "90%",
-        padding: 10,
-        paddingRight: "10%",
-        paddingLeft: "10%",
+        height: "calc(100vh - 100px)",
+        padding: "0px 14px",
+        margin: "10px 0px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
       }}
     >
       <Form
@@ -400,14 +403,9 @@ const PartCodeConversion = () => {
         layout="vertical"
         form={addComponentForm}
       >
-        <Row gutter={6}>
+        <Row gutter={12}>
           <Col span={12}>
-            <Card
-              size="small"
-              title="Initial Component"
-              extra={extraButtons(editingComponent, "initial")}
-              style={{ position: "relative" }}
-            >
+            <CustomFieldBox title={"Initial Component"}>
               {loading === "page" && <Loading />}
               <Row gutter={6}>
                 <Col span={14}>
@@ -458,15 +456,14 @@ const PartCodeConversion = () => {
                   </Form.Item>
                 </Col>
               </Row>
-            </Card>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                {extraButtons(editingComponent, "initial")}
+              </div>
+            </CustomFieldBox>
           </Col>
 
           <Col span={12}>
-            <Card
-              size="small"
-              title="Final Component"
-              extra={extraButtons(editingComponent, "final")}
-            >
+            <CustomFieldBox title={"Final Component"}>
               <Row gutter={6}>
                 <Col span={14}>
                   <Form.Item
@@ -505,45 +502,20 @@ const PartCodeConversion = () => {
                   </Form.Item>
                 </Col>
               </Row>
-            </Card>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                {extraButtons(editingComponent, "final")}
+              </div>
+            </CustomFieldBox>
           </Col>
         </Row>
       </Form>
-
-      <Card
-        size="small"
-        title="Added Components"
-        extra={
-          <Space>
-            <MyButton variant="clear" onClick={validateClear} />
-            <MyButton
-              variant="submit"
-              disabled={
-                componentIn ||
-                componentOut ||
-                !addedComponents.in[0] ||
-                !addedComponents.out?.component
-              }
-              onClick={validateHandler}
-            />
-          </Space>
-        }
-        style={{ height: "80%", overflow: "hidden", marginTop: 10 }}
-        bodyStyle={{ height: "95%", overflow: "hidden" }}
-      >
-        <Row style={{ height: "98%", overflow: "hidden" }}>
+      <CustomFieldBox title={"Added Components"}>
+        <Row style={{ height: "calc(100% - 40px)", overflow: "hidden" }}>
           <Col span={24} style={{ height: "100%" }}>
-            <Row gutter={6} style={{ height: "100%" }}>
+            <Row gutter={12} style={{ height: "100%", padding: "6px 0px" }}>
               <Col span={12} style={{ height: "100%" }}>
-                <Card
-                  size="small"
-                  title="Initital Components"
-                  style={{ height: "100%" }}
-                  bodyStyle={{
-                    height: "95%",
-                  }}
-                >
-                  <Row gap={6} style={{ height: "100%", overflow: "hidden" }}>
+                <CustomFieldBox title={"Initial Components"}>
+                  <Row gap={6} style={{ overflow: "hidden" }}>
                     <Col xl={5} xxl={3}></Col>
                     <Col xl={10} xxl={14}>
                       <Typography.Text strong>Component</Typography.Text>
@@ -564,9 +536,8 @@ const PartCodeConversion = () => {
                     <Col
                       span={24}
                       style={{
-                        height: "95%",
+                        height: "calc(100% - 40px)",
                         overflow: "auto",
-                        paddingBottom: 20,
                       }}
                     >
                       {addedComponents.in.map((component) => (
@@ -611,15 +582,10 @@ const PartCodeConversion = () => {
                       ))}
                     </Col>
                   </Row>
-                </Card>
+                </CustomFieldBox>
               </Col>
               <Col span={12}>
-                <Card
-                  size="small"
-                  title="Final Components"
-                  style={{ height: "99%", overflow: "hidden" }}
-                  bodyStyle={{ height: "95%", overflow: "auto" }}
-                >
+                <CustomFieldBox title={"Final Components"}>
                   <Row align="middle">
                     <Col xl={5} xxl={3}></Col>
                     <Col xl={10} xxl={14}>
@@ -668,12 +634,39 @@ const PartCodeConversion = () => {
                       </Typography.Text>
                     </Col>
                   </Row>
-                </Card>
+                </CustomFieldBox>
               </Col>
             </Row>
           </Col>
         </Row>
-      </Card>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 10,
+            marginTop: 10,
+          }}
+        >
+          <CustomButton
+            size="small"
+            variant="text"
+            title="Clear"
+            onclick={validateClear}
+          />
+
+          <CustomButton
+            size="small"
+            title="Submit"
+            onclick={validateHandler}
+            disabled={
+              componentIn ||
+              componentOut ||
+              !addedComponents.in[0] ||
+              !addedComponents.out?.component
+            }
+          />
+        </div>
+      </CustomFieldBox>
     </div>
   );
 };
