@@ -1,5 +1,4 @@
 import { Button, Col, Input, Popconfirm, Row, Space, Tooltip } from "antd";
-import React from "react";
 import { useState } from "react";
 import MySelect from "../../../Components/MySelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
@@ -11,6 +10,11 @@ import TableActions, {
   CommonIcons,
 } from "../../../Components/TableActions.jsx/TableActions";
 import MyDataTable from "../../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
 import PoDetailsView from "./JwDetailsView.jsx";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import PoRejectModa from "./JwRejectModal.jsx";
@@ -18,13 +22,14 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CloseOutlined, CheckOutlined, EyeOutlined } from "@ant-design/icons";
 import PoApprovalModel from "./JwApprovalModal.jsx";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import {
-  getProjectOptions,
-  getVendorOptions,
-} from "../../../api/general.ts";
+import { getProjectOptions, getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
+import { Print, Search } from "@mui/icons-material";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 
 export default function JobWorkApproval() {
   const [loading, setLoading] = useState(false);
@@ -36,6 +41,7 @@ export default function JobWorkApproval() {
   const [rows, setRows] = useState([]);
   const [approvePo, setApprovePo] = useState(null);
   const [selectedPo, setSelectedPo] = useState([]);
+  const [rowSelection, setRowSelection] = useState({});
   const { executeFun, loading: loading1 } = useApi();
   const wiseOptions = [
     { text: "Date Wise", value: "datewise" },
@@ -62,13 +68,10 @@ export default function JobWorkApproval() {
   const getRows = async () => {
     setRows([]);
     setLoading("fetch");
-    const response = await imsAxios.post(
-      "/jobwork/fetchneededApprovalJW",
-      {
-        data: searchInput,
-        wise: wise,
-      }
-    );
+    const response = await imsAxios.post("/jobwork/fetchneededApprovalJW", {
+      data: searchInput,
+      wise: wise,
+    });
     setLoading(false);
     const { data } = response;
     if (data) {
@@ -86,7 +89,7 @@ export default function JobWorkApproval() {
   const approveSubmitHandler = async (poid, remark) => {
     setLoading("approving");
     const response = await imsAxios.post("/jobwork/updateJWApproval", {
-      jwid:poid,
+      jwid: poid,
       remark,
     });
     setLoading(false);
@@ -126,87 +129,126 @@ export default function JobWorkApproval() {
   };
   const columns = [
     {
-      headerName: "",
-      field: "actions",
-      width: 30,
-      type: "actions",
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          onClick={() => {
-            setViewPoDetails(row.jw_transaction);
-          }}
-          label="View"
-        />,
-      ],
+      header: "Sr. No",
+      accessorKey: "id",
+      size: 80,
     },
     {
-      headerName: "Sr. No",
-      field: "id",
-      width: 80,
+      header: "PO ID",
+      accessorKey: "jw_transaction",
+      size: 150,
     },
     {
-      headerName: "PO ID",
-      field: "jw_transaction",
-      width: 150,
+      header: "Cost Center",
+      accessorKey: "jw_costcenter",
+
+      size: 150,
     },
     {
-      headerName: "Cost Center",
-      field: "jw_costcenter",
-      flex: 1,
-      minWidth: 150,
+      header: "Project ID",
+      accessorKey: "jw_projectname",
+
+      size: 150,
     },
     {
-      headerName: "Project ID",
-      field: "jw_projectname",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Project Name",
-      field: "project_description",
-      minWidth: 200,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.project_description} />
+      header: "Project Name",
+      accessorKey: "project_description",
+      size: 200,
+      Cell: ({ row }) => (
+        <ToolTipEllipses text={row?.original?.project_description} />
       ),
     },
     {
-      headerName: "Vendor",
-      field: "vendor_name",
-      flex: 1,
-      minWidth: 200,
+      header: "Vendor",
+      accessorKey: "vendor_name",
+      size: 200,
     },
     {
-      headerName: "PO Date / Time",
-      field: "jw_reg_date",
-      flex: 1,
-      minWidth: 150,
+      header: "PO Date / Time",
+      accessorKey: "jw_reg_date",
+      size: 150,
     },
     {
-      headerName: "Deviation Comment",
-      field: "deviation_remark",
-      flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.deviation_remark} />,
-      minWidth: 150,
+      header: "Deviation Comment",
+      accessorKey: "deviation_remark",
+
+      Cell: ({ row }) => (
+        <ToolTipEllipses text={row?.original?.deviation_remark} />
+      ),
+      size: 150,
     },
     {
-      headerName: "PO Created By",
-      field: "jw_reg_by",
-      flex: 1,
-      minWidth: 150,
+      header: "PO Created By",
+      accessorKey: "jw_reg_by",
+
+      size: 150,
     },
     {
-      headerName: "PO Requested By",
-      field: "requested_by",
-      flex: 1,
-      minWidth: 200,
+      header: "PO Requested By",
+      accessorKey: "requested_by",
+
+      size: 200,
     },
   ];
   useEffect(() => {
     setSearchInput("");
   }, [wise]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    enableRowSelection: true,
+    renderRowActions: ({ row }) => (
+      <Tooltip title="View">
+        <IconButton
+          color="inherit"
+          size="small"
+          onClick={() => {
+            setViewPoDetails(row.jw_transaction);
+          }}
+        >
+          <Print fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
+  });
+  useEffect(() => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .flatRows.map((r) => r.original);
+    setSelectedPo(selectedRows);
+  }, [rowSelection, table]);
   return (
-    <div style={{ height: "90%", padding: 5, paddingTop: 0 }}>
+    <div style={{ height: "90%", padding: 12 }}>
       <PoRejectModa
         getRows={getRows}
         open={rejectPo}
@@ -271,28 +313,21 @@ export default function JobWorkApproval() {
             </Col>
             <Col>
               <Space>
-                <MyButton
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "fetch"}
-                  type="primary"
-                  onClick={getRows}
-                  variant="search"
-                >
-                  Fetch
-                </MyButton>
-                <Button
+                  onclick={getRows}
+                />
+
+                <CustomButton
+                  size="small"
+                  title={"Approve Selected Jw's"}
                   loading={loading === "fetch"}
+                  onclick={ApproveSelectedPo}
                   disabled={selectedPo.length === 0}
-                  onClick={ApproveSelectedPo}
-                >
-                  Approve Selected Jw's
-                </Button>
-                {/* <Button
-                  loading={loading === "fetch"}
-                  disabled={selectedPo.length === 0}
-                  onClick={RejectSelectedPo}
-                >
-                  Reject Selected Jw's
-                </Button> */}
+                />
               </Space>
             </Col>
           </Row>
@@ -304,18 +339,8 @@ export default function JobWorkApproval() {
           />
         </Col>
       </Row>
-      <div style={{ height: "100%", paddingTop: 5 }}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          columns={columns}
-          checkboxSelection
-          rows={rows}
-          onSelectionModelChange={(selected) => {
-            console.log(selected);
-            console.log(rows);
-            setSelectedPo(selected);
-          }}
-        />
+      <div style={{ height: "100%", marginTop: 12 }}>
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

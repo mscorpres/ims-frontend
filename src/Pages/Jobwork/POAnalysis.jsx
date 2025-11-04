@@ -36,10 +36,18 @@ import { getVendorOptions } from "../../api/general.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
 import { downloadCSV } from "../../Components/exportToCSV.jsx";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
+import { Search, Visibility } from "@mui/icons-material";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
 
 const POAnalysis = () => {
-  const { executeFun, loading: loading1 } = useApi();
-  const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -119,9 +127,6 @@ const POAnalysis = () => {
       toast.error(data.message.msg);
     }
   };
-  const askPassword = () => {
-    // <Modal
-  };
   const vendorLogin = async () => {
     setConfirmLoading(true);
     const values = await passwordForm.validateFields();
@@ -150,7 +155,7 @@ const POAnalysis = () => {
     }
   }, [wise]);
   const actionColumn = {
-    headerName: "",
+    header: "",
     type: "actions",
     width: 30,
     getActions: ({ row }) => [
@@ -182,26 +187,105 @@ const POAnalysis = () => {
         label="Download"
         onClick={() => handlePrint(row.jwId, "download")}
       />,
-      // <GridActionsCellItem
-      //   showInMenu
-      //   label="Vendor Login"
-      //   onClick={() => getRowinModal(row)}
-      // />,
     ],
-  };
-  const getRowinModal = (row) => {
-    setOpen(true);
-    setSelectedRow(row);
   };
 
   const selectedWise = filterForm.getFieldValue("wise");
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit />}
+        key="edit"
+        label="Edit"
+        onClick={() => {
+          closeMenu?.();
+          setUpdateModalInfo({ selType: wise.value, row });
+        }}
+        table={table}
+        disabled={row.recipeStatus === "PENDING"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Visibility fontSize="small" />}
+        key="view"
+        label="View"
+        onClick={() => {
+          closeMenu?.();
+          setViewModalOpen(row);
+        }}
+        table={table}
+        disabled={row.recipeStatus === "PENDING"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download />}
+        key="download"
+        label="Download"
+        onClick={() => {
+          closeMenu?.();
+          handlePrint(row.jwId, "download")
+        }}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print />}
+        key="print"
+        label="Print"
+        onClick={() =>{
+          closeMenu?.();
+          handlePrint(row.jwId, "print")
+        }}
+        table={table}
+        disabled={row.original.approval_status === "P"}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Cancel />}
+        key="close"
+        label="Close"
+        onClick={() => {
+          closeMenu?.();
+          setCloseModalOpen({ seltype: wise.value, row })
+        }}
+        table={table}
+      />,
+    ],
+  });
 
   return (
     <Row gutter={6} style={{ height: "90%", padding: 10 }}>
       <Col span={4}>
         <Row gutter={[0, 6]}>
           <Col span={24}>
-            <Card size="small" title="Filters">
+            <CustomFieldBox title={"Filter"}>
               <Form
                 initialValues={initialValues}
                 layout="vertical"
@@ -227,7 +311,6 @@ const POAnalysis = () => {
                     setDateRange={(value) => setAdvancedDate(value)}
                   />
                 )}
-
               </Form>
               <Row justify="end">
                 <Space>
@@ -246,22 +329,20 @@ const POAnalysis = () => {
                       onClick={handleSocketDownload}
                     />
                   )}{" "}
-                  <MyButton variant="search" type="primary" onClick={getRows}>
-                    Fetch
-                  </MyButton>
+                  <CustomButton
+                    size="small"
+                    title={"Search"}
+                    starticon={<Search fontSize="small" />}
+                    onclick={getRows}
+                  />
                 </Space>
               </Row>
-            </Card>
+            </CustomFieldBox>
           </Col>
         </Row>
       </Col>
       <Col span={20}>
-        <MyDataTable
-          loading={loading === "fetch" || loading === "print"}
-          columns={[actionColumn, ...columns]}
-          data={rows}
-          width="100%"
-        />
+        <MaterialReactTable table={table} />
       </Col>
       <ViewModal
         setViewModalOpen={setViewModalOpen}
@@ -325,59 +406,59 @@ const initialValues = {
 
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Date",
-    field: "date",
-    width: 150,
+    header: "Date",
+    accessorKey: "date",
+    size: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
   },
   {
-    headerName: "Jobwork ID",
-    field: "jwId",
-    width: 200,
+    header: "Jobwork ID",
+    accessorKey: "jwId",
+    size: 200,
     renderCell: ({ row }) => <ToolTipEllipses text={row.jwId} copy={true} />,
   },
   {
-    headerName: "Vendor",
-    field: "vendor",
-    minWidth: 150,
+    header: "Vendor",
+    accessorKey: "vendor",
+    minsize: 150,
     flex: 1,
     renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
   },
   {
-    headerName: "SKU",
-    field: "sku",
-    width: 150,
+    header: "SKU",
+    accessorKey: "sku",
+    size: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
-    headerName: "Product",
-    field: "product",
-    minWidth: 150,
+    header: "Product",
+    accessorKey: "product",
+    minsize: 150,
     flex: 1,
     renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
-    headerName: "Required Qty",
-    field: "reqQty",
-    width: 150,
+    header: "Required Qty",
+    accessorKey: "reqQty",
+    size: 150,
   },
   {
-    headerName: "Project ID",
-    field: "project_name",
-    width: 200,
+    header: "Project ID",
+    accessorKey: "project_name",
+    size: 200,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.project_name} copy={true} />
     ),
   },
   {
-    headerName: "Project Description",
-    field: "project_description",
-    width: 200,
+    header: "Project Description",
+    accessorKey: "project_description",
+    size: 200,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.project_description} copy={true} />
     ),
