@@ -204,7 +204,7 @@ const POAnalysis = () => {
 
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 250px)",
       },
     },
     renderEmptyRowsFallback: () => <EmptyRowsFallback />,
@@ -251,7 +251,7 @@ const POAnalysis = () => {
         label="Download"
         onClick={() => {
           closeMenu?.();
-          handlePrint(row.jwId, "download")
+          handlePrint(row.jwId, "download");
         }}
         table={table}
         disabled={row.original.approval_status === "P"}
@@ -260,9 +260,9 @@ const POAnalysis = () => {
         icon={<Print />}
         key="print"
         label="Print"
-        onClick={() =>{
+        onClick={() => {
           closeMenu?.();
-          handlePrint(row.jwId, "print")
+          handlePrint(row.jwId, "print");
         }}
         table={table}
         disabled={row.original.approval_status === "P"}
@@ -273,7 +273,7 @@ const POAnalysis = () => {
         label="Close"
         onClick={() => {
           closeMenu?.();
-          setCloseModalOpen({ seltype: wise.value, row })
+          setCloseModalOpen({ seltype: wise.value, row });
         }}
         table={table}
       />,
@@ -282,8 +282,8 @@ const POAnalysis = () => {
 
   return (
     <Row gutter={6} style={{ height: "90%", padding: 10 }}>
-      <Col span={4}>
-        <Row gutter={[0, 6]}>
+      <Col span={6}>
+        <Row gutter={[0, 12]}>
           <Col span={24}>
             <CustomFieldBox title={"Filter"}>
               <Form
@@ -341,7 +341,7 @@ const POAnalysis = () => {
           </Col>
         </Row>
       </Col>
-      <Col span={20}>
+      <Col span={18}>
         <MaterialReactTable table={table} />
       </Col>
       <ViewModal

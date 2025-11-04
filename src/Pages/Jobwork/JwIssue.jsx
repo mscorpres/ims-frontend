@@ -29,8 +29,8 @@ const JwIssue = () => {
     jwId: "",
     vendorName: "",
   });
-  const { executeFun, loading: loading1 } = useApi();
-  //   console.log(dateData);
+  const { executeFun } = useApi();
+ 
   const options = [
     { label: "Date", value: "datewise" },
     { label: "JW ID", value: "jw_transaction_wise" },
@@ -210,9 +210,6 @@ const JwIssue = () => {
       width: 150,
       getActions: ({ row }) => [
         <ArrowRightOutlined onClick={() => setOpenModal(row)} />,
-        //   <TableActions action="view" onClick={() => setViewModalOpen(row)} />,
-        //   <TableActions action="cancel" onClick={() => setCloseModalOpen(row)} />,
-        //   <TableActions action="print" onClick={() => console.log(row)} />,
       ],
     },
   ];
