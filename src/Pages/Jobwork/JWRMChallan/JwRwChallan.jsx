@@ -1,4 +1,4 @@
-import { Button, Col, Input, Row, Space } from "antd";
+import {  Col, Input, Row, Space } from "antd";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
@@ -17,11 +17,17 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import JWRMChallanCancel from "./JWRMChallanCancel";
 import JWRMChallanEditAll from "./JWRMChallanEditAll";
 import JWRMChallanEditMaterials from "./JWRMChallanEditMaterials";
-// import EWayBillModal from "./EWayBillModal";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import CancelEwayBillModal from "./CancelEwayBillModal";
-import MyButton from "../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { Box, LinearProgress, Tooltip } from "@mui/material";
+import { Cancel, Download, Print, Search, Upload } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 function JwRwChallan() {
   const [wise, setWise] = useState("datewise");
@@ -129,176 +135,224 @@ function JwRwChallan() {
   };
 
   const columns = [
-    {
-      headerName: "",
-      width: 30,
-      // flex: 1,
-      type: "actions",
-      getActions: ({ row }) => [
-        // Download icon
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label={"Download"}
-          onClick={() =>
-            handleDownload(
-              row.challan_id,
-              row.issue_transaction_id,
-              row.status,
-              row.jw_transaction_id
-            )
-          }
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Print"
-          onClick={() =>
-            handlePrint(
-              row.challan_id,
-              row.issue_transaction_id,
-              row.status,
-              row.jw_transaction_id
-            )
-          }
-        />,
-        <GridActionsCellItem
-          showInMenu
-          disabled={row.status === "cancel"}
-          label={row.status === "create" ? "Create" : "Edit"}
-          onClick={() => {
-            row.status === "create"
-              ? setEditJWAll({
-                  sku: row.sku_code,
-                  fetchTransactionId: row.issue_transaction_id,
-                  saveTransactionId: row.jw_transaction_id,
-                })
-              : row.status === "edit" && setEditingJWMaterials(row.challan_id);
-          }}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          disabled={row.status === "create" ? false : true}
-          label="Cancel"
-          onClick={() =>
-            setShowCancel({
-              poId: row.jw_transaction_id,
-              challanId: row.challan_id,
-            })
-          }
-        />,
-        row.jw_ewaybill_status === "--" ||
-        row.jw_ewaybill_status === "CANCELLED" ? (
-          <GridActionsCellItem
-            showInMenu
-            label={
-              <Link
-                style={{ textDecoration: "none", color: "black" }}
-                to={`/warehouse/e-way/jw/${row.challan_id.replaceAll(
-                  "/",
-                  "_"
-                )}`}
-                target="_blank"
-              >
-                Create E-Way Bill
-              </Link>
-            }
-          />
-        ) : (
-          <GridActionsCellItem
-            showInMenu
-            label="Cancel E-Way Bill"
-            onClick={() =>
-              setShowEwayBillCancelModal({
-                jwId: row.challan_id,
-                eWayBill: row.jw_ewaybill,
-              })
-            }
-          />
-        ),
-      ],
-    },
-    { headerName: "#", width: 30, field: "id" },
+    { header: "#", size: 30, accessorKey: "id" },
 
     {
-      headerName: "Req. Date",
-      field: "issue_challan_rm_dt",
-      width: 150,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.issue_challan_rm_dt} />
-      ),
+      header: "Req. Date",
+      accessorKey: "issue_challan_rm_dt",
+      size: 150,
+      render: ({ row }) => <ToolTipEllipses text={row.issue_challan_rm_dt} />,
     },
     {
-      headerName: "Vendor",
-      flex: 1,
-      field: "vendor",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
+      header: "Vendor",
+      accessorKey: "vendor",
+      render: ({ row }) => <ToolTipEllipses text={row.vendor} />,
     },
     {
-      headerName: "Issue Ref ID",
-      width: 100,
-      field: "issue_transaction_id",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.issue_transaction_id} />
-      ),
+      header: "Issue Ref ID",
+      size: 100,
+      accessorKey: "issue_transaction_id",
+      render: ({ row }) => <ToolTipEllipses text={row.issue_transaction_id} />,
     },
     {
-      headerName: "Jobwork Id",
-      width: 200,
-      field: "jw_transaction_id",
-      renderCell: ({ row }) => (
+      header: "Jobwork Id",
+      size: 200,
+      accessorKey: "jw_transaction_id",
+      render: ({ row }) => (
         <ToolTipEllipses text={row.jw_transaction_id} copy={true} />
       ),
     },
     {
-      headerName: "Challan ID",
-      width: 150,
-      field: "challan_id",
-      renderCell: ({ row }) => (
+      header: "Challan ID",
+      size: 150,
+      accessorKey: "challan_id",
+      render: ({ row }) => (
         <ToolTipEllipses text={row.challan_id} copy={true} />
       ),
     },
     {
-      headerName: "Status",
-      width: 120,
-      field: "status",
-      renderCell: ({ row }) => (
+      header: "Status",
+      size: 120,
+      accessorKey: "status",
+      render: ({ row }) => (
         <span>{row.status === "cancel" ? "Cancelled" : "--"}</span>
       ),
     },
     {
-      headerName: "Eway Bill Status",
-      width: 120,
-      field: "jw_ewaybill_status",
+      header: "Eway Bill Status",
+      size: 120,
+      accessorKey: "jw_ewaybill_status",
     },
-      {
-        headerName: "Eway Bill",
-        width: 150,
-        field: "jw_ewaybill",
-        renderCell: ({ row }) => (
-          <ToolTipEllipses text={row.jw_ewaybill} copy={row.jw_ewaybill!=="--"?true:false} />
-        ),
-      },
     {
-      headerName: "SKU ID",
-      width: 100,
-      field: "sku_code",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.sku_code} copy={true} />
+      header: "Eway Bill",
+      size: 150,
+      accessorKey: "jw_ewaybill",
+      render: ({ row }) => (
+        <ToolTipEllipses
+          text={row.jw_ewaybill}
+          copy={row.jw_ewaybill !== "--" ? true : false}
+        />
       ),
     },
     {
-      headerName: "Product",
+      header: "SKU ID",
+      size: 100,
+      accessorKey: "sku_code",
+      render: ({ row }) => <ToolTipEllipses text={row.sku_code} copy={true} />,
+    },
+    {
+      header: "Product",
       flex: 1,
-      field: "jw_sku_name",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.jw_sku_name} />,
+      accessorKey: "jw_sku_name",
+      render: ({ row }) => <ToolTipEllipses text={row.jw_sku_name} />,
     },
   ];
   useEffect(() => {
     setSearchInput("");
   }, [wise]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        key="download"
+        icon={<Download />}
+        label="Download"
+        onClick={() => {
+          handleDownload(
+            row.original.challan_id,
+            row.original.issue_transaction_id,
+            row.original.status,
+            row.original.jw_transaction_id
+          );
+          closeMenu();
+        }}
+        table={table}
+      />,
+
+      <MRT_ActionMenuItem
+        key="print"
+        icon={<Print />}
+        label="Print"
+        onClick={() => {
+          handlePrint(
+            row.original.challan_id,
+            row.original.issue_transaction_id,
+            row.original.status,
+            row.original.jw_transaction_id
+          );
+          closeMenu();
+        }}
+        table={table}
+      />,
+
+      // Create / Edit
+      <MRT_ActionMenuItem
+        key="edit"
+        icon={<Edit />}
+        label={row.original.status === "create" ? "Create" : "Edit"}
+        onClick={() => {
+          if (row.original.status === "create") {
+            setEditJWAll({
+              sku: row.original.sku_code,
+              fetchTransactionId: row.original.issue_transaction_id,
+              saveTransactionId: row.original.jw_transaction_id,
+            });
+          } else if (row.original.status === "edit") {
+            setEditingJWMaterials(row.original.challan_id);
+          }
+          closeMenu();
+        }}
+        table={table}
+        disabled={row.original.status === "cancel"}
+      />,
+
+      // Cancel
+      <MRT_ActionMenuItem
+        key="cancel"
+        icon={<Cancel />}
+        label="Cancel"
+        onClick={() => {
+          setShowCancel({
+            poId: row.original.jw_transaction_id,
+            challanId: row.original.challan_id,
+          });
+          closeMenu();
+        }}
+        table={table}
+        disabled={row.original.status !== "create"}
+      />,
+
+      // E-Way Bill (Create or Cancel)
+      row.original.jw_ewaybill_status === "--" ||
+      row.original.jw_ewaybill_status === "CANCELLED" ? (
+        <MRT_ActionMenuItem
+          key="create-eway"
+          icon={<Upload />}
+          label={
+            <Link
+              style={{ textDecoration: "none", color: "inherit" }}
+              to={`/warehouse/e-way/jw/${row.original.challan_id.replaceAll(
+                "/",
+                "_"
+              )}`}
+              target="_blank"
+              onClick={closeMenu}
+            >
+              Create E-Way Bill
+            </Link>
+          }
+          table={table}
+        />
+      ) : (
+        <MRT_ActionMenuItem
+          key="cancel-eway"
+          icon={<Cancel />}
+          label="Cancel E-Way Bill"
+          onClick={() => {
+            setShowEwayBillCancelModal({
+              jwId: row.original.challan_id,
+              eWayBill: row.original.jw_ewaybill,
+            });
+            closeMenu();
+          }}
+          table={table}
+        />
+      ),
+    ],
+  });
+
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%", padding: "12px 0px" }}>
       <JWRMChallanEditMaterials
         editingJWMaterials={editingJWMaterials}
         setEditingJWMaterials={setEditingJWMaterials}
@@ -388,16 +442,15 @@ function JwRwChallan() {
                 />
               )}
             </div>
-            <MyButton
-              variant="search"
-              type="primary"
+
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<Search fontSize="small" />}
               disabled={wise === "" || searchInput === ""}
               loading={loading === "fetch"}
-              onClick={getRows}
-              id="submit"
-            >
-              Search
-            </MyButton>
+              onclick={getRows}
+            />
           </Space>
         </Col>
         <Col>
@@ -410,12 +463,8 @@ function JwRwChallan() {
           </Space>
         </Col>
       </Row>
-      <div style={{ height: "95%", padding: "0px 10px" }}>
-        <MyDataTable
-          loading={loading === "fetch" || loading === "print"}
-          columns={columns}
-          rows={rows}
-        />
+      <div style={{ height: "95%", padding: "6px 10px" }}>
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

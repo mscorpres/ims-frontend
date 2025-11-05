@@ -4,7 +4,10 @@ import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import { Button, Col, Input, Row, Select } from "antd";
-import MyDataTable from "../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import JwReturnModel from "./Modal/JwReturnModel";
 import { imsAxios } from "../../axiosInterceptor";
@@ -13,6 +16,9 @@ import { getVendorOptions } from "../../api/general.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Search } from "@mui/icons-material";
 
 const JwrmReturn = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -158,38 +164,73 @@ const JwrmReturn = () => {
   };
 
   const columns = [
-    { field: "index", headerName: "S No.", width: 8 },
-    { field: "date", headerName: "JW Date", width: 120 },
-    { field: "transaction_id", headerName: "JW Id", width: 150 },
-    { field: "vendor", headerName: "Vendor", width: 350 },
-    { field: "sku_code", headerName: "SKU", width: 100 },
-    { field: "sku_name", headerName: "Name", width: 300 },
-    { field: "ord_qty", headerName: "Required Qty", width: 150 },
-    // { field: "jw_sku_name", headerName: "Actions", width: 260 },
-    {
-      type: "actions",
-      headerName: "Actions",
-      width: 150,
-      getActions: ({ row }) => [
-        // <TableActions action="view" onClick={() => setViewModalOpen(row)} />,
-        // <TableActions action="cancel" onClick={() => setCloseModalOpen(row)} />,
-        // <TableActions action="print" onClick={() => console.log(row)} />,
-        // <TableActions action="edit" />,
-
-        <ArrowRightOutlined
-          onClick={() =>
-            setEditModal({ sku: row.sku, transaction: row.transaction_id })
-          }
-          style={{ color: "#1890ff", fontSize: "15px" }}
-        />,
-      ],
-    },
+    { accessorKey: "index", header: "S No.", size: 8 },
+    { accessorKey: "date", header: "JW Date", size: 120 },
+    { accessorKey: "transaction_id", header: "JW Id", size: 150 },
+    { accessorKey: "vendor", header: "Vendor", size: 350 },
+    { accessorKey: "sku_code", header: "SKU", size: 100 },
+    { accessorKey: "sku_name", header: "Name", size: 300 },
+    { accessorKey: "ord_qty", header: "Required Qty", size: 150 },
   ];
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data:
+      allData.setType == "datewise"
+        ? dateData
+        : allData.setType == "jw_transaction_wise"
+        ? jwData
+        : allData.setType == "jw_sfg_wise"
+        ? skuData
+        : allData.setType == "vendorwise"
+        ? vendorData
+        : dateData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <CustomButton
+        title={"Process"}
+        size="small"
+        onClick={() =>
+          setEditModal({
+            sku: row?.original?.sku,
+            transaction: row?.original?.transaction_id,
+          })
+        }
+      />
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 240px)"
+          : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
     <div style={{ height: "95%" }}>
-      {/* <InternalNav links={JobworkLinks} /> */}
-      <Row gutter={10} style={{ margin: "10px" }}>
+      <Row gutter={10} style={{ margin: "12px" }}>
         <Col span={4}>
           <Select
             placeholder="Please Select Option"
@@ -209,13 +250,13 @@ const JwrmReturn = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <Button
-                type="primary"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                onClick={fetchDatewise}
-              >
-                Fetch
-              </Button>
+                onclick={fetchDatewise}
+              />
             </Col>
           </>
         ) : allData.setType == "jw_transaction_wise" ? (
@@ -232,13 +273,13 @@ const JwrmReturn = () => {
               />
             </Col>
             <Col span={2}>
-              <Button
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                type="primary"
-                onClick={fetchJWwise}
-              >
-                Fetch
-              </Button>
+                onclick={fetchJWwise}
+              />
             </Col>
           </>
         ) : allData.setType == "jw_sfg_wise" ? (
@@ -259,13 +300,13 @@ const JwrmReturn = () => {
               />
             </Col>
             <Col span={2}>
-              <Button
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                type="primary"
-                onClick={fetchSKUwise}
-              >
-                Fetch
-              </Button>
+                onclick={fetchSKUwise}
+              />
             </Col>
           </>
         ) : allData.setType == "vendorwise" ? (
@@ -286,13 +327,13 @@ const JwrmReturn = () => {
               />
             </Col>
             <Col span={2}>
-              <Button
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                type="primary"
-                onClick={fetchVendorwise}
-              >
-                Fetch
-              </Button>
+                onclick={fetchVendorwise}
+              />
             </Col>
           </>
         ) : (
@@ -301,35 +342,20 @@ const JwrmReturn = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
-                type="primary"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                onClick={fetchDatewise}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchDatewise}
+              />
             </Col>
           </>
         )}
       </Row>
 
       <div style={{ height: "89%", margin: "10px" }}>
-        {allData.setType == "datewise" ? (
-          <MyDataTable
-            loading={loading("fetch")}
-            data={dateData}
-            columns={columns}
-          />
-        ) : allData.setType == "jw_transaction_wise" ? (
-          <MyDataTable data={jwData} columns={columns} />
-        ) : allData.setType == "jw_sfg_wise" ? (
-          <MyDataTable data={skuData} columns={columns} />
-        ) : allData.setType == "vendorwise" ? (
-          <MyDataTable data={vendorData} columns={columns} />
-        ) : (
-          <MyDataTable data={dateData} columns={columns} />
-        )}
+        <MaterialReactTable table={table} />
       </div>
 
       <JwReturnModel show={editModal} close={() => setEditModal(false)} />

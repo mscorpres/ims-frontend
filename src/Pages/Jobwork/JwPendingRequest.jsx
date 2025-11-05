@@ -19,8 +19,14 @@ import JWRMChallanEditAll from "./JWRMChallan/JWRMChallanEditAll";
 import JWRMChallanEditMaterials from "./JWRMChallan/JWRMChallanEditMaterials";
 import JWRMChallanCancel from "./JWRMChallan/JWRMChallanCancel";
 import MyButton from "../../Components/MyButton";
-// import JWRMChallanEditAll from "./JWRMChallanEditAll";
-// import JWRMChallanEditMaterials from "./JWRMChallanEditMaterials";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import { Download, Print, Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
+import CustomButton from "../../new/components/reuseable/CustomButton";
 
 function JwPendingRequest() {
   const [wise, setWise] = useState("issuedtwise");
@@ -112,130 +118,164 @@ function JwPendingRequest() {
     }
   };
   const columns = [
-    { headerName: "Sr. No", width: 80, field: "id" },
+    { header: "Sr. No", size: 80, accessorKey: "id" },
     {
-      headerName: "Req. Date",
-      field: "issue_challan_rm_dt",
-      width: 150,
+      header: "Req. Date",
+      accessorKey: "issue_challan_rm_dt",
+      size: 150,
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.issue_challan_rm_dt} />
       ),
     },
     {
-      headerName: "Vendor",
+      header: "Vendor",
       flex: 1,
-      field: "vendor",
+      accessorKey: "vendor",
       renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
     },
     {
-      headerName: "Issue Ref ID",
-      width: 100,
-      field: "issue_transaction_id",
+      header: "Issue Ref ID",
+      size: 100,
+      accessorKey: "issue_transaction_id",
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.issue_transaction_id} />
       ),
     },
     {
-      headerName: "Jobwork Id",
-      width: 200,
-      field: "jw_transaction_id",
+      header: "Jobwork Id",
+      size: 200,
+      accessorKey: "jw_transaction_id",
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.jw_transaction_id} copy={true} />
       ),
     },
     {
-      headerName: "Challan ID",
-      width: 150,
-      field: "challan_id",
+      header: "Challan ID",
+      size: 150,
+      accessorKey: "challan_id",
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.challan_id} copy={true} />
       ),
     },
     {
-      headerName: "Status",
-      width: 120,
-      field: "status",
+      header: "Status",
+      size: 120,
+      accessorKey: "status",
       renderCell: ({ row }) => (
         <span>{row.status === "cancel" ? "Cancelled" : "--"}</span>
       ),
     },
     {
-      headerName: "SKU ID",
-      width: 100,
-      field: "sku_code",
+      header: "SKU ID",
+      size: 100,
+      accessorKey: "sku_code",
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.sku_code} copy={true} />
       ),
     },
     {
-      headerName: "Product",
+      header: "Product",
       flex: 1,
-      field: "jw_sku_name",
+      accessorKey: "jw_sku_name",
       renderCell: ({ row }) => <ToolTipEllipses text={row.jw_sku_name} />,
     },
-    {
-      headerName: "Actions",
-      width: 150,
-      type: "actions",
-      getActions: ({ row }) => [
-        // Download icon
-        <TableActions
-          action="download"
-          onClick={() =>
-            handleDownload(
-              row.challan_id,
-              row.issue_transaction_id,
-              row.status,
-              row.jw_transaction_id
-            )
-          }
-        />,
-        // Print Icon
-        <TableActions
-          action="print"
-          onClick={() =>
-            handlePrint(
-              row.challan_id,
-              row.issue_transaction_id,
-              row.status,
-              row.jw_transaction_id
-            )
-          }
-        />,
-        // edit Icon
-        <TableActions
-          action={row.status === "create" ? "add" : "edit"}
-          disabled={row.status === "cancel"}
-          onClick={() =>
-            row.status === "create"
-              ? setEditJWAll({
-                  sku: row.sku_code,
-                  fetchTransactionId: row.issue_transaction_id,
-                  saveTransactionId: row.jw_transaction_id,
-                })
-              : row.status === "edit" && setEditingJWMaterials(row.challan_id)
-          }
-        />,
-        // cancel Icon
-        <TableActions
-          action="cancel"
-          diabled={row.status === "create" ? false : true}
-          onClick={() =>
-            setShowCancel({
-              poId: row.jw_transaction_id,
-              challanId: row.challan_id,
-              ref_id: row.issue_transaction_id,
-            })
-          }
-        />,
-      ],
-    },
+    // {
+    //   header: "Actions",
+    //   size: 150,
+    //   type: "actions",
+    //   getActions: ({ row }) => [
+    //     // Download icon
+    //     <TableActions
+    //       action="download"
+    //       onClick={() =>
+    //         handleDownload(
+    //           row.challan_id,
+    //           row.issue_transaction_id,
+    //           row.status,
+    //           row.jw_transaction_id
+    //         )
+    //       }
+    //     />,
+    //     // Print Icon
+    //     <TableActions
+    //       action="print"
+    //       onClick={() =>
+    //         handlePrint(
+    //           row.challan_id,
+    //           row.issue_transaction_id,
+    //           row.status,
+    //           row.jw_transaction_id
+    //         )
+    //       }
+    //     />,
+    //     // edit Icon
+    //     <TableActions
+    //       action={row.status === "create" ? "add" : "edit"}
+    //       disabled={row.status === "cancel"}
+    //       onClick={() =>
+    //         row.status === "create"
+    //           ? setEditJWAll({
+    //               sku: row.sku_code,
+    //               fetchTransactionId: row.issue_transaction_id,
+    //               saveTransactionId: row.jw_transaction_id,
+    //             })
+    //           : row.status === "edit" && setEditingJWMaterials(row.challan_id)
+    //       }
+    //     />,
+    //     // cancel Icon
+    //     <TableActions
+    //       action="cancel"
+    //       diabled={row.status === "create" ? false : true}
+    //       onClick={() =>
+    //         setShowCancel({
+    //           poId: row.jw_transaction_id,
+    //           challanId: row.challan_id,
+    //           ref_id: row.issue_transaction_id,
+    //         })
+    //       }
+    //     />,
+    //   ],
+    // },
   ];
   useEffect(() => {
     setSearchInput("");
   }, [wise]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+  
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%", padding: "12px 10px" }}>
       <JWRMChallanEditMaterials
         editingJWMaterials={editingJWMaterials}
         setEditingJWMaterials={setEditingJWMaterials}
@@ -257,59 +297,7 @@ function JwPendingRequest() {
       >
         <Col>
           <Space>
-            {/* <div style={{ width: 250 }}>
-              <MySelect
-                options={wiseOptions}
-                onChange={setWise}
-                placeholder="Select Option"
-                //  value={wise}
-                setSearchString={setSearchInput}
-              />
-            </div> */}
             <div style={{ width: 300 }}>
-              {/* {wise === "datewise" && (
-                <MyDatePicker
-                  size="default"
-                  setDateRange={setSearchInput}
-                  dateRange={searchInput}
-                  value={searchInput}
-                  spacedFormat={true}
-                />
-              )}
-              {wise === "jw_transaction_wise" && (
-                <Input
-                  size="default"
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  value={searchInput}
-                />
-              )}
-              {wise === "challan_wise" && (
-                <Input
-                  size="default"
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  value={searchInput}
-                />
-              )}
-              {wise === "jw_sfg_wise" && (
-                <MyAsyncSelect
-                  onBlur={() => setAsyncOptions([])}
-                  value={searchInput}
-                  optionsState={asyncOptions}
-                  selectLoading={loading === "select"}
-                  onChange={(value) => setAsyncOptions(value)}
-                  loadOptions={(value) => getAsyncOptions(value, "sku")}
-                />
-              )}
-              {wise === "vendorwise" && (
-                <MyAsyncSelect
-                  onBlur={() => setAsyncOptions([])}
-                  value={searchInput}
-                  optionsState={asyncOptions}
-                  selectLoading={loading === "select"}
-                  onChange={(value) => setAsyncOptions(value)}
-                  loadOptions={(value) => getAsyncOptions(value, "vendor")}
-                />
-              )} */}
               {wise === "issuedtwise" && (
                 <MyDatePicker
                   size="default"
@@ -319,16 +307,14 @@ function JwPendingRequest() {
                 />
               )}
             </div>
-            <MyButton
-              variant="search"
-              type="primary"
-              disabled={wise === "" || searchInput === ""}
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<Search fontSize="small" />}
               loading={loading === "fetch"}
-              onClick={getRows}
-              id="submit"
-            >
-              Search
-            </MyButton>
+              onclick={getRows}
+              disabled={wise === "" || searchInput === ""}
+            />
           </Space>
         </Col>
         <Col>
@@ -342,11 +328,7 @@ function JwPendingRequest() {
         </Col>
       </Row>
       <div style={{ height: "95%", margin: "0px 10px" }}>
-        <MyDataTable
-          loading={loading === "fetch" || loading === "print"}
-          columns={columns}
-          rows={rows}
-        />
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

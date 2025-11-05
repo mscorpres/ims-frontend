@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button, Col, Input, Row, Select } from "antd";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import MyDataTable from "../../Components/MyDataTable";
 import MyDatePicker from "../../Components/MyDatePicker";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import { EyeTwoTone } from "@ant-design/icons";
 import CompletedModal from "./Modal/CompletedModal";
 import { imsAxios } from "../../axiosInterceptor";
 import printFunction, {
@@ -17,6 +15,14 @@ import { getVendorOptions } from "../../api/general.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
+import { Box, LinearProgress, Tooltip } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Download, Print, Search, Visibility } from "@mui/icons-material";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback.jsx";
 
 const JwCompleted = () => {
   const [viewModalOpen, setViewModalOpen] = useState(null);
@@ -180,40 +186,94 @@ const JwCompleted = () => {
   };
 
   const columns = [
-    { field: "index", headerName: "S No.", width: 18 },
-    { field: "status", headerName: "Status", width: 120 },
-    { field: "date", headerName: "JW Date", width: 120 },
-    { field: "transaction_id", headerName: "JW Id.", width: 150 },
-    { field: "sku_code", headerName: "SKU", width: 100 },
-    { field: "sku_name", headerName: "Product", width: 510 },
-    { field: "ord_qty", headerName: "Order Qty", width: 120 },
-    // { field: "jw_sku_name", headerName: "Actions", width: 260 },
-    {
-      type: "actions",
-      headerName: "Actions",
-      width: 150,
-      getActions: ({ row }) => [
-        <TableActions
-          action="print"
-          onClick={() => handlePrint(row.transaction_id)}
-        />,
-        <TableActions
-          action="download"
-          onClick={() => handleDownload(row.transaction_id)}
-        />,
-        <TableActions
-          action="view"
-          onClick={() =>
-            setViewModalOpen({
-              jwId: row.transaction_id,
-              po_sku_transaction: row.transaction_id,
-              skuKey: row.sku_key,
-            })
-          }
-        />,
-      ],
-    },
+    { accessorKey: "index", header: "S No.", size: 18 },
+    { accessorKey: "status", header: "Status", size: 120 },
+    { accessorKey: "date", header: "JW Date", size: 120 },
+    { accessorKey: "transaction_id", header: "JW Id.", size: 150 },
+    { accessorKey: "sku_code", header: "SKU", size: 100 },
+    { accessorKey: "sku_name", header: "Product", size: 510 },
+    { accessorKey: "ord_qty", header: "Order Qty", size: 120 },
   ];
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data:
+      allData.setType == "datewise"
+        ? dateData
+        : allData.setType == "jw_transaction_wise"
+        ? jwData
+        : allData.setType == "jw_sfg_wise"
+        ? skuData
+        : allData.setType == "vendorwise"
+        ? vendorData
+        : dateData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        key="download"
+        icon={<Download />}
+        label="Download"
+        onClick={() => {
+          handleDownload(row?.original?.transaction_id);
+          closeMenu();
+        }}
+        table={table}
+      />,
+
+      <MRT_ActionMenuItem
+        key="print"
+        icon={<Print />}
+        label="Print"
+        onClick={() => {
+          () => handlePrint(row?.original?.transaction_id);
+          closeMenu();
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="view"
+        icon={<Visibility />}
+        label="View"
+        onClick={() => {
+          setViewModalOpen({
+            jwId: row?.original?.transaction_id,
+            po_sku_transaction: row?.original?.transaction_id,
+            skuKey: row?.original?.sku_key,
+          });
+
+          closeMenu();
+        }}
+        table={table}
+      />,
+    ],
+  });
+
   return (
     <div style={{ height: "95%" }}>
       <Row gutter={10} style={{ margin: "10px" }}>
@@ -236,14 +296,13 @@ const JwCompleted = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
-                type="primary"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                onClick={fetchDatewise}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchDatewise}
+              />
             </Col>
           </>
         ) : allData.setType == "jw_transaction_wise" ? (
@@ -260,14 +319,13 @@ const JwCompleted = () => {
               />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                type="primary"
-                onClick={fetchJWwise}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchJWwise}
+              />
             </Col>
           </>
         ) : allData.setType == "jw_sfg_wise" ? (
@@ -288,14 +346,13 @@ const JwCompleted = () => {
               />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                type="primary"
-                onClick={fetchSKUwise}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchSKUwise}
+              />
             </Col>
           </>
         ) : allData.setType == "vendorwise" ? (
@@ -317,14 +374,13 @@ const JwCompleted = () => {
               />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                type="primary"
-                onClick={fetchVendorwise}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchVendorwise}
+              />
             </Col>
           </>
         ) : (
@@ -333,31 +389,20 @@ const JwCompleted = () => {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <MyButton
-                variant="search"
-                type="primary"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                onClick={fetchDatewise}
-              >
-                Fetch
-              </MyButton>
+                onclick={fetchDatewise}
+              />
             </Col>
           </>
         )}
       </Row>
 
       <div style={{ height: "89%", margin: "10px" }}>
-        {allData.setType == "datewise" ? (
-          <MyDataTable loading={loading} data={dateData} columns={columns} />
-        ) : allData.setType == "jw_transaction_wise" ? (
-          <MyDataTable data={jwData} columns={columns} />
-        ) : allData.setType == "jw_sfg_wise" ? (
-          <MyDataTable data={skuData} columns={columns} />
-        ) : allData.setType == "vendorwise" ? (
-          <MyDataTable data={vendorData} columns={columns} />
-        ) : (
-          <MyDataTable data={dateData} columns={columns} />
-        )}
+        <MaterialReactTable table={table} />
       </div>
 
       <CompletedModal editModal={editModal} setEditModal={setEditModal} />
