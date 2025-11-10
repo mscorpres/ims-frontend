@@ -115,7 +115,7 @@ const ManagePO = () => {
           showInMenu
           // disabled={disabled}
           label="Print"
-          disabled={row.approval_status === "P"}
+          disabled={row.approval_status === "PENDING"}
           onClick={() => printFun(row.po_transaction)}
         />,
 
