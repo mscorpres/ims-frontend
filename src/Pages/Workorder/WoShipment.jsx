@@ -4,19 +4,12 @@ import MySelect from "../../Components/MySelect";
 import MyDatePicker from "../../Components/MyDatePicker";
 import MyDataTable from "../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-// import SelectChallanTypeModal from "./components/WoCreateChallan/SelectChallanTypeModal";
-// import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
-//
-import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../Components/exportToCSV";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import { DataGrid } from "@mui/x-data-grid";
 import {
   createWorkOrderReturnChallan,
   createWorkOrderShipmentChallan,
   getClientOptions,
-  getWorkOrderAnalysis,
   getWorkOrderRC,
   getWorkOrderShipment,
   getdetailsOfReturnChallan,
@@ -27,18 +20,25 @@ import { toast } from "react-toastify";
 import { Form, Modal } from "antd/es";
 import { imsAxios } from "../../axiosInterceptor";
 import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
-import CostCenter from "../Master/CostCenter";
 import MyButton from "../../Components/MyButton";
+import { Cancel, Edit, Search, Visibility } from "@mui/icons-material";
+import CustomButton from "../../new/components/reuseable/CustomButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
 const WoShipment = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
-  const [showTypeSelect, setShowTypeSelect] = useState(false);
   const [showCreateChallanModal, setShowCreateChallanModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [detaildata, setDetailData] = useState("");
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [rowSelection, setRowSelection] = useState({});
+  const [selected, setSelected] = useState([]);
   const [cancelRemark, setCancelRemark] = useState("");
   const [editShipment, setEditShipment] = useState("");
   const [viewRtnChallan, setViewRtnChallan] = useState([]);
@@ -53,12 +53,7 @@ const WoShipment = () => {
       content: (
         <Form form={ModalForm}>
           <Form.Item name="remark">
-            <Input
-              // onChange={(e) => {
-              //   setCancelRemark(e.target.value);
-              // }}
-              placeholder="Please input the remark"
-            />
+            <Input placeholder="Please input the remark" />
           </Form.Item>
         </Form>
       ),
@@ -258,7 +253,7 @@ const WoShipment = () => {
 
   const createShipmentChallan = async (cancelRemark) => {
     const values = await ModalForm.validateFields();
-    let mins = selectedRows.map((row) => rows.filter((r) => r.id == row)[0]);
+    let mins = selected.map((row) => rows.filter((r) => r.id == row)[0]);
     if (challantype === "RM Challan") {
       let payload = {
         client_id: mins[0].clientCode,
@@ -312,8 +307,118 @@ const WoShipment = () => {
       setSearchInput("");
     }
   }, [wise]);
+
+  const table = useMaterialReactTable({
+    columns: challantype === "RM Challan" ? rtnColumns : columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    enableRowSelection: true,
+    renderRowActions: ({ row }) =>
+      challantype === "RM Challan" ? (
+        <div>
+          <Tooltip title="Cancel Return">
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setDetailData(row);
+                showSubmitConfirmationModal(row, "return");
+              }}
+            >
+              <Cancel fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Edit Return">
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setDetailData(row);
+                setShowCreateChallanModal(true);
+                setEditShipment("editReturn");
+              }}
+            >
+              <Edit fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="View Return">
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setViewRtnChallan(row);
+              }}
+            >
+              <Visibility fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+      ) : (
+        <div>
+          <Tooltip title="Cancel Shipment">
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setDetailData(row);
+                showSubmitConfirmationModal(row, "Shipment");
+              }}
+            >
+              <Cancel fontSize="small" />
+            </IconButton>
+          </Tooltip>{" "}
+          <Tooltip title="Edit Shipment">
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setDetailData(row);
+                setShowCreateChallanModal(true);
+                setEditShipment("Shipment");
+              }}
+            >
+              <Edit fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+      ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
+  });
+  useEffect(() => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .flatRows.map((r) => r.original);
+    setSelected(selectedRows);
+  }, [rowSelection, table]);
   return (
-    <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
+    <div style={{ height: "90%", margin: 12 }}>
       {loading === "fetch" && <Loading />}
       <Drawer
         title={`${viewRtnChallan?.shipmentId}`}
@@ -369,63 +474,33 @@ const WoShipment = () => {
                   {wise === wiseOptions[1].value && (
                     <MyDatePicker setDateRange={setSearchInput} />
                   )}
-                  {/* {wise === wiseOptions[2].value && (
-                  <div style={{ width: 270 }}>
-                    <Input
-                      value={searchInput}
-                      onChange={(e) => setSearchInput(e.target.value)}
-                    />
-                  </div>
-                )} */}
 
-                  <MyButton
-                    variant="search"
-                    onClick={getRows}
+                  <CustomButton
+                    size="small"
+                    title={"Search"}
+                    starticon={<Search fontSize="small" />}
                     loading={loading === "fetch"}
-                    type="primary"
-                  >
-                    Fetch
-                  </MyButton>
+                    onclick={getRows}
+                  />
                 </Space>
               </div>
-              <div style={{ marginLeft: 4 }}>
-                <Button
-                  disabled={selectedRows.length === 0}
-                  onClick={showCreateShipmentModal}
-                >
-                  {" "}
-                  Create Challan
-                </Button>
+              <div style={{ marginLeft: 8 }}>
+                <CustomButton
+                  size="small"
+                  title={"Create Challan"}
+                  disabled={rowSelection.length === 0}
+                  onclick={showCreateShipmentModal}
+                />
               </div>
             </div>
           </Col>
         </Row>
       </Col>
-      <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-        <MyDataTable
-          data={rows}
-          columns={
-            challantype === "RM Challan"
-              ? [actionColumn, ...rtnColumns]
-              : [actionColumn, ...columns]
-          }
-          isRowSelectable={(params) =>
-            params.row.del_challan_status === "NOT CREATED"
-          }
-          checkboxSelection
-          onSelectionModelChange={(newSelectionModel) => {
-            setSelectedRows(newSelectionModel);
-          }}
-        />
+      <div style={{ height: "calc(100% - 60px)" }}>
+     
+        <MaterialReactTable table={table} />
       </div>
 
-      {/* <SelectChallanTypeModal
-        type={showCreateChallanModal}
-        setType={setShowCreateChallanModal}
-        show={showTypeSelect}
-        close={() => setShowTypeSelect(false)}
-        typeOptions={typeOptions}
-      /> */}
       {showCreateChallanModal && (
         <CreateChallanModal
           editShipment={editShipment}
@@ -462,99 +537,99 @@ const typeOptions = [
 ];
 const columns = [
   {
-    headerName: "#",
-    field: "id",
-    width: 30,
+    header: "#",
+    accessorKey: "id",
+    size: 30,
   },
   {
-    headerName: "Date",
-    field: "shipmentDt",
-    width: 150,
+    header: "Date",
+    accessorKey: "shipmentDt",
+    size: 150,
   },
   {
-    headerName: "Client",
-    field: "client",
-    minWidth: 300,
+    header: "Client",
+    accessorKey: "client",
+    size: 300,
     flex: 1,
   },
   {
-    headerName: "Transaction Id",
-    field: "woTransaction_Id",
-    minWidth: 150,
+    header: "Transaction Id",
+    accessorKey: "woTransaction_Id",
+    size: 150,
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.woTransaction_Id} copy={true} />
     ),
   },
   {
-    headerName: "Shipment Id",
-    field: "woshipmentId",
-    minWidth: 150,
+    header: "Shipment Id",
+    accessorKey: "woshipmentId",
+    size: 150,
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.woshipmentId} copy={true} />
     ),
   },
   {
-    headerName: "Product",
-    field: "wo_sku_name",
-    minWidth: 350,
+    header: "Product",
+    accessorKey: "wo_sku_name",
+    size: 350,
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.wo_sku_name} copy={true} />
     ),
   },
   {
-    headerName: "SKU",
-    field: "skuCode",
-    width: 150,
+    header: "SKU",
+    accessorKey: "skuCode",
+    size: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.skuCode} copy={true} />,
   },
   {
-    headerName: "Qty",
-    field: "wo_order_qty",
-    width: 150,
+    header: "Qty",
+    accessorKey: "wo_order_qty",
+    size: 150,
   },
 ];
 const rtnColumns = [
   {
-    headerName: "#",
-    field: "id",
-    width: 30,
+    header: "#",
+    accessorKey: "id",
+    size: 30,
   },
   {
-    headerName: "Date",
-    field: "shipmentDt",
-    width: 150,
+    header: "Date",
+    accessorKey: "shipmentDt",
+    size: 150,
   },
   {
-    headerName: "Client",
-    field: "client",
-    minWidth: 300,
+    header: "Client",
+    accessorKey: "client",
+    size: 300,
     flex: 1,
   },
   {
-    headerName: "Transaction Id",
-    field: "woTransaction_Id",
-    minWidth: 150,
+    header: "Transaction Id",
+    accessorKey: "woTransaction_Id",
+    size: 150,
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.woTransaction_Id} copy={true} />
     ),
   },
   {
-    headerName: "Product",
-    field: "wo_sku_name",
-    minWidth: 350,
+    header: "Product",
+    accessorKey: "wo_sku_name",
+    size: 350,
     flex: 1,
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.wo_sku_name} copy={true} />
     ),
   },
   {
-    headerName: "SKU",
-    field: "skuCode",
-    width: 150,
+    header: "SKU",
+    accessorKey: "skuCode",
+    size: 150,
     renderCell: ({ row }) => <ToolTipEllipses text={row.skuCode} copy={true} />,
   },
 ];

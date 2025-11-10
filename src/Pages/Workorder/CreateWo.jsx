@@ -25,6 +25,7 @@ import Loading from "../../Components/Loading";
 import useApi from "../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import { getCostCentresOptions, getProjectOptions } from "../../api/general.ts";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
 
 // vendor type options
 
@@ -87,7 +88,6 @@ export default function CreateWO({}) {
   const [bomOptions, setBomOptions] = useState([]);
   const [showAddProjectConfirm, setShowAddProjectConfirm] = useState(false);
   const [showBranchModel, setShowBranchModal] = useState(false);
-  const [showBillingModel, setShowBillingModal] = useState(false);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [clientcode, setClientCode] = useState("");
   const [showAddClientModal, setShowAddClientModal] = useState(false);
@@ -427,10 +427,11 @@ export default function CreateWO({}) {
   return (
     <div
       style={{
-        height: "93%",
+        height: "calc(100vh - 180px)",
         overflowY: "scroll",
         overflowX: "hidden",
-        padding: "0vh 20px",
+        margin: "12px",
+        padding:4
       }}
     >
       {/* vendor */}
@@ -447,694 +448,499 @@ export default function CreateWO({}) {
         }}
       >
         {loading === "fetch" && <Loading />}
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="WO Type">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+        <div className="grid grid-cols-2" style={{ gap: 12 }}>
+          <CustomFieldBox
+            title="WO Type"
+            subtitle="  Provide Work Order type as in
+                (New Or Supplementary)"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                name="wocreatetype"
+                label="WO Type"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a WO Type!",
+                  },
+                ]}
               >
-                Provide Work Order type as in
-                <br /> (New Or Supplementary)
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={6}>
-              {/* WO type */}
-              <Col span={6}>
-                <Form.Item
-                  name="wocreatetype"
-                  label="WO Type"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Select a WO Type!",
-                    },
-                  ]}
-                >
-                  <MySelect size="default" options={poTypeOptions} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="Client Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
-              >
-                Type Name or Code of the Client
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-
-          <Col span={20}>
-            <Row gutter={6}>
-              <Col span={6}>
-                <Form.Item
-                  name="clientname"
-                  label={
-                    <div
+                <MySelect size="default" options={poTypeOptions} />
+              </Form.Item>
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title="Client Details"
+            subtitle="Type Name or Code of the Client"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                name="clientname"
+                label={
+                  <div
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: 350,
+                    }}
+                  >
+                    Client Name
+                    <span
+                      onClick={() => setShowAddClientModal(true)}
                       style={{
-                        fontSize: window.innerWidth < 1600 && "0.7rem",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: 350,
-                      }}
-                    >
-                      Client Name
-                      <span
-                        onClick={() => setShowAddClientModal(true)}
-                        style={{
-                          color: "#1890FF",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Add Client
-                      </span>
-                    </div>
-                  }
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Select a Client Name!",
-                    },
-                  ]}
-                >
-                  <MyAsyncSelect
-                    selectLoading={loading === "select"}
-                    size="default"
-                    labelInValue
-                    onBlur={() => setAsyncOptions([])}
-                    optionsState={asyncOptions}
-                    loadOptions={getClientOptions}
-                    onChange={(value) => getclientDetials(value.value)}
-                  />
-                </Form.Item>
-              </Col>
-              {/* client branch */}
-              <Col span={6}>
-                <Form.Item
-                  name="clientbranch"
-                  label={
-                    <div
-                      style={{
-                        fontSize: window.innerWidth < 1600 && "0.7rem",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: 350,
+                        color: "#1890FF",
                         cursor: "pointer",
                       }}
                     >
-                      Client Branch
-                      <span
-                        onClick={() => {
-                          createWoForm.getFieldValue("clientname")?.value
-                            ? setShowBranchModal({
-                                vendor_code:
-                                  createWoForm.getFieldValue("clientname")
-                                    ?.value,
-                              })
-                            : toast.error("Please Select a Client first");
-                        }}
-                        style={{ color: "#1890FF" }}
-                      >
-                        Add Branch
-                      </span>
-                    </div>
-                  }
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Select a client Branch!",
-                    },
-                  ]}
-                >
-                  <MySelect
-                    options={ClientBranchOptions}
-                    onChange={(e) => {
-                      getAddInfo(e);
-                    }}
-                    size="default"
-                    placeholder="select Client Branch!"
-                  />
-                </Form.Item>
-              </Col>
-              {/* gstin */}
-              <Col span={6}>
-                <Form.Item name="gstin" label="GSTIN">
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="caddress" label="Address">
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        {/* PO TERMS */}
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="WO Terms">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+                      Add Client
+                    </span>
+                  </div>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a Client Name!",
+                  },
+                ]}
               >
-                Provide WO terms and other information
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={6}>
-              <Col span={5}>
-                <Form.Item
-                  name="wocostcenter"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select a cost center!",
-                    },
-                  ]}
-                  label={
-                    <div
-                      style={{
-                        fontSize: window.innerWidth < 1600 && "0.7rem",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: 350,
-                      }}
-                    >
-                      Cost Center
-                      <span
-                        onClick={() => setShowAddCostModal(true)}
-                        style={{
-                          color: "#1890FF",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Add Cost Center
-                      </span>
-                    </div>
-                  }
-                >
-                  <MyAsyncSelect
-                    selectLoading={loading1("select")}
-                    onBlur={() => setAsyncOptions([])}
-                    loadOptions={handleFetchCostCenterOptions}
-                    optionsState={asyncOptions}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={5}>
-                <Form.Item
-                  name="project_name"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select a cost center!",
-                    },
-                  ]}
-                  label={
-                    <div
-                      style={{
-                        fontSize: window.innerWidth < 1600 && "0.7rem",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: 350,
-                      }}
-                    >
-                      Project ID
-                      <span
-                        onClick={() => setShowAddProjectConfirm(true)}
-                        style={{
-                          color: "#1890FF",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Add Project
-                      </span>
-                    </div>
-                  }
-                >
-                  <MyAsyncSelect
-                    selectLoading={loading1("select")}
-                    onBlur={() => setAsyncOptions([])}
-                    loadOptions={handleFetchProjectOptions}
-                    optionsState={asyncOptions}
-                    onChange={handleProjectChange}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={5}>
-                <Form.Item label="Project Description">
-                  <Input size="default" disabled value={projectDesc} />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item
-                  name="termscondition"
-                  label=" Terms and Conditions"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter Terms and Condition!",
-                    },
-                  ]}
-                >
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-              {/* payment terms */}
-              <Col span={6}>
-                <Form.Item
-                  name="paymentterms"
-                  label=" Payment Terms"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter the Pament Terms!",
-                    },
-                  ]}
-                >
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="Billing Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
-              >
-                Provide billing information
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={16}>
-            <Row gutter={6}>
-              {/* billing id */}
-              <Col span={8}>
-                <Form.Item
-                  name="billaddressid"
-                  label="Billing Id"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Select a Billing Address!",
-                    },
-                  ]}
-                >
-                  <MySelect
-                    options={addOptions}
-                    onChange={(e) => {
-                      handlebilladress(e);
+                <MyAsyncSelect
+                  selectLoading={loading === "select"}
+                  size="default"
+                  labelInValue
+                  onBlur={() => setAsyncOptions([])}
+                  optionsState={asyncOptions}
+                  loadOptions={getClientOptions}
+                  onChange={(value) => getclientDetials(value.value)}
+                />
+              </Form.Item>
+              <Form.Item
+                name="clientbranch"
+                label={
+                  <div
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: 350,
+                      cursor: "pointer",
                     }}
-                  />
-                </Form.Item>
-              </Col>
-              {/* pan number */}
-              <Col span={4}>
-                <Form.Item
-                  name="billPan"
-                  label="Pan No."
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter Billing PAN Number!",
-                    },
-                  ]}
-                >
-                  {/* <Input size="default" value={newPurchaseOrder.billPan} /> */}
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-
-              {/* gstin uin */}
-              <Col span={8}>
-                <Form.Item
-                  name="billGST"
-                  label={
-                    <div
-                      style={{
-                        fontSize: window.innerWidth < 1600 && "0.7rem",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: 350,
-                      }}
-                    >
-                      GSTIN / UIN
-                      {/* <span
-                        ref={billingId}
-                        id="Billing"
-                        onClick={() => {
-                          if(createWoForm.getFieldValue("clientname")?.value){
-                              setId(true)
-                              setShowBillingModal(true)
-                          }else{
-                            toast.error("Please Select a Client first");
-                          }
-                        }}
-                        style={{
-                          color: "#1890FF",
-                          cursor: "pointer",
-                        }} 
-                      >
-                        Create New Billing Details
-                      </span> */}
-                    </div>
-                  }
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter Billing GSTIN Number!",
-                    },
-                  ]}
-                >
-                  {/* <Input size="default" value={newPurchaseOrder.billGST} /> */}
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-            </Row>
-            {/* billing address */}
-            <Row>
-              <Col span={24}>
-                <Form.Item
-                  name="billaddress"
-                  label="Billing Address"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter Billing Address!",
-                    },
-                  ]}
-                >
-                  <Input.TextArea style={{ resize: "none" }} rows={3} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="Shipping Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
-              >
-                Provide shipping information
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-
-          <Col span={16}>
-            <Row gutter={6}>
-              {/* shipping id */}
-              <Col span={8}>
-                <Form.Item
-                  name="shipaddressid"
-                  label="Shipping Id"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Select a Shipping Address!",
-                    },
-                  ]}
-                >
-                  <MySelect
-                    options={addOptions}
-                    onChange={(e) => {
-                      handleshipadress(e);
-                    }}
-                  />
-                </Form.Item>
-              </Col>
-              {/* pan number */}
-              <Col span={8}>
-                <Form.Item
-                  label="Pan No."
-                  name="shipPan"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter Shipping PAN Number!",
-                    },
-                  ]}
-                >
-                  {/* <Input size="default" value={newPurchaseOrder.shipPan} /> */}
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-              {/* gstin uin */}
-              <Col span={8}>
-                <Form.Item
-                  name="shipGST"
-                  label={
-                    <div
-                      style={{
-                        fontSize: window.innerWidth < 1600 && "0.7rem",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        width: 350,
-                      }}
-                    >
-                      GSTIN / UIN
-                      {/* <span
-                      ref={shippingId}
-                      id="Shipping"
+                  >
+                    Client Branch
+                    <span
                       onClick={() => {
-                        if(createWoForm.getFieldValue("clientname")?.value){
-                            setId(false)
-                            setShowBillingModal(true)
-                        }else{
-                          toast.error("Please Select a Client first");
-                        }
+                        createWoForm.getFieldValue("clientname")?.value
+                          ? setShowBranchModal({
+                              vendor_code:
+                                createWoForm.getFieldValue("clientname")?.value,
+                            })
+                          : toast.error("Please Select a Client first");
                       }}
-                      style={{
-                          color: "#1890FF",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Create New Shipping Details
-                      </span> */}
-                    </div>
-                  }
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter Shipping GSTIN!",
-                    },
-                  ]}
-                >
-                  {/* <Input size="default" value={newPurchaseOrder.shipGST} /> */}
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-            </Row>
-            {/* shipping address */}
-            <Row>
-              <Col span={24}>
-                <Form.Item
-                  label="Shipping Address"
-                  name="shipaddress"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Enter Shipping Address!",
-                    },
-                  ]}
-                >
-                  <Input.TextArea style={{ resize: "none" }} rows={3} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        {/* product details */}
-        <Row gutter={6}>
-          <Col span={4}>
-            <Descriptions size="small" title="Product Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+                      style={{ color: "#1890FF" }}
+                    >
+                      Add Branch
+                    </span>
+                  </div>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a client Branch!",
+                  },
+                ]}
               >
-                Provide Product Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
+                <MySelect
+                  options={ClientBranchOptions}
+                  onChange={(e) => {
+                    getAddInfo(e);
+                  }}
+                  size="default"
+                  placeholder="select Client Branch!"
+                />
+              </Form.Item>
+              <Form.Item name="gstin" label="GSTIN">
+                <Input size="default" />
+              </Form.Item>
+              <Form.Item name="caddress" label="Address">
+                <Input size="default" />
+              </Form.Item>
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title="WO Terms"
+            subtitle="Provide WO terms and other information"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item label="Project Description">
+                <Input size="default" disabled value={projectDesc} />
+              </Form.Item>
+              <Form.Item
+                name="project_name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a cost center!",
+                  },
+                ]}
+                label={
+                  <div
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: 350,
+                    }}
+                  >
+                    Project ID
+                    <span
+                      onClick={() => setShowAddProjectConfirm(true)}
+                      style={{
+                        color: "#1890FF",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Add Project
+                    </span>
+                  </div>
+                }
+              >
+                <MyAsyncSelect
+                  selectLoading={loading1("select")}
+                  onBlur={() => setAsyncOptions([])}
+                  loadOptions={handleFetchProjectOptions}
+                  optionsState={asyncOptions}
+                  onChange={handleProjectChange}
+                />
+              </Form.Item>
+              <Form.Item
+                name="wocostcenter"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a cost center!",
+                  },
+                ]}
+                label={
+                  <div
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: 350,
+                    }}
+                  >
+                    Cost Center
+                    <span
+                      onClick={() => setShowAddCostModal(true)}
+                      style={{
+                        color: "#1890FF",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Add Cost Center
+                    </span>
+                  </div>
+                }
+              >
+                <MyAsyncSelect
+                  selectLoading={loading1("select")}
+                  onBlur={() => setAsyncOptions([])}
+                  loadOptions={handleFetchCostCenterOptions}
+                  optionsState={asyncOptions}
+                />
+              </Form.Item>
+              <Form.Item
+                name="termscondition"
+                label=" Terms and Conditions"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Enter Terms and Condition!",
+                  },
+                ]}
+              >
+                <Input size="default" />
+              </Form.Item>{" "}
+              <Form.Item
+                name="paymentterms"
+                label=" Payment Terms"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Enter the Pament Terms!",
+                  },
+                ]}
+              >
+                <Input size="default" />
+              </Form.Item>
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title="Billing Details"
+            subtitle="Provide billing information"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                name="billaddressid"
+                label="Billing Id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a Billing Address!",
+                  },
+                ]}
+              >
+                <MySelect
+                  options={addOptions}
+                  onChange={(e) => {
+                    handlebilladress(e);
+                  }}
+                />
+              </Form.Item>
+              <Form.Item
+                name="billPan"
+                label="Pan No."
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter Billing PAN Number!",
+                  },
+                ]}
+              >
+                <Input size="default" />
+              </Form.Item>{" "}
+              <Form.Item
+                name="billGST"
+                label={
+                  <div
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: 350,
+                    }}
+                  >
+                    GSTIN / UIN
+                  </div>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter Billing GSTIN Number!",
+                  },
+                ]}
+              >
+                {/* <Input size="default" value={newPurchaseOrder.billGST} /> */}
+                <Input size="default" />
+              </Form.Item>
+            </div>
+            <Form.Item
+              name="billaddress"
+              label="Billing Address"
+              rules={[
+                {
+                  required: true,
+                  message: "Please Enter Billing Address!",
+                },
+              ]}
+            >
+              <Input.TextArea style={{ resize: "none" }} rows={3} />
+            </Form.Item>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title="Shipping Details"
+            subtitle="Provide shipping information"
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                name="shipaddressid"
+                label="Shipping Id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a Shipping Address!",
+                  },
+                ]}
+              >
+                <MySelect
+                  options={addOptions}
+                  onChange={(e) => {
+                    handleshipadress(e);
+                  }}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Pan No."
+                name="shipPan"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Enter Shipping PAN Number!",
+                  },
+                ]}
+              >
+                {/* <Input size="default" value={newPurchaseOrder.shipPan} /> */}
+                <Input size="default" />
+              </Form.Item>{" "}
+              <Form.Item
+                name="shipGST"
+                label={
+                  <div
+                    style={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: 350,
+                    }}
+                  >
+                    GSTIN / UIN
+                  </div>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Enter Shipping GSTIN!",
+                  },
+                ]}
+              >
+                {/* <Input size="default" value={newPurchaseOrder.shipGST} /> */}
+                <Input size="default" />
+              </Form.Item>
+            </div>
+            <Form.Item
+              label="Shipping Address"
+              name="shipaddress"
+              rules={[
+                {
+                  required: true,
+                  message: "Please Enter Shipping Address!",
+                },
+              ]}
+            >
+              <Input.TextArea style={{ resize: "none" }} rows={3} />
+            </Form.Item>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title="Product Details"
+            subtitle="Provide Product Details"
+          >
+            <div className="grid grid-cols-3" style={{ gap: 12 }}>
+              <Form.Item
+                name="product"
+                label="Product Name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a Product!",
+                  },
+                ]}
+              >
+                <MyAsyncSelect
+                  selectLoading={loading === "select"}
+                  loadOptions={getComponentOptions}
+                  optionsState={asyncOptions}
+                  onChange={getComponentDetails}
+                />
+              </Form.Item>{" "}
+              <Form.Item
+                label="Order Qty"
+                name="qty"
+                rules={[
+                  {
+                    required: true,
+                    message: "Qty should be greater than zero!",
+                  },
+                ]}
+              >
+                <Input size="default" suffix={uom} />
+              </Form.Item>{" "}
+              <Form.Item
+                name="rate"
+                label="Rate"
+                rules={[
+                  {
+                    required: true,
+                    message: "Rate should be greater than zero!",
+                  },
+                ]}
+              >
+                <Input size="default" />
+              </Form.Item>{" "}
+              <Form.Item name="dueDate" label="Due Date">
+                <Input size="default" type="date" />
+              </Form.Item>{" "}
+              <Form.Item name="insertDate" label="Insert Date">
+                <Input size="default" type="date" />
+              </Form.Item>{" "}
+              <Form.Item
+                name="bom"
+                label="BOM"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select bom code",
+                  },
+                ]}
+              >
+                <MyAsyncSelect
+                  selectLoading={loading === "select"}
+                  loadOptions={fetchbomlist}
+                  optionsState={bomOptions}
+                  onBlur={() => setAsyncOptions([])}
+                />
+              </Form.Item>{" "}
+              <Form.Item
+                name="gstType"
+                label="GST Type"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select GST type",
+                  },
+                ]}
+              >
+                <MySelect options={gstTypeOptions} size="default" />
+              </Form.Item>{" "}
+              <Form.Item
+                name="hsn"
+                label="HSN"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter HSN Number!",
+                  },
+                ]}
+              >
+                {/* <Input size="default" value={newPurchaseOrder.billPan} /> */}
+                <Input size="default" />
+              </Form.Item>{" "}
+              <Form.Item
+                name="gstRate"
+                label="GST Rate"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter GST Rate",
+                  },
+                ]}
+              >
+                <MySelect options={gstRateOptions} size="default" />
+              </Form.Item>{" "}
+              <Form.Item name="cgst" label="CGST">
+                <Input disabled size="default" />
+              </Form.Item>{" "}
+              <Form.Item name="sgst" label="SGST">
+                <Input disabled size="default" />
+              </Form.Item>{" "}
+              <Form.Item name="igst" label="IGST">
+                <Input size="default" disabled />
+              </Form.Item>
+            </div>
+            <Form.Item label="Item Description" name="description">
+              <Input.TextArea style={{ resize: "none" }} rows={3} />
+            </Form.Item>
 
-          <Col span={16}>
-            <Row gutter={6}>
-              {/* component name*/}
-              <Col span={8}>
-                <Form.Item
-                  name="product"
-                  label="Product Name"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please Select a Product!",
-                    },
-                  ]}
-                >
-                  <MyAsyncSelect
-                    selectLoading={loading === "select"}
-                    loadOptions={getComponentOptions}
-                    optionsState={asyncOptions}
-                    onChange={getComponentDetails}
-                  />
-                </Form.Item>
-              </Col>
-              {/* order qty */}
-              <Col span={4}>
-                <Form.Item
-                  label="Order Qty"
-                  name="qty"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Qty should be greater than zero!",
-                    },
-                  ]}
-                >
-                  <Input size="default" suffix={uom} />
-                </Form.Item>
-              </Col>
-              {/* Rate */}
-              <Col span={4}>
-                <Form.Item
-                  name="rate"
-                  label="Rate"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Rate should be greater than zero!",
-                    },
-                  ]}
-                >
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-              {/* Rate */}
-              <Col span={4}>
-                <Form.Item name="dueDate" label="Due Date">
-                  <Input size="default" type="date" />
-                </Form.Item>
-              </Col>
-              <Col span={4}>
-                <Form.Item name="insertDate" label="Insert Date">
-                  <Input size="default" type="date" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={6}>
-              <Col span={4}>
-                <Form.Item
-                  name="bom"
-                  label="BOM"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select bom code",
-                    },
-                  ]}
-                >
-                  <MyAsyncSelect
-                    selectLoading={loading === "select"}
-                    loadOptions={fetchbomlist}
-                    optionsState={bomOptions}
-                    onBlur={() => setAsyncOptions([])}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={4}>
-                <Form.Item
-                  name="gstType"
-                  label="GST Type"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select GST type",
-                    },
-                  ]}
-                >
-                  <MySelect options={gstTypeOptions} size="default" />
-                </Form.Item>
-              </Col>
-              <Col span={4}>
-                <Form.Item
-                  name="hsn"
-                  label="HSN"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter HSN Number!",
-                    },
-                  ]}
-                >
-                  {/* <Input size="default" value={newPurchaseOrder.billPan} /> */}
-                  <Input size="default" />
-                </Form.Item>
-              </Col>
-              <Col span={2}>
-                <Form.Item
-                  name="gstRate"
-                  label="GST Rate"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter GST Rate",
-                    },
-                  ]}
-                >
-                  <MySelect options={gstRateOptions} size="default" />
-                </Form.Item>
-              </Col>
-              <Col span={3}>
-                <Form.Item name="cgst" label="CGST">
-                  <Input disabled size="default" />
-                </Form.Item>
-              </Col>
-              <Col span={3}>
-                <Form.Item name="sgst" label="SGST">
-                  <Input disabled size="default" />
-                </Form.Item>
-              </Col>
-              <Col span={4}>
-                <Form.Item name="igst" label="IGST">
-                  <Input size="default" disabled />
-                </Form.Item>
-              </Col>
-            </Row>
-            {/* shipping address */}
-            <Row gutter={6}>
-              <Col span={24}>
-                <Form.Item label="Item Description" name="description">
-                  <Input.TextArea style={{ resize: "none" }} rows={3} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-          <Col span={4}>
-            <Card size="small" title="Tax Details">
+            <CustomFieldBox title="Tax Summary">
               <Row gutter={[0, 6]}>
                 <Col span={12}>
                   <Typography.Text strong>Before Tax</Typography.Text>
@@ -1183,17 +989,18 @@ export default function CreateWO({}) {
                   </Row>
                 </Col>
               </Row>
-            </Card>
-          </Col>
-          <NavFooter
-            loading={loading === "submitting"}
-            nextLabel="Submit"
-            submitFunction={showSubmitConfirmationModal}
-            resetFunction={showResetConfirm}
-          />
-        </Row>
+            </CustomFieldBox>
+          </CustomFieldBox>
+        </div>
+
+        <NavFooter
+          loading={loading === "submitting"}
+          nextLabel="Submit"
+          submitFunction={showSubmitConfirmationModal}
+          resetFunction={showResetConfirm}
+        />
       </Form>
-      <Divider />
+
       <AddClientModal
         open={showAddClientModal}
         setOpen={setShowAddClientModal}

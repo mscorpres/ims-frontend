@@ -17,6 +17,13 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyButton from "../../../../Components/MyButton";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
 
 const JWUpdateRate = () => {
   const [previewRows, setpreviewRows] = useState([]);
@@ -162,78 +169,110 @@ const JWUpdateRate = () => {
       setpreviewRows([]);
     }
   }, [file]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: previewRows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "preview" ? "calc(100vh - 240px)" : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "preview" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <Row justify="center" gutter={6} style={{ padding: 10, height: "90%" }}>
-      <Col span={4}>
-        <Card>
-          <Form
-            initialValues={initialValues}
-            form={updateJwForm}
-            layout="vertical"
-          >
-            <Form.Item label="Jobwork Id" name="jwId" rules={rules.jwId}>
-              <MyAsyncSelect
-                loadOptions={getJwOptions}
-                onBlur={() => setAsyncOptions([])}
-                optionsState={asyncOptions}
-                selectLoading={loading === "select"}
-              />
+    <div className="grid grid-cols-[1fr_3fr] " style={{ gap: 12, padding: 12 }}>
+      <CustomFieldBox title={"Filters"}>
+        <Form
+          initialValues={initialValues}
+          form={updateJwForm}
+          layout="vertical"
+        >
+          <Form.Item label="Jobwork Id" name="jwId" rules={rules.jwId}>
+            <MyAsyncSelect
+              loadOptions={getJwOptions}
+              onBlur={() => setAsyncOptions([])}
+              optionsState={asyncOptions}
+              selectLoading={loading === "select"}
+            />
+          </Form.Item>
+          <Form.Item label="Rate File">
+            <Form.Item
+              name="files"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
+              rules={rules.file}
+              noStyle
+            >
+              <Upload.Dragger name="files" {...props}>
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">
+                  Click or drag file to this area to upload
+                </p>
+              </Upload.Dragger>
             </Form.Item>
-            <Form.Item label="Rate File">
-              <Form.Item
-                name="files"
-                valuePropName="fileList"
-                getValueFromEvent={normFile}
-                rules={rules.file}
-                noStyle
-              >
-                <Upload.Dragger name="files" {...props}>
-                  <p className="ant-upload-drag-icon">
-                    <InboxOutlined />
-                  </p>
-                  <p className="ant-upload-text">
-                    Click or drag file to this area to upload
-                  </p>
-                </Upload.Dragger>
-              </Form.Item>
-            </Form.Item>
-            <Row justify="end" style={{ marginTop: 10 }}>
-              <Space>
-                <MyButton variant="reset" onClick={validateResetHandler} />
-                {stage === "preview" && (
-                  <MyButton
-                    loading={loading === "preview"}
-                    variant="next"
-                    text="Preview"
-                    onClick={previewFileHandler}
-                  />
-                )}
-                {stage === "submit" && (
-                  <MyButton
-                    loading={loading === "submit"}
-                    variant="submit"
-                    onClick={validateHandler}
-                  />
-                )}
-              </Space>
-            </Row>
-            <Row justify="end" style={{ marginTop: 5 }}>
-              <MyButton
-                variant="downloadSample"
-                href="https://media.mscorpres.net/oakterIms/other/PART%20RATE.csv"
+          </Form.Item>
+          <Row justify="end" style={{ marginTop: 10 }}>
+            <Space>
+              <CustomButton
+                size="small"
+                title={"reset"}
+                variant="outlined"
+                onclick={validateResetHandler}
               />
-            </Row>
-          </Form>
-        </Card>
-      </Col>
-      <Col span={16}>
-        <MyDataTable
-          loading={loading === "preview"}
-          columns={columns}
-          data={previewRows}
-        />
-      </Col>
-    </Row>
+              {stage === "preview" && (
+                <CustomButton
+                  size="small"
+                  title={"Preview"}
+                  loading={loading === "preview"}
+                  onclick={previewFileHandler}
+                />
+              )}
+              {stage === "submit" && (
+                <CustomButton
+                  size="small"
+                  title={"Submit"}
+                  loading={loading === "submit"}
+                  onclick={validateHandler}
+                />
+              )}
+            </Space>
+          </Row>
+          <Row justify="end" style={{ marginTop: 12 }}>
+            <MyButton
+              variant="downloadSample"
+              href="https://media.mscorpres.net/oakterIms/other/PART%20RATE.csv"
+            />
+          </Row>
+        </Form>
+      </CustomFieldBox>
+      <MaterialReactTable table={table} />
+    </div>
   );
 };
 
@@ -241,22 +280,23 @@ export default JWUpdateRate;
 
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Component",
-    minWidth: 200,
-    field: "component",
-    flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.component} />,
+    header: "Component",
+
+    size: 200,
+    accessorKey: "component",
+
+    render: ({ row }) => <ToolTipEllipses text={row.component} />,
   },
   {
-    headerName: "Part Code",
-    width: 150,
-    field: "partCode",
-    renderCell: ({ row }) => (
+    header: "Part Code",
+    size: 150,
+    accessorKey: "partCode",
+    render: ({ row }) => (
       <ToolTipEllipses
         style={{ width: "100%" }}
         text={row.partCode}
@@ -265,14 +305,14 @@ const columns = [
     ),
   },
   {
-    headerName: "UoM",
-    width: 100,
-    field: "uom",
+    header: "UoM",
+    size: 100,
+    accessorKey: "uom",
   },
   {
-    headerName: "Rate",
-    width: 100,
-    field: "rate",
+    header: "Rate",
+    size: 100,
+    accessorKey: "rate",
   },
 ];
 

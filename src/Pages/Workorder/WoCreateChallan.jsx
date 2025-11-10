@@ -13,6 +13,14 @@ import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { getClientOptions, getWorkOrderAnalysis } from "./components/api";
 import Loading from "../../Components/Loading";
 import MyButton from "../../Components/MyButton";
+import CustomButton from "../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 const WoCreateChallan = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [showTypeSelect, setShowTypeSelect] = useState(false);
@@ -77,9 +85,40 @@ const WoCreateChallan = () => {
     }
   }, [wise]);
 
-  //
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <div style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
+    <div style={{ height: "90%", margin:12 }}>
       {loading === "fetch" && <Loading />}
       <Col span={24}>
         <Row>
@@ -117,26 +156,25 @@ const WoCreateChallan = () => {
                     />
                   </div>
                 )}
-
-                <MyButton
-                  variant="search"
-                  onClick={getRows}
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "fetch"}
-                  type="primary"
-                >
-                  Fetch
-                </MyButton>
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Col>
         </Row>
       </Col>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-        <MyDataTable
+        {/* <MyDataTable
           loading={loading === "fetch"}
           data={rows}
           columns={[actionColumn, ...columns]}
-        />
+        /> */}
+        <MaterialReactTable table={table} />
       </div>
 
       <SelectChallanTypeModal
@@ -185,47 +223,46 @@ const typeOptions = [
 ];
 const columns = [
   {
-    headerName: "#",
-    field: "index",
-    width: 30,
+    header: "#",
+    accessorKey: "index",
+    size: 30,
   },
   {
-    headerName: "Date",
-    field: "date",
-    width: 150,
+    header: "Date",
+    accessorKey: "date",
+    size: 150,
   },
   {
-    headerName: "Client",
-    field: "client",
-    minWidth: 150,
-    flex: 1,
+    header: "Client",
+    accessorKey: "client",
+    size: 150,
   },
   {
-    headerName: "Client WO ID",
-    field: "transactionId",
-    minWidth: 150,
-    flex: 1,
-    renderCell: ({ row }) => (
+    header: "Client WO ID",
+    accessorKey: "transactionId",
+    size: 150,
+
+    render: ({ row }) => (
       <ToolTipEllipses text={row.transactionId} copy={true} />
     ),
   },
   {
-    headerName: "Product",
-    field: "product",
-    minWidth: 250,
-    flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
+    header: "Product",
+    accessorKey: "product",
+    size: 250,
+
+    render: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
-    headerName: "SKU",
-    field: "sku",
-    width: 250,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+    header: "SKU",
+    accessorKey: "sku",
+    size: 250,
+    render: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
-    headerName: "Qty",
-    field: "requiredQty",
-    width: 150,
+    header: "Qty",
+    accessorKey: "requiredQty",
+    size: 150,
   },
 ];
 

@@ -13,6 +13,15 @@ import { downloadCSV } from "../../../Components/exportToCSV";
 import MINDrawer from "./MINDrawer";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Add, Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, IconButton, LinearProgress } from "@mui/material";
 
 function SFGMIN() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -72,44 +81,80 @@ function SFGMIN() {
     setRows([]);
   }, [searchForm.getFieldsValue().data]);
   const columns = [
-    { headerName: "Sr. No", width: 80, field: "index" },
-    { headerName: "SFG Date", width: 150, field: "indt" },
-    { headerName: "Vendor", flex: 1, field: "vendor" },
-    { headerName: "Job Work Id", flex: 1, field: "jw_txn" },
-    { headerName: "Transaction Id", flex: 1, field: "sfg_txn" },
+    { header: "Sr. No", size: 80, accessorKey: "index" },
+    { header: "SFG Date", size: 150, accessorKey: "indt" },
+    { header: "Vendor", accessorKey: "vendor" },
+    { header: "Job Work Id", accessorKey: "jw_txn" },
+    { header: "Transaction Id", accessorKey: "sfg_txn" },
     {
-      headerName: "Actions",
+      header: "Actions",
       flex: 1,
       type: "actions",
-      getActions: ({ row }) => [
-        <TableActions
-          action="add"
-          //   disable={row.po_status == "C"}
-          onClick={() =>
-            setTransactionInwarding({
-              jw: row.jw_txn,
-              challan: row.challan_txn,
-              sfgtxn: row.sfg_txn,
-              vendor: {
-                label: searchForm.getFieldsValue().data.label,
-                value: searchForm.getFieldsValue().data.value,
-              },
-            })
-          }
-          label="MIN"
-        />,
-      ],
+      render: ({ row }) => {
+        <IconButton>
+          <Add />
+        </IconButton>
+      }
+        // <TableActions
+        //   action="add"
+        //   //   disable={row.po_status == "C"}
+        //   onClick={() =>
+        //     setTransactionInwarding({
+        //       jw: row.jw_txn,
+        //       challan: row.challan_txn,
+        //       sfgtxn: row.sfg_txn,
+        //       vendor: {
+        //         label: searchForm.getFieldsValue().data.label,
+        //         value: searchForm.getFieldsValue().data.value,
+        //       },
+        //     })
+        //   }
+        //   label="MIN"
+        // />,
+      ,
     },
   ];
+
+    const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: fetchLoading ? "calc(100vh - 240px)" : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      fetchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+
+  });
   return (
     <div style={{ height: "90%" }}>
       <MINDrawer
         transactionInwarding={transactionInwarding}
         setTransactionInwarding={setTransactionInwarding}
       />
-      <Row gutter={4} style={{ height: "100%", padding: "5px 10px" }}>
-        <Col span={4}>
-          <Card size="small">
+      <Row gutter={12} style={{ height: "100%", padding: "12px 10px" }}>
+        <Col span={6}>
+          <CustomFieldBox title="Filters">
             <Form
               name="searchForm"
               form={searchForm}
@@ -161,7 +206,7 @@ function SFGMIN() {
                       disabled={rows.length === 0}
                       onClick={handleDownloadCSV}
                     />
-                    <MyButton
+                    {/* <MyButton
                       loading={fetchLoading}
                       size="default"
                       htmlType="submit"
@@ -169,15 +214,22 @@ function SFGMIN() {
                       variant="search"
                     >
                       Search
-                    </MyButton>
+                    </MyButton> */}
+                    <CustomButton
+                      size="small"
+                      title={"Search"}
+                      starticon={<Search fontSize="small" />}
+                      loading={fetchLoading}
+                      htmlType="submit"
+                    />
                   </Space>
                 </Row>
               </Form.Item>
             </Form>
-          </Card>
+          </CustomFieldBox>
         </Col>
-        <Col style={{ height: "100%" }} span={20}>
-          <MyDataTable loading={fetchLoading} rows={rows} columns={columns} />
+        <Col style={{ height: "100%" }} span={18}>
+          <MaterialReactTable table={table} />
         </Col>
       </Row>
     </div>

@@ -1,37 +1,13 @@
-import {
-  Button,
-  Col,
-  Drawer,
-  Form,
-  Input,
-  Row,
-  Space,
-  Typography,
-  Modal,
-  Card,
-  Radio,
-  Divider,
-  //
-} from "antd";
+import { Col, Form, Input, Row, Modal, Card } from "antd";
 import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import ClientDetailsCard from "./ClientDetailsCard";
-import BillingDetailsCard from "./BillingDetailsCard";
-import DispatchAddress from "./DispatchDetailsCard";
 import { imsAxios } from "../../../../axiosInterceptor";
 import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import Loading from "../../../../Components/Loading";
 import FormTable2 from "../../../../Components/FormTable2";
-import { v4 } from "uuid";
 import MySelect from "../../../../Components/MySelect";
-import TextArea from "antd/es/input/TextArea";
-import { postUpdatedWo, submitScrapreChallan } from "../api";
+import { submitScrapreChallan } from "../api";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
-import MyDataTable from "../../../../Components/MyDataTable";
-import FormTable from "../../../../Components/FormTable";
-import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   getComponentDetail,
   getComponentOptions,
@@ -40,6 +16,7 @@ import {
 import useApi from "../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 
 const CreateScrapeChallan = () => {
   const [uplaodType, setUploadType] = useState("table");
@@ -81,7 +58,6 @@ const CreateScrapeChallan = () => {
 
   const navigate = useNavigate();
   const { executeFun, loading: loading1 } = useApi();
-  const components = Form.useWatch("components", challanForm);
   const getComponent = async (searchTerm) => {
     const response = await executeFun(
       () => getProductsOptions(searchTerm, true),
@@ -213,36 +189,10 @@ const CreateScrapeChallan = () => {
   const calculation = (fieldName, watchValues) => {
     const { qty, rate, gstRate } = watchValues;
     const value = +Number(qty ?? 0) * +Number(rate ?? 0).toFixed(3);
-    const gstAmount = (+Number(value).toFixed(3) * +Number(gstRate)) / 100;
-    let cgst = 0,
-      igst = 0,
-      sgst = 0;
-
-    // if (gstType === "L" && gstRate) {
-    //   cgst = gstAmount / 2;
-    //   sgst = gstAmount / 2;
-    //   igst = undefined;
-    // } else if (gstType === "I" && gstRate) {
-    //   igst = gstAmount;
-    //   cgst = undefined;
-    //   sgst = undefined;
-    // }
     challanForm.setFieldValue(
       ["components", fieldName, "value"],
       +Number(value).toFixed(3)
     );
-    // challanForm.setFieldValue(
-    //   ["components", fieldName, "cgst"],
-    //   +Number(cgst).toFixed(3)
-    // );
-    // challanForm.setFieldValue(
-    //   ["components", fieldName, "sgst"],
-    //   +Number(sgst).toFixed(3)
-    // );
-    // minFochallanFormm.setFieldValue(
-    //   ["components", fieldName, "igst"],
-    //   +Number(igst).toFixed(3)
-    // );
   };
   const handleFetchComponentDetails = async (row, rowId, value) => {
     const response = await executeFun(
@@ -291,9 +241,6 @@ const CreateScrapeChallan = () => {
     setLoading(true);
     const values = await challanForm.validateFields();
     const remarkvalue = await ModalForm.validateFields();
-    // console.log("value", values);
-    // console.log("remarkvalue", remarkvalue);
-
     let payload = {
       header: {
         billingaddr: values.billingaddress,
@@ -320,8 +267,6 @@ const CreateScrapeChallan = () => {
         comp_remark: values.components.map((r) => r.remarks),
       },
     };
-    // console.log("payload", payload);
-    // console.log("addressid", values);
     let response;
     let editPayload = {
       challan_id: challanId,
@@ -347,16 +292,11 @@ const CreateScrapeChallan = () => {
         remark: values.components.map((r) => r.remarks),
       },
     };
-    console.log("editPayload", editPayload);
-    // navigate("/woviewchallan");
-    // return;
     if (editScrapeChallan === "edit") {
-      // console.log("her");
       response = await imsAxios.post(
         "/wo_challan/updateWO_ScrapChallan",
         editPayload
       );
-      console.log("response of edit ", response);
       let { data } = response;
       if (data.status === "success") {
         toast.success(data.message);
@@ -373,7 +313,6 @@ const CreateScrapeChallan = () => {
         "select"
       );
     }
-    // console.log(response);
     if (response.success) {
       setLoading(true);
       challanForm.resetFields();
@@ -390,20 +329,14 @@ const CreateScrapeChallan = () => {
     setEditScrapeChallan("edit");
     const { data } = response;
     if (data.status === "success") {
-      // console.log(" data.header.challan_remark", data.header.challan_remark);
       challanForm.setFieldValue("clientname", data.header.clientcode.label);
       challanForm.setFieldValue("clientnameCode", data.header.clientcode.value);
       challanForm.setFieldValue("clientbranch", data.header.client_branch);
-      // challanForm.setFieldValue(
-      //   "clientbranchid",
-      //   data.header.clientaddress?.value
-      // );
       challanForm.setFieldValue("nature", data.header.eway_no);
       challanForm.setFieldValue("pd", data.header.ship_doc_no);
       challanForm.setFieldValue("vn", data.header.vehicle);
       challanForm.setFieldValue("or", data.header.other_ref);
       challanForm.setFieldValue("address", data.header.clientaddress?.label);
-      // challanForm.setFieldValue("addressid", data.header.clientaddress?.value);
       challanForm.setFieldValue("billingid", data.header.billing_info);
       challanForm.setFieldValue("billingaddress", data.header.billing_address);
       challanForm.setFieldValue("dispatchid", data.header.dispatch_info);
@@ -425,11 +358,7 @@ const CreateScrapeChallan = () => {
           clientBranchId: data.header?.clientaddress?.value,
         };
       });
-      console.log("arr", arr);
-
       challanForm.setFieldValue("components", arr);
-      // const fields = challanForm.getFieldsValue();
-      // fields.components = arr;
     }
   };
   useEffect(() => {
@@ -449,16 +378,19 @@ const CreateScrapeChallan = () => {
   return (
     <>
       <Form
-        style={{ height: "100%" }}
+        style={{ height: "calc(100% - 30px)", margin: 12 }}
         layout="vertical"
         form={challanForm}
         initialValues={defaultValues}
       >
-        <Row gutter={8} style={{ height: "95%", overflow: "hidden" }}>
+        <Row gutter={8} style={{ height: "100%", overflow: "hidden" }}>
           <Col span={6} style={{ height: "90%", overflow: "hidden" }}>
-            <Row gutter={[0, 6]} style={{ overflow: "auto", height: "100%" }}>
+            <Row
+              gutter={[0, 6]}
+              style={{ overflow: "auto", height: "calc(100% - 40px)" , padding:4}}
+            >
               <Col span={24}>
-                <Card size="small" title="Client Details">
+                <CustomFieldBox title="Client Details">
                   <Form.Item
                     name="clientname"
                     label="Client Name"
@@ -551,16 +483,11 @@ const CreateScrapeChallan = () => {
                       )}
                     </>
                   )}
-                </Card>
+                </CustomFieldBox>
               </Col>
 
               <Col span={24}>
-                <Card
-                  size="small"
-                  title="Billing Details"
-                  style={{ height: "100%", overflow: "hidden" }}
-                  bodyStyle={{ overflow: "auto", height: "98%" }}
-                >
+                <CustomFieldBox title={"Billing Details"}>
                   <Form.Item
                     name="billingid"
                     label="Select billing Address"
@@ -586,15 +513,10 @@ const CreateScrapeChallan = () => {
                   >
                     <Input.TextArea rows={3} />
                   </Form.Item>
-                </Card>
+                </CustomFieldBox>
               </Col>
               <Col span={24}>
-                <Card
-                  size="small"
-                  title="Dispatch Details"
-                  style={{ height: "100%", overflow: "hidden" }}
-                  bodyStyle={{ overflow: "auto", height: "98%" }}
-                >
+                <CustomFieldBox title={"Dispatch Details"}>
                   <Form.Item
                     name="dispatchid"
                     label="Select Dispatch Address"
@@ -620,25 +542,17 @@ const CreateScrapeChallan = () => {
                   >
                     <Input.TextArea rows={3} />
                   </Form.Item>
-                </Card>
+                </CustomFieldBox>
               </Col>
             </Row>
           </Col>
 
-          <Col span={18}>
-            <Card style={{ height: "10rem" }}>
+          <Col span={18}    style={{ overflow: "auto", height: "calc(100% - 100px)" , padding:4}}>
+            
               <FormTable2
                 removableRows={true}
                 nonRemovableColumns={1}
-                // columns={[
-                //   ...productItems(
-                //     location,
-
-                //     asyncOptions,
-                //     setAsyncOptions,
-                //     getComponent
-                //   ),
-                // ]}
+        
                 columns={columns({
                   handleFetchComponentOptions,
                   loading,
@@ -646,11 +560,9 @@ const CreateScrapeChallan = () => {
                   setAsyncOptions,
 
                   handleFetchComponentDetails,
-                  // handleFetchPreviousRate,
-                  // compareRates,
+                 
                   challanForm,
-                  // currencies,
-                  // setShowCurrenncy,
+                 
                 })}
                 listName="components"
                 watchKeys={["rate", "qty", "gstRate"]}
@@ -663,7 +575,7 @@ const CreateScrapeChallan = () => {
                 reverse={true}
                 newRow={defaultValues.components[0]}
               />
-            </Card>
+          
           </Col>
         </Row>
       </Form>

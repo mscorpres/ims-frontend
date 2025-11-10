@@ -18,6 +18,15 @@ import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
 import FinalizeModal from "./components/woAnalysis/FinalizeModal";
 import MyButton from "../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import { Edit, Search } from "@mui/icons-material";
+import CustomButton from "../../new/components/reuseable/CustomButton";
 
 const WoAnalysis = () => {
   const [wise, setWise] = useState(wiseOptions[0].value);
@@ -115,16 +124,49 @@ const WoAnalysis = () => {
       toast.error(message);
     }
   };
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
+
+  useEffect(() => {
+    if (wise !== wiseOptions[1].value) {
+      setSearchInput("");
+    }
+  }, [wise]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        key={row.status === "PENDING" ? "finalize" : "view"}
+        label={row.status === "PENDING" ? "Finalize" : "View"}
         onClick={() => {
+          closeMenu?.();
           if (row.status === "PENDING") {
             setShowFinalizeModal({
               woId: row.transactionId,
@@ -138,56 +180,55 @@ const WoAnalysis = () => {
             });
           }
         }}
-        label={row.status === "PENDING" ? "Finalize" : "View"}
+        table={table}
       />,
-      <GridActionsCellItem
-        showInMenu
-        disabled={row.status === "PENDING"}
-        onClick={() =>
+      <MRT_ActionMenuItem
+        key="materialin"
+        label="Material In"
+        onClick={() => {
+          closeMenu?.();
           setShowMINModal({
             woId: row.transactionId,
             subjectId: row.bomid,
             sku: row.productId,
             hsn: row.hsn_code,
-          })
-        }
-        label="Material In"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          handlePrint(row.transactionId, "print");
+          });
         }}
-        label="Print"
+        table={table}
+        disabled={row.status === "PENDING"}
       />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
+      <MRT_ActionMenuItem
+        key="download"
+        label="Download"
         onClick={() => {
+          closeMenu?.();
           handlePrint(row.transactionId, "download");
         }}
-        label="Download"
+        table={table}
       />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
+      <MRT_ActionMenuItem
+        key="print"
+        label="Print"
         onClick={() => {
+          closeMenu?.();
+          handlePrint(row.transactionId, "print");
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="close"
+        label="Close"
+        onClick={() => {
+          closeMenu?.();
           handleClose(row.transactionId, row.productId);
         }}
-        label="Close"
+        table={table}
       />,
     ],
-  };
-
-  useEffect(() => {
-    if (wise !== wiseOptions[1].value) {
-      setSearchInput("");
-    }
-  }, [wise]);
+  });
   return (
-    <Row style={{ height: "90%", paddingRight: 10, paddingLeft: 10 }}>
-      <Col span={24}>
+    <Row style={{ height: "90%", margin: 12 }}>
+      <Col span={24} style={{ marginBottom: 12 }}>
         <Row>
           <Col>
             <div>
@@ -236,27 +277,20 @@ const WoAnalysis = () => {
                   </div>
                 )}
 
-                <MyButton
-                  onClick={getRows}
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "fetch"}
-                  type="primary"
-                  variant="search"
-                >
-                  Fetch
-                </MyButton>
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Col>
         </Row>
       </Col>
       <Col span={24} style={{ height: "95%" }}>
-        <MyDataTable
-          loading={
-            loading === "fetch" || loading === "print" || loading === "cancel"
-          }
-          data={rows}
-          columns={[actionColumn, ...columns]}
-        />
+        <MaterialReactTable table={table} />
       </Col>
 
       <ViewModal showView={showView} setShowView={setShowView} />
@@ -295,55 +329,47 @@ const wiseOptions = [
 
 const columns = [
   {
-    headerName: "#",
-    field: "index",
-    width: 30,
+    header: "#",
+    accessorKey: "index",
+    size: 30,
   },
   {
-    headerName: "Date",
-    field: "date",
-    width: 150,
+    header: "Date",
+    accessorKey: "date",
+    size: 150,
   },
   {
-    headerName: "Client",
-    field: "client",
-    minWidth: 150,
+    header: "Client",
+    accessorKey: "client",
+    size: 150,
     flex: 1,
   },
   {
-    headerName: "Client PO ID",
-    field: "transactionId",
-    width: 200,
-    renderCell: ({ row }) => (
+    header: "Client PO ID",
+    accessorKey: "transactionId",
+    size: 200,
+    render: ({ row }) => (
       <ToolTipEllipses text={row.transactionId} copy={true} />
     ),
   },
   {
-    headerName: "Product",
-    field: "product",
-    minWidth: 250,
+    header: "Product",
+    accessorKey: "product",
+    size: 250,
     flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
+    render: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
-    headerName: "SKU",
-    field: "sku",
-    width: 250,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+    header: "SKU",
+    accessorKey: "sku",
+    size: 250,
+    render: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
-    headerName: "Required Qty",
-    field: "requiredQty",
-    width: 150,
+    header: "Required Qty",
+    accessorKey: "requiredQty",
+    size: 150,
   },
 ];
-const cancelRules = {
-  remarks: [
-    {
-      required: true,
-      message: "Please provide a reason to cancel this work order",
-    },
-  ],
-};
 
 export default WoAnalysis;
