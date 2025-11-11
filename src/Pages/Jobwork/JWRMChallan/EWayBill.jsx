@@ -1,16 +1,12 @@
 import {
-  Card,
   Col,
-  Divider,
   Form,
   Input,
   Modal,
   Result,
   Row,
-  Space,
   Typography,
 } from "antd";
-import React from "react";
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { useParams } from "react-router";
@@ -19,8 +15,8 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import MyDataTable from "../../../Components/MyDataTable";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
-import dayjs from "dayjs";
-import MyButton from "../../../Components/MyButton";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 const EWayBill = () => {
   const [loading, setLoading] = useState(false);
@@ -130,9 +126,6 @@ const EWayBill = () => {
       setLoading("fetch");
     }
   };
-  const transactionType = Form.useWatch("transactionType", form);
-  const subSupplyTypeOption = Form.useWatch("subType", form);
-  const dispFromState = Form.useWatch("dispatchFromState", form);
 
   const getStateOptions = async () => {
     try {
@@ -299,348 +292,212 @@ const EWayBill = () => {
     getStateOptions();
     getTransporterModeOptions();
   }, []);
-  // useEffect(() => {
-  //   if (transporterId?.length === 15) {
-  //     getGstinDetails(transporterId);
-  //   }
-  // }, [transporterId]);
+
   return (
-    <Form form={form} layout="vertical" style={{ padding: 10 }}>
+    <Form
+      form={form}
+      layout="vertical"
+      style={{ padding: 12, height: "calc(100vh - 65px)", overflow:"auto" }}
+    >
       {!successData && (
-        <Row gutter={[6, 6]}>
-          <Col span={24}>
-            <Card size="small" title="Transaction Details">
-              <Row gutter={6}>
-                <Col span={4}>
-                  <Form.Item name="type" label="Supply Type">
-                    <MySelect
-                      disabled={true}
-                      labelInValue={true}
-                      options={supplyTypeOptions}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
+        <div>
+          <div className="grid grid-cols-2 " style={{ gap: 12 }}>
+            <CustomFieldBox title={"Transaction Details"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="type" label="Supply Type">
+                  <MySelect
+                    disabled={true}
+                    labelInValue={true}
+                    options={supplyTypeOptions}
+                  />
+                </Form.Item>{" "}
+                <Form.Item
+                  // disabled={true}
+                  name="subType"
+                  label="Sub Type"
+                >
+                  <MySelect
+                    options={subOptions}
                     // disabled={true}
-                    name="subType"
-                    label="Sub Type"
-                  >
-                    <MySelect
-                      options={subOptions}
-                      // disabled={true}
-                    />
-                  </Form.Item>
-                </Col>
-                {subSupplyTypeOption == 8 && (
-                  <Col span={4}>
-                    <Form.Item name="subSupplyDesc" label="Other Description">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                )}
-                <Col span={4}>
-                  <Form.Item name="docNo" label="Document No.">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="docType" label="Document Type">
-                    <MySelect labelInValue={true} options={docTypeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="docDate" label="Document Date">
-                    <SingleDatePicker
-                      setDate={(value) => form.setFieldValue("docDate", value)}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="transactionType" label="Transaction Type">
-                    <MySelect options={transactionTypeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}></Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card
-              size="small"
-              title="Bill From"
-              style={{ height: "100%" }}
-              bodyStyle={{ height: "100%" }}
-            >
-              <Row gutter={6}>
-                <Col span={12}>
-                  <Form.Item name="billFromName" label="Name">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billFromGstin" label="GSTIN">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billFromState" label="State">
-                    <MySelect options={stateOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billFromLocation" label="Location">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billFromPincode" label="Pincode">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billFromAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billFromAddress2" label="Address2">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card size="small" title="Dispatch From">
-              <Row gutter={6}>
-                <Col span={12}>
-                  <Form.Item name="dispatchFromPlace" label="Legal Name">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchFromState" label="State">
-                    <MySelect options={stateOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchFromPincode" label="Pincode">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchFromLocation" label="Location">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                {/* <Col span={12}>
-                  <Form.Item name="dispatchFromGstin" label="GSTIN">
-                    <Input />
-                  </Form.Item>
-                </Col> */}
-
-                {/* <Col span={12}>
-                  <Form.Item name="billFromPAN" label="PAN">
-                    <Input />
-                  </Form.Item>
-                </Col> */}
-                <Col span={24}>
-                  <Form.Item name="dispatchFromAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="dispatchFromAddress2" label="Address2">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card
-              size="small"
-              title="Bill To"
-              style={{ height: "100%" }}
-              bodyStyle={{ height: "100%" }}
-            >
-              <Row gutter={6}>
-                <Col span={12}>
-                  <Form.Item name="billToName" label="Name">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToGstin" label="GSTIN">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToState" label="State">
-                    <MySelect labelInValue={true} options={stateOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToLocation" label="Location">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="billToPincode" label="Pincode">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billToAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="billToAddress2" label="Address2">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card size="small" title="Ship To">
-              <Row gutter={6}>
-                <Col span={12}>
-                  <Form.Item name="dispatchToPlace" label="Place">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchToState" label="State">
-                    <MySelect labelInValue={true} options={stateOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchToPincode" label="Pincode">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchToLocation" label="Location">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="dispatchToGstin" label="GSTIN">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="dispatchToAddress1" label="Address1">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Form.Item name="dispatchToAddress2" label="Address2">
-                    <Input.TextArea />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col span={24}>
-            <Card size="small" title="Transportation Details">
-              <Row gutter={6}>
-                <Col span={4}>
-                  <Form.Item name="transporterId" label="Transporter Id">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="transporterName" label="Transporter Name">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                {/* <Col span={4}>
-                  <Form.Item name="fromPin" label="From Pin Code">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="toPin" label="To Pin Code">
-                    <Input />
-                  </Form.Item>
-                </Col> */}
-                <Col span={4}>
-                  <Form.Item name="distance" label="Distance (in Km)">
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card size="small" title="Part B">
-              <Row gutter={6}>
-                <Col span={4}>
-                  <Form.Item name="mode" label="Transporter Mode">
-                    <MySelect options={transporterModeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="vehicleType" label="Vehicle Type">
-                    <MySelect options={vehicleTypeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="vehicleNo" label="Vehicle No.">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="transportDoc" label="Transport Doc">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item name="transportDate" label="Transport Date">
-                    <SingleDatePicker
-                      setDate={(value) =>
-                        form.setFieldValue("transportDate", value)
-                      }
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              size="small"
+                  />
+                </Form.Item>{" "}
+                <Form.Item name="subSupplyDesc" label="Other Description">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="docNo" label="Document No.">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="docNo" label="Document No.">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="docDate" label="Document Date">
+                  <SingleDatePicker
+                    setDate={(value) => form.setFieldValue("docDate", value)}
+                  />
+                </Form.Item>{" "}
+                <Form.Item name="transactionType" label="Transaction Type">
+                  <MySelect options={transactionTypeOptions} />
+                </Form.Item>
+              </div>
+            </CustomFieldBox>
+            <CustomFieldBox title={"Bill From"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="billFromName" label="Name">
+                  <Input />
+                </Form.Item>
+                <Form.Item name="billFromGstin" label="GSTIN">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="billFromState" label="State">
+                  <MySelect options={stateOptions} />
+                </Form.Item>{" "}
+                <Form.Item name="billFromLocation" label="Location">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="billFromPincode" label="Pincode">
+                  <Input />
+                </Form.Item>
+              </div>
+              <Form.Item name="billFromAddress1" label="Address1">
+                <Input.TextArea />
+              </Form.Item>{" "}
+              <Form.Item name="billFromAddress2" label="Address2">
+                <Input.TextArea />
+              </Form.Item>
+            </CustomFieldBox>
+            <CustomFieldBox title={"Dispatch From"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="dispatchFromPlace" label="Legal Name">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchFromState" label="State">
+                  <MySelect options={stateOptions} />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchFromPincode" label="Pincode">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchFromLocation" label="Location">
+                  <Input />
+                </Form.Item>
+              </div>
+              <Form.Item name="dispatchFromAddress1" label="Address1">
+                <Input.TextArea />
+              </Form.Item>{" "}
+              <Form.Item name="dispatchFromAddress2" label="Address2">
+                <Input.TextArea />
+              </Form.Item>
+            </CustomFieldBox>
+            <CustomFieldBox title={"Bill To"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="billToName" label="Name">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="billToGstin" label="GSTIN">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="billToState" label="State">
+                  <MySelect labelInValue={true} options={stateOptions} />
+                </Form.Item>{" "}
+                <Form.Item name="billToLocation" label="Location">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="billToPincode" label="Pincode">
+                  <Input />
+                </Form.Item>
+              </div>
+              <Form.Item name="billToAddress1" label="Address1">
+                <Input.TextArea />
+              </Form.Item>{" "}
+              <Form.Item name="billToAddress2" label="Address2">
+                <Input.TextArea />
+              </Form.Item>
+            </CustomFieldBox>
+            <CustomFieldBox title={"Ship To"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="dispatchToPlace" label="Place">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchToState" label="State">
+                  <MySelect labelInValue={true} options={stateOptions} />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchToPincode" label="Pincode">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchToLocation" label="Location">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="dispatchToGstin" label="GSTIN">
+                  <Input />
+                </Form.Item>
+              </div>
+              <Form.Item name="dispatchToAddress1" label="Address1">
+                <Input.TextArea />
+              </Form.Item>{" "}
+              <Form.Item name="dispatchToAddress2" label="Address2">
+                <Input.TextArea />
+              </Form.Item>
+            </CustomFieldBox>
+            <CustomFieldBox title={"Transportation Details"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="transporterId" label="Transporter Id">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="transporterName" label="Transporter Name">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="distance" label="Distance (in Km)">
+                  <Input />
+                </Form.Item>
+              </div>
+            </CustomFieldBox>
+          </div>
+          <div
+            className="grid grid-cols-[1fr_3fr]"
+            style={{ gap: 12, marginTop: 12 }}
+          >
+            <CustomFieldBox title={"Part B"}>
+              <Form.Item name="mode" label="Transporter Mode">
+                <MySelect options={transporterModeOptions} />
+              </Form.Item>{" "}
+              <Form.Item name="vehicleType" label="Vehicle Type">
+                <MySelect options={vehicleTypeOptions} />
+              </Form.Item>{" "}
+              <Form.Item name="vehicleNo" label="Vehicle No.">
+                <Input />
+              </Form.Item>{" "}
+              <Form.Item name="transportDoc" label="Transport Doc">
+                <Input />
+              </Form.Item>{" "}
+              <Form.Item name="transportDate" label="Transport Date">
+                <SingleDatePicker
+                  setDate={(value) =>
+                    form.setFieldValue("transportDate", value)
+                  }
+                />
+              </Form.Item>
+            </CustomFieldBox>
+            <CustomFieldBox
               title={`Items Details : ${components.length} Items`}
-              extra={
-                <Typography.Text>
-                  Total Amount :{form.getFieldValue("totalAmount")}
+              subtitle={
+                <span>
+                  Total Amount : {form.getFieldValue("totalAmount")}
                   {components.reduce(
                     (a, b) => +a + +Number(b.value).toFixed(3),
                     0
                   )}
-                </Typography.Text>
+                </span>
               }
             >
               <div style={{ height: 400, overflowY: "auto" }}>
                 <MyDataTable columns={columns} data={components} />
               </div>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Row justify="end">
-              <Space>
-                <MyButton variant="submit" onClick={validateHandler} />
-              </Space>
-            </Row>
-          </Col>
-        </Row>
+            </CustomFieldBox>
+          </div>
+       
+          <div className="flex justify-end" style={{marginTop:8}}>
+            <CustomButton title={"Submit"} onclick={validateHandler} />
+            </div>
+        </div>
       )}
       {successData && (
         <Result

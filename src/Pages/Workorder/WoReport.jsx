@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { Col, Input, Row, Space, Button, Collapse, Table } from "antd";
-import MySelect from "../../Components/MySelect";
+import { Col,Row, Space,Table } from "antd";
 import MyDatePicker from "../../Components/MyDatePicker";
-import MyDataTable from "../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import SelectChallanTypeModal from "./components/WoCreateChallan/SelectChallanTypeModal";
-import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { getClientOptions } from "./components/api";
 import { imsAxios } from "../../axiosInterceptor";
@@ -13,32 +9,11 @@ import { toast } from "react-toastify";
 import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
-import { v4 } from "uuid";
 import * as XLSX from "xlsx";
-import MyButton from "../../Components/MyButton";
+import { Search } from "@mui/icons-material";
+import CustomButton from "../../new/components/reuseable/CustomButton";
 const WoReport = () => {
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => printwocompleted(row)}
-        label="Print"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          downloadwocompleted(row);
-        }}
-        label="Download"
-      />,
-    ],
-  };
+
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [searchInput, setSearchInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -78,24 +53,6 @@ const WoReport = () => {
     }
   };
 
-  const downloadwocompleted = async (row) => {
-    try {
-      setLoading("fetch");
-      const response = await imsAxios.post(
-        "/createwo/print_wo_completed_list",
-        {
-          transaction: row.transactionId,
-        }
-      );
-      const { data } = response;
-      downloadFunction(response.data.data.buffer.data);
-      toast.success(data.message);
-    } catch (error) {
-      console.log("some error occured while fetching rows", error);
-    } finally {
-      setLoading(false);
-    }
-  };
   const columns = [
     { title: "ID", dataIndex: "serialno", key: "serialno" },
     { title: "Part Code", dataIndex: "partCode", key: "partCode" },
@@ -121,14 +78,12 @@ const WoReport = () => {
         dataIndex: "challan_value",
         key: "challan_value",
       },
-      // { title: 'Child Data', dataIndex: 'childData', key: 'childData' },s
     ];
     return (
       <Table
         columns={childColumns}
         dataSource={record.challan}
         pagination={false}
-        // showHeader={false}
         size="large"
       />
     );
@@ -276,8 +231,8 @@ const WoReport = () => {
   }, [wise]);
 
   return (
-    <div style={{ height: "90%" }}>
-      <Row style={{ padding: 5, paddingTop: 0 }} justify="space-between">
+    <div style={{ height: "90%", margin: "10px" }}>
+      <Row style={{ paddingTop: 0 }} justify="space-between">
         <Col>
           <Space>
             <div style={{ paddingBottom: "10px" }}>
@@ -286,14 +241,13 @@ const WoReport = () => {
 
                 <MyDatePicker setDateRange={setSearchInput} />
 
-                <MyButton
-                  variant="search"
-                  onClick={getRows}
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "fetch"}
-                  type="primary"
-                >
-                  Fetch
-                </MyButton>
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Space>
@@ -305,7 +259,7 @@ const WoReport = () => {
           onClick={exportToExcel}
         />
       </Row>
-      <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
+      <div style={{ height: "calc(100% - 50px)", overflow: "auto" }}>
         <Table
           columns={columns}
           expandedRowRender={expandedRowRender}

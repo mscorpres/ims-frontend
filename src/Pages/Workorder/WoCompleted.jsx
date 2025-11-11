@@ -16,30 +16,17 @@ import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
 import MyButton from "../../Components/MyButton";
+import CustomButton from "../../new/components/reuseable/CustomButton";
+import { Download, Print, Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { Box, IconButton, LinearProgress } from "@mui/material";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
 //
 const WoCompleted = () => {
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => printwocompleted(row)}
-        label="Print"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          downloadwocompleted(row);
-        }}
-        label="Download"
-      />,
-    ],
-  };
   const [wise, setWise] = useState(wiseOptions[0].value);
   const [searchInput, setSearchInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -128,6 +115,55 @@ const WoCompleted = () => {
     }
   }, [wise]);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => {
+      <div>
+        <IconButton color="inhert" onClick={() => printwocompleted(row)}>
+          <Print fontSize="small" />
+        </IconButton>
+        <IconButton
+          color="inhert"
+          onClick={() => {
+            downloadwocompleted(row);
+          }}
+        >
+          <Download fontSize="small" />
+        </IconButton>
+      </div>;
+    },
+
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
     <div style={{ height: "90%" }}>
       <Row style={{ padding: 5, paddingTop: 0 }} justify="space-between">
@@ -167,14 +203,13 @@ const WoCompleted = () => {
                   </div>
                 )}
 
-                <MyButton
-                  variant="search"
-                  onClick={getRows}
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "fetch"}
-                  type="primary"
-                >
-                  Fetch
-                </MyButton>
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Space>
@@ -188,11 +223,12 @@ const WoCompleted = () => {
         />
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-        <MyDataTable
+        {/* <MyDataTable
           loading={loading === "fetch"}
           data={rows}
           columns={[actionColumn, ...columns]}
-        />
+        /> */}
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );
@@ -221,34 +257,34 @@ const wiseOptions = [
 //         transactionId:
 const columns = [
   {
-    headerName: "#",
-    flex: 1,
-    field: "id",
+    header: "#",
+
+    accessorKey: "id",
   },
   {
-    headerName: "Date",
-    flex: 1,
-    field: "date",
+    header: "Date",
+
+    accessorKey: "date",
   },
   {
-    headerName: "SKU",
-    flex: 1,
-    field: "sku",
+    header: "SKU",
+
+    accessorKey: "sku",
   },
   {
-    headerName: "Product",
-    flex: 1,
-    field: "product",
+    header: "Product",
+
+    accessorKey: "product",
   },
   {
-    headerName: "Wo Number",
-    flex: 1,
-    field: "transactionId",
+    header: "Wo Number",
+
+    accessorKey: "transactionId",
   },
   {
-    headerName: "Quantity",
-    flex: 1,
-    field: "requiredQty",
+    header: "Quantity",
+
+    accessorKey: "requiredQty",
   },
 ];
 const downldcolumns = [

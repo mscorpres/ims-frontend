@@ -28,7 +28,15 @@ import printFunction, {
 import { Drawer } from "antd/es";
 import { useNavigate } from "react-router";
 import CustomButton from "../../new/components/reuseable/CustomButton";
-import { Create, Download, Edit, Print, Search, Visibility } from "@mui/icons-material";
+import {
+  Cancel,
+  Create,
+  Download,
+  Edit,
+  Print,
+  Search,
+  Visibility,
+} from "@mui/icons-material";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -171,240 +179,7 @@ const WoViewChallan = () => {
       navigate(`/wocreatescrapechallan?challan=${scrapeChallan}`);
     }
   }, [scrapeChallan]);
-  console.log("allChallanType", allChallanType);
-
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-
-    getActions: ({ row }) =>
-      challantype === "Scrape Challan"
-        ? [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setViewChallan(row);
-                viewChallanRow(row);
-                // printwoChallan(row);
-              }}
-              label="View"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                // setViewChallan/(row);
-                setScrapeChallan(row.challan_id);
-                // printwoChallan(row);
-              }}
-              label="Edit"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                printwoChallan(row);
-              }}
-              label="Print"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                downloadwochallan(row);
-              }}
-              label="Download"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading
-              onClick={() => {
-                setDetailData(row);
-                showSubmitConfirmationModal(row);
-              }}
-              label="Cancel Challan"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              label={
-                <Link
-                  style={{ textDecoration: "none", color: "black" }}
-                  to={`/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll(
-                    "/",
-                    "_"
-                  )}`}
-                  target="_blank"
-                >
-                  Create E-Way Bill
-                </Link>
-              }
-            />,
-          ]
-        : challantype === "RM Challan"
-        ? [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setViewChallanData([]);
-                setViewChallan(row);
-                viewChallanRow(row);
-                // printwoChallan(row);
-              }}
-              label="View"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                printwoChallan(row);
-              }}
-              label="Print"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                downloadwochallan(row);
-              }}
-              label="Download"
-            />,
-
-            <GridActionsCellItem
-              showInMenu
-              label={
-                <Link
-                  style={{ textDecoration: "none", color: "black" }}
-                  to={`/warehouse/e-way/wo/${row.challan_id.replaceAll(
-                    "/",
-                    "_"
-                  )}`}
-                  target="_blank"
-                >
-                  Create E-Way Bill
-                </Link>
-              }
-            />,
-          ]
-        : row.challan_type == "scrape"
-        ? [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setViewChallan(row);
-                viewChallanRow(row);
-                // printwoChallan(row);
-              }}
-              label="View"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                // setViewChallan/(row);
-                setScrapeChallan(row.challan_id);
-                // printwoChallan(row);
-              }}
-              label="Edit"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                printwoChallan(row);
-              }}
-              label="Print"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                downloadwochallan(row);
-              }}
-              label="Download"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading
-              onClick={() => {
-                setDetailData(row);
-                showSubmitConfirmationModal(row);
-              }}
-              label="Cancel Challan"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              label={
-                <Link
-                  style={{ textDecoration: "none", color: "black" }}
-                  to={`/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll(
-                    "/",
-                    "_"
-                  )}`}
-                  target="_blank"
-                >
-                  Create E-Way Bill
-                </Link>
-              }
-            />,
-          ]
-        : [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setViewChallan(row);
-                viewChallanRow(row);
-                // printwoChallan(row);
-              }}
-              label="View"
-            />,
-
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                printwoChallan(row);
-              }}
-              label="Print"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setDetailData(row);
-                downloadwochallan(row);
-              }}
-              label="Download"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              label={
-                <Link
-                  style={{ textDecoration: "none", color: "black" }}
-                  to={`/warehouse/e-way/wo/${row.challan_id.replaceAll(
-                    "/",
-                    "_"
-                  )}`}
-                  target="_blank"
-                >
-                  Create E-Way Bill
-                </Link>
-              }
-            />,
-          ],
-  };
+  
 
   const getRows = async () => {
     getAllRows(challantype);
@@ -672,19 +447,14 @@ const WoViewChallan = () => {
   }, [challantype]);
   useEffect(() => {
     if (allChallanType) {
-      let arr = [];
+      
       if (allChallanType) {
-        console.log("here");
+        
         setViewChallanData([]);
       }
     }
   }, [allChallanType]);
 
-  useEffect(() => {
-    if (searchInput) {
-      getAllRows(challantype);
-    }
-  }, [searchInput]);
 
   const table = useMaterialReactTable({
     columns: allColm,
@@ -725,8 +495,9 @@ const WoViewChallan = () => {
               key="view"
               label="View"
               onClick={() => {
-                setViewChallan(row);
-                viewChallanRow(row);
+                closeMenu?.();
+                setViewChallan(row?.original);
+                viewChallanRow(row?.original);
                 // printwoChallan(row);
               }}
               table={table}
@@ -736,7 +507,8 @@ const WoViewChallan = () => {
               key="edit"
               label="Edit"
               onClick={() => {
-                setScrapeChallan(row.challan_id);
+                closeMenu?.();
+                setScrapeChallan(row?.original?.challan_id);
               }}
               table={table}
             />,
@@ -746,8 +518,9 @@ const WoViewChallan = () => {
               key="download"
               label="Download"
               onClick={() => {
-                setDetailData(row);
-                downloadwochallan(row);
+                closeMenu?.();
+                setDetailData(row?.original);
+                downloadwochallan(row?.original);
               }}
               table={table}
             />,
@@ -756,8 +529,9 @@ const WoViewChallan = () => {
               key="print"
               label="Print"
               onClick={() => {
-                setDetailData(row);
-                printwoChallan(row);
+                closeMenu?.();
+                setDetailData(row?.original);
+                printwoChallan(row?.original);
               }}
               table={table}
             />,
@@ -767,7 +541,7 @@ const WoViewChallan = () => {
               label="Create E-Way Bill"
               onClick={() => {
                 closeMenu?.();
-                const url = `/warehouse/e-way/scrape-wo/${row.challan_id.replaceAll(
+                const url = `/warehouse/e-way/scrape-wo/${row?.original?.challan_id.replaceAll(
                   "/",
                   "_"
                 )}`;
@@ -776,7 +550,182 @@ const WoViewChallan = () => {
               table={table}
             />,
           ]
-        : [],
+        : challantype === "RM Challan"
+        ? [
+            <MRT_ActionMenuItem
+              icon={<Visibility fontSize="small" />}
+              key="view"
+              label="View"
+              onClick={() => {
+                closeMenu?.();
+                setViewChallanData([]);
+                setViewChallan(row?.original);
+                viewChallanRow(row?.original);
+                // printwoChallan(row);
+              }}
+              table={table}
+            />,
+
+            <MRT_ActionMenuItem
+              icon={<Download fontSize="small" />}
+              key="download"
+              label="Download"
+              onClick={() => {
+                closeMenu?.();
+                setDetailData(row?.original);
+                downloadwochallan(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Print fontSize="small" />}
+              key="print"
+              label="Print"
+              onClick={() => {
+                closeMenu?.();
+                setDetailData(row?.original);
+                printwoChallan(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Create fontSize="small" />}
+              key="ewaybill"
+              label="Create E-Way Bill"
+              onClick={() => {
+                closeMenu?.();
+                const url = `/warehouse/e-way/wo/${row?.original?.challan_id.replaceAll(
+                  "/",
+                  "_"
+                )}`;
+                window.open(url, "_blank");
+              }}
+              table={table}
+            />,
+          ]
+        : row.challan_type == "scrape"
+        ? [
+            <MRT_ActionMenuItem
+              icon={<Visibility fontSize="small" />}
+              key="view"
+              label="View"
+              onClick={() => {
+                closeMenu?.();
+                setViewChallan(row?.original);
+                viewChallanRow(row?.original);
+                // printwoChallan(row);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Edit fontSize="small" />}
+              key="edit"
+              label="Edit"
+              onClick={() => {
+                closeMenu?.();
+                setScrapeChallan(row?.original?.challan_id);
+              }}
+              table={table}
+            />,
+
+            <MRT_ActionMenuItem
+              icon={<Download fontSize="small" />}
+              key="download"
+              label="Download"
+              onClick={() => {
+                closeMenu?.();
+                setDetailData(row?.original);
+                downloadwochallan(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Print fontSize="small" />}
+              key="print"
+              label="Print"
+              onClick={() => {
+                closeMenu?.();
+                setDetailData(row?.original);
+                printwoChallan(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Cancel fontSize="small" />}
+              key="close"
+              label="Cancel Challan"
+              onClick={() => {
+                setDetailData(row?.original);
+                showSubmitConfirmationModal(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Create fontSize="small" />}
+              key="ewaybill"
+              label="Create E-Way Bill"
+              onClick={() => {
+                closeMenu?.();
+                const url = `/warehouse/e-way/scrape-wo/${row?.original?.challan_id.replaceAll(
+                  "/",
+                  "_"
+                )}`;
+                window.open(url, "_blank");
+              }}
+              table={table}
+            />,
+          ]
+        : [
+           <MRT_ActionMenuItem
+              icon={<Visibility fontSize="small" />}
+              key="view"
+              label="View"
+              onClick={() => {
+                closeMenu?.();
+                 setViewChallan(row?.original);
+                viewChallanRow(row?.original);
+                // printwoChallan(row);
+              }}
+              table={table}
+            />,
+
+            <MRT_ActionMenuItem
+              icon={<Download fontSize="small" />}
+              key="download"
+              label="Download"
+              onClick={() => {
+                closeMenu?.();
+                setDetailData(row?.original);
+                downloadwochallan(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Print fontSize="small" />}
+              key="print"
+              label="Print"
+              onClick={() => {
+                closeMenu?.();
+                setDetailData(row?.original);
+                printwoChallan(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Create fontSize="small" />}
+              key="ewaybill"
+              label="Create E-Way Bill"
+              onClick={() => {
+                closeMenu?.();
+                const url = `/warehouse/e-way/wo/${row?.original?.challan_id.replaceAll(
+                  "/",
+                  "_"
+                )}`;
+                window.open(url, "_blank");
+              }}
+              table={table}
+            />,
+        ],
   });
 
   return (
@@ -991,65 +940,65 @@ const scrapeColumns = [
 const allColm = [
   {
     header: "#",
-    field: "id",
+    accessorKey: "id",
     size: 30,
   },
 
   {
     header: "Challan ID",
-    field: "challan_id",
+    accessorKey: "challan_id",
     size: 150,
     render: ({ row }) => <ToolTipEllipses text={row.challan_id} copy={true} />,
   },
   {
     header: "Client",
-    field: "client",
+    accessorKey: "client",
     size: 220,
 
     render: ({ row }) => <ToolTipEllipses text={row.client} />,
   },
   {
     header: "Client Code",
-    field: "client_code",
+    accessorKey: "client_code",
     size: 80,
   },
   {
     header: "Delivery Challan Date",
-    field: "delivery_challan_dt",
+    accessorKey: "delivery_challan_dt",
     size: 230,
   },
   {
     header: "Item Name",
-    field: "item_name",
+    accessorKey: "item_name",
     size: 250,
 
     render: ({ row }) => <ToolTipEllipses text={row.item_name} />,
   },
   {
     header: "Item Qty",
-    field: "item_qty",
+    accessorKey: "item_qty",
     size: 100,
   },
   {
     header: "Item Rate",
-    field: "item_rate",
+    accessorKey: "item_rate",
     size: 100,
   },
   {
     header: "Item Value",
-    field: "item_value",
+    accessorKey: "item_value",
     size: 100,
   },
 
   {
     header: "Eway Bill Status",
-    field: "ewaybillStatus",
+    accessorKey: "ewaybillStatus",
     size: 250,
   },
 
   {
     header: "Eway Bill Number",
-    field: "ewaybill_no",
+    accessorKey: "ewaybill_no",
     size: 250,
   },
 
