@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Col, Row, Select, Button, Input, Card } from "antd";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
@@ -6,6 +6,8 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import NavFooter from "../../../../Components/NavFooter";
 import { getComponentOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 const { TextArea } = Input;
 
 function ReToRej() {
@@ -18,7 +20,6 @@ function ReToRej() {
     qty1: "",
     locationTo: "",
   });
-  console.log(allDataRej);
   const [locationFrom, setLocationFrom] = useState([]);
   const [branch, setBranch] = useState([]);
   const [locDataTo, setloctionDataTo] = useState([]);
@@ -32,12 +33,7 @@ function ReToRej() {
       address: "",
     },
   ]);
-  const [locationName, setLocationName] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
-  // console.log(allDataRej);
-  // console.log(branch);
-
-  // function start here
   const getLocationFunction = async () => {
     const { data } = await imsAxios.post("/godown/fetchLocationForRM2REJ_from");
 
@@ -193,49 +189,52 @@ function ReToRej() {
 
   // Note: per-row changes trigger API calls in onChange handlers
   return (
-    <div style={{ height: "100%" }}>
+    <div style={{ height: "calc(100vh - 180px)", margin: "12px" }}>
       {/* <InternalNav links={MainREJ} /> */}
-
-      <Row gutter={10} style={{ padding: "10px", height: "79vh" }}>
-        <Col span={6}>
-          <Card>
-            <Row gutter={10} style={{ margin: "5px" }}>
-              <Col span={24} style={{ marginBottom: "10px", width: "100%" }}>
-                <span>PICK LOCATION</span>
-              </Col>
-              <Col span={24}>
-                <Select
-                  placeholder="Please Select Location"
-                  style={{ width: "100%" }}
-                  options={locationFrom}
-                  value={allDataRej.locationFrom}
-                  onChange={(e) =>
-                    setAllDataRej((allDataRej) => {
-                      return { ...allDataRej, locationFrom: e };
-                    })
-                  }
-                />
-              </Col>
-              <Col span={24} style={{ marginTop: "10px" }}>
-                <TextArea rows={2} disabled value={branch} />
-              </Col>
-              <Col span={24} style={{ marginTop: "10px" }}>
-                <TextArea
-                  rows={2}
-                  placeholder="Comment Optional"
-                  value={allDataRej.comment}
-                  onChange={(e) =>
-                    setAllDataRej((allDataRej) => {
-                      return { ...allDataRej, comment: e.target.value };
-                    })
-                  }
-                />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-
-        <Col span={18}>
+      <div
+        className="grid grid-cols-[1fr_3fr] "
+        style={{
+          gap: 12,
+          minHeight: "calc(100vh - 180px)",
+          maxHeight: "calc(100vh - 180px)",
+        }}
+      >
+        <CustomFieldBox>
+          <Row gutter={10} style={{ margin: "5px" }}>
+            <Col span={24} style={{ marginBottom: "10px", width: "100%" }}>
+              <span>PICK LOCATION</span>
+            </Col>
+            <Col span={24}>
+              <Select
+                placeholder="Please Select Location"
+                style={{ width: "100%" }}
+                options={locationFrom}
+                value={allDataRej.locationFrom}
+                onChange={(e) =>
+                  setAllDataRej((allDataRej) => {
+                    return { ...allDataRej, locationFrom: e };
+                  })
+                }
+              />
+            </Col>
+            <Col span={24} style={{ marginTop: "10px" }}>
+              <TextArea rows={2} disabled value={branch} />
+            </Col>
+            <Col span={24} style={{ marginTop: "10px" }}>
+              <TextArea
+                rows={2}
+                placeholder="Comment Optional"
+                value={allDataRej.comment}
+                onChange={(e) =>
+                  setAllDataRej((allDataRej) => {
+                    return { ...allDataRej, comment: e.target.value };
+                  })
+                }
+              />
+            </Col>
+          </Row>
+        </CustomFieldBox>
+        <CustomFieldBox>
           <Row gutter={10}>
             <Col span={24}>
               <div
@@ -245,9 +244,10 @@ function ReToRej() {
                   marginBottom: 10,
                 }}
               >
-                <Button
-                  type="primary"
-                  onClick={() =>
+                <CustomButton
+                  title={"add rows"}
+                  size="small"
+                  onclick={() =>
                     setRows((prev) => [
                       ...prev,
                       {
@@ -259,9 +259,7 @@ function ReToRej() {
                       },
                     ])
                   }
-                >
-                  Add Row
-                </Button>
+                />
               </div>
               <div style={{ overflowX: "auto", overflowY: "hidden" }}>
                 <table
@@ -380,7 +378,7 @@ function ReToRej() {
                           style={{ resize: "none" }}
                         />
                       </td>
-                      <td style={{ width: "10vw" }}>
+                      <td style={{ width: "10vw", textAlign: "center" }}>
                         <Button
                           danger
                           onClick={() =>
@@ -390,6 +388,7 @@ function ReToRej() {
                         >
                           Remove
                         </Button>
+
                       </td>
                     </tr>
                   ))}
@@ -397,34 +396,17 @@ function ReToRej() {
               </div>
             </Col>
           </Row>
-        </Col>
-      </Row>
+        </CustomFieldBox>
+      </div>
+
       <NavFooter
         nextLabel="Transfer"
         submitFunction={saveRmToRej}
         resetFunction={reset}
         loading={loading}
-        // disabled={allDataRej.qty1 == "" ? false : true}
+  
       />
-      {/* <Row style={{ padding: "5px" }}>
-        <Col span={24}>
-          <div style={{ textAlign: "end" }}>
-            <Button
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                marginRight: "5px",
-              }}
-              onClick={reset}
-            >
-              Reset
-            </Button>
-            <Button type="primary" onClick={saveRmToRej}>
-              Transfer
-            </Button>
-          </div>
-        </Col>
-      </Row> */}
+ 
     </div>
   );
 }

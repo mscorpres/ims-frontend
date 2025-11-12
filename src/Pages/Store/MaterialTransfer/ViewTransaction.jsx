@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { FaDownload } from "react-icons/fa";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Col, DatePicker, Row, Select, Space } from "antd";
-import {
-  downloadCSV,
-  downloadCSVCustomColumns,
-} from "../../../Components/exportToCSV";
+import { Col, Row, Select, Space } from "antd";
+import { downloadCSV } from "../../../Components/exportToCSV";
 import { v4 } from "uuid";
-import MyDataTable from "../../../Components/MyDataTable";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import MyButton from "../../../Components/MyButton";
-
-const { RangePicker } = DatePicker;
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 function ViewTransaction() {
   const [loading, setLoading] = useState(false);
@@ -23,35 +23,22 @@ function ViewTransaction() {
   });
   const [datee, setDatee] = useState("");
   const [dataComesFromDateWise, setDataComesFromDateWise] = useState([]);
-  // console.log(dataComesFromDateWise);
-  const col = [
-    { name: "Date", selector: (row) => row.date },
-    { name: "Part", selector: (row) => row.part },
-    { name: "Cat Part", selector: (row) => row.cat_part },
-    { name: "Component", selector: (row) => row.name },
-    { name: "Out Location", selector: (row) => row.out_location },
-    { name: "In Location", selector: (row) => row.in_location },
-    { name: "Qty", selector: (row) => row.qty },
-    { name: "UoM", selector: (row) => row.uom },
-    { name: "Txd In", selector: (row) => row.transaction },
-    { name: "Shiffed By", selector: (row) => row.date },
-  ];
 
   const columns = [
-    { field: "date", headerName: "Date", width: 150 },
-    { field: "part", headerName: "Part Code", width: 150 },
-    { field: "cat_part", headerName: "Cat Part Code", width: 150 },
-    { field: "name", headerName: "Component", width: 350 },
-    { field: "out_location", headerName: "Out Location", width: 150 },
-    { field: "in_location", headerName: "In Location", width: 150 },
+    { accessorKey: "date", header: "Date", size: 150 },
+    { accessorKey: "part", header: "Part Code", size: 150 },
+    { accessorKey: "cat_part", header: "Cat Part Code", size: 150 },
+    { accessorKey: "name", header: "Component", size: 350 },
+    { accessorKey: "out_location", header: "Out Location", size: 150 },
+    { accessorKey: "in_location", header: "In Location", size: 150 },
     {
-      field: "qty",
-      headerName: "Qty",
-      width: 120,
-      renderCell: ({ row }) => <span>{`${row?.qty} ${row?.uom}`}</span>,
+      accessorKey: "qty",
+      header: "Qty",
+      size: 120,
+      render: ({ row }) => <span>{`${row?.qty} ${row?.uom}`}</span>,
     },
-    { field: "transaction", headerName: "Transaction In", width: 150 },
-    { field: "completed_by", headerName: "Shiffed By", width: 150 },
+    { accessorKey: "transaction", header: "Transaction In", size: 150 },
+    { accessorKey: "completed_by", header: "Shiffed By", size: 150 },
   ];
   const handleDownloadingCSV = () => {
     downloadCSV(dataComesFromDateWise, columns, "View Transaction");
@@ -73,7 +60,6 @@ function ViewTransaction() {
         data: datee,
         wise: allData.selectdate,
       });
-      console.log(data);
       if (data.code == 200) {
         let arr = data.data.map((row) => {
           return {
@@ -89,6 +75,39 @@ function ViewTransaction() {
       }
     }
   };
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: dataComesFromDateWise || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
     <div style={{ height: "90%" }}>
       <Row gutter={16} justify="space-between" style={{ margin: "10px" }}>
@@ -109,14 +128,13 @@ function ViewTransaction() {
           <div style={{ width: 250 }}>
             <MyDatePicker size="default" setDateRange={setDatee} />
           </div>
-          <MyButton
-            onClick={dateWise}
+          <CustomButton
+            size="small"
+            title={"Search"}
+            starticon={<Search fontSize="small" />}
             loading={loading}
-            type="primary"
-            variant="search"
-          >
-            Fetch
-          </MyButton>
+            onclick={dateWise}
+          />
         </Space>
         <Col className="gutter-row">
           <CommonIcons
@@ -127,11 +145,7 @@ function ViewTransaction() {
         </Col>
       </Row>
       <div style={{ height: "90%", margin: "10px" }}>
-        <MyDataTable
-          loading={loading}
-          data={dataComesFromDateWise}
-          columns={columns}
-        />
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

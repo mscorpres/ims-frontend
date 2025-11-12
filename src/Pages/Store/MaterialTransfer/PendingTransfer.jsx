@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ViewModal from "./Modal/ViewModal";
 
-import { Button, Col, DatePicker, Input, Row, Select } from "antd";
+import { Col, DatePicker, Input, Row, Select } from "antd";
 import MySelect from "../../../Components/MySelect";
-import MyDataTable from "../../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import { EyeTwoTone } from "@ant-design/icons";
 import { v4 } from "uuid";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyButton from "../../../Components/MyButton";
-
-const { RangePicker } = DatePicker;
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search, Visibility } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, IconButton, LinearProgress } from "@mui/material";
 
 function PendingTransfer() {
   const [locationData, setLocationData] = useState([]);
@@ -31,11 +33,8 @@ function PendingTransfer() {
   const [dataComesFromLocationWise, setdataComesFromLocationWise] = useState(
     []
   );
-  const [seacrh, setSearch] = useState(null);
+
   const [viewModal, setViewModal] = useState(false);
-
-  // console.log(dataComesFromDateWise);
-
   const opt = [
     { label: "Date", value: "datewise" },
     { label: "Transaction", value: "transactionwise" },
@@ -43,32 +42,21 @@ function PendingTransfer() {
   ];
 
   const columns = [
-    { field: "insert_date", headerName: "Date", width: 160 },
-    { field: "component_part", headerName: "Part", width: 100 },
-    { field: "component_name", headerName: "Component", width: 300 },
-    { field: "transfer_from", headerName: "Out Location", width: 150 },
-    { field: "transfer_to", headerName: "In Location", width: 150 },
+    { accessorKey: "insert_date", header: "Date", size: 160 },
+    { accessorKey: "component_part", header: "Part", size: 100 },
+    { accessorKey: "component_name", header: "Component", size: 300 },
+    { accessorKey: "transfer_from", header: "Out Location", size: 150 },
+    { accessorKey: "transfer_to", header: "In Location", size: 150 },
     {
-      field: "request_qty",
-      headerName: "Qty",
-      width: 100,
+      accessorKey: "request_qty",
+      header: "Qty",
+      size: 100,
       renderCell: ({ row }) => (
         <span>{row.request_qty + "/" + row.required_qty}</span>
       ),
     },
-    { field: "transaction_id", headerName: "Txn ID", width: 150 },
-    { field: "request_by", headerName: "Req. By", width: 150 },
-    {
-      field: "actions",
-      headerName: "Action",
-      width: 150,
-      type: "actions",
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          icon={<EyeTwoTone onClick={() => setViewModal(row)} />}
-        />,
-      ],
-    },
+    { accessorKey: "transaction_id", header: "Txn ID", size: 150 },
+    { accessorKey: "request_by", header: "Req. By", size: 150 },
   ];
 
   // fetch Date wise
@@ -114,19 +102,6 @@ function PendingTransfer() {
     // setDataComesFromTransactionWise(data.response.data);
   };
 
-  const getLocationFetch = async (e) => {
-    if (e?.length > 2) {
-      const { data } = await imsAxios.post("/backend/fetchLocation", {
-        searchTerm: e,
-      });
-      let arr = [];
-      arr = data.map((d) => {
-        return { label: d.text, value: d.id };
-      });
-      return arr;
-    }
-  };
-
   const locationWiseDateFecth = async () => {
     setLoading(true);
     const { data } = await imsAxios.post("/godown/fetchPending_tranfers", {
@@ -163,10 +138,56 @@ function PendingTransfer() {
     // }
   }, [allData.typeWise.value]);
 
-  useEffect(() => {}, []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data:
+      allData.typeWise == "datewise"
+        ? dataComesFromDateWise
+        : allData.typeWise == "transactionwise"
+        ? dataComesFromTransactionWise
+        : allData.typeWise == "locationwise"
+        ? dataComesFromLocationWise
+        : dataComesFromDateWise || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <IconButton
+        size="small"
+        color="inherit"
+        onClick={() => setViewModal(row)}
+      >
+        <Visibility fontSize="small" />
+      </IconButton>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
     <div style={{ height: "85%" }}>
-      <Row gutter={16} style={{ margin: "5px" }}>
+      <Row gutter={16} style={{ margin: "10px" }}>
         <Col span={4} className="gutter-row">
           <div>
             <Select
@@ -188,14 +209,13 @@ function PendingTransfer() {
               <MyDatePicker setDateRange={setDatee} size="default" />
             </Col>
             <Col span={2}>
-              <MyButton
-                onClick={dateWise}
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                type="primary"
-                variant="search"
-              >
-                Fetch
-              </MyButton>
+                onclick={dateWise}
+              />
             </Col>
           </>
         ) : allData.typeWise == "transactionwise" ? (
@@ -212,14 +232,13 @@ function PendingTransfer() {
               />
             </Col>
             <Col span={2}>
-              <MyButton
-                onClick={transactionWise}
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                type="primary"
-                variant="search"
-              >
-                Fetch
-              </MyButton>
+                onclick={transactionWise}
+              />
             </Col>
           </>
         ) : allData.typeWise == "locationwise" ? (
@@ -235,14 +254,13 @@ function PendingTransfer() {
               />
             </Col>
             <Col span={2}>
-              <MyButton
-                onClick={locationWiseDateFecth}
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={loading}
-                type="primary"
-                variant="search"
-              >
-                Fetch
-              </MyButton>
+                onclick={locationWiseDateFecth}
+              />
             </Col>
           </>
         ) : (
@@ -251,31 +269,7 @@ function PendingTransfer() {
       </Row>
 
       <div style={{ height: "100%", margin: "10px" }}>
-        {allData.typeWise == "datewise" ? (
-          <MyDataTable
-            loading={loading}
-            data={dataComesFromDateWise}
-            columns={columns}
-          />
-        ) : allData.typeWise == "transactionwise" ? (
-          <MyDataTable
-            loading={loading}
-            data={dataComesFromTransactionWise}
-            columns={columns}
-          />
-        ) : allData.typeWise == "locationwise" ? (
-          <MyDataTable
-            loading={loading}
-            data={dataComesFromLocationWise}
-            columns={columns}
-          />
-        ) : (
-          <MyDataTable
-            loading={loading}
-            data={dataComesFromDateWise}
-            columns={columns}
-          />
-        )}
+        <MaterialReactTable table={table} />
       </div>
 
       <ViewModal setViewModal={setViewModal} viewModal={viewModal} />

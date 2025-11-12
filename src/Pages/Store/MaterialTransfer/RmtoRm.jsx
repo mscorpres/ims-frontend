@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 import { toast } from "react-toastify";
-import { Col, Row, Select, Button, Input } from "antd";
+import { Col, Row, Select, Input } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import "./Modal/style.css";
 import { imsAxios } from "../../../axiosInterceptor";
 import NavFooter from "../../../Components/NavFooter";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 const { TextArea } = Input;
 
 function RmtoRm() {
@@ -20,7 +21,6 @@ function RmtoRm() {
     component: "",
     qty1: "",
   });
-  // console.log(allData);
 
   const [locData, setloctionData] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -30,7 +30,6 @@ function RmtoRm() {
   const [seacrh, setSearch] = useState(null);
   const [locationName, setLocationName] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
-  // console.log(branchName);
   const getLocationFunction = async () => {
     const { data } = await imsAxios.post("/godown/fetchLocationForRM2RM_from");
 
@@ -50,15 +49,11 @@ function RmtoRm() {
     const { data } = await imsAxios.post("/godown/fetchLocationDetail_from", {
       location_key: allData.locationFrom,
     });
-    // console.log(data.data);
     setbBanchName(data.data);
   };
 
   const getComponentList = async (e) => {
     if (e?.length > 2) {
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: e,
-      // });
       const response = await executeFun(() => getComponentOptions(e), "select");
       const { data } = response;
       let arr = [];
@@ -104,12 +99,6 @@ function RmtoRm() {
         type: "RM2RM",
       });
       if (data.code == 200) {
-        // setAllData({
-        //   comment: "",
-        // });
-        // toast.success(
-        //   "This Component Transfer `${allData.locationTo.label} -> ${allData.locationFrom.label}`"
-        // );
         toast.success(data.message.toString()?.replaceAll("<br/>", ""));
         setAllData({
           locationFrom: "",
@@ -176,11 +165,18 @@ function RmtoRm() {
   }, [allData.locationTo]);
 
   return (
-    <div style={{ height: "95%" }}>
+    <div style={{ height: "95%", margin: 12 }}>
       {/* <InternalNav links={Main} /> */}
-      <Row gutter={10} style={{ padding: "10px", height: "79vh" }}>
-        <Col span={6}>
-          <Row gutter={10} style={{ margin: "5px" }}>
+      <div
+        className="grid grid-cols-[1fr_3fr] "
+        style={{
+          gap: 12,
+          minHeight: "calc(100vh - 180px)",
+          maxHeight: "calc(100vh - 180px)",
+        }}
+      >
+        <CustomFieldBox>
+          <Row gutter={10} style={{}}>
             <Col span={24} style={{ marginBottom: "10px", width: "100%" }}>
               <span>PICK LOCATION</span>
             </Col>
@@ -213,9 +209,8 @@ function RmtoRm() {
               />
             </Col>
           </Row>
-        </Col>
-
-        <Col span={18}>
+        </CustomFieldBox>
+        <CustomFieldBox>
           <Row gutter={10}>
             <Col span={24}>
               <table>
@@ -292,8 +287,9 @@ function RmtoRm() {
               </Col>
             )}
           </Row>
-        </Col>
-      </Row>
+        </CustomFieldBox>
+      </div>
+
       <NavFooter
         nextLabel="Transfer"
         submitFunction={saveRmToRm}

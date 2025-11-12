@@ -1,19 +1,26 @@
-import { Space, Row, Form, Card, Col } from "antd";
-import React, { useState } from "react";
+import { Space, Row, Form, Col } from "antd";
+import { useState } from "react";
 import MyDatePicker from "../../../../../Components/MyDatePicker";
 import { getChallanList } from "../../../../../api/sales/salesOrder";
 import useApi from "../../../../../hooks/useApi.ts";
-import MyDataTable from "../../../../gstreco/myDataTable";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
 import { downloadCSV } from "../../../../../Components/exportToCSV";
 import { CommonIcons } from "../../../../../Components/TableActions.jsx/TableActions";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import ChallanDetails from "./ChallanDetails";
 import MySelect from "../../../../../Components/MySelect";
-import MyButton from "../../../../../Components/MyButton";
+
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import { convertSelectOptions } from "../../../../../utils/general.ts";
 import { getClientsOptions } from "../../../../../api/finance/clients";
+import CustomFieldBox from "../../../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../../../new/components/reuseable/CustomButton.jsx";
+import { Search, Visibility } from "@mui/icons-material";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import EmptyRowsFallback from "../../../../../new/components/reuseable/EmptyRowsFallback.jsx";
 
 const wiseOptions = [
   {
@@ -80,27 +87,58 @@ function Challan() {
     }
     setAsyncOptions(arr);
   };
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          setShowDetails(row?.challanId);
-        }}
-        label="View"
-      />,
-    ],
-  };
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <Tooltip title="View">
+        <IconButton
+          color="inherit"
+          size="small"
+          onClick={() => {
+            setShowDetails(row?.challanId);
+          }}
+        >
+          <Visibility fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 190px)"
+          : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
     <Row gutter={6} style={{ height: "95%", padding: 10 }}>
-      <Col span={4}>
-        <Card size="small" title="Filters">
+      <Col span={6}>
+        <CustomFieldBox title="Filters">
           <Form
             form={filterForm}
             layout="vertical"
@@ -137,21 +175,21 @@ function Challan() {
                 action="downloadButton"
                 onClick={handleExcelDownload}
               />
-              <MyButton
-                variant="search"
+
+              <CustomButton
+                size="small"
+                onclick={getRows}
+                title="Search"
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                onClick={getRows}
               />
             </Space>
           </Row>
-        </Card>
+        </CustomFieldBox>
       </Col>
-      <Col span={20}>
-        <MyDataTable
-          loading={loading("fetch")}
-          columns={[actionColumn, ...columns]}
-          data={rows}
-        />
+      <Col span={18}>
+       
+        <MaterialReactTable table={table} />
       </Col>
       <ChallanDetails open={showDetails} hide={() => setShowDetails(null)} />
     </Row>
@@ -161,47 +199,44 @@ function Challan() {
 export default Challan;
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Date",
-    width: 180,
-    field: "date",
+    header: "Date",
+    size: 180,
+    accessorKey: "date",
   },
   {
-    headerName: "Challan Id",
-    width: 180,
-    field: "challanId",
+    header: "Challan Id",
+    size: 180,
+    accessorKey: "challanId",
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.challanId} copy={true} />
     ),
   },
   {
-    headerName: "Client Code",
-    width: 130,
-    field: "clientCode",
+    header: "Client Code",
+    size: 130,
+    accessorKey: "clientCode",
   },
   {
-    headerName: "Client",
-    minWidth: 200,
-    flex: 1,
-    field: "client",
+    header: "Client",
+    size: 200,
+    accessorKey: "client",
   },
 
   {
-    headerName: "Billing Address",
-    minWidth: 200,
-    flex: 1,
-    field: "billingAddress",
+    header: "Billing Address",
+    size: 200,
+    accessorKey: "billingAddress",
     renderCell: ({ row }) => <ToolTipEllipses text={row.billingAddress} />,
   },
   {
-    headerName: "Shipping Address",
-    minWidth: 200,
-    flex: 1,
-    field: "shippingAddress",
+    header: "Shipping Address",
+    size: 200,
+    accessorKey: "shippingAddress",
     renderCell: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
   },
 ];

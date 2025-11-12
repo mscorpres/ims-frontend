@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
-import { Col, Input, Row, Space, Button } from "antd";
+import { Col, Input, Row, Space } from "antd";
 import MySelect from "../../Components/MySelect";
 import MyDatePicker from "../../Components/MyDatePicker";
-import MyDataTable from "../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import SelectChallanTypeModal from "./components/WoCreateChallan/SelectChallanTypeModal";
-import CreateChallanModal from "./components/WoCreateChallan/CreateChallanModal";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
@@ -15,13 +11,11 @@ import { toast } from "react-toastify";
 import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
-import MyButton from "../../Components/MyButton";
 import CustomButton from "../../new/components/reuseable/CustomButton";
 import { Download, Print, Search } from "@mui/icons-material";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  MRT_ActionMenuItem,
 } from "material-react-table";
 import { Box, IconButton, LinearProgress } from "@mui/material";
 import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback";
@@ -223,11 +217,6 @@ const WoCompleted = () => {
         />
       </Row>
       <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-        {/* <MyDataTable
-          loading={loading === "fetch"}
-          data={rows}
-          columns={[actionColumn, ...columns]}
-        /> */}
         <MaterialReactTable table={table} />
       </div>
     </div>
@@ -249,12 +238,6 @@ const wiseOptions = [
   },
 ];
 
-// id: index + 1,
-//         date: row.date,
-//         requiredQty: row.ord_qty,
-//         sku: row.sku_name,
-//         product: row.sku_code,
-//         transactionId:
 const columns = [
   {
     header: "#",

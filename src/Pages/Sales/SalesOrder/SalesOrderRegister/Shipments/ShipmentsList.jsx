@@ -7,7 +7,10 @@ import {
   createChallanFromSo,
   listOfShipment,
 } from "../../../../../api/sales/salesOrder";
-import MyDataTable from "../../../../gstreco/myDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import ToolTipEllipses from "../../../../../Components/ToolTipEllipses";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import CreateShipment from "../CreateShipment/CreateShipment";
@@ -21,6 +24,11 @@ import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import { convertSelectOptions } from "../../../../../utils/general.ts";
 import { getClientsOptions } from "../../../../../api/finance/clients";
 import MyButton from "../../../../../Components/MyButton";
+import CustomFieldBox from "../../../../../new/components/reuseable/CustomFieldBox.jsx";
+import { Add, Search } from "@mui/icons-material";
+import CustomButton from "../../../../../new/components/reuseable/CustomButton.jsx";
+import EmptyRowsFallback from "../../../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
 
 const initialValues = {
   data: "",
@@ -52,7 +60,8 @@ function ShipmentsList() {
   const [rows, setRows] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [updateShipmentRow, setUpdateShipmentRow] = useState("");
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedPo, setSelectedPo] = useState([]);
+  const [rowSelection, setRowSelection] = useState({});
   const [showDetails, setShowDetails] = useState(null);
   const [createRemark, setCreateRemark] = useState("");
   const { executeFun, loading } = useApi();
@@ -115,7 +124,7 @@ function ShipmentsList() {
       },
     });
   };
-  
+
   const cancelShipment = async (singleRow) => {
     Modal.confirm({
       title: "Are you sure you want to cancel this Challan?",
@@ -196,85 +205,127 @@ function ShipmentsList() {
     setAsyncOptions(arr);
   };
 
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) =>
-      row.del_challan_status === "Y"
-        ? [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                sendUpdate(row);
-              }}
-              label="Update"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setShowDetails(row);
-              }}
-              label="View"
-            />,
-
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                cancelShipment(row);
-              }}
-              label="Cancel Shipment"
-            />,
-          ]
-        : [
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                sendUpdate(row);
-              }}
-              label="Update"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                setShowDetails(row);
-              }}
-              label="View"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                createChallan(row);
-              }}
-              label="Create Challan"
-            />,
-            <GridActionsCellItem
-              showInMenu
-              // disabled={loading}
-              onClick={() => {
-                cancelShipment(row);
-              }}
-              label="Cancel Shipment"
-            />,
-          ],
-  };
   useEffect(() => {
     if (wise === "so_id_wise" || wise === "clientwise") {
       filterForm.setFieldValue("data", "");
     }
   }, [wise]);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    enableRowSelection: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 190px)"
+          : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+
+    renderRowActionMenuItems: ({ row, table, closeMenu }) =>
+      row.del_challan_status === "Y"
+        ? [
+            <MRT_ActionMenuItem
+              key="update"
+              label="Update"
+              onClick={() => {
+                sendUpdate(row);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              key="view"
+              label="View"
+              onClick={() => {
+                setShowDetails(row);
+              }}
+              table={table}
+            />,
+
+            <MRT_ActionMenuItem
+              icon={<Cancel />}
+              key="cancel"
+              label="Cancel Shipment"
+              onClick={() => {
+                cancelShipment(row);
+              }}
+              table={table}
+            />,
+          ]
+        : [
+            <MRT_ActionMenuItem
+              key="update"
+              label="Update"
+              onClick={() => {
+                sendUpdate(row);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              key="create"
+              label="Create Challan"
+              onClick={() => {
+                createChallan(row);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              key="view"
+              label="View"
+              onClick={() => {
+                setShowDetails(row);
+              }}
+              table={table}
+            />,
+
+            <MRT_ActionMenuItem
+              icon={<Cancel />}
+              key="cancel"
+              label="Cancel Shipment"
+              onClick={() => {
+                cancelShipment(row);
+              }}
+              table={table}
+            />,
+          ],
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
+  });
+  useEffect(() => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .flatRows.map((r) => r.original);
+    setSelectedPo(selectedRows);
+  }, [rowSelection, table]);
+
   return (
-    <Row gutter={6} style={{ height: "95%", padding: 10 }}>
-      <Col span={4}>
-        <Card size="small" title="Filters">
+    <Row gutter={6} style={{ height: "95%", padding: 12 }}>
+      <Col span={6}>
+        <CustomFieldBox title={"Filters"}>
           <Form
             form={filterForm}
             layout="vertical"
@@ -312,47 +363,42 @@ function ShipmentsList() {
               )}
             </Form.Item>
           </Form>
-          <Row gutter={[0, 6]} justify="end">
+          <Row gutter={[6, 6]} justify="end">
             <Col>
               <Space>
                 <CommonIcons
                   action="downloadButton"
                   onClick={handleExcelDownload}
                 />
-                <MyButton
-                  variant="search"
+
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading("fetch")}
-                  onClick={getRows}
+                  onclick={getRows}
                 />
               </Space>
             </Col>
             {wise === "clientwise" && (
               <Col>
                 <Space>
-                  <MyButton
-                    disabled={selectedRows.length === 0}
-                    onClick={() => createChallan()}
-                    variant="add"
-                    text="Create Shipment"
-                    type="default"
+                  <CustomButton
+                    size="small"
+                    title={"Create Shipment"}
+                    variant="outlined"
+                    starticon={<Add fontSize="small" />}
+                    onclick={() => createChallan()}
                   />
                 </Space>
               </Col>
             )}
           </Row>
-        </Card>
+        </CustomFieldBox>
       </Col>
-      <Col span={20}>
-        <MyDataTable
-          loading={loading("fetch")}
-          columns={[actionColumn, ...columns]}
-          data={rows}
-          checkboxSelection={wise === "clientwise"}
-          isRowSelectable={(params) => params.row.del_challan_status === "N"}
-          onSelectionModelChange={(newSelectionModel) => {
-            setSelectedRows(newSelectionModel);
-          }}
-        />
+      <Col span={18}>
+       
+        <MaterialReactTable table={table} />
       </Col>
       <CreateShipment
         open={updateShipmentRow?.shipment_id}
@@ -368,81 +414,81 @@ function ShipmentsList() {
 export default ShipmentsList;
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Shipment Id",
-    width: 150,
-    field: "shipmentId",
+    header: "Shipment Id",
+    size: 150,
+    accessorKey: "shipmentId",
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.shipmentId} copy={true} />
     ),
   },
   {
-    headerName: "Shipment Date",
-    width: 150,
-    field: "date",
+    header: "Shipment Date",
+    size: 150,
+    accessorKey: "date",
   },
   {
-    headerName: "SO ID",
-    // minWidth: 120,
-    width: 130,
-    field: "orderId",
+    header: "SO ID",
+    // minsize: 120,
+    size: 130,
+    accessorKey: "orderId",
     renderCell: ({ row }) => <ToolTipEllipses text={row.orderId} copy={true} />,
   },
 
   {
-    headerName: "Client Code",
-    width: 120,
-    field: "clientCode",
+    header: "Client Code",
+    size: 120,
+    accessorKey: "clientCode",
     renderCell: ({ row }) => <ToolTipEllipses text={row.clientCode} />,
   },
   {
-    headerName: "Client",
-    width: 150,
-    field: "client",
+    header: "Client",
+    size: 150,
+    accessorKey: "client",
     renderCell: ({ row }) => <ToolTipEllipses text={row.client} />,
   },
 
   {
-    headerName: "Client Address",
-    width: 200,
-    field: "clientAddress",
+    header: "Client Address",
+    size: 200,
+    accessorKey: "clientAddress",
     renderCell: ({ row }) => <ToolTipEllipses text={row.clientAddress} />,
   },
   {
-    headerName: "Billing Id",
-    width: 120,
-    field: "billingId",
+    header: "Billing Id",
+    size: 120,
+    accessorKey: "billingId",
   },
   {
-    headerName: "Billing Address",
-    width: 200,
-    field: "billingAddress",
+    header: "Billing Address",
+    size: 200,
+    accessorKey: "billingAddress",
     renderCell: ({ row }) => <ToolTipEllipses text={row.billingAddress} />,
   },
 
   {
-    headerName: "Shipping Id",
-    width: 150,
-    field: "shippingId",
+    header: "Shipping Id",
+    size: 150,
+    accessorKey: "shippingId",
   },
   {
-    headerName: "Shipping Address",
-    width: 200,
-    field: "shippingAddress",
+    header: "Shipping Address",
+    size: 200,
+    accessorKey: "shippingAddress",
     renderCell: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
   },
   {
-    headerName: "Challan Created",
-    width: 100,
-    field: "challanStatus",
+    header: "Challan Created",
+    size: 100,
+    accessorKey: "challanStatus",
   },
   {
-    headerName: "Status",
-    width: 80,
-    field: "status",
+    header: "Status",
+    size: 80,
+    accessorKey: "status",
   },
 ];

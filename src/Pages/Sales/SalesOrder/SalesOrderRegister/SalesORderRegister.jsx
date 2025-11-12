@@ -4,8 +4,7 @@ import UpdateSellStatus from "./UpdateSellStatus";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { Drawer, Form, Input, Modal, Row, Space } from "antd/es";
 import MyDataTable from "../../../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import { Button, Col, Select } from "antd";
+import { Col} from "antd";
 import MySelect from "../../../../Components/MySelect";
 import MyDatePicker from "../../../../Components/MyDatePicker";
 import useApi from "../../../../hooks/useApi.ts";
@@ -18,7 +17,15 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import printFunction from "../../../../Components/printFunction";
 import CreateShipment from "./CreateShipment/CreateShipment";
-import MyButton from "../../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
 function SalesORderRegister() {
   // const [loading, setLoading] = useState(false);
   const [componentList, setComponentList] = useState(false);
@@ -56,30 +63,8 @@ function SalesORderRegister() {
     }
 
     setRows(arr);
-
-    // setLoading(true);
-    // const response = await imsAxios.post("/sellRequest/fetchSellRequestList", {
-    //   wise: wise,
-    //   data: searchTerm,
-    // });
-    // const { data } = response;
-    // if (data.code === 200) {
-    //   let arr = data.message;
-    //   arr = arr.map((row, index) => ({
-    //     id: index + 1,
-    //     ...row,
-    //   }));
-    //   setRows(arr);
-    // }
-    // setLoading(false);
-    // // setOpen(true);
   };
   const cancelTheSelected = async (values) => {
-    // const response = await imsAxios.post("/sellRequest/CancelSO", {
-    //   so: values.so,
-    //   remark: values.remarks,
-    // });
-    // const { data } = response;
     const response = await executeFun(
       () => cancelTheSelectedSo(values),
       "fetch"
@@ -114,24 +99,7 @@ function SalesORderRegister() {
     }
     setComponentList(arr);
   };
-  // const getShipment = async (row) => {
-  //   const response = await imsAxios.post(
-  //     "/sellRequest/fetchSellRequestDetails",
-  //     {
-  //       req_id: row.salesId,
-  //     }
-  //   );
-  //   const { data } = response;
-  //   let arr = data.message;
-  //   if (data.code === 200) {
-  //     arr = arr.map((row, index) => ({
-  //       id: index + 1,
-  //       ...row,
-  //     }));
-  //     loading(false);
-  //   }
-  //   setShipmentList(arr);
-  // };
+
   const handlePrintOrder = async (orderId) => {
     const response = await executeFun(() => printOrder(orderId), "print");
     if (response.success) {
@@ -142,55 +110,7 @@ function SalesORderRegister() {
     }
   };
 
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          navigate(`/sales/order/${row.salesId.replaceAll("/", "_")}/edit`);
-        }}
-        label="Update"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => setCancelRowSelected(row)}
-        label="Cancel"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          // setOpen(true);
-          getComponentsList(row);
-        }}
-        label="Components list"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          // setOpen(true);
-          setShowShipmentDrawer(row.salesId);
-        }}
-        label="Create Shipment"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          // setOpen(true);
-          handlePrintOrder(row.salesId);
-        }}
-        label="Print"
-      />,
-    ],
-  };
+ 
   const columnsdrawer = [
     {
       headerName: "Item Name",
@@ -199,7 +119,6 @@ function SalesORderRegister() {
     },
     {
       headerName: "Code",
-      // minWidth: 120,
       flex: 1,
       field: "item_code",
       renderCell: ({ row }) => <ToolTipEllipses text={row.item_code} />,
@@ -247,6 +166,82 @@ function SalesORderRegister() {
     }
   }, [cancelRowSelected]);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 240px)"
+          : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Sales Orders Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("print") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        key="update"
+        label="Update"
+        onClick={() => {
+          navigate(`/sales/order/${row.salesId.replaceAll("/", "_")}/edit`);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="shipment"
+        label="Create Shipment"
+        onClick={() => {
+          setShowShipmentDrawer(row.salesId);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="list"
+        label="Components list"
+        onClick={() => {
+          getComponentsList(row);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="print"
+        label="Print"
+        onClick={() => {
+          handlePrintOrder(row.salesId);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="cancel"
+        label="Cancel"
+        onClick={() => setCancelRowSelected(row)}
+        table={table}
+      />,
+    ],
+  });
+
   return (
     <>
       <Modal
@@ -290,16 +285,10 @@ function SalesORderRegister() {
           </Form>
         </>
       </Modal>
-      <div style={{ height: "90%" }}>
-        <Row
-          justify="space-between"
-          style={{ padding: "10px 10px", paddingBottom: 5 }}
-        >
+      <div style={{ height: "calc(100vh - 140px)", margin: 12 }}>
+        <Row justify="space-between" style={{ paddingBottom: 5 }}>
           <Col span={24}>
-            <Row
-              justify="space-between"
-              style={{ padding: "0px 10px", paddingBottom: 5 }}
-            >
+            <Row justify="space-between" style={{ paddingBottom: 5 }}>
               <Col>
                 <Space>
                   <div style={{ width: 250 }}>
@@ -322,15 +311,14 @@ function SalesORderRegister() {
                     )}
                   </Col>
                   <Space>
-                    <MyButton
-                      variant="search"
-                      disabled={!setSearchTerm}
-                      type="primary"
+                    <CustomButton
+                      size="small"
+                      title={"Search"}
+                      starticon={<Search fontSize="small" />}
                       loading={loading("fetch")}
-                      onClick={handleFetchRows}
-                    >
-                      Search
-                    </MyButton>
+                      disabled={!setSearchTerm}
+                      onclick={handleFetchRows}
+                    />
                   </Space>
                 </Space>
               </Col>
@@ -361,33 +349,13 @@ function SalesORderRegister() {
             data={componentList}
           />
         </Drawer>
-        {/* <Drawer
-          onClose={() => setShipmentList(false)}
-          open={shipmentList}
-          width="100vw"
-          bodyStyle={{ overflow: "hidden", padding: 0 }}
-          className="message-modal"
-          // closable={false}
-          destroyOnClose={true}
-          title={`Component List `}
-        >
-          {/* <MyDataTable
-            loading={loading("fetch")}
-            columns={columnsdrawer}
-            data={componentList}
-          /> */}
-        {/* </Drawer> */}
         <CreateShipment
           open={showShipmentDrawer}
           hide={() => setShowShipmentDrawer(null)}
         />
-        {/* <Row style={{ padding: 5, paddingTop: 0 }}></Row> */}
-        <div style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}>
-          <MyDataTable
-            loading={loading("fetch") || loading("print")}
-            columns={[actionColumn, ...columns]}
-            data={rows}
-          />
+
+        <div style={{ height: "95%" }}>
+          <MaterialReactTable table={table} />
         </div>
       </div>
     </>
@@ -398,60 +366,59 @@ export default SalesORderRegister;
 
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Order type",
-    width: 100,
-    field: "type",
+    header: "Order type",
+    size: 100,
+    accessorKey: "type",
   },
   {
-    headerName: "Sale Request ID",
-    minWidth: 150,
-    flex: 1,
-    field: "salesId",
+    header: "Sale Request ID",
+    size: 150,
+
+    accessorKey: "salesId",
     renderCell: ({ row }) => <ToolTipEllipses text={row.salesId} copy={true} />,
   },
   {
-    headerName: "Sale  Customer",
-    minWidth: 150,
-    field: "customer",
-    flex: 1,
+    header: "Sale  Customer",
+    size: 150,
+    accessorKey: "customer",
   },
   {
-    headerName: "Sale Project Id",
-    width: 150,
-    field: "project",
+    header: "Sale Project Id",
+    size: 150,
+    accessorKey: "project",
   },
   {
-    headerName: "Sale Cost Center",
-    width: 150,
-    field: "costCenter",
+    header: "Sale Cost Center",
+    size: 150,
+    accessorKey: "costCenter",
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.sell_cost_center} copy={true} />
     ),
   },
   {
-    headerName: "Sale Delivery Term",
-    width: 150,
-    field: "deliveryTerm",
+    header: "Sale Delivery Term",
+    size: 150,
+    accessorKey: "deliveryTerm",
   },
   {
-    headerName: "Sale Payment Term",
-    width: 100,
-    field: "paymentTerm",
+    header: "Sale Payment Term",
+    size: 100,
+    accessorKey: "paymentTerm",
   },
 
   {
-    headerName: "Create By",
-    width: 150,
-    field: "createdBy",
+    header: "Create By",
+    size: 150,
+    accessorKey: "createdBy",
   },
   {
-    headerName: "Create By",
-    width: 150,
-    field: "createdDate",
+    header: "Create By",
+    size: 150,
+    accessorKey: "createdDate",
   },
 ];

@@ -2,14 +2,18 @@ import React, { useState } from "react";
 import { FaDownload } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import { Button, Col, DatePicker, Row, Select } from "antd";
+import { Col, Row, Select } from "antd";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
-import MyDataTable from "../../../../Components/MyDataTable";
 import MyDatePicker from "../../../../Components/MyDatePicker";
 import { imsAxios } from "../../../../axiosInterceptor";
-import MyButton from "../../../../Components/MyButton";
-
-const { RangePicker } = DatePicker;
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, IconButton, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 
 function TransactionRej() {
   const options = [{ label: "Date Wise", value: "datewise" }];
@@ -19,21 +23,18 @@ function TransactionRej() {
   const [loading, setLoading] = useState(false);
   const [datee, setDatee] = useState("");
   const [dataComesFromDateWise, setDataComesFromDateWise] = useState([]);
-  //   console.log(allData);
-  //   console.log(datee);
-  // console.log(dataComesFromDateWise);
 
   const columns = [
-    { field: "date", headerName: "Date", width: 150 },
-    { field: "part", headerName: "Part Code", width: 90 },
-    { field: "cat_part", headerName: "Cat Part Code", width: 120 },
-    { field: "name", headerName: "Component", width: 390 },
-    { field: "out_location", headerName: "Out Location", width: 150 },
-    { field: "in_location", headerName: "In Location", width: 150 },
-    { field: "qty", headerName: "Qty", width: 100 },
-    { field: "uom", headerName: "UoM", width: 80 },
-    { field: "transaction", headerName: "Transaction In", width: 150 },
-    { field: "completed_by", headerName: "Shiffed By", width: 150 },
+    { accessorKey: "date", header: "Date", size: 150 },
+    { accessorKey: "part", header: "Part Code", size: 90 },
+    { accessorKey: "cat_part", header: "Cat Part Code", size: 120 },
+    { accessorKey: "name", header: "Component", size: 390 },
+    { accessorKey: "out_location", header: "Out Location", size: 150 },
+    { accessorKey: "in_location", header: "In Location", size: 150 },
+    { accessorKey: "qty", header: "Qty", size: 100 },
+    { accessorKey: "uom", header: "UoM", size: 80 },
+    { accessorKey: "transaction", header: "Transaction In", size: 150 },
+    { accessorKey: "completed_by", header: "Shiffed By", size: 150 },
   ];
 
   const handleDownloadingCSV = () => {
@@ -84,8 +85,40 @@ function TransactionRej() {
       }
     }
   };
+
+    const table = useMaterialReactTable({
+    columns: columns,
+    data: dataComesFromDateWise || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <div style={{ height: "100vh" }}>
+    <div style={{ height: "calc(100vh - 290px)" }}>
       <Row gutter={16} style={{ margin: "10px" }}>
         <Col span={4} className="gutter-row">
           <div>
@@ -107,119 +140,39 @@ function TransactionRej() {
         </Col>
         <Col span={1} className="gutter-row">
           <div>
-            <MyButton
-              variant="search"
-              onClick={dataComesFromDBWhenClickButton}
-              type="primary"
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<Search fontSize="small" />}
               loading={loading}
-            >
-              Fetch
-            </MyButton>
+              onclick={dataComesFromDBWhenClickButton}
+            />
           </div>
         </Col>
         {dataComesFromDateWise.length > 0 && (
           <Col span={1} offset={12} className="gutter-row">
             <div>
-              <Button
+              <IconButton
+              size="small"
                 onClick={handleDownloadingCSV}
                 style={{
-                  backgroundColor: "#4090FF",
+                  backgroundColor: "#0d9488",
                   color: "white",
                   marginLeft: "60px",
                 }}
               >
                 <FaDownload />
-              </Button>
+              </IconButton>
             </div>
           </Col>
         )}
       </Row>
       <div className="m-2" style={{ height: "100%" }}>
         <div style={{ height: "80%", margin: "10px" }}>
-          <MyDataTable
-            loading={loading}
-            data={dataComesFromDateWise}
-            columns={columns}
-          />
+            <MaterialReactTable table={table} />
         </div>
       </div>
     </div>
   );
 }
 export default TransactionRej;
-
-// <form>
-//   <div className="d-flex justify-content-between m-3 mt-4">
-//     <div className="d-flex">
-//       <div className="mr-2" style={{ width: "150px" }}>
-//         <Select
-//           options={options}
-//           placeholder="Select"
-//           value={allData.selectdate}
-//           onChange={(e) =>
-//             setAllData((allData) => {
-//               return { ...allData, selectdate: e };
-//             })
-//           }
-//         />
-//       </div>
-//       <>
-//         <div>
-//           <RangePicker
-//             style={{
-//               minHeight: "39px",
-//               borderRadius: "4px",
-//               width: "300px",
-//             }}
-//             onChange={(e) => {
-//               setDatee(
-//                 e.map((item) => {
-//                   return moment(item).format("DD-MM-YYYY");
-//                 })
-//               );
-//             }}
-//           />
-//         </div>
-//         <div>
-//           <button
-//             className="btn btn-secondary"
-//             type="button"
-//             onClick={dataComesFromDBWhenClickButton}
-//           >
-//             Date Wise
-//           </button>
-//         </div>
-//       </>
-//     </div>
-//     <div className="cursorr">
-//       <FaDownload size={20} color="#5D7788" onClick={handleDownloadingCSV} />
-//     </div>
-//   </div>
-// </form>
-
-// <hr />
-
-// {loading ? (
-//   <div
-//     style={{
-//       display: "flex",
-//       justifyContent: "center",
-//       alignItems: "center",
-//       height: "70vh",
-//       zIndex: "999999",
-//     }}
-//   >
-//     <Lottie animationData={waiting} loop={true} style={{ height: "200px" }} />
-//   </div>
-// ) : (
-//   <div className="m-2">
-//     <DataTable
-//       fixedHeader="true"
-//       fixedHeaderScrollHeight={"55vh"}
-//       data={dataComesFromDateWise}
-//       columns={col}
-//       pagination
-//       customStyles={customStyles}
-//     />
-//   </div>
-// )}

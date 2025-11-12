@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { v4 } from "uuid";
 import NavFooter from "../../../../Components/NavFooter";
 import {
@@ -20,7 +20,7 @@ import {
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../../Components/Loading";
 import FormTable from "../../../../Components/FormTable";
-import { Button, Card, Col, Modal, Row, Typography } from "antd";
+import { Button, Col, Modal, Row, Typography } from "antd";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
 import CurrenceModal from "./CurrenceModal";
@@ -30,6 +30,7 @@ import {
   getProductsOptions,
 } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 export default function AddComponents({
   rowCount,
   setRowCount,
@@ -223,16 +224,6 @@ export default function AddComponents({
               (row) => row.value == value.currency
             ),
           };
-          // let rate = +Number(obj.rate).toString();
-          // let diff = obj.rate_cap * value.rate - rate * value.rate;
-          // let diff1 = obj.rate_cap - rate;
-          // let perc = (diff1 * 100) / obj.rate_cap;
-          // perc = perc.toFixed(2);
-          // obj = {
-          //   ...obj,
-          //   diffPercentage: perc,
-          //   tol_price: diff,
-          // };
         } else if (name == "currency") {
           if (value == "364907247") {
             setShowCurrencyUpdateConfirmModal({ value: value, id: id });
@@ -311,21 +302,8 @@ export default function AddComponents({
         return row;
       }
     });
-    // "/purchaseOrder/getComponentDetailsByCode",
-    // /purchaseOrdertest/getComponentDetailsByCode
-    // console.log(arr);
+
     if (name == "component") {
-      // console.log("newPurchaseOrder", newPurchaseOrder);
-      // setPageLoading(true);
-      // const { data } = await imsAxios.post(
-      //   "/purchaseOrder/getComponentDetailsByCode",
-      //   {
-      //     component_code: value.value,
-      //     vencode: newdata.client.value,
-      //     project: newdata.project_name.value ?? newdata.project_name,
-      //   }
-      // );
-      // console.log("iscomponents", iscomponents);
       var data;
       if (iscomponents == "component") {
         console.log("newPurchaseOrder", newPurchaseOrder);
@@ -343,8 +321,6 @@ export default function AddComponents({
         setPageLoading(true);
         let response = await imsAxios.post("/products/fetchProductData", {
           product_key: value.value,
-          // vencode: newdata.client.value,
-          // project: newdata.project_name.value ?? newdata.project_name,
         });
         data = response.data;
       }
@@ -435,22 +411,6 @@ export default function AddComponents({
         setAsyncOptions([]);
       }
     }
-    // if (searchInput.length > 2) {
-    //   // setSelectLoading(true);
-    //   const { data } = await imsAxios.post("/backend/fetchProduct", {
-    //     searchTerm: searchInput,
-    //   });
-    //   // setSelectLoading(false);
-    //   let arr = [];
-    //   if (!data.msg) {
-    //     arr = data.map((d) => {
-    //       return { text: d.text, value: d.id };
-    //     });
-    //     setAsyncOptions(arr);
-    //   } else {
-    //     setAsyncOptions([]);
-    //   }
-    // }
   };
   const resetFunction = () => {
     setRowCount([
@@ -531,7 +491,7 @@ export default function AddComponents({
       width: 40,
       field: "add",
       sortable: false,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.index >= 2 && (
           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
         ),
@@ -542,7 +502,7 @@ export default function AddComponents({
       width: 250,
       field: "component",
       sortable: false,
-      renderCell: (params) =>
+      render: (params) =>
         componentSelect(
           params,
           inputHandler,
@@ -557,7 +517,7 @@ export default function AddComponents({
       headerName: "Ord. Qty",
       field: "qty",
       sortable: false,
-      renderCell: (params) => quantityCell(params, inputHandler),
+      render: (params) => quantityCell(params, inputHandler),
       width: 130,
     },
     {
@@ -565,7 +525,7 @@ export default function AddComponents({
       width: 170,
       field: "rate",
       sortable: false,
-      renderCell: (params) => rateCell(params, inputHandler, currencies),
+      render: (params) => rateCell(params, inputHandler, currencies),
     },
 
     {
@@ -573,87 +533,81 @@ export default function AddComponents({
       width: 150,
       field: "inrValue",
       sortable: false,
-      renderCell: (params) => taxableCell(params), //ask
+      render: (params) => taxableCell(params), //ask
     },
     {
       headerName: "Foreign Value",
       width: 150,
       field: "usdValue",
       sortable: false,
-      renderCell: (params) => foreignCell(params),
+      render: (params) => foreignCell(params),
     },
     {
       headerName: "Due Date",
       width: 150,
       field: "duedate",
       sortable: false,
-      renderCell: (params) => invoiceDateCell(params, inputHandler), //ask
+      render: (params) => invoiceDateCell(params, inputHandler), //ask
     },
     {
       headerName: "HSN Code",
       width: 150,
       field: "hsncode",
       sortable: false,
-      renderCell: (params) => HSNCell(params, inputHandler),
+      render: (params) => HSNCell(params, inputHandler),
     },
     {
       headerName: "GST Type",
       width: 150,
       field: "gsttype",
       sortable: false,
-      renderCell: (params) => gstTypeCell(params, inputHandler),
+      render: (params) => gstTypeCell(params, inputHandler),
     },
     {
       headerName: "GST Rate",
       width: 100,
       field: "gstrate",
       sortable: false,
-      renderCell: (params) => gstRate(params, inputHandler),
+      render: (params) => gstRate(params, inputHandler),
     },
     {
       headerName: "CGST",
       width: 150,
       field: "cgst",
       sortable: false,
-      renderCell: (params) => CGSTCell(params, inputHandler),
+      render: (params) => CGSTCell(params, inputHandler),
     },
     {
       headerName: "SGST",
       width: 150,
       field: "sgst",
       sortable: false,
-      renderCell: (params) => SGSTCell(params, inputHandler),
+      render: (params) => SGSTCell(params, inputHandler),
     },
     {
       headerName: "IGST",
       width: 150,
       field: "igst",
       sortable: false,
-      renderCell: (params) => IGSTCell(params, inputHandler),
+      render: (params) => IGSTCell(params, inputHandler),
     },
 
     {
       headerName: "Item Description",
       width: 250,
-      renderCell: (params) => itemDescriptionCell(params, inputHandler),
+      render: (params) => itemDescriptionCell(params, inputHandler),
     },
   ];
   useEffect(() => {
     getCurrencies();
   }, []);
-  // useEffect(() => {
-  //   if (selectLoading) {
-  //     setTimeout(() => {
-  //       setSelectLoading(false);
-  //     }, 600000);
-  //   }
-  // }, [selectLoading]);
+
   return (
     <div
       style={{
         height: "100%",
-        overflow: "auto",
-        overflowX: "hidden",
+     overflow:"auto",
+        
       }}
     >
       {/* reset component rows */}
@@ -727,155 +681,127 @@ export default function AddComponents({
           setShowCurrencyModal={setShowCurrencyModal}
         />
       )}
-      <Row style={{ height: "100%" }} gutter={8}>
-        <Col style={{ height: "100%" }} span={6}>
-          <Row gutter={[0, 4]} style={{ height: "100%" }}>
-            {/* vendor card */}
-            <Col span={24} style={{ height: "50%" }}>
-              <Card
-                style={{ height: "100%" }}
-                // bodyStyle={{ height: "90%" }}
-                title="Client Detail"
-              >
-                <Row gutter={[0, 8]}>
-                  <Col span={24}>
-                    <Typography.Title
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                      }}
-                      level={5}
-                    >
-                      Client Name
-                    </Typography.Title>
+      <div className="grid grid-cols-[1fr_3fr]"  style={{ gap: 12 }}>
+        <div className="flex flex-col  "  style={{gap:12}}>
+          <CustomFieldBox title={"Client Detail"}>
+            <Row gutter={[0, 8]}>
+              <Col span={24}>
+                <Typography.Title
+                  style={{
+                    fontSize: window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                  }}
+                  level={5}
+                >
+                  Client Name
+                </Typography.Title>
 
-                    <Typography.Text
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                      }}
-                    >
-                      <ToolTipEllipses text={newdata?.client?.label} />
-                    </Typography.Text>
-                  </Col>
-                  <Col span={24}>
-                    <Typography.Title
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                      }}
-                      level={5}
-                    >
-                      Client Address
-                    </Typography.Title>
+                <Typography.Text
+                  style={{
+                    fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                  }}
+                >
+                  <ToolTipEllipses text={newdata?.client?.label} />
+                </Typography.Text>
+              </Col>
+              <Col span={24}>
+                <Typography.Title
+                  style={{
+                    fontSize: window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                  }}
+                  level={5}
+                >
+                  Client Address
+                </Typography.Title>
 
-                    <Typography.Text
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                      }}
-                    >
-                      <ToolTipEllipses
-                        type="Paragraph"
-                        text={newdata.clientaddress?.replaceAll("<br>", " ")}
-                      />
-                    </Typography.Text>
-                  </Col>
-                  <Col span={24}>
-                    <Typography.Title
-                      style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
-                      }}
-                      level={5}
-                    >
-                      Client GSTIN
-                    </Typography.Title>
+                <Typography.Text
+                  style={{
+                    fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                  }}
+                >
+                  <ToolTipEllipses
+                    type="Paragraph"
+                    text={newdata.clientaddress?.replaceAll("<br>", " ")}
+                  />
+                </Typography.Text>
+              </Col>
+              <Col span={24}>
+                <Typography.Title
+                  style={{
+                    fontSize: window.innerWidth < 1600 ? "0.85rem" : "0.95rem",
+                  }}
+                  level={5}
+                >
+                  Client GSTIN
+                </Typography.Title>
 
-                    <Typography.Text
+                <Typography.Text
+                  style={{
+                    fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                  }}
+                >
+                  {newPurchaseOrder?.gstin}
+                </Typography.Text>
+              </Col>
+            </Row>
+          </CustomFieldBox>
+
+          <CustomFieldBox title={"Tax Detail"}>
+            <Row gutter={[0, 4]}>
+              {totalValues?.map((row) => (
+                <Col span={24} key={row.label}>
+                  <Row>
+                    <Col
+                      span={18}
                       style={{
-                        fontSize:
-                          window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
+                        fontSize: "0.8rem",
+                        fontWeight:
+                          totalValues?.indexOf(row) == totalValues.length - 1 &&
+                          600,
                       }}
                     >
-                      {newPurchaseOrder?.gstin}
-                    </Typography.Text>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-            {/* tax detail card */}
-            <Col span={24} style={{ height: "50%" }}>
-              <Card
-                style={{ height: "100%" }}
-                // bodyStyle={{ height: "90%" }}
-                title="Tax Detail"
-              >
-                <Row gutter={[0, 4]}>
-                  {totalValues?.map((row) => (
-                    <Col span={24} key={row.label}>
-                      <Row>
-                        <Col
-                          span={18}
+                      {row.label}
+                    </Col>
+                    <Col span={6} className="right">
+                      {row.sign.toString() == "" ? (
+                        ""
+                      ) : (
+                        <span
                           style={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.7rem",
                             fontWeight:
                               totalValues?.indexOf(row) ==
                                 totalValues.length - 1 && 600,
                           }}
                         >
-                          {row.label}
-                        </Col>
-                        <Col span={6} className="right">
-                          {row.sign.toString() == "" ? (
-                            ""
-                          ) : (
-                            <span
-                              style={{
-                                fontSize: "0.7rem",
-                                fontWeight:
-                                  totalValues?.indexOf(row) ==
-                                    totalValues.length - 1 && 600,
-                              }}
-                            >
-                              ({row.sign.toString()}){" "}
-                            </span>
-                          )}
-                          <span
-                            style={{
-                              fontSize: "0.8rem",
-                              fontWeight:
-                                totalValues?.indexOf(row) ==
-                                  totalValues.length - 1 && 600,
-                            }}
-                          >
-                            {Number(
-                              row.values?.reduce((partialSum, a) => {
-                                return partialSum + Number(a);
-                              }, 0)
-                            ).toFixed(2)}
-                          </span>
-                        </Col>
-                      </Row>
+                          ({row.sign.toString()}){" "}
+                        </span>
+                      )}
+                      <span
+                        style={{
+                          fontSize: "0.8rem",
+                          fontWeight:
+                            totalValues?.indexOf(row) ==
+                              totalValues.length - 1 && 600,
+                        }}
+                      >
+                        {Number(
+                          row.values?.reduce((partialSum, a) => {
+                            return partialSum + Number(a);
+                          }, 0)
+                        ).toFixed(2)}
+                      </span>
                     </Col>
-                  ))}
-                </Row>
-              </Card>
-            </Col>
-          </Row>
-        </Col>
-        <Col
-          span={18}
-          style={{
-            height: "100%",
-            padding: 0,
-
-            border: "1px solid #EEEEEE",
-          }}
-        >
+                  </Row>
+                </Col>
+              ))}
+            </Row>
+          </CustomFieldBox>
+        </div>
+         <div className="w-full overflow-auto min-h-[calc(100%-100px)]">
           <FormTable columns={columns} data={rowCount} />
-        </Col>
-      </Row>
+        </div>
+      </div>
+
       <NavFooter
         resetFunction={() => setConfirmReset(true)}
         nextLabel="Submit"
