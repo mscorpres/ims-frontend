@@ -1,21 +1,19 @@
-import {
-  Col,
-  Row,
-  Space,
-  Button,
-  Card,
-  Typography,
-  Divider,
-  Skeleton,
-} from "antd";
+import { Col, Row, Space, Typography, Divider, Skeleton } from "antd";
 import { useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyDataTable from "../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 
 const Q3 = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -76,9 +74,42 @@ const Q3 = () => {
       setLoading(false);
     }
   };
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <div style={{ height: "90%" }}>
-      <Row justify="space-between" style={{ padding: 5, paddingTop: 0 }}>
+    <div style={{ height: "90%", margin: 12 }}>
+      <Row justify="space-between">
         <Col>
           <Space>
             <div style={{ width: 250 }}>
@@ -92,15 +123,15 @@ const Q3 = () => {
                 value={searchInput}
               />
             </div>
-            <MyButton
-              variant="search"
-              loading={loading == "fetch"}
+
+            <CustomButton
+              size="small"
+              title={"Search"}
+              starticon={<Search fontSize="small" />}
+              loading={loading === "fetch"}
               disabled={!searchInput || searchInput.length === 0}
-              onClick={getRows}
-              type="primary"
-            >
-              Fetch
-            </MyButton>
+              onclick={getRows}
+            />
           </Space>
         </Col>
         <CommonIcons
@@ -109,14 +140,11 @@ const Q3 = () => {
           onClick={() => downloadCSV(rows, columns, "Q3 Report")}
         />
       </Row>
-      <Row
-        style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}
-        gutter={6}
-      >
-        <Col span={4}>
+      <Row style={{ height: "95%", marginTop: 12 }} gutter={6}>
+        <Col span={6}>
           <Row>
             <Col span={24}>
-              <Card size="small" title="Stock Details">
+              <CustomFieldBox title={"Stock Details"}>
                 <Row gutter={[0, 6]}>
                   <Col span={24}>
                     <Row>
@@ -176,16 +204,12 @@ const Q3 = () => {
                     </Row>
                   </Col>
                 </Row>
-              </Card>
+              </CustomFieldBox>
             </Col>
           </Row>
         </Col>
-        <Col span={20}>
-          <MyDataTable
-            loading={loading === "fetch"}
-            columns={columns}
-            data={rows}
-          />
+        <Col span={18}>
+          <MaterialReactTable table={table} />
         </Col>
       </Row>
     </div>
@@ -194,26 +218,26 @@ const Q3 = () => {
 
 const columns = [
   {
-    headerName: "#",
-    field: "id",
-    width: 30,
+    header: "#",
+    accessorKey: "id",
+    size: 30,
   },
   {
-    headerName: "Date",
-    field: "date",
-    width: 150,
+    header: "Date",
+    accessorKey: "date",
+    size: 150,
   },
   {
-    headerName: "Type",
-    field: "transaction_type",
-    width: 50,
+    header: "Type",
+    accessorKey: "transaction_type",
+    size: 50,
     renderCell: (a) =>
       a.row.type ==
       '<span class="d-inline-block radius-round p-2 bgc-red"></span>' ? (
         <div
           style={{
             height: "15px",
-            width: "15px",
+            size: "15px",
             borderRadius: "50px",
             backgroundColor: "#FF0032",
           }}
@@ -222,7 +246,7 @@ const columns = [
         <div
           style={{
             height: "15px",
-            width: "15px",
+            size: "15px",
             borderRadius: "50px",
             backgroundColor: "#227C70",
           }}
@@ -230,36 +254,36 @@ const columns = [
       ),
   },
   {
-    headerName: "Qty",
-    field: "qty",
-    width: 100,
+    header: "Qty",
+    accessorKey: "qty",
+    size: 100,
   },
 
   {
-    headerName: "UoM",
-    field: "uom",
-    width: 70,
+    header: "UoM",
+    accessorKey: "uom",
+    size: 70,
   },
   {
-    headerName: "Created / Approved By",
-    field: "doneby",
-    minWidth: 180,
+    header: "Created / Approved By",
+    accessorKey: "doneby",
+    size: 180,
     renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
     flex: 1,
   },
 
   {
-    headerName: "Remarks",
-    field: "remark",
-    minWidth: 180,
+    header: "Remarks",
+    accessorKey: "remark",
+    size: 180,
     renderCell: ({ row }) => <ToolTipEllipses text={row.remark} />,
     flex: 1,
   },
   {
-    headerName: "Transaction",
-    field: "txn",
+    header: "Transaction",
+    accessorKey: "txn",
     renderCell: ({ row }) => <ToolTipEllipses text={row.txn} />,
-    width: 250,
+    size: 250,
   },
 ];
 

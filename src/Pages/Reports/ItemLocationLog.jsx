@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Tooltip,
-  Card,
   Col,
   Collapse,
   Divider,
@@ -12,14 +11,20 @@ import {
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import { imsAxios } from "../../axiosInterceptor";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import MyDataTable from "../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { v4 } from "uuid";
 import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../Components/exportToCSV";
 import { getComponentOptions } from "../../api/general.ts";
 import useApi from "../../hooks/useApi.ts";
-import MyButton from "../../Components/MyButton";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
+import { Search } from "@mui/icons-material";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback.jsx";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
@@ -48,14 +53,7 @@ export default function ItemLocationLog() {
   const { executeFun, loading: loading1 } = useApi();
   // initializing searh form
   const [searchForm] = Form.useForm();
-
-  //getting components options
   const getComponentOption = async (search) => {
-    // setLoading("select");
-    // const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
-    //   search,
-    // });
-    // setLoading(false);
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
@@ -130,15 +128,13 @@ export default function ItemLocationLog() {
             id: v4(),
             qty_in_rate: row.qty_in_rate ?? "-",
             weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
-            weightedPurchaseRateCurrency: row.weightedPurchaseRateCurrency ?? "-",
+            weightedPurchaseRateCurrency:
+              row.weightedPurchaseRateCurrency ?? "-",
             ...row,
           }));
           let bomDetailsArr = [];
           for (const key in bomDetails) {
-            // console.log("key", key);
-            // console.log("bomDetails", bomDetails);
             let obj = {
-              // product: key[0].product,
               sku: key,
               bom: bomDetails[key].map((row) => ({
                 name: row.bom_name,
@@ -148,7 +144,6 @@ export default function ItemLocationLog() {
             };
             bomDetailsArr = [...bomDetailsArr, obj];
           }
-          // console.log("bomDetailsArr", bomDetailsArr);
           setBomDetails(bomDetailsArr);
           setRows(arr);
           setSummaryData([
@@ -185,25 +180,25 @@ export default function ItemLocationLog() {
   // columns
   let columns = [
     {
-      headerName: "#",
-      field: "index",
-      width: 30,
+      header: "#",
+      accessorKey: "index",
+      size: 30,
     },
     {
-      headerName: "Date",
-      field: "date",
-      width: 150,
+      header: "Date",
+      accessorKey: "date",
+      size: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
     },
     {
-      headerName: "Type",
-      field: "transaction_type",
-      width: 30,
+      header: "Type",
+      accessorKey: "transaction_type",
+      size: 30,
       renderCell: ({ row }) => (
         <div
           style={{
             height: "15px",
-            width: "15px",
+            size: "15px",
             borderRadius: "50px",
             backgroundColor:
               row.transaction_type === "CONSUMPTION"
@@ -222,104 +217,132 @@ export default function ItemLocationLog() {
       ),
     },
     {
-      headerName: "Transaction",
-      field: "transaction",
-      width: 200,
+      header: "Transaction",
+      accessorKey: "transaction",
+      size: 200,
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.transaction} copy={true} />
       ),
     },
     {
-      headerName: "Qty In",
-      field: "qty_in",
-      width: 120,
+      header: "Qty In",
+      accessorKey: "qty_in",
+      size: 120,
     },
     {
-      headerName: "Qty Out",
-      field: "qty_out",
-      width: 120,
+      header: "Qty Out",
+      accessorKey: "qty_out",
+      size: 120,
     },
     {
-      headerName: "Qty In Rate",
-      field: "qty_in_rate",
-      width: 120,
+      header: "Qty In Rate",
+      accessorKey: "qty_in_rate",
+      size: 120,
     },
     {
-      headerName: "Out Rate",
-      field: "out_rate",
-      width: 120,
+      header: "Out Rate",
+      accessorKey: "out_rate",
+      size: 120,
     },
-    // {
-    //   headerName: "Total Value",
-    //   field: "total_value",
-    //   width: 120,
-    // },
+
     {
-      headerName: "Weighted Average Rate",
-      field: "weightedPurchaseRate",
-      width: 120,
+      header: "Weighted Average Rate",
+      accessorKey: "weightedPurchaseRate",
+      size: 120,
       renderCell: ({ row }) => (
-        <Tooltip
-          title={row.weightedPurchaseRateCurrency}
-        >
+        <Tooltip title={row.weightedPurchaseRateCurrency}>
           {row.weightedPurchaseRate}
         </Tooltip>
       ),
     },
     {
-      headerName: "Method",
-      field: "mode",
-      width: 120,
+      header: "Method",
+      accessorKey: "mode",
+      size: 120,
     },
     {
-      headerName: "Loc In",
-      field: "location_in",
-      width: 120,
+      header: "Loc In",
+      accessorKey: "location_in",
+      size: 120,
     },
     {
-      headerName: "Loc Out",
-      field: "location_out",
-      width: 120,
+      header: "Loc Out",
+      accessorKey: "location_out",
+      size: 120,
     },
     {
-      headerName: "Doc Type",
-      field: "vendortype",
-      width: 120,
+      header: "Doc Type",
+      accessorKey: "vendortype",
+      size: 120,
     },
     {
-      headerName: "Vendor",
-      field: "vendorname",
-      minWidth: 150,
+      header: "Vendor",
+      accessorKey: "vendorname",
+      size: 150,
       flex: 1,
       renderCell: ({ row }) => <ToolTipEllipses text={row.vendorname} />,
     },
     {
-      headerName: "Vendor Code",
-      field: "vendorcode",
-      minWidth: 120,
+      header: "Vendor Code",
+      accessorKey: "vendorcode",
+      size: 120,
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.vendorcode} copy={true} />
       ),
     },
     {
-      headerName: "Created/Approved By",
-      field: "doneby",
-      minWidth: 150,
+      header: "Created/Approved By",
+      accessorKey: "doneby",
+      size: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
     },
     {
-      headerName: "Remark",
-      field: "remark",
-      width: 400,
+      header: "Remark",
+      accessorKey: "remark",
+      size: 400,
     },
   ];
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
-    <Row gutter={6} style={{ padding: "0px 5px", height: "90%" }}>
-      <Col span={4} style={{ height: "100%", overflowY: "auto" }}>
+    <Row gutter={6} style={{ margin: 12, height: "calc(100vh - 180px)" }}>
+      <Col
+        span={6}
+        style={{ height: "calc(100vh - 120px)", overflowY: "auto" }}
+      >
         <Row gutter={[0, 6]}>
           <Col span={24}>
-            <Card size="small">
+            <CustomFieldBox title="Filters">
               <Form
                 onFinish={getRows}
                 form={searchForm}
@@ -358,15 +381,13 @@ export default function ItemLocationLog() {
                   <Col span={24}>
                     <Row gutter={6}>
                       <Col span={20}>
-                        <MyButton
-                          variant="search"
+                        <CustomButton
+                          size="small"
+                          title={"Search"}
+                          starticon={<Search fontSize="small" />}
                           loading={loading === "fetch"}
                           htmlType="submit"
-                          block
-                          type="primary"
-                        >
-                          Fetch
-                        </MyButton>
+                        />
                       </Col>
                       <Col span={4}>
                         <CommonIcons
@@ -381,7 +402,7 @@ export default function ItemLocationLog() {
                   </Col>
                 </Row>
               </Form>
-            </Card>
+            </CustomFieldBox>
           </Col>
           <Col span={24}>
             <SummaryCard
@@ -391,7 +412,7 @@ export default function ItemLocationLog() {
             />
           </Col>
           <Col style={{ height: "100%", overflow: "auto" }} span={24}>
-            <Card title="BOM Details" size="small">
+            <CustomFieldBox title={"BOM Details"}>
               <Collapse>
                 {bomDetails.map((row) => (
                   <Collapse.Panel
@@ -435,28 +456,14 @@ export default function ItemLocationLog() {
                   </Collapse.Panel>
                 ))}
               </Collapse>
-            </Card>
-            <Card title="Similar Components" size="small">
+            </CustomFieldBox>
+            <CustomFieldBox title={"Similar Components"}>
               <Collapse loading={loading}>
                 {altDetails.map((row) => (
                   <Collapse.Panel
                     header={`${row.partName} `}
                     key={row.partName}
                   >
-                    {/* {altDetails?.length === 0 && (
-                      <Row key={row.name} justify="space-between">
-                        <Col>
-                          <Typography.Text
-                            style={{ fontSize: "0.8rem" }}
-                            type="secondary"
-                          >
-                            No Data found.
-                          </Typography.Text>
-                        </Col>
-                      </Row>
-                    )} */}
-                    {/* {altDetails &&
-                      altDetails?.map((row) => ( */}
                     <Row key={row.partName} justify="space-between">
                       <Col>
                         <Typography.Text style={{ fontSize: "0.8rem" }} strong>
@@ -479,16 +486,13 @@ export default function ItemLocationLog() {
                   </Collapse.Panel>
                 ))}
               </Collapse>
-            </Card>
+            </CustomFieldBox>
           </Col>
         </Row>
       </Col>
-      <Col span={20}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          data={rows}
-          columns={columns}
-        />
+      <Col span={18}>
+      
+        <MaterialReactTable table={table} />
       </Col>
     </Row>
   );

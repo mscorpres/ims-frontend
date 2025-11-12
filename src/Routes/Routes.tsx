@@ -20,11 +20,11 @@ import {
   CreatePPR,
   PendingPPR,
   CreatePo,
-  CreatePO,//new
+  CreatePO, //new
   ManagePO,
-  ManagePONew,//new
+  ManagePONew, //new
   CompletedPo,
-  CompletedPoNew,//new
+  CompletedPoNew, //new
   Uom,
   Product,
   Group,
@@ -129,7 +129,7 @@ import {
   AllUsers,
   JobworkApproval,
   VendorPricingUploadNew,
-  ApprovalPoNew
+  ApprovalPoNew,
 } from "../Pages/index.jsx";
 
 import {
@@ -285,7 +285,7 @@ const Routes = [
   },
   {
     path: "/",
-    main: () =>(
+    main: () => (
       <Suspense fallback={<Loader />}>
         <Dashboard />
       </Suspense>
@@ -817,7 +817,7 @@ const Routes = [
     path: "/completed-po",
     main: () => <CompletedPo />,
   },
-   {
+  {
     path: "/completed-po-new",
     main: () => <CompletedPoNew />,
   },
@@ -826,7 +826,7 @@ const Routes = [
     main: () => <PoApproval />,
     text: "Po Approval",
   },
-   {
+  {
     path: "/approval-po-new",
     main: () => <ApprovalPoNew />,
     text: "Po Approval",
@@ -835,7 +835,7 @@ const Routes = [
     path: "/vendor-pricing",
     main: () => <VendorPricingUpload />,
   },
-    {
+  {
     path: "/vendor-pricing-new",
     main: () => <VendorPricingUploadNew />,
   },

@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { imsAxios } from "../../../axiosInterceptor";
 import {
   Button,
-  Card,
   Col,
   Divider,
   Flex,
@@ -25,6 +23,7 @@ import { convertSelectOptions } from "../../../utils/general.ts";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { getQ5 } from "../../../api/reports/query";
 import MyButton from "../../../Components/MyButton";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 
 const initHeader = {
   uniqueId: "--",
@@ -46,7 +45,6 @@ const QueryQ5 = () => {
   const [rmData, setRmData] = useState([]);
   const [sfData, setSfData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
-  const [compCode, setCompCode] = useState("");
   const { executeFun, loading } = useApi();
   const [form] = Form.useForm();
 
@@ -115,14 +113,14 @@ const QueryQ5 = () => {
   };
 
   return (
-    <Row gutter={6} style={{ padding: 10, height: "95%" }}>
+    <Row gutter={6} style={{ margin: 12, height: "95%",  }}>
       <Col
-        span={4}
-        style={{ overflowY: "auto", overflowX: "hidden", height: "100%" }}
+        span={6}
+        style={{ overflowY: "auto", overflowX: "hidden", height: "calc(100% - 60px)",  }}
       >
-        <Flex gap={10} vertical style={{ height: "100%" }}>
-          <div style={{ width: "100%" }}>
-            <Card size="small">
+        <Flex gap={10} vertical style={{ height: "100%" , }}>
+          <div style={{ width: "100%", }}>
+            <CustomFieldBox>
               <Form layout="vertical" form={form}>
                 <Form.Item
                   label="Compnent"
@@ -170,10 +168,10 @@ const QueryQ5 = () => {
                   </Space>
                 </Row>
               </Form>
-            </Card>
+            </CustomFieldBox>
           </div>
           <div style={{ flex: 1 }}>
-            <Card size="small">
+            <CustomFieldBox title={"Details"}>
               <Row>
                 <Col span={24}>
                   <Typography.Text strong type="secondary">
@@ -241,12 +239,12 @@ const QueryQ5 = () => {
                   <Typography.Text>{headerData?.remark}</Typography.Text>
                 </Col>
               </Row>
-            </Card>
+            </CustomFieldBox>
           </div>
         </Flex>
       </Col>
       <Col
-        span={20}
+        span={18}
         style={{ overflowY: "auto", overflowX: "hidden", height: "100%" }}
       >
         <Row
@@ -281,7 +279,7 @@ const QueryQ5 = () => {
 
             <Row gutter={[6, 6]}>
               <Col span={24}>
-                <Card>
+                <CustomFieldBox>
                   <Col span={24}>
                     <Accordion defaultExpanded>
                       <AccordionSummary
@@ -301,15 +299,6 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                              {/* <Typography
-                                sx={{
-                                  width: "33%",
-                                  flexShrink: 0,
-                                  marginRight: "4px",
-                                }}
-                              >
-                                Opening Total - {rmData.openingTotal}
-                              </Typography> */}
                               <Typography
                                 sx={{
                                   width: "33%",
@@ -425,15 +414,6 @@ const QueryQ5 = () => {
                         <Col span={24} style={{ paddingLeft: 15 }}>
                           <Row justify="space-between">
                             <Space>
-                              {/* <Typography
-                                sx={{
-                                  width: "33%",
-                                  flexShrink: 0,
-                                  marginRight: "4px",
-                                }}
-                              >
-                                Opening Total - {vendorData.openingTotal}
-                              </Typography> */}
                               <Typography
                                 sx={{
                                   width: "33%",
@@ -476,7 +456,7 @@ const QueryQ5 = () => {
                       </AccordionDetails>
                     </Accordion>
                   </Col>
-                </Card>
+                </CustomFieldBox>
               </Col>
             </Row>
           </Col>
