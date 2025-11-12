@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Button, Card, Col, Form, Input, Row, Space } from "antd";
+import { Col, Form, Input, Row, Space } from "antd";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import SubmitConfirmModal from "./SubmitConfirmModal";
 import { toast } from "react-toastify";
 import MyButton from "../../../Components/MyButton";
+import CustomFieldBox from "@/new/components/reuseable/CustomFieldBox";
+import CustomButton from "@/new/components/reuseable/CustomButton";
+import { renderIcon } from "@/new/components/layout/Sidebar/iconMapper";
 
 function AddShippingAddress({ handleCSVDownload, getRows }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -75,7 +78,7 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
     addShippingAddressForm.setFieldsValue(obj);
   };
   return (
-    <Card title="Add Shipping Address" size="small">
+    <CustomFieldBox title="Add Shipping Address" subtitle="Add a new shipping Address">
       <SubmitConfirmModal
         open={submitConfirmModal}
         handleCancel={() => setSubmitConfirmModal(false)}
@@ -180,9 +183,12 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
           <Col span={24}>
             <Row justify="end">
               <Space>
-                <MyButton variant="reset" htmlType="button">
-                  Reset
-                </MyButton>
+                <CustomButton
+                onclick={resetHandler}
+                variant="outlined"
+                title="Reset"
+                endicon={renderIcon("ResetIcon")}
+              />
                 <MyButton variant="add" type="primary" htmlType="submit">
                   Save
                 </MyButton>
@@ -195,7 +201,7 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
           </Col>
         </Row>
       </Form>
-    </Card>
+    </CustomFieldBox>
   );
 }
 

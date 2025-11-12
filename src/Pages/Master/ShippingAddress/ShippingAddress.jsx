@@ -1,11 +1,15 @@
 import { Col, Row } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyDataTable from "../../../Components/MyDataTable";
-import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import AddShippingAddress from "./AddShippingAddress.";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
 
 function ShippingAddress() {
   const [rows, setRows] = useState([]);
@@ -30,13 +34,13 @@ function ShippingAddress() {
       }
     }
   };
-  const columns = [
-    { headerName: "Sr. No.", field: "index", width: 80 },
-    { headerName: "Label", field: "label", flex: 1 },
-    { headerName: "Company", field: "company", flex: 1 },
-    { headerName: "State", field: "state", flex: 1 },
-    { headerName: "Pan No.", field: "pan", width: 150 },
-    { headerName: "GST", field: "gst", width: 150 },
+  const shippingAddressColumns = [
+    { header: "Sr. No.", accessorKey: "index", width: 80 },
+    { header: "Label", accessorKey: "label", },
+    { header: "Company", accessorKey: "company", },
+    { header: "State", accessorKey: "state",  },
+    { header: "Pan No.", accessorKey: "pan", width: 150 },
+    { header: "GST", accessorKey: "gst", width: 150 },
   ];
   const handleCSVDownload = () => {
     downloadCSV(rows, columns, "Shipping Address Report");
@@ -44,6 +48,38 @@ function ShippingAddress() {
   useEffect(() => {
     getRows();
   }, []);
+
+  const columns = useMemo(() => shippingAddressColumns, []);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
     <div style={{ height: "90%", padding: "0px 5px" }}>
       <Row gutter={6} style={{ height: "95%" }}>
@@ -53,12 +89,8 @@ function ShippingAddress() {
             handleCSVDownload={handleCSVDownload}
           />
         </Col>
-        <Col span={20}>
-          <MyDataTable
-            loading={loading === "fetch"}
-            columns={columns}
-            rows={rows}
-          />
+        <Col span={20} style={{ height: "100%" }}>
+        <MaterialReactTable table={table} />
         </Col>
       </Row>
     </div>
