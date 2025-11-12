@@ -1,5 +1,5 @@
-import { Button, Card, Col, Flex, Form, Row, Tooltip } from "antd";
-import React, { useEffect, useState } from "react";
+import { Button, Col, Flex, Form, Row, Tooltip } from "antd";
+import  { useEffect, useState } from "react";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -11,15 +11,23 @@ import {
   getMINLabelRows,
   printMIN,
 } from "../../../api/store/material-in";
-import MyButton from "../../../Components/MyButton";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-import MyDataTable from "../../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { PrinterFilled } from "@ant-design/icons";
 import LabelDrawer from "./LabelDrawer";
 import { downloadFromLink } from "../../../utils/general.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
 
 //to redeploy
 
@@ -75,62 +83,93 @@ const ViewMIN = () => {
       // window.open(response.data.url, "_blank", "noreferrer");
     }
   };
-  const actionColumns = [
-    {
-      headerName: "#",
-      field: "id",
-      width: 30,
-    },
-    {
-      headerName: "",
-      type: "actions",
-      field: "action",
-      width: 20,
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          // icon={<CloudDownloadOutlined className="view-icon" />}
-          // onClick={() => handlePrintMIN(row.minId, "download")}
-          onClick={() => handleDownloadAttachement(row.minId)}
-          disabled={row.invoiceStatus == false}
-          label="Download Attachement"
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // disabled={row.invoiceStatus == false}
-          // icon={<PrinterFilled className="view-icon" />}
-          onClick={() => handlePrintMIN(row.minId)}
-          label="Print MIN"
-        />,
-        <GridActionsCellItem
-          showInMenu
-          disabled={row.consumptionStatus == false}
-          // icon={<PrinterFilled className="view-icon" />}
-          onClick={() => handleDownloadConsumptionList(row.minId)}
-          label="Consumption List"
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // icon={<PrinterFilled className="view-icon" />}
-          onClick={() => {
-            setShowLabelDrawer(true);
-            setPreselected({
-              label: row.minId,
-              text: row.minId,
-              value: row.minId,
-            });
-          }}
-          label="Print Labels"
-        />,
-      ],
-    },
-  ];
 
   useEffect(() => {
     if (selectedWise === "minwise") {
       form.setFieldValue("value", undefined);
     }
   }, [selectedWise]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading("fetch") || loading("print")
+            ? "calc(100vh - 190px)"
+            : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("print") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        onClick={() => {
+          closeMenu?.();
+          handleDownloadAttachement(row?.original?.minId);
+        }}
+        disabled={row?.original?.invoiceStatus == false}
+        key="downloadattachement"
+        label="Download Attachement"
+        table={table}
+      />,
+
+      <MRT_ActionMenuItem
+        key="print"
+        label="Print MIN"
+        onClick={() => {
+          closeMenu?.();
+          handlePrintMIN(row?.original?.minId);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="list"
+        disabled={row?.original?.consumptionStatus == false}
+        onClick={() => {
+          closeMenu?.();
+          handleDownloadConsumptionList(row?.original?.minId);
+        }}
+        label="Consumption List"
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        key="labels"
+        onClick={() => {
+          closeMenu?.();
+          setShowLabelDrawer(true);
+          setPreselected({
+            label: row?.original?.minId,
+            text: row?.original?.minId,
+            value: row?.original?.minId,
+          });
+        }}
+        label="Print Labels"
+        table={table}
+      />,
+    ],
+  });
   return (
     <Row style={{ height: "95%", padding: 10 }} gutter={6}>
       <LabelDrawer
@@ -140,8 +179,8 @@ const ViewMIN = () => {
         selectLoading={loading("select")}
         preSelected={preselected}
       />
-      <Col span={4}>
-        <Card size="small">
+      <Col span={6}>
+        <CustomFieldBox title="Filter">
           <Form
             form={form}
             layout="vertical"
@@ -182,21 +221,19 @@ const ViewMIN = () => {
                 onClick={() => downloadCSV(rows, columns, "MIN Report")}
               />
 
-              <MyButton
-                variant="search"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                onclick={handleFetchRows}
+                starticon={<Search fontSize="small" />}
                 loading={loading("fetch")}
-                onClick={handleFetchRows}
               />
             </Flex>
           </Form>
-        </Card>
+        </CustomFieldBox>
       </Col>
-      <Col span={20}>
-        <MyDataTable
-          loading={loading("fetch") || loading("print")}
-          columns={[...actionColumns, ...columns]}
-          data={rows}
-        />
+      <Col span={18}>
+        <MaterialReactTable table={table} />
       </Col>
     </Row>
   );
@@ -206,46 +243,45 @@ export default ViewMIN;
 
 const columns = [
   {
-    headerName: "MIN Date / Time",
-    field: "createdDate",
-    width: 150,
+    header: "MIN Date / Time",
+    accessorKey: "createdDate",
+    size: 150,
   },
   {
-    headerName: "MIN ID",
-    field: "minId",
+    header: "MIN ID",
+    accessorKey: "minId",
     renderCell: ({ row }) => <ToolTipEllipses text={row.minId} copy={true} />,
-    width: 170,
+    size: 170,
   },
   {
-    headerName: "Invoice ID",
-    field: "invoice",
-    width: 150,
+    header: "Invoice ID",
+    accessorKey: "invoice",
+    size: 150,
   },
   {
-    headerName: "Vendor",
-    field: "vendor",
-    //   width: 200,
-    flex: 1,
+    header: "Vendor",
+    accessorKey: "vendor",
+    size: 200,
   },
   {
-    headerName: "Part Code",
-    field: "partCode",
-    width: 130,
+    header: "Part Code",
+    accessorKey: "partCode",
+    size: 130,
   },
   {
-    headerName: "In Qty",
-    field: "qty",
-    width: 100,
+    header: "In Qty",
+    accessorKey: "qty",
+    size: 100,
   },
   {
-    headerName: "In Loc",
-    field: "location",
-    width: 120,
+    header: "In Loc",
+    accessorKey: "location",
+    size: 120,
   },
   {
-    headerName: "In By",
-    field: "createdBy",
-    width: 150,
+    header: "In By",
+    accessorKey: "createdBy",
+    size: 150,
   },
 ];
 

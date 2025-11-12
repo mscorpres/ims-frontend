@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Button, Card, Col, Form, Row, Space } from "antd";
+import { Button, Col, Form, Row, Space } from "antd";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import { imsAxios } from "../../axiosInterceptor";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
-import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
@@ -13,7 +12,15 @@ import { FileImageOutlined } from "@ant-design/icons";
 import ComponentImages from "../Master/Components/material/ComponentImages";
 import useApi from "../../hooks/useApi.ts";
 import { getComponentOptions } from "../../api/general.ts";
-import MyButton from "../../Components/MyButton";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
+import EmptyRowsFallback from "../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Search } from "@mui/icons-material";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
 export default function ItemAllLogs() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
@@ -26,17 +33,10 @@ export default function ItemAllLogs() {
   ]);
   const [showImages, setShowImages] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
-  // initializing searh form
   const [searchForm] = Form.useForm();
   const selectedComonents = Form.useWatch("component", searchForm);
 
-  //getting components options
   const getComponentOption = async (search) => {
-    // setLoading("select");
-    // const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
-    //   search,
-    // });
-    // setLoading(false);
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
@@ -106,25 +106,25 @@ export default function ItemAllLogs() {
   // columns
   let columns = [
     {
-      headerName: "#",
-      field: "index",
-      width: 80,
+      header: "#",
+      accessorKey: "index",
+      size: 80,
     },
     {
-      headerName: "Date",
-      field: "date",
-      width: 120,
+      header: "Date",
+      accessorKey: "date",
+      size: 120,
       renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
     },
     {
-      headerName: "Type",
-      field: "transaction_type",
-      width: 30,
+      header: "Type",
+      accessorKey: "transaction_type",
+      size: 30,
       renderCell: ({ row }) => (
         <div
           style={{
             height: "15px",
-            width: "15px",
+            size: "15px",
             borderRadius: "50px",
             backgroundColor:
               row.transaction_type === "CONSUMPTION"
@@ -143,83 +143,115 @@ export default function ItemAllLogs() {
       ),
     },
     {
-      headerName: "Transaction",
-      field: "transaction",
-      width: 150,
+      header: "Transaction",
+      accessorKey: "transaction",
+      size: 150,
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.transaction} copy={true} />
       ),
     },
     {
-      headerName: "Qty In",
-      field: "qty_in",
-      width: 120,
+      header: "Qty In",
+      accessorKey: "qty_in",
+      size: 120,
     },
     {
-      headerName: "Qty Out",
-      field: "qty_out",
-      width: 120,
+      header: "Qty Out",
+      accessorKey: "qty_out",
+      size: 120,
     },
     {
-      headerName: "Out Rate",
-      field: "out_rate",
-      width: 120,
+      header: "Out Rate",
+      accessorKey: "out_rate",
+      size: 120,
     },
     {
-      field: "weightedPurchaseRate",
-      headerName: "Weighted Average Rate",
-      width: 180,
+      accessorKey: "weightedPurchaseRate",
+      header: "Weighted Average Rate",
+      size: 180,
     },
     {
-      headerName: "Method",
-      field: "mode",
-      width: 120,
+      header: "Method",
+      accessorKey: "mode",
+      size: 120,
     },
     {
-      headerName: "Loc In",
-      field: "location_in",
-      width: 120,
+      header: "Loc In",
+      accessorKey: "location_in",
+      size: 120,
     },
     {
-      headerName: "Loc Out",
-      field: "location_out",
-      width: 120,
+      header: "Loc Out",
+      accessorKey: "location_out",
+      size: 120,
     },
     {
-      headerName: "Doc Type",
-      field: "vendortype",
-      width: 120,
+      header: "Doc Type",
+      accessorKey: "vendortype",
+      size: 120,
     },
     {
-      headerName: "Vendor",
-      field: "vendorname",
-      minWidth: 150,
+      header: "Vendor",
+      accessorKey: "vendorname",
+      size: 150,
       flex: 1,
       renderCell: ({ row }) => <ToolTipEllipses text={row.vendorname} />,
     },
     {
-      headerName: "Vendor Code",
-      field: "vendorcode",
-      minWidth: 120,
+      header: "Vendor Code",
+      accessorKey: "vendorcode",
+      size: 120,
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.vendorcode} copy={true} />
       ),
     },
     {
-      headerName: "Created/Approved By",
-      field: "doneby",
-      minWidth: 150,
+      header: "Created/Approved By",
+      accessorKey: "doneby",
+      size: 150,
       renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
     },
   ];
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <Row gutter={6} style={{ padding: "0px 5px", height: "90%" }}>
+    <Row gutter={6} style={{ height: "90%", margin: "12px" }}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
-      <Col span={4} style={{ height: "100%", overflowY: "auto" }}>
+      <Col span={6} style={{ height: "100%", overflowY: "auto" }}>
         <Row gutter={[0, 6]}>
           <Col span={24}>
-            <Card size="small">
+            <CustomFieldBox title={"Filters"}>
               <Form
                 onFinish={getRows}
                 form={searchForm}
@@ -253,24 +285,18 @@ export default function ItemAllLogs() {
                         }
                         size="default"
                       />
-                      {/* <RangePicker
-                        style={{ width: "100%" }}
-                        format="DD-MM-YYYY"
-                      /> */}
                     </Form.Item>
                   </Col>
                   <Col span={24}>
                     <Row gutter={6}>
                       <Space>
-                        <MyButton
-                          variant="search"
+                        <CustomButton
+                          size="small"
+                          title={"Search"}
+                          starticon={<Search fontSize="small" />}
                           loading={loading === "fetch"}
-                          block
                           htmlType="submit"
-                          type="primary"
-                        >
-                          Fetch
-                        </MyButton>
+                        />
 
                         <CommonIcons
                           disabled={rows.length === 0}
@@ -295,7 +321,7 @@ export default function ItemAllLogs() {
                   </Col>
                 </Row>
               </Form>
-            </Card>
+            </CustomFieldBox>
           </Col>
           <Col span={24}>
             <SummaryCard
@@ -306,12 +332,8 @@ export default function ItemAllLogs() {
           </Col>
         </Row>
       </Col>
-      <Col span={20}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          data={rows}
-          columns={columns}
-        />
+      <Col span={18}>
+        <MaterialReactTable table={table} />
       </Col>
     </Row>
   );

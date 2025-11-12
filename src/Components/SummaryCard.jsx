@@ -1,9 +1,9 @@
-import { Card, Col, Divider, Row, Skeleton, Typography } from "antd";
-import React from "react";
+import {  Col, Divider, Row, Skeleton, Typography } from "antd";
+import CustomFieldBox from "../new/components/reuseable/CustomFieldBox";
 
 function SummaryCard({ summary, title, type, loading }) {
   return (
-    <Card title={title} size="small">
+    <CustomFieldBox title={title}>
       <Row gutter={[0, 8]}>
         {summary?.map((row, index) => (
           <Col span={24}>
@@ -37,7 +37,7 @@ function SummaryCard({ summary, title, type, loading }) {
           </Col>
         ))}
       </Row>
-    </Card>
+    </CustomFieldBox>
   );
 }
 

@@ -1,15 +1,22 @@
 import { useState } from "react";
-import { Row, Col, Divider, Flex, Form, Card, Typography } from "antd";
+import { Row, Col, Divider, Flex, Form, Typography } from "antd";
 import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import MyButton from "../../../Components/MyButton";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-import MyDataTable from "../../../Components/MyDataTable";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { fetchQ4 } from "../../../api/reports/query";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
 
 const Q4 = () => {
   const [summary, setSummary] = useState({});
@@ -43,11 +50,44 @@ const Q4 = () => {
     await form.validateFields();
     downloadCSV(rows, columns, `Q4 Report `);
   };
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 190px)"
+          : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <Row style={{ height: "95%", padding: 10 }} gutter={10}>
-      <Col span={4}>
+    <Row style={{ height: "95%", margin: 12 }} gutter={10}>
+      <Col span={6}>
         <Flex vertical gap={10}>
-          <Card size="small">
+          <CustomFieldBox>
             <Form form={form} layout="vertical">
               <Form.Item
                 name="component"
@@ -64,19 +104,23 @@ const Q4 = () => {
               </Form.Item>
               <Flex justify="end" gap={5}>
                 <CommonIcons action="downloadButton" onClick={handleDownload} />
-                <MyButton
-                  onClick={handleFetchRows}
-                  variant="search"
+
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading("fetch")}
+                  onclick={handleFetchRows}
                 />
               </Flex>
             </Form>
-          </Card>
+          </CustomFieldBox>
           <SummaryCard summary={summary} />
         </Flex>
       </Col>
-      <Col span={20}>
-        <MyDataTable data={rows} columns={columns} loading={loading("fetch")} />
+      <Col span={18}>
+        {/* <MyDataTable data={rows} columns={columns} loading={loading("fetch")} /> */}
+        <MaterialReactTable table={table} />
       </Col>
     </Row>
   );
@@ -86,98 +130,98 @@ export default Q4;
 
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Vendor",
-    minWidth: 200,
+    header: "Vendor",
+    minsize: 200,
     flex: 1,
-    field: "vendor",
+    accessorKey: "vendor",
     renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
   },
   {
-    headerName: "Vendor Code",
-    width: 100,
-    field: "vendorCode",
+    header: "Vendor Code",
+    size: 100,
+    accessorKey: "vendorCode",
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.vendorCode} copy={true} />
     ),
   },
   {
-    headerName: "Effective Date",
-    width: 150,
-    field: "effectiveDate",
+    header: "Effective Date",
+    size: 150,
+    accessorKey: "effectiveDate",
     renderCell: ({ row }) => <ToolTipEllipses text={row.effectiveDate} />,
   },
   {
-    headerName: "Insert Date",
-    width: 150,
-    field: "insertDate",
+    header: "Insert Date",
+    size: 150,
+    accessorKey: "insertDate",
     renderCell: ({ row }) => <ToolTipEllipses text={row.insertDate} />,
   },
   {
-    headerName: "VBT Code",
-    width: 150,
-    field: "vbtCode",
+    header: "VBT Code",
+    size: 150,
+    accessorKey: "vbtCode",
     renderCell: ({ row }) => <ToolTipEllipses text={row.vbtCode} copy={true} />,
   },
   {
-    headerName: "Project",
-    width: 150,
-    field: "project",
+    header: "Project",
+    size: 150,
+    accessorKey: "project",
     renderCell: ({ row }) => <ToolTipEllipses text={row.project} copy={true} />,
   },
   {
-    headerName: "PO ID",
-    width: 150,
-    field: "poId",
+    header: "PO ID",
+    size: 150,
+    accessorKey: "poId",
     renderCell: ({ row }) => <ToolTipEllipses text={row.poId} copy={true} />,
   },
   {
-    headerName: "MIN ID",
-    width: 150,
-    field: "minId",
+    header: "MIN ID",
+    size: 150,
+    accessorKey: "minId",
     renderCell: ({ row }) => <ToolTipEllipses text={row.minId} copy={true} />,
   },
   {
-    headerName: "Invoice No.",
-    width: 150,
-    field: "invoiceNumber",
+    header: "Invoice No.",
+    size: 150,
+    accessorKey: "invoiceNumber",
     renderCell: ({ row }) => (
       <ToolTipEllipses text={row.invoiceNumber} copy={true} />
     ),
   },
   {
-    headerName: "IN Rate",
-    width: 150,
-    field: "inRate",
+    header: "IN Rate",
+    size: 150,
+    accessorKey: "inRate",
     renderCell: ({ row }) => <ToolTipEllipses text={row.inRate} />,
   },
   {
-    headerName: "CIF Rate",
-    width: 150,
-    field: "cifRate",
+    header: "CIF Rate",
+    size: 150,
+    accessorKey: "cifRate",
     renderCell: ({ row }) => <ToolTipEllipses text={row.cifRate} />,
   },
 
   {
-    headerName: "In Qty",
-    width: 150,
-    field: "inQty",
+    header: "In Qty",
+    size: 150,
+    accessorKey: "inQty",
     renderCell: ({ row }) => <ToolTipEllipses text={row.inQty} />,
   },
   {
-    headerName: "Considered Qty",
-    width: 150,
-    field: "consideredQty",
+    header: "Considered Qty",
+    size: 150,
+    accessorKey: "consideredQty",
     renderCell: ({ row }) => <ToolTipEllipses text={row.consideredQty} />,
   },
   {
-    headerName: "Total Value",
-    width: 150,
-    field: "totalValue",
+    header: "Total Value",
+    size: 150,
+    accessorKey: "totalValue",
     renderCell: ({ row }) => <ToolTipEllipses text={row.totalValue} />,
   },
 ];
@@ -193,7 +237,7 @@ const rules = {
 
 const SummaryCard = ({ summary }) => {
   return (
-    <Card size="summary">
+    <CustomFieldBox title="Summary">
       <Flex vertical>
         <Flex justify="space-between">
           <Typography.Text strong>Data as Per</Typography.Text>
@@ -210,6 +254,6 @@ const SummaryCard = ({ summary }) => {
           <Typography.Text>{summary?.totalConsideredQty}</Typography.Text>
         </Flex>
       </Flex>
-    </Card>
+    </CustomFieldBox>
   );
 };
