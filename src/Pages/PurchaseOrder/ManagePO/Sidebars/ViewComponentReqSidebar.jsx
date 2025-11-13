@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, Col, Drawer, Row, Space, Timeline } from "antd";
+import { Button, Card, Col, Drawer, Row, Space, Input, Timeline, message } from "antd";
 import MyDataTable from "../../../../Components/MyDataTable";
 import printFunction, {
   downloadFunction,
@@ -7,7 +7,7 @@ import printFunction, {
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
 
-export default function ViewComponentSideBar({
+export default function ViewComponentReqSidebar({
   showViewSidebar,
   setShowViewSideBar,
   componentData,
@@ -15,9 +15,14 @@ export default function ViewComponentSideBar({
   setnewPoLogs,
   newPoLogs,
 }) {
-  // console.log("po lgs", getPoLogs);
   console.log("po newPoLogs", newPoLogs);
+  
   const [loading, setLoading] = useState(null);
+
+  const [remarks, setRemarks] = useState({});
+ 
+  const [actionLoading, setActionLoading] = useState(null);
+
   const printFun = async () => {
     setLoading("print");
     const { data } = await imsAxios.post("/poPrint", {
@@ -27,6 +32,7 @@ export default function ViewComponentSideBar({
     printFunction(data.data.buffer.data);
     setLoading(null);
   };
+
   const handleDownload = async () => {
     setLoading("download");
     const { data } = await imsAxios.post("/poPrint", {
@@ -36,6 +42,60 @@ export default function ViewComponentSideBar({
     let filename = `PO ${componentData?.poid}`;
     downloadFunction(data.data.buffer.data, filename);
   };
+
+
+  const handleRemarkChange = (componentKey, value) => {
+    setRemarks(prev => ({
+      ...prev,
+      [componentKey]: value
+    }));
+  };
+
+
+  const handleStatusUpdate = async (status) => {
+   
+    try {
+     
+      setActionLoading(status === "A" ? "approve" : "reject");
+
+    
+      const components = componentData?.components?.map(row => ({
+        component_key: row.componentID, 
+        status: status,
+        remark: remarks[row.componentID] || "" 
+      }));
+
+    
+      const response = await imsAxios.post("/purchaseOrder/updatePOComponentStatus", {
+        po_transaction: componentData?.poid,
+        components: components
+      });
+
+    
+      if (response.data.code === 200) {
+        message.success(
+          status === "A" 
+            ? "Components approved successfully!" 
+            : "Components rejected successfully!"
+        );
+        
+       
+        setShowViewSideBar(null);
+        
+      
+        setRemarks({});
+      } else {
+        message.error(response.data.message?.msg || "Failed to update status");
+      }
+
+    } catch (error) {
+      console.error("Error updating component status:", error);
+      message.error("An error occurred while updating status");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const columns = [
     {
       headerName: "SR. No",
@@ -48,9 +108,9 @@ export default function ViewComponentSideBar({
     },
     {
       headerName: "Component Name / Part No.",
-      field: "componentPartId",
+      field: "componentID",
       valueGetter: ({ row }) => {
-        return `${row.po_components} / ${row.componentPartID}`;
+        return `${row.po_components} / ${row.componentID}`;
       },
       id: "po_components",
       flex: 1,
@@ -62,21 +122,44 @@ export default function ViewComponentSideBar({
       width: 120,
     },
     {
-      headerName: "Pending QTY",
-      field: "pending_qty",
-
-      id: "pending_qty",
+      headerName: "Ordered Rate",
+      field: "rate",
+      id: "rate",
       width: 120,
     },
     {
-      headerName: "Remark By Account Team",
-      field: "porequestremark",
-      id: "received_qty",
-      width: 320,
-    }
+      headerName: "Last Purchased Rate",
+      field: "last_purchase_rate",
+      id: "last_purchase_rate",
+      width: 120,
+    },
+    {
+      headerName: "Tolerance",
+      field: "tolerance",
+      id: "tolerance",
+      width: 120,
+    },
 
+  
+    {
+      headerName: "Remark",
+      field: "remark",
+      id: "remark",
+      flex: 1,
+      renderCell: ({ row }) => (
+        <Input.TextArea
+          placeholder="Enter remark (optional)"
+          value={remarks[row.componentID] || ""}
+          onChange={(e) => handleRemarkChange(row.componentID, e.target.value)}
+          rows={2}
+          style={{ width: "100%" }}
+        />
+      ),
+    },
   ];
+
   console.log(componentData);
+
   return (
     <Drawer
       bodyStyle={{ padding: 5 }}
@@ -97,7 +180,10 @@ export default function ViewComponentSideBar({
         </>
       }
       width="100vw"
-      onClose={() => setShowViewSideBar(null)}
+      onClose={() => {
+        setShowViewSideBar(null);
+        setRemarks({}); 
+      }}
       open={showViewSidebar}
       extra={
         <Space>
@@ -116,20 +202,55 @@ export default function ViewComponentSideBar({
     >
       <Row gutter={20} style={{ height: "95%" }}>
         <Col span={16}>
-          <div style={{ height: "100%" }} className="remove-table-footer">
+          <div style={{ height: "calc(100% - 60px)" }} className="remove-table-footer">
             <MyDataTable
               pagination={undefined}
               rows={componentData?.components}
               columns={columns}
             />
           </div>
+          
+          
+          <div 
+            style={{ 
+              marginTop: 16, 
+              display: "flex", 
+              justifyContent: "flex-end", 
+              gap: 12 
+            }}
+          >
+            <Button
+              type="primary"
+              size="large"
+              style={{ 
+                backgroundColor: "#52c41a", 
+                borderColor: "#52c41a",
+                minWidth: 120
+              }}
+              loading={actionLoading === "approve"}
+              onClick={() => handleStatusUpdate("A")}
+            >
+              Approve 
+            </Button>
+            <Button
+              type="primary"
+              danger
+              size="large"
+              style={{ minWidth: 120 }}
+              loading={actionLoading === "reject"}
+              onClick={() => handleStatusUpdate("R")}
+            >
+              Reject
+            </Button>
+          </div>
         </Col>
+
         <Col span={8}>
           <Card
             title="PO logs"
             size="small"
             style={{ maxHeight: "100%" }}
-            bodyStyle={{ height: "95%" }}
+            bodyStyle={{ height: "95%", overflowY: "auto" }}
           >
             <Timeline
               items={newPoLogs.map((row) => ({
