@@ -68,13 +68,6 @@ export default function ViewComponentSideBar({
       id: "pending_qty",
       width: 120,
     },
-    {
-      headerName: "Remark By Account Team",
-      field: "porequestremark",
-      id: "received_qty",
-      width: 320,
-    }
-
   ];
   console.log(componentData);
   return (

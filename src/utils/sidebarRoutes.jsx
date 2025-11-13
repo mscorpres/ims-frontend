@@ -303,29 +303,24 @@ export const items = (user) => [
         "B21"
         // <AiOutlineMinus />
       ),
-       getItem(
-        <Link to="/request-po">Requested PO</Link>,
+      getItem(
+        <Link to="/manage-po">Manage PO</Link>,
         "B22"
         // <AiOutlineMinus />
       ),
       getItem(
-        <Link to="/manage-po">Manage PO</Link>,
+        <Link to="/completed-po">Completed PO</Link>,
         "B23"
         // <AiOutlineMinus />
       ),
       getItem(
-        <Link to="/completed-po">Completed PO</Link>,
+        <Link to="/vendor-pricing">Vendor Pricing</Link>,
         "B24"
         // <AiOutlineMinus />
       ),
       getItem(
-        <Link to="/vendor-pricing">Vendor Pricing</Link>,
-        "B25"
-        // <AiOutlineMinus />
-      ),
-      getItem(
         <Link to="/approval-po">Po Approval</Link>,
-        "B26"
+        "B25"
         // <AiOutlineMinus />
       ),
     ], null, 827364),
