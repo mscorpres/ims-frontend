@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Button, Col, Drawer, Form, Input, Row, Typography } from "antd";
+import { useEffect, useState } from "react";
+import { Col, Drawer, Input, Row, Typography } from "antd";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../../axiosInterceptor";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
 
 export default function ClosePPR({
   cancelPPR,
@@ -68,14 +69,13 @@ export default function ClosePPR({
       </Row>
       <Row justify="end">
         <Col>
-          <Button
+          <CustomButton
             loading={loading}
+            title="Cancel Po"
+            size="large"
+            onclick={handleCancelPPR}
             disabled={remark.length < 5 ? true : false}
-            onClick={handleCancelPPR}
-            type="primary"
-          >
-            Cancel PO
-          </Button>
+          />
         </Col>
       </Row>
       {/* </Form> */}

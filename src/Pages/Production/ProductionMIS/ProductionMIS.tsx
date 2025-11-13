@@ -1,34 +1,25 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Flex,
-  Form,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { Col, Collapse, Flex, Form, Row, Space, Typography } from "antd";
 //components
 import SingleProduct from "@/Pages/Production/ProductionMIS/SingleProduct";
+//@ts-ignore
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
+//@ts-ignore
 import MyButton from "@/Components/MyButton/index.jsx";
 //hooks
 import useApi from "@/hooks/useApi.js";
+//@ts-ignore
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+//@ts-ignore
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 // apis
-import {
-  getComponenentAndProduct,
-  getComponentOptions,
-  getProductsOptions,
-} from "@/api/general.js";
+import { getComponenentAndProduct } from "@/api/general.js";
 import { getDepartmentOptions } from "@/api/master/department.js";
 import { createEntry, fetchShiftLabels } from "@/api/production/mis";
 import AddDepartmentModal from "@/Pages/Production/ProductionMIS/AddDepartment";
-import dayjs from "dayjs";
+
 import { SelectOptionType } from "@/types/general";
 import UpdateShiftLabel from "@/Pages/Production/ProductionMIS/UpdateShiftLabelt";
-import { convertSelectOptions } from "@/utils/general";
 
 const typeOptions = [
   {
@@ -60,7 +51,7 @@ function ProductionMIS() {
     setAsyncOptions(response.data);
   };
 
-  const handleFetchProductOptions = async (searchInput, id: string) => {
+  const handleFetchProductOptions = async (searchInput: any, id: string) => {
     const response = await executeFun(
       () => getComponenentAndProduct(searchInput),
       "select"
@@ -97,16 +88,15 @@ function ProductionMIS() {
     <Form
       form={misForm}
       layout="vertical"
-      style={{ padding: 10, height: "95%", overflowY: "hidden" }}
+      style={{ margin: 12, height: "95%", overflowY: "hidden" }}
       initialValues={initialValues}
     >
-      <Row
-        justify="center"
-        gutter={4}
-        style={{ height: "100%", overflowY: "hidden" }}
+      <div
+        className="grid grid-cols-[1fr_3fr_1fr] h-full"
+        style={{ gap: 12, overflowY: "hidden" }}
       >
-        <Col span={4}>
-          <Card size="small" title="Add MIS">
+        <div>
+          <CustomFieldBox title="Add MIS">
             <Form.Item
               name="department"
               label="Department"
@@ -122,20 +112,30 @@ function ProductionMIS() {
             </Form.Item>
             <Row justify="center">
               <Space>
-                <MyButton onClick={resetHandler} variant="reset" />
-                <MyButton
+                <CustomButton
+                  size="small"
+                  title={"reset"}
+                  onclick={resetHandler}
+                  variant="outlined"
+                />
+
+                <CustomButton
+                  size="small"
+                  title={"save"}
+                  onclick={handleCreateEntry}
                   loading={loading("submit")}
-                  onClick={handleCreateEntry}
-                  variant="submit"
-                  text="Save"
                 />
               </Space>
             </Row>
-          </Card>
-        </Col>
-        <Col
-          span={12}
-          style={{ paddingBottom: 20, height: "100%", overflow: "auto" }}
+          </CustomFieldBox>
+        </div>
+
+        <div
+          className="overflow-y-auto"
+          style={{
+            height: "calc(100vh - 150px)", // adjust based on your header/footer height
+            paddingRight: 8, // prevents scrollbar overlap
+          }}
         >
           <Form.List name="shifts">
             {(fields, { add, remove }) => (
@@ -167,9 +167,9 @@ function ProductionMIS() {
               </Col>
             )}
           </Form.List>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
+        </div>
+        <div className="overflow-hidden">
+          <CustomFieldBox>
             <Collapse
               items={[
                 {
@@ -189,9 +189,9 @@ function ProductionMIS() {
                 },
               ]}
             />{" "}
-          </Card>
-        </Col>
-      </Row>
+          </CustomFieldBox>
+        </div>
+      </div>
     </Form>
   );
 }

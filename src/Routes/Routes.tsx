@@ -130,6 +130,7 @@ import {
   JobworkApproval,
   VendorPricingUploadNew,
   ApprovalPoNew,
+  //@ts-ignore
 } from "../Pages/index.jsx";
 
 import {
@@ -181,88 +182,156 @@ import {
   AppVendorReport,
   VendorReconcilation,
   ViewReconcilation,
+  //@ts-ignore
 } from "../FinancePages/index.jsx";
 //GST report
+//@ts-ignore
 import GstReport from "../FinancePages/Finance/GstReport.jsx";
+//@ts-ignore
 import R11 from "../Pages/Reports/R/R11.jsx";
+//@ts-ignore
 import R12 from "../Pages/Reports/R/R12.jsx";
+//@ts-ignore
 import R2 from "../Pages/Reports/R/R2.jsx";
+//@ts-ignore
 import R3 from "../Pages/Reports/R/R3.jsx";
+//@ts-ignore
 import R4 from "../Pages/Reports/R/R4.jsx";
+//@ts-ignore
 import R5 from "../Pages/Reports/R/R5.jsx";
+//@ts-ignore
 import R6 from "../Pages/Reports/R/R6.jsx";
+//@ts-ignore
 import R7 from "../Pages/Reports/R/R7.jsx";
+//@ts-ignore
 import R8 from "../Pages/Reports/R/R8/index.jsx";
+//@ts-ignore
 import R9 from "../Pages/Reports/R/R9.jsx";
+//@ts-ignore
 import R10 from "../Pages/Reports/R/R10.jsx";
+//@ts-ignore
 import R13 from "../Pages/Reports/R/R13.jsx";
+//@ts-ignore
 import R14 from "../Pages/Reports/R/R14.jsx";
+//@ts-ignore
 import R15 from "../Pages/Reports/R/R15.jsx";
+//@ts-ignore
 import R16 from "../Pages/Reports/R/R16.jsx";
+//@ts-ignore
 import R17 from "../Pages/Reports/R/R17.jsx";
+//@ts-ignore
 import R18 from "../Pages/Reports/R/R18.jsx";
+//@ts-ignore
 import R19 from "../Pages/Reports/R/R19.jsx";
+//@ts-ignore
 import R20 from "../Pages/Reports/R/R20.jsx";
+//@ts-ignore
 import R21 from "../Pages/Reports/R/R21.jsx";
+//@ts-ignore
 import R22 from "../Pages/Reports/R/R22.jsx";
+//@ts-ignore
 import R24 from "../Pages/Reports/R/R24.jsx";
+//@ts-ignore
 import R25 from "../Pages/Reports/R/R25.jsx";
+//@ts-ignore
 import R26 from "../Pages/Reports/R/R26.jsx";
+//@ts-ignore
 import R27 from "../Pages/Reports/R/R27.jsx";
+//@ts-ignore
 import R28 from "../Pages/Reports/R/R28.jsx";
+//@ts-ignore
 import R29 from "../Pages/Reports/R/R29.jsx";
+//@ts-ignore
 import CompletedPPR from "../Pages/Production/Production & Planning/CompletedPPR.jsx";
+//@ts-ignore
 import AccountsPayableReport from "../FinancePages/Finance/vouchers/AppReference/AccountsPayableReport.jsx";
+//@ts-ignore
 import VBTRecords from "../FinancePages/Finance/VBTRecords/VBTRecords.jsx";
+//@ts-ignore
 import DebitCentralizedRegister from "../FinancePages/Finance/Debit/DebitCentralizedRegister.jsx";
+//@ts-ignore
 import SalesRegister from "../Pages/Invoice/SalesRegister/SalesRegister.jsx";
+//@ts-ignore
 import QaProcess from "../Pages/Master/QAProcess/QaProcess.jsx";
+//@ts-ignore
 import QaProcessMap from "../Pages/Master/QAProcess/QaProcessMap.jsx";
+//@ts-ignore
 import CreateWO from "../Pages/Workorder/CreateWo.jsx";
-import Qctest from "../Pages/Production/testqca/Qctest.jsx";
+
+//@ts-ignore
 import VBTMainTable from "../FinancePages/Finance/VendorBillPosting/FormVBT/VBTMainTable.jsx";
+//@ts-ignore
 import TdsReport from "../FinancePages/Report/TdsReport.jsx";
+//@ts-ignore
 import MisReport from "../FinancePages/Report/MisReport.jsx";
+//@ts-ignore
 import WoShipment from "../Pages/Workorder/WoShipment.jsx";
+//@ts-ignore
 import SalesORderRegister from "../Pages/Sales/SalesOrder/SalesOrderRegister/SalesORderRegister.jsx";
+//@ts-ignore
 import PartCodeConversionReport from "../Pages/Store/PartCodeConversionReport/PartCodeConversionReport.jsx";
+//@ts-ignore
 import Pending from "../Pages/SFTransfer/Pending.jsx";
+//@ts-ignore
 import Addparty from "../Pages/Legal/master/Addparty.jsx";
-
+//@ts-ignore
 import WoReport from "../Pages/Workorder/WoReport.jsx";
+//@ts-ignore
 import RnC from "../Pages/Legal/Registration&Certificates/RnC.jsx";
+//@ts-ignore
 import ViewRnC from "../Pages/Legal/Registration&Certificates/ViewRnC.jsx";
+//@ts-ignore
 import OneLogIn from "../Pages/Login/OneLogIn.jsx";
+//@ts-ignore
 import R30 from "../Pages/Reports/R/R30.jsx";
+//@ts-ignore
 import R31 from "../Pages/Reports/R/R31.jsx";
+//@ts-ignore
 import PendingPhysicalStock from "../Pages/Store/PhysicalStock/Pending.jsx";
+//@ts-ignore
 import RejectedPhysicalStock from "../Pages/Store/PhysicalStock/Rejected.jsx";
+//@ts-ignore
 import EditSalesOrder from "../Pages/Sales/SalesOrder/edit/index.jsx";
+//@ts-ignore
 import RegisteredUser from "../Pages/ControlPanel/RegisteredUser/RegisteredUser.jsx";
+//@ts-ignore
 import ShipmentsList from "../Pages/Sales/SalesOrder/SalesOrderRegister/Shipments/ShipmentsList.jsx";
+//@ts-ignore
 import Challan from "../Pages/Sales/SalesOrder/SalesOrderRegister/Challan/Challan.jsx";
-
+//@ts-ignore
 import R32 from "../Pages/Reports/R/R32.jsx";
+//@ts-ignore
 import Index from "../Pages/Query/ClosingStock/Index.jsx";
+//@ts-ignore
 import routeConstants from "./routeConstants.js";
+//@ts-ignore
 import CreateScrapeChallan from "../Pages/Workorder/components/WoCreateChallan/CreateScrapeChallan.jsx";
 // import ProcurementDashboard from "../Pages/Dashboard/ProcurementDashboard.jsx";
 //
 import ProductionMIS from "../Pages/Production/ProductionMIS/ProductionMIS";
 import R33 from "../Pages/Reports/R/R33";
-
+//@ts-ignore
 import CreateFgReturn from "../Pages/Store/FgReturn/CreateFgReturn.jsx";
+//@ts-ignore
 import PendingReversal from "../Pages/Store/FgReturn/PendingReversal/PendingReversal.jsx";
+//@ts-ignore
 import ViewDocuments from "../Pages/Store/Transaction/Modal/ViewDocuments.jsx";
+//@ts-ignore
 import CompletedFgReturn from "../Pages/Store/FgReturn/CompletedReversal/index.jsx";
 import R34 from "@/Pages/Reports/R/R34/index.js";
 import FARUpload from "@/Pages/far/index.js";
+//@ts-ignore
 import R35 from "@/Pages/Reports/R/R35.jsx";
+//@ts-ignore
 import R37 from "@/Pages/Reports/R/R37.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
+//@ts-ignore
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
+//@ts-ignore
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
+//@ts-ignore
 import RejectedPhysicalProduction from "@/Pages/Production/PhysicalStock/Rejected.jsx";
+//@ts-ignore
 import ViewPhysicalProduction from "@/Pages/Production/PhysicalStock/ViewPhysical.jsx";
 import Products from "@/Pages/R&D/products/index.js";
 import ApprovalList from "@/Pages/R&D/products/approvalList.js";
@@ -1457,18 +1526,19 @@ const Routes = [
     path: "/controlPanel/allUsers",
     main: () => <AllUsers />,
   },
-  {
-    path: "/assets/create",
-    main: () => <CreateAsset />,
-  },
-  {
-    path: "/assets/view",
-    main: () => <ViewAsset />,
-  },
-  {
-    path: "/assets/depreciation",
-    main: () => <Depreciation />,
-  },
+  // {
+  //   path: "/assets/create",
+  //   //
+  //   main: () => <CreateAsset />,
+  // },
+  // {
+  //   path: "/assets/view",
+  //   main: () => <ViewAsset />,
+  // },
+  // {
+  //   path: "/assets/depreciation",
+  //   main: () => <Depreciation />,
+  // },
 
   ///login
   {

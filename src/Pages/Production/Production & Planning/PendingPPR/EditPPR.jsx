@@ -1,30 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { imsAxios } from "../../../../axiosInterceptor";
-import {
-  Col,
-  Descriptions,
-  Divider,
-  Drawer,
-  Form,
-  Input,
-  Modal,
-  Row,
-  Switch,
-  Typography,
-} from "antd";
+import { Col, Drawer, Form, Input, Modal, Row, Switch, Typography } from "antd";
 import MySelect from "../../../../Components/MySelect";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import InputMask from "react-input-mask";
 import NavFooter from "../../../../Components/NavFooter";
 import Loading from "../../../../Components/Loading";
-import TextArea from "antd/es/input/TextArea";
 import ReqdComponentModal from "./ReqdComponentModal";
 import useApi from "../../../../hooks/useApi.ts";
 import {
   getProductsOptions,
   getProjectOptions,
 } from "../../../../api/general.ts";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 
 const EditPPR = ({ editPPR, setEditPPR }) => {
   const [loading, setLoading] = useState(false);
@@ -270,7 +259,11 @@ const EditPPR = ({ editPPR, setEditPPR }) => {
       width="100vw"
       onClose={() => setEditPPR(null)}
       open={editPPR}
-      bodyStyle={{ padding: 15 }}
+      bodyStyle={{
+        padding: 15,
+        maxHeight: "calc(100vh - 120px)",
+        overflow: "auto",
+      }}
     >
       {loading === "fetch" && <Loading />}
       <Modal
@@ -284,179 +277,124 @@ const EditPPR = ({ editPPR, setEditPPR }) => {
       >
         <p>Are you sure you want to update this PPR</p>
       </Modal>
-      <Row gutter={6}>
-        <Form
-          initialValues={initialValues}
-          form={pprDetailsForm}
-          layout="vertical"
+
+      <Form
+        initialValues={initialValues}
+        form={pprDetailsForm}
+        layout="vertical"
+      >
+        <div className="grid grid-cols-2" style={{ gap: 12, marginBottom: 12 }}>
+          <CustomFieldBox
+            title={"PPR Details"}
+            subtitle={"Enter details like PPR type and project name"}
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item rules={rules.type} name="type" label="PPR Type">
+                <MySelect options={pprTypeOptions} />
+              </Form.Item>{" "}
+              <Form.Item rules={rules.type} name="project" label="Project">
+                <MyAsyncSelect
+                  labelInValue
+                  disabled={rqdDetails === "E"}
+                  loadOptions={handleFetchProjectOptions}
+                  optionsState={asyncOptions}
+                  loading={loading1("select")}
+                  onBlur={() => setAsyncOptions([])}
+                />
+              </Form.Item>{" "}
+              <Form.Item name="projectDescription" label="Project Description">
+                <Input disabled />
+              </Form.Item>
+            </div>
+            <Form.Item rules={rules.remark} name="remark" label="Remark">
+              <Input.TextArea rows={2} />
+            </Form.Item>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title={"Product Details"}
+            subtitle={"Enter Product details and planning Qty"}
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item rules={rules.product} name="product" label="Product">
+                <MyAsyncSelect
+                  selectLoading={selectLoading}
+                  loadOptions={getProduct}
+                  labelInValue
+                  optionsState={asyncOptions}
+                  onBlur={() => setAsyncOptions(null)}
+                />
+              </Form.Item>{" "}
+              <Form.Item rules={rules.bom} name="bom" label="BOM">
+                <MySelect options={bomList} />
+              </Form.Item>{" "}
+              <Form.Item rules={rules.qty} name="qty" label="Planning Qty">
+                <Input suffix={uom} />
+              </Form.Item>{" "}
+              <Form.Item rules={rules.dueDate} name="dueDate" label="Due Date">
+                <InputMask
+                  className="input-date"
+                  mask="99-99-9999"
+                  placeholder="__-__-____"
+                  style={{ textAlign: "center" }}
+                />
+              </Form.Item>{" "}
+              <Form.Item
+                rules={rules.section}
+                name="section"
+                label="Section / Location"
+              >
+                <MySelect options={locationOptions} />
+              </Form.Item>{" "}
+              <Form.Item
+                rules={rules.customer}
+                name="customer"
+                label="Customer Name"
+              >
+                <Input />
+              </Form.Item>
+            </div>
+            <Row gutter={24}>
+              <Col>
+                <Typography.Text strong>Existing Qty:</Typography.Text>
+                <br />
+                <Row justify="center">
+                  <Typography.Text strong>{existingQty}</Typography.Text>
+                </Row>
+              </Col>
+              <Col>
+                <Typography.Text strong>Stock:</Typography.Text>
+                <br />
+                <Row justify="center">
+                  <Typography.Text strong>{stock}</Typography.Text>
+                </Row>
+              </Col>
+            </Row>
+          </CustomFieldBox>
+        </div>
+        <CustomFieldBox
+          title={"RQD Details"}
+          subtitle={
+            <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+              <span>Enter details like PPR type and project name</span>
+              <Switch checked={reqdKeys} onChange={getRqdDetails} />
+            </div>
+          }
         >
-          <Row>
-            <Col span={4}>
-              <Descriptions size="small" title="PPR Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
-                >
-                  Enter details like PPR type and project name
-                </Descriptions.Item>
-              </Descriptions>
-            </Col>
-            <Col span={20}>
-              <Row gutter={16}>
-                <Col span={6}>
-                  <Form.Item rules={rules.type} name="type" label="PPR Type">
-                    <MySelect options={pprTypeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item rules={rules.type} name="project" label="Project">
-                    <MyAsyncSelect
-                      labelInValue
-                      disabled={rqdDetails === "E"}
-                      loadOptions={handleFetchProjectOptions}
-                      optionsState={asyncOptions}
-                      loading={loading1("select")}
-                      onBlur={() => setAsyncOptions([])}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    name="projectDescription"
-                    label="Project Description"
-                  >
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={18}>
-                  <Form.Item rules={rules.remark} name="remark" label="Remark">
-                    <TextArea rows={2} />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Col>
-            <Divider />
-            <Col span={4}>
-              <Descriptions size="small" title="Product Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
-                >
-                  Enter Product details and planning Qty
-                </Descriptions.Item>
-              </Descriptions>
-            </Col>
-            <Col span={20}>
-              <Row gutter={16}>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.product}
-                    name="product"
-                    label="Product"
-                  >
-                    <MyAsyncSelect
-                      selectLoading={selectLoading}
-                      loadOptions={getProduct}
-                      labelInValue
-                      optionsState={asyncOptions}
-                      onBlur={() => setAsyncOptions(null)}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item rules={rules.bom} name="bom" label="BOM">
-                    <MySelect options={bomList} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item rules={rules.qty} name="qty" label="Planning Qty">
-                    <Input suffix={uom} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Row gutter={24}>
-                    <Col>
-                      <Typography.Text strong>Existing Qty:</Typography.Text>
-                      <br />
-                      <Row justify="center">
-                        <Typography.Text strong>{existingQty}</Typography.Text>
-                      </Row>
-                    </Col>
-                    <Col>
-                      <Typography.Text strong>Stock:</Typography.Text>
-                      <br />
-                      <Row justify="center">
-                        <Typography.Text strong>{stock}</Typography.Text>
-                      </Row>
-                    </Col>
-                  </Row>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.dueDate}
-                    name="dueDate"
-                    label="Due Date"
-                  >
-                    <InputMask
-                      className="input-date"
-                      mask="99-99-9999"
-                      placeholder="__-__-____"
-                      style={{ textAlign: "center" }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.section}
-                    name="section"
-                    label="Section / Location"
-                  >
-                    <MySelect options={locationOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.customer}
-                    name="customer"
-                    label="Customer Name"
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Col>
-            <Col span={4}>
-              <Descriptions size="small" title="RQD Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
-                >
-                  Enter details like PPR type and project name
-                </Descriptions.Item>
-              </Descriptions>
-              <Row justify="end">
-                <Switch checked={reqdKeys} onChange={getRqdDetails} />
-              </Row>
-            </Col>
-            {reqdKeys && (
-              <ReqdComponentModal
-                sqdComponents={sqdComponents}
-                setSqdComponents={setSqdComponents}
-                editPPR={editPPR}
-                reqdKeys={reqdKeys}
-                setRqdSaved={setRqdSaved}
-                setReqdKeys={setReqdKeys}
-                // getComponentOptions={getComponentOptions}
-                asyncOptions={asyncOptions}
-                setAsyncOptions={setAsyncOptions}
-              />
-            )}
-          </Row>
-        </Form>
-      </Row>
+          {reqdKeys && (
+            <ReqdComponentModal
+              sqdComponents={sqdComponents}
+              setSqdComponents={setSqdComponents}
+              editPPR={editPPR}
+              reqdKeys={reqdKeys}
+              setRqdSaved={setRqdSaved}
+              setReqdKeys={setReqdKeys}
+              // getComponentOptions={getComponentOptions}
+              asyncOptions={asyncOptions}
+              setAsyncOptions={setAsyncOptions}
+            />
+          )}
+        </CustomFieldBox>
+      </Form>
 
       <NavFooter
         submitFunction={validateHandler}

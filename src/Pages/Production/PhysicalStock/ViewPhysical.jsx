@@ -1,28 +1,25 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Flex,
-  Form,
-  Modal,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { Col, Divider, Flex, Form, Modal, Row, Space, Typography } from "antd";
 import MySelect from "@/Components/MySelect";
 import useApi from "@/hooks/useApi.ts";
 import { getComponentOptions } from "@/api/general.ts";
 import MyAsyncSelect from "@/Components/MyAsyncSelect";
 import MyDatePicker from "@/Components/MyDatePicker";
-import { SearchOutlined } from "@ant-design/icons";
 import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 import MyDataTable from "@/Components/MyDataTable";
 import { getLogs, getVerifiedStocks } from "@/api/production/physical-stock";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { downloadCSV } from "@/Components/exportToCSV";
 import { convertSelectOptions } from "@/utils/general.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 function ViewPhysicalProduction() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -81,29 +78,57 @@ function ViewPhysicalProduction() {
     setShowLogs(false);
     setSelectedAudit(null);
   };
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // show logs icon
-      <GridActionsCellItem
-        showInMenu
-        // disabled={disabled}
-        label={"View Logs"}
-        onClick={() => {
-          setShowLogs(true);
-          setSelectedAudit(row);
-        }}
-      />,
-    ],
-  };
   useEffect(() => {
     form.setFieldValue("data", "");
   }, [wise]);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <CustomButton
+        size="small"
+        variant="text"
+        title={"update"}
+        onclick={() => {
+          setSelectedAudit(row?.original);
+          setShowUpdateModal(true);
+        }}
+      />
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetchRows")
+          ? "calc(100vh - 200px)"
+          : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetchRows") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <Row gutter={6} style={{ height: "95%", padding: 10 }}>
+    <Row gutter={6} style={{ height: "95%", margin: 12 }}>
       <Logs
         open={showLogs}
         hide={hideLogs}
@@ -112,8 +137,8 @@ function ViewPhysicalProduction() {
         logs={logs}
         setLogs={setLogs}
       />
-      <Col span={4}>
-        <Card size="small" title="Filters">
+      <Col span={6}>
+        <CustomFieldBox title={"Filters"}>
           <Form form={form} layout="vertical" initialValues={initialValues}>
             <Form.Item name="wise" label="Select Filter">
               <MySelect options={wiseOptions} />
@@ -145,14 +170,13 @@ function ViewPhysicalProduction() {
 
             <Row justify="end">
               <Space>
-                <Button
-                  onClick={handleFetchRows}
-                  type="primary"
-                  icon={<SearchOutlined />}
+                <CustomButton
+                  size="small"
+                  title={"search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading("fetchRows")}
-                >
-                  Fetch
-                </Button>
+                  onclick={handleFetchRows}
+                />
                 <CommonIcons
                   action="downloadButton"
                   onClick={handleDownloadExcel}
@@ -160,14 +184,10 @@ function ViewPhysicalProduction() {
               </Space>
             </Row>
           </Form>
-        </Card>
+        </CustomFieldBox>
       </Col>
-      <Col span={20}>
-        <MyDataTable
-          data={rows}
-          columns={[actionColumn, ...columns]}
-          loading={loading("fetchRows")}
-        />
+      <Col span={18}>
+        <MaterialReactTable table={table} />
       </Col>
     </Row>
   );
@@ -193,57 +213,56 @@ const initialValues = {
 
 const columns = [
   {
-    headerName: "#",
-    field: "id",
-    width: 30,
+    header: "#",
+    accessorKey: "id",
+    size: 30,
   },
   {
-    headerName: "Date",
-    field: "date",
-    width: 150,
+    header: "Date",
+    accessorKey: "date",
+    size: 150,
   },
   {
-    headerName: "Component",
-    field: "component",
-    minWidth: 150,
+    header: "Component",
+    accessorKey: "component",
+    size: 150,
     flex: 1,
   },
   {
-    headerName: "Part Code",
-    field: "partCode",
-    width: 100,
+    header: "Part Code",
+    accessorKey: "partCode",
+    size: 100,
   },
   {
-    headerName: "UoM",
-    field: "uom",
-    width: 70,
+    header: "UoM",
+    accessorKey: "uom",
+    size: 70,
   },
   {
-    headerName: "Location",
-    field: "location",
-    width: 70,
+    header: "Location",
+    accessorKey: "location",
+    size: 70,
   },
   {
-    headerName: "IMS Stock",
-    field: "imsStock",
-    width: 120,
+    header: "IMS Stock",
+    accessorKey: "imsStock",
+    size: 120,
   },
   {
-    headerName: "Physical Stock",
-    field: "auditStock",
-    width: 120,
+    header: "Physical Stock",
+    accessorKey: "auditStock",
+    size: 120,
   },
 
   {
-    headerName: "Verified By",
-    field: "verifiedBy",
-    width: 120,
+    header: "Verified By",
+    accessorKey: "verifiedBy",
+    size: 120,
   },
   {
-    headerName: "Remark",
-    field: "remark",
-    minWidth: 180,
-    flex: 1,
+    header: "Remark",
+    accessorKey: "remark",
+    size: 180,
   },
 ];
 

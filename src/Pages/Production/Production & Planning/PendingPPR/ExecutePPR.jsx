@@ -91,7 +91,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       headerName: "Part Name",
       width: 350,
       field: "name",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <span
           style={{
             color: +row.location_qty < +row.qty && "red",
@@ -105,13 +105,13 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       headerName: "Part Code",
       flex: 1,
       field: "partno",
-      renderCell: ({ row }) => <span>{row.partno}</span>,
+      render: ({ row }) => <span>{row.partno}</span>,
     },
     {
       headerName: "BOM Qty",
       flex: 1,
       field: "qty",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <span>
           {row.qty} {row.unit}
         </span>
@@ -121,7 +121,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       headerName: "Stock Qty",
       flex: 1,
       field: "location_qty",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <span>
           {row.location_qty} {row.unit}
         </span>
@@ -131,17 +131,13 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       headerName: "Average Weighted Rate",
       flex: 1,
       field: "avgRate",
-      renderCell: ({ row }) => (
-        <span>
-          {row?.avgRate}
-        </span>
-      ),
+      render: ({ row }) => <span>{row?.avgRate}</span>,
     },
     {
       headerName: "Actual Cons.",
       flex: 1,
       field: "annuaCons",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           style={{ border: row.borderRed && "1px solid red" }}
           value={row.actQty}
@@ -155,7 +151,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       headerName: "Rejected",
       flex: 1,
       field: "rejected",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           value={row.rej}
           onChange={(e) => compInputHandler("rej", e.target.value, row.id)}
@@ -166,7 +162,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       headerName: "Remark",
       flex: 1,
       field: "remark",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           value={row.rem}
           onChange={(e) => compInputHandler("rem", e.target.value, row.id)}

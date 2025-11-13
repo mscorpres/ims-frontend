@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useApi from "@/hooks/useApi.ts";
-import { Col, Row } from "antd";
 import {
   getPhysicalStockWithStatus,
   updateStatus,
 } from "@/api/production/physical-stock";
-import MyDataTable from "@/Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, Button, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 const PendingPhysicalProduction = () => {
   const [rows, setRows] = useState([]);
   const { executeFun, loading } = useApi();
@@ -84,17 +87,77 @@ const PendingPhysicalProduction = () => {
   useEffect(() => {
     handleGetRows();
   }, []);
-  return (
-    <div style={{ height: "95%", padding: 10 }}>
-      <Row style={{ height: "100%" }} justify="center">
-        <Col span={20}>
-          <MyDataTable
-            loading={loading("fetch") || loading("updateStatus")}
-            data={rows}
-            columns={[actionColumn, ...columns]}
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <div>
+        <Button
+          size="small"
+          variant="text"
+          color="error"
+          onClick={() =>
+            handleUpdateStatus({
+              auditKey: row.auditKey,
+              componentKey: row.componentKey,
+              status: "reject",
+            })
+          }
+        >
+          Reject
+        </Button>
+        <Button
+          size="small"
+          variant="text"
+          color="success"
+          onClick={() =>
+            handleUpdateStatus({
+              auditKey: row.auditKey,
+              componentKey: row.componentKey,
+              status: "approved",
+            })
+          }
+        >
+          Approve
+        </Button>
+      </div>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading("fetch") || loading("updateStatus")
+            ? "calc(100vh - 200px)"
+            : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("updateStatus") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
           />
-        </Col>
-      </Row>
+        </Box>
+      ) : null,
+  });
+
+  return (
+    <div style={{ height: "95%", margin: 12 }}>
+      <MaterialReactTable table={table} />
     </div>
   );
 };
@@ -103,50 +166,50 @@ export default PendingPhysicalProduction;
 
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Component",
-    minWidth: 120,
-    flex: 1,
-    field: "component",
+    header: "Component",
+    size: 120,
+
+    accessorKey: "component",
   },
   {
-    headerName: "Part Code",
-    width: 150,
-    field: "partCode",
+    header: "Part Code",
+    size: 150,
+    accessorKey: "partCode",
   },
   {
-    headerName: "Location",
-    width: 150,
-    field: "location",
+    header: "Location",
+    size: 150,
+    accessorKey: "location",
   },
   {
-    headerName: "Audit Qty",
-    width: 150,
-    field: "auditQty",
+    header: "Audit Qty",
+    size: 150,
+    accessorKey: "auditQty",
   },
   {
-    headerName: "IMS Qty",
-    width: 150,
-    field: "imsQty",
+    header: "IMS Qty",
+    size: 150,
+    accessorKey: "imsQty",
   },
   {
-    headerName: "Audit Date",
-    width: 150,
-    field: "auditDate",
+    header: "Audit Date",
+    size: 150,
+    accessorKey: "auditDate",
   },
   {
-    headerName: "Audit By",
-    width: 150,
-    field: "auditBy",
+    header: "Audit By",
+    size: 150,
+    accessorKey: "auditBy",
   },
   {
-    headerName: "Remark",
-    minWidth: 120,
-    flex: 1,
-    field: "remark",
+    header: "Remark",
+    size: 120,
+
+    accessorKey: "remark",
   },
 ];

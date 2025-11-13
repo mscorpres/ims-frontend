@@ -1,15 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Modal,
-  Row,
-  Space,
-  message,
-} from "antd";
+import { Col, Form, Input, Modal, Row, Space, message } from "antd";
 import { toast } from "react-toastify";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -23,7 +13,8 @@ import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general.ts";
 
 import useApi from "../../../hooks/useApi.ts";
-import MyButton from "../../../Components/MyButton";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
 export default function ReqWithoutBom() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [pickLocationOptions, setPickLocationOptions] = useState([]);
@@ -194,11 +185,6 @@ export default function ReqWithoutBom() {
 
   // getting component options
   const getComponentOption = async (search) => {
-    // setLoading("select");
-    // const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
-    //   search,
-    // });
-    // setLoading(false);
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
@@ -448,12 +434,12 @@ export default function ReqWithoutBom() {
     }
   }, [loading]);
   return (
-    <Row gutter={6} style={{ height: "90%", padding: "0px 5px" }}>
+    <Row gutter={6} style={{ height: "90%", margin: 12 }}>
       {contextHolder}
       {headerLocationcontextHolder}
       {loading === "fetching" && <Loading />}
       <Col span={6}>
-        <Card size="small" title="Header Details">
+        <CustomFieldBox title={"Header Details"}>
           {loading === "headerLocation" && <Loading />}
           <Form
             form={requestForm}
@@ -487,18 +473,21 @@ export default function ReqWithoutBom() {
           </Form>
           <Row justify="end">
             <Space>
-              <Button onClick={showResetConfirm}>Reset</Button>
-              <Button
-                variant="search"
+              <CustomButton
+                size="small"
+                variant="outlined"
+                title={"Reset"}
+                onclick={showResetConfirm}
+              />
+              <CustomButton
+                size="small"
+                title={"Submit"}
+                onclick={showSubmitConfirm}
                 loading={loading === "submitting"}
-                type="primary"
-                onClick={showSubmitConfirm}
-              >
-                Submit
-              </Button>
+              />
             </Space>
           </Row>
-        </Card>
+        </CustomFieldBox>
       </Col>
       <Col span={18} style={{ height: "95%" }}>
         {loading === "component" && <Loading />}

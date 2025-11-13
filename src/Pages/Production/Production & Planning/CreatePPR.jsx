@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Col,
-  Descriptions,
-  Divider,
   Form,
   Input,
   Modal,
@@ -19,12 +17,12 @@ import Loading from "../../../Components/Loading";
 import AddProjectModal from "./AddProjectModal";
 import { getProductsOptions, getProjectOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 
 const { TextArea } = Input;
 
 const CreatePPR = () => {
   const [loading, setLoading] = useState(false);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [bomList, setBomList] = useState([]);
   const [locationn, setLocationn] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -185,100 +183,87 @@ const CreatePPR = () => {
     }
   }, [project]);
   return (
-    <div style={{ height: "90%" }}>
-      <Row gutter={10} style={{ margin: "10px" }} justify="center">
+    <div style={{ height: "90%", margin: 12 }}>
+     
         {loading === "page" && <Loading />}
         <Form
           initialValues={initialValues}
           form={createPPRForm}
           layout="vertical"
         >
-          <Row>
-            <Col span={4}>
-              <Descriptions size="small" title="PPR Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
+          <div className="grid grid-cols-2" style={{ gap: 12 }}>
+            <CustomFieldBox
+              title={"PPR Details"}
+              subtitle={"Enter details like PPR type and project name"}
+            >
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item rules={rules.type} name="type" label="PPR Type">
+                  <MySelect options={pprTypeOptions} />
+                </Form.Item>{" "}
+                <Form.Item rules={rules.type} name="project" label="Project">
+                  <MyAsyncSelect
+                    labelInValue
+                    loadOptions={handleFetchProjectOptions}
+                    optionsState={asyncOptions}
+                    loading={loading1("select")}
+                    onBlur={() => setAsyncOptions([])}
+                  />
+                </Form.Item>{" "}
+                <Form.Item
+                  name="projectDescription"
+                  label="Project Description"
                 >
-                  Enter details like PPR type and project name
-                </Descriptions.Item>
-              </Descriptions>
-            </Col>
-            <Col span={20}>
-              <Row gutter={16}>
-                <Col span={6}>
-                  <Form.Item rules={rules.type} name="type" label="PPR Type">
-                    <MySelect options={pprTypeOptions} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item rules={rules.type} name="project" label="Project">
-                    <MyAsyncSelect
-                      labelInValue
-                      loadOptions={handleFetchProjectOptions}
-                      optionsState={asyncOptions}
-                      loading={loading1("select")}
-                      onBlur={() => setAsyncOptions([])}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    name="projectDescription"
-                    label="Project Description"
-                  >
-                    <Input disabled />
-                  </Form.Item>
-                </Col>
-                <Col span={18}>
-                  <Form.Item rules={rules.remark} name="remark" label="Remark">
-                    <TextArea rows={2} />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Col>
-            <Divider />
-            <Col span={4}>
-              <Descriptions size="small" title="Product Details">
-                <Descriptions.Item
-                  contentStyle={{
-                    fontSize: window.innerWidth < 1600 && "0.7rem",
-                  }}
+                  <Input disabled />
+                </Form.Item>
+              </div>
+              <Form.Item rules={rules.remark} name="remark" label="Remark">
+                <TextArea rows={2} />
+              </Form.Item>
+            </CustomFieldBox>
+            <CustomFieldBox title={"Product Details"} subtitle={"Enter Product details and planning Qty"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item
+                  rules={rules.product}
+                  name="product"
+                  label="Product"
                 >
-                  Enter Product details and planning Qty
-                </Descriptions.Item>
-              </Descriptions>
-            </Col>
-            <Col span={20}>
-              <Row gutter={16}>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.product}
-                    name="product"
-                    label="Product"
-                  >
-                    <MyAsyncSelect
-                      selectLoading={loading1("select")}
-                      loadOptions={handleFetchProductOptions}
-                      labelInValue
-                      optionsState={asyncOptions}
-                      onBlur={() => setAsyncOptions(null)}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item rules={rules.bom} name="bom" label="BOM">
-                    <MySelect options={bomList} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item rules={rules.qty} name="qty" label="Planning Qty">
-                    <Input suffix={uom} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Row gutter={24}>
+                  <MyAsyncSelect
+                    selectLoading={loading1("select")}
+                    loadOptions={handleFetchProductOptions}
+                    labelInValue
+                    optionsState={asyncOptions}
+                    onBlur={() => setAsyncOptions(null)}
+                  />
+                </Form.Item>        <Form.Item rules={rules.bom} name="bom" label="BOM">
+                  <MySelect options={bomList} />
+                </Form.Item>        <Form.Item rules={rules.qty} name="qty" label="Planning Qty">
+                  <Input suffix={uom} />
+                </Form.Item>    <Form.Item
+                  rules={rules.dueDate}
+                  name="dueDate"
+                  label="Due Date"
+                >
+                  <InputMask
+                    className="input-date"
+                    mask="99-99-9999"
+                    placeholder="__-__-____"
+                    style={{ textAlign: "center" }}
+                  />
+                </Form.Item>     <Form.Item
+                  rules={rules.section}
+                  name="section"
+                  label="Section / Location"
+                >
+                  <MySelect options={locationn} />
+                </Form.Item>        <Form.Item
+                  rules={rules.customer}
+                  name="customer"
+                  label="Customer Name"
+                >
+                  <Input />
+                </Form.Item>
+              </div>
+                 <Row gutter={24}>
                     <Col>
                       <Typography.Text strong>Existing Qty:</Typography.Text>
                       <br />
@@ -294,44 +279,11 @@ const CreatePPR = () => {
                       </Row>
                     </Col>
                   </Row>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.dueDate}
-                    name="dueDate"
-                    label="Due Date"
-                  >
-                    <InputMask
-                      className="input-date"
-                      mask="99-99-9999"
-                      placeholder="__-__-____"
-                      style={{ textAlign: "center" }}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.section}
-                    name="section"
-                    label="Section / Location"
-                  >
-                    <MySelect options={locationn} />
-                  </Form.Item>
-                </Col>
-                <Col span={6}>
-                  <Form.Item
-                    rules={rules.customer}
-                    name="customer"
-                    label="Customer Name"
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+            </CustomFieldBox>
+          </div>
+ 
         </Form>
-      </Row>
+    
       <NavFooter
         resetFunction={resetFunction}
         submitFunction={validateHandler}

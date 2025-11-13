@@ -1,15 +1,21 @@
-import { Button, Row, Space, Input } from "antd";
-import React, { useState, useEffect } from "react";
+import { Row, Space, Input } from "antd";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import MyDataTable from "../../../Components/MyDataTable";
 import MySelect from "../../../Components/MySelect";
 import { v4 } from "uuid";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyButton from "../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 const CompletedPPR = () => {
   const [wise, setWise] = useState("skuwise");
@@ -69,24 +75,24 @@ const CompletedPPR = () => {
   };
 
   const columns = [
-    { headerName: "Serial No.", width: 100, field: "index" },
-    { headerName: "Type", width: 70, field: "prod_type" },
-    { headerName: "Req No.", flex: 1, field: "prod_transaction" },
+    { header: "Serial No.", size: 100, accessorKey: "index" },
+    { header: "Type", size: 70, accessorKey: "prod_type" },
+    { header: "Req No.", accessorKey: "prod_transaction" },
     {
-      headerName: "Project",
-      width: 150,
-      field: "prod_project",
+      header: "Project",
+      size: 150,
+      accessorKey: "prod_project",
       renderCell: ({ row }) => <ToolTipEllipses text={row.prod_project} />,
     },
-    { headerName: "Customer", flex: 1, field: "prod_customer" },
-    { headerName: "Create By", flex: 1, field: "prod_insert_by" },
-    { headerName: "Req Data/Time", flex: 1, field: "prod_insert_dt" },
-    { headerName: "Product SKU", flex: 1, field: "prod_product_sku" },
-    { headerName: "Product Name", flex: 1, field: "prod_name" },
-    { headerName: "Planned Qty", flex: 1, field: "prod_planned_qty" },
-    { headerName: "Due Date", flex: 1, field: "prod_due_date" },
-    { headerName: "Qty Excuted", flex: 1, field: "totalConsumption" },
-    { headerName: "Qty Remained", flex: 1, field: "consumptionRemaining" },
+    { header: "Customer", accessorKey: "prod_customer" },
+    { header: "Create By", accessorKey: "prod_insert_by" },
+    { header: "Req Data/Time", accessorKey: "prod_insert_dt" },
+    { header: "Product SKU", accessorKey: "prod_product_sku" },
+    { header: "Product Name", accessorKey: "prod_name" },
+    { header: "Planned Qty", accessorKey: "prod_planned_qty" },
+    { header: "Due Date", accessorKey: "prod_due_date" },
+    { header: "Qty Excuted", accessorKey: "totalConsumption" },
+    { header: "Qty Remained", accessorKey: "consumptionRemaining" },
   ];
   useEffect(() => {
     setSearchInput("");
@@ -94,12 +100,43 @@ const CompletedPPR = () => {
       setSearchInput("new");
     }
   }, [wise]);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: searchLoading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No completed PPR Found" />
+    ),
+
+    renderTopToolbar: () =>
+      searchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <div style={{ height: "90%" }}>
-      <Row
-        justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
-      >
+    <div style={{ height: "90%", margin: 12 }}>
+      <Row justify="space-between">
         <div>
           <Space>
             <div style={{ width: 200 }}>
@@ -140,23 +177,16 @@ const CompletedPPR = () => {
                 )
               )}{" "}
             </div>
-            <MyButton
-              variant="search"
-              disabled={!searchInput ? true : false}
-              type="primary"
-              loading={searchLoading}
-              onClick={getRows}
-              id="submit"
-              // className="primary-button search-wise-btn"
-            >
-              Search
-            </MyButton>
-          </Space>
-          {/* <div className="po_search_options">
-                <div className="search-type">
 
-                </div>
-              </div> */}
+            <CustomButton
+              size="small"
+              title={"Search"}
+              onclick={getRows}
+              loading={searchLoading}
+              disabled={!searchInput ? true : false}
+              starticon={<Search fontSize="small" />}
+            />
+          </Space>
         </div>
         <Space>
           <CommonIcons
@@ -166,13 +196,8 @@ const CompletedPPR = () => {
           />
         </Space>
       </Row>
-      <div style={{ height: "95%", padding: "0px 10px" }}>
-        <MyDataTable
-          // export={true}
-          columns={columns}
-          data={rows}
-          loading={searchLoading}
-        />
+      <div style={{ height: "95%", marginTop: 12 }}>
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );
