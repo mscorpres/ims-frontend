@@ -1,6 +1,7 @@
 import { PPRDetailsType } from "@/Pages/Production/mes/qca/scan/types";
-import { Card, Flex, Typography } from "antd";
-import React from "react";
+import { Flex, Typography } from "antd";
+//@ts-ignore
+import CustomFieldBox from "../../../../../new/components/reuseable/CustomFieldBox";
 
 type Props = {
   details: PPRDetailsType;
@@ -8,7 +9,7 @@ type Props = {
 
 const ProductDetails = ({ details }: Props) => {
   return (
-    <Card size={"small"} title="Product Details">
+    <CustomFieldBox title="Product Details">
       <Flex gap={5}>
         <Typography.Text strong>Scanning Qty</Typography.Text>
         <Typography.Text>{details.summaryQty.scanned}</Typography.Text>
@@ -25,7 +26,7 @@ const ProductDetails = ({ details }: Props) => {
         <Typography.Text strong>Remaining Qty</Typography.Text>
         <Typography.Text>{details.summaryQty.remaining}</Typography.Text>
       </Flex>
-    </Card>
+    </CustomFieldBox>
   );
 };
 

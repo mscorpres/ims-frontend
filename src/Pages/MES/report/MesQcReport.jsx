@@ -1,23 +1,26 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Row, Space, Tooltip, Popover, Form, Drawer } from "antd";
+import { Button, Row, Space, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
-import { v4 } from "uuid";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { DownloadOutlined, MessageOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import { set } from "lodash";
 import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
-import MyButton from "../../../Components/MyButton";
+import printFunction from "../../../Components/printFunction";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Print, Search, Visibility } from "@mui/icons-material";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
 
 function MesQcaReport() {
   const [searchLoading, setSearchLoading] = useState(false);
@@ -31,8 +34,6 @@ function MesQcaReport() {
   const [qcReportForm] = Form.useForm();
   const ppr = Form.useWatch("ppr", qcReportForm);
   const status = Form.useWatch("status", qcReportForm);
-  const processName = Form.useWatch("process", qcReportForm);
-  const [searchInput, setSearchInput] = useState("");
 
   const Generateqrforlot = async (row) => {
     try {
@@ -61,31 +62,6 @@ function MesQcaReport() {
     }
   };
 
-  const actionColumn = {
-    headerName: "",
-    field: "actions",
-    width: 10,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          setDetailData(row);
-          setShowViewModal(true);
-        }}
-        label="View"
-      />,
-      <GridActionsCellItem
-        showInMenu
-        // disabled={loading}
-        onClick={() => {
-          Generateqrforlot(row);
-        }}
-        label="Print Lot QR"
-      />,
-    ],
-  };
 
   const statusOptions = [
     { text: "Pass", value: "A" },
@@ -212,13 +188,70 @@ function MesQcaReport() {
     field: "failReason",
     renderCell: ({ row }) => <ToolTipEllipses text={row.failReason} />,
   };
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+
+    renderRowActions: ({ row }) => (
+      <div>
+        <Tooltip title="View">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={() => {
+              setDetailData(row);
+              setShowViewModal(true);
+            }}
+          >
+            <Visibility fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Print lot qr ">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={() => {
+              Generateqrforlot(row);
+            }}
+          >
+            <Print fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </div>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: searchLoading ? "calc(100vh - 270px)" : "calc(100vh - 320px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      searchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
     <>
-      <div style={{ height: "90%" }}>
-        <Row
-          justify="space-between"
-          style={{ padding: "10px 10px", marginBottom: -15 }}
-        >
+      <div style={{ height: "90%", margin: 12 }}>
+        <Row justify="space-between">
           {loading === "fetch" && <Loading />}
           <Form
             form={qcReportForm}
@@ -260,16 +293,13 @@ function MesQcaReport() {
                     />
                   </Form.Item>
                 </div>
-
-                <MyButton
-                  variant="search"
-                  type="primary"
+                <CustomButton
+                  size="small"
+                  title={"Search"}
+                  starticon={<Search fontSize="small" />}
                   loading={loading === "rows"}
-                  onClick={getRows}
-                  id="submit"
-                >
-                  Search
-                </MyButton>
+                  onclick={getRows}
+                />
               </Space>
             </div>
           </Form>
@@ -289,12 +319,13 @@ function MesQcaReport() {
             />
           </Space>
         </Row>
-        <div style={{ height: "85%", padding: "15px 10px" }}>
-          <MyDataTable
+        <div style={{ height: "80%" }}>
+          {/* <MyDataTable
             columns={[actionColumn, ...columns]}
             data={rows}
             loading={searchLoading}
-          />
+          /> */}
+          <MaterialReactTable table={table} />
         </div>
       </div>
       <ViewModal
@@ -308,68 +339,68 @@ function MesQcaReport() {
 }
 const columns = [
   {
-    headerName: "#",
+    header: "#",
     width: 50,
-    field: "index",
+    accessorKey: "index",
   },
   {
-    headerName: "Lot Size",
+    header: "Lot Size",
     width: 100,
-    field: "qty",
+    accessorKey: "qty",
   },
   {
-    headerName: "Date",
+    header: "Date",
     width: 100,
-    field: "date",
+    accessorKey: "date",
   },
   {
-    headerName: "Lot No.",
+    header: "Lot No.",
     width: 180,
-    field: "lot",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.lot} />,
+    accessorKey: "lot",
+    render: ({ row }) => <ToolTipEllipses text={row.lot} />,
   },
   {
-    headerName: "SKU",
+    header: "SKU",
     width: 180,
-    field: "sku",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+    accessorKey: "sku",
+    render: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
-    headerName: "Product",
+    header: "Product",
     flex: 1,
     minWidth: 200,
-    field: "product",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
+    accessorKey: "product",
+    render: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
-    headerName: "BOM",
+    header: "BOM",
     flex: 1,
     minWidth: 200,
-    field: "bomName",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.bomName} />,
+    accessorKey: "bomName",
+    render: ({ row }) => <ToolTipEllipses text={row.bomName} />,
   },
   {
-    headerName: "SFG",
+    header: "SFG",
     width: 150,
-    field: "sfg",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sfg} />,
+    accessorKey: "sfg",
+    render: ({ row }) => <ToolTipEllipses text={row.sfg} />,
   },
   {
-    headerName: "Process Location",
+    header: "Process Location",
     width: 120,
-    field: "processLoc",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.processLoc} />,
+    accessorKey: "processLoc",
+    render: ({ row }) => <ToolTipEllipses text={row.processLoc} />,
   },
   {
-    headerName: "Process Level",
+    header: "Process Level",
     width: 120,
-    field: "processLevel",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.processLevel} />,
+    accessorKey: "processLevel",
+    render: ({ row }) => <ToolTipEllipses text={row.processLevel} />,
   },
   {
-    headerName: "To Location",
+    header: "To Location",
     flex: 1,
-    field: "locName",
+    accessorKey: "locName",
     // renderCell: ({ row }) => <ToolTipEllipses text={row.locName} />,
   },
 ];

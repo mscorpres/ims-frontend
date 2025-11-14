@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Button, Card, Col, Form, Input, Row } from "antd";
+import { Col, Form, Input, Row } from "antd";
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import printFunction from "../../../Components/printFunction";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 const PrintQCALabel = () => {
   const [loading, setLoading] = useState(false);
@@ -28,9 +30,9 @@ const PrintQCALabel = () => {
   };
 
   return (
-    <Row style={{ height: "90%" }} justify="center">
-      <Col span={6}>
-        <Card>
+    <Row style={{ height: "90%", margin: 12 }} justify="center">
+      <Col span={8}>
+        <CustomFieldBox title="Print QCA Label">
           <Form
             initialValues={defaultValues}
             form={printLabelForm}
@@ -43,19 +45,16 @@ const PrintQCALabel = () => {
               <Input />
             </Form.Item>
           </Form>
-          <Row>
-            <Col span={24}>
-              <Button
-                onClick={printHandler}
-                loading={loading}
-                block
-                type="primary"
-              >
-                Print
-              </Button>
-            </Col>
-          </Row>
-        </Card>
+
+          <div style={{ textAlign: "center" }}>
+            <CustomButton
+              size="small"
+              title={"Print"}
+              onclick={printHandler}
+              loading={loading}
+            />
+          </div>
+        </CustomFieldBox>
       </Col>
     </Row>
   );

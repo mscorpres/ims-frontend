@@ -1,9 +1,9 @@
 import { imsAxios } from "@/axiosInterceptor";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import MySelect from "@/Components/MySelect";
-import { Card, Col, Form, Input, Row, Space, Upload } from "antd";
+import {  Col, Form, Input, Row, Space, Upload } from "antd";
 import MyDataTable from "@/Components/MyDataTable";
 import MyAsyncSelect from "@/Components/MyAsyncSelect";
 import NavFooter from "@/Components/NavFooter";
@@ -11,6 +11,7 @@ import { CommonIcons } from "@/Components/TableActions.jsx/TableActions";
 
 import useApi from "@/hooks/useApi.ts";
 import { getProductsOptions } from "@/api/general.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
 
 const QaProcessMap = () => {
   //states of qaprocessMap
@@ -58,7 +59,7 @@ const QaProcessMap = () => {
   const [skuList, setskulist] = useState([]);
   const [loading1, setLoading1] = useState(false);
 
-  const { executeFun, loading } = useApi();
+  const { executeFun } = useApi();
   //get sku data
   const sku = async (e) => {
     setskuoptions("");
@@ -730,13 +731,10 @@ const QaProcessMap = () => {
   }, [qaProcessData.sku]);
 
   return (
-    <div style={{ height: "90%", width: "100%" }}>
-      <Row
-        gutter={6}
-        style={{ padding: "0px 10px", height: "100%", width: "100%" }}
-      >
+    <div style={{ height: "90%", width: "100%", margin: 12 }}>
+      <Row gutter={6} style={{ height: "100%", width: "100%" }}>
         <Col span={4}>
-          <Card size="small">
+          <CustomFieldBox>
             <Form
               style={{ width: "100%", height: "100%" }}
               size="small"
@@ -755,13 +753,13 @@ const QaProcessMap = () => {
                 </Col>
               </Row>
             </Form>
-          </Card>
+          </CustomFieldBox>
         </Col>
         <Col
           style={{
             opacity: formfield ? 1 : 0.5,
             pointerEvents: formfield ? "all" : "none",
-            height: "100%",
+            height: "calc(100% - 60px)",
             width: "100%",
           }}
           span={20}

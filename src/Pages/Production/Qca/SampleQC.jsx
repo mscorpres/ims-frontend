@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, Row, Space, Modal, Typography } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MySelect from "../../../Components/MySelect";
@@ -14,7 +14,8 @@ import Loading from "../../../Components/Loading";
 import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
-import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
 function SampleQC() {
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("");
@@ -103,73 +104,73 @@ function SampleQC() {
     {
       headerName: "Serial No.",
       width: 100,
-      renderCell: ({ row }) => row.index,
+      render: ({ row }) => row.index,
       field: "index",
     },
     {
       headerName: "MIN Date",
       width: 150,
       field: "date",
-      renderCell: ({ row }) => row.date,
+      render: ({ row }) => row.date,
     },
     {
       headerName: "PO TXN",
       width: 120,
       field: "pono",
-      renderCell: ({ row }) => row.pono,
+      render: ({ row }) => row.pono,
     },
     {
       headerName: "MIN TXN",
       width: 150,
       field: "min_txn",
-      renderCell: ({ row }) => row.min_txn,
+      render: ({ row }) => row.min_txn,
     },
     {
       headerName: "MIN Doc No.",
       width: 150,
       field: "invoice",
-      renderCell: ({ row }) => row.invoice,
+      render: ({ row }) => row.invoice,
     },
     {
       headerName: "Vendor",
       field: "vendorcode",
-      renderCell: ({ row }) => row.vendorcode,
+      render: ({ row }) => row.vendorcode,
     },
     {
       headerName: "Vendor Name",
       width: 180,
       field: "vendorname",
-      renderCell: ({ row }) => row.vendorname,
+      render: ({ row }) => row.vendorname,
     },
     {
       headerName: "Part",
       width: 100,
       field: "part",
-      renderCell: ({ row }) => row.part,
+      render: ({ row }) => row.part,
     },
     {
       headerName: "Component",
       width: 180,
       field: "component",
-      renderCell: ({ row }) => row.component,
+      render: ({ row }) => row.component,
     },
     {
       headerName: "MIN Qty",
       width: 100,
       field: "inQty",
-      renderCell: ({ row }) => row.inQty,
+      render: ({ row }) => row.inQty,
     },
     {
       headerName: "UoM",
       width: 100,
       field: "unit",
-      renderCell: ({ row }) => row.unit,
+      render: ({ row }) => row.unit,
     },
     {
       headerName: "Sample Qty",
       field: "sampleQty",
       width: 150,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           value={row.sampleQty}
           onChange={(e) => inputHandler("sampleQty", e.target.value, row.id)}
@@ -180,7 +181,7 @@ function SampleQC() {
       headerName: "Remark",
       field: "remark",
       width: 180,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           value={row.remark}
           placeholder="Enter Remarks..."
@@ -274,7 +275,7 @@ function SampleQC() {
       </Modal>
       <Row
         justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
+        style={{ margin:12 }}
       >
         <div>
           <Space>
@@ -341,17 +342,15 @@ function SampleQC() {
                 )
               )}{" "}
             </div>
-            <MyButton
-              variant="search"
+
+            <CustomButton
+              size="small"
               disabled={!searchInput ? true : false}
-              type="primary"
-              // loading={searchLoading}
-              onClick={getRows}
-              id="submit"
-              // className="primary-button search-wise-btn"
-            >
-              Search
-            </MyButton>
+              title="Search"
+              starticon={<Search fontSize="small" />}
+              loading={searchLoading}
+              onclick={getRows}
+            />
           </Space>
         </div>
         <Space>
@@ -362,16 +361,20 @@ function SampleQC() {
             icon={<DownloadOutlined />}
             disabled={rows.length == 0}
           />
-          <MyButton variant="reset" onClick={resetFun}>
-            Reset
-          </MyButton>
-          <Button onClick={openConfirmModal} type="primary">
-            Save Samples
-          </Button>
+          <CustomButton
+            size="small"
+            variant="outlined"
+            title={"reset"}
+            onclick={resetFun}
+          />
+          <CustomButton
+            size="small"
+            title={"Save Samples"}
+            onclick={openConfirmModal}
+          />
         </Space>
       </Row>
-      <div style={{ height: "85%", padding: "0px 10px" }}>
-        {/* <MyDataTable loading={searchLoading} columns={columns} data={rows} /> */}
+      <div style={{ height: "80%", padding: "0px 10px" }}>
         {searchLoading && <Loading />}
         <FormTable loading={searchLoading} columns={columns} data={rows} />
       </div>

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Col, Row, Input, Typography, Card, Button } from "antd";
+import { Col, Row, Input, Typography } from "antd";
 import MySelect from "../../../Components/MySelect";
 import NavFooter from "../../../Components/NavFooter";
-import { v4 } from "uuid";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { useSelector } from "react-redux";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Button } from "@mui/material";
 const { paragraph } = Typography;
 
 const { TextArea } = Input;
@@ -247,13 +248,12 @@ function MaterialTransfer({ type }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allData?.locationSel]);
   return (
-    <div style={{ height: "90vh" }}>
-      <Row gutter={10} style={{ margin: "10px" }}>
+    <div style={{ height: "90vh", margin: 12 }}>
+      <Row gutter={10}>
         <Col span={6}>
-          <Card>
+          <CustomFieldBox title={"Pick location"}>
             <Row>
               <Col span={24} style={{ padding: "5px" }}>
-                <span>PICK LOCATION</span>
                 <MySelect
                   options={locationData}
                   placeholder="Check Location"
@@ -269,10 +269,10 @@ function MaterialTransfer({ type }) {
                 <TextArea disabled value={locDetail} />
               </Col>
             </Row>
-          </Card>
+          </CustomFieldBox>
         </Col>
-        <Col span={18} style={{ height: "50vh" }}>
-          <Card style={{ height: "100%" }}>
+        <Col span={18} style={{ height: "calc(100vh - 300px)" }}>
+          <CustomFieldBox>
             <div
               style={{
                 display: "flex",
@@ -280,15 +280,14 @@ function MaterialTransfer({ type }) {
                 marginBottom: 10,
               }}
             >
-              <Button type="primary" onClick={addRow}>
-                Add Row
-              </Button>
+              <CustomButton size="small" title={"Add"} onclick={addRow} />
             </div>
             <div
               style={{
                 overflowX: "auto",
                 overflowY: "auto",
-                maxHeight: "38vh",
+                maxHeight: "calc(100vh - 300px)",
+                minHeight: "calc(100vh - 300px)",
               }}
             >
               <table
@@ -395,7 +394,9 @@ function MaterialTransfer({ type }) {
                       </td>
                       <td style={{ width: "10vw" }}>
                         <Button
-                          danger
+                          size="small"
+                          color="error"
+                          variant="outlined"
                           onClick={() => removeRow(idx)}
                           disabled={rows.length === 1}
                         >
@@ -407,7 +408,7 @@ function MaterialTransfer({ type }) {
                 </tbody>
               </table>
             </div>
-          </Card>
+          </CustomFieldBox>
         </Col>
       </Row>
       <NavFooter
