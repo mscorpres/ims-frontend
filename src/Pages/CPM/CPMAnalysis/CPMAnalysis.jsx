@@ -1,22 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Button, Input, Space, Table, Row, Col, Select, Tooltip } from "antd";
+import { useEffect, useState } from "react";
+import { Button, Input, Space, Table, Row, Col, Tooltip } from "antd";
 import { toast } from "react-toastify";
 import { downloadCSVAntTable } from "../../../Components/exportToCSV";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../axiosInterceptor";
 import { InfoCircleFilled } from "@ant-design/icons";
 import { getProjectOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
 
 export default function CPMAnalysis() {
   const [fileInfo, setFileInfo] = useState("");
   const [projectId, setProjectId] = useState("");
-  const [dateSearch, setDateSearch] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectLoading, setSelectLoaidng] = useState(false);
   const [nestedTableLoading, setNestedTableLoading] = useState(false);
   const [rows, setRows] = useState([]);
   const [detail, setDetail] = useState([]);
@@ -30,12 +28,7 @@ export default function CPMAnalysis() {
   });
 
   const { executeFun, loading } = useApi();
-  const opt = [
-    { label: "PACKING", value: "P" },
-    { label: "PART", value: "PART" },
-    { label: "OTHER", value: "O" },
-    { label: "PCB", value: "PCB" },
-  ];
+
   const getRows = async () => {
     setSearchLoading(true);
     // setDetail([]);
@@ -77,13 +70,6 @@ export default function CPMAnalysis() {
   };
 
   const columns = [
-    // {
-    //   title: "Sr. No.",
-    //   dataIndex: "serial",
-    //   key: "serial",
-    //   width: 80,
-    //   sorter: (a, b) => a.age - b.age,
-    // },
     {
       title: (
         <Row justify="center" style={{ width: "100%", textAlign: "center" }}>
@@ -432,11 +418,8 @@ export default function CPMAnalysis() {
     }
   }, [projectId]);
   return (
-    <div>
-      <Row
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
-        justify="space-between"
-      >
+    <div style={{ height: "calc(100vh - 100px)", margin: 12 }}>
+      <Row style={{}} justify="space-between">
         <Space>
           <div style={{ width: 250 }}>
             <MyAsyncSelect
@@ -451,29 +434,13 @@ export default function CPMAnalysis() {
             />
           </div>
 
-          {/* <div style={{ width: 150 }}>
-            <Select
-              style={{ width: "100%" }}
-              placeholder="Select Date"
-              options={dateData}
-              value={dataa.dateValue}
-              onChange={(e) =>
-                setData((data) => {
-                  return { ...data, dateValue: e };
-                })
-              }
-            />
-
-          </div> */}
-          <MyButton
-            variant="search"
-            type="primary"
+          <CustomButton
+            size="small"
+            title={"Search"}
+            onclick={getRows}
             loading={searchLoading}
-            onClick={getRows}
-            id="submit"
-          >
-            Search
-          </MyButton>
+            starticon={<Search fontSize="small" />}
+          />
 
           <CommonIcons
             action="downloadButton"
@@ -497,8 +464,6 @@ export default function CPMAnalysis() {
               disabled={fileInfo === ""}
             />
           </Tooltip>
-          {/* <InfoCircleFilled style={{ fontSize: "30px", }} /> */}
-          {/* </Button> */}
         </Space>
         <Col span={4}>
           <Input
@@ -507,7 +472,7 @@ export default function CPMAnalysis() {
           />
         </Col>
       </Row>
-      <div style={{ padding: "0px 10px" }}>
+      <div style={{ marginTop: 12 }}>
         <Table
           bordered={true}
           columns={columns}
