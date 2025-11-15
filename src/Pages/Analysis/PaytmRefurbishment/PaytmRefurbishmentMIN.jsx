@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
 import {
-  Col,
-  Descriptions,
-  Divider,
   Form,
   Input,
-  Row,
   Switch,
-  Typography,
 } from "antd";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -21,6 +16,7 @@ import ResetConfirmModal from "./ResetConfirmModal copy";
 import { getProductsOptions, getVendorOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox.jsx";
 
 function PaytmRefurbishmentMIN() {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -172,7 +168,7 @@ function PaytmRefurbishmentMIN() {
   }, [imeiArr]);
 
   return (
-    <div style={{ height: "90%", padding: 30, marginBottom: 100 }}>
+    <div style={{ height: "90%", margin: 12 }}>
       {loading === "page" && <Loading />}
       <SubmitConfirmModal
         open={submitConfirmModal}
@@ -185,219 +181,143 @@ function PaytmRefurbishmentMIN() {
         handleCancel={() => setResetConfirmModal(false)}
         resetHandler={resetHandler}
       />
-      <Form form={minForm} onFinish={validateHandler} layout="vertical">
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="Vendor Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+      <Form form={minForm} onFinish={validateHandler} layout="vertical"  >
+        <div className="grid grid-cols-2 max-h-[calc(100vh-175px)]  overflow-y-scroll" style={{ gap: 12, padding:1 }}>
+          <CustomFieldBox title={"Vendor Details"}>
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                label="Vendor"
+                name="vendor"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a vendor!",
+                  },
+                ]}
               >
-                Provide Vendor Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={6}>
-              <Col span={8}>
-                <Form.Item
-                  label="Vendor"
-                  name="vendor"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select a vendor!",
-                    },
-                  ]}
-                >
-                  <MyAsyncSelect
-                    loadOptions={getVendorOption}
-                    optionsState={asyncOptions}
-                    loading={loading1("select")}
-                    onChange={getVendorBranchOptions}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="Vendor Branch"
-                  name="vendorBranch"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select a vendor branch!",
-                    },
-                  ]}
-                >
-                  <MySelect
-                    onChange={getVendorBranchAddress}
-                    options={vendorBranchOptions}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={16}>
-                <Form.Item label="Vendor Address" name="vendorAddress">
-                  <Input.TextArea disabled rows={4} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="Product Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+                <MyAsyncSelect
+                  loadOptions={getVendorOption}
+                  optionsState={asyncOptions}
+                  loading={loading1("select")}
+                  onChange={getVendorBranchOptions}
+                />
+              </Form.Item>{" "}
+              <Form.Item
+                label="Vendor Branch"
+                name="vendorBranch"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a vendor branch!",
+                  },
+                ]}
               >
-                Provide Product Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row>
-              <Col span={16}>
-                <Row justify="end">
-                  <Col span={2} style={{ marginBottom: -40 }}>
-                    <Form.Item label="Map IMEI" name="mapImei">
-                      <Switch />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-            <Row gutter={6}>
-              <Col span={8}>
-                <Form.Item
-                  label="Component"
-                  name="component"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select a component!",
-                    },
-                  ]}
-                >
-                  <MyAsyncSelect
-                    loadOptions={getComponentOptions}
-                    optionsState={asyncOptions}
-                    loading={loading === "select"}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={4}>
-                <Form.Item
-                  label="Qty"
-                  name="qty"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter component quantity!",
-                    },
-                  ]}
-                >
-                  <Input placeholder="0" onChange={inputHandler} />
-                </Form.Item>
-              </Col>
-              <Col span={4}>
-                <Form.Item
-                  label="Rate"
-                  name="rate"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter component rate!",
-                    },
-                  ]}
-                >
-                  <Input placeholder="0" onChange={inputHandler} />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={4}>
-                <Form.Item label="Total Value" name="totalValue">
-                  <Input bordered={false} disabled />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row>
-          <Col span={4}>
-            <Descriptions size="small" title="Other Details">
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+                <MySelect
+                  onChange={getVendorBranchAddress}
+                  options={vendorBranchOptions}
+                />
+              </Form.Item>
+            </div>
+            <Form.Item label="Vendor Address" name="vendorAddress">
+              <Input.TextArea disabled rows={4} />
+            </Form.Item>
+          </CustomFieldBox>
+          <CustomFieldBox title={"Product Details"}>
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item label="Map IMEI" name="mapImei">
+                <Switch />
+              </Form.Item>{" "}
+              <Form.Item
+                label="Component"
+                name="component"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please select a component!",
+                  },
+                ]}
               >
-                Provide some other Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={6}>
-              <Col span={8}>
-                <Form.Item
-                  label="Challan Number"
-                  name="challanNumber"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter the challan number!",
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="E-way bill Number"
-                  name="eWayBillNumber"
-                  // rules={[
-                  //   {
-                  //     required: true,
-                  //     message: "Please enter E-way bill Number!",
-                  //   },
-                  // ]}
-                >
-                  <Input
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        console.log(e.target.value);
-                        setImeiArr((arr) => [...arr, e.target.value]);
-                      }
-                    }}
-                    onChange={(e) => {
-                      setimeiInput(e.target.value);
-                    }}
-                    value={imeiInputm}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={16}>
-                <Form.Item label="Remarks" name="remarks">
-                  <Input.TextArea
-                    rows={4}
-                    onChange={(e) =>
-                      setImeiArr((arr) => [...arr, e.target.value])
+                <MyAsyncSelect
+                  loadOptions={getComponentOptions}
+                  optionsState={asyncOptions}
+                  loading={loading === "select"}
+                />
+              </Form.Item>{" "}
+              <Form.Item
+                label="Qty"
+                name="qty"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter component quantity!",
+                  },
+                ]}
+              >
+                <Input placeholder="0" onChange={inputHandler} />
+              </Form.Item>{" "}
+              <Form.Item
+                label="Rate"
+                name="rate"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter component rate!",
+                  },
+                ]}
+              >
+                <Input placeholder="0" onChange={inputHandler} />
+              </Form.Item>{" "}
+              <Form.Item label="Total Value" name="totalValue">
+                <Input bordered={false} disabled />
+              </Form.Item>
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox title={"Other Details"}>
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                label="Challan Number"
+                name="challanNumber"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter the challan number!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>{" "}
+              <Form.Item
+                label="E-way bill Number"
+                name="eWayBillNumber"
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Please enter E-way bill Number!",
+                //   },
+                // ]}
+              >
+                <Input
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      console.log(e.target.value);
+                      setImeiArr((arr) => [...arr, e.target.value]);
                     }
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
+                  }}
+                  onChange={(e) => {
+                    setimeiInput(e.target.value);
+                  }}
+                  value={imeiInputm}
+                />
+              </Form.Item>
+            </div>
+            <Form.Item label="Remarks" name="remarks">
+              <Input.TextArea
+                rows={4}
+                onChange={(e) => setImeiArr((arr) => [...arr, e.target.value])}
+              />
+            </Form.Item>
+          </CustomFieldBox>
+        </div>
       </Form>
       <NavFooter
         resetFunction={() => setResetConfirmModal(true)}

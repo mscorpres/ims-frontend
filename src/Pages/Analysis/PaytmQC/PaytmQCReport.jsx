@@ -4,18 +4,24 @@ import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import { v4 } from "uuid";
-import MyDataTable from "../../../Components/MyDataTable";
-import TableActions, {
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import  {
   CommonIcons,
 } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import PaytmQCUpload from "./PaytmQCUpload";
-import { useEffect } from "react";
 import PaytmQCUpdate from "./PaytmQCUpdate";
 import PaytmGraph from "./PaytmGraph";
 import { BarChartOutlined } from "@ant-design/icons";
-import MyButton from "../../../Components/MyButton";
+
+import { Box, IconButton, LinearProgress } from "@mui/material";
+import { Edit, Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 export default function PaytmQCReport() {
   const [searchDate, setSearchData] = useState("");
@@ -88,122 +94,151 @@ export default function PaytmQCReport() {
 
   const columns = [
     {
-      headerName: "Action",
-      type: "actions",
-      width: 100,
-      getActions: ({ row }) => [
-        // Edit icon
-        <TableActions
-          action="edit"
-          onClick={() => setUpdatingQC(row.imei_no)}
-        />,
-      ],
-    },
-    {
-      field: "date",
-      headerName: "Date",
+      accessorKey: "date",
+      header: "Date",
       // renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
       width: 100,
     },
     {
-      headerName: "QC Result",
-      field: "qc_result",
+      header: "QC Result",
+      accessorKey: "qc_result",
       width: 100,
     },
     {
-      headerName: "Category",
-      field: "category",
+      header: "Category",
+      accessorKey: "category",
       renderCell: ({ row }) => <ToolTipEllipses text={row.category} />,
       width: 150,
     },
     {
-      headerName: "Issue Observe",
-      field: "issue_observe",
+      header: "Issue Observe",
+      accessorKey: "issue_observe",
       renderCell: ({ row }) => <ToolTipEllipses text={row.issue_observe} />,
       width: 180,
     },
     {
-      headerName: "IMEI No.",
-      field: "imei_no",
+      header: "IMEI No.",
+      accessorKey: "imei_no",
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.imei_no} copy={true} />
       ),
       width: 180,
     },
     {
-      headerName: "SKU Code",
-      field: "sku_code",
+      header: "SKU Code",
+      accessorKey: "sku_code",
       width: 120,
     },
     {
-      headerName: "Device Type",
-      field: "device_type",
+      header: "Device Type",
+      accessorKey: "device_type",
       renderCell: ({ row }) => <ToolTipEllipses text={row.device_type} />,
       width: 180,
     },
     {
-      headerName: "Defect Type",
-      field: "defects_type",
+      header: "Defect Type",
+      accessorKey: "defects_type",
       renderCell: ({ row }) => <ToolTipEllipses text={row.defects_type} />,
       width: 150,
     },
     {
-      headerName: "Actual Problem Name",
-      field: "actual_problems",
+      header: "Actual Problem Name",
+      accessorKey: "actual_problems",
       renderCell: ({ row }) => <ToolTipEllipses text={row.actual_problems} />,
       width: 150,
     },
     {
-      headerName: "Correction By Santosh",
-      field: "correction_by",
+      header: "Correction By Santosh",
+      accessorKey: "correction_by",
       renderCell: ({ row }) => <ToolTipEllipses text={row.correction_by} />,
       width: 150,
     },
     {
-      headerName: "Status After Correction",
-      field: "after_correction_status",
+      header: "Status After Correction",
+      accessorKey: "after_correction_status",
       renderCell: ({ row }) => (
         <ToolTipEllipses text={row.after_correction_status} />
       ),
       width: 150,
     },
     {
-      headerName: "Reason of Accurance",
-      field: "remark",
+      header: "Reason of Accurance",
+      accessorKey: "remark",
       renderCell: ({ row }) => <ToolTipEllipses text={row.remark} />,
       width: 250,
     },
   ];
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+
+    renderRowActions: ({ row }) => (
+      <IconButton
+        color="inherit"
+        size="small"
+        onClick={() => {
+          () => setUpdatingQC(row.imei_no);
+        }}
+      >
+        <Edit fontSize="small" />
+      </IconButton>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: searchLoading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      searchLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
-    <div style={{ height: "90%", position: "relative" }}>
+    <div style={{ height: "90%", position: "relative", margin: 12 }}>
       <PaytmQCUpdate
         getRows={getRows}
         updatingQC={updatingQC}
         setUpdatingQC={setUpdatingQC}
       />
-      <Row
-        justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
-      >
+      <Row justify="space-between">
         <Col>
           <Space>
             <div style={{ width: 300 }}>
               <MyDatePicker setDateRange={setSearchData} spacedFormat={true} />
             </div>
             <Space>
-              <MyButton
-                variant="search"
-                disabled={searchDate === ""}
-                type="primary"
+              <CustomButton
+                size="small"
+                title={"Search"}
+                starticon={<Search fontSize="small" />}
                 loading={searchLoading}
-                onClick={getRows}
-              >
-                Search
-              </MyButton>
-              <Button onClick={() => setShowUploadDoc(true)} type="primary">
-                Upload Paytm QC
-              </Button>
+                onclick={getRows}
+              />
+
+              <CustomButton
+                size="small"
+                title={"Upload Paytm QC"}
+                onclick={() => setShowUploadDoc(true)}
+              />
               <Button
                 disabled={chartData.length === 0}
                 onClick={() => setShowGraph(true)}
@@ -237,8 +272,8 @@ export default function PaytmQCReport() {
         searchDate={searchDate}
         totalChartData={totalChartData}
       />
-      <div style={{ height: "95%", padding: "0px 10px" }}>
-        <MyDataTable loading={searchLoading} data={rows} columns={columns} />
+      <div style={{ height: "95%", marginTop:12 }}>
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

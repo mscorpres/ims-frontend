@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Col, Descriptions, Input, Row, Form, Divider, Switch } from "antd";
+import {  Input, Form, } from "antd";
 import MySelect from "../../Components/MySelect";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { imsAxios } from "../../axiosInterceptor";
 import SingleDatePicker from "../../Components/SingleDatePicker";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox";
 
 const HeaderDetails = ({ form, setTcsOptions, loading, setLoading }) => {
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -176,279 +177,155 @@ const HeaderDetails = ({ form, setTcsOptions, loading, setLoading }) => {
         height: "100%",
         overflowY: "scroll",
         overflowX: "hidden",
-        padding: "0vh 20px",
+        padding: "2px 12px",
       }}
     >
-      <Row gutter={12}>
-        <Col span={4}>
-          <Descriptions size="small" title="Client Details">
-            <Descriptions.Item
-              contentStyle={{
-                fontSize: window.innerWidth < 1600 && "0.7rem",
-              }}
+      <div className="grid grid-cols-2" style={{ gap: 12 }}>
+        <CustomFieldBox title={"Client Details"}>
+          <div className="grid grid-cols-2" style={{ gap: 12 }}>
+            <Form.Item name="client" label="Client" rules={rules.client}>
+              <MyAsyncSelect
+                selectLoading={selectLoading}
+                loadOptions={getClientOptions}
+                onBlur={() => setAsyncOptions([])}
+                optionsState={asyncOptions}
+                labelInValue
+              />
+            </Form.Item>{" "}
+            <Form.Item label="Location" name="location" rules={rules.location}>
+              <MySelect
+                options={locationArr}
+                placeholder="Select Location"
+                labelInValue
+              />
+            </Form.Item>{" "}
+            <Form.Item
+              label="City"
+              name="billingCity"
+              rules={rules.billingCity}
             >
-              Provide Client Details
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
-        <Col span={20}>
-          <Row gutter={16}>
-            <Col span={5}>
-              <Form.Item name="client" label="Client" rules={rules.client}>
-                <MyAsyncSelect
-                  selectLoading={selectLoading}
-                  loadOptions={getClientOptions}
-                  onBlur={() => setAsyncOptions([])}
-                  optionsState={asyncOptions}
-                  labelInValue
-                />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <Form.Item
-                label="Location"
-                name="location"
-                rules={rules.location}
-              >
-                <MySelect
-                  options={locationArr}
-                  placeholder="Select Location"
-                  labelInValue
-                />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item
-                label="City"
-                name="billingCity"
-                rules={rules.billingCity}
-              >
-                <Input disabled />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <Form.Item
-                label="Email"
-                name="billingEmail"
-                rules={rules.billingEmail}
-              >
-                <Input disabled />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item
-                label="Mobile"
-                name="billingMobile"
-                rules={rules.billingMobile}
-              >
-                <Input disabled />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={4}>
-              <Form.Item
-                label="GSTIN"
-                name="billingGst"
-                rules={rules.billingGst}
-              >
-                <Input disabled />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item
-                label="Address"
-                name="billingAddress"
-                rules={rules.billingAddress}
-              >
-                <Input disabled />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item label="PAN" name="billingPan" rules={rules.billingPan}>
-                <Input disabled />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-      <Divider />
-      <Row gutter={12}>
-        <Col span={4}>
-          <Descriptions size="small" title="Transport Details">
-            <Descriptions.Item
-              contentStyle={{
-                fontSize: window.innerWidth < 1600 && "0.7rem",
-              }}
+              <Input disabled />
+            </Form.Item>{" "}
+            <Form.Item
+              label="Email"
+              name="billingEmail"
+              rules={rules.billingEmail}
             >
-              Provide Transport Details
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
-
-        <Col span={20}>
-          <Row gutter={16}>
-            <Col span={4}>
-              <Form.Item name="modeOfTransport" label="Mode Of Transport">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="destination" label="Destination of Supply">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="transportCompany" label="Transport Company">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="roadPermit" label="G.R No. & Date (Road Permit)">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={7}>
-              <Form.Item name="deliveryNote" label="Delivery Note">
-                <Input />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={4}>
-              <Form.Item name="deliveryNoteDate" label="Delivery Note Date">
-                <SingleDatePicker
-                  // value={deliveryNoteDate}
-                  setDate={(value) =>
-                    form.setFieldValue("deliveryNoteDate", value)
-                  }
-                />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="vehicleNo" label="Vehicle Number">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="dispatchDocNo" label="Dispatch Doc. Number">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="termsDelivery" label="Terms Of Delivery">
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col span={4}>
-              <Form.Item name="salesPerson" label="Sales Person">
-                <Input />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-      <Divider />
-      <Row gutter={12}>
-        <Col span={4}>
-          <Descriptions size="small" title=" Buyer Details">
-            <Descriptions.Item
-              contentStyle={{
-                fontSize: window.innerWidth < 1600 && "0.7rem",
-              }}
+              <Input disabled />
+            </Form.Item>{" "}
+            <Form.Item
+              label="Mobile"
+              name="billingMobile"
+              rules={rules.billingMobile}
             >
-              Provide Buyer Details
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
-        <Col span={4}>
-          <Form.Item name="buyerOrderNo" label="Buyer's Order Number.">
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col span={4}>
-          <Form.Item name="buyerOrderDate" label="Buyer's Order Date">
-            <SingleDatePicker
-              // value={invoiceDate}
-              setDate={(value) => form.setFieldValue("buyerOrderDate", value)}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={4}>
-          <Form.Item name="modeOfPayment" label="Mode Of Payment">
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col span={4}>
-          <Form.Item name="ponumber" label="Po Number & Date">
-            <Input />
-          </Form.Item>
-        </Col>
-        <Col span={4}>
-          <Form.Item name="otherReferences" label="Other References">
-            <Input />
-          </Form.Item>
-        </Col>
-      </Row>
-      <Divider />
-      <Row>
-        <Col span={4}>
-          <Descriptions size="small" title="Shiping Details">
-            <Descriptions.Item
-              contentStyle={{
-                fontSize: window.innerWidth < 1600 && "0.7rem",
-              }}
+              <Input disabled />
+            </Form.Item>{" "}
+            <Form.Item label="GSTIN" name="billingGst" rules={rules.billingGst}>
+              <Input disabled />
+            </Form.Item>{" "}
+            <Form.Item
+              label="Address"
+              name="billingAddress"
+              rules={rules.billingAddress}
             >
-              <Col span={24}>
-                Same as Billing address{" "}
-                <Switch disabled={!client} onChange={handleToggleCheck} />
-              </Col>
-            </Descriptions.Item>
-          </Descriptions>
-        </Col>
-
-        <Row gutter={12}>
-          <Col span={4}>
+              <Input disabled />
+            </Form.Item>{" "}
+            <Form.Item label="PAN" name="billingPan" rules={rules.billingPan}>
+              <Input disabled />
+            </Form.Item>
+          </div>
+        </CustomFieldBox>
+        <CustomFieldBox title={"Transport Details"}>
+          <div className="grid grid-cols-2" style={{ gap: 12 }}>
+            <Form.Item name="modeOfTransport" label="Mode Of Transport">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="destination" label="Destination of Supply">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="transportCompany" label="Transport Company">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="roadPermit" label="G.R No. & Date (Road Permit)">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="deliveryNote" label="Delivery Note">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="deliveryNoteDate" label="Delivery Note Date">
+              <SingleDatePicker
+                // value={deliveryNoteDate}
+                setDate={(value) =>
+                  form.setFieldValue("deliveryNoteDate", value)
+                }
+              />
+            </Form.Item>{" "}
+            <Form.Item name="vehicleNo" label="Vehicle Number">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="dispatchDocNo" label="Dispatch Doc. Number">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="termsDelivery" label="Terms Of Delivery">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="salesPerson" label="Sales Person">
+              <Input />
+            </Form.Item>
+          </div>
+        </CustomFieldBox>
+        <CustomFieldBox title={"Buyer Details"}>
+          <div className="grid grid-cols-2" style={{ gap: 12 }}>
+            <Form.Item name="buyerOrderNo" label="Buyer's Order Number.">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="buyerOrderDate" label="Buyer's Order Date">
+              <SingleDatePicker
+                // value={invoiceDate}
+                setDate={(value) => form.setFieldValue("buyerOrderDate", value)}
+              />
+            </Form.Item>{" "}
+            <Form.Item name="modeOfPayment" label="Mode Of Payment">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="ponumber" label="Po Number & Date">
+              <Input />
+            </Form.Item>{" "}
+            <Form.Item name="otherReferences" label="Other References">
+              <Input />
+            </Form.Item>
+          </div>
+        </CustomFieldBox>
+        <CustomFieldBox title={"Same as Billing address"}>
+          <div className="grid grid-cols-2" style={{ gap: 12 }}>
             <Form.Item name="shippingName" label="Name">
               <Input disabled={toggleCheck} />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
+            </Form.Item>{" "}
             <Form.Item name="shippingState" label="State">
               <MySelect
                 labelInValue
                 disabled={toggleCheck}
                 options={stateOptions}
               />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
+            </Form.Item>{" "}
             <Form.Item name="shippingCity" label="City">
               <Input disabled={toggleCheck} />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
+            </Form.Item>{" "}
             <Form.Item name="shippingPin" label="PinCode">
               <Input disabled={toggleCheck} />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
+            </Form.Item>{" "}
             <Form.Item name="shippingGst" label="GST">
               <Input disabled={toggleCheck} />
-            </Form.Item>
-          </Col>
-          <Col span={4}>
+            </Form.Item>{" "}
             <Form.Item name="shippingPan" label="Pan">
               <Input disabled={toggleCheck} />
             </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item name="shippingAddress" label="Address">
-              <Input.TextArea disabled={toggleCheck} />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Row>
+          </div>
+          <Form.Item name="shippingAddress" label="Address">
+            <Input.TextArea disabled={toggleCheck} />
+          </Form.Item>
+        </CustomFieldBox>
+      </div>
     </div>
   );
 };

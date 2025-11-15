@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Card, Col, Flex, Form, Input, Modal, Row, Upload } from "antd";
+//@ts-ignore
 import MyButton from "@/Components/MyButton";
+//@ts-ignore
 import ToolTipEllipses from "@/Components/ToolTipEllipses.jsx";
+//@ts-ignore
 import MyDataTable from "@/Components/MyDataTable.jsx";
 import ProductDocuments from "@/Pages/R&D/products/documents";
 import useApi from "@/hooks/useApi";
@@ -11,11 +14,24 @@ import { ModalType, SelectOptionType } from "@/types/general";
 import { ProductType } from "@/types/r&d";
 import { getCostCentresOptions, getProjectOptions } from "@/api/general";
 import { convertSelectOptions } from "@/utils/general";
+//@ts-ignore
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
 import UpdateProduct from "@/Pages/R&D/products/UpdateProduct";
+//@ts-ignore
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+//@ts-ignore
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+//@ts-ignore
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import { Update, Visibility } from "@mui/icons-material";
 
 export default function Products() {
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState<any>([]);
   const [rdsfg, setRdsfg] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDocs, setShowDocs] = useState(false);
@@ -32,10 +48,10 @@ export default function Products() {
     setRdsfg(response.newSkuCode);
     setRows(response.data ?? [])
       .filter(
-        (row:any) => row.approvalStage !== "PEN"
+        (row: any) => row.approvalStage !== "PEN"
         // || row.approvalStage === "1"
       )
-      .map((row, index) => ({
+      .map((row: any, index: any) => ({
         ...row,
         id: index + 1,
       }));
@@ -98,16 +114,16 @@ export default function Products() {
       headerName: "",
       type: "actions",
       width: 30,
-      getActions: ({ row }: { row: ProductType }) => [
+      getActions: ({ row }: { row: any }) => [
         <GridActionsCellItem
-        showInMenu
-        placeholder="Update"
-        label={"Update"}
-        onClick={() => {
-          setUpdateModal(true);
-          setSelectedProduct(row);
-        }}
-      />,
+          showInMenu
+          placeholder="Update"
+          label={"Update"}
+          onClick={() => {
+            setUpdateModal(true);
+            setSelectedProduct(row);
+          }}
+        />,
         <GridActionsCellItem
           showInMenu
           placeholder="See Attachments"
@@ -133,8 +149,68 @@ export default function Products() {
     });
   };
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }: { row: any }) => (
+      <div>
+        <Tooltip title="Update">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={() => {
+              setUpdateModal(true);
+              setSelectedProduct(row?.original);
+            }}
+          >
+            <Update fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="See Attachments">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={() => {
+              setShowDocs(true);
+              setSelectedProduct(row?.original);
+            }}
+          >
+            <Visibility fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </div>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch") || loading("submit") ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("submit") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <Row gutter={6} style={{ padding: 5, height: "95%" }} justify="center">
+    <Row gutter={6} style={{ margin: 12, height: "95%" }} justify="center">
       <ConfirmModal
         show={showConfirm}
         hide={() => setShowConfirm(false)}
@@ -157,8 +233,16 @@ export default function Products() {
         handleFetchProductList={handleFetchProductList}
       />
 
-      <Col span={6} xxl={4} style={{ height: "100%", overflow: "auto" }}>
-        <Card size="small" title={"Add New Product"}>
+      <Col
+        span={6}
+        xxl={4}
+        style={{
+          height: "calc(100% - 50px)",
+          overflow: "auto",
+          padding: "2px 4px",
+        }}
+      >
+        <CustomFieldBox title="Add New Product">
           <Form initialValues={initialValues} form={form} layout="vertical">
             <Row gutter={[0, 6]}>
               <Col span={24}>
@@ -171,10 +255,8 @@ export default function Products() {
                 </Form.Item>
               </Col>
               <Col span={24}>
-                <Form.Item
-                  label="Product SKU"
-                >
-                  <Input value={rdsfg} disabled/>
+                <Form.Item label="Product SKU">
+                  <Input value={rdsfg} disabled />
                 </Form.Item>
               </Col>
               <Col span={24}>
@@ -259,30 +341,30 @@ export default function Products() {
               <Col span={24}>
                 <Flex justify="center" gap={5}>
                   <Form.Item>
-                    <MyButton onClick={showCofirmModal} variant="reset">
-                      Reset
-                    </MyButton>
+                    <CustomButton
+                      size="small"
+                      onclick={showCofirmModal}
+                      variant="outlined"
+                      title={"reset"}
+                    />
                   </Form.Item>
                   <Form.Item>
-                    <MyButton
+                    <CustomButton
+                      size="small"
+                      onclick={validateHandler}
+                      title={"submit"}
                       loading={loading("submit") || loading("fetch")}
-                      type="primary"
-                      variant="submit"
-                      onClick={validateHandler}
                     />
                   </Form.Item>
                 </Flex>
               </Col>
             </Row>
           </Form>
-        </Card>
+        </CustomFieldBox>
       </Col>
       <Col span={20} xl={18} xxl={16}>
-        <MyDataTable
-          columns={[...actionColumns, ...columns]}
-          data={rows}
-          loading={loading("fetch") || loading("submit")}
-        />
+       
+        <MaterialReactTable table={table} />
       </Col>
     </Row>
   );
@@ -332,42 +414,42 @@ const rules = {
 };
 
 const columns = [
-  { headerName: "#", field: "id", width: 30 },
+  { header: "#", accessorKey: "id", width: 30 },
   {
-    headerName: "Product Name",
-    field: "name",
+    header: "Product Name",
+    accessorKey: "name",
     flex: 1,
-    renderCell: ({ row }: { row: ProductType }) => (
+    render: ({ row }: { row: ProductType }) => (
       <ToolTipEllipses text={row.name} />
     ),
   },
   {
-    headerName: "SKU",
-    field: "sku",
+    header: "SKU",
+    accessorKey: "sku",
     width: 100,
-    renderCell: ({ row }: { row: ProductType }) => (
+    render: ({ row }: { row: ProductType }) => (
       <ToolTipEllipses text={row.sku} copy={true} />
     ),
   },
   {
-    headerName: "Unit",
-    field: "unit",
+    header: "Unit",
+    accessorKey: "unit",
     width: 80,
   },
   {
-    headerName: "Cost Center",
-    field: "costCenter",
+    header: "Cost Center",
+    accessorKey: "costCenter",
     width: 150,
   },
   {
-    headerName: "Project",
-    field: "project",
+    header: "Project",
+    accessorKey: "project",
     width: 150,
   },
   {
-    headerName: "Approval Stage",
-    field: "approvalStage",
-    renderCell: ({ row }: { row: ProductType }) => (
+    header: "Approval Stage",
+    accessorKey: "approvalStage",
+    render: ({ row }: { row: any }) => (
       <ToolTipEllipses
         text={
           row?.approvalStage == "PEN"
@@ -383,13 +465,13 @@ const columns = [
   },
 
   {
-    headerName: "Created By",
-    field: "createdBy",
+    header: "Created By",
+    accessorKey: "createdBy",
     width: 180,
   },
   {
-    headerName: "Created At",
-    field: "createdDate",
+    header: "Created At",
+    accessorKey: "createdDate",
     width: 120,
   },
 ];

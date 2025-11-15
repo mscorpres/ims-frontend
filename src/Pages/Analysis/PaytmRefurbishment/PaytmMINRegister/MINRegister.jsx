@@ -16,13 +16,20 @@ import MyDatePicker from "../../../../Components/MyDatePicker";
 import MySelect from "../../../../Components/MySelect";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
-import MyDataTable from "../../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { convertSelectOptions } from "../../../../utils/general";
 import { getVendorOptions } from "../../../../api/general";
 import useApi from "../../../../hooks/useApi.ts";
-import MyButton from "../../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
 
 function MINRegister() {
   const [wise, setWise] = useState("datewise");
@@ -132,54 +139,47 @@ function MINRegister() {
     }
   };
   const columns = [
-    { headerName: "S. No.", width: 60, field: "index" },
-    { headerName: "SKU", width: 100, field: "sku" },
+    { header: "S. No.", width: 60, accessorKey: "index" },
+    { header: "SKU", width: 100, accessorKey: "sku" },
     {
-      headerName: "MIN ID",
+      header: "MIN ID",
       width: 150,
-      field: "txn",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.txn} copy={true} />,
+      accessorKey: "txn",
+      render: ({ row }) => <ToolTipEllipses text={row.txn} copy={true} />,
     },
     {
-      headerName: "Component",
+      header: "Component",
       width: 180,
-      field: "product",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
+      accessorKey: "product",
+      render: ({ row }) => <ToolTipEllipses text={row.product} />,
     },
     {
-      headerName: "Vendor Code",
+      header: "Vendor Code",
       width: 120,
-      field: "vcode",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vcode} copy={true} />,
+      accessorKey: "vcode",
+      render: ({ row }) => <ToolTipEllipses text={row.vcode} copy={true} />,
     },
     {
-      headerName: "Vendor",
+      header: "Vendor",
       width: 180,
-      field: "vname",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vname} />,
+      accessorKey: "vname",
+      render: ({ row }) => <ToolTipEllipses text={row.vname} />,
     },
-    { headerName: "Qty", width: 120, field: "qty" },
-    { headerName: "UoM", width: 80, field: "uom" },
+    { header: "Qty", width: 120, accessorKey: "qty" },
+    { header: "UoM", width: 80, accessorKey: "uom" },
     {
-      headerName: "In Date",
+      header: "In Date",
       width: 150,
-      field: "indt",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.indt} />,
+      accessorKey: "indt",
+      render: ({ row }) => <ToolTipEllipses text={row.indt} />,
     },
     {
-      headerName: "In By",
+      header: "In By",
       width: 150,
-      field: "inby",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.inby} />,
+      accessorKey: "inby",
+      render: ({ row }) => <ToolTipEllipses text={row.inby} />,
     },
-    {
-      headerName: "Actions",
-      type: "actions",
-      width: 80,
-      getActions: ({ row }) => [
-        <TableActions action="scan" onClick={() => fetchIMEINumbers(row)} />,
-      ],
-    },
+
   ];
 
   useEffect(() => {
@@ -188,8 +188,47 @@ function MINRegister() {
   useEffect(() => {
     setImeiArr([]);
   }, [scanningMIN]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+     enableRowActions: true,
+    
+        renderRowActions: ({ row }) => (
+         <CustomButton size="small" title={"scan"}  variant="text" onclick={() => fetchIMEINumbers(row)}/>
+        ),
+
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%", margin: 12 }}>
       <Modal
         title="Submit Confirm"
         open={submitConfirm}
@@ -202,10 +241,7 @@ function MINRegister() {
           MIN {scanningMIN}?
         </p>
       </Modal>
-      <Row
-        justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
-      >
+      <Row justify="space-between">
         <Col>
           <Space>
             <div style={{ width: 150 }}>
@@ -247,35 +283,34 @@ function MINRegister() {
                 />
               )}
             </div>
-            <MyButton
-              variant="search"
+
+            <CustomButton
               disabled={
                 !wise || !searchInput || searchInput === "" ? true : false
               }
-              type="primary"
+              size="small"
+              title={"Search"}
+              starticon={<Search fontSize="small" />}
               loading={loading === "fetch"}
-              onClick={getRows}
-              id="submit"
-            >
-              Search
-            </MyButton>
-          </Space>
-        </Col>
-        {/* <Col>
-          <Space>
-            <CommonIcons
-              action="downloadButton"
-              onClick={() => downloadCSV(rows, columns, "Pending PO Report")}
-              disabled={rows.length == 0}
+              onclick={getRows}
             />
           </Space>
-        </Col> */}
-      </Row>
-      <Row gutter={6} style={{ height: "95%", padding: "0px 10px" }}>
-        <Col span={18} style={{ height: "100%" }}>
-          <MyDataTable columns={columns} rows={rows} />
         </Col>
-        <Col span={6} style={{ height: "100%" }}>
+      </Row>
+
+      <Row gutter={6} style={{ height: "95%" }}>
+        <Col span={18} style={{ height: "100%", marginTop: 12 }}>
+          <MaterialReactTable table={table} />
+        </Col>
+        <Col
+          span={6}
+          style={{
+            maxHeight: "calc(100% - 30px)",
+            overflow: "auto",
+            padding: "2px 8px",
+            marginTop: 12,
+          }}
+        >
           <input
             ref={hiddenImeiInputRef}
             style={{
@@ -299,18 +334,17 @@ function MINRegister() {
             value={imeiInput}
             onChange={(e) => setImeiInput(e.target.value)}
           />
-          <Card onClick={() => hiddenImeiInputRef.current.focus()} size="small">
-            <Typography.Text style={{ fontWeight: 600 }}>{`Scanning MIN : ${
+          <CustomFieldBox>
+            <Typography.Text
+              onClick={() => hiddenImeiInputRef.current.focus()}
+              style={{ fontWeight: 600 }}
+            >{`Scanning MIN : ${
               scanningMIN ? scanningMIN : ""
             }`}</Typography.Text>
-          </Card>
-          <Row style={{ height: "93%" }}>
-            <Card
-              size="small"
-              style={{ width: "100%", height: 150 }}
-              bodyStyle={{ width: "100%", height: "100%" }}
-            >
-              <Col span={24}>
+          </CustomFieldBox>
+          <Row style={{ height: "93%", width: "100%" }}>
+            <Col span={24} style={{ marginTop: 12 }}>
+              <CustomFieldBox>
                 <Row gutter={[4, 8]}>
                   <Col span={12}>
                     {scanningMIN && (
@@ -382,14 +416,10 @@ function MINRegister() {
                     )}
                   </Col>
                 </Row>
-              </Col>
-            </Card>
+              </CustomFieldBox>
+            </Col>
             <Col span={24}>
-              <Card
-                size="small"
-                style={{ height: "100%" }}
-                bodyStyle={{ height: "100%" }}
-              >
+              <CustomFieldBox>
                 <Col style={{ overflow: "auto", height: "93%" }} span={24}>
                   {imeiArr.map((imei) => (
                     <Row>
@@ -399,16 +429,18 @@ function MINRegister() {
                     </Row>
                   ))}
                 </Col>
-              </Card>
+              </CustomFieldBox>
+            </Col>
+
+            <Col span={24}>
               <Col span={24}>
                 <Row justify="end">
-                  <Button
-                    onClick={validateHandler}
+                  <CustomButton
+                    size="small"
+                    title={"Submit"}
+                    onclick={validateHandler}
                     disabled={imeiArr.length === 0}
-                    type="primary"
-                  >
-                    Submit
-                  </Button>
+                  />
                 </Row>
               </Col>
             </Col>

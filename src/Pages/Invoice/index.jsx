@@ -255,19 +255,18 @@ const CreateInvoice = () => {
       >
         <Tabs
           style={{
-            padding: "0 5px",
             height: "100%",
           }}
           activeKey={activeTab}
           size="small"
           onChange={(e) => onChangeTab(e)}
           tabBarExtraContent={
-            <Button type="primary" onClick={() => setShowMapInvoice(true)}>
+            <Button type="primary" style={{margin: "0px 10px 10px 0px"}} onClick={() => setShowMapInvoice(true)}>
               Map Invoice
             </Button>
           }
         >
-          <Tabs.TabPane tab="Billing Details" key="1" style={{ height: "95%" }}>
+          <Tabs.TabPane tab="" key="1" style={{ maxHeight: "calc(100% - 50px)", overflow:"auto"}}>
             <HeaderDetails
               setTcsOptions={setTcsOptions}
               form={invoiceForm}
@@ -275,7 +274,7 @@ const CreateInvoice = () => {
               setLoading={setLoading}
             />
           </Tabs.TabPane>
-          <Tabs.TabPane tab="Product Details" style={{ height: "95%" }} key="2">
+          <Tabs.TabPane tab="" style={{ height: "95%" }} key="2">
             <Products
               gstType={gstType}
               form={invoiceForm}
