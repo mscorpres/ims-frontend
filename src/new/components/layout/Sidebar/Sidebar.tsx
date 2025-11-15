@@ -2,6 +2,8 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../../index.css";
 import { loadMenuConfig } from "./menuLoader";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 
 type AnyItem = any;
 
@@ -164,17 +166,15 @@ const Sidebar = ({
                 >
                   <span>{c.label}</span>
                   {hasChildren && (
-                    <span
+                    <PlayArrowIcon
+                      fontSize="small"
                       style={{
-                        fontSize: 12,
                         transform: isHeadingExpanded
                           ? "rotate(90deg)"
                           : "rotate(0deg)",
                         transition: "transform 0.3s ease",
                       }}
-                    >
-                      ▶
-                    </span>
+                    />
                   )}
                 </div>
                 {hasChildren && isHeadingExpanded && (
@@ -454,7 +454,7 @@ const Sidebar = ({
               right: "12px",
               width: "32px",
               height: "32px",
-              backgroundColor: "#007acc",
+              backgroundColor: "#0d9488",
               border: "none",
               borderRadius: "6px",
               cursor: "pointer",
@@ -469,24 +469,24 @@ const Sidebar = ({
               zIndex: 101,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#005a9e";
+              e.currentTarget.style.backgroundColor = "#0f766e";
               e.currentTarget.style.transform = "scale(1.05)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#007acc";
+              e.currentTarget.style.backgroundColor = "#0f766e";
               e.currentTarget.style.transform = "scale(1)";
             }}
             title={showSideBar ? "Collapse sidebar" : "Expand sidebar"}
           >
-            <span
+           
+            <KeyboardArrowLeftIcon
+              fontSize="small"
               style={{
                 transform: showSideBar ? "rotate(0deg)" : "rotate(180deg)",
                 transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 display: "inline-block",
               }}
-            >
-              ‹
-            </span>
+            />
           </button>
         </div>
 
@@ -570,17 +570,17 @@ const Sidebar = ({
                       : "Collapse submenu"
                   }
                 >
-                  <span
-                    style={{
-                      transform: isSecondSidebarCollapsed
+                 
+                        <KeyboardArrowLeftIcon
+              fontSize="small"
+              style={{
+              transform: isSecondSidebarCollapsed
                         ? "rotate(180deg)"
                         : "rotate(0deg)",
                       transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                       display: "inline-block",
-                    }}
-                  >
-                    ‹
-                  </span>
+              }}
+            />
                 </button>
               </div>
             </div>
@@ -618,7 +618,7 @@ const Sidebar = ({
                 right: "16px",
                 width: "32px",
                 height: "32px",
-                backgroundColor: "#007acc",
+                backgroundColor: "#0d9488",
                 border: "none",
                 borderRadius: "6px",
                 cursor: "pointer",
@@ -633,28 +633,28 @@ const Sidebar = ({
                 zIndex: 101,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#005a9e";
+                e.currentTarget.style.backgroundColor = "#0f766e";
                 e.currentTarget.style.transform = "scale(1.05)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#007acc";
+                e.currentTarget.style.backgroundColor = "#0f766e";
                 e.currentTarget.style.transform = "scale(1)";
               }}
               title={
                 isSecondSidebarCollapsed ? "Expand submenu" : "Collapse submenu"
               }
             >
-              <span
-                style={{
-                  transform: isSecondSidebarCollapsed
+             
+                    <KeyboardArrowLeftIcon
+              fontSize="small"
+              style={{
+                transform: isSecondSidebarCollapsed
                     ? "rotate(180deg)"
                     : "rotate(0deg)",
                   transition: "transform 0.3s ease",
                   display: "inline-block",
-                }}
-              >
-                ‹
-              </span>
+              }}
+            />
             </button>
           </div>
         )}
