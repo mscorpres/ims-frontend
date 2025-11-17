@@ -5,6 +5,10 @@ import UploadFile from "./UploadFile";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import Typography from "antd/es/typography/Typography";
 import MyButton from "../../../../Components/MyButton";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
+import { renderIcon } from "../../../../new/components/layout/Sidebar/iconMapper";
+import { Search } from "@mui/icons-material";
 
 const ProductDetails = ({
   submitHandler,
@@ -24,11 +28,11 @@ const ProductDetails = ({
   const toggleInputType = (e) => {
     setUploadType(e.target.value);
   };
-  
+
   const productType = Form.useWatch("type");
 
   return (
-    <Card size="small" title="Product Details">
+    <CustomFieldBox title="Product Details">
       <Row gutter={6}>
         <Col span={24}>
           <Radio.Group
@@ -55,20 +59,22 @@ const ProductDetails = ({
         <Col span={24}>
           <Row justify="end">
             <Space>
-              <MyButton
+              <CustomButton
+                size="small"
+                onclick={resetProduct}
                 loading={loading === "fetch"}
-                onClick={resetProduct}
-                variant="reset"
-              >
-                Reset Product
-              </MyButton>
-              <Button
+                variant="outlined"
+                title="Reset"
+                endicon={renderIcon("ResetIcon")}
+              />
+
+              <CustomButton
+                onclick={getSKUDetails}
+                size="small"
                 loading={loading === "fetch"}
-                onClick={getSKUDetails}
-                type="primary"
-              >
-                Fetch Data
-              </Button>
+                title="search"
+                endicon={<Search fontSize="small" />}
+              />
             </Space>
           </Row>
         </Col>
@@ -129,23 +135,25 @@ const ProductDetails = ({
                   Download Sample File
                 </Button>
               )}
-              <Button
-                disabled={!productSelected}
-                onClick={submitHandler}
-                loading={loading === "submit"}
-                type="primary"
-              >
-                {stage === "preview"
-                  ? uploadType === "file"
-                    ? "Preview"
+             
+              <CustomButton
+                size="small"
+                title={
+                  stage === "preview"
+                    ? uploadType === "file"
+                      ? "Preview"
+                      : "Submit"
                     : "Submit"
-                  : "Submit"}
-              </Button>
+                }
+                disabled={!productSelected}
+                onclick={submitHandler}
+                loading={loading === "submit"}
+              />
             </Space>
           </Row>
         </Col>
       </Row>
-    </Card>
+    </CustomFieldBox>
   );
 };
 

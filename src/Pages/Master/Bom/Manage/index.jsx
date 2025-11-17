@@ -10,10 +10,16 @@ import ViewModal from "./ViewModal";
 import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
 import { downloadCSVnested2 } from "../../../../Components/exportToCSV";
-import{
-  CommonIcons,
-} from "../../../../Components/TableActions.jsx/TableActions";
+import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { Row } from "antd";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import { Download, Edit, Visibility } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 const ManageBOM = () => {
   const [rows, setRows] = useState([]);
@@ -91,37 +97,11 @@ const ManageBOM = () => {
   };
   const actionColumns = [
     {
-      headerName: "",
-      width: 30,
-      type: "actions",
-      field: "actions",
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="View"
-          onClick={() => setViewBom({ name: row.product, id: row.bomId })}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Edit"
-          onClick={() => setEditBom({ name: row.product, id: row.bomId })}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Download"
-          onClick={() => handleBOMDownload(row.bomId, row.product)}
-        />,
-      ],
-    },
-    {
-      headerName: "Status",
+      header: "Status",
       width: 100,
-      field: "status",
-      type: "actions",
-      renderCell: ({ row }) => (
+      accessorKey: "status",
+
+      Cell: ({ row }) => (
         <Switch
           size="small"
           checked={row.status === "ENABLE"}
@@ -139,22 +119,93 @@ const ManageBOM = () => {
   }, []);
 
   const handleDownload = () => {
-    downloadCSVnested2(rows, columns, "FG BOM",actionColumns);
+    downloadCSVnested2(rows, columns, "FG BOM", actionColumns);
   };
+
+  const table = useMaterialReactTable({
+    columns: [...actionColumns, ...columns],
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
+    ),
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit fontSize="small" />}
+        key="edit"
+        label="Edit"
+        onClick={() => {
+          closeMenu?.();
+          setEditBom({
+            name: row?.original?.product,
+            id: row?.original?.bomId,
+          });
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Visibility fontSize="small" />}
+        key="view"
+        label="View"
+        onClick={() => {
+          closeMenu?.();
+          setViewBom({
+            name: row?.original?.product,
+            id: row?.original?.bomId,
+          });
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download fontSize="small" />}
+        key="download"
+        label="Download"
+        onClick={() => {
+          closeMenu?.();
+          handleBOMDownload(row?.original?.bomId, row?.original?.product);
+        }}
+        table={table}
+      />,
+    ],
+  });
   return (
-    <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
-      <Row justify="end" style={{ margin: "5x 0" }}>
+    <div style={{ height: "90%", margin: 12 }}>
+      <Row justify="end" style={{ marginBottom: 12 }}>
         <CommonIcons
           disabled={rows.length === 0}
           onClick={handleDownload}
           action="downloadButton"
         />
       </Row>
-      <MyDataTable
-        loading={loading === "fetch"}
-        columns={[...actionColumns, ...columns]}
-        data={rows}
-      />
+
+      <MaterialReactTable table={table} />
 
       <ViewModal show={viewBom} close={() => setViewBom(false)} />
       <EditModal
@@ -170,37 +221,37 @@ export default ManageBOM;
 
 const columns = [
   {
-    headerName: "#",
-    field: "id",
+    header: "#",
+    accessorKey: "id",
     width: 30,
   },
   {
-    headerName: "Product",
-    field: "product",
+    header: "Product",
+    accessorKey: "product",
     minWidth: 200,
     flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
+    render: ({ row }) => <ToolTipEllipses text={row.product} />,
   },
   {
-    headerName: "SKU",
-    field: "sku",
+    header: "SKU",
+    accessorKey: "sku",
     minWidth: 150,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+    render: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
   },
   {
-    headerName: "Project",
-    field: "bom_project",
+    header: "Project",
+    accessorKey: "bom_project",
     minWidth: 150,
   },
   // {
-  //   headerName: "Level",
-  //   field: "level",
+  //   header: "Level",
+  //   accessorKey: "level",
   //   minWidth: 50,
   // },
   {
-    headerName: "Created Date",
-    field: "createdDate",
+    header: "Created Date",
+    accessorKey: "createdDate",
     minWidth: 150,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.createdDate} />,
+    render: ({ row }) => <ToolTipEllipses text={row.createdDate} />,
   },
 ];

@@ -80,7 +80,7 @@ const CreateBom = () => {
       formData.append("mapped_sfg", obj.mapped_sfg);
       formData.append("sku", obj.sku);
       formData.append("bom_level", obj.bom_level);
-      formData.append("bom_project",obj.project)
+      formData.append("bom_project", obj.project);
 
       finalObj = formData;
     }
@@ -202,8 +202,8 @@ const CreateBom = () => {
 
   useEffect(() => {
     fetchProjects();
-  },[])
-  
+  }, []);
+
   useEffect(() => {
     if (files) {
       setStage("preview");
@@ -218,7 +218,7 @@ const CreateBom = () => {
   }, [uploadType]);
 
   return (
-    <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
+    <div style={{ height: "90%", margin:12 }}>
       <Form
         initialValues={initialValues}
         layout="vertical"
