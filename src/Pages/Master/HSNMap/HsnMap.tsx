@@ -59,57 +59,51 @@ const HsnMap = () => {
       layout="vertical"
       initialValues={initialValues}
       form={form}
-      style={{ height: "95%" }}
+      style={{ height: "95%",margin:12, }}
     >
-      <Row justify="center" gutter={16} style={{ padding: 10, height: "100%" }}>
-        <Col sm={8} xxl={4}>
-          <CustomFieldBox title="Component">
-            <Form.Item
-              name="component"
-              label="Component Name"
-              rules={[{ required: true, message: "Component is required" }]}
-            >
-              <MyAsyncSelect
-                onBlur={() => setAsyncOptions([])}
-                loadOptions={getComponents}
-                optionsState={asyncOptions}
-                selectLoading={loading("select")}
-              />
-            </Form.Item>
+      <div className="grid grid-cols-[1fr_3fr]" style={{ gap: 12 }}>
+     <div>
+         <CustomFieldBox title="Component">
+          <Form.Item
+            name="component"
+            label="Component Name"
+            rules={[{ required: true, message: "Component is required" }]}
+          >
+            <MyAsyncSelect
+              onBlur={() => setAsyncOptions([])}
+              loadOptions={getComponents}
+              optionsState={asyncOptions}
+              selectLoading={loading("select")}
+            />
+          </Form.Item>
 
-            <Row justify="center">
-              <CustomButton
-                onclick={submitHandler}
-                loading={loading("submit")}
-                variant="submit"
-                title="Save"
-                endicon={renderIcon("CheckCircleIcon")}
-              />
-            </Row>
-          </CustomFieldBox>
-        </Col>
-        <Col
-          sm={12}
-          xxl={8}
-          className="remove-table-footer remove-cell-border"
-          style={{ height: "92%" }}
-        >
-          <FormTable2
-            form={form}
-            listName="rows"
-            columns={columns(
-              setAsyncOptions,
-              asyncOptions,
-              handleFetchHsnOptions,
-              loading
-            )}
-            addableRow={true}
-            newRow={initialValues.rows[0]}
-            removableRows={true}
-            nonRemovableColumns={1}
+          <CustomButton
+            onclick={submitHandler}
+            loading={loading("submit")}
+            variant="submit"
+            title="Save"
+            endicon={renderIcon("CheckCircleIcon")}
           />
-        </Col>
-      </Row>
+        </CustomFieldBox>
+     </div>
+
+  
+        <FormTable2
+          form={form}
+          listName="rows"
+          columns={columns(
+            setAsyncOptions,
+            asyncOptions,
+            handleFetchHsnOptions,
+            loading
+          )}
+          addableRow={true}
+          newRow={initialValues.rows[0]}
+          removableRows={true}
+          nonRemovableColumns={1}
+        />
+
+      </div>
     </Form>
   );
 };

@@ -6,6 +6,7 @@ import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
 import MyButton from "../../Components/MyButton";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox";
 
 const Group = () => {
   const { pathname } = useLocation();
@@ -70,10 +71,10 @@ const Group = () => {
     fetchGroup();
   }, []);
   return (
-    <div style={{ height: "100%" }}>
-      <Row gutter={8} style={{ padding: "0 10px", height: "100%" }}>
+    <div style={{ height: "calc(100vh - 70px)",margin:12 }}>
+      <Row gutter={8} style={{ height: "100%" }}>
         <Col span={8}>
-          <Card title="Add Group" size="small">
+          <CustomFieldBox title="Add Group">
             <Form layout="vertical">
               <Form.Item label="Group Name">
                 <Input
@@ -100,7 +101,7 @@ const Group = () => {
                 </Space>
               </Col>
             </Row>
-          </Card>
+          </CustomFieldBox>
         </Col>
         <Col style={{ height: "85%" }} span={16}>
           <MyDataTable

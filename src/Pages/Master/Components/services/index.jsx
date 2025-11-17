@@ -44,7 +44,7 @@ function Services() {
     enableRowActions: true,
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
       },
     },
     renderTopToolbar: () =>
@@ -154,14 +154,14 @@ function Services() {
     getServices();
   }, []);
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%", margin:12 }}>
       <UpdateService
         units={units}
         editService={editService}
         setEditService={setEditService}
         getServices={getServices}
       />
-      <Row gutter={8} style={{ height: "100%", padding: "0 10px" }}>
+      <Row gutter={8} style={{ height: "100%"}}>
         <Col span={8}>
           <CustomFieldBox title="Service Details">
             <Form size="small" layout="vertical">

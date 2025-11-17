@@ -77,6 +77,7 @@ const Add = ({ uomOptions, productType, getProductRows }) => {
                 <Space>
                   <Form.Item>
                     <CustomButton
+                    size = "small"
                       variant="outlined"
                       onclick={resetHandler}
                       title="Reset"
@@ -85,6 +86,7 @@ const Add = ({ uomOptions, productType, getProductRows }) => {
                   </Form.Item>
                   <Form.Item>
                     <CustomButton
+                      size = "small"
                       variant="submit"
                       onclick={submitHandler}
                       title="Save"
