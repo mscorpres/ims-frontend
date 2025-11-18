@@ -148,26 +148,4 @@ const Vendor = () => {
 
 export default Vendor;
 
-// <div p-1" style={{ boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px" }}>
-//   <DataTable
-//     fixedHeader="true"
-//     fixedHeaderScrollHeight={"55vh"}
-//     columns={coloums}
-//     title="All Vendor Details"
-//     data={filterData}
-//     pagination
-//     highlightOnHover
-//     actions={<IoIosPersonAdd nClick={() => setOpen(true)} />}
-//     subHeader
-//     subHeaderComponent={
-//       <input
-//         ntrol"
-//         value={search}
-//         onChange={(e) => setSearch(e.target.value)}
-//         type="text"
-//         placeholder="Branch Name"
-//       />
-//     }
-//     customStyles={customStyles}
-//   />
-// </div>
+

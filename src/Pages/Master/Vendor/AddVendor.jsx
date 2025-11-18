@@ -19,6 +19,7 @@ import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import SingleProduct from "./SingleProduct";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
 
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
@@ -196,7 +197,7 @@ const AddVendor = () => {
   // }, [third]);
 
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%", margin: 12 }}>
       <Form
         initialValues={initialValues}
         layout="vertical"
@@ -220,299 +221,182 @@ const AddVendor = () => {
         >
           <p>Are you sure you want to create this vendor?</p>
         </Modal>
-        <Row gutter={16}>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Vendor Details</p>}
-            >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+        <div className="grid grid-cols-2" style={{ gap: 12 }}>
+          <CustomFieldBox
+            title={"Vendor Details"}
+            subtitle={"Provide Vendor Details (New Or Supplementary)"}
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item
+                label="Vendor Name"
+                name="vendorName"
+                rules={rules.vendorName}
               >
-                Provide Vendor Details
-                <br /> (New Or Supplementary)
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Form.Item
-                  label="Vendor Name"
-                  name="vendorName"
-                  rules={rules.vendorName}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="Pan Number" name="panno" rules={rules.panno}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="CIN Number" name="cinno">
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item
-                  label="Payment Terms (in-days)"
-                  name="paymentTerms"
-                  rules={rules.paymentTerms}
-                >
-                  <InputNumber
-                    style={{ width: "100%" }}
-                    min={1}
-                    max={999}
-                    // value={paymentTerms.value}
-                    // onChange={(e) => inputHandler("cin", e.target.value)}//
-                    size="default"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+                <Input />
+              </Form.Item>
 
-            <Row gutter={16}>
-              <Col span={6}>
-                <Form.Item label="Email" name="email">
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="Mobile" name="mobile" rules={rules.mobile}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="Fax Number" name="fax">
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={24}>
-                <Row gutter={16}>
-                  <Col span={4}>
-                    <Form.Item
-                      label="MSME Status"
-                      name="msmeStatus"
-                      rules={rules.status}
-                    >
-                      <MySelect
-                        options={msmeOptions}
-                        // value={msmeStat}
-                        // onChange={(value) => changeMSmeStatus(value)}
-                      />
-                    </Form.Item>
-                  </Col>
-                  {msmeStat === "Y" && (
-                    <>
-                      <Col span={5}>
-                        <Form.Item
-                          label="MSME Year"
-                          name="year"
-                          rules={rules.year}
-                        >
-                          <MySelect options={msmeYearOptions} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={5}>
-                        <Form.Item
-                          label="MSME Number"
-                          name="msmeId"
-                          rules={rules.msmeId}
-                        >
-                          <Input />
-                        </Form.Item>
-                      </Col>
-                      <Col span={5}>
-                        <Form.Item
-                          label="MSME Type"
-                          name="type"
-                          rules={rules.type}
-                        >
-                          <MySelect options={msmeTypeOptions} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={5}>
-                        <Form.Item
-                          label="MSME Activity"
-                          name="activity"
-                          rules={rules.activity}
-                        >
-                          <MySelect options={msmeActivityOptions} />
-                        </Form.Item>
-                      </Col>
-                    </>
-                  )}
-                </Row>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
-        <Row gutter={16}>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>GST Details</p>}
-            >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+              <Form.Item label="Pan Number" name="panno" rules={rules.panno}>
+                <Input />
+              </Form.Item>
+
+              <Form.Item label="CIN Number" name="cinno">
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                label="Payment Terms (in-days)"
+                name="paymentTerms"
+                rules={rules.paymentTerms}
               >
-                Provide GSt Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={12}>
-            <Row gutter={16}>
-              <Col span={8}>
-                <Form.Item label="GST Number" name="gstin" rules={rules.gstin}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={8}>
-                <Form.Item
-                  label="E-Invoice Applicability"
-                  name="applicability"
-                  rules={rules.applicability}
-                >
-                  <MySelect
-                    options={msmeOptions}
-                    // value={msmeStat}
-                    // onChange={(value) => changeMSmeStatus(value)}
-                  />
-                </Form.Item>
-              </Col>
-              {einvoice === "Y" && (
-                <Col span={8}>
-                  {" "}
-                  <Form.Item
-                    label="Date of Applicability"
-                    name="dobApplicabilty"
-                    rules={rules.dobApplicabilty}
-                  >
-                    <SingleDatePicker
-                      size="default"
-                      // setDate={setEffective}
-                      setDate={(value) =>
-                        addVendorForm.setFieldValue("dobApplicabilty", value)
-                      }
-                    />
+                <InputNumber
+                  style={{ width: "100%" }}
+                  min={1}
+                  max={999}
+                  // value={paymentTerms.value}
+                  // onChange={(e) => inputHandler("cin", e.target.value)}//
+                  size="default"
+                />
+              </Form.Item>
+
+              <Form.Item label="Email" name="email">
+                <Input />
+              </Form.Item>
+
+              <Form.Item label="Mobile" name="mobile" rules={rules.mobile}>
+                <Input />
+              </Form.Item>
+
+              <Form.Item label="Fax Number" name="fax">
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                label="MSME Status"
+                name="msmeStatus"
+                rules={rules.status}
+              >
+                <MySelect
+                  options={msmeOptions}
+                  // value={msmeStat}
+                  // onChange={(value) => changeMSmeStatus(value)}
+                />
+              </Form.Item>
+
+              {msmeStat === "Y" && (
+                <>
+                  <Form.Item label="MSME Year" name="year" rules={rules.year}>
+                    <MySelect options={msmeYearOptions} />
                   </Form.Item>
-                </Col>
-              )}
-            </Row>
-          </Col>
-        </Row>
-        <Divider />
 
-        <Row gutter={16}>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Branch Details</p>}
-            >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
+                  <Form.Item
+                    label="MSME Number"
+                    name="msmeId"
+                    rules={rules.msmeId}
+                  >
+                    <Input />
+                  </Form.Item>
+
+                  <Form.Item label="MSME Type" name="type" rules={rules.type}>
+                    <MySelect options={msmeTypeOptions} />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="MSME Activity"
+                    name="activity"
+                    rules={rules.activity}
+                  >
+                    <MySelect options={msmeActivityOptions} />
+                  </Form.Item>
+                </>
+              )}
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title={"GST Details"}
+            subtitle={"Provide GSt Details"}
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item label="GST Number" name="gstin" rules={rules.gstin}>
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                label="E-Invoice Applicability"
+                name="applicability"
+                rules={rules.applicability}
               >
-                Provide Branch Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={16}>
-              <Col span={6}>
+                <MySelect
+                  options={msmeOptions}
+                  // value={msmeStat}
+                  // onChange={(value) => changeMSmeStatus(value)}
+                />
+              </Form.Item>
+
+              {einvoice === "Y" && (
                 <Form.Item
-                  label="Branch Name"
-                  name="branch"
-                  rules={rules.branch}
+                  label="Date of Applicability"
+                  name="dobApplicabilty"
+                  rules={rules.dobApplicabilty}
                 >
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item
-                  label="Select State"
-                  name="state"
-                  rules={rules.state}
-                >
-                  <MyAsyncSelect
-                    selectLoading={selectLoading}
-                    onBlur={() => setAsyncOptions([])}
-                    optionsState={asyncOptions}
-                    loadOptions={getFetchState}
-                    // value={state.value}
-                    // value={addVendor.branch.state}
-                    // onChange={(e) => inputHandler("state", e)}
+                  <SingleDatePicker
+                    size="default"
+                    // setDate={setEffective}
+                    setDate={(value) =>
+                      addVendorForm.setFieldValue("dobApplicabilty", value)
+                    }
                   />
                 </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="City" name="city" rules={rules.city}>
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item
-                  label="Pin Code"
-                  name="pincode"
-                  rules={rules.pincode}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
-            </Row>
+              )}
+            </div>
+          </CustomFieldBox>
+          <CustomFieldBox
+            title={"Branch Details"}
+            subtitle={"Provide Branch Details"}
+          >
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+              <Form.Item label="Branch Name" name="branch" rules={rules.branch}>
+                <Input />
+              </Form.Item>
 
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Complete Address"
-                  name="address"
-                  rules={rules.address}
-                >
-                  <Input.TextArea rows={4} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={4} style={{ height: "20rem", overflowY: "scroll" }}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Upload Document</p>}
+              <Form.Item label="Select State" name="state" rules={rules.state}>
+                <MyAsyncSelect
+                  selectLoading={selectLoading}
+                  onBlur={() => setAsyncOptions([])}
+                  optionsState={asyncOptions}
+                  loadOptions={getFetchState}
+                  // value={state.value}
+                  // value={addVendor.branch.state}
+                  // onChange={(e) => inputHandler("state", e)}
+                />
+              </Form.Item>
+
+              <Form.Item label="City" name="city" rules={rules.city}>
+                <Input />
+              </Form.Item>
+
+              <Form.Item label="Pin Code" name="pincode" rules={rules.pincode}>
+                <Input />
+              </Form.Item>
+            </div>
+
+            <Form.Item
+              label="Complete Address"
+              name="address"
+              rules={rules.address}
             >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
-              >
-                Upload vendor PDF document
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={16}>
-              <Col span={24}>
+              <Input.TextArea rows={4} />
+            </Form.Item>
+          </CustomFieldBox>
+          <CustomFieldBox title={"Upload Document"} subtitle={"Upload vendor PDF document"}>
+            <div className="grid grid-cols-2" style={{ gap: 12 }}>
+
+      
                 {/* <div
                   className="remove-table-footer"
                   style={{ height: "50%", opacity: loading ? 0.5 : 1 }}
                 > */}
                 <div style={{ flex: 1 }}>
-                  <Col
-                    span={24}
-                    style={{
-                      height: "14rem",
-                      // overflowX: "hidden",
-                      overflowY: "auto",
-                    }}
-                  >
+                
                     <Form.List name="components">
                       {(fields, { add, remove }) => (
                         <>
@@ -540,13 +424,17 @@ const AddVendor = () => {
                         </>
                       )}
                     </Form.List>
-                  </Col>
+             
                 </div>
-                {/* </div> */}
-              </Col>
-            </Row>
-          </Col>
-        </Row>
+        
+
+            </div>
+          </CustomFieldBox>
+        </div>
+     
+   
+
+        
       </Form>
       <NavFooter
         resetFunction={() => setShowResetConfirmModal(true)}
