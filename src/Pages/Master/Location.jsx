@@ -14,13 +14,11 @@ import {
 import MySelect from "../../Components/MySelect";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
-import { v4 } from "uuid";
 import Loading from "../../Components/Loading";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
 import { getCostCentresOptions } from "../../api/general.ts";
 import MyDataTable from "../gstreco/myDataTable";
-import TableActions from "../../Components/TableActions.jsx/TableActions";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
@@ -619,98 +617,6 @@ function Location() {
                 </Form>
               </Card>
             </Col>
-            {/* <Col span={24}>
-              <Card size="small" title="Enable/Disable Location">
-                {loading === "fetchStatus" && <Loading />}
-                <Form
-                  form={disableLocationForm}
-                  initialValues={{
-                    location: "",
-                  }}
-                  layout="vertical"
-                >
-                  <Row gutter={6}>
-                    <Col span={20}>
-                      <Form.Item name="location" label="Location">
-                        <MyAsyncSelect
-                          labelInValue={true}
-                          optionsState={asyncOptions}
-                          onBlur={() => setAsyncOptions([])}
-                          loadOptions={searchLocation}
-                          selectLoading={selectLoading}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col>
-                      <Form.Item
-                        label="Status"
-                        name="status"
-                        valuePropName="checked"
-                      >
-                        <Switch />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row justify="end">
-                    <Space>
-                      <Button onClick={() => disableLocationForm.resetFields()}>
-                        Cancel
-                      </Button>
-                      <Button type="primary" onClick={disableValidateHandler}>
-                        Submit
-                      </Button>
-                    </Space>
-                  </Row>
-                </Form>
-              </Card>
-            </Col> */}
-            {/* <Col span={24}>
-              <Card size="small" title="Map Cost Center">
-                {loading === "fetchStatus" && <Loading />}
-                <Form
-                  form={maploc}
-                  initialValues={{
-                    location: "",
-                  }}
-                  layout="vertical"
-                >
-                  <Row gutter={6}>
-                    <Col span={12}>
-                      <Form.Item name="location" label="Location">
-                        <MyAsyncSelect
-                          labelInValue={true}
-                          optionsState={asyncOptions}
-                          onBlur={() => setAsyncOptions([])}
-                          loadOptions={searchLocation}
-                          selectLoading={selectLoading}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item name="costCenter" label="Cost Center">
-                        <MyAsyncSelect
-                          labelInValue={true}
-                          optionsState={asyncOptions}
-                          onBlur={() => setAsyncOptions([])}
-                          loadOptions={getCostCenteres}
-                          selectLoading={loading1("select")}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row justify="end">
-                    <Space>
-                      <Button onClick={() => maploc.resetFields()}>
-                        Cancel
-                      </Button>
-                      <Button type="primary" onClick={maplocValidateHandler}>
-                        Submit
-                      </Button>
-                    </Space>
-                  </Row>
-                </Form>
-              </Card>
-            </Col> */}
           </Row>
         </Col>
         <Col span={16} style={{ height: "100%" }}>

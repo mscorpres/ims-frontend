@@ -1,7 +1,6 @@
 import { ProductType } from "@/types/master";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSVnested2 } from "../../../Components/exportToCSV";
-import { Row } from "antd";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -45,7 +44,7 @@ function View({
     enableRowActions: true,
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
       },
     },
     renderToolbarInternalActions: ({ table }) => (

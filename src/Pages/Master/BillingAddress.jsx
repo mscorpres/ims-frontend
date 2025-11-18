@@ -72,7 +72,7 @@ const BillingAddress = () => {
     enableRowActions: false,
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
       },
     },
     renderToolbarInternalActions: ({ table }) => (

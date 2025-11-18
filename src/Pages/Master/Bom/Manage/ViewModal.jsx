@@ -1,10 +1,15 @@
 import { Drawer } from "antd";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { toast } from "react-toastify";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../../Components/exportToCSV";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 
 const ViewModal = ({ show, close }) => {
   const [rows, setRows] = useState([]);
@@ -49,6 +54,38 @@ const ViewModal = ({ show, close }) => {
       getRows(show.id);
     }
   }, [show]);
+
+  const columns = useMemo(() => bomColumns, []);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 190px)",
+      },
+    },
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
     <Drawer
       width="50vw"
@@ -66,42 +103,42 @@ const ViewModal = ({ show, close }) => {
         padding: 5,
       }}
     >
-      <MyDataTable
+      {/* <MyDataTable
         loading={loading === "fetch"}
         columns={columns}
         data={rows}
-      />
+      /> */}
+      <MaterialReactTable table={table} />
     </Drawer>
   );
 };
 
 export default ViewModal;
 
-const columns = [
+const bomColumns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    accessorKey: "id",
+    header: "#",
+    size: 10,
+    // size: 30,
   },
   {
-    headerName: "Component",
-    minWidth: 200,
-    flex: 1,
-    field: "component",
+    accessorKey: "component",
+    header: "Component",
+    // size: 200,
   },
   {
-    headerName: "Part Code",
-    width: 100,
-    field: "partCode",
+    accessorKey: "partCode",
+    header: "Part Code",
+    // size: 100,
   },
   {
-    headerName: "BOM Qty",
-    width: 100,
-    field: "qty",
+    accessorKey: "qty",
+    header: "BOM Qty",
+    // size: 100,
   },
   {
-    headerName: "UoM",
-    width: 80,
-    field: "uom",
+    accessorKey: "uom",
+    header: "UoM",
   },
 ];

@@ -32,7 +32,7 @@ export default function ComponentsTable({
     enableRowActions: true,
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 250px)",
       },
     },
     renderTopToolbar: () =>
@@ -91,14 +91,8 @@ export default function ComponentsTable({
     ],
   });
   return (
-    <div
-      style={{
-        height: "85%",
-        padding: "0 10px",
-      }}
-    >
+   
       <MaterialReactTable table={table} />
-    </div>
   );
 }
 

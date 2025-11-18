@@ -5,6 +5,13 @@ import UploadFile from "./UploadFile";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import Typography from "antd/es/typography/Typography";
 import MyButton from "../../../../Components/MyButton";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import { renderIcon } from "../../../../new/components/layout/Sidebar/iconMapper";
 
 const ProductDetails = ({
   submitHandler,
@@ -24,11 +31,11 @@ const ProductDetails = ({
   const toggleInputType = (e) => {
     setUploadType(e.target.value);
   };
-  
+
   const productType = Form.useWatch("type");
 
   return (
-    <Card size="small" title="Product Details">
+    <CustomFieldBox title="Product Details" subtitle="Provide Product Details">
       <Row gutter={6}>
         <Col span={24}>
           <Radio.Group
@@ -55,20 +62,19 @@ const ProductDetails = ({
         <Col span={24}>
           <Row justify="end">
             <Space>
-              <MyButton
+              <CustomButton
+                onclick={resetProduct}
+                variant="outlined"
+                title="Reset"
+                endicon={renderIcon("ResetIcon")}
+              />
+              <CustomButton
                 loading={loading === "fetch"}
-                onClick={resetProduct}
-                variant="reset"
-              >
-                Reset Product
-              </MyButton>
-              <Button
-                loading={loading === "fetch"}
-                onClick={getSKUDetails}
-                type="primary"
-              >
-                Fetch Data
-              </Button>
+                onclick={getSKUDetails}
+                variant="submit"
+                title="Fetch Data"
+                endicon={renderIcon("CheckCircleIcon")}
+              />
             </Space>
           </Row>
         </Col>
@@ -129,23 +135,26 @@ const ProductDetails = ({
                   Download Sample File
                 </Button>
               )}
-              <Button
+              <CustomButton
                 disabled={!productSelected}
-                onClick={submitHandler}
-                loading={loading === "submit"}
-                type="primary"
-              >
-                {stage === "preview"
-                  ? uploadType === "file"
-                    ? "Preview"
+                onclick={submitHandler}
+                variant="submit"
+                title={
+                  stage === "preview"
+                    ? uploadType === "file"
+                      ? "Preview"
+                      : "Submit"
                     : "Submit"
-                  : "Submit"}
-              </Button>
+                }
+                endicon={renderIcon("CheckCircleIcon")}
+                loading={loading === "submit"}
+              />
+              
             </Space>
           </Row>
         </Col>
       </Row>
-    </Card>
+    </CustomFieldBox>
   );
 };
 

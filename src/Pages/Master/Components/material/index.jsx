@@ -451,13 +451,13 @@ const Material = () => {
   }, [generatedCompName]);
 
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%", margin:"12px"}}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
       <AddPhoto
         updatingImage={uploadingImage}
         setUpdatingImage={setUploadingImage}
       />
-      <Row gutter={[6, 6]} style={{ height: "100%", padding: "10px" }}>
+      <Row gutter={[0, 6]} style={{ height: "100%" }}>
         <Col
           span={8}
           style={{ height: "100%", overflow: "auto", overflowX: "hidden" }}

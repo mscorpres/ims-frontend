@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useMemo } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button, Card, Col, Form, Input, Row, Space } from "antd";
-import MyDataTable from "../../Components/MyDataTable";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
-import MyButton from "../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
+import { renderIcon } from "../../new/components/layout/Sidebar/iconMapper.tsx";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
 
 const Group = () => {
   const { pathname } = useLocation();
@@ -17,11 +23,40 @@ const Group = () => {
   const [filterData, setFilterData] = useState([]);
   const [search, setSearch] = useState("");
 
-  const columns = [
-    { field: "ID", headerName: "Serial No", width: 100 },
-    { field: "group_name", headerName: "Group Name", flex: 1 },
+  const groupColumns = [
+    { accessorKey: "ID", header: "Serial No"},
+    { accessorKey: "group_name", header: "Group Name",width: 150 },
   ];
+  const columns = useMemo(() => groupColumns, []);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: groupData || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height: tableLoading ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
+      },
+    },
+    renderTopToolbar: () =>
+      tableLoading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   const addGroup = async (e) => {
     e.preventDefault();
     if (!newGroup) {
@@ -71,9 +106,9 @@ const Group = () => {
   }, []);
   return (
     <div style={{ height: "100%" }}>
-      <Row gutter={8} style={{ padding: "0 10px", height: "100%" }}>
+      <Row gutter={8} style={{ height: "100%" }}>
         <Col span={8}>
-          <Card title="Add Group" size="small">
+          <CustomFieldBox title="Add Group">
             <Form layout="vertical">
               <Form.Item label="Group Name">
                 <Input
@@ -86,28 +121,30 @@ const Group = () => {
             <Row justify="end">
               <Col>
                 <Space>
-                  <MyButton onClick={reset} variant="reset">
-                    Reset
-                  </MyButton>
-                  <MyButton
-                    loading={submitLoading}
-                    type="primary"
-                    onClick={addGroup}
-                    variant="add"
-                  >
-                    Submit
-                  </MyButton>
+                <CustomButton
+                  size="small"
+                  title={"Reset"}
+                  starticon={renderIcon("ResetIcon")}
+                  onclick={reset}
+                  variant="outlined"
+                  htmlType="reset"
+                />
+
+                <CustomButton
+                  size="small"
+                  title={"Submit"}
+                  starticon={renderIcon("CheckCircleOutlined")}
+                  loading={submitLoading}
+                  onclick={addGroup}
+                  htmlType="submit"
+                />
                 </Space>
               </Col>
             </Row>
-          </Card>
+          </CustomFieldBox>
         </Col>
-        <Col style={{ height: "85%" }} span={16}>
-          <MyDataTable
-            loading={tableLoading}
-            data={groupData}
-            columns={columns}
-          />
+        <Col span={16}>
+          <MaterialReactTable table={table} />
         </Col>
       </Row>
     </div>

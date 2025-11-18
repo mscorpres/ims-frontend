@@ -1,19 +1,27 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { useEffect } from "react";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { Switch } from "antd";
-import MyDataTable from "../../../../Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import ViewModal from "./ViewModal";
 import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
 import { downloadCSVnested2 } from "../../../../Components/exportToCSV";
-import{
-  CommonIcons,
-} from "../../../../Components/TableActions.jsx/TableActions";
-import { Row } from "antd";
+import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+  MRT_ToggleGlobalFilterButton,
+  MRT_ToggleFiltersButton,
+  MRT_ShowHideColumnsButton,
+  MRT_ToggleDensePaddingButton,
+  MRT_ToggleFullScreenButton,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
+import { renderIcon } from "@/new/components/layout/Sidebar/iconMapper";
 
 const ManageBOM = () => {
   const [rows, setRows] = useState([]);
@@ -139,22 +147,152 @@ const ManageBOM = () => {
   }, []);
 
   const handleDownload = () => {
-    downloadCSVnested2(rows, columns, "FG BOM",actionColumns);
+    downloadCSVnested2(rows, columns, "FG BOM", actionColumns);
   };
-  return (
-    <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
-      <Row justify="end" style={{ margin: "5x 0" }}>
+
+  const columns = useMemo(
+    () => [
+      {
+        header: "#",
+        accessorKey: "id",
+        width: 30,
+      },
+      {
+        header: "Status",
+        accessorKey: "status",
+        width: 100,
+        Cell: ({ row }) => (
+          <Switch
+            size="small"
+            checked={row.original.status === "ENABLE"}
+            loading={loading === row.original.bomId}
+            onChange={(value) => {
+              toggleStatus(row.original.bomId, value);
+            }}
+          />
+        ),
+      },
+      {
+        header: "Product",
+        accessorKey: "product",
+        minWidth: 200,
+        flex: 1,
+        Cell: ({ row }) => <ToolTipEllipses text={row.original.product} />,
+      },
+      {
+        header: "SKU",
+        accessorKey: "sku",
+        minWidth: 150,
+        Cell: ({ row }) => (
+          <ToolTipEllipses text={row.original.sku} copy={true} />
+        ),
+      },
+      {
+        header: "Project",
+        accessorKey: "bom_project",
+        minWidth: 150,
+      },
+      // {
+      //   header: "Level",
+      //   accessorKey: "level",
+      //   minWidth: 50,
+      // },
+      {
+        header: "Created Date",
+        accessorKey: "createdDate",
+        minWidth: 150,
+        Cell: ({ row }) => <ToolTipEllipses text={row.original.createdDate} />,
+      },
+    ],
+    [loading]
+  );
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderToolbarInternalActions: ({ table }) => (
+      <>
+        <MRT_ToggleGlobalFilterButton table={table} />
+        <MRT_ToggleFiltersButton table={table} />
+        <MRT_ShowHideColumnsButton table={table} />
+        <MRT_ToggleDensePaddingButton table={table} />
+        <MRT_ToggleFullScreenButton table={table} />
         <CommonIcons
           disabled={rows.length === 0}
           onClick={handleDownload}
           action="downloadButton"
         />
-      </Row>
-      <MyDataTable
-        loading={loading === "fetch"}
-        columns={[...actionColumns, ...columns]}
-        data={rows}
-      />
+      </>
+    ),
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={renderIcon("VisibilityIcon")}
+        key="view"
+        label="View"
+        onClick={() => {
+          setViewBom({
+            name: row?.original?.product,
+            id: row?.original?.bomId,
+          });
+          closeMenu();
+          console.log(row);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={renderIcon("EditIcon")}
+        key="edit"
+        label="Edit"
+        onClick={() => {
+          setEditBom({
+            name: row?.original?.product,
+            id: row?.original?.bomId,
+          });
+          closeMenu();
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={renderIcon("DownloadIcon")}
+        key="download"
+        label="Download"
+        onClick={() => {
+          handleBOMDownload(row?.original?.bomId, row?.original?.product);
+          closeMenu();
+        }}
+        table={table}
+        // disabled={productType === "sfg"}
+      />,
+    ],
+  });
+
+  return (
+    <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
+      <MaterialReactTable table={table} />
 
       <ViewModal show={viewBom} close={() => setViewBom(false)} />
       <EditModal
@@ -167,40 +305,3 @@ const ManageBOM = () => {
 };
 
 export default ManageBOM;
-
-const columns = [
-  {
-    headerName: "#",
-    field: "id",
-    width: 30,
-  },
-  {
-    headerName: "Product",
-    field: "product",
-    minWidth: 200,
-    flex: 1,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.product} />,
-  },
-  {
-    headerName: "SKU",
-    field: "sku",
-    minWidth: 150,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
-  },
-  {
-    headerName: "Project",
-    field: "bom_project",
-    minWidth: 150,
-  },
-  // {
-  //   headerName: "Level",
-  //   field: "level",
-  //   minWidth: 50,
-  // },
-  {
-    headerName: "Created Date",
-    field: "createdDate",
-    minWidth: 150,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.createdDate} />,
-  },
-];

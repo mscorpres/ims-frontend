@@ -44,7 +44,7 @@ function StockControl() {
     enableStickyHeader: true,
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
       },
     },
     renderTopToolbar: () =>
@@ -202,10 +202,10 @@ function StockControl() {
         </Col>
         <Col
           span={14}
-          style={{
-            height: "93%",
-            borderRadius: 5,
-          }}
+          // style={{
+          //   height: "93%",
+          //   borderRadius: 5,
+          // }}
         >
           <MaterialReactTable table={table} />
         </Col>
