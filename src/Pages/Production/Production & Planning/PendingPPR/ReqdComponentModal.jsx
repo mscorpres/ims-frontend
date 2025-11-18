@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   Col,
   Form,
@@ -21,11 +20,12 @@ import { CommonIcons } from "../../../../Components/TableActions.jsx/TableAction
 import { v4 } from "uuid";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MyButton from "../../../../Components/MyButton";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
+import { Add, Check } from "@mui/icons-material";
 
 export default function ReqdComponentModal({
   editPPR,
   reqdKeys,
-  setReqdKeys,
   sqdComponents,
   setSqdComponents,
   asyncOptions,
@@ -54,8 +54,6 @@ export default function ReqdComponentModal({
           let arr = data.data.map((row, index) => ({
             ...row,
             id: v4(),
-            // qty:
-            //   +Number(reqdKeys.qty).toFixed(2) * +Number(row.bomqty).toFixed(2),
             index: index + 1,
           }));
           setSqdComponents(arr);
@@ -284,12 +282,12 @@ export default function ReqdComponentModal({
   };
 
   const columns = [
-    { headerName: "#", renderCell: ({ row }) => row.index },
+    { headerName: "#", render: ({ row }) => row.index },
     {
       headerName: "",
       // headerName: <CommonIcons action="addRow" onClick={addRow} />,
       width: 40,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         sqdComponents.length > 1 && (
           <CommonIcons action="removeRow" onClick={() => confirmRemove(row)} />
         ),
@@ -297,7 +295,7 @@ export default function ReqdComponentModal({
     {
       headerName: "Name",
       width: 300,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.type === "addNewRow" ? (
           <MyAsyncSelect
             style={{ width: 200 }}
@@ -316,12 +314,12 @@ export default function ReqdComponentModal({
     {
       headerName: "Part Code",
       width: 100,
-      renderCell: ({ row }) => row.part,
+      render: ({ row }) => row.part,
     },
     {
       headerName: "Type",
 
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <MySelect
           onChange={(value) => inputHandler("category", value, row.id)}
           options={typeOptions}
@@ -332,13 +330,13 @@ export default function ReqdComponentModal({
     },
     {
       headerName: "BOM Qty",
-      renderCell: ({ row }) => row.bomqty,
+      render: ({ row }) => row.bomqty,
     },
     {
       headerName: "Rate",
       width: 120,
 
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           style={{ width: 120 }}
           onChange={(e) => inputHandler("rate", e.target.value, row.id)}
@@ -349,7 +347,7 @@ export default function ReqdComponentModal({
     {
       headerName: "RQD QTY",
       width: 150,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Input
           style={{ width: 120 }}
           onChange={(e) => inputHandler("qty", e.target.value, row.id)}
@@ -359,21 +357,21 @@ export default function ReqdComponentModal({
     },
     {
       headerName: "All Stock",
-      renderCell: ({ row }) => row.branchstock,
+      render: ({ row }) => row.branchstock,
     },
     {
       headerName: "Last Order Left Stock",
-      renderCell: ({ row }) => "--",
+      render: ({ row }) => "--",
     },
     {
       headerName: "PO QTY",
-      renderCell: ({ row }) => row.popendingqty,
+      render: ({ row }) => row.popendingqty,
     },
     {
       headerName: "Actions",
       // width: 30,
       type: "actions",
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.newValidated && !row.saved ? (
           <CommonIcons
             loading={loading === row.id}
@@ -392,7 +390,7 @@ export default function ReqdComponentModal({
     }
   }, [reqdKeys]);
   return (
-    <Col span={18} style={{ height: 750, marginBottom: 100 }}>
+    <Col span={24} style={{ height: 700, overflow: "auto" }}>
       {loading === "fetch" && <Loading />}
       <NewComponentModal
         show={showAddModal}
@@ -406,18 +404,21 @@ export default function ReqdComponentModal({
         reqdKeys={reqdKeys}
         selectLoading={loading === "select"}
       />
-      <Row justify="end" style={{ marginBottom: 10 }}>
+      <Row justify="end" style={{ marginBottom: 10, marginRight: 10 }}>
         <Space>
-          <MyButton
-            variant="add"
-            text="Add Component"
-            onClick={() => setShowAddModal(true)}
+          <CustomButton
+            size="small"
+            title={"Add Component"}
+            onclick={() => setShowAddModal(true)}
+            starticon={<Add fontSize="small" />}
           />
-          <MyButton
-            variant="submit"
-            text="Save RQD"
+
+          <CustomButton
+            size="small"
+            title={"Save RQD"}
+            onclick={validateHandler}
+            starticon={<Check fontSize="small" />}
             loading={loading === "submit"}
-            onClick={validateHandler}
           />
         </Space>
       </Row>

@@ -4,21 +4,14 @@ import CurrentDetails from "@/Pages/Production/mes/qca/scan/CurrentDetails";
 import CustomerName from "@/Pages/Production/mes/qca/scan/customerDetails";
 import LocationDetails from "@/Pages/Production/mes/qca/scan/locationDetails";
 import ProductDetails from "@/Pages/Production/mes/qca/scan/productDetails";
-import {
-  Card,
-  Checkbox,
-  Col,
-  Divider,
-  Flex,
-  Form,
-  Input,
-  Modal,
-  Row,
-  Typography,
-} from "antd";
+import { Col, Divider, Form, Input, Modal, Row, Typography } from "antd";
 import React, { useEffect, useRef, useState } from "react";
+//@ts-ignore
 import MyButton from "@/Components/MyButton";
+//@ts-ignore
 import MyAsyncSelect from "@/Components/MyAsyncSelect.jsx";
+
+//@ts-ignore
 import MySelect from "@/Components/MySelect.jsx";
 import {
   currentScanDetails,
@@ -27,7 +20,6 @@ import {
   ProcessDetailsType,
 } from "@/Pages/Production/mes/qca/scan/types";
 import {
-  fetchEntriesfromCount,
   fetchFailReasonOptions,
   fetchPreviousData,
   getPprDetails,
@@ -39,8 +31,18 @@ import {
 import { SelectOptionType } from "@/types/general";
 import InsertModal from "@/Pages/Production/mes/qca/scan/InsertModal";
 import TransferModal from "@/Pages/Production/mes/qca/scan/TransferModal";
+//@ts-ignore
 import Loading from "@/Components/Loading.jsx";
-import MyDataTable from "@/Components/MyDataTable.jsx";
+
+//@ts-ignore
+import CustomFieldBox from "../../../../../new/components/reuseable/CustomFieldBox.jsx";
+//@ts-ignore
+import EmptyRowsFallback from "../../../../../new/components/reuseable/EmptyRowsFallback";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, LinearProgress, Tooltip } from "@mui/material";
 
 type Props = {};
 interface RowType {
@@ -65,8 +67,7 @@ const QcScan = (props: Props) => {
       passed: " 0",
       total: " 0",
     });
-  const [processDetails, setProcessDetails] =
-    useState<ProcessDetailsType | null>(null);
+
   const [rawProcesses, setRawProcesses] = useState<ProcessDetailsType[]>([]);
   const [processOptions, setProcessOptions] = useState<SelectOptionType[]>([]);
   const [rows, setRows] = useState<RowType[]>([]);
@@ -75,14 +76,15 @@ const QcScan = (props: Props) => {
   const [isInsertingWithCount, setisInsertingWithCount] = useState(false);
   const [scanReady, setScanReady] = useState(false);
   const [deleteRow, setDeleteRow] = useState([]);
-
+  const [selectedPo, setSelectedPo] = useState([]);
+  const [rowSelection, setRowSelection] = useState({});
   const { executeFun, loading } = useApi();
   const [form] = Form.useForm<headerType>();
   const [scanForm] = Form.useForm();
-  const scanInputRef = useRef(null);
+  const scanInputRef: any = useRef(null);
 
-  const selectedPpr = Form.useWatch("ppr", form);
-  const selectedProcess = Form.useWatch("process", form);
+  const selectedPpr: any = Form.useWatch("ppr", form);
+  const selectedProcess: any = Form.useWatch("process", form);
 
   const handleFetchFailReasonOptions = async () => {
     const response = await executeFun(
@@ -134,6 +136,7 @@ const QcScan = (props: Props) => {
           Are you sure you want to delete the selected entries?
         </Typography.Text>
       ),
+      //@ts-ignore
       confirmLoading: loading === "remove",
       okText: "Delete",
       cancelText: "Back",
@@ -150,7 +153,7 @@ const QcScan = (props: Props) => {
       return;
     }
 
-    const payload = {
+    const payload: any = {
       qr: scanValues.qr,
       ppr: values.ppr,
       process: values.process,
@@ -170,7 +173,7 @@ const QcScan = (props: Props) => {
       setShowInsertModal(false);
       scanForm.setFieldValue("qr", undefined);
 
-      setCurrentScanDetails((curr) => ({
+      setCurrentScanDetails((curr: any) => ({
         currentScanned: +curr?.currentScanned + 1,
         failed: status === "FAIL" ? +curr?.failed + 1 : curr?.failed,
         passed: status === "PASS" ? +curr?.passed + 1 : curr?.passed,
@@ -229,11 +232,11 @@ const QcScan = (props: Props) => {
       );
     }
   };
-  const filterTheCheckedRows = (selected, rows) => {
-    let arr = [];
+  const filterTheCheckedRows = (selected: any, rows: any) => {
+    let arr: any = [];
     let matched = [];
-    selected.map((row) => {
-      matched = rows.filter((r) => r.id === row)[0];
+    selected.map((row: any) => {
+      matched = rows.filter((r: any) => r.id === row)[0];
 
       if (matched) {
         arr.push(matched);
@@ -246,39 +249,39 @@ const QcScan = (props: Props) => {
     let payload = {
       sku: form.getFieldValue("sku"),
       qca_process: selectedProcess.key,
-      bar_code: deleteRow.map((r) => r?.qr),
-      result: deleteRow.map((r) => r?.status),
+      bar_code: deleteRow.map((r: any) => r?.qr),
+      result: deleteRow.map((r: any) => r?.status),
     };
 
     const response = await executeFun(() => deleteQcaRows(payload), "select");
     handleFetchPPRDetails(selectedPpr.value.toString());
     handleFetchPreviousRows(selectedPpr.key, selectedProcess.key);
   };
-  const columns = [
+  const columns: any = [
     {
-      headerName: "#",
-      field: "id",
-      width: 30,
+      header: "#",
+      accessorKey: "id",
+      size: 30,
     },
     {
-      headerName: "Date",
-      field: "date",
-      width: 120,
+      header: "Date",
+      accessorKey: "date",
+      size: 120,
     },
     {
-      headerName: "Time",
-      field: "time",
-      width: 120,
+      header: "Time",
+      accessorKey: "time",
+      size: 120,
     },
     {
-      headerName: "QR No.",
-      field: "qr",
-      width: 180,
+      header: "QR No.",
+      accessorKey: "qr",
+      size: 180,
     },
     {
-      headerName: "Status",
-      field: "status",
-      width: 120,
+      header: "Status",
+      accessorKey: "status",
+      size: 120,
     },
   ];
   useEffect(() => {
@@ -308,26 +311,76 @@ const QcScan = (props: Props) => {
   useEffect(() => {
     setCurrentScanDetails(getCurrentScanDetails(rows ?? []));
   }, [rows]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+
+    enableRowSelection: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: loading("select")
+          ? "calc(100vh - 240px)"
+          : "calc(100vh - 260px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("select") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
+  });
+  useEffect(() => {
+    const selectedRows: any = table
+      .getSelectedRowModel()
+      .flatRows.map((r) => r.original);
+    setSelectedPo(selectedRows);
+  }, [rowSelection, table]);
+
   return (
-    <Row style={{ padding: 10, height: "95%" }} justify={"center"} gutter={6}>
-      <TransferModal
-        show={showTransferModal}
-        hide={() => setShowInsertModal(false)}
-        submitHandler={handleLotTransfer}
-        loading={loading}
-      />
-      <InsertModal
-        show={showInsertModal}
-        hide={() => setShowInsertModal(false)}
-        reasonOptions={failReasonOptions}
-        submitHandler={
-          isInsertingWithCount ? handleInsertWithCount : handleSingleScanInsert
-        }
-        loading={loading}
-      />
-      <Col lg={6} xl={4} span={4}>
-        <Flex vertical style={{ height: "100%", overflowY: "auto" }} gap={5}>
-          <Card title="Header Details" size="small">
+    <div style={{ height: "calc-[(100%-100px)]", margin: 12 }}>
+      <div className="grid grid-cols-[1fr_3fr_1fr]" style={{ gap: 12 }}>
+        <TransferModal
+          show={showTransferModal}
+          hide={() => setShowInsertModal(false)}
+          submitHandler={handleLotTransfer}
+          loading={loading}
+        />
+        <InsertModal
+          show={showInsertModal}
+          hide={() => setShowInsertModal(false)}
+          reasonOptions={failReasonOptions}
+          submitHandler={
+            isInsertingWithCount
+              ? handleInsertWithCount
+              : handleSingleScanInsert
+          }
+          loading={loading}
+        />
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: 12 }}
+          className="max-h-[calc(100%-40px)] p-1 overflow-y-auto"
+        >
+          <CustomFieldBox title="Header Details">
             {loading("headers") && <Loading />}
             <Form form={form} style={{ height: "100%" }} layout="vertical">
               <Row gutter={6}>
@@ -370,10 +423,8 @@ const QcScan = (props: Props) => {
                 loading={loading("transfer")}
               />
             </div>
-          </Card>
-
-          {/* scan card */}
-          <Card title="Scan Details" size="small">
+          </CustomFieldBox>
+          <CustomFieldBox title="Scan Details">
             <Form
               form={scanForm}
               layout="vertical"
@@ -444,7 +495,8 @@ const QcScan = (props: Props) => {
                 block
               />
             </Form>
-          </Card>
+          </CustomFieldBox>
+
           <div>
             <MyButton
               onClick={() => setShowTransferModal(true)}
@@ -455,31 +507,22 @@ const QcScan = (props: Props) => {
               loading={loading("transfer")}
             />
           </div>
-        </Flex>
-      </Col>
-      <Col lg={12} xl={14} xxl={10} span={10}>
-        <Card
-          size="small"
-          style={{ height: "100%" }}
-          bodyStyle={{ height: "95%", overflow: "auto" }}
-        >
-          {loading("fetchRows") && <Loading />}
-          <MyDataTable
+        </div>
+        <div>
+          {/* <MyDataTable
             checkboxSelection
             rows={rows}
             columns={columns}
-            onSelectionModelChange={(selected) => {
-              console.log(selected);
-              console.log(rows);
-              // setSelectedPo(selected);
+            onSelectionModelChange={(selected: any) => {
+    
+
               filterTheCheckedRows(selected, rows);
             }}
             loading={loading("select")}
-          />{" "}
-        </Card>
-      </Col>
-      <Col lg={6} xl={4} span={4}>
-        <Flex vertical gap={5} style={{ overflowY: "auto" }}>
+          /> */}
+          <MaterialReactTable table={table} />
+        </div>
+        <div>
           {pprDetails && <CustomerName details={pprDetails} />}
           {selectedProcess && (
             <LocationDetails
@@ -490,9 +533,9 @@ const QcScan = (props: Props) => {
           {currentScanDetails && (
             <CurrentDetails details={currentScanDetails} />
           )}
-        </Flex>
-      </Col>
-    </Row>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -502,7 +545,7 @@ const getCurrentProcess = (
   key: string,
   proccesses: ProcessDetailsType[]
 ): ProcessDetailsType => {
-  return proccesses.find((row) => row.process.value === key);
+  return proccesses.find((row) => row.process.value === key) as any;
 };
 
 export const getCurrentScanDetails = (rows: RowType[]): currentScanDetails => {

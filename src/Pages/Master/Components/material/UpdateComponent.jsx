@@ -25,6 +25,8 @@ import Loading from "../../../../Components/Loading";
 import CategoryDrawer from "./CategoryDrawer";
 import useApi from "../../../../hooks/useApi.ts";
 import AlternatePartCode from "./AlternatePartCode";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
@@ -257,14 +259,7 @@ export default function UpdateComponent() {
     } else {
       attrCat = "O";
     }
-    // if (attr_raw?.attribute_category === "Resistor") {
-    //   attrCat = "R";
-    // } else if (attr_raw.attribute_category === "Capacitor") {
-    //   attrCat = "C";
-    // } else {
-    //   attrCat = "O";
-    // }
-    // console.log("values", values);
+
     const payload = {
       componentKey: componentKey,
       componentname: values.component,
@@ -293,7 +288,7 @@ export default function UpdateComponent() {
       pocost: values.purchaseCost,
       othercost: values.otherCost,
       attr_code: attr_raw?.attributeCode ?? "--",
-      attr_raw: attr_raw?.attr_raw?attr_raw?.attr_raw:tooldata ?? "",
+      attr_raw: attr_raw?.attr_raw ? attr_raw?.attr_raw : tooldata ?? "",
       attr_category: attrCat,
       componentcategory: "--",
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
@@ -364,39 +359,6 @@ export default function UpdateComponent() {
       confirmLoading: loading === "submit",
     });
   };
-  const getCategoryDetails = async () => {
-    // try {
-    //   const response = await imsAxios.post("/mfgcategory/editRmCategoryData", {
-    //     component: componentKey,
-    //   });
-    //   const { data } = response;
-    //   if (data) {
-    //     if (data.code === 200) {
-    //       if (data.header) {
-    //         const finalObj = {
-    //           name: data.header.category,
-    //           code: data.header.category_code,
-    //           key: data.header.category_id,
-    //           fields: data.inputs.map((row) => ({
-    //             key: row.attribute,
-    //             label: row.attribute_name,
-    //             type: row.type,
-    //             value: row.value,
-    //           })),
-    //         };
-    //         setCategoryData(finalObj);
-    //       } else {
-    //         setCategoryData(null);
-    //       }
-    //     } else {
-    //       toast.error(data.message.msg);
-    //     }
-    //   }
-    // } catch (error) {
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
 
   const submitHandler = async (payload) => {
     try {
@@ -437,375 +399,284 @@ export default function UpdateComponent() {
         open={alternatePartModal}
         hide={() => setAlternatePartModal(false)}
       />
-      <Form
-        layout="vertical"
-        form={componentForm}
-        style={{ height: "90%", width: "100%", padding: 20 }}
-      >
-        <Row justify="center">
-          <Col
-            span={16}
+      <Form layout="vertical" form={componentForm} style={{ height: "90%" }}>
+        <div
+          className="max-h-[calc(100vh-80px)] overflow-auto"
+          style={{ margin: 12, padding: "0px 4px" }}
+        >
+          {loading === "fetch" && <Loading />}
+          <div
             style={{
-              border: "1px solid #ccc",
-              padding: 20,
-              borderRadius: 10,
-              position: "relative",
+              position: "sticky",
+              top: "-12px",
+              backgroundColor: "white",
+              zIndex: 999,
+              display: "flex",
+              gap: 8,
+              padding: "20px 0px",
             }}
           >
-            {loading === "fetch" && <Loading />}
-            <Row>
-              <Col span={24}>
-                <Row justify="space-between">
-                  <Col>
-                    <Typography.Title level={5}>Basic Details</Typography.Title>
-                  </Col>
-                  <Col>
-                    <Space>
-                      <MyButton onClick={resetHandler} variant="reset" />
-                      <MyButton
-                        onClick={modalConfirmMaterial}
-                        variant="submit"
-                      />
-                    </Space>
-                  </Col>
-                </Row>
-              </Col>
-              <Col span={24}>
-                <Row gutter={6}>
-                  <Col span={4}>
-                    <Form.Item name="partCode" label="Part Code">
-                      <Input disabled />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name="newPartCode"
-                      // label="New Part Code"
-                      label={
-                        <div
-                          style={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            width: 350,
-                          }}
-                        >
-                          {/* Alternate Part Code */}
-                          <span
-                            onClick={() => setAlternatePartModal(componentKey)}
-                            style={{
-                              color: "#1890FF",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Similar Part Codes
-                          </span>
-                        </div>
-                      }
+            <CustomButton
+              size="small"
+              variant="outlined"
+              title={"reset"}
+              onclick={resetHandler}
+            />
+
+            <CustomButton
+              size="small"
+              title={"submit"}
+              onclick={modalConfirmMaterial}
+            />
+          </div>
+          <div
+            className="grid grid-cols-2"
+            style={{ gap: 12, margin: "10px 0px" }}
+          >
+            <CustomFieldBox title={"Basic Details"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="partCode" label="Part Code">
+                  <Input disabled />
+                </Form.Item>{" "}
+                <Form.Item
+                  name="newPartCode"
+                  // label="New Part Code"
+                  label={
+                    <div
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        width: 350,
+                      }}
                     >
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="component" label="Component Name">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={4}>
-                    <Form.Item name="uom" label="UoM">
-                      <MySelect options={uomOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="catType" label="Type">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="mrp" label="MRP">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="group" label="Group">
-                      <MySelect options={groupOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="Attribute Code">
-                      <Row justify="space-between">
-                        {/* {categor yData && ( */}{" "}
-                        <Tooltip
-                          title={
-                            "Please save the details to enable this feature"
-                          }
-                        >
-                          <Col>{categoryData?.text ?? "--"}</Col>
-                        </Tooltip>
-                        {/* )} */}
-                        {/* {(!categoryData?.value ||
-                          categoryData?.value === "--") && ( */}
-                        <Col>
-                          <Button
-                            onClick={() => setShowCategoryDetails(categoryData)}
-                            // disabled={categoryData?.value.length > 3}
-                          >
-                            Details
-                          </Button>
-                        </Col>
-                        {/* )} */}
-                      </Row>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="isEnabled" label="is Enabled?">
-                      <MySelect options={isEnabledOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="jobWork" label="Job Work">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={4}>
-                    <Form.Item name="piaStatus">
-                      <Checkbox
-                        checked={isEnabled}
-                        onChange={(e) => setIsEnabled(e.target.checked)}
-                      />
-                      <Typography.Text
+                      {/* Alternate Part Code */}
+                      <span
+                        onClick={() => setAlternatePartModal(componentKey)}
                         style={{
-                          fontSize: "14px",
-                          marginLeft: "4px",
+                          color: "#1890FF",
+                          cursor: "pointer",
                         }}
                       >
-                        Enable PIA
-                      </Typography.Text>
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="qcStatus" label="QC Status">
-                      <MySelect options={qcStatusOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="description" label="Description">
-                      <Input.TextArea />
-                    </Form.Item>
-                  </Col>
-
-                  {fetchPartCode.catType == "Resistor" && (
-                    <>
-                      {" "}
-                      <Divider />
-                      <Col span={24}>
-                        <Typography.Title level={5}>
-                          Attribute Code Details
-                        </Typography.Title>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item
-                          name="manufacturing_code"
-                          label="Manufacturing Code"
-                        >
-                          <Input
-                            disabled
-                            value={tooldata?.manufacturing_code}
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="mountingStyle" label="Mounting Style">
-                          <Input disabled value={tooldata?.mountingStyle} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="multipler" label="Multipler">
-                          <Input disabled value={tooldata?.multipler} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="packageSize" label="Package Size">
-                          <Input disabled value={tooldata?.packageSize} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="powerRating" label="Power Rating">
-                          <Input disabled value={tooldata?.powerRating} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="value" label="Value">
-                          <Input disabled value={tooldata?.value} />
-                        </Form.Item>
-                      </Col>
-                    </>
-                  )}
-                  {fetchPartCode.catType == "Capacitor" && (
-                    <>
-                      {" "}
-                      <Divider />
-                      <Col span={24}>
-                        <Typography.Title level={5}>
-                          Attribute Code Details
-                        </Typography.Title>
-                      </Col>{" "}
-                      <Col span={8}>
-                        <Form.Item
-                          name="manufacturing_code"
-                          label="Manufacturing Code"
-                        >
-                          <Input
-                            disabled
-                            value={
-                              tooldata?.manufacturing_code == 0
-                                ? "--"
-                                : tooldata?.manufacturing_code
-                            }
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="mountingStyle" label="Mounting Style">
-                          <Input disabled value={tooldata?.mountingStyle} />
-                        </Form.Item>
-                      </Col>{" "}
-                      <Col span={8}>
-                        <Form.Item name="tolerance" label="Tolerance">
-                          <Input disabled value={tooldata?.tolerance} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="siUnit" label="SI Unit">
-                          <Input disabled value={tooldata?.siUnit} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item
-                          name="typeofCapacitor"
-                          label="Type of Capacitor"
-                        >
-                          <Input disabled value={tooldata?.typeofCapacitor} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="packageSize" label="Package Size">
-                          <Input disabled value={tooldata?.packageSize} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="voltage" label="Voltage">
-                          <Input disabled value={tooldata?.voltage} />
-                        </Form.Item>
-                      </Col>
-                      <Col span={8}>
-                        <Form.Item name="value" label="Value">
-                          <Input disabled value={tooldata?.value} />
-                        </Form.Item>
-                      </Col>
-                    </>
-                  )}
-
-                  <Divider />
-                  <Col span={24}>
-                    <Typography.Title level={5}>Tax Details</Typography.Title>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="taxType" label="Tax Type">
-                      <MySelect options={taxTypeOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="taxRate" label="Tax Rate %">
-                      <MySelect options={taxRateOptions} />
-                    </Form.Item>
-                  </Col>
-                  <Divider />
-                  <Col span={24}>
-                    <Descriptions
-                      size="small"
-                      title="Advance Details"
-                    ></Descriptions>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="brand" label="Brand">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="ean" label="EAN">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="weight" label="Weight (gms)">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="height" label="height (mm)">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="width" label="width (mm)">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name="volumetricWeight"
-                      label="Volumetric Weight"
+                        Similar Part Codes
+                      </span>
+                    </div>
+                  }
+                >
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="component" label="Component Name">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="uom" label="UoM">
+                  <MySelect options={uomOptions} />
+                </Form.Item>{" "}
+                <Form.Item name="catType" label="Type">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="mrp" label="MRP">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="group" label="Group">
+                  <MySelect options={groupOptions} />
+                </Form.Item>{" "}
+                <Form.Item label="Attribute Code">
+                  <Row justify="space-between">
+                    {/* {categor yData && ( */}{" "}
+                    <Tooltip
+                      title={"Please save the details to enable this feature"}
                     >
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Divider />
-                  <Col span={24}>
-                    <Typography.Title level={5}>
-                      Production Details
-                    </Typography.Title>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="minStock" label="Min Stock">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="maxStock" label="Max Stock">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="minOrder" label="Min Order">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="leadTime" label="Lead Time">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="enableAlert" label="Enable Alert">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="purchaseCost" label="Purchase Cost">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="otherCost" label="Other Cost">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
+                      <Col>{categoryData?.text ?? "--"}</Col>
+                    </Tooltip>
+                    {/* )} */}
+                    {/* {(!categoryData?.value ||
+                          categoryData?.value === "--") && ( */}
+                    <Col>
+                      <Button
+                        onClick={() => setShowCategoryDetails(categoryData)}
+                        // disabled={categoryData?.value.length > 3}
+                      >
+                        Details
+                      </Button>
+                    </Col>
+                    {/* )} */}
+                  </Row>
+                </Form.Item>{" "}
+                <Form.Item name="isEnabled" label="is Enabled?">
+                  <MySelect options={isEnabledOptions} />
+                </Form.Item>{" "}
+                <Form.Item name="jobWork" label="Job Work">
+                  <Input />
+                </Form.Item>{" "}
+                <Form.Item name="piaStatus">
+                  <Checkbox
+                    checked={isEnabled}
+                    onChange={(e) => setIsEnabled(e.target.checked)}
+                  />
+                  <Typography.Text
+                    style={{
+                      fontSize: "14px",
+                      marginLeft: "4px",
+                    }}
+                  >
+                    Enable PIA
+                  </Typography.Text>
+                </Form.Item>{" "}
+                <Form.Item name="qcStatus" label="QC Status">
+                  <MySelect options={qcStatusOptions} />
+                </Form.Item>
+              </div>
+              <Form.Item name="description" label="Description">
+                <Input.TextArea />
+              </Form.Item>
+            </CustomFieldBox>
+
+            {fetchPartCode.catType == "Resistor" && (
+              <CustomFieldBox title={"Attribute Code Details"}>
+                <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                  <Form.Item
+                    name="manufacturing_code"
+                    label="Manufacturing Code"
+                  >
+                    <Input disabled value={tooldata?.manufacturing_code} />
+                  </Form.Item>
+
+                  <Form.Item name="mountingStyle" label="Mounting Style">
+                    <Input disabled value={tooldata?.mountingStyle} />
+                  </Form.Item>
+
+                  <Form.Item name="multipler" label="Multipler">
+                    <Input disabled value={tooldata?.multipler} />
+                  </Form.Item>
+
+                  <Form.Item name="packageSize" label="Package Size">
+                    <Input disabled value={tooldata?.packageSize} />
+                  </Form.Item>
+
+                  <Form.Item name="powerRating" label="Power Rating">
+                    <Input disabled value={tooldata?.powerRating} />
+                  </Form.Item>
+
+                  <Form.Item name="value" label="Value">
+                    <Input disabled value={tooldata?.value} />
+                  </Form.Item>
+                </div>
+              </CustomFieldBox>
+            )}
+            {fetchPartCode.catType == "Capacitor" && (
+              <CustomFieldBox title={"Attribute Code Details"}>
+                <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                  <Form.Item
+                    name="manufacturing_code"
+                    label="Manufacturing Code"
+                  >
+                    <Input
+                      disabled
+                      value={
+                        tooldata?.manufacturing_code == 0
+                          ? "--"
+                          : tooldata?.manufacturing_code
+                      }
+                    />
+                  </Form.Item>
+                  <Form.Item name="mountingStyle" label="Mounting Style">
+                    <Input disabled value={tooldata?.mountingStyle} />
+                  </Form.Item>{" "}
+                  <Form.Item name="tolerance" label="Tolerance">
+                    <Input disabled value={tooldata?.tolerance} />
+                  </Form.Item>
+                  <Form.Item name="siUnit" label="SI Unit">
+                    <Input disabled value={tooldata?.siUnit} />
+                  </Form.Item>
+                  <Form.Item name="typeofCapacitor" label="Type of Capacitor">
+                    <Input disabled value={tooldata?.typeofCapacitor} />
+                  </Form.Item>
+                  <Form.Item name="packageSize" label="Package Size">
+                    <Input disabled value={tooldata?.packageSize} />
+                  </Form.Item>
+                  <Form.Item name="voltage" label="Voltage">
+                    <Input disabled value={tooldata?.voltage} />
+                  </Form.Item>
+                  <Form.Item name="value" label="Value">
+                    <Input disabled value={tooldata?.value} />
+                  </Form.Item>
+                </div>
+              </CustomFieldBox>
+            )}
+
+            <CustomFieldBox title={"Tax Details"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="taxType" label="Tax Type">
+                  <MySelect options={taxTypeOptions} />
+                </Form.Item>
+
+                <Form.Item name="taxRate" label="Tax Rate %">
+                  <MySelect options={taxRateOptions} />
+                </Form.Item>
+              </div>
+            </CustomFieldBox>
+
+            <CustomFieldBox title={"Advance Details"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="brand" label="Brand">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="ean" label="EAN">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="weight" label="Weight (gms)">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="height" label="height (mm)">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="width" label="width (mm)">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="volumetricWeight" label="Volumetric Weight">
+                  <Input />
+                </Form.Item>
+              </div>
+            </CustomFieldBox>
+
+            <CustomFieldBox title={"Production Details"}>
+              <div className="grid grid-cols-2" style={{ gap: 12 }}>
+                <Form.Item name="minStock" label="Min Stock">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="maxStock" label="Max Stock">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="minOrder" label="Min Order">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="leadTime" label="Lead Time">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="enableAlert" label="Enable Alert">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="purchaseCost" label="Purchase Cost">
+                  <Input />
+                </Form.Item>
+
+                <Form.Item name="otherCost" label="Other Cost">
+                  <Input />
+                </Form.Item>
+              </div>
+            </CustomFieldBox>
+          </div>
+        </div>
         <CategoryDrawer
           show={showCategoryDetails}
           getDetails={getDetails}

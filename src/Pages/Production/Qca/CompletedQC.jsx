@@ -1,28 +1,25 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Button, Input, Popconfirm, Row, Space, Popover } from "antd";
 import { toast } from "react-toastify";
 import MySelect from "../../../Components/MySelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { v4 } from "uuid";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import {
   CheckOutlined,
   CloseOutlined,
-  MessageOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import MyDataTable from "../../../Components/MyDataTable";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { imsAxios } from "../../../axiosInterceptor";
-import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
 
 import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
-import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
 function CompletedQC() {
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("");
@@ -41,11 +38,6 @@ function CompletedQC() {
   ];
 
   const getPartOptions = async (search) => {
-    // setSelectLoading(false);
-    // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-    //   search: search,
-    // });
-    // setSelectLoading(true);
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
@@ -172,14 +164,14 @@ function CompletedQC() {
       headerName: "#",
       width: 30,
       field: "index",
-      renderCell: ({ row }) => <p>{row.index}</p>,
+      render: ({ row }) => <p>{row.index}</p>,
     },
 
     {
       headerName: "Sample No.",
       width: 120,
       field: "sample_txn",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <span
           style={{
             color: row.status === "A" ? "green" : "brown",
@@ -193,27 +185,25 @@ function CompletedQC() {
       headerName: "MIN No.",
       field: "min_txn",
       width: 150,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.min_txn} />,
+      render: ({ row }) => <ToolTipEllipses text={row.min_txn} />,
     },
     {
       headerName: "MIN Date",
       field: "min_txn_dt",
       width: 180,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.min_txn_dt} />,
+      render: ({ row }) => <ToolTipEllipses text={row.min_txn_dt} />,
     },
     {
       headerName: "Invoice",
       width: 180,
       field: "invoice",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses copy={true} text={row.invoice} />
-      ),
+      render: ({ row }) => <ToolTipEllipses copy={true} text={row.invoice} />,
     },
     {
       headerName: "Vendor Code",
       width: 120,
       field: "vendorcode",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.vendorcode} />
       ),
     },
@@ -221,7 +211,7 @@ function CompletedQC() {
       headerName: "Vendor Name",
       width: 200,
       field: "vendorname",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.vendorname} />
       ),
     },
@@ -229,69 +219,65 @@ function CompletedQC() {
       headerName: "Part",
       width: 100,
       field: "part",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.part} />,
+      render: ({ row }) => <ToolTipEllipses text={row.part} />,
     },
     {
       headerName: "Component",
       field: "component",
       width: 250,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.component} />,
+      render: ({ row }) => <ToolTipEllipses text={row.component} />,
     },
 
     {
       headerName: "In Qty",
       width: 100,
       field: "inQty",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.inQty} />,
+      render: ({ row }) => <ToolTipEllipses text={row.inQty} />,
     },
     {
       headerName: "UoM",
       width: 100,
       field: "unit",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.unit} />,
+      render: ({ row }) => <ToolTipEllipses text={row.unit} />,
     },
 
     {
       headerName: "Sample Qty",
       width: 100,
       field: "samQty",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.samQty} />,
+      render: ({ row }) => <ToolTipEllipses text={row.samQty} />,
     },
 
     {
       headerName: "Sample Date",
       width: 150,
       field: "sample_qc_date",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.sample_qc_date} />,
+      render: ({ row }) => <ToolTipEllipses text={row.sample_qc_date} />,
     },
 
     {
       headerName: "Stage 1 Remarks",
       width: 150,
       field: "comment_stage_first",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.comment_stage_first} />
-      ),
+      render: ({ row }) => <ToolTipEllipses text={row.comment_stage_first} />,
     },
     {
       headerName: "Stage 2 Remarks",
       width: 150,
       field: "comment_stage_second",
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.comment_stage_second} />
-      ),
+      render: ({ row }) => <ToolTipEllipses text={row.comment_stage_second} />,
     },
     {
       headerName: "UoM",
       width: 100,
       field: "unit",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.unit} />,
+      render: ({ row }) => <ToolTipEllipses text={row.unit} />,
     },
     {
       headerName: "Status",
       width: 80,
       field: "status",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <span
           style={{
             color: row.status === "A" ? "green" : "brown",
@@ -305,7 +291,7 @@ function CompletedQC() {
       headerName: "Remarks",
       field: "remark",
       width: 200,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.currStatus === "A" || row.currStatus === "F" ? (
           <ToolTipEllipses text={row.remark} />
         ) : (
@@ -321,7 +307,7 @@ function CompletedQC() {
       type: "actions",
       width: 120,
       // width: 100,
-      renderCell: ({ row }) => [
+      render: ({ row }) => [
         row.currStatus === "A" || row.currStatus === "F" ? (
           <span
             style={{
@@ -398,10 +384,7 @@ function CompletedQC() {
 
   return (
     <>
-      <Row
-        justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
-      >
+      <Row justify="space-between" style={{ margin: 12 }}>
         <div>
           <Space>
             <div style={{ width: 200 }}>
@@ -449,17 +432,15 @@ function CompletedQC() {
                 )
               )}
             </div>
-            <MyButton
-              variant="search"
+
+            <CustomButton
+              size="small"
               disabled={!searchInput ? true : false}
-              type="primary"
+              title="Search"
+              starticon={<Search fontSize="small" />}
               loading={searchLoading}
-              onClick={getRows}
-              id="submit"
-              // className="primary-button search-wise-btn"
-            >
-              Search
-            </MyButton>
+              onclick={getRows}
+            />
           </Space>
         </div>
         <Space>
@@ -472,7 +453,7 @@ function CompletedQC() {
           />
         </Space>
       </Row>
-      <div style={{ height: "85%", padding: "0px 10px" }}>
+      <div style={{ height: "calc(100vh - 180px)", padding: "0px 10px" }}>
         <FormTable columns={columns} data={rows} loading={tableLoading} />
       </div>
     </>

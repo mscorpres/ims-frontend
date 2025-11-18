@@ -5,13 +5,8 @@ import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from "material-react-table";
-import { Box, LinearProgress } from "@mui/material";
-import { renderIcon } from "../../new/components/layout/Sidebar/iconMapper.tsx";
-import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
+import MyButton from "../../Components/MyButton";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox";
 
 const Group = () => {
   const { pathname } = useLocation();
@@ -105,7 +100,7 @@ const Group = () => {
     fetchGroup();
   }, []);
   return (
-    <div style={{ height: "100%" }}>
+    <div style={{ height: "calc(100vh - 70px)",margin:12 }}>
       <Row gutter={8} style={{ height: "100%" }}>
         <Col span={8}>
           <CustomFieldBox title="Add Group">

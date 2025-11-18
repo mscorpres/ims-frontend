@@ -5,7 +5,11 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import MyDataTable from "@/Components/MyDataTable.jsx";
 import ToolTipEllipses from "@/Components/ToolTipEllipses";
 import AttachementList from "./AttachementList.jsx";
-
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
 import Components from "@/Pages/R&D/bom/list/components";
 
 import { getBOMList } from "@/api/r&d/bom";
@@ -17,16 +21,20 @@ import Attachments from "@/Pages/R&D/bom/list/attachments";
 import { useLocation, useNavigate } from "react-router-dom";
 import routeConstants from "@/Routes/routeConstants.js";
 import IconButton from "@/Components/IconButton";
-import { ArrowRightOutlined,EyeOutlined } from "@ant-design/icons";
-
+import { ArrowRightOutlined, EyeOutlined } from "@ant-design/icons";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
 import ViewLogs from "@/Pages/R&D/bom/list/components/ViewLogs.js";
+import { Box, LinearProgress } from "@mui/material";
+import { Image, Visibility } from "@mui/icons-material";
 
 const BOMList = () => {
   const [rows, setRows] = useState<BOMTypeExtended[]>([]);
   const [selectedBOM, setSelectedBOM] = useState<BOMTypeExtended | null>(null);
   const [showComponents, setShowComponents] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
-  const [selectedLogs, setSelectedLogs] = useState<BOMTypeExtended | null>(null);
+  const [selectedLogs, setSelectedLogs] = useState<BOMTypeExtended | null>(
+    null
+  );
 
   const [showDocs, setShowDocs] = useState(false);
   const [attachlist, setAttachLsit] = useState([]);
@@ -46,80 +54,30 @@ const BOMList = () => {
     setRows(response.data);
   };
 
-  
   const actionColumns = [
     {
       headerName: "",
       type: "actions",
       width: 30,
-      getActions: ({ row }: { row: BOMTypeExtended }) => [
-        <GridActionsCellItem
-          showInMenu
-          placeholder="Components and Logs"
-          label={"Components and Logs"}
-          onClick={() => {
-            setShowComponents(true);
-            setSelectedBOM(row);
-          }}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          placeholder="Attachments"
-          label={"Attachments"}
-          // onClick={() => {
-          //   setShowAttachments(true);
-          //   setSelectedBOM(row);
-          onClick={() => {
-            setShowDocs(true);
-            setAttachLsit(row);
-          }}
-          // }}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          placeholder="Update"
-          label={"Update"}
-          onClick={() => {
-            console.log(row)
-            navigate(
-              `${routeConstants.researchAndDevelopment.bom.create}?sku=${row.productKey}&version=${row.version}`
-            );
-          }}
-        />,
-        <GridActionsCellItem
-        showInMenu
-        placeholder="View Logs"
-        label={"View Logs"}
-        onClick={() => {
-          console.log(row)
-         setShowLogs(true)
-         setSelectedLogs(row);
-        }}
-      />,
-      ],
+      getActions: ({ row }: { row: BOMTypeExtended }) => [],
     },
   ];
 
   const draftActionColumns = [
     {
-      headerName: "Actions",
+      header: "Actions",
       type: "actions",
-      width: 130,      
+      width: 130,
       getActions: ({ row }: { row: BOMTypeExtended }) => [
         <GridActionsCellItem
           icon={
             <IconButton
-              icon={
-                <EyeOutlined
-                  style={{ color: "#04B0A8", fontSize: 16 }}
-                />
-              }
+              icon={<EyeOutlined style={{ color: "#04B0A8", fontSize: 16 }} />}
               tooltip="View Attachments"
             />
           }
           label="View Attachments"
           onClick={() => {
-            console.log(row)
             setShowDocs(true);
             setAttachLsit(row);
           }}
@@ -149,30 +107,128 @@ const BOMList = () => {
   useEffect(() => {
     handleFetchBOMList();
   }, []);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading("fetch")
+          ? "calc(100vh - 190px)"
+          : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) =>
+      pathName.includes("draft")
+        ? [
+            <MRT_ActionMenuItem
+              icon={<Visibility fontSize="small" />}
+              key="view"
+              label="View Attachments"
+              onClick={() => {
+                closeMenu?.();
+
+                setShowDocs(true);
+                setAttachLsit(row?.original);
+              }}
+              table={table}
+            />,
+            <MRT_ActionMenuItem
+              icon={<Image fontSize="small" />}
+              key="viewimage"
+              label="View Images"
+              onClick={() => {
+                navigate(
+                  `${routeConstants.researchAndDevelopment.bom.create}?sku=${row?.original?.productKey}&version=${row?.original?.version}/draft`
+                );
+              }}
+              table={table}
+            />,
+          ]
+        : [
+            <MRT_ActionMenuItem
+              icon={""}
+              table={table}
+              key="componentsandlogs"
+              label={"Components and Logs"}
+              onClick={() => {
+                {
+                  closeMenu?.();
+                  setShowComponents(true);
+                  setSelectedBOM(row?.original);
+                }
+              }}
+            />,
+            <MRT_ActionMenuItem
+              icon={""}
+              table={table}
+              key="attachments"
+              label={"Attachments"}
+              // onClick={() => {
+              //   setShowAttachments(true);
+              //   setSelectedBOM(row);
+              onClick={() => {
+                {
+                  closeMenu?.();
+                  setShowDocs(true);
+                  setAttachLsit(row?.original);
+                }
+              }}
+              // }}
+            />,
+            <MRT_ActionMenuItem
+              icon={""}
+              table={table}
+              key="update"
+              label={"Update"}
+              onClick={() => {
+                navigate(
+                  `${routeConstants.researchAndDevelopment.bom.create}?sku=${row?.original?.productKey}&version=${row?.original?.version}`
+                );
+              }}
+            />,
+            <MRT_ActionMenuItem
+              icon={""}
+              table={table}
+              key="viewlogs"
+              label={"View Logs"}
+              onClick={() => {
+                setShowLogs(true);
+                setSelectedLogs(row?.original);
+              }}
+            />,
+          ],
+  });
   return (
-    <Row justify="center" style={{ height: "95%", padding: 10 }}>
+    <div style={{ height: "95%", margin: 12 }}>
       {attachlist?.key && (
-        // <Attachments
-        //   show={showAttachments}
-        //   hide={() => {
-        //     setShowAttachments(false);
-        //     setSelectedBOM(null);
-        //   }}
-        //   bom={selectedBOM}
-        // />
         <AttachementList
           attachlist={attachlist}
           setAttachLsit={setAttachLsit}
           showDocs={showDocs}
           setShowDocs={setShowDocs}
-
-          // setAttachLsit={setAttachLsit}
-          // attachlist={attachlist}
-          // hide={() => {
-          //   setShowDocs(false);
-          //   // setSelectedBOM(null);
-          // }}
-          // bom={selectedBOM}
         />
       )}
       {selectedBOM && (
@@ -186,35 +242,19 @@ const BOMList = () => {
           }}
         />
       )}
-      {selectedLogs && <ViewLogs
-        show={showLogs}
-        hide={() => {
-          setShowLogs(false);
-          setSelectedBOM(null);
-        }}
-        selectedBOM={selectedLogs}
-      />}
-      {/* <BOMApproval
-        show={showLogs}
-        hide={() => {
-          setShowLogs(false);
-          setSelectedBOM(null);
-        }}
-        selectedBom={selectedBOM}
-      /> */}
-      <Col sm={24} lg={20} xxl={16}>
-        <MyDataTable
-          columns={[
-            ...columns,
-            ...(pathName.includes("draft")
-              ? [...draftActionColumns]
-              : [...actionColumns]),
-          ]}
-          data={rows ?? []}
-          loading={loading("fetch")}
+      {selectedLogs && (
+        <ViewLogs
+          show={showLogs}
+          hide={() => {
+            setShowLogs(false);
+            setSelectedBOM(null);
+          }}
+          selectedBOM={selectedLogs}
         />
-      </Col>
-    </Row>
+      )}
+
+      <MaterialReactTable table={table} />
+    </div>
   );
 };
 
@@ -222,45 +262,45 @@ export default BOMList;
 
 const columns = [
   {
-    headerName: "#",
+    header: "#",
     width: 30,
-    field: "id",
+    accessorKey: "id",
   },
   {
-    headerName: "SKU",
+    header: "SKU",
     width: 100,
-    field: "sku",
+    accessorKey: "sku",
     renderCell: ({ row }: { row: BOMTypeExtended }) => (
       <ToolTipEllipses text={row.sku} copy={true} />
     ),
   },
   //
   {
-    headerName: "Product",
+    header: "Product",
     minWidth: 200,
     flex: 1,
-    field: "productName",
+    accessorKey: "productName",
   },
   //
   {
-    headerName: "Created On",
+    header: "Created On",
     width: 150,
-    field: "createdOn",
+    accessorKey: "createdOn",
   },
   {
-    headerName: "BRN",
+    header: "BRN",
     width: 80,
-    field: "version",
+    accessorKey: "version",
   },
   {
-    headerName: "Current Approver",
+    header: "Current Approver",
     width: 150,
-    field: "currentApprover",
+    accessorKey: "currentApprover",
   },
   {
-    headerName: "Status",
+    header: "Status",
     width: 150,
-    field: "status",
+    accessorKey: "status",
     renderCell: ({ row }: { row: BOMTypeExtended }) => (
       <ToolTipEllipses
         text={
@@ -274,8 +314,8 @@ const columns = [
     ),
   },
   {
-    headerName: "Created By",
+    header: "Created By",
     width: 250,
-    field: "createdBy",
+    accessorKey: "createdBy",
   },
 ];

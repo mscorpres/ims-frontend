@@ -120,8 +120,9 @@ const AttachementList = ({
       width={600}
       open={attachlist?.key}
       onClose={() => setAttachLsit(null)}
+
     >
-      <Flex vertical gap={3} style={{ marginBottom: 10, height: "100%" }}>
+      <Flex vertical gap={3} style={{  height: "100%" }}>
         <MyDataTable columns={doccolumns} data={rows} loading={loading} />
       </Flex>
 
@@ -132,27 +133,7 @@ const AttachementList = ({
           </Typography.Text>
         </Flex>
       )}
-      {/* {props.bom.documents?.length > 0 && (
-        <Flex vertical gap={5}>
-          <Flex justify={"space-between"}>
-            <Typography.Text strong>Attachements:</Typography.Text>
-            <Typography.Text>
-              {props.bom.documents.length} found
-            </Typography.Text>
-          </Flex>
-          {props.bom.documents.map((row) => (
-            <Card size="small">
-              <Flex align="center" justify={"space-between"}>
-                <Typography.Text strong>{row.fileName}</Typography.Text>
-                <CommonIcons
-                  onClick={() => handleDownloadDoc(row.url)}
-                  action="downloadButton"
-                />
-              </Flex>
-            </Card>
-          ))} */}
-      {/* </Flex> */}
-      {/* )} */}
+    
     </Drawer>
   );
 };

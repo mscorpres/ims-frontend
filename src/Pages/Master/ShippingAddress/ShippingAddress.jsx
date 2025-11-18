@@ -80,15 +80,15 @@ function ShippingAddress() {
   });
 
   return (
-    <div style={{ height: "90%", padding: "0px 5px" }}>
+    <div style={{ height: "90%", margin:12 }}>
       <Row gutter={6} style={{ height: "95%" }}>
-        <Col span={4}>
+        <Col span={6}>
           <AddShippingAddress
             getRows={getRows}
             handleCSVDownload={handleCSVDownload}
           />
         </Col>
-        <Col span={20} style={{ height: "100%" }}>
+        <Col span={18} style={{ height: "100%" }}>
         <MaterialReactTable table={table} />
         </Col>
       </Row>

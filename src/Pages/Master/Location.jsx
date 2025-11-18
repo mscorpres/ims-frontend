@@ -22,6 +22,9 @@ import MyDataTable from "../gstreco/myDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
+import CustomFieldBox from "../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../new/components/reuseable/CustomButton.jsx";
+import { renderIcon } from "../../new/components/layout/Sidebar/iconMapper.tsx";
 
 function Location() {
   const [treeData, setTreeData] = useState([]);
@@ -187,7 +190,7 @@ function Location() {
     const values = await disableLocationForm.validateFields();
     const payload = {
       location_key: row.label,
-      status: row.status==="BLOCK" ? "ACTIVE" : "BLOCK",
+      status: row.status === "BLOCK" ? "ACTIVE" : "BLOCK",
     };
 
     Modal.confirm({
@@ -244,18 +247,7 @@ function Location() {
       cancelText: "Back",
     });
   };
-  // const getCostCenteres = async (search) => {
-  //   const response = await executeFun(
-  //     () => getCostCentresOptions(search),
-  //     "select"
-  //   );
-  //   let arr = [];
-  //   console.log("response", response);
-  //   if (response.success) {
-  //     arr = convertSelectOptions(response.data);
-  //     setAsyncOptions(arr);
-  //   }
-  // };
+
   const getCostCenteres = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
@@ -454,7 +446,7 @@ function Location() {
     }
   }, [location]);
   return (
-    <div style={{ height: "90%", overflow: "auto" }}>
+    <div style={{ height: "90%", overflow: "auto", margin: 12 }}>
       <Modal
         open={mapCostCenterModal}
         footer={null}
@@ -492,11 +484,11 @@ function Location() {
           </Row>
         </Form>
       </Modal>
-      <Row gutter={10} style={{ margin: "10px", height: "80%" }}>
+      <Row gutter={10} style={{ height: "calc(100% - 20px)" }}>
         <Col span={8}>
           <Row gutter={[0, 6]}>
             <Col span={24}>
-              <Card size="small" title="Add Location">
+              <CustomFieldBox title={"Add Location"}>
                 <Form
                   onFinish={submitHandler}
                   form={addLocationForm}
@@ -588,34 +580,33 @@ function Location() {
                       <Row gutter={10} justify="end">
                         <Col>
                           <Form.Item>
-                            <MyButton
+                            <CustomButton
+                              size="small"
+                              variant="outlined"
+                              title={"reset"}
+                              endicon={renderIcon("ResetIcon")}
                               htmlType="button"
-                              size="default"
-                              onClick={() => resetForm()}
-                              variant="reset"
-                            >
-                              Reset
-                            </MyButton>
+                              onclick={() => resetForm()}
+                            />
                           </Form.Item>
                         </Col>
                         <Col>
                           <Form.Item>
-                            <MyButton
-                              loading={submitLoading}
+                            <CustomButton
+                              size="small"
+                              title={"submit"}
+                              endicon={renderIcon("CheckCircleOutlined")}
                               htmlType="submit"
-                              size="default"
-                              type="primary"
-                              variant="add"
-                            >
-                              Submit
-                            </MyButton>
+                              onclick={() => resetForm()}
+                              loading={submitLoading}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
                     </Col>
                   </Row>
                 </Form>
-              </Card>
+              </CustomFieldBox>
             </Col>
           </Row>
         </Col>
@@ -628,12 +619,15 @@ function Location() {
           > */}
           {treeLoading && <Loading />}
           {/* <Tree showLine={true} treeData={treeData} /> */}
-          <Card style={{ height: "100%" }} bodyStyle={{ height: "100%" }}>
+          <Card
+            style={{ height: "100%" }}
+            bodyStyle={{ height: "100%", backgroundColor: "white" }}
+          >
             {viewData ? (
               <>
                 <MyButton
                   variant="back"
-                  style={{ marginBottom: "5px", marginTop: "1px" }}
+                  style={{ }}
                   onClick={() => setViewData(false)}
                 ></MyButton>
                 <div style={{ height: "95%" }}>

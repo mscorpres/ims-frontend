@@ -32,7 +32,7 @@ export default function ComponentsTable({
     enableRowActions: true,
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 250px)",
+        height: loading ? "calc(100vh - 190px)" : "calc(100vh - 240px)",
       },
     },
     renderTopToolbar: () =>

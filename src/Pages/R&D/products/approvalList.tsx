@@ -8,6 +8,16 @@ import { getProductsList } from "@/api/r&d/products";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import Approval from "@/Pages/R&D/products/approval";
 import AttachementList from "./AttachementList.jsx";
+//@ts-ignore
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+//@ts-ignore
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, LinearProgress } from "@mui/material";
 
 type Props = {};
 
@@ -26,50 +36,79 @@ const ApprovalList = (props: Props) => {
     setRows(
       (response.data ?? [])
         .filter(
-          (row) => row.approvalStage === "PEN"
+          (row: any) => row.approvalStage === "PEN"
           // || row.approvalStage === "1"
         )
-        .map((row, index) => ({
+        .map((row: any, index: any) => ({
           ...row,
           id: index + 1,
         }))
     );
   };
 
-  const actionColumns = [
-    {
-      headerName: "",
-      type: "actions",
-      width: 30,
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          placeholder="See Attachments"
-          // disabled={disabled}
-          label={"Attachments"}
-          onClick={() => {
-            setShowDocs(true);
-            setAttachLsit(row);
-          }}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          placeholder="Approval"
-          label={"Approval"}
-          onClick={() => {
-            setShowApprovalLogs(true);
-            setSelectedProduct(row);
-          }}
-        />,
-      ],
-    },
-  ];
+ 
   useEffect(() => {
     handleFetchProductList();
   }, []);
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }: { row: any }) => (
+      <div className="flex gap-6">
+        <CustomButton
+          variant="text"
+          size="small"
+          title={"Attachments"}
+          onclick={() => {
+            setShowDocs(true);
+            setAttachLsit(row?.original);
+          }}
+        />
+        <CustomButton
+          variant="text"
+          size="small"
+          title={"Approval"}
+          onclick={() => {
+            setShowApprovalLogs(true);
+            setSelectedProduct(row?.original);
+          }}
+        />
+      </div>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading("fetch") || loading("submit")
+            ? "calc(100vh - 190px)"
+            : "calc(100vh - 240px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("submit") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
 
   return (
-    <Row justify="center" style={{ padding: 10, height: "95%" }}>
+    <div style={{ margin: 12, height: "95%" }}>
       {selectedProduct && (
         <Approval
           show={showApprovalLogs}
@@ -87,67 +126,53 @@ const ApprovalList = (props: Props) => {
           setAttachLsit={setAttachLsit}
           showDocs={showDocs}
           setShowDocs={setShowDocs}
-
-          // setAttachLsit={setAttachLsit}
-          // attachlist={attachlist}
-          // hide={() => {
-          //   setShowDocs(false);
-          //   // setSelectedBOM(null);
-          // }}
-          // bom={selectedBOM}
         />
       )}
-      <Col sm={24} md={22} xl={20}>
-        <MyDataTable
-          columns={[...actionColumns, ...columns]}
-          data={rows}
-          loading={loading("fetch") || loading("submit")}
-        />
-      </Col>
-    </Row>
+      <MaterialReactTable table={table} />
+    </div>
   );
 };
 
 export default ApprovalList;
 
 const columns = [
-  { headerName: "#", field: "id", width: 30 },
+  { header: "#", accessorKey: "id", width: 30 },
   {
-    headerName: "Product Name",
-    field: "name",
+    header: "Product Name",
+    accessorKey: "name",
     width: 200,
-    renderCell: ({ row }: { row: ProductType }) => (
+    render: ({ row }: { row: ProductType }) => (
       <ToolTipEllipses text={row.name} />
     ),
   },
   {
-    headerName: "SKU",
-    field: "sku",
+    header: "SKU",
+    accessorKey: "sku",
     width: 100,
-    renderCell: ({ row }: { row: ProductType }) => (
+    render: ({ row }: { row: ProductType }) => (
       <ToolTipEllipses text={row.sku} copy={true} />
     ),
   },
   {
-    headerName: "Unit",
-    field: "unit",
+    header: "Unit",
+    accessorKey: "unit",
     width: 80,
   },
   {
-    headerName: "Cost Center",
-    field: "costCenter",
+    header: "Cost Center",
+    accessorKey: "costCenter",
     width: 150,
   },
   {
-    headerName: "Project",
-    field: "project",
+    header: "Project",
+    accessorKey: "project",
     width: 150,
   },
   {
-    headerName: "Approval Stage",
-    field: "approvalStage",
+    header: "Approval Stage",
+    accessorKey: "approvalStage",
     width: 120,
-    renderCell: ({ row }: { row: ProductType }) => (
+    render: ({ row }: { row: any }) => (
       <ToolTipEllipses
         text={
           row?.approvalStage == "PEN"
@@ -162,13 +187,13 @@ const columns = [
   },
 
   {
-    headerName: "Created By",
-    field: "createdBy",
+    header: "Created By",
+    accessorKey: "createdBy",
     width: 180,
   },
   {
-    headerName: "Created At",
-    field: "createdDate",
+    header: "Created At",
+    accessorKey: "createdDate",
     width: 120,
   },
 ];

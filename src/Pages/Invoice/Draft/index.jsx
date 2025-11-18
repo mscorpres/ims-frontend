@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyDataTable from "../../../Components/MyDataTable";
 import { toast } from "react-toastify";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import TableActions from "../../../Components/TableActions.jsx/TableActions";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
 import printFunction, {
   downloadFunction,
 } from "../../../Components/printFunction";
 import { Modal } from "antd";
 import { useNavigate } from "react-router-dom";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
+import {
+  ConfirmationNumber,
+  Delete,
+  Download,
+  Edit,
+  Print,
+} from "@mui/icons-material";
 
 const DraftInvoice = () => {
   const [loading, setLoading] = useState(false);
@@ -114,88 +126,136 @@ const DraftInvoice = () => {
       setLoading(false);
     }
   };
-  const actionMenuItem = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // Edit icon
-      <GridActionsCellItem
-        showInMenu
-        label="Edit"
-        onClick={() =>
-          navigate(`/invoice/edit/${row.invoice?.replaceAll("/", "_")}`)
-        }
-      />,
-      // Delete icon
-      <GridActionsCellItem
-        showInMenu
-        label="Delete"
-        onClick={() => showDeleteConfirm(row.invoice)}
-      />,
-      // download Icon
-      <GridActionsCellItem
-        showInMenu
-        label="Download"
-        onClick={() => handleDownload(row.invoice)}
-      />,
-      // print Icon
-      <GridActionsCellItem
-        showInMenu
-        label="Print"
-        onClick={() => handlePrint(row.invoice)}
-      />,
-
-      // active icon
-      <GridActionsCellItem
-        showInMenu
-        label="Confirm Invoice"
-        onClick={() => showActivateConfirm(row.invoice)}
-      />,
-    ],
-  };
 
   useEffect(() => {
     getRows();
   }, []);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 200px)" : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MRT_ActionMenuItem
+        icon={<Edit fontSize="small" />}
+        key="edit"
+        label="Edit"
+        onClick={() => {
+          closeMenu?.();
+          navigate(
+            `/invoice/edit/${row?.original?.invoice?.replaceAll("/", "_")}`
+          );
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Delete fontSize="small" />}
+        key="view"
+        label="View"
+        onClick={() => {
+          closeMenu?.();
+          showDeleteConfirm(row?.original?.invoice);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download fontSize="small" />}
+        key="download"
+        label="Download"
+        onClick={() => {
+          closeMenu?.();
+          handleDownload(row?.original?.invoice);
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Print fontSize="small" />}
+        key="print"
+        label="Print"
+        onClick={() => {
+          closeMenu?.();
+          handlePrint(row?.original?.invoice);
+        }}
+        table={table}
+      />,
+
+      <MRT_ActionMenuItem
+        icon={<ConfirmationNumber fontSize="small" />}
+        key="upload"
+        label="Confirm Invoice"
+        onClick={() => {
+          closeMenu?.();
+          showActivateConfirm(row?.original?.invoice);
+        }}
+        table={table}
+      />,
+    ],
+  });
+
   return (
     <div
       style={{
         height: "90%",
-        padding: "0px 10px 0px 10px",
+        margin: 12,
       }}
     >
-      <MyDataTable
+      {/* <MyDataTable
         loading={loading}
         data={rows}
         columns={[actionMenuItem, ...columns]}
-      />
+      /> */}
+      <MaterialReactTable table={table} />
     </div>
   );
 };
 
 const columns = [
   {
-    headerName: "Client",
-    field: "client",
+    header: "Client",
+    accessorKey: "client",
     flex: 1,
     minWidth: 250,
   },
   {
-    headerName: "Invoice",
-    field: "invoice",
+    header: "Invoice",
+    accessorKey: "invoice",
     width: 200,
   },
   {
-    headerName: "Invoice Date",
-    field: "date",
+    header: "Invoice Date",
+    accessorKey: "date",
     width: 150,
   },
 
   {
-    headerName: "Amount",
-    field: "amount",
+    header: "Amount",
+    accessorKey: "amount",
     width: 200,
   },
 ];

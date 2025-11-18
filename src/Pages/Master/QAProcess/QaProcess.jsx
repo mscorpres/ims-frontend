@@ -1,10 +1,15 @@
-import { Button, Card, Col, Form, Input, Row } from "antd";
-import React from "react";
-import MyDataTable from "../../../Components/MyDataTable";
+import { Col, Form, Input, Row } from "antd";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import { imsAxios } from "../../../axiosInterceptor";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
-import MyButton from "../../../Components/MyButton";
+import CustomFieldBox from "../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 function QaProcess() {
   const [rows, setRows] = useState([]);
@@ -41,23 +46,23 @@ function QaProcess() {
   };
   const columns = [
     {
-      headerName: "Index",
-      field: "index",
-      width: 100,
+      header: "Index",
+      accessorKey: "index",
+      size: 100,
     },
     {
-      headerName: "Process Code",
-      field: "process_code",
+      header: "Process Code",
+      accessorKey: "process_code",
       flex: 1,
     },
     {
-      headerName: "Process Name",
-      field: "process_name",
+      header: "Process Name",
+      accessorKey: "process_name",
       flex: 1,
     },
     {
-      headerName: "Process Decsription",
-      field: "process_desc",
+      header: "Process Decsription",
+      accessorKey: "process_desc",
       flex: 1,
     },
   ];
@@ -65,11 +70,29 @@ function QaProcess() {
     getRows();
   }, []);
 
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height: "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+  });
+
   return (
-    <div>
+    <div style={{ height: "calc(100vh - 100px)", margin: 12 }}>
       <Row gutter={10} span={24}>
         <Col span={8}>
-          <Card>
+          <CustomFieldBox title={"Fill Details"}>
             <Form form={form} size="small" layout="vertical">
               <Form.Item
                 name="processName"
@@ -86,27 +109,21 @@ function QaProcess() {
                 <Input />
               </Form.Item>
             </Form>
-            <Row justify="end">
-              <Col span={4}>
-                <Button>Reset</Button>
-              </Col>
-              <Col span={4}>
-                <MyButton variant="search" type="primary" onClick={submitForm}>
-                  Submit
-                </MyButton>
-              </Col>
-            </Row>
-          </Card>
+            <div
+              style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}
+            >
+              <CustomButton size="small" variant="outlined" title={"Reset"} />
+              <CustomButton
+                size="small"
+                title={"submit"}
+                onclick={submitForm}
+              />
+            </div>
+          </CustomFieldBox>
         </Col>
 
         <Col style={{ height: "100%" }} span={16}>
-          {/* <div style={{ height: "15rem", marginTop: "20px" }}> */}
-          <MyDataTable
-            style={{ height: "80vh" }}
-            columns={columns}
-            data={rows}
-          />
-          {/* </div> */}
+          <MaterialReactTable table={table} />
         </Col>
       </Row>
     </div>

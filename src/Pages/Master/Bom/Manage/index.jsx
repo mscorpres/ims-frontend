@@ -10,18 +10,18 @@ import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
 import { downloadCSVnested2 } from "../../../../Components/exportToCSV";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
+<<<<<<< HEAD
+=======
+import { Row } from "antd";
+>>>>>>> 2bf961517935a7ea258b9b2e2906dc4b1c27291b
 import {
   MaterialReactTable,
   useMaterialReactTable,
   MRT_ActionMenuItem,
-  MRT_ToggleGlobalFilterButton,
-  MRT_ToggleFiltersButton,
-  MRT_ShowHideColumnsButton,
-  MRT_ToggleDensePaddingButton,
-  MRT_ToggleFullScreenButton,
 } from "material-react-table";
+import { Download, Edit, Visibility } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
 import { Box, LinearProgress } from "@mui/material";
-import { renderIcon } from "@/new/components/layout/Sidebar/iconMapper";
 
 const ManageBOM = () => {
   const [rows, setRows] = useState([]);
@@ -99,37 +99,11 @@ const ManageBOM = () => {
   };
   const actionColumns = [
     {
-      headerName: "",
-      width: 30,
-      type: "actions",
-      field: "actions",
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="View"
-          onClick={() => setViewBom({ name: row.product, id: row.bomId })}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Edit"
-          onClick={() => setEditBom({ name: row.product, id: row.bomId })}
-        />,
-        <GridActionsCellItem
-          showInMenu
-          // disabled={disabled}
-          label="Download"
-          onClick={() => handleBOMDownload(row.bomId, row.product)}
-        />,
-      ],
-    },
-    {
-      headerName: "Status",
+      header: "Status",
       width: 100,
-      field: "status",
-      type: "actions",
-      renderCell: ({ row }) => (
+      accessorKey: "status",
+
+      Cell: ({ row }) => (
         <Switch
           size="small"
           checked={row.status === "ENABLE"}
@@ -150,64 +124,8 @@ const ManageBOM = () => {
     downloadCSVnested2(rows, columns, "FG BOM", actionColumns);
   };
 
-  const columns = useMemo(
-    () => [
-      {
-        header: "#",
-        accessorKey: "id",
-        width: 30,
-      },
-      {
-        header: "Status",
-        accessorKey: "status",
-        width: 100,
-        Cell: ({ row }) => (
-          <Switch
-            size="small"
-            checked={row.original.status === "ENABLE"}
-            loading={loading === row.original.bomId}
-            onChange={(value) => {
-              toggleStatus(row.original.bomId, value);
-            }}
-          />
-        ),
-      },
-      {
-        header: "Product",
-        accessorKey: "product",
-        minWidth: 200,
-        flex: 1,
-        Cell: ({ row }) => <ToolTipEllipses text={row.original.product} />,
-      },
-      {
-        header: "SKU",
-        accessorKey: "sku",
-        minWidth: 150,
-        Cell: ({ row }) => (
-          <ToolTipEllipses text={row.original.sku} copy={true} />
-        ),
-      },
-      {
-        header: "Project",
-        accessorKey: "bom_project",
-        minWidth: 150,
-      },
-      // {
-      //   header: "Level",
-      //   accessorKey: "level",
-      //   minWidth: 50,
-      // },
-      {
-        header: "Created Date",
-        accessorKey: "createdDate",
-        minWidth: 150,
-        Cell: ({ row }) => <ToolTipEllipses text={row.original.createdDate} />,
-      },
-    ],
-    [loading]
-  );
   const table = useMaterialReactTable({
-    columns: columns,
+    columns: [...actionColumns, ...columns],
     data: rows || [],
     enableDensityToggle: false,
     initialState: {
@@ -216,27 +134,19 @@ const ManageBOM = () => {
     },
     enableStickyHeader: true,
     enableRowActions: true,
+    
     muiTableContainerProps: {
       sx: {
-        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
       },
     },
-    renderToolbarInternalActions: ({ table }) => (
-      <>
-        <MRT_ToggleGlobalFilterButton table={table} />
-        <MRT_ToggleFiltersButton table={table} />
-        <MRT_ShowHideColumnsButton table={table} />
-        <MRT_ToggleDensePaddingButton table={table} />
-        <MRT_ToggleFullScreenButton table={table} />
-        <CommonIcons
-          disabled={rows.length === 0}
-          onClick={handleDownload}
-          action="downloadButton"
-        />
-      </>
+    renderEmptyRowsFallback: () => (
+      <EmptyRowsFallback message="No Purchase Orders Found" />
     ),
+
     renderTopToolbar: () =>
-      loading ? (
+      loading === "fetch" ? (
         <Box sx={{ width: "100%" }}>
           <LinearProgress
             sx={{
@@ -250,48 +160,53 @@ const ManageBOM = () => {
       ) : null,
     renderRowActionMenuItems: ({ row, table, closeMenu }) => [
       <MRT_ActionMenuItem
-        icon={renderIcon("VisibilityIcon")}
-        key="view"
-        label="View"
-        onClick={() => {
-          setViewBom({
-            name: row?.original?.product,
-            id: row?.original?.bomId,
-          });
-          closeMenu();
-          console.log(row);
-        }}
-        table={table}
-      />,
-      <MRT_ActionMenuItem
-        icon={renderIcon("EditIcon")}
+        icon={<Edit fontSize="small" />}
         key="edit"
         label="Edit"
         onClick={() => {
+          closeMenu?.();
           setEditBom({
             name: row?.original?.product,
             id: row?.original?.bomId,
           });
-          closeMenu();
         }}
         table={table}
       />,
       <MRT_ActionMenuItem
-        icon={renderIcon("DownloadIcon")}
+        icon={<Visibility fontSize="small" />}
+        key="view"
+        label="View"
+        onClick={() => {
+          closeMenu?.();
+          setViewBom({
+            name: row?.original?.product,
+            id: row?.original?.bomId,
+          });
+        }}
+        table={table}
+      />,
+      <MRT_ActionMenuItem
+        icon={<Download fontSize="small" />}
         key="download"
         label="Download"
         onClick={() => {
+          closeMenu?.();
           handleBOMDownload(row?.original?.bomId, row?.original?.product);
-          closeMenu();
         }}
         table={table}
-        // disabled={productType === "sfg"}
       />,
     ],
   });
-
   return (
-    <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
+    <div style={{ height: "90%", margin: 12 }}>
+      <Row justify="end" style={{ marginBottom: 12 }}>
+        <CommonIcons
+          disabled={rows.length === 0}
+          onClick={handleDownload}
+          action="downloadButton"
+        />
+      </Row>
+
       <MaterialReactTable table={table} />
 
       <ViewModal show={viewBom} close={() => setViewBom(false)} />
@@ -305,3 +220,40 @@ const ManageBOM = () => {
 };
 
 export default ManageBOM;
+
+const columns = [
+  {
+    header: "#",
+    accessorKey: "id",
+    width: 30,
+  },
+  {
+    header: "Product",
+    accessorKey: "product",
+    minWidth: 200,
+    flex: 1,
+    render: ({ row }) => <ToolTipEllipses text={row.product} />,
+  },
+  {
+    header: "SKU",
+    accessorKey: "sku",
+    minWidth: 150,
+    render: ({ row }) => <ToolTipEllipses text={row.sku} copy={true} />,
+  },
+  {
+    header: "Project",
+    accessorKey: "bom_project",
+    minWidth: 150,
+  },
+  // {
+  //   header: "Level",
+  //   accessorKey: "level",
+  //   minWidth: 50,
+  // },
+  {
+    header: "Created Date",
+    accessorKey: "createdDate",
+    minWidth: 150,
+    render: ({ row }) => <ToolTipEllipses text={row.createdDate} />,
+  },
+];

@@ -5,6 +5,13 @@ import { Row, Switch } from "antd";
 import { toast } from "react-toastify";
 import { downloadCSV } from "../../../../Components/exportToCSV";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ActionMenuItem,
+} from "material-react-table";
+import EmptyRowsFallback from "../../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 const Disabled = () => {
   const [loading, setLoading] = useState(false);
@@ -69,11 +76,11 @@ const Disabled = () => {
 
   const actionColumns = [
     {
-      headerName: "Status",
+      header: "Status",
       width: 100,
-      field: "status",
-      type: "actions",
-      renderCell: ({ row }) => (
+      accessorKey: "status",
+
+      Cell: ({ row }) => (
         <Switch
           size="small"
           checked={row.status === "ENABLE"}
@@ -88,20 +95,50 @@ const Disabled = () => {
   useEffect(() => {
     getRows();
   }, []);
+
+  const table = useMaterialReactTable({
+    columns: [...actionColumns, ...columns],
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <div style={{ height: "90%", padding: 10, paddingTop: 0 }}>
-      <Row style={{ paddingBottom: 5 }} justify="end">
+    <div style={{ height: "90%", margin:12 }}>
+      <Row style={{ marginBottom: 12 }} justify="end">
         <CommonIcons
           action="downloadButton"
           onClick={downloadHandler}
           disabled={rows.length === 0}
         />
       </Row>
-      <MyDataTable
-        data={rows}
-        columns={[...actionColumns, ...columns]}
-        loading={loading === "fetch"}
-      />
+
+      <MaterialReactTable table={table} />
     </div>
   );
 };
@@ -110,19 +147,19 @@ export default Disabled;
 
 const columns = [
   {
-    headerName: "#",
-    field: "id",
+    header: "#",
+    accessorKey: "id",
     width: 30,
   },
   {
-    headerName: "Product",
-    field: "product",
+    header: "Product",
+    accessorKey: "product",
     minWidth: 200,
     flex: 1,
   },
   {
-    headerName: "SKU",
-    field: "sku",
+    header: "SKU",
+    accessorKey: "sku",
     width: 150,
   },
 ];

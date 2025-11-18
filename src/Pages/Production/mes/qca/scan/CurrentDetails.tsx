@@ -1,6 +1,7 @@
 import { currentScanDetails } from "@/Pages/Production/mes/qca/scan/types";
-import { Card, Flex, Typography } from "antd";
-import React from "react";
+import { Flex, Typography } from "antd";
+//@ts-ignore
+import CustomFieldBox from "../../../../../new/components/reuseable/CustomFieldBox";
 
 type Props = {
   details: currentScanDetails;
@@ -8,7 +9,7 @@ type Props = {
 
 const CurrentDetails = ({ details }: Props) => {
   return (
-    <Card size={"small"} title="Current Scan Details">
+    <CustomFieldBox title="Current Scan Details">
       <Flex gap={5}>
         <Typography.Text strong>Current Scanned</Typography.Text>
         <Typography.Text>{details.currentScanned}</Typography.Text>
@@ -25,7 +26,7 @@ const CurrentDetails = ({ details }: Props) => {
         <Typography.Text strong>Total Lot Scanned</Typography.Text>
         <Typography.Text>{details.total}</Typography.Text>
       </Flex>
-    </Card>
+    </CustomFieldBox>
   );
 };
 

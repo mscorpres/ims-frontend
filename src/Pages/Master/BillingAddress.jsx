@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
+import  { useEffect, useState, useMemo } from "react";
 import AddBilling from "./Modal/AddBilling";
-import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import { Row, Space } from "antd";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
@@ -8,7 +7,6 @@ import { imsAxios } from "../../axiosInterceptor";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  MRT_ActionMenuItem,
   MRT_ToggleGlobalFilterButton,
   MRT_ToggleFiltersButton,
   MRT_ShowHideColumnsButton,
@@ -23,7 +21,6 @@ const BillingAddress = () => {
   const [filterData, setFilterData] = useState([]);
   const [search, setSearch] = useState("");
   const [ShowAddBillingModal, setShowAddBillingModal] = useState(false);
-  
 
   const fetchLocation = async () => {
     setLoading(true);
@@ -102,12 +99,11 @@ const BillingAddress = () => {
           />
         </Box>
       ) : null,
-   
   });
 
   return (
-    <div style={{ height: "90%" }}>
-      <Row justify="end" style={{ padding: "0px 10px", paddingBottom: 5 }}>
+    <div style={{ height: "90%", margin: 12 }}>
+      <Row justify="end" style={{ paddingBottom: 5 }}>
         <Space>
           {/* <CommonIcons
             action="addButton"
@@ -121,9 +117,6 @@ const BillingAddress = () => {
       <div style={{ height: "100%" }}>
         <MaterialReactTable table={table} />
       </div>
-      {/* <div style={{ height: "90%", padding: "0 10px" }}>
-        <MyDataTable loading={loading} data={dataa} columns={columns} />
-      </div> */}
 
       <AddBilling
         setShowAddBillingModal={setShowAddBillingModal}

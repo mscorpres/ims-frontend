@@ -22,6 +22,8 @@ import { ModalType, SelectOptionType } from "@/types/general";
 import { convertSelectOptions } from "@/utils/general";
 import { getComponentMfgCodeAndType, getComponentOptions } from "@/api/general";
 import { getProductOptions } from "@/api/r&d/products";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
+import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
 import {
   createBOM,
   createBomRND,
@@ -597,7 +599,7 @@ const BOMCreate = () => {
 
   return (
     <Form
-      style={{ padding: 10, height: "95%" }}
+      style={{ margin: 12, height: "95%" }}
       form={form}
       layout="vertical"
       initialValues={initialValues}
@@ -616,9 +618,9 @@ const BOMCreate = () => {
         <Loading />
       )}
       <Row gutter={6} justify="center" style={{ height: "100%" }}>
-        <Col span={5} style={{ height: "100%", overflow: "auto" }}>
+        <Col span={5} style={{ height: "calc(100% - 45px)", overflow: "auto" , padding: " 2px 6px"}}>
           <Flex vertical gap={5}>
-            <Card size="small" title="Header Details">
+            <CustomFieldBox title="Header Details">
               <Form.Item name="product" label="Product" rules={rules.product}>
                 <MyAsyncSelect
                   loadOptions={handleFetchProductOptions}
@@ -647,36 +649,11 @@ const BOMCreate = () => {
               <Form.Item name="description" label="Remarks">
                 <Input.TextArea rows={3} />
               </Form.Item>
-              {/* <Form.Item
-                name="documents"
-                label="Documents"
-                valuePropName="fileList"
-                getValueFromEvent={normFile}
-                extra="Max 4 Documents"
-              >
-                <Upload
-                  name="document"
-                  beforeUpload={() => false}
-                  style={{ marginBottom: 10 }}
-                  maxCount={4}
-                >
-                  <MyButton
-                    variant="upload"
-                    text="Select"
-                    style={{ width: "100%", marginBottom: 5 }}
-                    onClick={() => setVisible(true)} // Trigger the modal when clicked
-                  />
-                </Upload>
-              </Form.Item> */}
 
-              <Button
-                type="primary"
-                style={{ width: "60%" }}
-                onClick={() => setVisible(true)}
-              >
-                Upload Documents
-              </Button>
-            </Card>
+        
+              <CustomButton size="small" title="Upload Documents"      onclick={() => setVisible(true)}/>
+            </CustomFieldBox>
+
             {/* Component add card */}
             <AddComponent
               asyncOptions={asyncOptions}
@@ -713,20 +690,10 @@ const BOMCreate = () => {
           </Flex>
         </Col>
         <Col span={19} style={{ height: "100%", overflow: "hidden" }}>
-          <Row gutter={[6, 6]} style={{ height: "100%" }}>
+          <Row style={{ height: "100%" }}>
             <Col span={24} style={{ height: "50%", overflow: "hidden" }}>
-              <Card
-                size="small"
-                title="Main Components"
-                style={{
-                  height: "100%",
-                }}
-                extra={`${mainComponents.length} Added`}
-                bodyStyle={{
-                  height: "95%",
-                }}
-              >
-                <div
+            <CustomFieldBox   title="Main Components" subtitle={`${mainComponents.length} Added`}>
+            <div
                   style={{
                     height: "100%",
                   }}
@@ -739,19 +706,15 @@ const BOMCreate = () => {
                     setIsEditing={setIsEditing}
                   />
                 </div>
-              </Card>
+            </CustomFieldBox >
+        
             </Col>
             <Col span={24} style={{ height: "100%", overflow: "hidden" }}>
-              <Card
-                size="small"
+              <CustomFieldBox
+        
                 title="Substitute Components"
-                extra={`${subComponents.length} Added`}
-                style={{
-                  height: "50%",
-                }}
-                bodyStyle={{
-                  height: "95%",
-                }}
+                subtitle={`${subComponents.length} Added`}
+            
               >
                 <div
                   style={{
@@ -769,12 +732,12 @@ const BOMCreate = () => {
                 <UploadDocumentModal
                   open={visible}
                   close={() => setVisible(false)}
-                  handleUpload={(files) => handleUpload(files)}
+                  handleUpload={(files: any) => handleUpload(files)}
                   fileList={fileList} // Pass the selected file list to the modal
                   setFileList={setFileList}
                   loading={uploadLoading}
                 />
-              </Card>
+              </CustomFieldBox>
             </Col>
           </Row>
         </Col>

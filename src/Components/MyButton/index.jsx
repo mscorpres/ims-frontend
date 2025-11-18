@@ -21,6 +21,8 @@ import {
   ContainerOutlined,
   QrcodeOutlined,
 } from "@ant-design/icons";
+import CustomButton from "../../new/components/reuseable/CustomButton";
+import { Upload } from "@mui/icons-material";
 
 const MyButton = (props) => {
   if (props.variant === "reset") {
@@ -148,13 +150,19 @@ const MyButton = (props) => {
   }
   if (props.variant === "upload") {
     return (
-      <Button
-        {...props}
-        type={props.type ?? "primary"}
-        icon={<UploadOutlined />}
-      >
-        {props.text ?? "Upload File"}
-      </Button>
+      // <Button
+      //   {...props}
+      //   type={props.type ?? "primary"}
+      //   icon={<UploadOutlined />}
+      // >
+      //   {props.text ?? "Upload File"}
+      // </Button>
+
+      <CustomButton
+        title={props.text ?? "Upload File"}
+        size="small"
+        starticon={<Upload fontSize="small" />}
+      />
     );
   }
   if (props.variant === "save") {

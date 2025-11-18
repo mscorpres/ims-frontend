@@ -5,8 +5,14 @@ import {
   getPhysicalStockWithStatus,
   updateAudit,
 } from "@/api/production/physical-stock";
-import MyDataTable from "@/Components/MyDataTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
+import { Box, LinearProgress } from "@mui/material";
 
 const RejectedPhysicalProduction = () => {
   const [rows, setRows] = useState([]);
@@ -55,28 +61,57 @@ const RejectedPhysicalProduction = () => {
       handleGetRows();
     }
   };
-  const actionColumn = {
-    headerName: "",
-    type: "actions",
-    width: 30,
-    getActions: ({ row }) => [
-      // edit icon
-      <GridActionsCellItem
-        showInMenu
-        // disabled={disabled}
-        label={"Update"}
-        onClick={() => {
-          setSelectedAudit(row);
-          setShowUpdateModal(true);
-        }}
-      />,
-    ],
-  };
   useEffect(() => {
     handleGetRows();
   }, []);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <CustomButton
+        size="small"
+        variant="text"
+        title={"update"}
+        onclick={() => {
+          setSelectedAudit(row?.original);
+          setShowUpdateModal(true);
+        }}
+      />
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading("fetch") || loading("updateStatus")
+            ? "calc(100vh - 200px)"
+            : "calc(100vh - 250px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading("fetch") || loading("updateStatus") ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
   return (
-    <div style={{ height: "95%", padding: 10 }}>
+    <div style={{ height: "95%", margin: 12 }}>
       <UpdateModal
         open={showUpdateModal}
         hide={hideUpdateModal}
@@ -84,15 +119,8 @@ const RejectedPhysicalProduction = () => {
         updateHandler={handleUpdateAudit}
         loading={loading("submit")}
       />
-      <Row style={{ height: "100%" }} justify="center">
-        <Col span={20}>
-          <MyDataTable
-            loading={loading("fetch") || loading("updateStatus")}
-            data={rows}
-            columns={[actionColumn, ...columns]}
-          />
-        </Col>
-      </Row>
+
+      <MaterialReactTable table={table} />
     </div>
   );
 };
@@ -100,51 +128,51 @@ const RejectedPhysicalProduction = () => {
 export default RejectedPhysicalProduction;
 const columns = [
   {
-    headerName: "#",
-    width: 30,
-    field: "id",
+    header: "#",
+    size: 30,
+    accessorKey: "id",
   },
   {
-    headerName: "Component",
-    minWidth: 120,
-    flex: 1,
-    field: "component",
+    header: "Component",
+    size: 120,
+
+    accessorKey: "component",
   },
   {
-    headerName: "Part COde",
-    width: 150,
-    field: "partCode",
+    header: "Part COde",
+    size: 150,
+    accessorKey: "partCode",
   },
   {
-    headerName: "Location",
-    width: 150,
-    field: "location",
+    header: "Location",
+    size: 150,
+    accessorKey: "location",
   },
   {
-    headerName: "Audit Qty",
-    width: 150,
-    field: "auditQty",
+    header: "Audit Qty",
+    size: 150,
+    accessorKey: "auditQty",
   },
   {
-    headerName: "IMS Qty",
-    width: 150,
-    field: "imsQty",
+    header: "IMS Qty",
+    size: 150,
+    accessorKey: "imsQty",
   },
   {
-    headerName: "Audit Date",
-    width: 150,
-    field: "auditDate",
+    header: "Audit Date",
+    size: 150,
+    accessorKey: "auditDate",
   },
   {
-    headerName: "Audit By",
-    width: 150,
-    field: "auditBy",
+    header: "Audit By",
+    size: 150,
+    accessorKey: "auditBy",
   },
   {
-    headerName: "Remark",
-    minWidth: 120,
-    flex: 1,
-    field: "remark",
+    header: "Remark",
+    size: 120,
+
+    accessorKey: "remark",
   },
 ];
 

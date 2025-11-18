@@ -10,13 +10,14 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyButton from "../../../Components/MyButton";
 import { GridActionsCellItem } from "@mui/x-data-grid";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
+import { Search, Visibility } from "@mui/icons-material";
 import {
-  EyeFilled,
-  EyeInvisibleFilled,
-  EyeInvisibleOutlined,
-  EyeInvisibleTwoTone,
-  EyeOutlined,
-} from "@ant-design/icons";
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, IconButton, LinearProgress, Tooltip } from "@mui/material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback";
 
 function SalesRegister() {
   const [wise, setWise] = useState("created_date_wise");
@@ -155,240 +156,225 @@ function SalesRegister() {
   ];
   const columns = [
     {
-      headerName: "",
-
-      type: "actions",
-      field: "action",
-      width: 65,
-      getActions: ({ row }) => [
-        <GridActionsCellItem
-          showInMenu
-          // icon={<EyeOutlined />}
-          onClick={() => getDetials(row)}
-          label="View"
-        />,
-      ],
-    },
-    {
-      headerName: "Sr No.",
-      field: "index",
+      header: "Sr No.",
+      accessorKey: "index",
       width: 80,
     },
     {
-      headerName: "Invoice ID",
-      field: "invoiceID",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      header: "Invoice ID",
+      accessorKey: "invoiceID",
+      render: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
       width: 140,
     },
     {
-      headerName: "Invoice Date",
-      field: "invoiceDate",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceDate} />,
+      header: "Invoice Date",
+      accessorKey: "invoiceDate",
+      render: ({ row }) => <ToolTipEllipses text={row.invoiceDate} />,
       width: 100,
     },
     {
-      headerName: "Ref Date",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.refDate} />,
-      field: "refDate",
+      header: "Ref Date",
+      render: ({ row }) => <ToolTipEllipses text={row.refDate} />,
+      accessorKey: "refDate",
       width: 100,
     },
 
     {
-      headerName: "Client Code",
-      field: "clientCode",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.clientCode} />,
+      header: "Client Code",
+      accessorKey: "clientCode",
+      render: ({ row }) => <ToolTipEllipses text={row.clientCode} />,
       width: 80,
     },
     {
-      headerName: "Client Name",
-      field: "clientName",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.clientName} />,
+      header: "Client Name",
+      accessorKey: "clientName",
+      render: ({ row }) => <ToolTipEllipses text={row.clientName} />,
       width: 180,
     },
     {
-      headerName: "Client Address",
-      field: "clientAddress",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.clientAddress} />,
+      header: "Client Address",
+      accessorKey: "clientAddress",
+      render: ({ row }) => <ToolTipEllipses text={row.clientAddress} />,
       width: 250,
     },
     {
-      headerName: "Shipping Name",
-      field: "shippingName",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shippingName} />,
+      header: "Shipping Name",
+      accessorKey: "shippingName",
+      render: ({ row }) => <ToolTipEllipses text={row.shippingName} />,
       width: 150,
     },
     {
-      headerName: "Shipping Address",
-      field: "shippingAddress",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
+      header: "Shipping Address",
+      accessorKey: "shippingAddress",
+      render: ({ row }) => <ToolTipEllipses text={row.shippingAddress} />,
       width: 250,
     },
     {
-      headerName: "Shipping State",
-      field: "shippingState",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shippingState} />,
+      header: "Shipping State",
+      accessorKey: "shippingState",
+      render: ({ row }) => <ToolTipEllipses text={row.shippingState} />,
       width: 150,
     },
     {
-      headerName: "Shipping Gst",
-      field: "shippingGst",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shippingGst} />,
+      header: "Shipping Gst",
+      accessorKey: "shippingGst",
+      render: ({ row }) => <ToolTipEllipses text={row.shippingGst} />,
       width: 150,
     },
     {
-      headerName: "Shipping Pan",
-      field: "shippingPan",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shippingPan} />,
+      header: "Shipping Pan",
+      accessorKey: "shippingPan",
+      render: ({ row }) => <ToolTipEllipses text={row.shippingPan} />,
       width: 120,
     },
     {
-      headerName: "Shippping City",
-      field: "shipppingCity",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shipppingCity} />,
+      header: "Shippping City",
+      accessorKey: "shipppingCity",
+      render: ({ row }) => <ToolTipEllipses text={row.shipppingCity} />,
       width: 150,
     },
     {
-      headerName: "Shipping PinCode",
-      field: "shippingPinCode",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.shippingPinCode} />,
+      header: "Shipping PinCode",
+      accessorKey: "shippingPinCode",
+      render: ({ row }) => <ToolTipEllipses text={row.shippingPinCode} />,
       width: 100,
     },
 
     {
-      headerName: "Payment Terms",
-      field: "paymentTerms",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.paymentTerms} />,
+      header: "Payment Terms",
+      accessorKey: "paymentTerms",
+      render: ({ row }) => <ToolTipEllipses text={row.paymentTerms} />,
       width: 80,
     },
     {
-      headerName: "Invoice Type",
-      field: "invoiceType",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceType} />,
+      header: "Invoice Type",
+      accessorKey: "invoiceType",
+      render: ({ row }) => <ToolTipEllipses text={row.invoiceType} />,
       width: 130,
     },
 
     {
-      headerName: "Destination",
-      field: "destination",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.destination} />,
+      header: "Destination",
+      accessorKey: "destination",
+      render: ({ row }) => <ToolTipEllipses text={row.destination} />,
       width: 80,
     },
     {
-      headerName: "Product Name",
-      field: "name",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.name} />,
+      header: "Product Name",
+      accessorKey: "name",
+      render: ({ row }) => <ToolTipEllipses text={row.name} />,
       width: 250,
     },
     {
-      headerName: "SKU",
-      field: "sku",
+      header: "SKU",
+      accessorKey: "sku",
       width: 80,
     },
     {
-      headerName: "Qty",
-      field: "qty",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      header: "Qty",
+      accessorKey: "qty",
+      // render: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
       width: 100,
     },
     {
-      headerName: "UOM",
-      field: "uom",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      header: "UOM",
+      accessorKey: "uom",
+      // render: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
       width: 80,
     },
     {
-      headerName: "Rate",
-      field: "rate",
+      header: "Rate",
+      accessorKey: "rate",
       width: 80,
     },
     {
-      headerName: "HSN",
-      field: "hsn",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      header: "HSN",
+      accessorKey: "hsn",
+      // render: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
       width: 140,
     },
     {
-      headerName: "GST Rate",
-      field: "gstRate",
-      // renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
+      header: "GST Rate",
+      accessorKey: "gstRate",
+      // render: ({ row }) => <ToolTipEllipses text={row.invoiceID} />,
       width: 80,
     },
     {
-      headerName: "GST Type",
-      field: "gstType",
+      header: "GST Type",
+      accessorKey: "gstType",
       width: 120,
     },
     {
-      headerName: "SGST",
-      field: "sgst",
-      renderCell: ({ row }) => (
+      header: "SGST",
+      accessorKey: "sgst",
+      render: ({ row }) => (
         <ToolTipEllipses text={row.sgst == "" ? 0 : row.sgst} />
       ),
       width: 80,
     },
     {
-      headerName: "CGST",
-      field: "cgst",
-      renderCell: ({ row }) => (
+      header: "CGST",
+      accessorKey: "cgst",
+      render: ({ row }) => (
         <ToolTipEllipses text={row.cgst == "" ? 0 : row.cgst} />
       ),
       width: 80,
     },
     {
-      headerName: "IGST",
-      field: "igst",
-      renderCell: ({ row }) => (
+      header: "IGST",
+      accessorKey: "igst",
+      render: ({ row }) => (
         <ToolTipEllipses text={row.igst == "" ? 0 : row.igst} />
       ),
       width: 80,
     },
     {
-      headerName: "Invoice Total",
-      field: "invoiceTotal",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.invoiceTotal} />,
+      header: "Invoice Total",
+      accessorKey: "invoiceTotal",
+      render: ({ row }) => <ToolTipEllipses text={row.invoiceTotal} />,
       width: 100,
     },
 
     {
-      headerName: "Inserted By",
-      field: "insertedBy",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.insertedBy} />,
+      header: "Inserted By",
+      accessorKey: "insertedBy",
+      render: ({ row }) => <ToolTipEllipses text={row.insertedBy} />,
       width: 100,
     },
     {
-      headerName: "Insert Date",
-      field: "insertDate",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.insertDate} />,
+      header: "Insert Date",
+      accessorKey: "insertDate",
+      render: ({ row }) => <ToolTipEllipses text={row.insertDate} />,
       width: 140,
     },
     {
-      headerName: "Transport Mode",
-      field: "transportMode",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.transportMode} />,
+      header: "Transport Mode",
+      accessorKey: "transportMode",
+      render: ({ row }) => <ToolTipEllipses text={row.transportMode} />,
       width: 150,
     },
     {
-      headerName: "Vehicle No",
-      field: "vehicleNo",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vehicleNo} />,
+      header: "Vehicle No",
+      accessorKey: "vehicleNo",
+      render: ({ row }) => <ToolTipEllipses text={row.vehicleNo} />,
       width: 120,
     },
     {
-      headerName: "Delivery Terms",
-      field: "deliveryTerms",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.deliveryTerms} />,
+      header: "Delivery Terms",
+      accessorKey: "deliveryTerms",
+      render: ({ row }) => <ToolTipEllipses text={row.deliveryTerms} />,
       width: 200,
     },
     {
-      headerName: "Transport Company",
-      field: "transportCompany",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.transportCompany} />,
+      header: "Transport Company",
+      accessorKey: "transportCompany",
+      render: ({ row }) => <ToolTipEllipses text={row.transportCompany} />,
       width: 150,
     },
     {
-      headerName: "Delivery Note",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.deliveryNote} />,
-      field: "deliveryNote",
+      header: "Delivery Note",
+      render: ({ row }) => <ToolTipEllipses text={row.deliveryNote} />,
+      accessorKey: "deliveryNote",
       width: 150,
     },
   ];
@@ -396,11 +382,58 @@ function SalesRegister() {
   useEffect(() => {
     setSearchTerm("");
   }, [wise]);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    enableRowActions: true,
+    enableRowSelection: true,
+    renderRowActions: ({ row }) => (
+      <Tooltip title="View">
+        <IconButton
+          color="inherit"
+          size="small"
+          onClick={() => {
+            () => getDetials(row);
+          }}
+        >
+          <Visibility fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    ),
+    muiTableContainerProps: {
+      sx: {
+        height: loading ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <div style={{ height: "90%" }}>
+    <div style={{ height: "90%",margin:12 }}>
       <Row
         justify="space-between"
-        style={{ padding: "0px 10px", paddingBottom: 5 }}
+       
       >
         <Drawer
           open={open?.invoiceID}
@@ -420,7 +453,7 @@ function SalesRegister() {
         <Col span={24}>
           <Row
             justify="space-between"
-            style={{ padding: "0px 10px", paddingBottom: 5 }}
+         
           >
             <Col>
               <Space>
@@ -429,12 +462,7 @@ function SalesRegister() {
                     options={wiseOptions}
                     // onBlur={() => setAsyncOptions([])}
                     value={wise}
-                    // selectLoading={selectLoading}
-                    // placeholder="Select Ledger"
-                    // labelInValue
                     onChange={setWise}
-                    // loadOptions={getLedgerOptions}
-                    // optionsState={asyncOptions}
                   />
                 </div>
                 <Col>
@@ -472,16 +500,13 @@ function SalesRegister() {
                   )}
                 </Col>
                 <Space>
-                  <MyButton
-                    variant="search"
-                    disabled={!setSearchTerm}
-                    type="primary"
+                  <CustomButton
+                    size="small"
+                    title={"Search"}
+                    starticon={<Search fontSize="small" />}
                     loading={loading}
-                    // loading={searchLoading}
-                    onClick={getData}
-                  >
-                    Search
-                  </MyButton>
+                    onclick={getData}
+                  />
                 </Space>
               </Space>
             </Col>
@@ -504,13 +529,8 @@ function SalesRegister() {
         // onClick={downloadFun}
         />
       </Row>
-      <div style={{ height: "95%", padding: "0px 5px" }}>
-        <MyDataTable
-          // loading={loading === "fetch"}
-          data={rows}
-          columns={columns}
-          loading={loading}
-        />
+      <div style={{ height: "95%", marginTop: 12 }}>
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

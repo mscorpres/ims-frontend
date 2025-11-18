@@ -121,7 +121,7 @@ const CategoryMaster = () => {
     console.log(fieldSelectOptions);
   }, [fieldSelectOptions]);
   return (
-    <Row style={{ height: "90%", padding: 10 }}>
+    <Row style={{ height: "calc(100% - 80px)", margin: 12 }}>
       <Col span={24}>
         <Row>
           <Col span={24}>
@@ -138,7 +138,7 @@ const CategoryMaster = () => {
         </Row>
       </Col>
       <Divider />
-      <Col span={24} style={{ height: "95%" }}>
+      <Col span={24} style={{ height: "CALC(100% - 100px)", overflow: "auto", padding: 12 }}>
         <Row gutter={[6, 6]}>
           {fields.map((field, index) => (
             <Col span={24} key={index}>

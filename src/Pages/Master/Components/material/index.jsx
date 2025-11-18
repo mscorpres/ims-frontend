@@ -21,7 +21,6 @@ import ComponentImages from "./ComponentImages";
 import { imsAxios } from "../../../../axiosInterceptor";
 import AddPhoto from "./AddPhoto";
 import ComponentsTable from "./ComponentsTable";
-import MyButton from "../../../../Components/MyButton";
 import { CloseOutlined } from "@ant-design/icons";
 import { v4 } from "uuid";
 import { GridActionsCellItem } from "@mui/x-data-grid";
@@ -451,16 +450,16 @@ const Material = () => {
   }, [generatedCompName]);
 
   return (
-    <div style={{ height: "90%", margin:"12px"}}>
+    <div style={{ height: "90%",margin:12 }}>
       <ComponentImages setShowImages={setShowImages} showImages={showImages} />
       <AddPhoto
         updatingImage={uploadingImage}
         setUpdatingImage={setUploadingImage}
       />
-      <Row gutter={[0, 6]} style={{ height: "100%" }}>
+      <Row gutter={[6, 6]} style={{ height: "100%", }}>
         <Col
           span={8}
-          style={{ height: "100%", overflow: "auto", overflowX: "hidden" }}
+          style={{ height: "calc(100% - 20px)", overflow: "auto", overflowX: "hidden" , padding:" 2px 4px"}}
         >
           <Row gutter={[6, 6]}>
             <Col span={24}>

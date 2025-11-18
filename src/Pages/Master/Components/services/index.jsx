@@ -154,7 +154,7 @@ function Services() {
     getServices();
   }, []);
   return (
-    <div style={{ height: "90%",margin:"12px" }}>
+    <div style={{ height: "90%", margin:12 }}>
       <UpdateService
         units={units}
         editService={editService}

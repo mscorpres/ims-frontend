@@ -12,6 +12,7 @@ import {
 import { Box, LinearProgress } from "@mui/material";
 import CustomButton from "../../../../new/components/reuseable/CustomButton";
 import { renderIcon } from "../../../../new/components/layout/Sidebar/iconMapper";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox";
 
 function StockControl() {
   const [loading, setLoading] = useState(false);
@@ -127,12 +128,12 @@ function StockControl() {
   }, []);
 
   return (
-    <div style={{ height: "90%" }}>
-      <Row gutter={8} style={{ height: "100%", padding: "0 10px" }}>
+    <div style={{ height: "90%",margin:12 }}>
+      <Row gutter={8} style={{ height: "100%",  }}>
         <Col span={10}>
           <Form initialValues={initialValues} form={uploadForm}>
-            <Card size="small" title="Upload Stock Control Files">
-              <div
+            <CustomFieldBox title={"Upload Stock Control Files"}>
+       <div
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -171,7 +172,8 @@ function StockControl() {
                   </Form.Item>
                 </Form.Item>
               </div>
-            </Card>
+            </CustomFieldBox>
+        
           </Form>
           <Row justify="end">
             <Space style={{ marginTop: 10 }}>

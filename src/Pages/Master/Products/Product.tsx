@@ -53,7 +53,7 @@ const Product = () => {
   }, [productType]);
 
   return (
-    <Row gutter={6} justify="start" align="top" style={{ padding: "0px 5px" }}>
+    <Row gutter={6} justify="start" align="top" style={{ margin:12 }}>
       <ComponentImages showImages={showImages} setShowImages={setShowImages} />
       <Edit
         editingProduct={editingProduct}

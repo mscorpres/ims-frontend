@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { v4 } from "uuid";
 import { Col, Input, Row } from "antd";
 import { toast } from "react-toastify";
@@ -8,28 +8,18 @@ import MyAsyncSelect from "@/Components/MyAsyncSelect";
 import { imsAxios } from "@/axiosInterceptor";
 import { getComponentOptions } from "@/api/general.ts";
 import useApi from "@/hooks/useApi.ts";
-import MyButton from "@/Components/MyButton";
 import MySelect from "@/Components/MySelect.jsx";
 import { fetchLocations } from "@/api/general.ts";
 import { convertSelectOptions } from "@/utils/general";
+import CustomButton from "../../../new/components/reuseable/CustomButton";
 
 function CreatePhysicalProduction() {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locationOpitons, setLocationOptions] = useState([]);
-  const [datee, setDatee] = useState([]);
-  // const [availData, setAvailData] = useState({});
+
   const { executeFun, loading: loading1 } = useApi();
   const [searchInput, setSearchInput] = useState("");
-  const [allData, setAllData] = useState({
-    selType: "",
-
-    component: [],
-    existStock: [],
-    physicalStock: [],
-    uom: [],
-    remark: [],
-  });
 
   const getComponent = async (e) => {
     if (e?.length > 2) {
@@ -315,32 +305,34 @@ function CreatePhysicalProduction() {
     handleFetchLocations();
   }, []);
   return (
-    <div>
-      <div style={{ height: "79%" }}>
-        <div style={{ height: "75vh", margin: "10px" }}>
-          <MyDataTable data={addrow} columns={columns} hideHeaderMenu />
-        </div>
+    <div style={{ margin: 12 }}>
+      <div style={{ height: "calc(100vh - 180px)", overflow: "auto" }}>
+        <MyDataTable data={addrow} columns={columns} hideHeaderMenu />
       </div>
+
       <Row gutter={16}>
         <Col span={24}>
-          <div style={{ textAlign: "end", margin: "10px" }}>
-            <MyButton
-              variant="reset"
-              onClick={resetFunction}
-              style={{
-                marginRight: "5px",
-              }}
-            >
-              Reset
-            </MyButton>
-            <MyButton
-              onClick={savePhysical}
+          <div
+            style={{
+              margin: "10px",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+            }}
+          >
+            <CustomButton
+              size="small"
+              title={"Reset"}
+              variant="outlined"
+              onclick={resetFunction}
+            />
+
+            <CustomButton
+              size="small"
+              title={"add"}
               loading={loading}
-              type="primary"
-              variant="add"
-            >
-              Save
-            </MyButton>
+              onclick={savePhysical}
+            />
           </div>
         </Col>
       </Row>

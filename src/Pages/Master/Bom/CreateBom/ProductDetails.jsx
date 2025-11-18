@@ -5,13 +5,10 @@ import UploadFile from "./UploadFile";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import Typography from "antd/es/typography/Typography";
 import MyButton from "../../../../Components/MyButton";
-import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox.jsx";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from "material-react-table";
-import CustomButton from "../../../../new/components/reuseable/CustomButton.jsx";
+import CustomFieldBox from "../../../../new/components/reuseable/CustomFieldBox";
+import CustomButton from "../../../../new/components/reuseable/CustomButton";
 import { renderIcon } from "../../../../new/components/layout/Sidebar/iconMapper";
+import { Search } from "@mui/icons-material";
 
 const ProductDetails = ({
   submitHandler,
@@ -35,7 +32,7 @@ const ProductDetails = ({
   const productType = Form.useWatch("type");
 
   return (
-    <CustomFieldBox title="Product Details" subtitle="Provide Product Details">
+    <CustomFieldBox title="Product Details">
       <Row gutter={6}>
         <Col span={24}>
           <Radio.Group
@@ -63,17 +60,20 @@ const ProductDetails = ({
           <Row justify="end">
             <Space>
               <CustomButton
+                size="small"
                 onclick={resetProduct}
+                loading={loading === "fetch"}
                 variant="outlined"
                 title="Reset"
                 endicon={renderIcon("ResetIcon")}
               />
+
               <CustomButton
-                loading={loading === "fetch"}
                 onclick={getSKUDetails}
-                variant="submit"
-                title="Fetch Data"
-                endicon={renderIcon("CheckCircleIcon")}
+                size="small"
+                loading={loading === "fetch"}
+                title="search"
+                endicon={<Search fontSize="small" />}
               />
             </Space>
           </Row>
@@ -135,10 +135,9 @@ const ProductDetails = ({
                   Download Sample File
                 </Button>
               )}
+             
               <CustomButton
-                disabled={!productSelected}
-                onclick={submitHandler}
-                variant="submit"
+                size="small"
                 title={
                   stage === "preview"
                     ? uploadType === "file"
@@ -146,10 +145,10 @@ const ProductDetails = ({
                       : "Submit"
                     : "Submit"
                 }
-                endicon={renderIcon("CheckCircleIcon")}
+                disabled={!productSelected}
+                onclick={submitHandler}
                 loading={loading === "submit"}
               />
-              
             </Space>
           </Row>
         </Col>

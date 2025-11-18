@@ -1,15 +1,21 @@
-import { Button, Col, Form, Row, Space, Typography } from "antd";
+import { Col, Form, Row, Space, Typography } from "antd";
 import { useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
-import MyDataTable from "../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import useApi from "../../../hooks/useApi.ts";
 import { getProjectOptions } from "../../../api/general.ts";
-import MyButton from "../../../Components/MyButton";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
+import EmptyRowsFallback from "../../../new/components/reuseable/EmptyRowsFallback.jsx";
+import { Box, LinearProgress } from "@mui/material";
 
 export default function CPMReport() {
   const [projectName, setProjectName] = useState("");
@@ -58,54 +64,84 @@ export default function CPMReport() {
 
   const columns = [
     {
-      headerName: "Sr. No",
-      field: "index",
+      header: "Sr. No",
+      accessorKey: "index",
       width: 80,
     },
     {
-      headerName: "Vendor Code",
-      field: "ven_code",
+      header: "Vendor Code",
+      accessorKey: "ven_code",
       flex: 1,
-      renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.ven_code} copy={true} />
-      ),
+      render: ({ row }) => <ToolTipEllipses text={row.ven_code} copy={true} />,
     },
     {
-      headerName: "Vendor Name",
-      field: "ven_name",
+      header: "Vendor Name",
+      accessorKey: "ven_name",
       width: 200,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.ven_name} />,
+      render: ({ row }) => <ToolTipEllipses text={row.ven_name} />,
     },
     {
-      headerName: "Purchase Amount",
-      field: "vbt_taxable_value",
+      header: "Purchase Amount",
+      accessorKey: "vbt_taxable_value",
       flex: 1,
     },
     {
-      headerName: "GST Amount",
-      field: "gst_amount",
+      header: "GST Amount",
+      accessorKey: "gst_amount",
       flex: 1,
     },
     {
-      headerName: "Vendor Amount",
-      field: "vendor_amount",
+      header: "Vendor Amount",
+      accessorKey: "vendor_amount",
       flex: 1,
     },
 
     {
-      headerName: "Paid Amount",
-      field: "paid_amount",
+      header: "Paid Amount",
+      accessorKey: "paid_amount",
       flex: 1,
     },
     {
-      headerName: "Advance Amount",
-      field: "advance_amount",
+      header: "Advance Amount",
+      accessorKey: "advance_amount",
       flex: 1,
     },
   ];
-  console.log(rows);
+
+  const table = useMaterialReactTable({
+    columns: columns,
+    data: rows || [],
+    enableDensityToggle: false,
+    initialState: {
+      density: "compact",
+      pagination: { pageSize: 100, pageIndex: 0 },
+    },
+    enableStickyHeader: true,
+    muiTableContainerProps: {
+      sx: {
+        height:
+          loading === "fetch" ? "calc(100vh - 240px)" : "calc(100vh - 290px)",
+      },
+    },
+    renderEmptyRowsFallback: () => <EmptyRowsFallback />,
+
+    renderTopToolbar: () =>
+      loading === "fetch" ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress
+            sx={{
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "#0d9488",
+              },
+              backgroundColor: "#e1fffc",
+            }}
+          />
+        </Box>
+      ) : null,
+  });
+
   return (
-    <div style={{ height: "90%", padding: 5, paddingTop: 0 }}>
+    <div style={{ height: "90%", margin: 12 }}>
       <Row justify="space-between">
         <Col>
           <Space>
@@ -123,14 +159,14 @@ export default function CPMReport() {
                 </Form.Item>
               </Form>
             </div>
-            <MyButton
-              variant="search"
-              onClick={getRows}
-              type="primary"
+
+            <CustomButton
+              size="small"
+              title={"Search"}
+              onclick={getRows}
               loading={loading === "fetch"}
-            >
-              Fetch
-            </MyButton>
+              starticon={<Search fontSize="small" />}
+            />
           </Space>
         </Col>
         <Col>
@@ -141,12 +177,8 @@ export default function CPMReport() {
           />
         </Col>
       </Row>
-      <div style={{ height: "95%", marginTop: 5 }}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          columns={columns}
-          rows={rows}
-        />
+      <div style={{ height: "95%", marginTop: 12 }}>
+        <MaterialReactTable table={table} />
       </div>
     </div>
   );

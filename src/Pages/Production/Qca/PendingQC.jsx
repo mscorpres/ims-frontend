@@ -1,33 +1,31 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input, Popconfirm, Row, Space } from "antd";
 import { toast } from "react-toastify";
 import MySelect from "../../../Components/MySelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { v4 } from "uuid";
-import { GridActionsCellItem } from "@mui/x-data-grid";
 import {
   CheckOutlined,
   CloseOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import MyDataTable from "../../../Components/MyDataTable";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import { imsAxios } from "../../../axiosInterceptor";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import FormTable from "../../../Components/FormTable";
-import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions, getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
-import MyButton from "../../../Components/MyButton";
+import CustomButton from "../../../new/components/reuseable/CustomButton.jsx";
+import { Search } from "@mui/icons-material";
 function PendingQC() {
   const [wise, setWise] = useState("datewise");
   const [searchInput, setSearchInput] = useState("");
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [selectLoading, setSelectLoading] = useState(false);
+
   const [tableLoading, setTableLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
@@ -38,11 +36,6 @@ function PendingQC() {
   ];
 
   const getPartOptions = async (search) => {
-    // setSelectLoading(false);
-    // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-    //   search: search,
-    // });
-    // setSelectLoading(true);
     const response = await executeFun(
       () => getComponentOptions(search),
       "select"
@@ -158,13 +151,13 @@ function PendingQC() {
       headerName: "Sr. No.",
       width: 80,
       field: "index",
-      renderCell: ({ row }) => <p>{row.index}</p>,
+      render: ({ row }) => <p>{row.index}</p>,
     },
     {
       headerName: "Sample No.",
       width: 120,
       field: "transaction",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.transaction} />
       ),
     },
@@ -172,7 +165,7 @@ function PendingQC() {
       headerName: "MIN No.",
       field: "qc_transaction",
       width: 150,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.qc_transaction} />
       ),
     },
@@ -180,19 +173,19 @@ function PendingQC() {
       headerName: "Component",
       field: "component",
       width: 250,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.component} />,
+      render: ({ row }) => <ToolTipEllipses text={row.component} />,
     },
     {
       headerName: "Part",
       width: 150,
       field: "part",
-      renderCell: ({ row }) => <ToolTipEllipses copy={true} text={row.part} />,
+      render: ({ row }) => <ToolTipEllipses copy={true} text={row.part} />,
     },
     {
       headerName: "Vendor Code",
       width: 120,
       field: "vendorcode",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.vendorcode} />
       ),
     },
@@ -200,7 +193,7 @@ function PendingQC() {
       headerName: "Vendor Name",
       width: 200,
       field: "vendorcode",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.vendorname} />
       ),
     },
@@ -208,19 +201,19 @@ function PendingQC() {
       headerName: "Sample Date",
       width: 150,
       field: "sample_dt",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.sample_dt} />,
+      render: ({ row }) => <ToolTipEllipses text={row.sample_dt} />,
     },
     {
       headerName: "In Qty",
       width: 150,
       field: "inQty",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.inQty} />,
+      render: ({ row }) => <ToolTipEllipses text={row.inQty} />,
     },
     {
       headerName: "Invoice",
       width: 180,
       field: "part",
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <ToolTipEllipses copy={true} text={row.invoice} />
       ),
     },
@@ -228,19 +221,19 @@ function PendingQC() {
       headerName: "Sample Qty.",
       width: 150,
       field: "samQty",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.samQty} />,
+      render: ({ row }) => <ToolTipEllipses text={row.samQty} />,
     },
     {
       headerName: "UoM",
       width: 120,
       field: "unit",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.unit} />,
+      render: ({ row }) => <ToolTipEllipses text={row.unit} />,
     },
     {
       headerName: "Remarks",
       field: "remark",
       width: 200,
-      renderCell: ({ row }) =>
+      render: ({ row }) =>
         row.status === "" ? (
           <Input
             value={row.remark}
@@ -275,7 +268,7 @@ function PendingQC() {
       headerName: "Actions",
       field: "actions",
       width: 80,
-      renderCell: ({ row }) => (
+      render: ({ row }) => (
         <Space>
           <Popconfirm
             title={`Are you sure to pass Sample ${row.transaction}?`}
@@ -300,9 +293,7 @@ function PendingQC() {
             okButtonProps={{
               loading: submitLoading === row.id,
             }}
-            // onCancel={() => {
-            //   setShowConfirmModal(null);
-            // }}
+      
             okText="Yes"
             cancelText="No"
           >
@@ -312,11 +303,7 @@ function PendingQC() {
               size="small"
               icon={<CloseOutlined />}
             />
-            {/* <CommonIcons
-              disabled={row.status !== ""}
-              size="small"
-              action="closeButton"
-            /> */}
+       
           </Popconfirm>
         </Space>
       ),
@@ -344,7 +331,7 @@ function PendingQC() {
   }, [wise]);
   return (
     <>
-      <Row justify="space-between" style={{ margin: "10px" }}>
+      <Row justify="space-between" style={{ margin: "12px" }}>
         <div>
           <Space>
             <div style={{ width: 200 }}>
@@ -392,16 +379,14 @@ function PendingQC() {
                 )
               )}{" "}
             </div>
-            <MyButton
-              variant="search"
+            <CustomButton
+              size="small"
               disabled={!searchInput ? true : false}
-              type="primary"
+              title="Search"
+              starticon={<Search fontSize="small" />}
               loading={searchLoading}
-              onClick={getRows}
-              id="submit"
-            >
-              Search
-            </MyButton>
+              onclick={getRows}
+            />
           </Space>
         </div>
         <Space>
@@ -414,7 +399,7 @@ function PendingQC() {
           />
         </Space>
       </Row>
-      <div style={{ height: "85%", margin: "10px" }}>
+      <div style={{ height: "calc(100% - 130px)", margin: "10px" }}>
         <FormTable columns={columns} data={rows} loading={tableLoading} />
       </div>
     </>

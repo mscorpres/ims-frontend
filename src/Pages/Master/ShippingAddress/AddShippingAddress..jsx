@@ -78,7 +78,10 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
     addShippingAddressForm.setFieldsValue(obj);
   };
   return (
-    <CustomFieldBox title="Add Shipping Address" subtitle="Add a new shipping Address">
+    <CustomFieldBox
+      title="Add Shipping Address"
+      subtitle="Add a new shipping Address"
+    >
       <SubmitConfirmModal
         open={submitConfirmModal}
         handleCancel={() => setSubmitConfirmModal(false)}
@@ -184,14 +187,19 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
             <Row justify="end">
               <Space>
                 <CustomButton
-                onclick={resetHandler}
-                variant="outlined"
-                title="Reset"
-                endicon={renderIcon("ResetIcon")}
-              />
-                <MyButton variant="add" type="primary" htmlType="submit">
-                  Save
-                </MyButton>
+                  size="small"
+                  onclick={resetHandler}
+                  variant="outlined"
+                  title="Reset"
+                  endicon={renderIcon("ResetIcon")}
+                />
+
+                <CustomButton
+                  htmlType="submit"
+                  size="small"
+                  title="Save"
+                  endicon={renderIcon("CheckCircleOutlined")}
+                />
                 <CommonIcons
                   action="downloadButton"
                   onClick={handleCSVDownload}

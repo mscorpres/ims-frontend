@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import { Input, Skeleton, Tabs, Typography } from "antd";
@@ -7,7 +7,6 @@ import NavFooter from "../../../../Components/NavFooter";
 import { imsAxios } from "../../../../axiosInterceptor";
 
 const ReqWithBomModal = ({ allBom, back, setTab, reset }) => {
-  console.log(allBom);
   const [loading, setLoading] = useState(true);
   const [tableData, setTableData] = useState([]);
   const [submitLoading, setsubmitLoading] = useState(false);
@@ -15,8 +14,6 @@ const ReqWithBomModal = ({ allBom, back, setTab, reset }) => {
   const [tabItems, setTabItems] = useState([]);
   const [tabsExist, setTabsExist] = useState(["P", "PCK", "O", "PCB"]);
   const [activeKey, setActiveKey] = useState("P");
-
-  // console.log(allBom)
   const getFetcgData = async () => {
     setPageLoading(true);
     const { data } = await imsAxios.post("/production/FetchComponentWithBom", {
@@ -84,7 +81,6 @@ const ReqWithBomModal = ({ allBom, back, setTab, reset }) => {
           {row.name}
         </span>
       ),
-      // renderCell: ({ row }) => <span>{row.name}</span>,
     },
     {
       headerName: "Component Code",
@@ -296,8 +292,10 @@ const ReqWithBomModal = ({ allBom, back, setTab, reset }) => {
   }, [tableData]);
 
   return (
-    <div style={{ height: "100vh" }}>
-      <div style={{ margin: 20 }}>
+    <div
+      style={{ height: "calc(100vh - 180px)", margin: 10, overflow: "auto" }}
+    >
+      <div style={{ margin: 12 }}>
         <Skeleton active loading={pageLoading} />
         <Skeleton active loading={pageLoading} />
         <Skeleton active loading={pageLoading} />
@@ -309,7 +307,6 @@ const ReqWithBomModal = ({ allBom, back, setTab, reset }) => {
           activeKey={activeKey}
           onEdit={onEdit}
           items={tabItems}
-          style={{ marginTop: -15 }}
           hideAdd={true}
           tabBarExtraContent={{
             right: (
