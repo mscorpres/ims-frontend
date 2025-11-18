@@ -3,7 +3,6 @@ import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import MyDataTable from "../../../Components/MyDataTable";
 import AddShippingAddress from "./AddShippingAddress.";
 import {
   MaterialReactTable,

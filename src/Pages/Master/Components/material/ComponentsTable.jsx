@@ -91,14 +91,8 @@ export default function ComponentsTable({
     ],
   });
   return (
-    <div
-      style={{
-        height: "85%",
-        padding: "0 10px",
-      }}
-    >
+   
       <MaterialReactTable table={table} />
-    </div>
   );
 }
 

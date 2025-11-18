@@ -204,10 +204,10 @@ function StockControl() {
         </Col>
         <Col
           span={14}
-          style={{
-            height: "93%",
-            borderRadius: 5,
-          }}
+          // style={{
+          //   height: "93%",
+          //   borderRadius: 5,
+          // }}
         >
           <MaterialReactTable table={table} />
         </Col>
