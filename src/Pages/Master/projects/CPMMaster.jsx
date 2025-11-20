@@ -106,6 +106,7 @@ function CPMMaster() {
     { field: "index", headerName: "Sr. No", width: 80 },
     { field: "project", headerName: "Project Id", width: 180 },
     { field: "description", headerName: "Project Name", flex: 1 },
+    { field: "costcenter", headerName: "Cost Center", width: 180, flex: 1 },
     { field: "insert_dt", headerName: "Insert Date", flex: 1 },
     {
       headerName: "Status",
