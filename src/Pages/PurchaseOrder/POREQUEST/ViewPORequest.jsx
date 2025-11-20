@@ -614,23 +614,21 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                      <Form.Item label="Vendor Branch" name="vendorbranch">
-                        <Input
+                    <Form.Item
+                        name="vendorbranch"
+                        label="Vendor Branch"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please Select a vendor Branch!",
+                          },
+                        ]}
+                      >
+                        <MySelect
                           size="default"
-                          value={
-                            (purchaseOrder?.vendorbranch &&
-                              typeof purchaseOrder.vendorbranch === "object" &&
-                              purchaseOrder.vendorbranch.label) ||
-                            (purchaseOrder?.vendorbranch &&
-                              typeof purchaseOrder.vendorbranch === "object" &&
-                              purchaseOrder.vendorbranch.text) ||
-                            (purchaseOrder?.vendorbranch &&
-                            typeof purchaseOrder.vendorbranch === "string"
-                              ? purchaseOrder.vendorbranch
-                              : null) ||
-                            "--"
-                          }
+                          labelInValue
                           disabled
+                          // options={vendorBranches}
                         />
                       </Form.Item>
                     </Col>
