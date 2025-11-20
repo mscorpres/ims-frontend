@@ -14,7 +14,6 @@ import {
   Tabs,
   Radio,
   Card,
-  Timeline,
   message,
   Typography,
 } from "antd";
@@ -56,11 +55,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     { text: "Vendor", value: "v01" },
   ];
 
-  const getVendorTypeText = (value) => {
-    if (!value) return "--";
-    const option = vendorDetailsOptions.find((opt) => opt.value === value);
-    return option ? option.text : value;
-  };
+ 
 
   // Get currency symbol from ID
   const getCurrencySymbol = (currencyId) => {

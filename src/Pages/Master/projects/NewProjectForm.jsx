@@ -13,11 +13,29 @@ import CreateSubmitConfirmModal from "./CreateSubmitConfirmModal";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyButton from "../../../Components/MyButton";
+import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import { getCostCentresOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
+import useApi from "../../../hooks/useApi.ts";
 
 export default function NewProjectForm() {
   const [submitConfirm, setSubmitConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newProjectForm] = Form.useForm();
+  const [asyncOptions, setAsyncOptions] = useState([]);
+
+  const { executeFun } = useApi();
+
+  const getCostCenteres = async (search) => {
+    const response = await executeFun(
+      () => getCostCentresOptions(search),
+      "select"
+    );
+    let arr = [];
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
+  };
+
   const validateData = (values) => {
     setSubmitConfirm(values);
   };
@@ -41,8 +59,10 @@ export default function NewProjectForm() {
       project_id: "",
       project_name: "",
       project_description: "",
+      costcenter: "",
     };
     newProjectForm.setFieldsValue(obj);
+    setAsyncOptions([]);
   };
   return (
     <Form
@@ -110,6 +130,24 @@ export default function NewProjectForm() {
                 label="Project Name"
               >
                 <Input />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                name="costcenter"
+                label="Cost Center"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please Select a Cost Center!",
+                  },
+                ]}
+              >
+                <MyAsyncSelect
+                  onBlur={() => setAsyncOptions([])}
+                  optionsState={asyncOptions}
+                  loadOptions={getCostCenteres}
+                />
               </Form.Item>
             </Col>
             {/* <Col span={24}>
