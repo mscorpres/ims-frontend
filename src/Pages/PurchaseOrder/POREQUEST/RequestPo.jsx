@@ -10,12 +10,15 @@ import { imsAxios } from "../../../axiosInterceptor.js";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import MyButton from "../../../Components/MyButton/index.jsx";
 import ViewPORequest from "./ViewPORequest.jsx";
+import EditPO from "../ManagePO/EditPO/EditPO.jsx";
 
 const RequestPo = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [viewPoId, setViewPoId] = useState(null);
   const [rows, setRows] = useState([]);
   const [searchDateRange, setSearchDateRange] = useState("");
+  const [updatePoId, setUpdatePoId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const columns = [
     {
@@ -29,6 +32,12 @@ const RequestPo = () => {
           showInMenu
           label="View"
           onClick={() => getComponentData(row.po_transaction, row.po_status)}
+        />,
+        <GridActionsCellItem
+          key="edit"
+          showInMenu
+          label="Edit"
+          onClick={() => getPoDetail(row.po_transaction)}
         />,
       ],
     },
@@ -188,6 +197,33 @@ const RequestPo = () => {
     setViewPoId(poid);
   };
 
+  const getPoDetail = async (poid) => {
+    setLoading(true);
+    const { data, message } = await imsAxios
+      .post("/purchaseOrder/fetchData4Update", {
+        pono: poid.replaceAll("_", "/"),
+      })
+      .then((res) => {
+        if (res.code == 500) {
+          toast.error(res.message.msg);
+          setLoading(false);
+        } else {
+          return res;
+        }
+      });
+    setLoading(false);
+    if (data?.code == 200) {
+      setUpdatePoId({
+        ...data.data.bill,
+        materials: data.data.materials,
+        ...data.data.ship,
+        ...data.data.vendor[0],
+      });
+    } else {
+      toast.error(data?.message || message);
+    }
+  };
+
   return (
     <div className="manage-po" style={{ position: "relative", height: "100%" }}>
       <Row
@@ -233,13 +269,16 @@ const RequestPo = () => {
           padding: "0 10px",
         }}
       >
-        <MyDataTable loading={searchLoading} rows={rows} columns={columns} />
+        <MyDataTable loading={loading ||searchLoading} rows={rows} columns={columns} />
       </div>
       <ViewPORequest
         poId={viewPoId}
         setPoId={setViewPoId}
         getRows={getSearchResults}
       />
+        {updatePoId && (
+        <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} />
+      )}
     </div>
   );
 };

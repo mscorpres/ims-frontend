@@ -47,6 +47,8 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
   const [form] = Form.useForm();
   const [currencies, setCurrencies] = useState([]);
   const [totalTaxValue, setTotalTaxValue] = useState([]);
+  const [billingOptions, setBillingOptions] = useState([]);
+  const [shippingOptions, setShippingOptions] = useState([]);
 
   // Vendor type mapping like EditPO
   const vendorDetailsOptions = [
@@ -89,9 +91,43 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     }
   };
 
+  // Fetch billing address options
+  const getBillTo = async () => {
+    try {
+      const { data } = await imsAxios.post("/backend/billingAddressList", {
+        search: "",
+      });
+      let arr = [];
+      arr = data.map((d) => {
+        return { text: d.text, value: d.id };
+      });
+      setBillingOptions(arr);
+    } catch (error) {
+      console.error("Error fetching billing addresses:", error);
+    }
+  };
+
+  // Fetch shipping address options
+  const getShippingId = async () => {
+    try {
+      const { data } = await imsAxios.post("/backend/shipingAddressList", {
+        searchInput: "",
+      });
+      let arr = [];
+      arr = data.map((d) => {
+        return { text: d.text, value: d.id };
+      });
+      setShippingOptions(arr);
+    } catch (error) {
+      console.error("Error fetching shipping addresses:", error);
+    }
+  };
+
   // Fetch currencies on mount
   useEffect(() => {
     getCurrencies();
+    getBillTo();
+    getShippingId();
   }, []);
 
   // Fetch PO details
@@ -101,6 +137,56 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       getPoLogs(poId);
     }
   }, [poId]);
+
+  // Update form values when address options are loaded
+  useEffect(() => {
+    if (!purchaseOrder) return;
+
+    let formValues = {};
+    let needsUpdate = false;
+
+    // Convert billing ID to object with label and value
+    if (purchaseOrder.addrbillid && billingOptions.length > 0) {
+      const billingId =
+        typeof purchaseOrder.addrbillid === "object"
+          ? purchaseOrder.addrbillid?.value || purchaseOrder.addrbillid?.id
+          : purchaseOrder.addrbillid;
+      const billingOption = billingOptions.find(
+        (opt) => String(opt.value) === String(billingId)
+      );
+      if (billingOption) {
+        formValues.addrbillid = {
+          label: billingOption.text,
+          value: billingOption.value,
+        };
+        needsUpdate = true;
+      }
+    }
+
+    // Convert shipping ID to object with label and value
+    if (purchaseOrder.addrshipid && shippingOptions.length > 0) {
+      const shippingId =
+        typeof purchaseOrder.addrshipid === "object"
+          ? purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid?.id
+          : purchaseOrder.addrshipid;
+      const shippingOption = shippingOptions.find(
+        (opt) => String(opt.value) === String(shippingId)
+      );
+      if (shippingOption) {
+        formValues.addrshipid = {
+          label: shippingOption.text,
+          value: shippingOption.value,
+        };
+        needsUpdate = true;
+      }
+    }
+
+    // Update form values if we found matches
+    if (needsUpdate) {
+      form.setFieldsValue(formValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purchaseOrder, billingOptions, shippingOptions]);
 
   const fetchPODetails = async () => {
     setLoading(true);
@@ -614,7 +700,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                    <Form.Item
+                      <Form.Item
                         name="vendorbranch"
                         label="Vendor Branch"
                         rules={[
@@ -697,15 +783,19 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                   </Row>
                   <Row gutter={16}>
                     <Col span={6}>
-                      <Form.Item name="costcenter" label="Cost Center">
-                        <Input
-                          size="default"
-                          value={
-                            purchaseOrder?.costcenter?.label ||
-                            purchaseOrder?.costcenter?.text ||
-                            purchaseOrder?.costcenter ||
-                            "--"
-                          }
+                      <Form.Item
+                        name="costcenter"
+                        label="Cost Center"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please Select a Cost Center!",
+                          },
+                        ]}
+                      >
+                        <MyAsyncSelect
+                          onBlur={() => setAsyncOptions([])}
+                          labelInValue
                           disabled
                         />
                       </Form.Item>
@@ -749,16 +839,20 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                 <Col span={20}>
                   <Row gutter={16}>
                     <Col span={6}>
-                      <Form.Item name="addrbillid" label="Billing Id">
-                        <Input
-                          size="default"
-                          value={
-                            purchaseOrder?.addrbillid?.label ||
-                            purchaseOrder?.addrbillid?.text ||
-                            purchaseOrder?.addrbillid ||
-                            "--"
-                          }
+                      <Form.Item
+                        name="addrbillid"
+                        label="Billing Id"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a billing address!",
+                          },
+                        ]}
+                      >
+                        <MySelect
                           disabled
+                          labelInValue
+                          options={billingOptions}
                         />
                       </Form.Item>
                     </Col>
@@ -801,16 +895,20 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                 <Col span={20}>
                   <Row gutter={16}>
                     <Col span={6}>
-                      <Form.Item name="addrshipid" label="Shipping Id">
-                        <Input
-                          size="default"
-                          value={
-                            purchaseOrder?.addrshipid?.label ||
-                            purchaseOrder?.addrshipid?.text ||
-                            purchaseOrder?.addrshipid ||
-                            "--"
-                          }
+                      <Form.Item
+                        name="addrshipid"
+                        label="Shipping Id"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select a shipping address!",
+                          },
+                        ]}
+                      >
+                        <MySelect
                           disabled
+                          labelInValue
+                          options={shippingOptions}
                         />
                       </Form.Item>
                     </Col>
