@@ -8,35 +8,38 @@ import AddBranch from "../../Master/Vendor/model/AddBranch";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
-import {
-  Col,
-  Descriptions,
-  Divider,
-  Form,
-  Input,
-  Row,
-  Tabs,
-  Modal,
-  Button,
-  InputNumber,
-  Radio,
-} from "antd";
+import { Col, Descriptions, Divider, Form, Input, Row, Tabs, Modal, Button, InputNumber, Radio } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import Loading from "../../../Components/Loading";
 import SuccessPage from "./SuccessPage";
 import { imsAxios } from "../../../axiosInterceptor";
 import AddProjectModal from "./AddProjectModal";
 import useApi from "../../../hooks/useApi.ts";
-import {
-  getCostCentresOptions,
-  getProjectOptions,
-  getVendorOptions,
-} from "../../../api/general.ts";
+import { getCostCentresOptions, getProjectOptions, getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
+
+const deliveryTermOptions = [
+  { label: "Within 10 days", value: "Within 10 days" },
+  { label: "Within 15 days", value: "Within 15 days" },
+  { label: "Within 30 days", value: "Within 30 days" },
+  { label: "Other", value: "Other" },
+];
+
+const paymentTermOptions = [
+  { label: "Within 7 days", value: "Within 7 days" },
+  { label: "Within 15 days", value: "Within 15 days" },
+  { label: "Within 45 days", value: "Within 45 days" },
+  { label: "Advance Payment", value: "Advance Payment" },
+];
 
 export default function CreatePo() {
   const [totalValues, setTotalValues] = useState([]);
   const [newPurchaseOrder, setnewPurchaseOrder] = useState({
+    termscondition: "",
+    customDeliveryTerm: "",
+    paymentterms: "",
+    advancePercentage: null,
+    advancePayment: 0,
     vendorname: "",
     vendortype: "v01",
     vendorbranch: "",
@@ -49,9 +52,7 @@ export default function CreatePo() {
     shipaddress: "",
     shipPan: "",
     shipGST: "",
-    termscondition: "",
     quotationdetail: "",
-    paymentterms: "",
     pocostcenter: "",
     po_comment: "",
     project_name: "",
@@ -157,13 +158,11 @@ export default function CreatePo() {
       vendortype: newPurchaseOrder.vendortype,
       pocomment: newPurchaseOrder.po_comment,
       poproject_name: newPurchaseOrder.project_name,
-      paymenttermsday: newPurchaseOrder.paymenttermsday
-        ? newPurchaseOrder.paymenttermsday === ""
-          ? 30
-          : newPurchaseOrder.paymenttermsday
-        : 30,
+      paymenttermsday: newPurchaseOrder.paymenttermsday ? (newPurchaseOrder.paymenttermsday === "" ? 30 : newPurchaseOrder.paymenttermsday) : 30,
+      paymentterms: newPurchaseOrder.paymentterms === "Advance Payment" ? `Advance Payment ${newPurchaseOrder.advancePercentage || 0}%` : newPurchaseOrder.paymentterms,
       po_raise_by: newPurchaseOrder.raisedBy,
       advancePayment: newPurchaseOrder.advancePayment,
+      termscondition: newPurchaseOrder.termscondition === "Other" ? newPurchaseOrder.customDeliveryTerm : newPurchaseOrder.termscondition,
     };
     let error = false;
     if (rowCount.length == 0) {
@@ -183,21 +182,21 @@ export default function CreatePo() {
     ) {
       toast.error("Please enter all the fields");
       return;
-    } else if (
-      newPurchaseOrder.pocreatetype == "S" &&
-      !newPurchaseOrder.original_po
-    ) {
+    } else if (newPurchaseOrder.pocreatetype == "S" && !newPurchaseOrder.original_po) {
       return toast.error("Please select a PO ID in case of supplementry PO");
+    }
+    if (newPurchaseOrder.termscondition === "Other" && !newPurchaseOrder.customDeliveryTerm?.trim()) {
+      toast.error("Please enter custom delivery term when 'Other' is selected");
+      return;
+    }
+
+    if (newPurchaseOrder.paymentterms === "Advance Payment" && !newPurchaseOrder.advancePercentage) {
+      toast.error("Please enter advance payment percentage");
+      return;
     }
 
     rowCount.map((count) => {
-      if (
-        count.currency == "" ||
-        count.exchange == 0 ||
-        count.component == "" ||
-        count.qty == 0 ||
-        count.rate == ""
-      ) {
+      if (count.currency == "" || count.exchange == 0 || count.component == "" || count.qty == 0 || count.rate == "") {
         error = true;
       }
     });
@@ -211,17 +210,18 @@ export default function CreatePo() {
   const submitHandler = async () => {
     setSubmitLoading(true);
     if (showSubmitConfirm) {
-      const response = await imsAxios.post("/purchaseOrder/createPO", {
-        ...showSubmitConfirm,
-      }).then((res) => {
-        if(res?.code == 500){
-          toast.error(res?.message.msg)
-          setSubmitLoading(false);
-        }
-        else{
-          return res
-        }
-      });
+      const response = await imsAxios
+        .post("/purchaseOrder/createPO", {
+          ...showSubmitConfirm,
+        })
+        .then((res) => {
+          if (res?.code == 500) {
+            toast.error(res?.message.msg);
+            setSubmitLoading(false);
+          } else {
+            return res;
+          }
+        });
       setSubmitLoading(false);
       const { data } = response;
       if (data) {
@@ -444,10 +444,7 @@ export default function CreatePo() {
     setShipToOptions(arr);
   };
   const handleFetchCostCenterOptions = async (search) => {
-    const response = await executeFun(
-      () => getCostCentresOptions(search),
-      "select"
-    );
+    const response = await executeFun(() => getCostCentresOptions(search), "select");
     let arr = [];
     if (response.success) arr = convertSelectOptions(response.data);
     setAsyncOptions(arr);
@@ -494,15 +491,18 @@ export default function CreatePo() {
       shipaddress: "",
       shipPan: "",
       shipGST: "",
-      termscondition: "",
+      // termscondition: "",
       quotationdetail: "",
-      paymentterms: "",
       pocostcenter: "",
       po_comment: "",
       project_name: "",
       pocreatetype: "N",
       original_po: "",
-      advancePayment: "",
+      termscondition: "",
+      customDeliveryTerm: "",
+      paymentterms: "",
+      advancePayment: 0,
+      advancePercentage: null,
     };
 
     // form.reset
@@ -540,10 +540,7 @@ export default function CreatePo() {
     setSuccessData(false);
   };
   const handleFetchProjectOptions = async (search) => {
-    const response = await executeFun(
-      () => getProjectOptions(search),
-      "select"
-    );
+    const response = await executeFun(() => getProjectOptions(search), "select");
     setAsyncOptions(response.data);
   };
   const handleProjectChange = async (value) => {
@@ -556,9 +553,35 @@ export default function CreatePo() {
     if (data) {
       if (data.code === 200) {
         setProjectDesc(data.data.description);
+        
+        await handleProjectCostCenter(value);
       } else {
         toast.error(data.message.msg);
       }
+    }
+  };
+
+ 
+  const handleProjectCostCenter = async (projectName) => {
+    setPageLoading(true);
+    try {
+      const response = await imsAxios.post("/purchaseOrder/costCenter", {  
+      });
+      setPageLoading(false);
+      const { data } = response;
+      if (data && data.code === 200) {
+        
+        const costCenterOption = { value: data.data.costcenter.id, label: data.data.costcenter.text };  
+       
+        form.setFieldsValue({ pocostcenter: costCenterOption });
+        const updatedPO = { ...newPurchaseOrder, pocostcenter: costCenterOption };
+        setnewPurchaseOrder(updatedPO);
+      } else {
+        toast.error(data?.message?.msg || "Failed to fetch cost center");
+      }
+    } catch (error) {
+      setPageLoading(false);
+      toast.error("Error fetching project cost center");
     }
   };
   useEffect(() => {
@@ -597,7 +620,7 @@ export default function CreatePo() {
   return (
     <div
       style={{
-        height: "90%",
+        height: "85%",
       }}
     >
       {/* create confirm modal */}
@@ -609,12 +632,7 @@ export default function CreatePo() {
           <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
             No
           </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            loading={submitLoading}
-            onClick={submitHandler}
-          >
+          <Button key="submit" type="primary" loading={submitLoading} onClick={submitHandler}>
             Yes
           </Button>,
         ]}
@@ -638,23 +656,10 @@ export default function CreatePo() {
       >
         <p>Are you sure to reset details of this Purchase Order?</p>
       </Modal>
-      <AddVendorSideBar
-        open={showAddVendorModal}
-        setOpen={setShowAddVendorModal}
-      />
-      <AddBranch
-        getVendorBracnch={getVendorBracnch}
-        setOpenBranch={setShowBranchModal}
-        openBranch={showBranchModel}
-      />
-      <CreateCostModal
-        showAddCostModal={showAddCostModal}
-        setShowAddCostModal={setShowAddCostModal}
-      />
-      <AddProjectModal
-        showAddProjectConfirm={showAddProjectConfirm}
-        setShowAddProjectConfirm={setShowAddProjectConfirm}
-      />
+      <AddVendorSideBar open={showAddVendorModal} setOpen={setShowAddVendorModal} />
+      <AddBranch getVendorBracnch={getVendorBracnch} setOpenBranch={setShowBranchModal} openBranch={showBranchModel} />
+      <CreateCostModal showAddCostModal={showAddCostModal} setShowAddCostModal={setShowAddCostModal} />
+      <AddProjectModal showAddProjectConfirm={showAddProjectConfirm} setShowAddProjectConfirm={setShowAddProjectConfirm} />
       {!successData && (
         <div style={{ height: "100%", overflow: "auto" }}>
           <Tabs
@@ -707,11 +712,7 @@ export default function CreatePo() {
                       <Row gutter={16}>
                         {/* PO type */}
                         <Col span={6}>
-                          <Form.Item
-                            name="pocreatetype"
-                            label="PO Type"
-                            rules={rules.pocreatetype}
-                          >
+                          <Form.Item name="pocreatetype" label="PO Type" rules={rules.pocreatetype}>
                             <MySelect size="default" options={POoption} />
                           </Form.Item>
                         </Col>
@@ -723,8 +724,7 @@ export default function CreatePo() {
                               label={
                                 <span
                                   style={{
-                                    fontSize:
-                                      window.innerWidth < 1600 && "0.7rem",
+                                    fontSize: window.innerWidth < 1600 && "0.7rem",
                                   }}
                                 >
                                   Original PO
@@ -732,13 +732,7 @@ export default function CreatePo() {
                               }
                               rules={rules.original_po}
                             >
-                              <MyAsyncSelect
-                                selectLoading={selectLoading}
-                                size="default"
-                                onBlur={() => setAsyncOptions([])}
-                                loadOptions={getPOs}
-                                optionsState={asyncOptions}
-                              />
+                              <MyAsyncSelect selectLoading={selectLoading} size="default" onBlur={() => setAsyncOptions([])} loadOptions={getPOs} optionsState={asyncOptions} />
                             </Form.Item>
                           </Col>
                         )}
@@ -768,8 +762,7 @@ export default function CreatePo() {
                             label={
                               <span
                                 style={{
-                                  fontSize:
-                                    window.innerWidth < 1600 && "0.7rem",
+                                  fontSize: window.innerWidth < 1600 && "0.7rem",
                                 }}
                               >
                                 Vendor Type
@@ -777,10 +770,7 @@ export default function CreatePo() {
                             }
                             rules={rules.vendortype}
                           >
-                            <MySelect
-                              size="default"
-                              options={vendorDetailsOptions}
-                            />
+                            <MySelect size="default" options={vendorDetailsOptions} />
                           </Form.Item>
                         </Col>
                         {/* vendor name */}
@@ -791,8 +781,7 @@ export default function CreatePo() {
                             label={
                               <div
                                 style={{
-                                  fontSize:
-                                    window.innerWidth < 1600 && "0.7rem",
+                                  fontSize: window.innerWidth < 1600 && "0.7rem",
                                   display: "flex",
                                   justifyContent: "space-between",
                                   width: 350,
@@ -811,14 +800,7 @@ export default function CreatePo() {
                               </div>
                             }
                           >
-                            <MyAsyncSelect
-                              selectLoading={loading1("select")}
-                              size="default"
-                              labelInValue
-                              onBlur={() => setAsyncOptions([])}
-                              optionsState={asyncOptions}
-                              loadOptions={getVendors}
-                            />
+                            <MyAsyncSelect selectLoading={loading1("select")} size="default" labelInValue onBlur={() => setAsyncOptions([])} optionsState={asyncOptions} loadOptions={getVendors} />
                           </Form.Item>
                         </Col>
                         {/* venodr branch */}
@@ -829,8 +811,7 @@ export default function CreatePo() {
                             label={
                               <div
                                 style={{
-                                  fontSize:
-                                    window.innerWidth < 1600 && "0.7rem",
+                                  fontSize: window.innerWidth < 1600 && "0.7rem",
                                   display: "flex",
                                   justifyContent: "space-between",
                                   width: 350,
@@ -841,12 +822,9 @@ export default function CreatePo() {
                                   onClick={() => {
                                     newPurchaseOrder.vendorname.value
                                       ? setShowBranchModal({
-                                          vendor_code:
-                                            newPurchaseOrder.vendorname.value,
+                                          vendor_code: newPurchaseOrder.vendorname.value,
                                         })
-                                      : toast.error(
-                                          "Please Select a vendor first"
-                                        );
+                                      : toast.error("Please Select a vendor first");
                                   }}
                                   style={{ color: "#1890FF" }}
                                 >
@@ -877,12 +855,25 @@ export default function CreatePo() {
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item
-                            name="vendoraddress"
-                            label="Bill From Address"
-                            rules={rules.vendoraddress}
-                          >
-                            <TextArea rows={4} style={{ resize: "none" }} />
+                          <Form.Item name="vendoraddress" label="Bill From Address" rules={rules.vendoraddress}>
+                            <TextArea
+                              value={newPurchaseOrder.vendoraddress}
+                              rows={4}
+                              style={{
+                                resize: "none",
+                                backgroundColor: "#ffffff",
+                                color: "#1f1f1f",
+                                fontWeight: 600,
+                                fontSize: "14px",
+                                lineHeight: "1.6",
+                                opacity: 1,
+                                border: "1px solid #d9d9d9",
+                                borderRadius: "6px",
+                                padding: "12px 16px",
+                                boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)",
+                              }}
+                              disabled
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -906,11 +897,22 @@ export default function CreatePo() {
                       <Row gutter={16}>
                         {/* terms and conditions */}
                         <Col span={6}>
-                          <Form.Item
-                            name="termscondition"
-                            label=" Terms and Conditions"
-                          >
-                            <Input size="default" />
+                          <Form.Item name="termscondition" label="Delivery Terms">
+                            <MySelect
+                              options={deliveryTermOptions}
+                              onChange={(value) => {
+                                if (value !== "Other") {
+                                  form.setFieldsValue({ customDeliveryTerm: "" });
+                                }
+                              }}
+                            />
+                          </Form.Item>
+                          <Form.Item noStyle>
+                            {Form.useWatch("termscondition", form) === "Other" && (
+                              <Form.Item name="customDeliveryTerm" style={{ marginTop: 8 }}>
+                                <Input placeholder="Enter custom delivery term" />
+                              </Form.Item>
+                            )}
                           </Form.Item>
                         </Col>
                         {/* quotations */}
@@ -921,27 +923,26 @@ export default function CreatePo() {
                         </Col>
                         {/* payment terms */}
                         <Col span={6}>
-                          <Form.Item name="paymentterms" label=" Payment Terms">
-                            <Input size="default" />
+                          <Form.Item name="paymentterms" label="Payment Terms">
+                            <MySelect
+                              options={paymentTermOptions}
+                              onChange={(value) => {
+                                if (value !== "Advance Payment") {
+                                  form.setFieldsValue({ advancePayment: 0 });
+                                }
+                              }}
+                            />
                           </Form.Item>
                         </Col>
 
                         {/* po due date*/}
-                        <Col span={6}>
-                          <Form.Item
-                            label="Due Date (in days)"
-                            name="paymenttermsday"
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              size="default"
-                              min={1}
-                              max={999}
-                            />
+                        {/* <Col span={6}>
+                          <Form.Item label="Due Date (in days)" name="paymenttermsday">
+                            <InputNumber style={{ width: "100%" }} size="default" min={1} max={999} />
                           </Form.Item>
-                        </Col>
+                        </Col> */}
                       </Row>
-                      <Row gutter={16}>
+                      <Row gutter={16} style={{ marginTop: 16 }}>
                         {/* project id */}
                         {/* cost center */}
                         <Col span={4}>
@@ -951,8 +952,7 @@ export default function CreatePo() {
                             label={
                               <div
                                 style={{
-                                  fontSize:
-                                    window.innerWidth < 1600 && "0.7rem",
+                                  fontSize: window.innerWidth < 1600 && "0.7rem",
                                   display: "flex",
                                   justifyContent: "space-between",
                                   width: 350,
@@ -971,12 +971,7 @@ export default function CreatePo() {
                               </div>
                             }
                           >
-                            <MyAsyncSelect
-                              selectLoading={loading1("select")}
-                              onBlur={() => setAsyncOptions([])}
-                              loadOptions={handleFetchCostCenterOptions}
-                              optionsState={asyncOptions}
-                            />
+                            <MyAsyncSelect selectLoading={loading1("select")} onBlur={() => setAsyncOptions([])} loadOptions={handleFetchCostCenterOptions} optionsState={asyncOptions} />
                           </Form.Item>
                         </Col>
                         <Col span={5}>
@@ -986,8 +981,7 @@ export default function CreatePo() {
                             label={
                               <div
                                 style={{
-                                  fontSize:
-                                    window.innerWidth < 1600 && "0.7rem",
+                                  fontSize: window.innerWidth < 1600 && "0.7rem",
                                   display: "flex",
                                   justifyContent: "space-between",
                                   width: 350,
@@ -1018,11 +1012,7 @@ export default function CreatePo() {
                         {/* project name */}
                         <Col span={5}>
                           <Form.Item label="Project Description">
-                            <Input
-                              size="default"
-                              disabled
-                              value={projectDesc}
-                            />
+                            <Input size="default" disabled value={projectDesc} />
                           </Form.Item>
                         </Col>
                         {/* comments */}
@@ -1033,29 +1023,27 @@ export default function CreatePo() {
                         </Col>
                         {/* raised by */}
                         <Col span={5}>
-                          <Form.Item
-                            label="Requested By"
-                            name="raisedBy"
-                            rules={rules.raisedBy}
-                          >
-                            <MyAsyncSelect
-                              selectLoading={selectLoading}
-                              size="default"
-                              onBlur={() => setAsyncOptions([])}
-                              optionsState={asyncOptions}
-                              loadOptions={getusers}
-                            />
+                          <Form.Item label="Requested By" name="raisedBy" rules={rules.raisedBy}>
+                            <MyAsyncSelect selectLoading={selectLoading} size="default" onBlur={() => setAsyncOptions([])} optionsState={asyncOptions} loadOptions={getusers} />
                           </Form.Item>
                         </Col>
                         <Col span={5}>
-                          <Form.Item  label="Advance Payment" name="advancePayment">
-                            <Radio.Group>
+                          <Form.Item label="Advance Payment" name="advancePayment">
+                            <Radio.Group onChange={(e) => !e.target.value && form.setFieldsValue({ advancePercentage: null })}>
                               <Radio value={1}>Yes</Radio>
                               <Radio value={0}>No</Radio>
                             </Radio.Group>
                           </Form.Item>
                         </Col>
-                      
+                        <Col span={3}>
+                          <Form.Item noStyle>
+                            {Form.useWatch("advancePayment", form) === 1 && (
+                              <Form.Item name="advancePercentage" label="Advance Payment %" rules={[{ required: true, message: "Please enter advance percentage" }]}>
+                                <InputNumber min={1} max={100} formatter={(v) => `${v}%`} parser={(v) => v.replace("%", "")} style={{ width: "100%" }} placeholder="e.g. 30" />
+                              </Form.Item>
+                            )}
+                          </Form.Item>
+                        </Col>
                       </Row>
                     </Col>
                   </Row>
@@ -1077,50 +1065,46 @@ export default function CreatePo() {
                       <Row gutter={16}>
                         {/* billing id */}
                         <Col span={6}>
-                          <Form.Item
-                            name="billaddressid"
-                            label="Billing Id"
-                            rules={rules.billaddressid}
-                          >
+                          <Form.Item name="billaddressid" label="Billing Id" rules={rules.billaddressid}>
                             <MySelect options={billToOptions} />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
                         <Col span={6}>
-                          <Form.Item
-                            name="billPan"
-                            label="Pan No."
-                            rules={rules.billPan}
-                          >
-                            <Input
-                              size="default"
-                              value={newPurchaseOrder.billPan}
-                            />
+                          <Form.Item name="billPan" label="Pan No." rules={rules.billPan}>
+                            <Input size="default" value={newPurchaseOrder.billPan} disabled />
                           </Form.Item>
                         </Col>
                         {/* gstin uin */}
                         <Col span={6}>
-                          <Form.Item
-                            name="billGST"
-                            label="GSTIN / UIN"
-                            rules={rules.billGST}
-                          >
-                            <Input
-                              size="default"
-                              value={newPurchaseOrder.billGST}
-                            />
+                          <Form.Item name="billGST" label="GSTIN / UIN" rules={rules.billGST}>
+                            <Input size="default" value={newPurchaseOrder.billGST} disabled />
                           </Form.Item>
                         </Col>
                       </Row>
                       {/* billing address */}
                       <Row>
                         <Col span={18}>
-                          <Form.Item
-                            name="billaddress"
-                            label="Billing Address"
-                            rules={rules.billaddress}
-                          >
-                            <TextArea style={{ resize: "none" }} rows={4} />
+                          <Form.Item name="billaddress" label="Billing Address" rules={rules.billaddress}>
+                            <TextArea
+                              value={newPurchaseOrder.billaddress}
+                              disabled
+                              rows={5}
+                              style={{
+                                resize: "none",
+                                backgroundColor: "#ffffff",
+                                color: "#1f1f1f",
+                                fontWeight: 600,
+                                fontSize: "14px",
+                                lineHeight: "1.6",
+                                opacity: 1,
+                                border: "1px solid #d9d9d9",
+                                borderRadius: "6px",
+                                padding: "12px 16px",
+                                boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)",
+                              }}
+                              className="bold-disabled-textarea"
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -1144,70 +1128,57 @@ export default function CreatePo() {
                       <Row gutter={16}>
                         {/* shipping id */}
                         <Col span={6}>
-                          <Form.Item
-                            name="shipaddressid"
-                            label="Shipping Id"
-                            rules={rules.shipaddressid}
-                          >
+                          <Form.Item name="shipaddressid" label="Shipping Id" rules={rules.shipaddressid}>
                             <MySelect options={shipToOptions} />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
                         <Col span={6}>
-                          <Form.Item
-                            label="Pan No."
-                            name="shipPan"
-                            rules={rules.shipPan}
-                          >
-                            <Input
-                              size="default"
-                              value={newPurchaseOrder.shipPan}
-                            />
+                          <Form.Item label="Pan No." name="shipPan" rules={rules.shipPan}>
+                            <Input size="default" value={newPurchaseOrder.shipPan} disabled />
                           </Form.Item>
                         </Col>
                         {/* gstin uin */}
                         <Col span={6}>
-                          <Form.Item
-                            name="shipGST"
-                            label=" GSTIN / UIN"
-                            rules={rules.shipGST}
-                          >
-                            <Input
-                              size="default"
-                              value={newPurchaseOrder.shipGST}
-                            />
+                          <Form.Item name="shipGST" label=" GSTIN / UIN" rules={rules.shipGST}>
+                            <Input size="default" value={newPurchaseOrder.shipGST} disabled />
                           </Form.Item>
                         </Col>
                       </Row>
                       {/* shipping address */}
                       <Row>
                         <Col span={18}>
-                          <Form.Item
-                            label="Shipping Address"
-                            name="shipaddress"
-                            rules={rules.shipaddress}
-                          >
-                            <TextArea style={{ resize: "none" }} rows={4} />
+                          <Form.Item label="Shipping Address" name="shipaddress" rules={rules.shipaddress}>
+                            <TextArea
+                              value={newPurchaseOrder.shipaddress}
+                              disabled
+                              rows={5}
+                              style={{
+                                resize: "none",
+                                backgroundColor: "#ffffff",
+                                color: "#1f1f1f",
+                                fontWeight: 600,
+                                fontSize: "14px",
+                                lineHeight: "1.6",
+                                opacity: 1,
+                                border: "1px solid #d9d9d9",
+                                borderRadius: "6px",
+                                padding: "12px 16px",
+                                boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)",
+                              }}
+                              className="bold-disabled-textarea"
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
                     </Col>
-                    <NavFooter
-                      submithtmlType="submit"
-                      submitButton={true}
-                      formName="create-po"
-                      resetFunction={() => setShowDetailsConfirm(true)}
-                    />
+                    <NavFooter submithtmlType="submit" submitButton={true} formName="create-po" resetFunction={() => setShowDetailsConfirm(true)} />
                   </Row>
                 </Form>
                 <Divider />
               </div>
             </Tabs.TabPane>
-            <Tabs.TabPane
-              tab="Add Components Details"
-              style={{ height: "98%" }}
-              key="2"
-            >
+            <Tabs.TabPane tab="Add Components Details" style={{ height: "98%" }} key="2">
               <div style={{ height: "100%" }}>
                 <AddComponent
                   newPurchaseOrder={newPurchaseOrder}
@@ -1227,13 +1198,7 @@ export default function CreatePo() {
           </Tabs>
         </div>
       )}
-      {successData && (
-        <SuccessPage
-          resetFunction={resetFunction}
-          po={successData}
-          setNewPO={setNewPO}
-        />
-      )}
+      {successData && <SuccessPage resetFunction={resetFunction} po={successData} setNewPO={setNewPO} />}
     </div>
   );
 }

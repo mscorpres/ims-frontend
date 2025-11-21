@@ -299,7 +299,7 @@ export const items = (user) => [
     ], null, 100005),
     getItem("Procurement", "B2", <ImCart />, [
       getItem(
-        <Link to="/create-po">Create PO</Link>,
+        <Link to="/create-po">Create PR</Link>,
         "B21"
         // <AiOutlineMinus />
       ),

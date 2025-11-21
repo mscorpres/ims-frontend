@@ -16,7 +16,7 @@ const links = [
   ],
   [
     {
-      routeName: "Create PO",
+      routeName: "Create PR",
       routePath: "/create-po",
       key: 0,
     },

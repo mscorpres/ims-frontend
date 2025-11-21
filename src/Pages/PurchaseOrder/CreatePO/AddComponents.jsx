@@ -55,7 +55,8 @@ export default function AddComponents({
       exchange_rate: 1,
       component: "",
       qty: 1,
-      rate: "",
+      rate: "", // CHANGED: Ensure rate is empty for manual input
+      last_rate: "", // CHANGED: Added last_rate field, initially empty
       duedate: "",
       hsncode: "",
       gsttype: "L",
@@ -68,10 +69,11 @@ export default function AddComponents({
       foreginValue: 0,
       unit: "",
       rate_cap: 0,
-      tol_price: 0,
+      // tol_price: 0,
       project_req_qty: 0,
       po_exec_qty: 0,
       diffPercentage: "--",
+      closing_stock: 0, // CHANGED: Added closing_stock field from previous update
     };
     setRowCount((rowCount) => [...rowCount, newRow]);
   };
@@ -265,7 +267,9 @@ export default function AddComponents({
             };
           }
         }
-        if (row.gsttype.value == "L" && name != "gsttype") {
+        // CHANGED: Fixed bug - was row.gsttype.value (undefined), now obj.gsttype (string "L" or "I")
+        // This prevents incorrect GST updates and potential overwrite issues
+        if (obj.gsttype == "L" && name != "gsttype") {
           let percentage = obj.gstrate / 2;
           obj = {
             ...obj,
@@ -273,7 +277,7 @@ export default function AddComponents({
             sgst: (obj.inrValue * percentage) / 100,
             igst: 0,
           };
-        } else if (row.gsttype.value == "I" && name != "gsttype") {
+        } else if (obj.gsttype == "I" && name != "gsttype") {
           let percentage = obj.gstrate;
           obj = {
             ...obj,
@@ -312,46 +316,45 @@ export default function AddComponents({
       arr1 = arr1.map((row) => {
         if (row.id == id) {
           let obj = row;
+          let newLastRate = Number(data.data.rate.toString().trim()); // CHANGED: Use API rate only for last_rate, not for rate
+          let percentage = data.data.gstrate;
+          // CHANGED: Do not set rate or inrValue here - leave rate empty for manual input
+          // inrValue and GST will be calculated when user enters rate
           if (row.gsttype == "L") {
-            let percentage = data.data.gstrate / 2;
+            percentage = data.data.gstrate / 2;
             obj = {
               ...obj,
               component: value,
-              rate: Number(data.data.rate.toString().trim()),
+              last_rate: newLastRate, // CHANGED: Set only last_rate from API
               unit: data.data.unit,
-              inrValue:
-                Number(data.data.rate.toString().trim()) *
-                Number(obj?.qty) *
-                Number(obj?.exchange_rate),
               hsncode: data.data.hsn,
               gstrate: data.data.gstrate,
-              cgst: (obj?.inrValue * percentage) / 100,
-              sgst: (obj?.inrValue * percentage) / 100,
+              // CHANGED: Set GST to 0 initially, as inrValue not set yet
+              cgst: 0,
+              sgst: 0,
               igst: 0,
             };
           } else if (row.gsttype == "I") {
-            let percentage = data.data.gstrate;
             obj = {
-              ...row,
+              ...obj,
               cgst: 0,
               component: value,
-              rate: data.data.rate,
+              last_rate: newLastRate, // CHANGED: Set only last_rate from API
               unit: data.data.unit,
-              inrValue: data.data.rate * row.qty * parseInt(row?.exchange_rate),
               hsncode: data.data.hsn,
               gstrate: data.data.gstrate,
               sgst: 0,
-              igst: (row?.inrValue * percentage) / 100,
+              // CHANGED: Set IGST to 0 initially
+              igst: 0,
             };
           } else {
             obj = {
-              ...row,
+              ...obj,
               component: value,
-              rate: data.data.rate,
+              last_rate: newLastRate, // CHANGED: Set only last_rate from API
               unit: data.data.unit,
               gstrate: data.data.gstrate,
               hsncode: data.data.hsn,
-              inrValue: data.data.rate * row.qty * parseInt(row?.exchange_rate),
             };
           }
           obj = {
@@ -359,7 +362,7 @@ export default function AddComponents({
             rate_cap: data.data.project_rate,
             project_req_qty: data.data.project_qty,
             po_exec_qty: data.data.po_ord_qty,
-            po_exec_qty: data.data.po_ord_qty,
+            closing_stock: data.data.closing_stock || 0,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
           };
           return obj;
@@ -406,7 +409,8 @@ export default function AddComponents({
         exchange: "1",
         component: "",
         qty: 1,
-        rate: "",
+        rate: "", // CHANGED: Ensure rate is empty
+        last_rate: "", // CHANGED: Added last_rate, initially empty
         duedate: "",
         inrValue: 0,
         hsncode: "",
@@ -417,6 +421,7 @@ export default function AddComponents({
         igst: 0,
         remark: "--",
         unit: "--",
+        closing_stock: 0, // CHANGED: Added closing_stock
       },
     ]);
     setConfirmReset(false);
@@ -498,6 +503,7 @@ export default function AddComponents({
           stateCode
         ),
     },
+    
 
     {
       headerName: "Ord. Qty",
@@ -506,34 +512,45 @@ export default function AddComponents({
       renderCell: (params) => quantityCell(params, inputHandler),
       width: 130,
     },
+    
+
     {
-      headerName: "Rate",
+      headerName: "Rate", // CHANGED: This is now manual input, not populated from API
       width: 170,
       field: "rate",
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
+    // CHANGED: Added Last Rate column - disabled, populated from API only
     {
-      headerName: "Rate Cap",
-      width: 100,
-      field: "rate_cap",
+      headerName: "Last Rate",
+      width: 170,
+      field: "last_rate",
       sortable: false,
       renderCell: (params) =>
-        disabledCell(params, params.row.rate_cap, inputHandler),
+        disabledCell(params, params.row.last_rate, inputHandler),
     },
-    {
-      headerName: "Tol Price",
-      width: 120,
-      field: "tol_price",
-      sortable: false,
-      renderCell: (params) =>
-        disabledCell(
-          params,
-          params.row.tol_price,
-          inputHandler,
-          params.row.diffPercentage + "%" ?? "--"
-        ),
-    },
+    // {
+    //   headerName: "Rate Cap",
+    //   width: 100,
+    //   field: "rate_cap",
+    //   sortable: false,
+    //   renderCell: (params) =>
+    //     disabledCell(params, params.row.rate_cap, inputHandler),
+    // },
+    // {
+    //   headerName: "Tol Price",
+    //   width: 120,
+    //   field: "tol_price",
+    //   sortable: false,
+    //   renderCell: (params) =>
+    //     disabledCell(
+    //       params,
+    //       params.row.tol_price,
+    //       inputHandler,
+    //       params.row.diffPercentage + "%" ?? "--"
+    //     ),
+    // },
     {
       headerName: "Proj. Req. Qty",
       width: 120,
@@ -549,6 +566,15 @@ export default function AddComponents({
       sortable: false,
       renderCell: (params) =>
         disabledCell(params, params.row.po_exec_qty, inputHandler),
+    },
+    // CHANGED: Added Closing Stock column from previous update
+    {
+      headerName: "Closing Stock",
+      width: 120,
+      field: "closing_stock",
+      sortable: false,
+      renderCell: (params) =>
+        disabledCell(params, params.row.closing_stock, inputHandler),
     },
     {
       headerName: "Local Value",
@@ -586,13 +612,43 @@ export default function AddComponents({
       renderCell: (params) => gstTypeCell(params, inputHandler),
     },
     {
-      headerName: "GST Rate",
-      headerName: "GST Rate",
-      width: 100,
-      field: "gstrate",
-      sortable: false,
-      renderCell: (params) => gstRate(params, inputHandler),
-    },
+  headerName: "GST Rate",
+  width: 120,
+  field: "gstrate",
+  sortable: false,
+  renderCell: (params) => {
+    const options = [
+      { label: "0%", value: 0 },
+      { label: "5%", value: 5 },
+      { label: "18%", value: 18 },
+    ];
+
+    return (
+      <select
+        style={{
+          width: "100%",
+          padding: "6px 8px",
+          border: "1px solid #d9d9d9",
+          borderRadius: 6,
+          backgroundColor: "white",
+          fontSize: 13,
+        }}
+        value={params.row.gstrate || ""}
+        onChange={(e) => {
+          const newRate = Number(e.target.value);
+          inputHandler("gstrate", newRate, params.row.id);
+        }}
+      >
+        <option value="">Select</option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    );
+  },
+},
     {
       headerName: "CGST",
       width: 150,

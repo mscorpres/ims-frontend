@@ -93,7 +93,7 @@ const ManagePO = () => {
           // disabled={disabled}
           label={"Edit"}
           onClick={() => getPoDetail(row.po_transaction)}
-          disabled={row.poacceptstatus === "APPROVED"}
+          // disabled={row.poacceptstatus === "APPROVED"}
         />,
         // VIEW Icon
         <GridActionsCellItem
