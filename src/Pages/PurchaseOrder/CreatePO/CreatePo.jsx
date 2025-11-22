@@ -103,6 +103,7 @@ export default function CreatePo() {
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [userOptions, setUserOptions] = useState([]);
   const [successData, setSuccessData] = useState(false);
   const [projectDesc, setProjectDesc] = useState("");
   const [form] = Form.useForm();
@@ -361,9 +362,12 @@ export default function CreatePo() {
           ...obj,
           [name]: value,
         };
+        form.setFieldValue(name, value);
       }
       console.log(obj);
-      form.setFieldsValue(obj);
+      if (name !== "raisedBy") {
+        form.setFieldsValue(obj);
+      }
       setnewPurchaseOrder(obj);
     }
   };
@@ -388,9 +392,9 @@ export default function CreatePo() {
         arr = data.map((d) => {
           return { text: d.text, value: d.id };
         });
-        setAsyncOptions(arr);
+        setUserOptions(arr);
       } else {
-        setAsyncOptions([]);
+        setUserOptions([]);
       }
     }
   };
@@ -562,17 +566,26 @@ export default function CreatePo() {
     setAsyncOptions(response.data);
   };
   const handleProjectChange = async (value) => {
+    const projectValue =
+      typeof value === "object" ? value : { value: value, label: value };
+    setnewPurchaseOrder((prev) => ({
+      ...prev,
+      project_name: projectValue,
+    }));
+
     setPageLoading(true);
     const response = await imsAxios.post("/backend/projectDescription", {
-      project_name: value,
+      project_name: typeof value === "object" ? value.value : value,
     });
     setPageLoading(false);
     const { data } = response;
     if (data) {
       if (data.code === 200) {
         setProjectDesc(data.data.description);
-        
-        await handleProjectCostCenter(value);
+
+        await handleProjectCostCenter(
+          typeof value === "object" ? value.value : value
+        );
       } else {
         toast.error(data.message.msg);
       }
@@ -1064,8 +1077,21 @@ export default function CreatePo() {
                         </Col>
                         {/* raised by */}
                         <Col span={5}>
-                          <Form.Item label="Requested By" name="raisedBy" rules={rules.raisedBy}>
-                            <MyAsyncSelect selectLoading={selectLoading} size="default" onBlur={() => setAsyncOptions([])} optionsState={asyncOptions} loadOptions={getusers} />
+                          <Form.Item
+                            label="Requested By"
+                            name="raisedBy"
+                            rules={rules.raisedBy}
+                          >
+                            <MyAsyncSelect
+                              selectLoading={selectLoading}
+                              size="default"
+                              onBlur={() => setUserOptions([])}
+                              optionsState={userOptions}
+                              loadOptions={getusers}
+                              onChange={(value) =>
+                                selectInputHandler("raisedBy", value)
+                              }
+                            />
                           </Form.Item>
                         </Col>
                         <Col span={5}>
