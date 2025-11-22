@@ -48,6 +48,8 @@ export default function CreatePo() {
     billaddress: "",
     billPan: "",
     billGST: "",
+    billCode: "",
+    venCode: "",
     shipaddressid: "",
     shipaddress: "",
     shipPan: "",
@@ -150,7 +152,7 @@ export default function CreatePo() {
       ...componentData,
       billaddressid: newPurchaseOrder.billaddressid,
       original_po: newPurchaseOrder.original_po,
-      pocostcenter: newPurchaseOrder.pocostcenter,
+      pocostcenter: typeof newPurchaseOrder.pocostcenter === "object" ? newPurchaseOrder.pocostcenter.value : newPurchaseOrder.pocostcenter,
       pocreatetype: newPurchaseOrder.pocreatetype,
       shipaddressid: newPurchaseOrder.shipaddressid,
       vendorbranch: newPurchaseOrder.vendorbranch,
@@ -299,7 +301,7 @@ export default function CreatePo() {
       let obj = newPurchaseOrder;
       if (name == "vendorname") {
         let arr = await getVendorBracnch(value.value);
-        let { address, gstin } = await getVendorAddress({
+        let { address, gstin, statecode } = await getVendorAddress({
           vendorCode: value,
           vendorBranch: arr[0].value,
         });
@@ -315,10 +317,11 @@ export default function CreatePo() {
           paymentterms: paymentTermsDay.po_payment_terms,
           msmeType: paymentTermsDay.msme_data.msme_type,
           msmeId: paymentTermsDay.msme_data.msme_id,
+          venCode: statecode,
         };
       } else if (name == "vendorbranch") {
         setPageLoading(true);
-        let { address, gstin } = await getVendorAddress({
+        let { address, gstin, statecode } = await getVendorAddress({
           vendorCode: obj.vendorname,
           vendorBranch: value,
         });
@@ -329,6 +332,7 @@ export default function CreatePo() {
           vendorbranch: value,
           vendoraddress: address.replaceAll("<br>", "\n"),
           gstin: gstin,
+          venCode: statecode,
         };
       } else if (name == "shipaddressid") {
         let shippingDetails = await getShippingAddress(value);
@@ -347,6 +351,7 @@ export default function CreatePo() {
           billaddress: billingDetails.address.replaceAll("<br>", "\n"),
           billPan: billingDetails.pan,
           billGST: billingDetails.gstin,
+          billCode: billingDetails.code,
         };
       } else {
         obj = {
@@ -426,7 +431,7 @@ export default function CreatePo() {
       vendorcode: vendorCode.value,
       branchcode: vendorBranch,
     });
-    return { address: data?.data?.address, gstin: data?.data.gstid };
+    return { address: data?.data?.address, gstin: data?.data.gstid, statecode: data?.data.state };
   };
   const getBillTo = async () => {
     setSelectLoading(true);
@@ -468,6 +473,7 @@ export default function CreatePo() {
       gstin: data.data?.gstin,
       pan: data.data?.pan,
       address: data.data?.address,
+      code: data.data?.statecode,
     };
 
     // selectInputHandler("billDetails", data.data.address);
@@ -637,7 +643,14 @@ export default function CreatePo() {
   }, [newPurchaseOrder.shipaddressid]);
   const finish = (values) => {
     setActiveTab("2");
-    setnewPurchaseOrder(values);
+    // Preserve venCode and billCode when form is submitted
+    const mergedValues = {
+      ...newPurchaseOrder,
+      ...values,
+      venCode: newPurchaseOrder.venCode || values.venCode,
+      billCode: newPurchaseOrder.billCode || values.billCode,
+    };
+    setnewPurchaseOrder(mergedValues);
   };
   return (
     <div
@@ -1213,7 +1226,7 @@ export default function CreatePo() {
                   submitLoading={submitLoading}
                   totalValues={totalValues}
                   setStateCode={setStateCode}
-                  stateCode={stateCode}
+                  gstState={newPurchaseOrder.billCode== newPurchaseOrder.venCode?"L":"I"}
                 />
               </div>
             </Tabs.TabPane>

@@ -36,7 +36,7 @@ export default function AddComponents({
   submitLoading,
   newPurchaseOrder,
   setStateCode,
-  stateCode,
+  gstState,
 }) {
   const [currencies, setCurrencies] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
@@ -48,6 +48,7 @@ export default function AddComponents({
     useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const addRows = () => {
+    const defaultGstType = gstState || "L"; 
     const newRow = {
       id: v4(),
       index: rowCount.length + 1,
@@ -59,7 +60,7 @@ export default function AddComponents({
       last_rate: "", // CHANGED: Added last_rate field, initially empty
       duedate: "",
       hsncode: "",
-      gsttype: "L",
+      gsttype: defaultGstType, 
       gstrate: "",
       cgst: "",
       sgst: "",
@@ -313,6 +314,8 @@ export default function AddComponents({
       );
       setPageLoading(false);
       let arr1 = rowCount;
+      const autoGstType = gstState || "L";
+
       arr1 = arr1.map((row) => {
         if (row.id == id) {
           let obj = row;
@@ -320,11 +323,13 @@ export default function AddComponents({
           let percentage = data.data.gstrate;
           // CHANGED: Do not set rate or inrValue here - leave rate empty for manual input
           // inrValue and GST will be calculated when user enters rate
-          if (row.gsttype == "L") {
+          // Use auto-determined GST type
+          if (autoGstType == "L") {
             percentage = data.data.gstrate / 2;
             obj = {
               ...obj,
               component: value,
+              gsttype: "L", // Set GST type based on state codes
               last_rate: newLastRate, // CHANGED: Set only last_rate from API
               unit: data.data.unit,
               hsncode: data.data.hsn,
@@ -334,11 +339,12 @@ export default function AddComponents({
               sgst: 0,
               igst: 0,
             };
-          } else if (row.gsttype == "I") {
+          } else if (autoGstType == "I") {
             obj = {
               ...obj,
               cgst: 0,
               component: value,
+              gsttype: "I", // Set GST type based on state codes
               last_rate: newLastRate, // CHANGED: Set only last_rate from API
               unit: data.data.unit,
               hsncode: data.data.hsn,
@@ -351,6 +357,7 @@ export default function AddComponents({
             obj = {
               ...obj,
               component: value,
+              gsttype: autoGstType, // Set GST type based on state codes
               last_rate: newLastRate, // CHANGED: Set only last_rate from API
               unit: data.data.unit,
               gstrate: data.data.gstrate,
@@ -401,6 +408,7 @@ export default function AddComponents({
     }
   };
   const resetFunction = () => {
+    const defaultGstType = gstState || "L"; // Use gstState if available
     setRowCount([
       {
         id: v4(),
@@ -414,7 +422,7 @@ export default function AddComponents({
         duedate: "",
         inrValue: 0,
         hsncode: "",
-        gsttype: "L",
+        gsttype: defaultGstType, // Use gstState if available
         gstrate: "",
         cgst: 0,
         sgst: 0,
@@ -500,10 +508,9 @@ export default function AddComponents({
           setAsyncOptions,
           asyncOptions,
           loading1("select"),
-          stateCode
+          gstState
         ),
     },
-    
 
     {
       headerName: "Ord. Qty",
@@ -512,7 +519,6 @@ export default function AddComponents({
       renderCell: (params) => quantityCell(params, inputHandler),
       width: 130,
     },
-    
 
     {
       headerName: "Rate", // CHANGED: This is now manual input, not populated from API
@@ -687,6 +693,67 @@ export default function AddComponents({
       }, 600000);
     }
   }, [selectLoading]);
+
+  // Auto-select GST type based on gstState prop
+  // This effect runs when gstState changes
+  useEffect(() => {
+    if (gstState) {
+      // Update all rows with the determined GST type
+      setRowCount((prevRows) => {
+        const updatedRows = prevRows.map((row) => {
+          // Update GST type for all rows
+          if (row.gsttype !== gstState) {
+            let updatedRow = { ...row, gsttype: gstState };
+
+            // Recalculate GST amounts if component is selected and has value
+            if (row.component && row.component.value && row.inrValue > 0) {
+              if (gstState === "L") {
+                let percentage = (row.gstrate || 0) / 2;
+                updatedRow = {
+                  ...updatedRow,
+                  cgst: (row.inrValue * percentage) / 100,
+                  sgst: (row.inrValue * percentage) / 100,
+                  igst: 0,
+                };
+              } else if (gstState === "I") {
+                let percentage = row.gstrate || 0;
+                updatedRow = {
+                  ...updatedRow,
+                  cgst: 0,
+                  sgst: 0,
+                  igst: (row.inrValue * percentage) / 100,
+                };
+              }
+            } else {
+              // Reset GST amounts if no value yet
+              updatedRow = {
+                ...updatedRow,
+                cgst: 0,
+                sgst: 0,
+                igst: 0,
+              };
+            }
+
+            return updatedRow;
+          }
+
+          return row;
+        });
+
+        // Only update if there are actual changes
+        const hasChanges = updatedRows.some(
+          (row, index) =>
+            row.gsttype !== prevRows[index].gsttype ||
+            row.cgst !== prevRows[index].cgst ||
+            row.sgst !== prevRows[index].sgst ||
+            row.igst !== prevRows[index].igst
+        );
+
+        return hasChanges ? updatedRows : prevRows;
+      });
+    }
+  }, [gstState, setRowCount]);
+
   return (
     <div
       style={{
