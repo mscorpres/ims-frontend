@@ -574,14 +574,26 @@ export default function CreatePo() {
   const handleProjectCostCenter = async (projectName) => {
     setPageLoading(true);
     try {
-      const response = await imsAxios.post("/purchaseOrder/costCenter", {  
+      const response = await imsAxios.post("/purchaseOrder/costCenter", {
+        project_name: projectName,
       });
       setPageLoading(false);
-      const { data } = response;
-      if (data && data.code === 200) {
-        
-        const costCenterOption = { value: data.data.costcenter.id, label: data.data.costcenter.text };  
-       
+      const responseData =
+        response?.success !== undefined ? response : response?.data || response;
+
+      if (
+        responseData &&
+        responseData.success &&
+        responseData.data &&
+        Array.isArray(responseData.data) &&
+        responseData.data.length > 0
+      ) {
+        const costCenterData = responseData.data[0];
+        const costCenterOption = {
+          value: costCenterData.id,
+          label: costCenterData.text,
+        };
+
         form.setFieldsValue({ pocostcenter: costCenterOption });
         const updatedPO = { ...newPurchaseOrder, pocostcenter: costCenterOption };
         setnewPurchaseOrder(updatedPO);
@@ -593,6 +605,7 @@ export default function CreatePo() {
       toast.error("Error fetching project cost center");
     }
   };
+  
   useEffect(() => {
     if (submitLoading) {
       setTimeout(() => {
