@@ -55,6 +55,15 @@ const RequestPo = () => {
       width: 150,
     },
     {
+          headerName:"PO ACCEPTANCE",
+          field:"poacceptstatus",
+          renderCell:({row})=>(
+            <ToolTipEllipses text={row.poacceptstatus} />
+          ),
+          flex:1,
+          minWidth:150
+        },
+    {
       headerName: "Cost Center",
       field: "cost_center",
       renderCell: ({ row }) => <ToolTipEllipses text={row.cost_center} />,

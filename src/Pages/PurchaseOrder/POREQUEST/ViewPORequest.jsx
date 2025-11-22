@@ -16,6 +16,7 @@ import {
   Card,
   message,
   Typography,
+  Spin,
 } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -33,7 +34,7 @@ import NavFooter from "../../../Components/NavFooter";
 export default function ViewPORequest({ poId, setPoId, getRows }) {
   const [purchaseOrder, setPurchaseOrder] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState([]);
   const [newPoLogs, setNewPoLogs] = useState([]);
   const [approveLoading, setApproveLoading] = useState(false);
@@ -130,6 +131,8 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     if (poId) {
       fetchPODetails();
       getPoLogs(poId);
+    } else {
+      setLoading(false); // jab drawer band ho
     }
   }, [poId]);
 
@@ -265,6 +268,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
             tol_price: +Number((row.project_rate * 1) / 100).toFixed(2),
             project_qty: row.project_qty,
             po_ord_qty: row.po_ord_qty,
+            last_rate: row.last_rate || "--",
           });
         });
         setRowCount(arr);
@@ -274,6 +278,8 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     } catch (error) {
       setLoading(false);
       toast.error("Error fetching PO details");
+    } finally {
+      setLoading(false); // ← finally mein false (100% safe)
     }
   };
 
@@ -331,80 +337,129 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     }
   };
 
-  const handleStatusUpdate = async (status) => {
-    try {
-      if (status === "R" && !rejectRemark.trim()) {
-        message.error("Please enter rejection remarks");
-        return;
-      }
+const handleStatusUpdate = async (status) => {
+  try {
+    if (status === "R" && !rejectRemark.trim()) {
+      message.error("Please enter rejection remarks");
+      return;
+    }
 
-      setApproveLoading(status === "A");
-      setRejectLoading(status === "R");
+    setApproveLoading(status === "A");
+    setRejectLoading(status === "R");
 
-      // Prepare components array with status and remarks
-      const components = rowCount.map((row) => ({
-        component_key: row.component?.value || row.updateRow,
+    // CHANGE 1: Extract vendor_code properly
+    const vendorCodeValue = purchaseOrder?.vendorcode
+      ? typeof purchaseOrder.vendorcode === "object"
+        ? purchaseOrder.vendorcode.value || purchaseOrder.vendorcode.id
+        : purchaseOrder.vendorcode
+      : "";
+
+    
+    const components = rowCount.map((row) => {
+      const componentKey = row.component?.value || row.updateRow; 
+
+      return {
+        component_key: componentKey,
         status: status,
+        // CHANGE: Send component-specific remark if exists
         remark:
           status === "R"
-            ? componentRemarks[row.component?.value || row.updateRow] ||
-              rejectRemark ||
-              ""
-            : componentRemarks[row.component?.value || row.updateRow] ||
-              approveRemark ||
-              "",
-      }));
+            ? componentRemarks[componentKey] || rejectRemark || ""
+            : componentRemarks[componentKey] || approveRemark || "",
+      };
+    });
 
-      const response = await imsAxios.post(
-        "/purchaseOrder/updatePOComponentStatus",
-        {
-          po_transaction: poId.replaceAll("_", "/"),
-          components: components,
-        }
+    const payload = {
+      po_transaction: poId.replaceAll("_", "/"),
+      vendor_code: vendorCodeValue,
+      components: components,
+      remark: status === "R" ? rejectRemark : approveRemark, 
+    };
+
+    console.log("Approval/Rejection Payload:", payload); // Debug
+
+    const response = await imsAxios.post(
+      "/purchaseOrder/updatePOComponentStatus",
+      payload
+    );
+
+    setApproveLoading(false);
+    setRejectLoading(false);
+
+    if (response.data.code === 200) {
+      toast.success(
+        status === "A"
+          ? "PO Components Approved Successfully!"
+          : "PO Components Rejected Successfully!",
+        { autoClose: 3000 }
       );
 
-      setApproveLoading(false);
-      setRejectLoading(false);
+      // Reset modals and refresh
+      setShowRejectModal(false);
+      setShowApproveModal(false);
+      setRejectRemark("");
+      setApproveRemark("");
+      setComponentRemarks({});
+      setPoId(null);
 
-      if (response.data.code === 200) {
-        toast.success(
-          status === "A"
-            ? response.data.message?.msg || "Components approved successfully!"
-            : response.data.message?.msg || "Components rejected successfully!"
+      if (getRows && typeof getRows === "function") {
+        setTimeout(() => getRows(true), 500);
+      }
+    } else {
+      // IMPROVED ERROR HANDLING: Show which components have rate mismatch
+      if (response.data.data?.mismatch_components) {
+        const mismatches = response.data.data.mismatch_components;
+        
+        // Create detailed error message
+        const errorLines = mismatches.map((m) => {
+          const diff = parseFloat(m.difference);
+          const symbol = diff > 0 ? "↑" : "↓";
+          return `• ${m.part_no} (${m.component_name})\n  Order Rate: ₹${m.order_rate} | Last Rate: ₹${m.last_rate} ${symbol} ₹${Math.abs(diff)}`;
+        }).join("\n\n");
+
+        toast.warn(
+          <div style={{ maxWidth: "500px" }}>
+            <strong style={{ fontSize: "14px" }}>⚠️ Rate Mismatch! Approval Blocked</strong>
+            <br /><br />
+            <div style={{ 
+              fontSize: "12px", 
+              whiteSpace: "pre-line", 
+              backgroundColor: "#fff3cd", 
+              padding: "10px", 
+              borderRadius: "4px",
+              border: "1px solid #ffc107"
+            }}>
+              {errorLines}
+            </div>
+            <br />
+           
+          </div>,
+          { 
+            autoClose: 10000,
+            style: { minWidth: "500px" }
+          }
         );
-        setShowRejectModal(false);
-        setShowApproveModal(false);
-        setRejectRemark("");
-        setApproveRemark("");
-        setComponentRemarks({});
-        setPoId(null);
-        // Refresh the list if getRows is available
-        // Note: The PO might no longer appear in the list after approval/rejection
-        // as its status has changed, which is expected behavior
-        // Pass silent=true to avoid showing errors if date range is not set
-        if (getRows) {
-          setTimeout(() => {
-            // Call with silent=true to avoid error messages if date range is not set
-            // The PO status has changed and may no longer be in the requested list
-            if (typeof getRows === "function") {
-              getRows(true);
-            }
-          }, 500);
-        }
       } else {
         toast.error(response.data.message?.msg || "Failed to update status");
       }
-    } catch (error) {
-      console.error("Error updating component status:", error);
-      setApproveLoading(false);
-      setRejectLoading(false);
-      toast.error("An error occurred while updating status");
     }
-  };
-
+  } catch (error) {
+    console.error("Error in handleStatusUpdate:", error);
+    setApproveLoading(false);
+    setRejectLoading(false);
+    
+    // Better error message
+    const errorMsg = error.response?.data?.message?.msg || 
+                     error.message || 
+                     "Network or Server Error. Please try again.";
+    
+    toast.error(errorMsg, { autoClose: 5000 });
+  }
+};
   const handleApprove = () => {
     setShowApproveModal(true);
   };
+
 
   const handleApproveConfirm = async () => {
     setShowApproveModal(false);
@@ -465,7 +520,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       ),
     },
     {
-      headerName: "Rate",
+      headerName: "order Rate",
       width: 180,
       field: "rate",
       sortable: false,
@@ -480,26 +535,41 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       },
     },
     {
-      headerName: "BOM Rate",
-      width: 150,
-      field: "project_rate",
+      headerName:"Last rate",
+      width: 180,
+      field: "last_rate",
       sortable: false,
-      renderCell: ({ row }) => <span>{row.project_rate || "--"}</span>,
+      renderCell: ({ row }) => {
+        const currencyId =
+          typeof row.currency === "object" ? row.currency?.value : row.currency;
+        return (
+          <span>
+            {row.last_rate || "--"} {getCurrencySymbol(currencyId)}
+          </span>
+        );
+      },
     },
-    {
-      headerName: "PRC IN LC",
-      width: 150,
-      field: "localPrice",
-      sortable: false,
-      renderCell: ({ row }) => <span>{row.localPrice || "--"}</span>,
-    },
-    {
-      headerName: "Tolerance",
-      width: 150,
-      field: "tol_price",
-      sortable: false,
-      renderCell: ({ row }) => <span>{row.tol_price || "--"}</span>,
-    },
+    // {
+    //   headerName: "BOM Rate",
+    //   width: 150,
+    //   field: "project_rate",
+    //   sortable: false,
+    //   renderCell: ({ row }) => <span>{row.project_rate || "--"}</span>,
+    // },
+    // {
+    //   headerName: "PRC IN LC",
+    //   width: 150,
+    //   field: "localPrice",
+    //   sortable: false,
+    //   renderCell: ({ row }) => <span>{row.localPrice || "--"}</span>,
+    // },
+    // {
+    //   headerName: "Tolerance",
+    //   width: 150,
+    //   field: "tol_price",
+    //   sortable: false,
+    //   renderCell: ({ row }) => <span>{row.tol_price || "--"}</span>,
+    // },
     {
       headerName: "Project Req Qty",
       width: 150,
@@ -592,6 +662,25 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     },
   ];
 
+  const LoaderOverlay = () => (
+      <div style={{
+        position: "absolute",
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: "rgba(255, 255, 255, 0.97)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+        borderRadius: 8,
+      }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 24, fontSize: 18, color: "#555", fontWeight: 500 }}>
+          Loading Purchase Order...
+        </div>
+      </div>
+    );
+
   return (
     <Drawer
       title={`Viewing PO: ${poId}`}
@@ -620,6 +709,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
         </div>
       }
     >
+      {loading && <LoaderOverlay />}
       <Tabs
         activeKey={activeTab}
         style={{
@@ -748,7 +838,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                     <Col span={6}>
                       <Form.Item
                         name="termsofcondition"
-                        label="Terms and Conditions"
+                        label="Delivery terms"
                       >
                         <Input size="default" disabled />
                       </Form.Item>
@@ -763,7 +853,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                         <Input size="default" disabled />
                       </Form.Item>
                     </Col>
-                    <Col span={6}>
+                    {/* <Col span={6}>
                       <Form.Item
                         label="Due Date (in days)"
                         name="paymenttermsday"
@@ -774,7 +864,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                           disabled
                         />
                       </Form.Item>
-                    </Col>
+                    </Col> */}
                   </Row>
                   <Row gutter={16}>
                     <Col span={6}>
