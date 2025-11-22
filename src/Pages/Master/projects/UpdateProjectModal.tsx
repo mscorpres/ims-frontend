@@ -10,6 +10,7 @@ const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate 
       form.setFieldsValue({
         project: data.project,
         description: data.description,
+        qty: data.qty,
       });
     }
   }, [data]);
@@ -54,6 +55,13 @@ const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate 
           rules={[{ required: true, message: "Please enter the project description" }]}
         >
           <Input.TextArea />
+        </Form.Item>
+        <Form.Item
+          name="qty"
+          label="Quantity"
+          rules={[{ required: true, message: "Please enter the quantity" }]}
+        >
+          <Input />
         </Form.Item>
       </Form>
     </Modal>
