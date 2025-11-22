@@ -60,6 +60,7 @@ export default function NewProjectForm() {
       project_name: "",
       project_description: "",
       costcenter: "",
+      qty: "",
     };
     newProjectForm.setFieldsValue(obj);
     setAsyncOptions([]);
@@ -148,6 +149,14 @@ export default function NewProjectForm() {
                   optionsState={asyncOptions}
                   loadOptions={getCostCenteres}
                 />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                name="qty"
+                label="Quantity"
+              >
+                <Input />
               </Form.Item>
             </Col>
             {/* <Col span={24}>
