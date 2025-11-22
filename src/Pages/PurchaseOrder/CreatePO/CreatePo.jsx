@@ -210,30 +210,24 @@ export default function CreatePo() {
   const submitHandler = async () => {
     setSubmitLoading(true);
     if (showSubmitConfirm) {
+      try {
       const response = await imsAxios
-        .post("/purchaseOrder/createPO", {
+      .post("/purchaseOrder/createPO", {
           ...showSubmitConfirm,
-        })
-        .then((res) => {
-          if (res?.code == 500) {
-            toast.error(res?.message.msg);
-            setSubmitLoading(false);
-          } else {
-            return res;
-          }
         });
+
       setSubmitLoading(false);
-      const { data } = response;
-      if (data) {
+        const responseData = response?.data || response;
+      if (responseData) {
         setShowSubmitConfirm(null);
-        if (data.code == 200) {
+        if (responseData.code == 200) {
           resetFunction();
           rowsReset();
           setActiveTab("1");
           setSuccessData({
             vendorName: newPurchaseOrder.vendorname.label,
             project: newPurchaseOrder.project_name,
-            poId: data.data.po_id,
+            poId: responseData.data?.po_id,
             components: rowCount.map((row, index) => {
               return {
                 id: index,
@@ -247,8 +241,23 @@ export default function CreatePo() {
             }),
           });
         } else {
-          toast.error(data.message.msg);
+            // Handle error message - can be string or object with msg property
+            const errorMessage =
+              typeof responseData.message === "string"
+                ? responseData.message
+                : responseData.message?.msg || "An error occurred";
+            toast.error(errorMessage);
+          }
         }
+      } catch (error) {
+        setSubmitLoading(false);
+        // Handle error response - message can be string or object
+        const errorMessage = error?.response?.data?.message
+          ? typeof error.response.data.message === "string"
+            ? error.response.data.message
+            : error.response.data.message?.msg || "An error occurred"
+          : error?.message || "Failed to create PO";
+        toast.error(errorMessage);
       }
     }
   };
