@@ -106,6 +106,9 @@ export default function CreatePo() {
   const [successData, setSuccessData] = useState(false);
   const [projectDesc, setProjectDesc] = useState("");
   const [form] = Form.useForm();
+  // Move Form.useWatch calls to top level to avoid hooks violation
+  const termsCondition = Form.useWatch("termscondition", form);
+  const advancePayment = Form.useWatch("advancePayment", form);
   console.log("newPurchaseOrder", newPurchaseOrder);
   const { executeFun, loading: loading1 } = useApi();
   const validatePO = () => {
@@ -943,8 +946,11 @@ export default function CreatePo() {
                             />
                           </Form.Item>
                           <Form.Item noStyle>
-                            {Form.useWatch("termscondition", form) === "Other" && (
-                              <Form.Item name="customDeliveryTerm" style={{ marginTop: 8 }}>
+                            {termsCondition === "Other" && (
+                              <Form.Item
+                                name="customDeliveryTerm"
+                                style={{ marginTop: 8 }}
+                              >
                                 <Input placeholder="Enter custom delivery term" />
                               </Form.Item>
                             )}
@@ -1072,9 +1078,25 @@ export default function CreatePo() {
                         </Col>
                         <Col span={3}>
                           <Form.Item noStyle>
-                            {Form.useWatch("advancePayment", form) === 1 && (
-                              <Form.Item name="advancePercentage" label="Advance Payment %" rules={[{ required: true, message: "Please enter advance percentage" }]}>
-                                <InputNumber min={1} max={100} formatter={(v) => `${v}%`} parser={(v) => v.replace("%", "")} style={{ width: "100%" }} placeholder="e.g. 30" />
+                            {advancePayment === 1 && (
+                              <Form.Item
+                                name="advancePercentage"
+                                label="Advance Payment %"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please enter advance percentage",
+                                  },
+                                ]}
+                              >
+                                <InputNumber
+                                  min={1}
+                                  max={100}
+                                  formatter={(v) => `${v}%`}
+                                  parser={(v) => v.replace("%", "")}
+                                  style={{ width: "100%" }}
+                                  placeholder="e.g. 30"
+                                />
                               </Form.Item>
                             )}
                           </Form.Item>
