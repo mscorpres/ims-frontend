@@ -1199,11 +1199,11 @@ const handleStatusUpdate = async (status) => {
                     <Typography.Text
                       strong
                       style={{
-                        fontSize: window.innerWidth < 1600 ? "1rem" : "1.1rem",
-                        color: "#1890ff",
+                        fontSize: window.innerWidth < 1600 ? "1.3rem" : "1.1rem",
+                        color: "red",
                       }}
                     >
-                      Remark
+                      Remark :-
                     </Typography.Text>
                   </Col>
                   <Col span={20}>
