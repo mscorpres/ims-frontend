@@ -1185,6 +1185,40 @@ const handleStatusUpdate = async (status) => {
                   rows={rowCount}
                   columns={componentColumns}
                 />
+                 <Row
+                  align="middle"
+                  style={{
+                    marginTop: 16,
+                    // padding: "12px 16px",
+                    // backgroundColor: "#e6f7ff",
+                    // borderRadius: "6px",
+                    // border: "1px solid #91d5ff",
+                  }}
+                >
+                  <Col span={4}>
+                    <Typography.Text
+                      strong
+                      style={{
+                        fontSize: window.innerWidth < 1600 ? "1rem" : "1.1rem",
+                        color: "#1890ff",
+                      }}
+                    >
+                      Remark
+                    </Typography.Text>
+                  </Col>
+                  <Col span={20}>
+                    <Typography.Text
+                      strong
+                      style={{
+                        fontSize: window.innerWidth < 1600 ? "1rem" : "1.1rem",
+                        color: "#0050b3",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {purchaseOrder?.remarByacc || "--"}
+                    </Typography.Text>
+                  </Col>
+                </Row>
               </div>
               <NavFooter
                 backFunction={() => setActiveTab("1")}
