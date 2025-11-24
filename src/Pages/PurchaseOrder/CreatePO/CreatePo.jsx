@@ -28,8 +28,10 @@ const deliveryTermOptions = [
 const paymentTermOptions = [
   { label: "Within 7 days", value: "Within 7 days" },
   { label: "Within 15 days", value: "Within 15 days" },
+  { label: "Within 30 days", value: "Within 30 days" },
   { label: "Within 45 days", value: "Within 45 days" },
-  { label: "Advance Payment", value: "Advance Payment" },
+  { label: "Within 60 days", value: "Within 60 days" },
+  { label: "Other", value: "Other" },
 ];
 
 export default function CreatePo() {
@@ -165,7 +167,15 @@ export default function CreatePo() {
       pocomment: newPurchaseOrder.po_comment,
       poproject_name: newPurchaseOrder.project_name,
       paymenttermsday: newPurchaseOrder.paymenttermsday ? (newPurchaseOrder.paymenttermsday === "" ? 30 : newPurchaseOrder.paymenttermsday) : 30,
-      paymentterms: newPurchaseOrder.paymentterms === "Advance Payment" ? `Advance Payment ${newPurchaseOrder.advancePercentage || 0}%` : newPurchaseOrder.paymentterms,
+      paymentterms: (() => {
+        if (newPurchaseOrder.paymentterms === "Other" && newPurchaseOrder.customPaymentTerm?.trim()) {
+          return newPurchaseOrder.customPaymentTerm.trim();
+        } else if (newPurchaseOrder.paymentterms && newPurchaseOrder.paymentterms !== "Other") {
+          return newPurchaseOrder.paymentterms;
+        } else {
+          return "As per standard terms";
+        }
+      })(),
       po_raise_by: newPurchaseOrder.raisedBy,
       advancePayment: newPurchaseOrder.advancePayment,
       termscondition: newPurchaseOrder.termscondition === "Other" ? newPurchaseOrder.customDeliveryTerm : newPurchaseOrder.termscondition,
@@ -217,41 +227,37 @@ export default function CreatePo() {
     setSubmitLoading(true);
     if (showSubmitConfirm) {
       try {
-      const response = await imsAxios
-      .post("/purchaseOrder/createPO", {
+        const response = await imsAxios.post("/purchaseOrder/createPO", {
           ...showSubmitConfirm,
         });
 
-      setSubmitLoading(false);
+        setSubmitLoading(false);
         const responseData = response?.data || response;
-      if (responseData) {
-        setShowSubmitConfirm(null);
-        if (responseData.code == 200) {
-          resetFunction();
-          rowsReset();
-          setActiveTab("1");
-          setSuccessData({
-            vendorName: newPurchaseOrder.vendorname.label,
-            project: newPurchaseOrder.project_name,
-            poId: responseData.data?.po_id,
-            components: rowCount.map((row, index) => {
-              return {
-                id: index,
-                component: row.component.label,
-                // part: row.qty,
-                qty: row.qty,
-                rate: row.rate,
-                uom: row.unit,
-                value: Number(row.qty).toFixed(2) * Number(row.rate).toFixed(2),
-              };
-            }),
-          });
-        } else {
+        if (responseData) {
+          setShowSubmitConfirm(null);
+          if (responseData.code == 200) {
+            resetFunction();
+            rowsReset();
+            setActiveTab("1");
+            setSuccessData({
+              vendorName: newPurchaseOrder.vendorname.label,
+              project: newPurchaseOrder.project_name,
+              poId: responseData.data?.po_id,
+              components: rowCount.map((row, index) => {
+                return {
+                  id: index,
+                  component: row.component.label,
+                  // part: row.qty,
+                  qty: row.qty,
+                  rate: row.rate,
+                  uom: row.unit,
+                  value: Number(row.qty).toFixed(2) * Number(row.rate).toFixed(2),
+                };
+              }),
+            });
+          } else {
             // Handle error message - can be string or object with msg property
-            const errorMessage =
-              typeof responseData.message === "string"
-                ? responseData.message
-                : responseData.message?.msg || "An error occurred";
+            const errorMessage = typeof responseData.message === "string" ? responseData.message : responseData.message?.msg || "An error occurred";
             toast.error(errorMessage);
           }
         }
@@ -301,74 +307,87 @@ export default function CreatePo() {
     }
   };
   const selectInputHandler = async (name, value) => {
-    if (value) {
-      let obj = newPurchaseOrder;
-      if (name == "vendorname") {
-        let arr = await getVendorBracnch(value.value);
-        let { address, gstin, statecode } = await getVendorAddress({
-          vendorCode: value,
-          vendorBranch: arr[0].value,
-        });
-        let paymentTermsDay = await getPaymentTermsDay(value.value);
-        // console.log("paymentTermsDay", paymentTermsDay);
-        obj = {
-          ...obj,
-          [name]: value,
-          vendorbranch: arr[0].value,
-          vendoraddress: address.replaceAll("<br>", "\n"),
-          gstin: gstin,
-          paymenttermsday: paymentTermsDay.paymentterms,
-          paymentterms: paymentTermsDay.po_payment_terms,
-          msmeType: paymentTermsDay.msme_data.msme_type,
-          msmeId: paymentTermsDay.msme_data.msme_id,
-          venCode: statecode,
-        };
-      } else if (name == "vendorbranch") {
-        setPageLoading(true);
-        let { address, gstin, statecode } = await getVendorAddress({
-          vendorCode: obj.vendorname,
-          vendorBranch: value,
-        });
-        setPageLoading(false);
-        obj = {
-          ...obj,
-          [name]: value,
-          vendorbranch: value,
-          vendoraddress: address.replaceAll("<br>", "\n"),
-          gstin: gstin,
-          venCode: statecode,
-        };
-      } else if (name == "shipaddressid") {
-        let shippingDetails = await getShippingAddress(value);
-        obj = {
-          ...obj,
-          [name]: value,
-          shipaddress: shippingDetails.address.replaceAll("<br>", "\n"),
-          shipPan: shippingDetails.pan,
-          shipGST: shippingDetails.gstin,
-        };
-      } else if (name == "billaddressid") {
-        let billingDetails = await getBillingAddress(value);
-        obj = {
-          ...obj,
-          [name]: value,
-          billaddress: billingDetails.address.replaceAll("<br>", "\n"),
-          billPan: billingDetails.pan,
-          billGST: billingDetails.gstin,
-          billCode: billingDetails.code,
-        };
-      } else {
-        obj = {
-          ...obj,
-          [name]: value,
-        };
-        form.setFieldValue(name, value);
-      }
-      console.log(obj);
-      if (name !== "raisedBy") {
-        form.setFieldsValue(obj);
-      }
-      setnewPurchaseOrder(obj);
+    if (!value) return;
+
+    if (name === "vendorname") {
+      const branches = await getVendorBracnch(value.value);
+      const { address, gstin, statecode } = await getVendorAddress({
+        vendorCode: value,
+        vendorBranch: branches[0]?.value,
+      });
+      const termsData = await getPaymentTermsDay(value.value);
+
+      const updated = {
+        vendorname: value,
+        vendorbranch: branches[0]?.value || "",
+        vendoraddress: address?.replaceAll("<br>", "\n") || "",
+        gstin: gstin || "",
+        venCode: statecode || "",
+        paymenttermsday: termsData?.paymentterms || 30,
+        paymentterms: termsData?.po_payment_terms || "",
+        msmeType: termsData?.msme_data?.msme_type || "",
+        msmeId: termsData?.msme_data?.msme_id || "",
+      };
+
+      form.setFieldsValue(updated);
+      setnewPurchaseOrder((prev) => ({ ...prev, ...updated }));
+    } else if (name === "vendorbranch") {
+      const { address, gstin, statecode } = await getVendorAddress({
+        vendorCode: newPurchaseOrder.vendorname,
+        vendorBranch: value,
+      });
+
+      const updated = {
+        vendorbranch: value,
+        vendoraddress: address?.replaceAll("<br>", "\n") || "",
+        gstin: gstin || "",
+        venCode: statecode || "",
+      };
+
+      form.setFieldsValue(updated);
+      setnewPurchaseOrder((prev) => ({ ...prev, ...updated }));
+    } else if (name === "billaddressid") {
+      const billingDetails = await getBillingAddress(value);
+
+      form.setFieldsValue({
+        billaddressid: value,
+        billaddress: billingDetails.address?.replaceAll("<br>", "\n") || "",
+        billPan: billingDetails.pan || "",
+        billGST: billingDetails.gstin || "",
+        billCode: billingDetails.code || "",
+      });
+
+      setnewPurchaseOrder((prev) => ({
+        ...prev,
+        billaddressid: value,
+        billaddress: billingDetails.address?.replaceAll("<br>", "\n") || "",
+        billPan: billingDetails.pan || "",
+        billGST: billingDetails.gstin || "",
+        billCode: billingDetails.code || "",
+      }));
+    } else if (name === "shipaddressid") {
+      const shippingDetails = await getShippingAddress(value);
+
+      form.setFieldsValue({
+        shipaddressid: value,
+        shipaddress: shippingDetails.address?.replaceAll("<br>", "\n") || "",
+        shipPan: shippingDetails.pan || "",
+        shipGST: shippingDetails.gstin || "",
+      });
+
+      setStateCode(shippingDetails.statecode || "");
+
+      setnewPurchaseOrder((prev) => ({
+        ...prev,
+        shipaddressid: value,
+        shipaddress: shippingDetails.address?.replaceAll("<br>", "\n") || "",
+        shipPan: shippingDetails.pan || "",
+        shipGST: shippingDetails.gstin || "",
+      }));
+    } else {
+      // बाकी fields (जैसे raisedBy, pocreatetype आदि)
+      form.setFieldsValue({ [name]: value });
+      setnewPurchaseOrder((prev) => ({ ...prev, [name]: value }));
     }
   };
   const POoption = [
@@ -566,8 +585,7 @@ export default function CreatePo() {
     setAsyncOptions(response.data);
   };
   const handleProjectChange = async (value) => {
-    const projectValue =
-      typeof value === "object" ? value : { value: value, label: value };
+    const projectValue = typeof value === "object" ? value : { value: value, label: value };
     setnewPurchaseOrder((prev) => ({
       ...prev,
       project_name: projectValue,
@@ -583,16 +601,13 @@ export default function CreatePo() {
       if (data.code === 200) {
         setProjectDesc(data.data.description);
 
-        await handleProjectCostCenter(
-          typeof value === "object" ? value.value : value
-        );
+        await handleProjectCostCenter(typeof value === "object" ? value.value : value);
       } else {
         toast.error(data.message.msg);
       }
     }
   };
 
- 
   const handleProjectCostCenter = async (projectName) => {
     setPageLoading(true);
     try {
@@ -600,16 +615,9 @@ export default function CreatePo() {
         project_name: projectName,
       });
       setPageLoading(false);
-      const responseData =
-        response?.success !== undefined ? response : response?.data || response;
+      const responseData = response?.success !== undefined ? response : response?.data || response;
 
-      if (
-        responseData &&
-        responseData.success &&
-        responseData.data &&
-        Array.isArray(responseData.data) &&
-        responseData.data.length > 0
-      ) {
+      if (responseData && responseData.success && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
         const costCenterData = responseData.data[0];
         const costCenterOption = {
           value: costCenterData.id,
@@ -627,7 +635,7 @@ export default function CreatePo() {
       toast.error("Error fetching project cost center");
     }
   };
-  
+
   useEffect(() => {
     if (submitLoading) {
       setTimeout(() => {
@@ -658,15 +666,13 @@ export default function CreatePo() {
     getShippingAddress();
   }, [newPurchaseOrder.shipaddressid]);
   const finish = (values) => {
-    setActiveTab("2");
-    // Preserve venCode and billCode when form is submitted
-    const mergedValues = {
-      ...newPurchaseOrder,
+    setnewPurchaseOrder((prev) => ({
+      ...prev,
       ...values,
-      venCode: newPurchaseOrder.venCode || values.venCode,
-      billCode: newPurchaseOrder.billCode || values.billCode,
-    };
-    setnewPurchaseOrder(mergedValues);
+      project_name: prev.project_name || values.project_name,
+      pocostcenter: prev.pocostcenter || values.pocostcenter,
+    }));
+    setActiveTab("2");
   };
   return (
     <div
@@ -960,10 +966,7 @@ export default function CreatePo() {
                           </Form.Item>
                           <Form.Item noStyle>
                             {termsCondition === "Other" && (
-                              <Form.Item
-                                name="customDeliveryTerm"
-                                style={{ marginTop: 8 }}
-                              >
+                              <Form.Item name="customDeliveryTerm" style={{ marginTop: 8 }}>
                                 <Input placeholder="Enter custom delivery term" />
                               </Form.Item>
                             )}
@@ -981,12 +984,27 @@ export default function CreatePo() {
                             <MySelect
                               options={paymentTermOptions}
                               onChange={(value) => {
-                                if (value !== "Advance Payment") {
-                                  form.setFieldsValue({ advancePayment: 0 });
+                                // Agar "Other" nahi select kiya to custom field clear kar do
+                                if (value !== "Other") {
+                                  form.setFieldsValue({
+                                    customPaymentTerm: "",
+                                  });
+                                  setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: "" }));
                                 }
                               }}
                             />
                           </Form.Item>
+                          {form.getFieldValue("paymentterms") === "Other" && (
+                            <Form.Item name="customPaymentTerm" rules={[{ required: true, message: "Please enter payment terms" }]} style={{ marginTop: 8 }}>
+                              <Input.TextArea
+                                rows={2}
+                                placeholder="e.g. 30% Advance, balance against delivery"
+                                onChange={(e) => {
+                                  setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: e.target.value }));
+                                }}
+                              />
+                            </Form.Item>
+                          )}
                         </Col>
 
                         {/* po due date*/}
@@ -998,36 +1016,7 @@ export default function CreatePo() {
                       </Row>
                       <Row gutter={16} style={{ marginTop: 16 }}>
                         {/* project id */}
-                        {/* cost center */}
-                        <Col span={4}>
-                          <Form.Item
-                            name="pocostcenter"
-                            rules={rules.pocostcenter}
-                            label={
-                              <div
-                                style={{
-                                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  width: 350,
-                                }}
-                              >
-                                Cost Center
-                                <span
-                                  onClick={() => setShowAddCostModal(true)}
-                                  style={{
-                                    color: "#1890FF",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  Add Cost Center
-                                </span>
-                              </div>
-                            }
-                          >
-                            <MyAsyncSelect selectLoading={loading1("select")} onBlur={() => setAsyncOptions([])} loadOptions={handleFetchCostCenterOptions} optionsState={asyncOptions} />
-                          </Form.Item>
-                        </Col>
+
                         <Col span={5}>
                           <Form.Item
                             name="project_name"
@@ -1069,6 +1058,36 @@ export default function CreatePo() {
                             <Input size="default" disabled value={projectDesc} />
                           </Form.Item>
                         </Col>
+                        {/* cost center */}
+                        <Col span={4}>
+                          <Form.Item
+                            name="pocostcenter"
+                            rules={rules.pocostcenter}
+                            label={
+                              <div
+                                style={{
+                                  fontSize: window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                }}
+                              >
+                                Cost Center
+                                <span
+                                  onClick={() => setShowAddCostModal(true)}
+                                  style={{
+                                    color: "#1890FF",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Add Cost Center
+                                </span>
+                              </div>
+                            }
+                          >
+                            <MyAsyncSelect selectLoading={loading1("select")} onBlur={() => setAsyncOptions([])} loadOptions={handleFetchCostCenterOptions} optionsState={asyncOptions} />
+                          </Form.Item>
+                        </Col>
                         {/* comments */}
                         <Col span={5}>
                           <Form.Item label="Comments" name="po_comment">
@@ -1077,51 +1096,85 @@ export default function CreatePo() {
                         </Col>
                         {/* raised by */}
                         <Col span={5}>
-                          <Form.Item
-                            label="Requested By"
-                            name="raisedBy"
-                            rules={rules.raisedBy}
-                          >
+                          <Form.Item label="Requested By" name="raisedBy" rules={rules.raisedBy}>
                             <MyAsyncSelect
                               selectLoading={selectLoading}
                               size="default"
                               onBlur={() => setUserOptions([])}
                               optionsState={userOptions}
                               loadOptions={getusers}
-                              onChange={(value) =>
-                                selectInputHandler("raisedBy", value)
-                              }
+                              onChange={(value) => selectInputHandler("raisedBy", value)}
                             />
                           </Form.Item>
                         </Col>
                         <Col span={5}>
                           <Form.Item label="Advance Payment" name="advancePayment">
-                            <Radio.Group onChange={(e) => !e.target.value && form.setFieldsValue({ advancePercentage: null })}>
+                            <Radio.Group
+                              onChange={(e) => {
+                                const isYes = e.target.value === 1;
+                                if (!isYes) {
+                                  form.setFieldsValue({ advancePercentage: null });
+                                  setnewPurchaseOrder((prev) => ({ ...prev, advancePercentage: null }));
+                                }
+
+                                // Auto-fill "Other" input agar Advance = Yes aur "Other" selected hai
+                                if (isYes && form.getFieldValue("paymentterms") === "Other") {
+                                  const percent = form.getFieldValue("advancePercentage") || "";
+                                  const currentText = form.getFieldValue("customPaymentTerm") || "";
+                                  let newText = "";
+
+                                  if (percent) {
+                                    // Agar pehle se "XX% Advance" likha hai to update karo, warna add karo
+                                    if (currentText.includes("% Advance")) {
+                                      newText = currentText.replace(/\d+% Advance/, `${percent}% Advance`);
+                                    } else {
+                                      newText = currentText ? `${percent}% Advance, ${currentText}` : `${percent}% Advance`;
+                                    }
+                                  } else {
+                                    newText = currentText;
+                                  }
+
+                                  form.setFieldsValue({ customPaymentTerm: newText });
+                                  setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: newText }));
+                                }
+                              }}
+                            >
                               <Radio value={1}>Yes</Radio>
                               <Radio value={0}>No</Radio>
                             </Radio.Group>
                           </Form.Item>
                         </Col>
+                        {/* Advance Percentage Input */}
                         <Col span={3}>
                           <Form.Item noStyle>
                             {advancePayment === 1 && (
-                              <Form.Item
-                                name="advancePercentage"
-                                label="Advance Payment %"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Please enter advance percentage",
-                                  },
-                                ]}
-                              >
+                              <Form.Item name="advancePercentage" label="Advance %" rules={[{ required: true, message: "Enter %" }]}>
                                 <InputNumber
                                   min={1}
                                   max={100}
                                   formatter={(v) => `${v}%`}
                                   parser={(v) => v.replace("%", "")}
                                   style={{ width: "100%" }}
-                                  placeholder="e.g. 30"
+                                  onChange={(value) => {
+                                    // Jab bhi % change ho aur "Other" selected ho → auto update text
+                                    if (form.getFieldValue("paymentterms") === "Other") {
+                                      const currentText = form.getFieldValue("customPaymentTerm") || "";
+                                      let newText = "";
+
+                                      if (value) {
+                                        if (currentText.includes("% Advance")) {
+                                          newText = currentText.replace(/\d+% Advance/, `${value}% Advance`);
+                                        } else {
+                                          newText = currentText ? `${value}% Advance, ${currentText}` : `${value}% Advance`;
+                                        }
+                                      } else {
+                                        newText = currentText.replace(/\d+% Advance,?\s*/, "").trim();
+                                      }
+
+                                      form.setFieldsValue({ customPaymentTerm: newText });
+                                      setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: newText }));
+                                    }
+                                  }}
                                 />
                               </Form.Item>
                             )}
@@ -1274,7 +1327,7 @@ export default function CreatePo() {
                   submitLoading={submitLoading}
                   totalValues={totalValues}
                   setStateCode={setStateCode}
-                  gstState={newPurchaseOrder.billCode== newPurchaseOrder.venCode?"L":"I"}
+                  gstState={newPurchaseOrder.billCode == newPurchaseOrder.venCode ? "L" : "I"}
                 />
               </div>
             </Tabs.TabPane>

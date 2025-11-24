@@ -569,28 +569,28 @@ export default function EditComponent({
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
-    {
-      headerName: "BOM Rate",
-      width: 150,
-      field: "rate",
-      sortable: false,
-      renderCell: (params) =>
-        disabledCell(params.row.project_rate, inputHandler),
-    },
-    {
-      headerName: "PRC IN LC",
-      width: 150,
-      field: "rate",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.localPrice, inputHandler),
-    },
-    {
-      headerName: "Tolerance",
-      width: 150,
-      field: "tol_price",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.tol_price, inputHandler),
-    },
+    // {
+    //   headerName: "BOM Rate",
+    //   width: 150,
+    //   field: "rate",
+    //   sortable: false,
+    //   renderCell: (params) =>
+    //     disabledCell(params.row.project_rate, inputHandler),
+    // },
+    // {
+    //   headerName: "PRC IN LC",
+    //   width: 150,
+    //   field: "rate",
+    //   sortable: false,
+    //   renderCell: (params) => disabledCell(params.row.localPrice, inputHandler),
+    // },
+    // {
+    //   headerName: "Tolerance",
+    //   width: 150,
+    //   field: "tol_price",
+    //   sortable: false,
+    //   renderCell: (params) => disabledCell(params.row.tol_price, inputHandler),
+    // },
     {
       headerName: "Project Req Qty",
       width: 150,
