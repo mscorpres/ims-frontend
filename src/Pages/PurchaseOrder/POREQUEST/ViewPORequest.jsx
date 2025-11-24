@@ -1253,7 +1253,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
 
       {/* Reject Modal */}
       <Modal
-        title={<div style={{ color: "#cf1322", fontWeight: 600 }}>Reject PO Components</div>}
+        title={<div style={{ color: "#cf1322", fontWeight: 600 }}>Reject PR</div>}
         open={showRejectModal}
         onCancel={() => {
           setShowRejectModal(false);
@@ -1279,10 +1279,10 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
               gap: 10,
             }}
           >
-            <span style={{ fontSize: "1.4rem" }}>Warning</span>
-            <span>
+            <span style={{ fontSize: "1.4rem", textAlign: "center" }}>Warning</span>
+            {/* <span>
               You are about to <strong>reject</strong> one or more components in this PO. This action will notify the requester.
-            </span>
+            </span> */}
           </div>
 
           {/* Rejection Reason Selection */}
