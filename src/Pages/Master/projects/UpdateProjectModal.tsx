@@ -1,16 +1,28 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Input, Button, Form, message } from "antd";
+import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import { getBomOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "@/utils/general";
+import useApi from "@/hooks/useApi";
 
 const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate }) => {
   const [form] = Form.useForm();
-
+  const [asyncOptions, setAsyncOptions] = useState([]);
+  const { executeFun } = useApi();
+  const getBom = async (search) => {
+    const response = await executeFun(() => getBomOptions(search), "select");
+    let arr = [];
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
+  };
   useEffect(() => {
-    console.log(data)
+    console.log(data);
     if (data) {
       form.setFieldsValue({
         project: data.project,
         description: data.description,
         qty: data.qty,
+        bom: data.bom,
       });
     }
   }, [data]);
@@ -56,6 +68,14 @@ const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate 
         >
           <Input.TextArea />
         </Form.Item>
+        <Form.Item name="bom" label="BOM">
+          <MyAsyncSelect
+            onBlur={() => setAsyncOptions([])}
+            optionsState={asyncOptions}
+            loadOptions={getBom}
+          />
+        </Form.Item>
+
         <Form.Item
           name="qty"
           label="Quantity"
