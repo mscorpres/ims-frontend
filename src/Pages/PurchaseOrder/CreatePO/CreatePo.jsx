@@ -8,7 +8,7 @@ import AddBranch from "../../Master/Vendor/model/AddBranch";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
-import { Col, Descriptions, Divider, Form, Input, Row, Tabs, Modal, Button, InputNumber, Radio } from "antd";
+import { Col, Descriptions, Divider, Form, Input, Row, Tabs, Modal, Button, InputNumber, Radio,Checkbox } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import Loading from "../../../Components/Loading";
 import SuccessPage from "./SuccessPage";
@@ -108,6 +108,7 @@ export default function CreatePo() {
   const [userOptions, setUserOptions] = useState([]);
   const [successData, setSuccessData] = useState(false);
   const [projectDesc, setProjectDesc] = useState("");
+  const [sameAsBilling, setSameAsBilling] = useState(false);
   const [form] = Form.useForm();
   // Move Form.useWatch calls to top level to avoid hooks violation
   const termsCondition = Form.useWatch("termscondition", form);
@@ -382,6 +383,24 @@ export default function CreatePo() {
           shipPan: "",
           shipGST: "",
         }));
+        // Uncheck the checkbox when "other" is selected
+        setSameAsBilling(false);
+      } else if (sameAsBilling) {
+        // If checkbox is checked, don't fetch shipping details, use billing details instead
+        form.setFieldsValue({
+          shipaddressid: value,
+          shipaddress: newPurchaseOrder.billaddress,
+          shipPan: newPurchaseOrder.billPan,
+          shipGST: newPurchaseOrder.billGST,
+        });
+
+        setnewPurchaseOrder((prev) => ({
+          ...prev,
+          shipaddressid: value,
+          shipaddress: prev.billaddress,
+          shipPan: prev.billPan,
+          shipGST: prev.billGST,
+        }));
       } else {
         const shippingDetails = await getShippingAddress(value);
 
@@ -407,6 +426,28 @@ export default function CreatePo() {
       setnewPurchaseOrder((prev) => ({ ...prev, [name]: value }));
     }
   };
+
+  const handleSameAsBilling = (checked) => {
+    setSameAsBilling(checked);
+    if (checked) {
+      // Copy billing details to shipping details
+      form.setFieldsValue({
+        shipaddressid: newPurchaseOrder.billaddressid,
+        shipaddress: newPurchaseOrder.billaddress,
+        shipPan: newPurchaseOrder.billPan,
+        shipGST: newPurchaseOrder.billGST,
+      });
+
+      setnewPurchaseOrder((prev) => ({
+        ...prev,
+        shipaddressid: prev.billaddressid,
+        shipaddress: prev.billaddress,
+        shipPan: prev.billPan,
+        shipGST: prev.billGST,
+      }));
+    }
+  };
+
   const POoption = [
     { text: "New", value: "N" },
     { text: "Supplementary", value: "S" },
@@ -577,6 +618,7 @@ export default function CreatePo() {
     form.setFieldsValue(obj);
     setnewPurchaseOrder(obj);
     form.setFieldValue("advancePayment", "");
+    setSameAsBilling(false);
     setShowDetailsConfirm(false);
   };
   const rowsReset = () => {
@@ -691,6 +733,26 @@ export default function CreatePo() {
   useEffect(() => {
     getShippingAddress();
   }, [newPurchaseOrder.shipaddressid]);
+
+  // Sync shipping details when billing address ID changes and checkbox is checked
+  useEffect(() => {
+    if (sameAsBilling && newPurchaseOrder.billaddressid) {
+      form.setFieldsValue({
+        shipaddressid: newPurchaseOrder.billaddressid,
+        shipaddress: newPurchaseOrder.billaddress,
+        shipPan: newPurchaseOrder.billPan,
+        shipGST: newPurchaseOrder.billGST,
+      });
+
+      setnewPurchaseOrder((prev) => ({
+        ...prev,
+        shipaddressid: prev.billaddressid,
+        shipaddress: prev.billaddress,
+        shipPan: prev.billPan,
+        shipGST: prev.billGST,
+      }));
+    }
+  }, [sameAsBilling, newPurchaseOrder.billaddressid]);
   const finish = (values) => {
     setnewPurchaseOrder((prev) => ({
       ...prev,
@@ -1284,6 +1346,18 @@ export default function CreatePo() {
                           Provide shipping information
                         </Descriptions.Item>
                       </Descriptions>
+                      <Col span={6}>
+                          <Form.Item label=" " style={{ marginTop: "30px" }}>
+                            <Checkbox
+                              checked={sameAsBilling}
+                              onChange={(e) =>
+                                handleSameAsBilling(e.target.checked)
+                              }
+                            >
+                              Same as Billing Address
+                            </Checkbox>
+                          </Form.Item>
+                        </Col>
                     </Col>
 
                     <Col span={20}>
@@ -1295,9 +1369,14 @@ export default function CreatePo() {
                             label="Shipping Id"
                             rules={rules.shipaddressid}
                           >
-                            <MySelect options={shipToOptions} />
+                            <MySelect
+                              options={shipToOptions}
+                              disabled={sameAsBilling}
+                            />
                           </Form.Item>
                         </Col>
+                        {/* same as billing checkbox */}
+                       
                         {/* pan number */}
                         <Col span={6}>
                           <Form.Item
@@ -1309,6 +1388,7 @@ export default function CreatePo() {
                               size="default"
                               value={newPurchaseOrder.shipPan}
                               disabled={
+                                sameAsBilling ||
                                 newPurchaseOrder.shipaddressid !== "other"
                               }
                             />
@@ -1325,6 +1405,7 @@ export default function CreatePo() {
                               size="default"
                               value={newPurchaseOrder.shipGST}
                               disabled={
+                                sameAsBilling ||
                                 newPurchaseOrder.shipaddressid !== "other"
                               }
                             />
@@ -1338,6 +1419,7 @@ export default function CreatePo() {
                             <TextArea
                               value={newPurchaseOrder.shipaddress}
                               disabled={
+                                sameAsBilling ||
                                 newPurchaseOrder.shipaddressid !== "other"
                               }
                               rows={5}
