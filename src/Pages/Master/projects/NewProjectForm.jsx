@@ -14,7 +14,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyButton from "../../../Components/MyButton";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { getCostCentresOptions } from "../../../api/general.ts";
+import { getBomOptions, getCostCentresOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 
@@ -29,6 +29,15 @@ export default function NewProjectForm() {
   const getCostCenteres = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
+      "select"
+    );
+    let arr = [];
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
+  };
+  const getBom = async (search) => {
+    const response = await executeFun(
+      () => getBomOptions(search),
       "select"
     );
     let arr = [];
@@ -61,6 +70,7 @@ export default function NewProjectForm() {
       project_description: "",
       costcenter: "",
       qty: "",
+      bom: "",
     };
     newProjectForm.setFieldsValue(obj);
     setAsyncOptions([]);
@@ -148,6 +158,18 @@ export default function NewProjectForm() {
                   onBlur={() => setAsyncOptions([])}
                   optionsState={asyncOptions}
                   loadOptions={getCostCenteres}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                name="bom"
+                label="BOM"
+              >
+                <MyAsyncSelect
+                  onBlur={() => setAsyncOptions([])}
+                  optionsState={asyncOptions}
+                  loadOptions={getBom}
                 />
               </Form.Item>
             </Col>

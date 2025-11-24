@@ -138,6 +138,13 @@ export const getCostCentresOptions = async (search) => {
   return response;
 };
 
+export const getBomOptions = async (search) => {
+  const response = await imsAxios.post("/backend/bomRecipe", {
+    search,
+  });
+  return response;
+};
+
 export const getUsersOptions = async (search) => {
   const response = await imsAxios.post("/backend/fetchAllUser", {
     search,
