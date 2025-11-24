@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Modal, Input, Button, Form, message } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { getBomOptions } from "../../../api/general.ts";
+import { getBomOptions, getCostCentresOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "@/utils/general";
 import useApi from "@/hooks/useApi";
 
@@ -9,6 +9,12 @@ const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate 
   const [form] = Form.useForm();
   const [asyncOptions, setAsyncOptions] = useState([]);
   const { executeFun } = useApi();
+  const getCostCenter = async (search) => {
+    const response = await executeFun(() => getCostCentresOptions(search), "select");
+    let arr = [];
+    if (response.success) arr = convertSelectOptions(response.data);
+    setAsyncOptions(arr);
+  };
   const getBom = async (search) => {
     const response = await executeFun(() => getBomOptions(search), "select");
     let arr = [];
@@ -23,6 +29,7 @@ const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate 
         description: data.description,
         qty: data.qty,
         bom: data.bom,
+        costcenter: data.costcenter,
       });
     }
   }, [data]);
@@ -75,7 +82,13 @@ const UpdateProjectModal = ({ data, setIsModalVisible, isModalVisible, onUpdate 
             loadOptions={getBom}
           />
         </Form.Item>
-
+        <Form.Item name="costcenter" label="Cost Center">
+          <MyAsyncSelect
+            onBlur={() => setAsyncOptions([])}
+            optionsState={asyncOptions}
+            loadOptions={getCostCenter}
+          />
+        </Form.Item>
         <Form.Item
           name="qty"
           label="Quantity"
