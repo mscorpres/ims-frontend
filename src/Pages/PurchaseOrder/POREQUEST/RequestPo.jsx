@@ -55,14 +55,59 @@ const RequestPo = () => {
       width: 150,
     },
     {
-          headerName:"PO ACCEPTANCE",
-          field:"poacceptstatus",
-          renderCell:({row})=>(
-            <ToolTipEllipses text={row.poacceptstatus} />
-          ),
-          flex:1,
-          minWidth:150
-        },
+      headerName: "PO ACCEPTANCE",
+      field: "poacceptstatus",
+      renderCell: ({ row }) => {
+        const status = row.poacceptstatus?.toUpperCase() || "";
+        let color = "#000000"; // default black
+
+        if (status === "APPROVED") {
+          color = "#52c41a"; // green
+        } else if (status === "REJECTED") {
+          color = "#ff4d4f"; // red
+        } else if (status === "PENDING") {
+          color = "#faad14"; // yellow
+        } else if (status === "UNDER VERIFICATION") {
+          color = "#8c8c8c"; // gray
+        }
+
+        // Adjust text color for better contrast on yellow background
+        const textColor = status === "PENDING" ? "#000000" : "#ffffff";
+
+        return (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: color,
+              color: textColor,
+              padding: "3px 14px",
+              borderRadius: "16px",
+              fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.75rem",
+              fontWeight: "600",
+              letterSpacing: "0.3px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "100%",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+              border:
+                status === "PENDING"
+                  ? "1px solid rgba(0, 0, 0, 0.1)"
+                  : "1px solid rgba(255, 255, 255, 0.2)",
+              lineHeight: "1.4",
+              minHeight: "22px",
+            }}
+            title={row.poacceptstatus}
+          >
+            {row.poacceptstatus}
+          </div>
+        );
+      },
+      flex: 1,
+      minWidth: 150,
+    },
     {
       headerName: "Cost Center",
       field: "cost_center",
@@ -278,14 +323,18 @@ const RequestPo = () => {
           padding: "0 10px",
         }}
       >
-        <MyDataTable loading={loading ||searchLoading} rows={rows} columns={columns} />
+        <MyDataTable
+          loading={loading || searchLoading}
+          rows={rows}
+          columns={columns}
+        />
       </div>
       <ViewPORequest
         poId={viewPoId}
         setPoId={setViewPoId}
         getRows={getSearchResults}
       />
-        {updatePoId && (
+      {updatePoId && (
         <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} />
       )}
     </div>
