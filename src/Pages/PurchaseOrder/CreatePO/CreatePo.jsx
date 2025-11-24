@@ -366,7 +366,24 @@ export default function CreatePo() {
         billCode: billingDetails.code || "",
       }));
     } else if (name === "shipaddressid") {
-      const shippingDetails = await getShippingAddress(value);
+      // If "other" is selected, clear the fields and make them editable
+      if (value === "other") {
+        form.setFieldsValue({
+          shipaddressid: value,
+          shipaddress: "",
+          shipPan: "",
+          shipGST: "",
+        });
+
+        setnewPurchaseOrder((prev) => ({
+          ...prev,
+          shipaddressid: value,
+          shipaddress: "",
+          shipPan: "",
+          shipGST: "",
+        }));
+      } else {
+        const shippingDetails = await getShippingAddress(value);
 
       form.setFieldsValue({
         shipaddressid: value,
@@ -384,8 +401,8 @@ export default function CreatePo() {
         shipPan: shippingDetails.pan || "",
         shipGST: shippingDetails.gstin || "",
       }));
+    }
     } else {
-      // बाकी fields (जैसे raisedBy, pocreatetype आदि)
       form.setFieldsValue({ [name]: value });
       setnewPurchaseOrder((prev) => ({ ...prev, [name]: value }));
     }
@@ -470,6 +487,13 @@ export default function CreatePo() {
       return { text: d.text, value: d.id };
     });
     setBillTopOptions(arr);
+
+    // Auto-select the first option (0th index) if options are available and not already selected
+    if (arr.length > 0 && !newPurchaseOrder.billaddressid) {
+      const firstOption = arr[0].value;
+      // Use selectInputHandler to populate billing details
+      await selectInputHandler("billaddressid", firstOption);
+    }
   };
   const shipTo = async () => {
     setSelectLoading(true);
@@ -481,6 +505,8 @@ export default function CreatePo() {
     arr = data.map((d) => {
       return { text: d.text, value: d.id };
     });
+    // Add "other" option to the shipping options
+    arr.push({ text: "Other", value: "other" });
     setShipToOptions(arr);
   };
   const handleFetchCostCenterOptions = async (search) => {
@@ -1264,20 +1290,44 @@ export default function CreatePo() {
                       <Row gutter={16}>
                         {/* shipping id */}
                         <Col span={6}>
-                          <Form.Item name="shipaddressid" label="Shipping Id" rules={rules.shipaddressid}>
+                          <Form.Item
+                            name="shipaddressid"
+                            label="Shipping Id"
+                            rules={rules.shipaddressid}
+                          >
                             <MySelect options={shipToOptions} />
                           </Form.Item>
                         </Col>
                         {/* pan number */}
                         <Col span={6}>
-                          <Form.Item label="Pan No." name="shipPan" rules={rules.shipPan}>
-                            <Input size="default" value={newPurchaseOrder.shipPan} disabled />
+                          <Form.Item
+                            label="Pan No."
+                            name="shipPan"
+                            rules={rules.shipPan}
+                          >
+                            <Input
+                              size="default"
+                              value={newPurchaseOrder.shipPan}
+                              disabled={
+                                newPurchaseOrder.shipaddressid !== "other"
+                              }
+                            />
                           </Form.Item>
                         </Col>
                         {/* gstin uin */}
                         <Col span={6}>
-                          <Form.Item name="shipGST" label=" GSTIN / UIN" rules={rules.shipGST}>
-                            <Input size="default" value={newPurchaseOrder.shipGST} disabled />
+                          <Form.Item
+                            name="shipGST"
+                            label=" GSTIN / UIN"
+                            rules={rules.shipGST}
+                          >
+                            <Input
+                              size="default"
+                              value={newPurchaseOrder.shipGST}
+                              disabled={
+                                newPurchaseOrder.shipaddressid !== "other"
+                              }
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -1287,7 +1337,9 @@ export default function CreatePo() {
                           <Form.Item label="Shipping Address" name="shipaddress" rules={rules.shipaddress}>
                             <TextArea
                               value={newPurchaseOrder.shipaddress}
-                              disabled
+                              disabled={
+                                newPurchaseOrder.shipaddressid !== "other"
+                              }
                               rows={5}
                               style={{
                                 resize: "none",
