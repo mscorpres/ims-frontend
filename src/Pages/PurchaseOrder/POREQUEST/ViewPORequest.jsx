@@ -226,7 +226,6 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
             sgst: row.sgst == "--" ? 0 : row.sgst,
             igst: row.igst == "--" ? 0 : row.igst,
             remark: row.remark || "--",
-            internal_remark: row.internal_remark || "",
             inrValue: row.taxablevalue,
             foreginValue: row.exchangetaxablevalue,
             unit: row.unitname,
@@ -610,15 +609,6 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       field: "remark",
       sortable: false,
       renderCell: ({ row }) => <ToolTipEllipses text={row.remark || "--"} />,
-    },
-    {
-      headerName: "Internal Remark",
-      width: 200,
-      field: "internal_remark",
-      sortable: false,
-      renderCell: ({ row }) => (
-          <ToolTipEllipses text={row.internal_remark || "--"} />
-      ),
     },
   ];
 
