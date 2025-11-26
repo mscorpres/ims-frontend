@@ -241,6 +241,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         sgst: row.sgst == "--" ? 0 : row.sgst,
         igst: row.igst == "--" ? 0 : row.igst,
         remark: row.remark,
+        internal_remark: row.internal_remark || "",
         inrValue: row.taxablevalue,
         foreginValue: row.exchangetaxablevalue,
         unit: row.unitname,
