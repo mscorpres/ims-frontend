@@ -96,6 +96,7 @@ export default function CreatePo() {
       sgst: 0,
       igst: 0,
       remark: "--",
+      internal_remark: "",
       unit: "--",
       rate_cap: 0,
       tol_price: 0,
@@ -131,6 +132,7 @@ export default function CreatePo() {
       sgst: [],
       igst: [],
       remark: [],
+      internal_remark: [],
       rate_cap: [],
       tol_price: [],
       project_qty: [],
@@ -146,6 +148,7 @@ export default function CreatePo() {
       componentData.gsttype.push(row.gsttype);
       componentData.gstrate.push(row.gstrate);
       componentData.remark.push(row.remark);
+      componentData.internal_remark.push(row.internal_remark);
       componentData.cgst.push(row.cgst);
       componentData.sgst.push(row.sgst);
       componentData.igst.push(row.igst);

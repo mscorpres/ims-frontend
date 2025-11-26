@@ -156,7 +156,7 @@ export default function AddComponents({
             ...obj,
             approval: app,
           };
-        } else if (name == "hsncode" || name == "duedate") {
+        } else if (name == "hsncode" || name == "duedate" || name == "remark" || name === "internal_remark") {
           obj = {
             ...obj,
             [name]: value,
@@ -272,7 +272,7 @@ export default function AddComponents({
           }
         }
         
-        if (obj.gsttype == "L" && name != "gsttype") {
+        if (obj.gsttype == "L" && name != "gsttype" && name != "remark" && name != "internal_remark") {
           let percentage = obj.gstrate / 2;
           obj = {
             ...obj,
@@ -280,7 +280,7 @@ export default function AddComponents({
             sgst: (obj.inrValue * percentage) / 100,
             igst: 0,
           };
-        } else if (obj.gsttype == "I" && name != "gsttype") {
+        } else if (obj.gsttype == "I" && name != "gsttype" && name != "remark" && name != "internal_remark") {
           let percentage = obj.gstrate;
           obj = {
             ...obj,
@@ -288,19 +288,7 @@ export default function AddComponents({
             sgst: 0,
             igst: (obj.inrValue * percentage) / 100,
           };
-
-          
-     } else if (name == "remark") {
-  obj = {
-    ...obj,
-    [name]: value,
-  };
-} else if (name === "internal_remark") {
-  obj = {
-    ...obj,
-    internal_remark: value,
-  };
-}
+        }
         return obj;
       } else {
         return row;
