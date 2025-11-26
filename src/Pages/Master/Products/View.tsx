@@ -56,7 +56,7 @@ function View({
       <MyDataTable
         loading={loading}
         data={rows}
-        columns={[...columns, ...actionColumn]}
+        columns={[...columns, ...actionColumn]} 
       />
     </div>
   );
