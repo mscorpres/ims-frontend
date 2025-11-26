@@ -433,6 +433,21 @@ export default function CreatePo() {
   const handleSameAsBilling = (checked) => {
     setSameAsBilling(checked);
     if (checked) {
+      // Find the billing address option to get its text
+      const billingOption = billToOptions.find(
+        (option) => option.value === newPurchaseOrder.billaddressid
+      );
+
+      // Add billing address to shipping options if it doesn't exist
+      if (billingOption) {
+        const existsInShipping = shipToOptions.some(
+          (option) => option.value === billingOption.value
+        );
+        if (!existsInShipping) {
+          setShipToOptions((prev) => [...prev, billingOption]);
+        }
+      }
+
       // Copy billing details to shipping details
       form.setFieldsValue({
         shipaddressid: newPurchaseOrder.billaddressid,
@@ -740,6 +755,21 @@ export default function CreatePo() {
   // Sync shipping details when billing address ID changes and checkbox is checked
   useEffect(() => {
     if (sameAsBilling && newPurchaseOrder.billaddressid) {
+      // Find the billing address option to get its text
+      const billingOption = billToOptions.find(
+        (option) => option.value === newPurchaseOrder.billaddressid
+      );
+
+      // Add billing address to shipping options if it doesn't exist
+      if (billingOption) {
+        const existsInShipping = shipToOptions.some(
+          (option) => option.value === billingOption.value
+        );
+        if (!existsInShipping) {
+          setShipToOptions((prev) => [...prev, billingOption]);
+        }
+      }
+
       form.setFieldsValue({
         shipaddressid: newPurchaseOrder.billaddressid,
         shipaddress: newPurchaseOrder.billaddress,
