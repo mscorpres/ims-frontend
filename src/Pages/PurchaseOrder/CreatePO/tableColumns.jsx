@@ -132,3 +132,13 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
     placeholder="Enter Remark"
   />
 );
+
+// Inside tableColumns.js or inline below
+export const internalRemarkCell = ({ row }, inputHandler) => (
+  <Input
+    placeholder="Internal note..."
+    // value={row.internal_remark || ""}
+    onChange={(e) => inputHandler("internal_remark", e.target.value, row.id)}
+    style={{ backgroundColor: "#fffbe6" }}  
+  />
+);

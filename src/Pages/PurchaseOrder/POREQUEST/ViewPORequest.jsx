@@ -636,7 +636,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
 
   return (
     <Drawer
-      title={`Viewing PO: ${poId}`}
+      title={`Viewing PR: ${poId}`}
       width="100vw"
       open={poId}
       onClose={() => {
@@ -953,7 +953,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                             fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
                           }}
                         >
-                          <ToolTipEllipses type="Paragraph" text={purchaseOrder?.vendoraddress || "--"} />
+                          <ToolTipEllipses  text={purchaseOrder?.vendoraddress || "--"} />
                         </Typography.Text>
                       </Col>
                       <Col span={24}>
@@ -1064,14 +1064,14 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
         opacity: 0.82,
       }}>
         {/* Inner dashed circle */}
-        <div style={{
+        {/* <div style={{
           position: "absolute",
           width: "160px",
           height: "160px",
           borderRadius: "50%",
           border: "2px dashed #dc2626",
           opacity: 0.6,
-        }} />
+        }} /> */}
         
         {/* REJECTED Text */}
         <div style={{
@@ -1089,35 +1089,6 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
           REJECTED
         </div>
         
-        {/* Top Arc Text */}
-        {/* <div style={{
-          position: "absolute",
-          top: "40px",
-          fontSize: "0.85rem",
-          fontWeight: "700",
-          color: "#dc2626",
-          letterSpacing: "4px",
-          opacity: 0.75,
-        }}>
-          NOT APPROVED
-        </div>
-         */}
-       
-        {/* Decorative stars */}
-        {[0, 90, 180, 270].map((angle, i) => (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              fontSize: "1.4rem",
-              color: "#dc2626",
-              opacity: 0.65,
-              transform: `rotate(${angle}deg) translateY(-125px) rotate(-${angle}deg)`,
-            }}
-          >
-            ★
-          </div>
-        ))}
         
         {/* Texture overlay for authenticity */}
         <div style={{
@@ -1145,7 +1116,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
         }} />
         
         {/* Ink splatter effects */}
-        <div style={{
+        {/* <div style={{
           position: "absolute",
           top: "-8px",
           right: "15px",
@@ -1155,7 +1126,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
           background: "#dc2626",
           opacity: 0.25,
           filter: "blur(2px)",
-        }} />
+        }} /> */}
         <div style={{
           position: "absolute",
           bottom: "20px",

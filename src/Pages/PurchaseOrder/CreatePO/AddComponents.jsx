@@ -17,6 +17,8 @@ import {
   rateCell,
   SGSTCell,
   taxableCell,
+  internalRemarkCell,
+  
 } from "./tableColumns";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../Components/Loading";
@@ -66,6 +68,7 @@ export default function AddComponents({
       sgst: "",
       igst: "",
       remark: "--",
+      internal_remark: "",  
       inrValue: 0,
       foreginValue: 0,
       unit: "",
@@ -268,8 +271,7 @@ export default function AddComponents({
             };
           }
         }
-        // CHANGED: Fixed bug - was row.gsttype.value (undefined), now obj.gsttype (string "L" or "I")
-        // This prevents incorrect GST updates and potential overwrite issues
+        
         if (obj.gsttype == "L" && name != "gsttype") {
           let percentage = obj.gstrate / 2;
           obj = {
@@ -286,21 +288,25 @@ export default function AddComponents({
             sgst: 0,
             igst: (obj.inrValue * percentage) / 100,
           };
-        } else if (name == "remark") {
-          obj = {
-            ...obj,
-            [name]: value,
-          };
-          // return obj;
-        }
+
+          
+     } else if (name == "remark") {
+  obj = {
+    ...obj,
+    [name]: value,
+  };
+} else if (name === "internal_remark") {
+  obj = {
+    ...obj,
+    internal_remark: value,
+  };
+}
         return obj;
       } else {
         return row;
       }
     });
-    // "/purchaseOrder/getComponentDetailsByCode",
-    // /purchaseOrdertest/getComponentDetailsByCode
-    // console.log(arr);
+    
     if (name == "component") {
       console.log(newPurchaseOrder);
       setPageLoading(true);
@@ -319,11 +325,9 @@ export default function AddComponents({
       arr1 = arr1.map((row) => {
         if (row.id == id) {
           let obj = row;
-          let newLastRate = Number(data.data.rate.toString().trim()); // CHANGED: Use API rate only for last_rate, not for rate
+          let newLastRate = Number(data.data.rate.toString().trim());
           let percentage = data.data.gstrate;
-          // CHANGED: Do not set rate or inrValue here - leave rate empty for manual input
-          // inrValue and GST will be calculated when user enters rate
-          // Use auto-determined GST type
+        
           if (autoGstType == "L") {
             percentage = data.data.gstrate / 2;
             obj = {
@@ -386,11 +390,7 @@ export default function AddComponents({
   };
   const getComponents = async (searchInput) => {
     if (searchInput.length > 2) {
-      // setSelectLoading(true);
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: searchInput,
-      // });
-      // setSelectLoading(false);
+     
       const response = await executeFun(
         () => getComponentOptions(searchInput),
         "select"
@@ -408,7 +408,7 @@ export default function AddComponents({
     }
   };
   const resetFunction = () => {
-    const defaultGstType = gstState || "L"; // Use gstState if available
+    const defaultGstType = gstState || "L";
     setRowCount([
       {
         id: v4(),
@@ -428,6 +428,7 @@ export default function AddComponents({
         sgst: 0,
         igst: 0,
         remark: "--",
+        internal_remark: "",
         unit: "--",
         closing_stock: 0, 
       },
@@ -677,6 +678,14 @@ export default function AddComponents({
       sortable: false,
       renderCell: (params) => IGSTCell(params, inputHandler),
     },
+    {
+  headerName: "Internal Remark",
+  width: 250,
+  field: "internal_remark",
+  sortable: false,
+  renderCell: (params) => internalRemarkCell(params, inputHandler), 
+},
+    
 
     {
       headerName: "Item Description",
