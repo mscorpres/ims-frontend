@@ -56,8 +56,8 @@ export default function AddComponents({
       exchange_rate: 1,
       component: "",
       qty: 1,
-      rate: "", // CHANGED: Ensure rate is empty for manual input
-      last_rate: "", // CHANGED: Added last_rate field, initially empty
+      rate: "", 
+      last_rate: "", 
       duedate: "",
       hsncode: "",
       gsttype: defaultGstType, 
@@ -329,12 +329,12 @@ export default function AddComponents({
             obj = {
               ...obj,
               component: value,
-              gsttype: "L", // Set GST type based on state codes
-              last_rate: newLastRate, // CHANGED: Set only last_rate from API
+              gsttype: "L", 
+              last_rate: newLastRate,
               unit: data.data.unit,
               hsncode: data.data.hsn,
               gstrate: data.data.gstrate,
-              // CHANGED: Set GST to 0 initially, as inrValue not set yet
+           
               cgst: 0,
               sgst: 0,
               igst: 0,
@@ -344,21 +344,21 @@ export default function AddComponents({
               ...obj,
               cgst: 0,
               component: value,
-              gsttype: "I", // Set GST type based on state codes
-              last_rate: newLastRate, // CHANGED: Set only last_rate from API
+              gsttype: "I", 
+              last_rate: newLastRate,
               unit: data.data.unit,
               hsncode: data.data.hsn,
               gstrate: data.data.gstrate,
               sgst: 0,
-              // CHANGED: Set IGST to 0 initially
+             
               igst: 0,
             };
           } else {
             obj = {
               ...obj,
               component: value,
-              gsttype: autoGstType, // Set GST type based on state codes
-              last_rate: newLastRate, // CHANGED: Set only last_rate from API
+              gsttype: autoGstType, 
+              last_rate: newLastRate, 
               unit: data.data.unit,
               gstrate: data.data.gstrate,
               hsncode: data.data.hsn,
@@ -417,19 +417,19 @@ export default function AddComponents({
         exchange: "1",
         component: "",
         qty: 1,
-        rate: "", // CHANGED: Ensure rate is empty
-        last_rate: "", // CHANGED: Added last_rate, initially empty
+        rate: "", 
+        last_rate: "", 
         duedate: "",
         inrValue: 0,
         hsncode: "",
-        gsttype: defaultGstType, // Use gstState if available
+        gsttype: defaultGstType, 
         gstrate: "",
         cgst: 0,
         sgst: 0,
         igst: 0,
         remark: "--",
         unit: "--",
-        closing_stock: 0, // CHANGED: Added closing_stock
+        closing_stock: 0, 
       },
     ]);
     setConfirmReset(false);
@@ -521,18 +521,19 @@ export default function AddComponents({
     },
 
     {
-      headerName: "Rate", // CHANGED: This is now manual input, not populated from API
+      headerName: "Rate", 
       width: 170,
       field: "rate",
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
-    // CHANGED: Added Last Rate column - disabled, populated from API only
+ 
     {
       headerName: "Last Rate",
       width: 170,
       field: "last_rate",
       sortable: false,
+
       renderCell: (params) =>
         disabledCell(params, params.row.last_rate, inputHandler),
     },
@@ -861,7 +862,7 @@ export default function AddComponents({
                       }}
                     >
                       <ToolTipEllipses
-                        type="Paragraph"
+                        // type="Paragraph"
                         text={newPurchaseOrder?.vendoraddress?.replaceAll(
                           "<br>",
                           " "

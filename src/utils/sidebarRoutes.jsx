@@ -304,7 +304,7 @@ export const items = (user) => [
         // <AiOutlineMinus />
       ),
        getItem(
-        <Link to="/request-po">Requested PO</Link>,
+        <Link to="/request-po">Requested PR</Link>,
         "B22"
         // <AiOutlineMinus />
       ),

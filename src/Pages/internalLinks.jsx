@@ -21,7 +21,7 @@ const links = [
       key: 0,
     },
      {
-      routeName: "Requested PO",
+      routeName: "Requested PR",
       routePath: "/request-po",
       key: 0,
     },

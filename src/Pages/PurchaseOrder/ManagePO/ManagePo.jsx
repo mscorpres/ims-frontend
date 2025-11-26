@@ -47,7 +47,7 @@ const ManagePO = () => {
     { value: "single_date_wise", text: "Date Wise" },
     { value: "po_wise", text: "PO ID Wise" },
     { value: "vendor_wise", text: "Vendor Wise" },
-    {value: "requestPo", text:"Requested PO"},
+    {value: "requestPo", text:"Requested PR"},
   ];
   const printFun = async (poid) => {
     setLoading(true);

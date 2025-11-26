@@ -1101,8 +1101,88 @@ export default function CreatePo() {
                             <InputNumber style={{ width: "100%" }} size="default" min={1} max={999} />
                           </Form.Item>
                         </Col> */}
+
+                        
+                      </Row>
+                      <Row gutter={16} style={{marginTop: 16}}>
+                        <Col span={5}>
+                          <Form.Item label="Advance Payment" name="advancePayment">
+                            <Radio.Group
+                              onChange={(e) => {
+                                const isYes = e.target.value === 1;
+                                if (!isYes) {
+                                  form.setFieldsValue({ advancePercentage: null });
+                                  setnewPurchaseOrder((prev) => ({ ...prev, advancePercentage: null }));
+                                }
+
+                                // Auto-fill "Other" input agar Advance = Yes aur "Other" selected hai
+                                if (isYes && form.getFieldValue("paymentterms") === "Other") {
+                                  const percent = form.getFieldValue("advancePercentage") || "";
+                                  const currentText = form.getFieldValue("customPaymentTerm") || "";
+                                  let newText = "";
+
+                                  if (percent) {
+                                    // Agar pehle se "XX% Advance" likha hai to update karo, warna add karo
+                                    if (currentText.includes("% Advance")) {
+                                      newText = currentText.replace(/\d+% Advance/, `${percent}% Advance`);
+                                    } else {
+                                      newText = currentText ? `${percent}% Advance, ${currentText}` : `${percent}% Advance`;
+                                    }
+                                  } else {
+                                    newText = currentText;
+                                  }
+
+                                  form.setFieldsValue({ customPaymentTerm: newText });
+                                  setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: newText }));
+                                }
+                              }}
+                            >
+                              <Radio value={1}>Yes</Radio>
+                              <Radio value={0}>No</Radio>
+                            </Radio.Group>
+                          </Form.Item>
+                        </Col>
+                        {/* Advance Percentage Input */}
+                        <Col span={3}>
+                          <Form.Item noStyle>
+                            {advancePayment === 1 && (
+                              <Form.Item name="advancePercentage" label="Advance %" rules={[{ required: true, message: "Enter %" }]}>
+                                <InputNumber
+                                  min={1}
+                                  max={100}
+                                  formatter={(v) => `${v}%`}
+                                  parser={(v) => v.replace("%", "")}
+                                  style={{ width: "100%" }}
+                                  onChange={(value) => {
+                                    // Jab bhi % change ho aur "Other" selected ho → auto update text
+                                    if (form.getFieldValue("paymentterms") === "Other") {
+                                      const currentText = form.getFieldValue("customPaymentTerm") || "";
+                                      let newText = "";
+
+                                      if (value) {
+                                        if (currentText.includes("% Advance")) {
+                                          newText = currentText.replace(/\d+% Advance/, `${value}% Advance`);
+                                        } else {
+                                          newText = currentText ? `${value}% Advance, ${currentText}` : `${value}% Advance`;
+                                        }
+                                      } else {
+                                        newText = currentText.replace(/\d+% Advance,?\s*/, "").trim();
+                                      }
+
+                                      form.setFieldsValue({ customPaymentTerm: newText });
+                                      setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: newText }));
+                                    }
+                                  }}
+                                />
+                              </Form.Item>
+                            )}
+                          </Form.Item>
+                        </Col>
+
                       </Row>
                       <Row gutter={16} style={{ marginTop: 16 }}>
+
+                        
                         {/* project id */}
 
                         <Col span={5}>
@@ -1195,79 +1275,7 @@ export default function CreatePo() {
                             />
                           </Form.Item>
                         </Col>
-                        <Col span={5}>
-                          <Form.Item label="Advance Payment" name="advancePayment">
-                            <Radio.Group
-                              onChange={(e) => {
-                                const isYes = e.target.value === 1;
-                                if (!isYes) {
-                                  form.setFieldsValue({ advancePercentage: null });
-                                  setnewPurchaseOrder((prev) => ({ ...prev, advancePercentage: null }));
-                                }
-
-                                // Auto-fill "Other" input agar Advance = Yes aur "Other" selected hai
-                                if (isYes && form.getFieldValue("paymentterms") === "Other") {
-                                  const percent = form.getFieldValue("advancePercentage") || "";
-                                  const currentText = form.getFieldValue("customPaymentTerm") || "";
-                                  let newText = "";
-
-                                  if (percent) {
-                                    // Agar pehle se "XX% Advance" likha hai to update karo, warna add karo
-                                    if (currentText.includes("% Advance")) {
-                                      newText = currentText.replace(/\d+% Advance/, `${percent}% Advance`);
-                                    } else {
-                                      newText = currentText ? `${percent}% Advance, ${currentText}` : `${percent}% Advance`;
-                                    }
-                                  } else {
-                                    newText = currentText;
-                                  }
-
-                                  form.setFieldsValue({ customPaymentTerm: newText });
-                                  setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: newText }));
-                                }
-                              }}
-                            >
-                              <Radio value={1}>Yes</Radio>
-                              <Radio value={0}>No</Radio>
-                            </Radio.Group>
-                          </Form.Item>
-                        </Col>
-                        {/* Advance Percentage Input */}
-                        <Col span={3}>
-                          <Form.Item noStyle>
-                            {advancePayment === 1 && (
-                              <Form.Item name="advancePercentage" label="Advance %" rules={[{ required: true, message: "Enter %" }]}>
-                                <InputNumber
-                                  min={1}
-                                  max={100}
-                                  formatter={(v) => `${v}%`}
-                                  parser={(v) => v.replace("%", "")}
-                                  style={{ width: "100%" }}
-                                  onChange={(value) => {
-                                    // Jab bhi % change ho aur "Other" selected ho → auto update text
-                                    if (form.getFieldValue("paymentterms") === "Other") {
-                                      const currentText = form.getFieldValue("customPaymentTerm") || "";
-                                      let newText = "";
-
-                                      if (value) {
-                                        if (currentText.includes("% Advance")) {
-                                          newText = currentText.replace(/\d+% Advance/, `${value}% Advance`);
-                                        } else {
-                                          newText = currentText ? `${value}% Advance, ${currentText}` : `${value}% Advance`;
-                                        }
-                                      } else {
-                                        newText = currentText.replace(/\d+% Advance,?\s*/, "").trim();
-                                      }
-
-                                      form.setFieldsValue({ customPaymentTerm: newText });
-                                      setnewPurchaseOrder((prev) => ({ ...prev, customPaymentTerm: newText }));
-                                    }
-                                  }}
-                                />
-                              </Form.Item>
-                            )}
-                          </Form.Item>
-                        </Col>
+                        
                       </Row>
                     </Col>
                   </Row>
@@ -1331,7 +1339,20 @@ export default function CreatePo() {
                             />
                           </Form.Item>
                         </Col>
+                        
                       </Row>
+                      <Col span={6}>
+                          <Form.Item label=" " style={{ marginTop: "10px" }}>
+                            <Checkbox
+                              checked={sameAsBilling}
+                              onChange={(e) =>
+                                handleSameAsBilling(e.target.checked)
+                              }
+                            >
+                              Same as Billing Address
+                            </Checkbox>
+                          </Form.Item>
+                        </Col>
                     </Col>
                   </Row>
                   <Divider />
@@ -1346,18 +1367,7 @@ export default function CreatePo() {
                           Provide shipping information
                         </Descriptions.Item>
                       </Descriptions>
-                      <Col span={6}>
-                          <Form.Item label=" " style={{ marginTop: "30px" }}>
-                            <Checkbox
-                              checked={sameAsBilling}
-                              onChange={(e) =>
-                                handleSameAsBilling(e.target.checked)
-                              }
-                            >
-                              Same as Billing Address
-                            </Checkbox>
-                          </Form.Item>
-                        </Col>
+                      
                     </Col>
 
                     <Col span={20}>
