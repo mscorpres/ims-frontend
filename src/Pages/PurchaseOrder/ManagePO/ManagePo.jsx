@@ -47,6 +47,7 @@ const ManagePO = () => {
     { value: "single_date_wise", text: "Date Wise" },
     { value: "po_wise", text: "PO ID Wise" },
     { value: "vendor_wise", text: "Vendor Wise" },
+    {value: "requestPo", text:"Requested PR"},
   ];
   const printFun = async (poid) => {
     setLoading(true);
@@ -92,6 +93,7 @@ const ManagePO = () => {
           // disabled={disabled}
           label={"Edit"}
           onClick={() => getPoDetail(row.po_transaction)}
+          // disabled={row.poacceptstatus === "APPROVED"}
         />,
         // VIEW Icon
         <GridActionsCellItem
@@ -156,6 +158,15 @@ const ManagePO = () => {
       renderCell: ({ row }) => <ToolTipEllipses text={row.cost_center} />,
       flex: 1,
       minWidth: 150,
+    },
+    {
+      headerName:"PO ACCEPTANCE",
+      field:"poacceptstatus",
+      renderCell:({row})=>(
+        <ToolTipEllipses text={row.poacceptstatus} />
+      ),
+      flex:1,
+      minWidth:150
     },
 
     {

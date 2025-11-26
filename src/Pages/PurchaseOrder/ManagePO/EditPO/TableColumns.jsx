@@ -121,3 +121,11 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
     placeholder="Enter Remark"
   />
 );
+export const internalRemarkCell = ({ row }, inputHandler) => (
+  <Input
+    placeholder="Internal Remark..."
+    value={row.internal_remark || ""}
+    onChange={(e) => inputHandler("internal_remark", e.target.value, row.id)}
+    style={{ backgroundColor: "#fffbe6" }}
+  />
+);

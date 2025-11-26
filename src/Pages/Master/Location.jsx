@@ -54,61 +54,91 @@ function Location() {
   const resetForm = () => {
     addLocationForm.resetFields();
   };
-  const getDataTree = async () => {
-    setTreeLoading(true);
-    const { data } = await imsAxios.post("/location/fetchLocationTree");
-    setTreeLoading(false);
-    let a = customFlatArray(data.data);
-    let arr = a.map((r, id) => {
-      return { id: id + 1, ...r };
-    });
-    // console.log("arr", arr);
-    setLocationData(arr);
-    // console.log("final arr", arr);
-    // setLocationData(a);
-    setTreeData(data.data);
+
+  const customFlatArray = (array, parent = null) => {
+    const result = [];
+
+    const traverse = (nodes, parentNode) => {
+      nodes.forEach((node) => {
+        const { children, ...rest } = node;
+        const current = {
+          ...rest,
+          parentLocation: parentNode ? parentNode.name : "--",
+          label: node.id, // backend key for actions
+        };
+        result.push(current);
+
+        if (children && children.length > 0) {
+          traverse(children, current);
+        }
+      });
+    };
+
+    if (array) traverse(array, parent);
+    return result;
   };
+   const getDataTree = async () => {
+     setTreeLoading(true);
+     try {
+       const { data } = await imsAxios.post("/location/fetchLocationTree");
+       const tree = data.data || [];
+ 
+       setTreeData(tree);
+ 
+       // [FIXED] Flatten tree + add UI id
+       const flat = customFlatArray(tree);
+       const enriched = flat.map((item, index) => ({
+         ...item,
+         id: index + 1,
+       }));
+       setLocationData(enriched);
+     } catch (error) {
+       toast.error("Failed to load locations");
+     } finally {
+       setTreeLoading(false);
+     }
+   };
 
   let arr = [];
-  const customFlatArray = (array, prev) => {
-    array?.map((row) => {
-      let parent = "--";
-      let obj = row;
-      if (!row.children) {
-        if (prev) {
-          obj["parentLocation"] = prev.name;
-        } else {
-          obj["parentLocation"] = "--";
-        }
-      }
-      if (row.children) {
-        if (prev) {
-          obj["parentLocation"] = prev.name;
-        } else {
-          obj["parentLocation"] = "--";
-        }
-        let children = row.children;
+  // const customFlatArray = (array, prev) => {
+  //   array?.map((row) => {
+  //     let parent = "--";
+  //     let obj = row;
+  //     if (!row.children) {
+  //       if (prev) {
+  //         obj["parentLocation"] = prev.name;
+  //       } else {
+  //         obj["parentLocation"] = "--";
+  //       }
+  //     }
+  //     if (row.children) {
+  //       if (prev) {
+  //         obj["parentLocation"] = prev.name;
+  //       } else {
+  //         obj["parentLocation"] = "--";
+  //       }
+  //       let children = row.children;
 
-        delete obj["children"];
-        arr = [...arr, obj];
-        customFlatArray(children, obj);
-        arr = [...arr, ...children];
-        // }
-      }
-      //  else {
-      //   let obj = row;
+  //       delete obj["children"];
+  //       arr = [...arr, obj];
+  //       customFlatArray(children, obj);
+  //       arr = [...arr, ...children];
+  //       // }
+  //     }
+  //     //  else {
+  //     //   let obj = row;
 
-      //   if (prev) {
-      //     obj["parentLocation"] = prev.name;
-      //   } else {
-      //     obj["parentLocation"] = "--";
-      //   }
-      //   arr = [...arr, obj];
-      // }
-    });
+  //     //   if (prev) {
+  //     //     obj["parentLocation"] = prev.name;
+  //     //   } else {
+  //     //     obj["parentLocation"] = "--";
+  //     //   }
+  //     //   arr = [...arr, obj];
+  //     // }
+  //   });
 
-    return arr;
-  };
+  //   return arr;
+  // };
 
   const getParentLocationOptions = async (search) => {
     setSelectLoading(true);

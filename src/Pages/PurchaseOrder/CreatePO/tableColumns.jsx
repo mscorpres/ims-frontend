@@ -15,7 +15,6 @@ export const componentSelect = (
   setAsyncOptions,
   asyncOptions,
   selectLoading,
-  stateCode
 ) => (
   <MyAsyncSelect
     selectLoading={selectLoading}
@@ -109,12 +108,7 @@ export const HSNCell = ({ row }, inputHandler) => (
 );
 export const gstTypeCell = ({ row }, inputHandler, stateCode) => (
   <MySelect
-    // defaultValue={
-    //   stateCode === "09" ? (row.gsttype = "L") : (row.gsttype = "I")
-    // }
-    // value={stateCode === "09" ? (row.gsttype = "L") : (row.gsttype = "I")}
-    // value={row.gsttype}
-    // gsttype
+    value={row.gsttype || "L"} // Display the current GST type, default to "L"
     onChange={(value) => inputHandler("gsttype", value, row.id)}
     options={gstTypeOptions}
   />
@@ -136,5 +130,15 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
     value={row.remark}
     onChange={(e) => inputHandler("remark", e.target.value, row.id)}
     placeholder="Enter Remark"
+  />
+);
+
+// Inside tableColumns.js or inline below
+export const internalRemarkCell = ({ row }, inputHandler) => (
+  <Input
+    placeholder="Internal note..."
+    // value={row.internal_remark || ""}
+    onChange={(e) => inputHandler("internal_remark", e.target.value, row.id)}
+    style={{ backgroundColor: "#fffbe6" }}  
   />
 );

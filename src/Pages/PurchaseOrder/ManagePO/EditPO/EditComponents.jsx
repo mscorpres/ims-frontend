@@ -14,6 +14,7 @@ import {
   IGSTCell,
   invoiceDateCell,
   itemDescriptionCell,
+  internalRemarkCell,
   quantityCell,
   rateCell,
   SGSTCell,
@@ -70,6 +71,7 @@ export default function EditComponent({
       sgst: 0,
       igst: 0,
       remark: "--",
+      internal_remark: "",
       inrValue: 0,
       foreginValue: 0,
       unit: "",
@@ -247,7 +249,7 @@ export default function EditComponent({
             };
           }
         }
-        if (row.gsttype.value == "L" && name != "gsttype") {
+        if (row.gsttype.value == "L" && name != "gsttype" && name != "remark" && name != "internal_remark") {
           let percentage = obj.gstrate / 2;
           obj = {
             ...obj,
@@ -255,7 +257,7 @@ export default function EditComponent({
             sgst: (obj.inrValue * percentage) / 100,
             igst: 0,
           };
-        } else if (row.gsttype.value == "I" && name != "gsttype") {
+        } else if (row.gsttype.value == "I" && name != "gsttype" && name != "remark" && name != "internal_remark") {
           let percentage = obj.gstrate;
           obj = {
             ...obj,
@@ -263,7 +265,7 @@ export default function EditComponent({
             sgst: 0,
             igst: (obj.inrValue * percentage) / 100,
           };
-        } else if (name == "remark") {
+        } else if (name == "remark" || name === "internal_remark") {
           obj = {
             ...obj,
             [name]: value,
@@ -369,6 +371,7 @@ export default function EditComponent({
       cgst: [],
       updaterow: [],
       remark: [],
+      internal_remark: [],
       rate_cap: [],
       project_qty: [],
       exq_po_qty: [],
@@ -402,6 +405,7 @@ export default function EditComponent({
           igst: [...components.igst, row.igst],
           cgst: [...components.cgst, row.cgst],
           remark: [...components.remark, row.remark],
+          internal_remark: [...components.internal_remark, row.internal_remark || ""],
           rate_cap: [...components.rate_cap, row.project_rate],
           project_qty: [...components.project_qty, row.project_qty],
           exq_po_qty: [...components.exq_po_qty, row.po_ord_qty],
@@ -569,43 +573,43 @@ export default function EditComponent({
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
-    {
-      headerName: "BOM Rate",
-      width: 150,
-      field: "rate",
-      sortable: false,
-      renderCell: (params) =>
-        disabledCell(params.row.project_rate, inputHandler),
-    },
-    {
-      headerName: "PRC IN LC",
-      width: 150,
-      field: "rate",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.localPrice, inputHandler),
-    },
-    {
-      headerName: "Tolerance",
-      width: 150,
-      field: "tol_price",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.tol_price, inputHandler),
-    },
-    {
-      headerName: "Project Req Qty",
-      width: 150,
-      field: "project_qty",
-      sortable: false,
-      renderCell: (params) =>
-        disabledCell(params.row.project_qty, inputHandler),
-    },
-    {
-      headerName: "PO Exq Qty",
-      width: 150,
-      field: "po_ord_qty",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.po_ord_qty, inputHandler),
-    },
+    // {
+    //   headerName: "BOM Rate",
+    //   width: 150,
+    //   field: "rate",
+    //   sortable: false,
+    //   renderCell: (params) =>
+    //     disabledCell(params.row.project_rate, inputHandler),
+    // },
+    // {
+    //   headerName: "PRC IN LC",
+    //   width: 150,
+    //   field: "rate",
+    //   sortable: false,
+    //   renderCell: (params) => disabledCell(params.row.localPrice, inputHandler),
+    // },
+    // {
+    //   headerName: "Tolerance",
+    //   width: 150,
+    //   field: "tol_price",
+    //   sortable: false,
+    //   renderCell: (params) => disabledCell(params.row.tol_price, inputHandler),
+    // },
+    // {
+    //   headerName: "Project Req Qty",
+    //   width: 150,
+    //   field: "project_qty",
+    //   sortable: false,
+    //   renderCell: (params) =>
+    //     disabledCell(params.row.project_qty, inputHandler),
+    // },
+    // {
+    //   headerName: "PO Exq Qty",
+    //   width: 150,
+    //   field: "po_ord_qty",
+    //   sortable: false,
+    //   renderCell: (params) => disabledCell(params.row.po_ord_qty, inputHandler),
+    // },
     {
       headerName: "Taxable Value",
       width: 150,
@@ -668,6 +672,13 @@ export default function EditComponent({
       field: "igst",
       sortable: false,
       renderCell: (params) => IGSTCell(params, inputHandler),
+    },
+    {
+      headerName: "Internal Remark",
+      width: 200,
+      field: "internal_remark",
+      sortable: false,
+      renderCell: (params) => internalRemarkCell(params, inputHandler),
     },
     {
       headerName: "Item Description",

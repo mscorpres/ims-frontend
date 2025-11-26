@@ -100,6 +100,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
             vendorname: value.label,
             vendorbranch: arr[0].value,
             vendoraddress: data1.data.address.replaceAll("<br>", "\n"),
+            vendorgst: data1.data.vendor.vendorgst
           };
         } else {
           toast.error(data.message.msg);
@@ -240,6 +241,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         sgst: row.sgst == "--" ? 0 : row.sgst,
         igst: row.igst == "--" ? 0 : row.igst,
         remark: row.remark,
+        internal_remark: row.internal_remark || "",
         inrValue: row.taxablevalue,
         foreginValue: row.exchangetaxablevalue,
         unit: row.unitname,
@@ -390,8 +392,8 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                       </Form.Item>
                     </Col>
                     <Col span={6}>
-                      <Form.Item label="GSTIN">
-                        <Input size="default" value="--" disabled />
+                      <Form.Item label="GSTIN" name="vendorgst">
+                        <Input size="default"  disabled />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -447,7 +449,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                       </Form.Item>
                     </Col>
                     {/* po due date*/}
-                    <Col span={6}>
+                    {/* <Col span={6}>
                       <Form.Item
                         label="Due Date (in days)"
                         name="paymenttermsday"
@@ -459,7 +461,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                           max={999}
                         />
                       </Form.Item>
-                    </Col>
+                    </Col> */}
                   </Row>
 
                   <Row gutter={16}>
