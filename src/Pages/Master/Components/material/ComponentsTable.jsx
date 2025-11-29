@@ -23,7 +23,7 @@ const columns = [
   {
     headerName: "#",
     field: "id",
-    width: 30,
+    width: 70,
   },
   {
     headerName: "Name",
