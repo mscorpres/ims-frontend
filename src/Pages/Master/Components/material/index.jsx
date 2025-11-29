@@ -73,6 +73,7 @@ const Material = () => {
             partCode: row.c_part_no,
             key: row.component_key,
             unit: row.units_name,
+            status: row.is_enabled === "YES" ? "Active" : "Inactive",
           }));
 
           setComponents(arr);

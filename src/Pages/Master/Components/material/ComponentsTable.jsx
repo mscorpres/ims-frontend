@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyDataTable from "../../../../Components/MyDataTable";
-import { imsAxios } from "../../../../axiosInterceptor";
+import { Tag } from "antd";
 
 export default function ComponentsTable({
   actionColumn,
@@ -12,7 +10,6 @@ export default function ComponentsTable({
   loading,
   setLoading,
 }) {
-
   return (
     <MyDataTable
       loading={loading === "fetch"}
@@ -44,5 +41,16 @@ const columns = [
     headerName: "UoM",
     field: "unit",
     width: 150,
+  },
+  {
+    headerName: "Status",
+    field: "status",
+    width: 150,
+    renderCell: ({ row }) =>
+      row.status === "Active" ? (
+        <Tag color="green">Active</Tag>
+      ) : (
+        <Tag color="red">Inactive</Tag>
+      ),
   },
 ];
