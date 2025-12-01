@@ -203,25 +203,39 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
     }
   };
   useEffect(() => {
-    getShippingId();
-    getBillTo();
-    let arr = [];
-    if (updatePoId) {
-      let obj = updatePoId;
-      obj = {
-        ...obj,
-        poid: updatePoId?.orderid,
-        shipaddress: updatePoId.shipaddress.replaceAll("<br>", "\n"),
-        vendoraddress: updatePoId.vendoraddress.replaceAll("<br>", "\n"),
-        billaddress: updatePoId.billaddress.replaceAll("<br>", "\n"),
-      };
-      setPurchaseOrder(obj);
-      setResetDetailsData(obj);
-      getVendorBranches(obj.vendorcode.value);
-      form.setFieldsValue(obj);
-      form.setFieldValue("advancePayment",Number(updatePoId?.advPayment));
+  getShippingId();
+  getBillTo();
+  let arr = [];
+  if (updatePoId) {
+    let obj = updatePoId;
+    obj = {
+      ...obj,
+      poid: updatePoId?.orderid,
+      shipaddress: updatePoId.shipaddress.replaceAll("<br>", "\n"),
+      vendoraddress: updatePoId.vendoraddress.replaceAll("<br>", "\n"),
+      billaddress: updatePoId.billaddress.replaceAll("<br>", "\n"),
+    };
+
+    // Handle shipping vendor information when ship_type is "vendor"
+    if (obj.ship_type === "vendor") {
+      // Preserve shipping vendor specific information
+      obj.shipping_vendor_code = obj.ship_vendor_code;
+      obj.shipping_vendor_name = obj.addrshipname || obj.ship_vendor_name;
+      obj.shipping_vendor_branch = obj.ship_vendor_branch;
     }
 
+    setPurchaseOrder(obj);
+    setResetDetailsData(obj);
+    
+    // If vendorcode exists, load vendor branches
+    if (obj.vendorcode && obj.vendorcode.value) {
+      getVendorBranches(obj.vendorcode.value);
+    }
+    
+    form.setFieldsValue(obj);
+    form.setFieldValue("advancePayment", Number(updatePoId?.advPayment));
+
+   
     updatePoId?.materials?.map((row, index) =>
       arr.push({
         id: v4(),
@@ -247,17 +261,16 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         unit: row.unitname,
         updateRow: row.updateid,
         project_rate: row.project_rate,
-        localPrice:
-          +Number(row.exchangerate).toFixed(2) * +Number(row.rate).toFixed(2),
+        localPrice: +Number(row.exchangerate).toFixed(2) * +Number(row.rate).toFixed(2),
         tol_price: +Number((row.project_rate * 1) / 100).toFixed(2),
         project_qty: row.project_qty,
         po_ord_qty: row.po_ord_qty,
       })
     );
-    console.log("this is the array", arr);
     setRowCount(arr);
     setResetRowsDetailsData(arr);
-  }, [updatePoId]);
+  }
+}, [updatePoId]);
   const finish = (values) => {
     console.log(values);
     setActiveTab("2");
@@ -589,84 +602,104 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
               </Row>
 
               <Divider />
-              <Row>
-                <Col span={4}>
-                  <Descriptions title="Shipping Details">
-                    <Descriptions.Item>
-                      Provide shipping information
-                    </Descriptions.Item>
-                  </Descriptions>
-                </Col>
-
-                <Col span={20}>
-                  <Row gutter={16}>
-                    {/* shipping id */}
-                    <Col span={6}>
-                      <Form.Item
-                        name="addrshipid"
-                        label="Shipping Id"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select a shipping address!",
-                          },
-                        ]}
-                      >
-                        <MySelect options={shippingOptions} />
-                      </Form.Item>
-                    </Col>
-                    {/* pan number */}
-                    <Col span={6}>
-                      <Form.Item
-                        name="shippanno"
-                        label="Pan No."
-                        rules={[
-                          {
-                            required: true,
-                            message:
-                              "Please enter shipping address PAN number!",
-                          },
-                        ]}
-                      >
-                        <Input size="default" />
-                      </Form.Item>
-                    </Col>
-                    {/* gstin uin */}
-                    <Col span={6}>
-                      <Form.Item
-                        name="shipgstid"
-                        label="GSTIN / UIN"
-                        rules={[
-                          {
-                            required: true,
-                            message:
-                              "Please enter shipping address GST number!",
-                          },
-                        ]}
-                      >
-                        <Input size="default" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  {/* shipping address */}
-                  <Row gutter={16}>
-                    <Col span={18}>
-                      <Form.Item
-                        name="shipaddress"
-                        label="Shipping Address"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter shipping address details!",
-                          },
-                        ]}
-                      >
-                        <TextArea style={{ resize: "none" }} rows={4} />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
+              {/* Shipping Details */}
+{/* Shipping Details */}
+<Row>
+  <Col span={4}>
+    <Descriptions title="Shipping Details">
+      <Descriptions.Item>Provide shipping information</Descriptions.Item>
+    </Descriptions>
+  </Col>
+  <Col span={20}>
+    <Row gutter={16}>
+      {/* Shipping Type - This should be editable */}
+      <Col span={6}>
+        <Form.Item
+          name="ship_type"
+          label="Shipping Type"
+          rules={[
+            {
+              required: true,
+              message: "Please select shipping type!",
+            },
+          ]}
+        >
+          <Radio.Group>
+            <Radio value="saved">Saved Address</Radio>
+            <Radio value="vendor">Vendor</Radio>
+            <Radio value="manual">Manual</Radio>
+          </Radio.Group>
+        </Form.Item>
+      </Col>
+     
+      <Col span={6}>
+        <Form.Item
+          name="addrshipid"
+          label={
+            purchaseOrder?.ship_type === "vendor" 
+              ? "Shipping Vendor" 
+              : "Shipping Id"
+          }
+          rules={[
+            {
+              required: true,
+              message: purchaseOrder?.ship_type === "vendor" 
+                ? "Please select shipping vendor!" 
+                : "Please select a shipping address!",
+            },
+          ]}
+        >
+          <MySelect options={shippingOptions} />
+        </Form.Item>
+      </Col>
+      
+    
+      <Col span={6}>
+        <Form.Item 
+          label="Shipping Branch" 
+          style={{ display: purchaseOrder?.ship_type === "vendor" ? 'block' : 'none' }}
+        >
+          <Input 
+            size="default" 
+            disabled 
+            value={purchaseOrder?.shipping_vendor_branch?.label || "--"} 
+          />
+        </Form.Item>
+      </Col>
+      
+      <Col span={6}>
+        <Form.Item name="shippanno" label="Pan No.">
+          <Input size="default" />
+        </Form.Item>
+      </Col>
+    </Row>
+    
+    <Row gutter={16}>
+      <Col span={6}>
+        <Form.Item name="shipgstid" label="GSTIN / UIN">
+          <Input size="default" />
+        </Form.Item>
+      </Col>
+    </Row>
+    
+    <Row gutter={16}>
+      <Col span={18}>
+        <Form.Item
+          name="shipaddress"
+          label="Shipping Address"
+          rules={[
+            {
+              required: true,
+              message: "Please enter shipping address details!",
+            },
+          ]}
+        >
+          <TextArea style={{ resize: "none" }} rows={4} />
+        </Form.Item>
+      </Col>
+    </Row>
+  </Col>
+</Row>
               {/* <Divider  /> */}
             </div>
             <NavFooter
