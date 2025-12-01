@@ -38,6 +38,11 @@ const columns = [
     width: 150,
   },
   {
+    headerName: "Alt Part Code",
+    field: "newPartCode",
+    width: 150,
+  },
+  {
     headerName: "UoM",
     field: "unit",
     width: 150,
