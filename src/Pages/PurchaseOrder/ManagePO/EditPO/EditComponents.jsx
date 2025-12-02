@@ -436,6 +436,9 @@ export default function EditComponent({
     ship_address: purchaseOrder.ship_type === "manual" 
       ? purchaseOrder.shipaddress?.trim() 
       : purchaseOrder.shipaddress?.trim() || "--",
+    ship_other_pan: purchaseOrder.shippanno?.trim(),
+    ship_other_gstin: purchaseOrder.shipgstid?.trim(),
+    ship_partyname: purchaseOrder.ship_partyname?.trim(),
   };
 
   // Always spread components at the end
