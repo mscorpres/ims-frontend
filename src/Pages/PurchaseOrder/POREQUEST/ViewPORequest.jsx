@@ -914,60 +914,133 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
           />
         </Form.Item>
       </Col>
-      
-      {/* Shipping ID Display - Handle both saved addresses and vendor codes */}
-      <Col span={6}>
-        <Form.Item label="Shipping Id">
-          <Input 
-            size="default" 
-            disabled 
-            value={purchaseOrder?.addrshipid || "--"} 
-          />
-        </Form.Item>
-      </Col>
-      
-      <Col span={6}>
-        <Form.Item label="Shipping Vendor">
-          <Input 
-            size="default" 
-            disabled 
-            value={purchaseOrder?.addrshipname || purchaseOrder?.ship_vendor_name || "--"} 
-          />
-        </Form.Item>
-      </Col>
-      
-      <Col span={6}>
-        <Form.Item name="shippanno" label="Pan No.">
-          <Input size="default" disabled />
-        </Form.Item>
-      </Col>
     </Row>
-    
-    <Row gutter={16}>
-      <Col span={6}>
-        <Form.Item label="Shipping Branch">
-          <Input 
-            size="default" 
-            disabled 
-            value={purchaseOrder?.ship_vendor_branch?.label || "--"} 
-          />
-        </Form.Item>
-      </Col>
-      
-      <Col span={6}>
-        <Form.Item name="shipgstid" label="GSTIN / UIN">
-          <Input size="default" disabled />
-        </Form.Item>
-      </Col>
-    </Row>
-    
-    <Row gutter={16}>
-      <Col span={18}>
-        <Form.Item name="shipaddress" label="Shipping Address">
-          <TextArea style={{ resize: "none" }} rows={4} disabled />
-        </Form.Item>
-      </Col>
-    </Row>
+
+    {/* Saved Address Type (Default) */}
+    {purchaseOrder?.ship_type === "saved" && (
+      <>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Form.Item label="Shipping Id">
+              <Input 
+                size="default" 
+                disabled 
+                value={
+                  purchaseOrder?.addrshipid 
+                    ? (typeof purchaseOrder.addrshipid === "object" 
+                        ? purchaseOrder.addrshipid.label || purchaseOrder.addrshipid.value 
+                        : purchaseOrder.addrshipid)
+                    : "--"
+                } 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shippanno" label="Pan No.">
+              <Input size="default" disabled value={purchaseOrder?.shippanno || "--"} />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shipgstid" label="GSTIN / UIN">
+              <Input size="default" disabled value={purchaseOrder?.shipgstid || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={18}>
+            <Form.Item name="shipaddress" label="Shipping Address">
+              <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    )}
+
+    {/* Vendor Address Type */}
+    {purchaseOrder?.ship_type === "vendor" && (
+      <>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Form.Item label="Shipping Vendor">
+              <Input 
+                size="default" 
+                disabled 
+                value={purchaseOrder?.addrshipname || purchaseOrder?.ship_vendor_name || "--"} 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Shipping Branch">
+              <Input 
+                size="default" 
+                disabled 
+                value={purchaseOrder?.ship_vendor_branch?.label || purchaseOrder?.ship_vendor_branch || "--"} 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shipgstid" label="GSTIN / UIN">
+              <Input size="default" disabled value={purchaseOrder?.shipgstid || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={18}>
+            <Form.Item name="shipaddress" label="Shipping Address">
+              <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    )}
+
+    {/* Manual Entry Type */}
+    {purchaseOrder?.ship_type === "manual" && (
+      <>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Form.Item label="Party Name">
+              <Input 
+                size="default" 
+                disabled 
+                value={purchaseOrder?.ship_partyname || "--"} 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shippanno" label="Pan No.">
+              <Input size="default" disabled value={purchaseOrder?.shippanno || "--"} />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shipgstid" label="GSTIN / UIN">
+              <Input size="default" disabled value={purchaseOrder?.shipgstid || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={18}>
+            <Form.Item name="shipaddress" label="Shipping Address">
+              <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    )}
+
+    {/* Fallback: If ship_type is not set or unknown, show basic shipping address */}
+    {purchaseOrder?.ship_type && 
+     purchaseOrder.ship_type !== "saved" && 
+     purchaseOrder.ship_type !== "vendor" && 
+     purchaseOrder.ship_type !== "manual" && (
+      <Row gutter={16} style={{ marginTop: 16 }}>
+        <Col span={18}>
+          <Form.Item name="shipaddress" label="Shipping Address">
+            <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+          </Form.Item>
+        </Col>
+      </Row>
+    )}
   </Col>
 </Row>
             </div>
