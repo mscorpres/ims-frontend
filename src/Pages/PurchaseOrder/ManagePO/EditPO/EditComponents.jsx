@@ -576,21 +576,21 @@ export default function EditComponent({
     //   sortable: false,
     //   renderCell: (params) => disabledCell(params.row.tol_price, inputHandler),
     // },
-    // {
-    //   headerName: "Project Req Qty",
-    //   width: 150,
-    //   field: "project_qty",
-    //   sortable: false,
-    //   renderCell: (params) =>
-    //     disabledCell(params.row.project_qty, inputHandler),
-    // },
-    // {
-    //   headerName: "PO Exq Qty",
-    //   width: 150,
-    //   field: "po_ord_qty",
-    //   sortable: false,
-    //   renderCell: (params) => disabledCell(params.row.po_ord_qty, inputHandler),
-    // },
+    {
+      headerName: "Project Req Qty",
+      width: 150,
+      field: "project_qty",
+      sortable: false,
+      renderCell: (params) =>
+        disabledCell(params.row.project_qty, inputHandler),
+    },
+    {
+      headerName: "PO Exq Qty",
+      width: 150,
+      field: "po_ord_qty",
+      sortable: false,
+      renderCell: (params) => disabledCell(params.row.po_ord_qty, inputHandler),
+    },
     {
       headerName: "Taxable Value",
       width: 150,
