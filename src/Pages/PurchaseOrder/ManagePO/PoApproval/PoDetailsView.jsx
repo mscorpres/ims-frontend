@@ -65,7 +65,7 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
       width: 100,
     },
     {
-      headerName: "Comp. Specification",
+      headerName: "Item Description",
       field: "poItemDescription",
       width: 300,
     },
