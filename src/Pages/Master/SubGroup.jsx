@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Card, Col, Form, Input, Row, Space } from "antd";
+import { Card, Col, Form, Input, Row, Space, Modal, Button } from "antd";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import { imsAxios } from "../../axiosInterceptor";
 import MyButton from "../../Components/MyButton";
-import MySelect from "../../Components/MySelect";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
+import TableActions from "../../Components/TableActions.jsx/TableActions";
 
 const SubGroup = () => {
   const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [subGroupName, setSubGroupName] = useState("");
   const [subGroupDesc, setSubGroupDesc] = useState("");
   const [groupOptions, setGroupOptions] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [editAsyncOptions, setEditAsyncOptions] = useState([]);
   const [subGroupData, setSubGroupData] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingRow, setEditingRow] = useState(null);
 
   // Fetch groups for dropdown
   const fetchGroups = async (search = "") => {
@@ -70,7 +75,7 @@ const SubGroup = () => {
       console.error("Error fetching subgroups:", error);
       setTableLoading(false);
       setSubGroupData([]);
-      toast.error("Failed to fetch subgroup list");
+      toast.error(data?.message || "Failed to fetch subgroup list");
     }
   };
 
@@ -100,10 +105,10 @@ const SubGroup = () => {
         subGroupDesc: subGroupDesc.trim(),
       };
 
-      const { data } = await imsAxios.post("/master/subgroup/add", payload);
+      const data = await imsAxios.post("/master/subgroup/add", payload);
       setSubmitLoading(false);
 
-      if (data?.code === 200 || data?.success) {
+      if (data?.success) {
         toast.success("Sub Group added successfully");
         reset();
         fetchSubGroup();
@@ -128,19 +133,118 @@ const SubGroup = () => {
     form.resetFields();
   };
 
+  // Handle edit icon click
+  const handleEdit = async (row) => {
+    setEditingRow(row);
+    setEditModalVisible(true);
+
+    // Fetch groups to ensure we have the latest list
+    await fetchGroups();
+
+    // Find the group option that matches the row's groupKey
+    const groupOption = groupOptions.find(
+      (opt) => opt.value === row.groupKey
+    ) || { text: row.groupName, value: row.groupKey };
+
+    setEditAsyncOptions(groupOptions.length > 0 ? groupOptions : [groupOption]);
+
+    // Set form values
+    editForm.setFieldsValue({
+      group: groupOption,
+      subGroupName: row.subGroupName,
+      subGroupDesc: row.subGroupDesc,
+    });
+  };
+
+  // Handle update subgroup
+  const handleUpdate = async () => {
+    try {
+      const values = await editForm.validateFields();
+
+      if (!values.group) {
+        toast.error("Please select a Group");
+        return;
+      }
+      if (!values.subGroupName?.trim()) {
+        toast.error("Please enter Sub Group Name");
+        return;
+      }
+      if (!values.subGroupDesc?.trim()) {
+        toast.error("Please enter Description");
+        return;
+      }
+
+      setUpdateLoading(true);
+      const groupKey =
+        typeof values.group === "object" ? values.group.value : values.group;
+
+      const payload = {
+        groupId: groupKey,
+        subGroupName: values.subGroupName.trim(),
+        subGroupDesc: values.subGroupDesc.trim(),
+      };
+
+      const data = await imsAxios.put(
+        `/master/subgroup/edit/${editingRow.subGroupKey}`,
+        payload
+      );
+      setUpdateLoading(false);
+
+      if (data?.success) {
+        toast.success(data?.message || "Sub Group updated successfully");
+        setEditModalVisible(false);
+        setEditingRow(null);
+        editForm.resetFields();
+        fetchSubGroup();
+      } else {
+        toast.error(data?.message || "Failed to update Sub Group");
+      }
+    } catch (error) {
+      setUpdateLoading(false);
+      console.error("Error updating subgroup:", error);
+      if (error?.errorFields) {
+        // Form validation errors
+        return;
+      }
+      toast.error(
+        error?.response?.data?.message?.msg || "Failed to update Sub Group"
+      );
+    }
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setEditModalVisible(false);
+    setEditingRow(null);
+    editForm.resetFields();
+    setEditAsyncOptions([]);
+  };
+
   const columns = [
     { field: "serialNo", headerName: "Serial No", width: 100 },
     { field: "groupName", headerName: "Group Name", flex: 1 },
     { field: "subGroupName", headerName: "Sub Group Name", flex: 1 },
     { field: "subGroupDesc", headerName: "Description", flex: 2 },
     { field: "createdAt", headerName: "Created At", width: 150 },
+    {
+      headerName: "Action",
+      type: "actions",
+      field: "action",
+      getActions: ({ row }) => [
+        <TableActions
+          key="edit"
+          action="edit"
+          onClick={() => handleEdit(row)}
+        />,
+      ],
+    },
   ];
 
   useEffect(() => {
     fetchGroups();
     fetchSubGroup();
   }, []);
-console.log(subGroupData,"subGroupData")
+  console.log(subGroupData, "subGroupData");
   return (
     <div style={{ height: "100%" }}>
       <Row gutter={8} style={{ padding: "0 10px", height: "100%" }}>
@@ -224,6 +328,61 @@ console.log(subGroupData,"subGroupData")
           />
         </Col>
       </Row>
+
+      {/* Edit Modal */}
+      <Modal
+        title="Edit Sub Group"
+        open={editModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="cancel" onClick={handleModalClose}>
+            Cancel
+          </Button>,
+          <Button
+            key="update"
+            type="primary"
+            loading={updateLoading}
+            onClick={handleUpdate}
+          >
+            Update
+          </Button>,
+        ]}
+        width={600}
+      >
+        <Form form={editForm} layout="vertical">
+          <Form.Item
+            name="group"
+            label="Group"
+            rules={[{ required: true, message: "Please select a Group" }]}
+          >
+            <MyAsyncSelect
+              placeholder="Select Group..."
+              optionsState={editAsyncOptions}
+              loadOptions={fetchGroups}
+              onBlur={() => setEditAsyncOptions([])}
+              onChange={(value) => {
+                editForm.setFieldValue("group", value);
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="subGroupName"
+            label="Sub Group Name"
+            rules={[{ required: true, message: "Please enter Sub Group Name" }]}
+          >
+            <Input placeholder="Enter Sub Group Name..." />
+          </Form.Item>
+
+          <Form.Item
+            name="subGroupDesc"
+            label="Description"
+            rules={[{ required: true, message: "Please enter Description" }]}
+          >
+            <Input.TextArea rows={4} placeholder="Enter Description..." />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

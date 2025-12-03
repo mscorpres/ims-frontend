@@ -323,7 +323,7 @@ const Routes = [
     main: () => <Group />,
   },
   {
-    path: "master/sub-group",
+    path: "/sub-group",
     main: () => <SubGroup />,
   },
   {
