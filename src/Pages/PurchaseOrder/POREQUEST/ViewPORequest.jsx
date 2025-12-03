@@ -929,7 +929,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                   purchaseOrder?.addrshipid 
                     ? (typeof purchaseOrder.addrshipid === "object" 
                         ? purchaseOrder.addrshipid.label || purchaseOrder.addrshipid.value 
-                        : purchaseOrder.addrshipid)
+                        : purchaseOrder.addrshipname)
                     : "--"
                 } 
               />
