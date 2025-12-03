@@ -258,6 +258,49 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
     setRowCount(materialsArr);
     setResetRowsDetailsData(materialsArr);
   }, [updatePoId]);
+
+  // Convert shipping ID to object with label and value once shippingOptions are loaded
+  useEffect(() => {
+    if (purchaseOrder?.addrshipid && shippingOptions.length > 0 && purchaseOrder?.ship_type === "saved") {
+      // Skip if already in object format with label
+      if (typeof purchaseOrder.addrshipid === "object" && purchaseOrder.addrshipid?.label) {
+        return;
+      }
+      
+      const shippingId = typeof purchaseOrder.addrshipid === "object" 
+        ? purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid?.id 
+        : purchaseOrder.addrshipid;
+      
+      const shippingOption = shippingOptions.find((opt) => String(opt.value) === String(shippingId));
+      
+      if (shippingOption) {
+        const shippingObj = {
+          label: shippingOption.text,
+          value: shippingOption.value,
+        };
+        
+        // Update form and purchaseOrder state
+        form.setFieldValue("addrshipid", shippingObj);
+        setPurchaseOrder((prev) => ({
+          ...prev,
+          addrshipid: shippingObj,
+        }));
+      } else if (purchaseOrder?.addrshipname) {
+        // Fallback: use addrshipname if shippingOption not found
+        const shippingObj = {
+          label: purchaseOrder.addrshipname,
+          value: shippingId,
+        };
+        
+        form.setFieldValue("addrshipid", shippingObj);
+        setPurchaseOrder((prev) => ({
+          ...prev,
+          addrshipid: shippingObj,
+        }));
+      }
+    }
+  }, [shippingOptions, purchaseOrder?.addrshipid, purchaseOrder?.ship_type, purchaseOrder?.addrshipname]);
+
   const finish = (values) => {
     console.log("Final Payload →", values);
     setActiveTab("2");

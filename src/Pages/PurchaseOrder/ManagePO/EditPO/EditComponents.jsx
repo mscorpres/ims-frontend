@@ -423,13 +423,13 @@ export default function EditComponent({
     ship_type: purchaseOrder.ship_type,  
 
     ...(purchaseOrder.ship_type === "saved" && {
-      ship_address_id: purchaseOrder.addrshipid,
+      ship_address_id: purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid,
     }),
 
     ...(purchaseOrder.ship_type === "vendor" && {
       ship_vendor: purchaseOrder.ship_vendor?.value,
       ship_vendor_branch: purchaseOrder.ship_vendor_branch?.value,
-      ship_address_id: purchaseOrder.ship_vendor?.value, 
+      ship_address_id: purchaseOrder.ship_vendor?.value || purchaseOrder.ship_vendor, 
     }),
 
     // Manual mode → no IDs, only address
