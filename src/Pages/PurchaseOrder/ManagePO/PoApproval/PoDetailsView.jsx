@@ -65,9 +65,9 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
       width: 100,
     },
     {
-      headerName: "Comp. Status",
-      field: "po_part_status",
-      width: 120,
+      headerName: "Comp. Specification",
+      field: "componentSpecification",
+      width: 300,
     },
     {
       headerName: "Approval Remark",
