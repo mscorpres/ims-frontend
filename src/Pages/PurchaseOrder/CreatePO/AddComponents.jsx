@@ -360,7 +360,7 @@ export default function AddComponents({
             ...obj,
             rate_cap: data.data.project_rate,
             project_req_qty: data.data.project_req_qty,
-            po_exec_qty: data.data.po_ord_qty,
+            po_exec_qty: data.data.po_exec_qty,
             closing_stock: data.data.closing_stock || 0,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
           };
