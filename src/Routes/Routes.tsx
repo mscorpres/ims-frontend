@@ -264,6 +264,7 @@ import ApprovalList from "@/Pages/R&D/products/approvalList.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
+import SubGroup from "../Pages/Master/SubGroup.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -320,6 +321,10 @@ const Routes = [
   {
     path: "/group",
     main: () => <Group />,
+  },
+  {
+    path: "master/sub-group",
+    main: () => <SubGroup />,
   },
   {
     path: "/location",

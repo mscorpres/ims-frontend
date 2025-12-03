@@ -5,6 +5,7 @@ export { default as ProductDetail } from "../Pages/Store/ProductDetail";
 export { default as Uom } from "./Master/Uom.tsx";
 export { default as Product } from "./Master/Products/Product";
 export { default as Group } from "./Master/Group";
+export {default as SubGroup} from "./Master/SubGroup";
 export { default as Location } from "./Master/Location";
 export { default as BillingAddress } from "./Master/BillingAddress";
 export { default as ShippingAddress } from "./Master/ShippingAddress/ShippingAddress";
