@@ -29,6 +29,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 export default function AddComponents({
+  form,
   rowCount,
   setRowCount,
   setTotalValues,
@@ -303,7 +304,7 @@ export default function AddComponents({
         {
           component_code: value.value,
           vencode: newPurchaseOrder.vendorname.value,
-          project: newPurchaseOrder.project_name,
+          project: form.getFieldValue("project_name")||newPurchaseOrder.project_name,
         }
       );
       setPageLoading(false);

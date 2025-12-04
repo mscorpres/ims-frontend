@@ -1733,6 +1733,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
               <div style={{ height: "100%" }}>
                 <AddComponent
                   newPurchaseOrder={newPurchaseOrder}
+                  form={form}
                   setTotalValues={setTotalValues}
                   setRowCount={setRowCount}
                   rowCount={rowCount}
