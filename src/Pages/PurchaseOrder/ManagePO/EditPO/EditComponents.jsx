@@ -63,6 +63,7 @@ export default function EditComponent({
       component: "",
       qty: 1,
       rate: 0,
+      last_rate: 0,
       duedate: "",
       hsncode: "",
       gsttype: rowCount[0].gsttype,
@@ -539,6 +540,21 @@ export default function EditComponent({
           setAsyncOptions,
           asynOptions
         ),
+    },
+    {
+      headerName: "Last rate",
+      width: 180,
+      field: "last_rate",
+      sortable: false,
+      renderCell: (params) => disabledCell(params.row.last_rate, inputHandler),
+      // renderCell: ({ row }) => {
+      //   const currencyId = typeof row.currency === "object" ? row.currency?.value : row.currency;
+      //   return (
+      //     <span>
+      //       {row.last_rate || "--"} {getCurrencySymbol(currencyId)}
+      //     </span>
+      //   );
+      // },
     },
     {
       headerName: "Ord. Qty",

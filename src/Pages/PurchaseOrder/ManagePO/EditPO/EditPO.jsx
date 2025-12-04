@@ -253,6 +253,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         tol_price: +Number((row.project_rate * 1) / 100).toFixed(2),
         project_qty: row.project_qty,
         po_ord_qty: row.po_ord_qty,
+        last_rate: row.last_rate || 0,
     })) || [];
 
     setRowCount(materialsArr);
