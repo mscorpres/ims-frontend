@@ -18,6 +18,7 @@ import useApi from "../../../hooks/useApi.ts";
 import { getCostCentresOptions, getProjectOptions, getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 
+
 const deliveryTermOptions = [
   { label: "Within 10 days", value: "Within 10 days" },
   { label: "Within 15 days", value: "Within 15 days" },
@@ -80,6 +81,9 @@ export default function CreatePo() {
   const [vendorBranches, setVendorBranches] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
   const [stateCode, setStateCode] = useState("");
+  const [showQtyWarning, setShowQtyWarning] = useState(false);
+const [qtyWarningData, setQtyWarningData] = useState(null);
+const [pendingPOData, setPendingPOData] = useState(null);
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
@@ -292,17 +296,30 @@ export default function CreatePo() {
 
     setShowSubmitConfirm(newPo);
   };
-  const submitHandler = async () => {
+  const submitHandler = async (confirmQtyExceed = false) => {
+    const poData = pendingPOData || showSubmitConfirm;
+     if (!poData) {
+    toast.error("PO data missing. Please try again.");
+    setSubmitLoading(false);
+    return;
+  }
     setSubmitLoading(true);
     if (showSubmitConfirm) {
       try {
         const response = await imsAxios.post("/purchaseOrder/createPO", {
           ...showSubmitConfirm,
+          confirmQtyExceed: confirmQtyExceed,
         });
 
         setSubmitLoading(false);
         const responseData = response?.data || response;
         if (responseData) {
+          if (responseData.code === 400 && responseData.status === "warning") {
+          setShowSubmitConfirm(null);
+          setQtyWarningData(responseData.data);
+          setShowQtyWarning(true);
+          return;
+        }
           setShowSubmitConfirm(null);
           if (responseData.code == 200) {
             resetFunction();
@@ -715,6 +732,9 @@ export default function CreatePo() {
     form.setFieldValue("advancePayment", "");
     setSameAsBilling(false);
     setShowDetailsConfirm(false);
+    setPendingPOData(null);
+  setQtyWarningData(null);
+  setShowQtyWarning(false);
   };
   const rowsReset = () => {
     setRowCount([
@@ -873,20 +893,29 @@ export default function CreatePo() {
     >
       {/* create confirm modal */}
       <Modal
-        title="Confirm Create PO!"
-        open={showSubmitConfirm}
-        onCancel={() => setShowSubmitConfirm(false)}
-        footer={[
-          <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
-            No
-          </Button>,
-          <Button key="submit" type="primary" loading={submitLoading} onClick={submitHandler}>
-            Yes
-          </Button>,
-        ]}
-      >
-        <p>Are you sure you want to generate this Purchase Order?</p>
-      </Modal>
+  title="Confirm Create PO!"
+  open={showSubmitConfirm}
+  onCancel={() => setShowSubmitConfirm(false)}
+  footer={[
+    <Button key="back" onClick={() => setShowSubmitConfirm(false)}>
+      No
+    </Button>,
+    <Button
+      key="submit"
+      type="primary"
+      loading={submitLoading}
+      onClick={() => {
+        setPendingPOData(showSubmitConfirm);  // ← Store the PO data
+        setShowSubmitConfirm(false);          // ← Close this modal
+        submitHandler(false);                 // ← Try to submit (will trigger warning if needed)
+      }}
+    >
+      Yes
+    </Button>,
+  ]}
+>
+  <p>Are you sure you want to generate this Purchase Order?</p>
+</Modal>
       {/* reset vendor confirm modal */}
       <Modal
         title="Confirm Reset!"
@@ -904,6 +933,74 @@ export default function CreatePo() {
       >
         <p>Are you sure to reset details of this Purchase Order?</p>
       </Modal>
+      {/* Quantity Warning Modal */}
+<Modal
+  title={
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={{ fontSize: '20px', color: '#faad14' }}>⚠️</span>
+      <span>Quantity Exceeds Project Requirement</span>
+    </div>
+  }
+  open={showQtyWarning}
+  onCancel={() => {
+    setShowQtyWarning(false);
+    setQtyWarningData(null);
+    setPendingPOData(null); 
+  }}
+  footer={[
+    <Button 
+      key="back" 
+      onClick={() => {
+        setShowQtyWarning(false);
+        setQtyWarningData(null);
+      }}
+    >
+      Cancel
+    </Button>,
+    <Button 
+      key="submit" 
+      type="primary" 
+      danger
+      loading={submitLoading}
+      onClick={async () => {
+        setShowQtyWarning(false);
+        setShowSubmitConfirm(showSubmitConfirm);
+        await submitHandler(true); // Pass confirmation flag
+      }}
+    >
+      Proceed Anyway
+    </Button>,
+  ]}
+  width={700}
+>
+  <div>
+    <p style={{ marginBottom: '16px', fontWeight: 500 }}>
+      The following components exceed the project quantity requirements:
+    </p>
+    
+    {qtyWarningData?.warnings?.map((warning, index) => (
+      <div 
+        key={index}
+        style={{
+          padding: '12px',
+          marginBottom: '12px',
+          backgroundColor: '#fff7e6',
+          border: '1px solid #ffd591',
+          borderRadius: '4px',
+        }}
+      >
+        <p style={{ margin: '4px 0', fontSize: '14px' }}>
+          <strong>{warning.message}:</strong>
+        </p>
+      </div>
+    ))}
+    
+    <p style={{ marginTop: '16px', color: '#595959', fontSize: '13px' }}>
+      ⚠️ <strong>Warning:</strong> Proceeding will create a PO that exceeds the project requirements. 
+      Please verify this is intentional before continuing.
+    </p>
+  </div>
+</Modal>
       <AddVendorSideBar open={showAddVendorModal} setOpen={setShowAddVendorModal} />
       <AddBranch getVendorBracnch={getVendorBracnch} setOpenBranch={setShowBranchModal} openBranch={showBranchModel} />
       <CreateCostModal showAddCostModal={showAddCostModal} setShowAddCostModal={setShowAddCostModal} />
