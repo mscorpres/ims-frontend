@@ -304,10 +304,10 @@ const [pendingPOData, setPendingPOData] = useState(null);
     return;
   }
     setSubmitLoading(true);
-    if (showSubmitConfirm) {
+    if (poData) {
       try {
         const response = await imsAxios.post("/purchaseOrder/createPO", {
-          ...showSubmitConfirm,
+          ...poData,
           confirmQtyExceed: confirmQtyExceed,
         });
 
@@ -321,6 +321,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
           return;
         }
           setShowSubmitConfirm(null);
+          setPendingPOData(null);
           if (responseData.code == 200) {
             resetFunction();
             rowsReset();
@@ -964,8 +965,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
       loading={submitLoading}
       onClick={async () => {
         setShowQtyWarning(false);
-        setShowSubmitConfirm(showSubmitConfirm);
-        await submitHandler(true); // Pass confirmation flag
+        await submitHandler(true); // Pass confirmation flag - pendingPOData already has the data
       }}
     >
       Proceed Anyway
