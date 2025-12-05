@@ -125,6 +125,8 @@ import {
   AllPages,
   AllUsers,
   JobworkApproval,
+  JwToJw,
+  JwToJwViewTransaction,
 } from "../Pages/index.jsx";
 
 import {
@@ -431,11 +433,16 @@ const Routes = [
     exact: true,
     main: () => <RmtoRm />,
   },
-  // {
-  //   path: "/sf-to-rm",
-  //   exact: true,
-  //   main: () => <RmtoRm />,
-  // },
+   {
+    path: "/warehouse/material-transfer/jw-to-jw",
+    exact: true,
+    main: () => <JwToJw />,
+  },
+    {
+    path: "/warehouse/material-transfer/jw-to-jw/view",
+    exact: true,
+    main: () => <JwToJwViewTransaction />,
+  },
   {
     path: "/view-transaction",
     exact: true,
