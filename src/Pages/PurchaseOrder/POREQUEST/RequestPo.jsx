@@ -38,6 +38,7 @@ const RequestPo = () => {
           showInMenu
           label="Edit"
           onClick={() => getPoDetail(row.po_transaction)}
+          disabled={row.poacceptstatus === "UNDER VERIFICATION"}
         />,
       ],
     },
@@ -335,7 +336,7 @@ const RequestPo = () => {
         getRows={getSearchResults}
       />
       {updatePoId && (
-        <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} />
+        <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} getRows={getSearchResults}/>
       )}
     </div>
   );

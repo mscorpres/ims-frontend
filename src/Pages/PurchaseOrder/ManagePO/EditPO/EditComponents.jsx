@@ -41,6 +41,7 @@ export default function EditComponent({
   setUpdatePoId,
   resetRowsDetailsData,
   updatePoId,
+  getRows,
 }) {
   const [asynOptions, setAsyncOptions] = useState([]);
   const [currencies, setCurrencies] = useState([]);
@@ -459,6 +460,9 @@ export default function EditComponent({
       if (data.code == 200) {
         toast.success(data.message);
         setUpdatePoId(null);
+        if (getRows && typeof getRows === "function") {
+          setTimeout(() => getRows(true), 500);
+        }
       } else {
         toast.error(data.message);
       }
@@ -541,21 +545,7 @@ export default function EditComponent({
           asynOptions
         ),
     },
-    {
-      headerName: "Last rate",
-      width: 180,
-      field: "last_rate",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.last_rate, inputHandler),
-      // renderCell: ({ row }) => {
-      //   const currencyId = typeof row.currency === "object" ? row.currency?.value : row.currency;
-      //   return (
-      //     <span>
-      //       {row.last_rate || "--"} {getCurrencySymbol(currencyId)}
-      //     </span>
-      //   );
-      // },
-    },
+   
     {
       headerName: "Ord. Qty",
       width: 130,
@@ -569,6 +559,21 @@ export default function EditComponent({
       field: "rate",
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
+    },
+     {
+      headerName: "Last rate",
+      width: 180,
+      field: "last_rate",
+      sortable: false,
+      renderCell: (params) => disabledCell(params.row.last_rate, inputHandler),
+      // renderCell: ({ row }) => {
+      //   const currencyId = typeof row.currency === "object" ? row.currency?.value : row.currency;
+      //   return (
+      //     <span>
+      //       {row.last_rate || "--"} {getCurrencySymbol(currencyId)}
+      //     </span>
+      //   );
+      // },
     },
     // {
     //   headerName: "BOM Rate",

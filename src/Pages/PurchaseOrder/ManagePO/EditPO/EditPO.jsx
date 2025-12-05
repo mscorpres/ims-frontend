@@ -12,7 +12,7 @@ import { getCostCentresOptions, getVendorOptions } from "../../../../api/general
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
-export default function EditPO({ updatePoId, setUpdatePoId }) {
+export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
   const [purchaseOrder, setPurchaseOrder] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
   const [vendorBranches, setVendorBranches] = useState([]);
@@ -803,6 +803,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         <Tabs.TabPane tab="Edit Components Details" style={{ height: "100%" }} key="2">
           <EditComponents
             resetRows={resetRows}
+            getRows={getRows}
             materials={updatePoId?.materials}
             setUpdatePoId={setUpdatePoId}
             updatePoId={updatePoId}
