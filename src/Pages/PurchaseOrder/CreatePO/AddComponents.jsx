@@ -304,7 +304,7 @@ export default function AddComponents({
         {
           component_code: value.value,
           vencode: newPurchaseOrder.vendorname.value,
-          project: form.getFieldValue("project_name")||newPurchaseOrder.project_name,
+          project: form.getFieldValue("project_name")==="object" ? form.getFieldValue("project_name").value : form.getFieldValue("project_name")||newPurchaseOrder.project_name==="object" ? newPurchaseOrder.project_name.value : newPurchaseOrder.project_name,
         }
       );
       setPageLoading(false);
