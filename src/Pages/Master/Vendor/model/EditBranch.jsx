@@ -364,7 +364,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                 <Form.Item label="Vendor Locations" name="vendor_loc">
                   <MySelect
                     // size="default"
-                    mode="multiple"
+                    // mode="single"
                     // value={allDetails.vendor_loc}
                     // onChange={(value) => inputHandler("vendor_loc", value)}
                     options={locationOptions}

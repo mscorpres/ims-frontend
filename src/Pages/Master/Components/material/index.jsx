@@ -43,6 +43,7 @@ const Material = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [groupOptions, setGroupOptions] = useState([]);
+  const [subGroupOptions, setSubGroupOptions] = useState([]);
   const [showAttributesModal, setShowAttributesModal] = useState(false);
   const [hsnRows, setHsnRows] = useState([]);
   const [attributeValues, setAttributeValues] = useState(null);
@@ -57,6 +58,7 @@ const Material = () => {
   const [headerForm] = Form.useForm();
   const [attributeForm] = Form.useForm();
   const selectedCategory = Form.useWatch("attrCategory", headerForm);
+  const selectedGroup = Form.useWatch("group", headerForm);
   const [components, setComponents] = useState([]);
 
   const getRows = async () => {
@@ -108,6 +110,31 @@ const Material = () => {
       }
     } catch (error) {
       setAsyncOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getSubGroupOptions = async (groupId) => {
+    if (!groupId) {
+      setSubGroupOptions([]);
+      return;
+    }
+    try {
+      setLoading("fetch");
+      const response = await imsAxios.get(`/backend/sub-group/${groupId}`);
+      if (response?.success) {
+        const arr = response.data.map((row) => ({
+          text: row.name,
+          value: row.key,
+        }));
+
+        setSubGroupOptions(arr);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      setSubGroupOptions([]);
     } finally {
       setLoading(false);
     }
@@ -226,6 +253,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "R",
         attr_code: uniqueId,
@@ -247,6 +275,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "C",
         attr_code: uniqueId,
@@ -268,6 +297,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "I",
         attr_code: "--",
@@ -289,6 +319,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "O",
         attr_code: "--",
@@ -446,6 +477,17 @@ const Material = () => {
     getGroupOptions();
   }, []);
   useEffect(() => {
+    if (selectedGroup) {
+      getSubGroupOptions(selectedGroup);
+      // Reset subgroup when group changes
+      headerForm.setFieldValue("subgroup", undefined);
+    } else {
+      setSubGroupOptions([]);
+      headerForm.setFieldValue("subgroup", undefined);
+    }
+  }, [selectedGroup]);
+  
+  useEffect(() => {
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
       setShowAttributesModal({
         selectedCategory: selectedCategory,
@@ -566,6 +608,15 @@ const Material = () => {
                         rules={headerRules.group}
                       >
                         <MySelect options={groupOptions} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={10}>
+                      <Form.Item
+                        label="Sub Group"
+                        name="subgroup"
+                        rules={headerRules.subgroup}
+                      >
+                        <MySelect options={subGroupOptions} />
                       </Form.Item>
                     </Col>
 
@@ -1501,6 +1552,12 @@ const headerRules = {
     {
       required: true,
       message: "Please provide a New Part code",
+    },
+  ],
+  subgroup: [
+    {
+      required: true,
+      message: "Please select a sub group",
     },
   ],
 };
