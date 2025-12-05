@@ -123,6 +123,76 @@ const [pendingPOData, setPendingPOData] = useState(null);
   console.log("newPurchaseOrder", newPurchaseOrder);
   const { executeFun, loading: loading1 } = useApi();
   const validatePO = () => {
+    const formValues = form.getFieldsValue();
+    const formProjectName = form.getFieldValue("project_name");
+    const currentPurchaseOrder = {
+      ...newPurchaseOrder,
+      ...formValues,
+      project_name: formProjectName !== undefined && formProjectName !== null 
+        ? formProjectName 
+        : (formValues.project_name !== undefined && formValues.project_name !== null 
+          ? formValues.project_name 
+          : newPurchaseOrder.project_name),
+      pocostcenter: formValues.pocostcenter !== undefined && formValues.pocostcenter !== null
+        ? formValues.pocostcenter 
+        : newPurchaseOrder.pocostcenter,
+      vendorname: formValues.vendorname !== undefined && formValues.vendorname !== null
+        ? formValues.vendorname 
+        : newPurchaseOrder.vendorname,
+      vendorbranch: formValues.vendorbranch !== undefined && formValues.vendorbranch !== null
+        ? formValues.vendorbranch 
+        : newPurchaseOrder.vendorbranch,
+      billaddressid: formValues.billaddressid !== undefined && formValues.billaddressid !== null
+        ? formValues.billaddressid 
+        : newPurchaseOrder.billaddressid,
+      shipaddressid: formValues.shipaddressid !== undefined && formValues.shipaddressid !== null
+        ? formValues.shipaddressid 
+        : newPurchaseOrder.shipaddressid,
+      ship_vendor: formValues.ship_vendor !== undefined && formValues.ship_vendor !== null
+        ? formValues.ship_vendor 
+        : newPurchaseOrder.ship_vendor,
+      ship_vendor_branch: formValues.ship_vendor_branch !== undefined && formValues.ship_vendor_branch !== null
+        ? formValues.ship_vendor_branch 
+        : newPurchaseOrder.ship_vendor_branch,
+      ship_type: formValues.ship_type !== undefined && formValues.ship_type !== null
+        ? formValues.ship_type 
+        : newPurchaseOrder.ship_type,
+      po_comment: formValues.po_comment !== undefined && formValues.po_comment !== null
+        ? formValues.po_comment 
+        : newPurchaseOrder.po_comment,
+      paymentterms: formValues.paymentterms !== undefined && formValues.paymentterms !== null
+        ? formValues.paymentterms 
+        : newPurchaseOrder.paymentterms,
+      paymenttermsday: formValues.paymenttermsday !== undefined && formValues.paymenttermsday !== null
+        ? formValues.paymenttermsday 
+        : newPurchaseOrder.paymenttermsday,
+      termscondition: formValues.termscondition !== undefined && formValues.termscondition !== null
+        ? formValues.termscondition 
+        : newPurchaseOrder.termscondition,
+      customDeliveryTerm: formValues.customDeliveryTerm !== undefined && formValues.customDeliveryTerm !== null
+        ? formValues.customDeliveryTerm 
+        : newPurchaseOrder.customDeliveryTerm,
+      customPaymentTerm: formValues.customPaymentTerm !== undefined && formValues.customPaymentTerm !== null
+        ? formValues.customPaymentTerm 
+        : newPurchaseOrder.customPaymentTerm,
+      advancePayment: formValues.advancePayment !== undefined && formValues.advancePayment !== null
+        ? formValues.advancePayment 
+        : newPurchaseOrder.advancePayment,
+      advancePercentage: formValues.advancePercentage !== undefined && formValues.advancePercentage !== null
+        ? formValues.advancePercentage 
+        : newPurchaseOrder.advancePercentage,
+      raisedBy: formValues.raisedBy !== undefined && formValues.raisedBy !== null
+        ? formValues.raisedBy 
+        : newPurchaseOrder.raisedBy,
+      original_po: formValues.original_po !== undefined && formValues.original_po !== null
+        ? formValues.original_po 
+        : newPurchaseOrder.original_po,
+      pocreatetype: formValues.pocreatetype !== undefined && formValues.pocreatetype !== null
+        ? formValues.pocreatetype 
+        : newPurchaseOrder.pocreatetype,
+    };
+    setnewPurchaseOrder(currentPurchaseOrder);
+    
     let newPo = {};
     let componentData = {
       currency: [],
@@ -166,44 +236,51 @@ const [pendingPOData, setPendingPOData] = useState(null);
     });
 
     newPo = {
-      ...newPurchaseOrder,
+      ...currentPurchaseOrder,
       ...componentData,
-      billaddressid: newPurchaseOrder.billaddressid,
-      original_po: newPurchaseOrder.original_po,
-      pocostcenter: typeof newPurchaseOrder.pocostcenter === "object" ? newPurchaseOrder.pocostcenter.value : newPurchaseOrder.pocostcenter,
-      pocreatetype: newPurchaseOrder.pocreatetype,
+      billaddressid: currentPurchaseOrder.billaddressid,
+      original_po: currentPurchaseOrder.original_po,
+      pocostcenter: typeof currentPurchaseOrder.pocostcenter === "object" ? currentPurchaseOrder.pocostcenter.value : currentPurchaseOrder.pocostcenter,
+      pocreatetype: currentPurchaseOrder.pocreatetype,
 
       shipaddressid: (() => {
-        if (newPurchaseOrder.ship_type === "saved") {
-          return newPurchaseOrder.shipaddressid;
-        } else if (newPurchaseOrder.ship_type === "vendor") {
+        if (currentPurchaseOrder.ship_type === "saved") {
+          return currentPurchaseOrder.shipaddressid;
+        } else if (currentPurchaseOrder.ship_type === "vendor") {
           // Send vendor ID
-          return newPurchaseOrder.ship_vendor ? newPurchaseOrder.ship_vendor.value : null;
+          return currentPurchaseOrder.ship_vendor ? currentPurchaseOrder.ship_vendor.value : null;
         } else {
           // For manual entry,
           return null;
         }
       })(),
       // Keep ship_vendor_branch separate for reference if needed
-      ship_vendor_branch: newPurchaseOrder.ship_vendor_branch,
-      vendorbranch: newPurchaseOrder.vendorbranch,
-      vendorname: newPurchaseOrder.vendorname.value,
-      vendortype: newPurchaseOrder.vendortype,
-      pocomment: newPurchaseOrder.po_comment,
-      poproject_name: newPurchaseOrder.project_name,
-      paymenttermsday: newPurchaseOrder.paymenttermsday ? (newPurchaseOrder.paymenttermsday === "" ? 30 : newPurchaseOrder.paymenttermsday) : 30,
+      ship_vendor_branch: currentPurchaseOrder.ship_vendor_branch,
+      vendorbranch: currentPurchaseOrder.vendorbranch,
+      vendorname: currentPurchaseOrder.vendorname?.value || currentPurchaseOrder.vendorname,
+      vendortype: currentPurchaseOrder.vendortype,
+      pocomment: currentPurchaseOrder.po_comment,
+      poproject_name: (() => {
+        const project = currentPurchaseOrder.project_name;
+        if (!project) return "";
+        if (typeof project === "object") {
+          return project?.value || project?.label || "";
+        }
+        return project;
+      })(),
+      paymenttermsday: currentPurchaseOrder.paymenttermsday ? (currentPurchaseOrder.paymenttermsday === "" ? 30 : currentPurchaseOrder.paymenttermsday) : 30,
       paymentterms: (() => {
-        if (newPurchaseOrder.paymentterms === "Other" && newPurchaseOrder.customPaymentTerm?.trim()) {
-          return newPurchaseOrder.customPaymentTerm.trim();
-        } else if (newPurchaseOrder.paymentterms && newPurchaseOrder.paymentterms !== "Other") {
-          return newPurchaseOrder.paymentterms;
+        if (currentPurchaseOrder.paymentterms === "Other" && currentPurchaseOrder.customPaymentTerm?.trim()) {
+          return currentPurchaseOrder.customPaymentTerm.trim();
+        } else if (currentPurchaseOrder.paymentterms && currentPurchaseOrder.paymentterms !== "Other") {
+          return currentPurchaseOrder.paymentterms;
         } else {
           return "As per standard terms";
         }
       })(),
-      po_raise_by: newPurchaseOrder.raisedBy,
-      advancePayment: newPurchaseOrder.advancePayment,
-      termscondition: newPurchaseOrder.termscondition === "Other" ? newPurchaseOrder.customDeliveryTerm : newPurchaseOrder.termscondition,
+      po_raise_by: currentPurchaseOrder.raisedBy,
+      advancePayment: currentPurchaseOrder.advancePayment,
+      termscondition: currentPurchaseOrder.termscondition === "Other" ? currentPurchaseOrder.customDeliveryTerm : currentPurchaseOrder.termscondition,
     };
 
     let error = false;
@@ -214,42 +291,42 @@ const [pendingPOData, setPendingPOData] = useState(null);
     }
 
     // Shipping validation based on ship_type
-    if (!newPurchaseOrder.ship_type) {
+    if (!currentPurchaseOrder.ship_type) {
       toast.error("Please select shipping address type");
       return;
     }
 
-    if (newPurchaseOrder.ship_type === "saved") {
+    if (currentPurchaseOrder.ship_type === "saved") {
       // For saved mode, validate shipping address selection
-      if (!newPurchaseOrder.shipaddressid) {
+      if (!currentPurchaseOrder.shipaddressid) {
         toast.error("Please select shipping address");
         return;
       }
-      if (!newPurchaseOrder.shipaddress || newPurchaseOrder.shipaddress.trim() === "") {
+      if (!currentPurchaseOrder.shipaddress || currentPurchaseOrder.shipaddress.trim() === "") {
         toast.error("Shipping address is not populated. Please select a valid shipping address");
         return;
       }
-    } else if (newPurchaseOrder.ship_type === "vendor") {
+    } else if (currentPurchaseOrder.ship_type === "vendor") {
       // For vendor mode, validate vendor and branch selection
-      if (!newPurchaseOrder.ship_vendor || !newPurchaseOrder.ship_vendor_branch) {
+      if (!currentPurchaseOrder.ship_vendor || !currentPurchaseOrder.ship_vendor_branch) {
         toast.error("Please select shipping vendor and branch");
         return;
       }
-      if (!newPurchaseOrder.shipaddress || newPurchaseOrder.shipaddress.trim() === "") {
+      if (!currentPurchaseOrder.shipaddress || currentPurchaseOrder.shipaddress.trim() === "") {
         toast.error("Shipping address is not populated. Please select a valid vendor branch");
         return;
       }
-    } else if (newPurchaseOrder.ship_type === "manual") {
+    } else if (currentPurchaseOrder.ship_type === "manual") {
       // For manual mode, validate all manual fields
-      if (!newPurchaseOrder.shipaddress || newPurchaseOrder.shipaddress.trim() === "") {
+      if (!currentPurchaseOrder.shipaddress || currentPurchaseOrder.shipaddress.trim() === "") {
         toast.error("Please enter shipping address in manual mode");
         return;
       }
-      if (!newPurchaseOrder.shipPan || newPurchaseOrder.shipPan.trim() === "") {
+      if (!currentPurchaseOrder.shipPan || currentPurchaseOrder.shipPan.trim() === "") {
         toast.error("Please enter shipping PAN in manual mode");
         return;
       }
-      if (!newPurchaseOrder.shipGST || newPurchaseOrder.shipGST.trim() === "") {
+      if (!currentPurchaseOrder.shipGST || currentPurchaseOrder.shipGST.trim() === "") {
         toast.error("Please enter shipping GSTIN in manual mode");
         return;
       }
@@ -257,27 +334,27 @@ const [pendingPOData, setPendingPOData] = useState(null);
 
     // Other existing validations
     if (
-      !newPurchaseOrder.vendorname ||
-      !newPurchaseOrder.vendortype ||
-      !newPurchaseOrder.vendorbranch ||
-      !newPurchaseOrder.vendoraddress ||
-      !newPurchaseOrder.billaddressid ||
-      !newPurchaseOrder.billaddress
+      !currentPurchaseOrder.vendorname ||
+      !currentPurchaseOrder.vendortype ||
+      !currentPurchaseOrder.vendorbranch ||
+      !currentPurchaseOrder.vendoraddress ||
+      !currentPurchaseOrder.billaddressid ||
+      !currentPurchaseOrder.billaddress
     ) {
       toast.error("Please fill all required vendor and billing details");
       return;
     }
 
-    if (newPurchaseOrder.pocreatetype == "S" && !newPurchaseOrder.original_po) {
+    if (currentPurchaseOrder.pocreatetype == "S" && !currentPurchaseOrder.original_po) {
       return toast.error("Please select a PO ID in case of supplementary PO");
     }
 
-    if (newPurchaseOrder.termscondition === "Other" && !newPurchaseOrder.customDeliveryTerm?.trim()) {
+    if (currentPurchaseOrder.termscondition === "Other" && !currentPurchaseOrder.customDeliveryTerm?.trim()) {
       toast.error("Please enter custom delivery term when 'Other' is selected");
       return;
     }
 
-    if (newPurchaseOrder.paymentterms === "Advance Payment" && !newPurchaseOrder.advancePercentage) {
+    if (currentPurchaseOrder.paymentterms === "Advance Payment" && !currentPurchaseOrder.advancePercentage) {
       toast.error("Please enter advance payment percentage");
       return;
     }
@@ -297,19 +374,133 @@ const [pendingPOData, setPendingPOData] = useState(null);
     setShowSubmitConfirm(newPo);
   };
   const submitHandler = async (confirmQtyExceed = false) => {
-    const poData = pendingPOData || showSubmitConfirm;
-     if (!poData) {
-    toast.error("PO data missing. Please try again.");
-    setSubmitLoading(false);
-    return;
-  }
+    const formValues = form.getFieldsValue();
+    const formProjectName = form.getFieldValue("project_name");
+    
+    const currentPurchaseOrder = {
+      ...newPurchaseOrder,
+      ...formValues,
+      project_name: formProjectName !== undefined && formProjectName !== null 
+        ? formProjectName 
+        : (formValues.project_name !== undefined && formValues.project_name !== null 
+          ? formValues.project_name 
+          : newPurchaseOrder.project_name),
+      pocostcenter: formValues.pocostcenter !== undefined && formValues.pocostcenter !== null
+        ? formValues.pocostcenter 
+        : newPurchaseOrder.pocostcenter,
+      vendorname: formValues.vendorname !== undefined && formValues.vendorname !== null
+        ? formValues.vendorname 
+        : newPurchaseOrder.vendorname,
+      vendorbranch: formValues.vendorbranch !== undefined && formValues.vendorbranch !== null
+        ? formValues.vendorbranch 
+        : newPurchaseOrder.vendorbranch,
+      billaddressid: formValues.billaddressid !== undefined && formValues.billaddressid !== null
+        ? formValues.billaddressid 
+        : newPurchaseOrder.billaddressid,
+      shipaddressid: formValues.shipaddressid !== undefined && formValues.shipaddressid !== null
+        ? formValues.shipaddressid 
+        : newPurchaseOrder.shipaddressid,
+      ship_vendor: formValues.ship_vendor !== undefined && formValues.ship_vendor !== null
+        ? formValues.ship_vendor 
+        : newPurchaseOrder.ship_vendor,
+      ship_vendor_branch: formValues.ship_vendor_branch !== undefined && formValues.ship_vendor_branch !== null
+        ? formValues.ship_vendor_branch 
+        : newPurchaseOrder.ship_vendor_branch,
+      ship_type: formValues.ship_type !== undefined && formValues.ship_type !== null
+        ? formValues.ship_type 
+        : newPurchaseOrder.ship_type,
+      po_comment: formValues.po_comment !== undefined && formValues.po_comment !== null
+        ? formValues.po_comment 
+        : newPurchaseOrder.po_comment,
+      paymentterms: formValues.paymentterms !== undefined && formValues.paymentterms !== null
+        ? formValues.paymentterms 
+        : newPurchaseOrder.paymentterms,
+      paymenttermsday: formValues.paymenttermsday !== undefined && formValues.paymenttermsday !== null
+        ? formValues.paymenttermsday 
+        : newPurchaseOrder.paymenttermsday,
+      termscondition: formValues.termscondition !== undefined && formValues.termscondition !== null
+        ? formValues.termscondition 
+        : newPurchaseOrder.termscondition,
+      customDeliveryTerm: formValues.customDeliveryTerm !== undefined && formValues.customDeliveryTerm !== null
+        ? formValues.customDeliveryTerm 
+        : newPurchaseOrder.customDeliveryTerm,
+      customPaymentTerm: formValues.customPaymentTerm !== undefined && formValues.customPaymentTerm !== null
+        ? formValues.customPaymentTerm 
+        : newPurchaseOrder.customPaymentTerm,
+      advancePayment: formValues.advancePayment !== undefined && formValues.advancePayment !== null
+        ? formValues.advancePayment 
+        : newPurchaseOrder.advancePayment,
+      advancePercentage: formValues.advancePercentage !== undefined && formValues.advancePercentage !== null
+        ? formValues.advancePercentage 
+        : newPurchaseOrder.advancePercentage,
+      raisedBy: formValues.raisedBy !== undefined && formValues.raisedBy !== null
+        ? formValues.raisedBy 
+        : newPurchaseOrder.raisedBy,
+      original_po: formValues.original_po !== undefined && formValues.original_po !== null
+        ? formValues.original_po 
+        : newPurchaseOrder.original_po,
+      pocreatetype: formValues.pocreatetype !== undefined && formValues.pocreatetype !== null
+        ? formValues.pocreatetype 
+        : newPurchaseOrder.pocreatetype,
+    };
+    const storedPOData = pendingPOData || showSubmitConfirm;
+    if (!storedPOData) {
+      toast.error("PO data missing. Please try again.");
+      setSubmitLoading(false);
+      return;
+    }
+    
+    // Merge latest form values with stored component data
+    const finalPOData = {
+      ...storedPOData,
+      // Override with latest form values
+      billaddressid: currentPurchaseOrder.billaddressid,
+      original_po: currentPurchaseOrder.original_po,
+      pocostcenter: typeof currentPurchaseOrder.pocostcenter === "object" ? currentPurchaseOrder.pocostcenter.value : currentPurchaseOrder.pocostcenter,
+      pocreatetype: currentPurchaseOrder.pocreatetype,
+      shipaddressid: (() => {
+        if (currentPurchaseOrder.ship_type === "saved") {
+          return currentPurchaseOrder.shipaddressid;
+        } else if (currentPurchaseOrder.ship_type === "vendor") {
+          return currentPurchaseOrder.ship_vendor ? currentPurchaseOrder.ship_vendor.value : null;
+        } else {
+          return null;
+        }
+      })(),
+      ship_vendor_branch: currentPurchaseOrder.ship_vendor_branch,
+      vendorbranch: currentPurchaseOrder.vendorbranch,
+      vendorname: currentPurchaseOrder.vendorname?.value || currentPurchaseOrder.vendorname,
+      vendortype: currentPurchaseOrder.vendortype,
+      pocomment: currentPurchaseOrder.po_comment,
+      poproject_name: (() => {
+        const project = currentPurchaseOrder.project_name;
+        if (!project) return "";
+        if (typeof project === "object") {
+          return project?.value || project?.label || "";
+        }
+        return project;
+      })(),
+      paymenttermsday: currentPurchaseOrder.paymenttermsday ? (currentPurchaseOrder.paymenttermsday === "" ? 30 : currentPurchaseOrder.paymenttermsday) : 30,
+      paymentterms: (() => {
+        if (currentPurchaseOrder.paymentterms === "Other" && currentPurchaseOrder.customPaymentTerm?.trim()) {
+          return currentPurchaseOrder.customPaymentTerm.trim();
+        } else if (currentPurchaseOrder.paymentterms && currentPurchaseOrder.paymentterms !== "Other") {
+          return currentPurchaseOrder.paymentterms;
+        } else {
+          return "As per standard terms";
+        }
+      })(),
+      po_raise_by: currentPurchaseOrder.raisedBy,
+      advancePayment: currentPurchaseOrder.advancePayment,
+      termscondition: currentPurchaseOrder.termscondition === "Other" ? currentPurchaseOrder.customDeliveryTerm : currentPurchaseOrder.termscondition,
+    };
+    
     setSubmitLoading(true);
-    if (poData) {
-      try {
-        const response = await imsAxios.post("/purchaseOrder/createPO", {
-          ...poData,
-          confirmQtyExceed: confirmQtyExceed,
-        });
+    try {
+      const response = await imsAxios.post("/purchaseOrder/createPO", {
+        ...finalPOData,
+        confirmQtyExceed: confirmQtyExceed,
+      });
 
         setSubmitLoading(false);
         const responseData = response?.data || response;
@@ -358,7 +549,6 @@ const [pendingPOData, setPendingPOData] = useState(null);
           : error?.message || "Failed to create PO";
         toast.error(errorMessage);
       }
-    }
   };
   const getPOs = async (searchInput) => {
     if (searchInput?.length > 2) {
@@ -612,7 +802,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
       vendorcode: vendorCode,
     });
     setPageLoading(false);
-    const arr = data.data.map((d) => {
+    const arr = data?.data?.map((d) => {
       return { value: d.id, text: d.text };
     });
     setVendorBranches(arr);
@@ -770,6 +960,10 @@ const [pendingPOData, setPendingPOData] = useState(null);
   };
   const handleProjectChange = async (value) => {
     const projectValue = typeof value === "object" ? value : { value: value, label: value };
+    
+    // Update form value to ensure it's synced
+    form.setFieldsValue({ project_name: projectValue });
+    
     setnewPurchaseOrder((prev) => ({
       ...prev,
       project_name: projectValue,
