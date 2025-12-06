@@ -308,7 +308,7 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
     setPurchaseOrder(values);
   };
   return (
-    <Drawer title={`Updating PO: ${updatePoId?.orderid}`} width="100vw" open={updatePoId} onClose={() => setUpdatePoId(null)}>
+    <Drawer title={`Updating PR: ${updatePoId?.orderid}`} width="100vw" open={updatePoId} onClose={() => setUpdatePoId(null)}>
       <Tabs
         activeKey={activeTab}
         style={{
@@ -437,8 +437,8 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
 
               <Row>
                 <Col span={4}>
-                  <Descriptions title="PO Terms">
-                    <Descriptions.Item>Provide PO terms and other information</Descriptions.Item>
+                  <Descriptions title="PR Terms">
+                    <Descriptions.Item>Provide PR terms and other information</Descriptions.Item>
                   </Descriptions>
                 </Col>
                 <Col span={20}>

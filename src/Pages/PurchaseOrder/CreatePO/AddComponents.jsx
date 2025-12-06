@@ -501,6 +501,11 @@ export default function AddComponents({
           gstState
         ),
     },
+    {
+      headerName: "Item Description",
+      width: 250,
+      renderCell: (params) => itemDescriptionCell(params, inputHandler),
+    },
 
     {
       headerName: "Ord. Qty",
@@ -674,13 +679,6 @@ export default function AddComponents({
   sortable: false,
   renderCell: (params) => internalRemarkCell(params, inputHandler), 
 },
-    
-
-    {
-      headerName: "Item Description",
-      width: 250,
-      renderCell: (params) => itemDescriptionCell(params, inputHandler),
-    },
   ];
   useEffect(() => {
     getCurrencies();

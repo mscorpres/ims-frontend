@@ -346,7 +346,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
     }
 
     if (currentPurchaseOrder.pocreatetype == "S" && !currentPurchaseOrder.original_po) {
-      return toast.error("Please select a PO ID in case of supplementary PO");
+      return toast.error("Please select a PR ID in case of supplementary PR");
     }
 
     if (currentPurchaseOrder.termscondition === "Other" && !currentPurchaseOrder.customDeliveryTerm?.trim()) {
@@ -445,7 +445,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
     };
     const storedPOData = pendingPOData || showSubmitConfirm;
     if (!storedPOData) {
-      toast.error("PO data missing. Please try again.");
+      toast.error("PR data missing. Please try again.");
       setSubmitLoading(false);
       return;
     }
@@ -546,7 +546,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
           ? typeof error.response.data.message === "string"
             ? error.response.data.message
             : error.response.data.message?.msg || "An error occurred"
-          : error?.message || "Failed to create PO";
+          : error?.message || "Failed to create PR";
         toast.error(errorMessage);
       }
   };
@@ -1088,7 +1088,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
     >
       {/* create confirm modal */}
       <Modal
-  title="Confirm Create PO!"
+  title="Confirm Create PR!"
   open={showSubmitConfirm}
   onCancel={() => setShowSubmitConfirm(false)}
   footer={[
@@ -1100,7 +1100,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
       type="primary"
       loading={submitLoading}
       onClick={() => {
-        setPendingPOData(showSubmitConfirm);  // ← Store the PO data
+        setPendingPOData(showSubmitConfirm);  // ← Store the PR data
         setShowSubmitConfirm(false);          // ← Close this modal
         submitHandler(false);                 // ← Try to submit (will trigger warning if needed)
       }}
@@ -1190,7 +1190,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
     ))}
     
     <p style={{ marginTop: '16px', color: '#595959', fontSize: '13px' }}>
-      ⚠️ <strong>Warning:</strong> Proceeding will create a PO that exceeds the project requirements. 
+      ⚠️ <strong>Warning:</strong> Proceeding will create a PR that exceeds the project requirements. 
       Please verify this is intentional before continuing.
     </p>
   </div>
@@ -1236,7 +1236,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
                 >
                   <Row>
                     <Col span={4}>
-                      <Descriptions size="small" title="PO Type">
+                      <Descriptions size="small" title="PR Type">
                         <Descriptions.Item
                           contentStyle={{
                             fontSize: window.innerWidth < 1600 && "0.7rem",
@@ -1249,9 +1249,9 @@ const [pendingPOData, setPendingPOData] = useState(null);
                     </Col>
                     <Col span={20}>
                       <Row gutter={16}>
-                        {/* PO type */}
+                        {/* PR type */}
                         <Col span={6}>
-                          <Form.Item name="pocreatetype" label="PO Type" rules={rules.pocreatetype}>
+                          <Form.Item name="pocreatetype" label="PR Type" rules={rules.pocreatetype}>
                             <MySelect size="default" options={POoption} />
                           </Form.Item>
                         </Col>
@@ -1266,7 +1266,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
                                     fontSize: window.innerWidth < 1600 && "0.7rem",
                                   }}
                                 >
-                                  Original PO
+                                  Original PR
                                 </span>
                               }
                               rules={rules.original_po}
@@ -1419,16 +1419,16 @@ const [pendingPOData, setPendingPOData] = useState(null);
                     </Col>
                   </Row>
                   <Divider />
-                  {/* PO TERMS */}
+                  {/* PR TERMS */}
                   <Row>
                     <Col span={4}>
-                      <Descriptions size="small" title="PO Terms">
+                      <Descriptions size="small" title="PR Terms">
                         <Descriptions.Item
                           contentStyle={{
                             fontSize: window.innerWidth < 1600 && "0.7rem",
                           }}
                         >
-                          Provide PO terms and other information
+                          Provide PR terms and other information
                         </Descriptions.Item>
                       </Descriptions>
                     </Col>
@@ -1954,13 +1954,13 @@ const rules = {
   pocreatetype: [
     {
       required: true,
-      message: "Please Select a PO Type!",
+      message: "Please Select a PR Type!",
     },
   ],
   original_po: [
     {
       required: true,
-      message: "Please Select a PO Type!",
+      message: "Please Select a PR Type!",
     },
   ],
   vendortype: [
@@ -2002,7 +2002,7 @@ const rules = {
   raisedBy: [
     {
       required: true,
-      message: "Please select who requested for this PO!",
+      message: "Please select who requested for this PR!",
     },
   ],
   billaddressid: [

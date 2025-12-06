@@ -1,8 +1,7 @@
-import { Input } from "antd";
+import { Input, Tooltip } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import InputMask from "react-input-mask";
 import MySelect from "../../../Components/MySelect";
-import { useState } from "react";
 const gstTypeOptions = [
   { value: "I", text: "INTER STATE" },
   { value: "L", text: "LOCAL" },
@@ -14,7 +13,7 @@ export const componentSelect = (
   loadOptions,
   setAsyncOptions,
   asyncOptions,
-  selectLoading,
+  selectLoading
 ) => (
   <MyAsyncSelect
     selectLoading={selectLoading}
@@ -32,13 +31,21 @@ export const componentSelect = (
 );
 
 export const quantityCell = ({ row }, inputHandler) => (
-  <Input
-    // qtyApproval
-    style={{ borderColor: row.qtyApproval && "red" }}
-    value={row.qty}
-    onChange={(e) => inputHandler("qty", e.target.value, row.id)}
-    suffix={row.unit}
-  />
+  <Tooltip
+    trigger={["hover"]}
+    title={"Order Qty Should be less than or equal to PR Qty"}
+    placement="topLeft"
+    classNames={{ root: "numeric-input" }}
+    color="red"
+    open={row.qtyApproval ? undefined : false} 
+  >
+    <Input
+      style={{ borderColor: row.qtyApproval && "red" }}
+      value={row.qty}
+      onChange={(e) => inputHandler("qty", e.target.value, row.id)}
+      suffix={row.unit}
+    />
+  </Tooltip>
 );
 export const rateCell = ({ row }, inputHandler, currencies) => (
   <Input.Group compact>
@@ -139,6 +146,6 @@ export const internalRemarkCell = ({ row }, inputHandler) => (
     placeholder="Internal Remark"
     // value={row.internal_remark || ""}
     onChange={(e) => inputHandler("internal_remark", e.target.value, row.id)}
-    // style={{ backgroundColor: "#fffbe6" }}  
+    // style={{ backgroundColor: "#fffbe6" }}
   />
 );
