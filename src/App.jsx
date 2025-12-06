@@ -5,6 +5,7 @@ import {
   useNavigate,
   useLocation,
   Link,
+  useSearchParams,
 } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
 import Rout from "./Routes/Routes";
@@ -61,6 +62,9 @@ import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
+  const [searchParams] = useSearchParams();
+  const tokenFromUrl = searchParams.get("previousToken");
+   
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
@@ -239,9 +243,17 @@ const App = () => {
     setIsConnected(false);
     setIsLoading(false);
   });
+  // Extract token from URL and store in localStorage when it's available
   useEffect(() => {
-    const otherData = JSON.parse(localStorage.getItem("otherData"));
+    if (tokenFromUrl) {
+      localStorage.setItem("newToken", tokenFromUrl);
+       localStorage.removeItem("loggedInUser");
+       navigate("/login")
+      
+    }
+  }, [tokenFromUrl]);
 
+  useEffect(() => {
     if (Notification.permission == "default") {
       Notification.requestPermission();
     }
@@ -418,7 +430,7 @@ const App = () => {
         dispatch(setNotifications(arr));
       });
     }
-  }, []);
+  }, [tokenFromUrl]);
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -445,7 +457,9 @@ const App = () => {
       }
     }
     if (user && user.token) {
-      imsAxios.defaults.headers["x-csrf-token"] = user.token;
+      // Use newToken from localStorage if available, otherwise use user.token
+      const tokenToUse = localStorage.getItem("newToken") || user.token;
+      imsAxios.defaults.headers["x-csrf-token"] = tokenToUse;
       imsAxios.defaults.headers["Company-Branch"] =
         user.company_branch || "BRMSC012";
       imsAxios.defaults.headers["Session"] = user.session || "25-26";
@@ -576,9 +590,11 @@ const App = () => {
       const fetchEnabledModules = async () => {
         try {
           console.log("Fetching modules for branch:", user.company_branch); // Debug branch
+          // Use newToken if available, otherwise use user.token
+          const tokenToUse = localStorage.getItem("newToken") || user.token;
           const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
             headers: {
-              "x-csrf-token": user.token,
+              "x-csrf-token": tokenToUse,
               "Company-Branch": user.company_branch,
               Session: user.session,
             },
