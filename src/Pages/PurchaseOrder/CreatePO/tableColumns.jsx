@@ -1,7 +1,7 @@
 import { Input, Tooltip } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import InputMask from "react-input-mask";
 import MySelect from "../../../Components/MySelect";
+import SingleDatePicker from "../../../Components/SingleDatePicker";
 const gstTypeOptions = [
   { value: "I", text: "INTER STATE" },
   { value: "L", text: "LOCAL" },
@@ -85,23 +85,14 @@ export const foreignCell = ({ row }) => {
 };
 export const invoiceDateCell = ({ row }, inputHandler) => {
   return (
-    // <SingleDatePicker
-    //   row={row}
-    //   value="empty"
-    //   name="duedate"
-    //   tablePicker={true}
-    //   inputHandler={inputHandler}
-    //   // onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
-    // />
-    <InputMask
-      name="duedate"
+    <SingleDatePicker
+      row={row}
       value={row.duedate}
-      onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
-      className="date-text-input"
-      mask="99-99-9999"
-      placeholder="__-__-____"
-      style={{ textAlign: "center" }}
-      // defaultValue="01-09-2022"
+      name="duedate"
+      tablePicker={true}
+      inputHandler={inputHandler}
+      format="DD-MM-YYYY"
+      placeholder="Select Date"
     />
   );
 };
