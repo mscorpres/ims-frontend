@@ -86,10 +86,8 @@ const Login = () => {
         "submit"
       );
       const { success } = res || {};
-      console.log("login success flag", success);
 
       if (success) {
-        console.log("login response", res);
         const isTwoStep = res?.isTwoStep ?? res?.data?.isTwoStep;
         if (isTwoStep === "Y") {
           // Two-step login, show OTP screen
@@ -139,8 +137,6 @@ const Login = () => {
   };
   const validatecreateNewUser = async () => {
     const values = await signUp.validateFields();
-    console.log("values", values);
-    // createNewUser(values);
     askModalConfirm(values);
   };
   const askModalConfirm = (values) => {
