@@ -247,8 +247,7 @@ const App = () => {
   useEffect(() => {
     if (tokenFromUrl) {
       localStorage.setItem("newToken", tokenFromUrl);
-       localStorage.removeItem("loggedInUser");
-       navigate("/login")
+
       
     }
   }, [tokenFromUrl]);
