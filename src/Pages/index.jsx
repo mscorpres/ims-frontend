@@ -19,7 +19,8 @@ export { default as CPMMaster } from "./Master/projects/CPMMaster";
 export { default as R19Master } from "./Master/reports/R19/R19Master";
 export { default as CategoryMaster } from "./Master/Components/material/categoryMaster";
 export { default as AddVendor } from "./Master/Vendor/AddVendor";
-
+export { default as JwToJw } from "./Store/MaterialTransfer/JwToJw.jsx";
+export { default as JwToJwViewTransaction } from "./Store/MaterialTransfer/JwToJwViewTransaction";
 export { default as RmtoRm } from "./Store/MaterialTransfer/RmtoRm";
 export { default as ViewTransaction } from "./Store/MaterialTransfer/ViewTransaction";
 export { default as PendingTransfer } from "./Store/MaterialTransfer/PendingTransfer";

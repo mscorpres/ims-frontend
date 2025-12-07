@@ -182,11 +182,11 @@ function EditClient({
       tcs: values?.tcs,
     };
 
-    const { data } = await imsAxios.put("/client/update", obj);
-    if (data.code == 200) {
+    const res = await imsAxios.put("/client/update", obj);
+    if (res?.success) {
       getRows();
       setUpdatingClient(null);
-      toast.success(data.message);
+      toast.success(res?.message);
     }
   };
 

@@ -96,16 +96,16 @@ const AddVendorSideBar = ({ setOpen, open }) => {
     formData.append("branch", JSON.stringify(obj.branch));
     formData.append("uploadfile", files[0]);
     setSubmitLoading(true);
-    const { data } = await imsAxios.post("/vendor/addVendor", formData);
+    const  data  = await imsAxios.post("/vendor/addVendor", formData);
     setSubmitLoading(false);
-    if (data.code == 200) {
+    if (data?.success) {
       // fetchVendor();
       reset();
       toast.success(data.message.toString().replaceAll("<br/>", " "));
       setOpen(null);
       // setShowAddVendorModal(false);
     } else {
-      toast.error(data.message.msg);
+      toast.error(data.message);
     }
   };
 

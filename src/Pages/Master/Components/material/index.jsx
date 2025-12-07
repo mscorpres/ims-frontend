@@ -190,7 +190,7 @@ const Material = () => {
         searchTerm: search,
       });
       const { data } = response;
-      if (data?.length) {
+      if (response?.success) {
         const arr = data.map((row) => ({
           text: row.text,
           value: row.id,

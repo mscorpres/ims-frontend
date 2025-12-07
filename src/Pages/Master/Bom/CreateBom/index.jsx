@@ -120,10 +120,9 @@ const CreateBom = () => {
       // console.log("submig handler valuesssss", values, url);
       const response = await imsAxios.post(url, values);
       const { data } = response;
-      if (data) {
-        if (data.code === 200) {
+        if (response?.success) {
           if (stage === "preview") {
-            const arr = data.data.map((row, index) => ({
+            const arr = data.map((row, index) => ({
               id: index + 1,
               category: row.CATEGORY,
               source: row.COMP_SOURCE,
@@ -139,17 +138,15 @@ const CreateBom = () => {
             setpreviewData(arr);
           }
           if (stage === "submit") {
-            toast.success(data.message);
+            toast.success(response?.message);
             setProductSelected(false);
             form.resetFields();
             setpreviewData([]);
           }
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message);
         }
-      }
     } catch (error) {
-      console.log("error while creating  bom", error);
     } finally {
       setLoading(false);
     }
@@ -159,10 +156,7 @@ const CreateBom = () => {
       () => getComponentOptions(search),
       "select"
     );
-    // setLoading("select");
-    // const response = await imsAxios.post("/backend/getComponentByNameAndNo", {
-    //   search,
-    // });
+   
     const { data } = response;
     // setLoading(false);
     if (data) {

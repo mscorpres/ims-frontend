@@ -86,17 +86,17 @@ const EditModal = ({ show, close, bomType }) => {
     setLoading(row.id);
     const response = await imsAxios.post("/bom/updateBomComponent", finalObj);
     const { data } = response;
-    if (data) {
-      if (data.code === 200) {
+   
+      if (response?.success) {
         if (row.new) {
           setRows((curr) =>
             curr.map((comp) => {
               if (comp.id === row.id) {
                 return {
                   ...comp,
-                  id: data.data.component_key,
-                  componentName: data.data.component_name,
-                  partCode: data.data.component_part,
+                  id: data.component_key,
+                  componentName: data.component_name,
+                  partCode: data.component_part,
                   new: false,
                 };
               } else {
@@ -105,12 +105,12 @@ const EditModal = ({ show, close, bomType }) => {
             })
           );
         }
-        toast.success(data.message);
+        toast.success(response.message);
         getDetails(show.id);
       } else {
-        toast.error(data.message.msg);
+        toast.error(response.message);
       }
-    }
+  
     setLoading(false);
   };
   const getVendorOption = async (search) => {

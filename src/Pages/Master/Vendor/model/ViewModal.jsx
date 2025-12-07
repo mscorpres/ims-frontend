@@ -122,7 +122,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
       return toast.error("Please enter branch GST Number");
     }
     setsubmitLoading(true);
-    const { data } = await imsAxios.post("/vendor/updateBranchDetails", {
+    const  data  = await imsAxios.post("/vendor/updateBranchDetails", {
       label: allField.label,
       state: allField.state.value,
       city: allField.city,
@@ -136,7 +136,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
       vendor_code: viewVendor.vendor_code,
     });
     setsubmitLoading(false);
-    if (data.code == 200) {
+    if (data?.success) {
       setViewVendor(null);
       toast.success(data.message);
     } else {

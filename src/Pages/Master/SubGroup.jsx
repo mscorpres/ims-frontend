@@ -114,14 +114,14 @@ const SubGroup = () => {
         fetchSubGroup();
       } else {
         toast.error(
-          data?.message?.msg || data?.message || "Failed to add Sub Group"
+          data?.message||"Failed to add Sub Group"
         );
       }
     } catch (error) {
       setSubmitLoading(false);
       console.error("Error adding subgroup:", error);
       toast.error(
-        error?.response?.data?.message?.msg || "Failed to add Sub Group"
+        error?.response?.data?.message || "Failed to add Sub Group"
       );
     }
   };
@@ -207,7 +207,7 @@ const SubGroup = () => {
         return;
       }
       toast.error(
-        error?.response?.data?.message?.msg || "Failed to update Sub Group"
+        error?.response?.data?.message || "Failed to update Sub Group"
       );
     }
   };
