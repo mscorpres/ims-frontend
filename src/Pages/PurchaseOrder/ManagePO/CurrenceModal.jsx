@@ -47,10 +47,10 @@ export default function CurrenceModal({ showCurrency, setShowCurrencyModal }) {
         level={5}
         style={{ display: "flex", justifyContent: "center", marginTop: "15px" }}
       >
-        {showCurrency?.symbol} {rate * showCurrency?.price}
+        ₹ {rate * showCurrency?.price}
       </Title>
       <Title level={5} style={{ display: "flex", justifyContent: "center" }}>
-        ₹ {showCurrency?.price}
+         {showCurrency?.symbol} {showCurrency?.price}
       </Title>
       {/* <div style={{ position: "relative" }} className="values">
         <span></span>
