@@ -187,7 +187,7 @@ const EditSFGModal = ({ sfgEditModal, setSfgEditModal }) => {
       );
     }
     setUpdateRowLoading(a.id);
-    const { data } = await imsAxios.post("/bom/updateBomComponent", {
+    const response = await imsAxios.post("/bom/updateBomComponent", {
       component_id: a.compKey,
       qty: a.requiredQty,
       category: a.category,
@@ -196,33 +196,32 @@ const EditSFGModal = ({ sfgEditModal, setSfgEditModal }) => {
       sku: sfgEditModal.bom_product_sku,
       priority: a.priority ?? 1,
     });
+    const { data } = response;
     setUpdateRowLoading(false);
-    if (data.code == 200) {
-      // next();
-      toast.success(data.message);
+    if (response?.success) {
+      toast.success(response.message);
     } else {
-      toast.error(errorToast(data.message));
+      toast.error(errorToast(response.message));
     }
-    // // console.log(data);
   };
-  const handlerEmergingMogal = (row) => {
-    let obj = {
-      subject: sfgEditModal.subject_id,
-      parent_part: row.compKey,
-      componentName: row.component + " / " + row.partcode,
-      bom: fetchData?.subject,
-    };
-    setAddingEmergingPart(obj);
-  };
-  const handleViewEmerging = async (row) => {
-    let obj = {
-      subject: sfgEditModal.subject_id,
-      parent_part: row.compKey,
-      componentName: row.component + " / " + row.partcode,
-      bom: fetchData?.subject,
-    };
-    setViewEmergingPart(obj);
-  };
+  // const handlerEmergingMogal = (row) => {
+  //   let obj = {
+  //     subject: sfgEditModal.subject_id,
+  //     parent_part: row.compKey,
+  //     componentName: row.component + " / " + row.partcode,
+  //     bom: fetchData?.subject,
+  //   };
+  //   setAddingEmergingPart(obj);
+  // };
+  // const handleViewEmerging = async (row) => {
+  //   let obj = {
+  //     subject: sfgEditModal.subject_id,
+  //     parent_part: row.compKey,
+  //     componentName: row.component + " / " + row.partcode,
+  //     bom: fetchData?.subject,
+  //   };
+  //   setViewEmergingPart(obj);
+  // };
   const columns = [
     {
       headerName: (

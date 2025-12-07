@@ -11,7 +11,7 @@ const generateUniqueId = () => {
 
 // Example usage
 const newId = generateUniqueId();
-console.log("Generated Unique ID:", newId);
+
 
 const formatTimestamp = () => {
   const now = new Date();

@@ -43,9 +43,7 @@ const Disabled = () => {
       subject_id: id,
       status: statusText,
     });
-    const { data } = response;
-    if (data) {
-      if (data.status === "success") {
+      if (response?.success) {
         setRows((curr) =>
           curr.map((row) => {
             if (row.bomId === id) {
@@ -59,7 +57,6 @@ const Disabled = () => {
           })
         );
       }
-    }
     setLoading(false);
   };
 

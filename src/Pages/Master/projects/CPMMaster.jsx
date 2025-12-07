@@ -52,12 +52,12 @@ function CPMMaster() {
   const handleSubmit = async (updatedData) => {
     try {
       const response = await imsAxios.put('/ppr/update/project', updatedData);
-      if (response.data.code === 200) {
-        toast.success("Project updated successfully!");
+      if (response?.success) {
+        toast.success( response.message || "Project updated successfully!");
         setIsModalVisible(false);
         getAllDetailFun(); // Refresh the data after successful update
       } else {
-        toast.error(response.data.message.msg);
+        toast.error(response.message);
       }
     } catch (error) {
       toast.error("Failed to update the project. Please try again.");
@@ -84,22 +84,18 @@ function CPMMaster() {
   };
 
   const disableSubmitHandler = async (values) => {
-    console.log(values)
     const response = await imsAxios.put(
       `/backend/project/status/${values.project}`,
       values
     );
-    const { data } = response;
-    console.log(data)
-    if (data) {
-      if (data.code === 200) {
+      if (response?.success) {
         getAllDetailFun();
         // getDataTree();
-        toast.success(data.message);
+        toast.success(response.message);
       } else {
-        toast.error(data.message);
+        toast.error(response.message);
       }
-    }
+
   };
 
   const columns = [

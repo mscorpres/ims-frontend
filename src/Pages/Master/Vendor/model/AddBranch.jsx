@@ -78,7 +78,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
       toast.error("Please enter Address");
     } else {
       setSubmitLoading(true);
-      const { data } = await imsAxios.post("/vendor/addVendorBranch", {
+      const  res  = await imsAxios.post("/vendor/addVendorBranch", {
         vendor: {
           vendorname: openBranch.vendor_code,
         },
@@ -95,15 +95,15 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
         },
       });
       setSubmitLoading(false);
-      if (data.code == 200) {
-        toast.success(data.message);
+      if (res?.success) {
+        toast.success(res.message);
         if (getVendorBracnch) {
           getVendorBracnch(openBranch.vendor_code);
         }
         setOpenBranch(false);
         reset();
-      } else if (data.code == 500) {
-        toast.error(errorToast(data.message));
+      } else if (!res?.success) {
+        toast.error(errorToast(res.message));
       }
     }
   };

@@ -28,16 +28,15 @@ const Group = () => {
       toast.error("Please Add a Group");
     } else {
       setSubmitLoading(true);
-      const { data } = await imsAxios.post("/groups/insert", {
+      const response = await imsAxios.post("/groups/insert", {
         group_name: newGroup,
       });
       setSubmitLoading(false);
-      if (data.code === 200) {
-        // toast.success("Group Added");
+      if (response?.success) {
         fetchGroup();
         setNewGroup("");
-      } else if (data.code === 500) {
-        toast.error(data.message.msg);
+      } else if (!response.success) {
+        toast.error(response.message);
       }
     }
   };

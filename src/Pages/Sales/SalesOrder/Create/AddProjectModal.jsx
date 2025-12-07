@@ -23,17 +23,15 @@ export default function AddProjectModal({
       project_description: addProjectConfirm.projectDescription,
     });
     setLoading(false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        toast.success(data.message);
+      if (response?.success) {
+        toast.success(response.message);
         setAddProjectConfirm(false);
         setShowAddProjectConfirm(false);
         resetHandler();
       } else {
-        toast.error(data.message.msg);
+        toast.error(response.message);
       }
-    }
+ 
   };
   const resetHandler = () => {
     let obj = {

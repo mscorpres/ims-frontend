@@ -64,7 +64,7 @@ import SettingDrawer from "./Components/SettingDrawer.jsx";
 const App = () => {
   const [searchParams] = useSearchParams();
   const tokenFromUrl = searchParams.get("previousToken");
-   
+
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
@@ -99,36 +99,11 @@ const App = () => {
   const [showSetting, setShowSetting] = useState(false);
   const [enabledModules, setEnabledModules] = useState([]); // Added state for enabled modules
   const [showSwitchModule, setShowSwitchModule] = useState(false);
-
-  const [alwarSession, setAlwarSession] = useState(null);
-
-  const [alwarBranch, setAlwarBranch] = useState(null);
-
-  const [noidaSession, setNoidaSession] = useState(null);
-
-  const [noidaBranch, setNoidaBranch] = useState(null);
-
-  const [editAlwarSession, setEditAlwarSession] = useState(false);
-
-  const [editAlwarBranch, setEditAlwarBranch] = useState(false);
-
-  const [editNoidaSession, setEditNoidaSession] = useState(false);
-
-  const [editNoidaBranch, setEditNoidaBranch] = useState(false);
-
   const [isSwitchingModule, setIsSwitchingModule] = useState(false);
-
-  const [switchingLocation, setSwitchingLocation] = useState(null);
-
   const [switchLocation, setSwitchLocation] = useState(null);
-
   const [switchBranch, setSwitchBranch] = useState(null);
-
   const [switchSession, setSwitchSession] = useState(null);
-
   const [switchSuccess, setSwitchSuccess] = useState(false);
-
-  const company = JSON.parse(localStorage.getItem("loggedInUser"));
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -247,9 +222,7 @@ const App = () => {
   useEffect(() => {
     if (tokenFromUrl) {
       localStorage.setItem("newToken", tokenFromUrl);
-       localStorage.removeItem("loggedInUser");
-       navigate("/login")
-      
+      navigate("/");
     }
   }, [tokenFromUrl]);
 
@@ -822,7 +795,7 @@ const App = () => {
           const targetUrl =
             location.toLowerCase() === "alwar"
               ? "http://localhost:3000/"
-              : "http://localhost:3002/";
+              : import.meta.env.VITE_REACT_APP_SWITCH_URL;
 
           const urlParams = new URLSearchParams();
 
@@ -831,20 +804,17 @@ const App = () => {
           }
 
           const redirectUrl = `${targetUrl}?${urlParams.toString()}`;
-
+          localStorage.removeItem("otherData");
+          localStorage.removeItem("loggedInUser");
+          window.location.replace(redirectUrl);
           window.location.replace(redirectUrl);
         }, 1500);
       } else {
         setIsSwitchingModule(false);
-
-        setSwitchingLocation(null);
-
         toast.error(responseMessage || "Failed to switch module");
       }
     } catch (error) {
       setIsSwitchingModule(false);
-
-      setSwitchingLocation(null);
 
       const errorMessage =
         error?.message ||
