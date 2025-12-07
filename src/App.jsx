@@ -48,7 +48,7 @@ import MyAsyncSelect from "./Components/MyAsyncSelect";
 import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
-// import TopBanner from "./Components/TopBanner";
+import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
@@ -769,7 +769,6 @@ const filteredItems1 = items1(user, setShowTickets).map((item) => {
         pauseOnFocusLoss
         pauseOnHover
       />
-      {/* <TopBanner /> */}
       <Layout
         style={{
           width: "100%",
@@ -790,6 +789,7 @@ const filteredItems1 = items1(user, setShowTickets).map((item) => {
             TEST SERVER
           </div>
         )}
+        <TopBanner />
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
             <Header
