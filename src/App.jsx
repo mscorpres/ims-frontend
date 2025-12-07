@@ -751,7 +751,6 @@ const App = () => {
   const handleSwitchModule = async (location, branch, session) => {
     setIsSwitchingModule(true);
 
-    setSwitchingLocation(location.toLowerCase());
 
     const company = location === "alwar" ? "com0002" : "com0001";
 
@@ -794,8 +793,8 @@ const App = () => {
 
           const targetUrl =
             location.toLowerCase() === "alwar"
-              ? "http://localhost:3000/"
-              : import.meta.env.VITE_REACT_APP_SWITCH_URL;
+              ? import.meta.env.VITE_REACT_APP_SWITCH_URL
+              : "";
 
           const urlParams = new URLSearchParams();
 
@@ -807,7 +806,7 @@ const App = () => {
           localStorage.removeItem("otherData");
           localStorage.removeItem("loggedInUser");
           window.location.replace(redirectUrl);
-          window.location.replace(redirectUrl);
+     
         }, 1500);
       } else {
         setIsSwitchingModule(false);
