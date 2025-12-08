@@ -64,7 +64,7 @@ function View({
 
 export default View;
 const columns = [
-  { headerName: "#", field: "id", width: 30 },
+  { headerName: "#", field: "id", width: 30 }, 
   {
     headerName: "Product Name",
     field: "name",

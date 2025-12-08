@@ -138,24 +138,24 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     // formData.append("tally_tds", values?.vendor_tds);
     // formData.append("vendor_loc", values?.vendor_loc);
     setSubmitLoading(true);
-    const { data } = await imsAxios.post("/vendor/updateVendor", formData);
+    const  data  = await imsAxios.post("/vendor/updateVendor", formData);
     setSubmitLoading(false);
-    if (data.code == 200) {
+    if (data?.success) {
       toast.success(data.message);
       fetchVendor();
       setEditVendor(null);
     } else {
-      toast.error(data.message.msg);
+      toast.error(data.message);
     }
   };
   const changeStatus = async (value) => {
     setStatusLoading(true);
-    const { data } = await imsAxios.post("/vendor/updateVendorStatus", {
+    const  data  = await imsAxios.post("/vendor/updateVendorStatus", {
       status: value ? "B" : "A",
       vendor_code: editVendor?.vendor_code,
     });
     setStatusLoading(false);
-    if (data.code == 200) {
+    if (data?.success) {
       toast.success(data.message);
       if (value) {
         setVendorStatus("B");
@@ -364,7 +364,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                 <Form.Item label="Vendor Locations" name="vendor_loc">
                   <MySelect
                     // size="default"
-                    mode="multiple"
+                    // mode="single"
                     // value={allDetails.vendor_loc}
                     // onChange={(value) => inputHandler("vendor_loc", value)}
                     options={locationOptions}

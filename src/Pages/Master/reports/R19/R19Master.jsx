@@ -62,11 +62,11 @@ function R19Master() {
     const response = await imsAxios.post("/report19/removeComponent", {
       component_key: id,
     });
-    if (response.data.code === 200) {
+    if (response?.success) {
       getRows();
-      toast.success(response.data.message);
+      toast.success(response.message);
     } else {
-      toast.error(response.data.message.msg);
+      toast.error(response.message);
     }
   };
   const columns = [
@@ -133,12 +133,12 @@ function R19Master() {
         component_key: value.component,
       });
       setLoading(false);
-      if (response.data.code === 200) {
-        toast.success(response.data.message);
+      if (response.success) {
+        toast.success(response.message);
         getRows();
         addSingleComponentForm.resetFields();
       } else {
-        toast.error(response.data.message.msg);
+        toast.error(response.message);
       }
     }
   };

@@ -53,15 +53,14 @@ export default function NewProjectForm() {
     const response = await imsAxios.post("/backend/projectSave", submitConfirm);
     setLoading(false);
     setSubmitConfirm(false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        toast.success(data.message);
+
+      if (response?.success) {
+        toast.success(response.message);
         resetHandler();
       } else {
-        toast.error(data.message.msg);
+        toast.error(response.message);
       }
-    }
+
   };
   const resetHandler = () => {
     let obj = {
