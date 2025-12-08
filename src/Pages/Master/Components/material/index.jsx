@@ -43,6 +43,7 @@ const Material = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [groupOptions, setGroupOptions] = useState([]);
+  const [subGroupOptions, setSubGroupOptions] = useState([]);
   const [showAttributesModal, setShowAttributesModal] = useState(false);
   const [hsnRows, setHsnRows] = useState([]);
   const [attributeValues, setAttributeValues] = useState(null);
@@ -57,6 +58,7 @@ const Material = () => {
   const [headerForm] = Form.useForm();
   const [attributeForm] = Form.useForm();
   const selectedCategory = Form.useWatch("attrCategory", headerForm);
+  const selectedGroup = Form.useWatch("group", headerForm);
   const [components, setComponents] = useState([]);
 
   const getRows = async () => {
@@ -73,6 +75,8 @@ const Material = () => {
             partCode: row.c_part_no,
             key: row.component_key,
             unit: row.units_name,
+            status: row.is_enabled === "YES" ? "Active" : "Inactive",
+            newPartCode: row.c_new_part_no,
           }));
 
           setComponents(arr);
@@ -102,10 +106,38 @@ const Material = () => {
 
         setGroupOptions(arr);
       } else {
+      
         toast.error(data.message.msg);
       }
     } catch (error) {
       setAsyncOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getSubGroupOptions = async (groupId) => {
+  
+    if (!groupId) {
+      setSubGroupOptions([]);
+      return;
+    }
+    try {
+      setLoading("fetch");
+      const response = await imsAxios.get(`/backend/sub-group/${groupId}`);
+      if (response?.success) {
+        const arr = response.data.map((row) => ({
+          text: row.name,
+          value: row.key,
+        }));
+
+        setSubGroupOptions(arr);
+      } else {
+            setSubGroupOptions([]);
+        toast.error(response.message);
+      }
+    } catch (error) {
+      setSubGroupOptions([]);
     } finally {
       setLoading(false);
     }
@@ -161,7 +193,7 @@ const Material = () => {
         searchTerm: search,
       });
       const { data } = response;
-      if (data?.length) {
+      if (response?.success) {
         const arr = data.map((row) => ({
           text: row.text,
           value: row.id,
@@ -224,6 +256,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "R",
         attr_code: uniqueId,
@@ -245,6 +278,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "C",
         attr_code: uniqueId,
@@ -266,6 +300,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "I",
         attr_code: "--",
@@ -287,6 +322,7 @@ const Material = () => {
         c_category: headerValues.category,
         notes: headerValues.description,
         group: headerValues.group,
+        subgroup: headerValues.subgroup,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "O",
         attr_code: "--",
@@ -328,21 +364,11 @@ const Material = () => {
       // });
     }
   };
-  const validateHandler = async () => {
-    Modal.confirm({
-      title: "Creating a new component",
-      content: "Please check all the values before proceeding",
-      okText: "Create",
-      // onOk: () => modalConfirmMaterial(payload),
-      // onOk: () => submitHandler(payload),
-    });
-  };
 
   const submitHandler = async (payload) => {
     try {
       setLoading("submit");
-      // return;
-      console.log("Here in submit handler");
+
       const response = await imsAxios.post(
         "/component/addComponent/save",
         payload
@@ -444,6 +470,17 @@ const Material = () => {
     getGroupOptions();
   }, []);
   useEffect(() => {
+    if (selectedGroup) {
+      getSubGroupOptions(selectedGroup);
+      // Reset subgroup when group changes
+      headerForm.setFieldValue("subgroup", undefined);
+    } else {
+      setSubGroupOptions([]);
+      headerForm.setFieldValue("subgroup", undefined);
+    }
+  }, [selectedGroup]);
+  
+  useEffect(() => {
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
       setShowAttributesModal({
         selectedCategory: selectedCategory,
@@ -464,7 +501,6 @@ const Material = () => {
   }, [selectedCategory]);
   const typeIs = headerForm.getFieldValue("attrCategory");
 
-  // console.log("generatedCompName", generatedCompName);
   useEffect(() => {
     if (generatedCompName) {
       setGeneratedCompName(generatedCompName);
@@ -564,6 +600,15 @@ const Material = () => {
                         rules={headerRules.group}
                       >
                         <MySelect options={groupOptions} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={10}>
+                      <Form.Item
+                        label="Sub Group"
+                        name="subgroup"
+                        rules={headerRules.subgroup}
+                      >
+                        <MySelect options={subGroupOptions} />
                       </Form.Item>
                     </Col>
 
@@ -1499,6 +1544,12 @@ const headerRules = {
     {
       required: true,
       message: "Please provide a New Part code",
+    },
+  ],
+  subgroup: [
+    {
+      required: true,
+      message: "Please select a sub group",
     },
   ],
 };

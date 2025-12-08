@@ -71,17 +71,16 @@ function ClientBranchAdd({ branchAddOpen, setBranchAddOpen }) {
     setSubmitLoading(true);
     const response = await imsAxios.post("/client/addBranch", newObj);
     setSubmitLoading(false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        toast.success(data.message);
+  
+      if (response?.success) {
+        toast.success(response.message);
         resetFunction();
         setBranchAddOpen(false);
         setShowSubmitConfirm(false);
       } else {
-        toast.error(data.message.msg);
+        toast.error(response.message);
       }
-    }
+
   };
   const resetFunction = () => {
     addClientForm.setFieldsValue({

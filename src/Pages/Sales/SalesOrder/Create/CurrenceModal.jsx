@@ -54,13 +54,13 @@ export default function CurrenceModal({
         level={5}
         style={{ display: "flex", justifyContent: "center", marginTop: "15px" }}
       >
-        {showCurrency?.symbol} {rate * showCurrency?.price}
+       ₹ {rate * showCurrency?.price}
       </Typography.Title>
       <Typography.Title
         level={5}
         style={{ display: "flex", justifyContent: "center" }}
       >
-        ₹ {showCurrency?.price}
+        {showCurrency?.symbol} {showCurrency?.price}
       </Typography.Title>
       {/* <div className="currency-modal">
         <h2>Enter Currency Rate</h2>

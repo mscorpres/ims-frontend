@@ -41,6 +41,7 @@ export default function EditComponent({
   setUpdatePoId,
   resetRowsDetailsData,
   updatePoId,
+  getRows,
 }) {
   const [asynOptions, setAsyncOptions] = useState([]);
   const [currencies, setCurrencies] = useState([]);
@@ -63,6 +64,7 @@ export default function EditComponent({
       component: "",
       qty: 1,
       rate: 0,
+      last_rate: 0,
       duedate: "",
       hsncode: "",
       gsttype: rowCount[0].gsttype,
@@ -354,119 +356,100 @@ export default function EditComponent({
     setRowCount(resetRowsDetailsData);
     setConfirmReset(false);
   };
-  const validateData = () => {
-    let validation = true;
-    let components = {
-      component: [],
-      qty: [],
-      rate: [],
-      currency: [],
-      exchange_rate: [],
-      date: [],
-      hsn: [],
-      gsttype: [],
-      gstrate: [],
-      sgst: [],
-      igst: [],
-      cgst: [],
-      updaterow: [],
-      remark: [],
-      internal_remark: [],
-      rate_cap: [],
-      project_qty: [],
-      exq_po_qty: [],
-    };
-    rowCount.map((row) => {
-      if (
-        row.currency == "" ||
-        row.exchange_rate == "" ||
-        row.component == "" ||
-        row.qty == "" ||
-        row.rate == "" ||
-        row.hsncode == "" ||
-        row.gsttype == ""
-      ) {
-        validation = false;
-      }
-    });
-    if (validation) {
-      rowCount.map((row) => {
-        components = {
-          component: [...components.component, row.component?.value],
-          qty: [...components.qty, row.qty],
-          rate: [...components.rate, row.rate],
-          currency: [...components.currency, row.currency],
-          exchange_rate: [...components.exchange_rate, row.exchange_rate],
-          date: [...components.date, row.duedate],
-          hsn: [...components.hsn, row.hsncode],
-          gsttype: [...components.gsttype, row.gsttype],
-          gstrate: [...components.gstrate, row.gstrate],
-          sgst: [...components.sgst, row.sgst],
-          igst: [...components.igst, row.igst],
-          cgst: [...components.cgst, row.cgst],
-          remark: [...components.remark, row.remark],
-          internal_remark: [...components.internal_remark, row.internal_remark || ""],
-          rate_cap: [...components.rate_cap, row.project_rate],
-          project_qty: [...components.project_qty, row.project_qty],
-          exq_po_qty: [...components.exq_po_qty, row.po_ord_qty],
-          updaterow: [
-            ...components.updaterow,
-            row.updateRow ? row.updateRow : "",
-          ],
-        };
-      });
+ const validateData = () => {
+  let validation = true;
 
-      if (
-        (components.currency.filter((v, i, a) => v === a[0]).length ===
-          components.currency.length) !=
-        true
-      ) {
-        validation = false;
-        return toast.error("Currency of all components should be the same");
-      } else if (
-        (components.gsttype.filter((v, i, a) => v === a[0]).length ===
-          components.gsttype.length) !=
-        true
-      ) {
-        validation = false;
-        return toast.error("Gst Type of all components should be the same");
-      }
+  // Basic required field check
+  rowCount.forEach((row) => {
+    if (!row.component || !row.qty || !row.rate || !row.hsncode || !row.gsttype) {
+      validation = false;
     }
-    if (!validation) {
-      toast.error("Please fill all the component fields");
-    } else {
-      let finalPO = {
-        poid: updatePoId?.orderid,
-        vendor_name:
-          purchaseOrder?.vendorcode.value ?? purchaseOrder?.vendorcode?.trim(),
-        vendor_type: purchaseOrder?.vendortype_value?.trim(),
-        vendor_branch:
-          purchaseOrder?.vendorbranch.value ??
-          purchaseOrder?.vendorbranch?.trim(),
-        vendor_address: purchaseOrder?.vendoraddress?.trim(),
-        paymentterms: purchaseOrder?.paymentterms?.trim(),
-        quotationterms: purchaseOrder?.termsofquotation?.trim(),
-        termsandcondition: purchaseOrder?.termsofcondition?.trim(),
-        costcenter:
-          purchaseOrder?.costcenter.value ?? purchaseOrder?.costcenter?.trim(),
-        ship_address_id: purchaseOrder?.addrshipid
-          ? purchaseOrder?.addrshipid
-          : purchaseOrder?.addrshipid?.trim(),
-        ship_address: purchaseOrder?.shipaddress?.trim(),
+  });
 
-        projectname: purchaseOrder?.projectname?.trim(),
-        pocomment: purchaseOrder?.pocomment?.trim(),
-        bill_address_id: purchaseOrder.addrbillid,
-        billaddress: purchaseOrder.billaddress,
-        termsday: purchaseOrder.paymenttermsday,
-        advancePayment: purchaseOrder.advancePayment,
-        // ...purchaseOrder,
-        ...components,
-        materials: null,
-      };
-      setSubmitConfirm(finalPO);
-    }
+  if (!validation) {
+    toast.error("Please fill all required component fields");
+    return;
+  }
+
+  // Build components arrays
+  const components = {
+    component: [], qty: [], rate: [], currency: [], exchange_rate: [],
+    date: [], hsn: [], gsttype: [], gstrate: [], sgst: [], igst: [], cgst: [],
+    remark: [], internal_remark: [], updaterow: [], rate_cap: [], project_qty: [], exq_po_qty: []
   };
+
+  rowCount.forEach(row => {
+    components.component.push(row.component?.value);
+    components.qty.push(row.qty);
+    components.rate.push(row.rate);
+    components.currency.push(row.currency);
+    components.exchange_rate.push(row.exchange_rate);
+    components.date.push(row.duedate || "");
+    components.hsn.push(row.hsncode);
+    components.gsttype.push(row.gsttype);
+    components.gstrate.push(row.gstrate);
+    components.sgst.push(row.sgst);
+    components.igst.push(row.igst);
+    components.cgst.push(row.cgst);
+    components.remark.push(row.remark);
+    components.internal_remark.push(row.internal_remark || "");
+    components.updaterow.push(row.updateRow || row.updaterow || "");
+    components.rate_cap.push(row.project_rate || 0);
+    components.project_qty.push(row.project_qty || 0);
+    components.exq_po_qty.push(row.po_ord_qty || 0);
+  });
+
+ 
+  if ([...new Set(components.currency)].length > 1 || [...new Set(components.gsttype)].length > 1) {
+    toast.error("All items must have same Currency and GST Type");
+    return;
+  }
+
+  let finalPO = {
+    poid: updatePoId?.orderid,
+    vendor_name: purchaseOrder?.vendorcode?.value || purchaseOrder?.vendorcode,
+    vendor_type: purchaseOrder?.vendortype_value,
+    vendor_branch: purchaseOrder?.vendorbranch?.value || purchaseOrder?.vendorbranch,
+    vendor_address: purchaseOrder?.vendoraddress?.trim(),
+    paymentterms: purchaseOrder?.paymentterms?.trim(),
+    quotationterms: purchaseOrder?.termsofquotation?.trim(),
+    termsandcondition: purchaseOrder?.termsofcondition?.trim(),
+    costcenter: purchaseOrder?.costcenter?.value || purchaseOrder?.costcenter,
+    projectname: purchaseOrder?.projectname?.trim(),
+    pocomment: purchaseOrder?.pocomment?.trim(),
+    bill_address_id: purchaseOrder.addrbillid,
+    billaddress: purchaseOrder.billaddress,
+    advancePayment: purchaseOrder.advancePayment || 0,
+    termsday: purchaseOrder.paymenttermsday || 30,
+
+    ship_type: purchaseOrder.ship_type,  
+
+    ...(purchaseOrder.ship_type === "saved" && {
+      ship_address_id: purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid,
+    }),
+
+    ...(purchaseOrder.ship_type === "vendor" && {
+      ship_vendor: purchaseOrder.ship_vendor?.value,
+      ship_vendor_branch: purchaseOrder.ship_vendor_branch?.value,
+      ship_address_id: purchaseOrder.ship_vendor?.value || purchaseOrder.ship_vendor, 
+    }),
+
+    // Manual mode → no IDs, only address
+    ship_address: purchaseOrder.ship_type === "manual" 
+      ? purchaseOrder.shipaddress?.trim() 
+      : purchaseOrder.shipaddress?.trim() || "--",
+    ship_other_pan: purchaseOrder.shippanno?.trim(),
+    ship_other_gstin: purchaseOrder.shipgstid?.trim(),
+    ship_partyname: purchaseOrder.ship_partyname?.trim(),
+  };
+
+  // Always spread components at the end
+  Object.assign(finalPO, components);
+  finalPO.materials = null;
+
+  console.log("FINAL CLEAN PAYLOAD →", finalPO);
+  setSubmitConfirm(finalPO);
+};
   const submitHandler = async () => {
     if (submitConfirm) {
       setSubmitLoading(true);
@@ -477,6 +460,9 @@ export default function EditComponent({
       if (data.code == 200) {
         toast.success(data.message);
         setUpdatePoId(null);
+        if (getRows && typeof getRows === "function") {
+          setTimeout(() => getRows(true), 500);
+        }
       } else {
         toast.error(data.message);
       }
@@ -559,6 +545,7 @@ export default function EditComponent({
           asynOptions
         ),
     },
+   
     {
       headerName: "Ord. Qty",
       width: 130,
@@ -572,6 +559,21 @@ export default function EditComponent({
       field: "rate",
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
+    },
+     {
+      headerName: "Last rate",
+      width: 180,
+      field: "last_rate",
+      sortable: false,
+      renderCell: (params) => disabledCell(params.row.last_rate, inputHandler),
+      // renderCell: ({ row }) => {
+      //   const currencyId = typeof row.currency === "object" ? row.currency?.value : row.currency;
+      //   return (
+      //     <span>
+      //       {row.last_rate || "--"} {getCurrencySymbol(currencyId)}
+      //     </span>
+      //   );
+      // },
     },
     // {
     //   headerName: "BOM Rate",
@@ -595,21 +597,21 @@ export default function EditComponent({
     //   sortable: false,
     //   renderCell: (params) => disabledCell(params.row.tol_price, inputHandler),
     // },
-    // {
-    //   headerName: "Project Req Qty",
-    //   width: 150,
-    //   field: "project_qty",
-    //   sortable: false,
-    //   renderCell: (params) =>
-    //     disabledCell(params.row.project_qty, inputHandler),
-    // },
-    // {
-    //   headerName: "PO Exq Qty",
-    //   width: 150,
-    //   field: "po_ord_qty",
-    //   sortable: false,
-    //   renderCell: (params) => disabledCell(params.row.po_ord_qty, inputHandler),
-    // },
+    {
+      headerName: "Project Req Qty",
+      width: 150,
+      field: "project_qty",
+      sortable: false,
+      renderCell: (params) =>
+        disabledCell(params.row.project_qty, inputHandler),
+    },
+    {
+      headerName: "PO Exq Qty",
+      width: 150,
+      field: "po_ord_qty",
+      sortable: false,
+      renderCell: (params) => disabledCell(params.row.po_ord_qty, inputHandler),
+    },
     {
       headerName: "Taxable Value",
       width: 150,

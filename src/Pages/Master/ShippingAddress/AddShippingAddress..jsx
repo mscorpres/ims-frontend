@@ -50,17 +50,16 @@ function AddShippingAddress({ handleCSVDownload, getRows }) {
         submitConfirmModal
       );
       setLoading(false);
-      const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          toast.success(data.message);
+
+        if (response.success) {
+          toast.success(response.message);
           resetHandler();
           setSubmitConfirmModal(false);
           getRows();
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message);
         }
-      }
+
     }
   };
   const resetHandler = () => {

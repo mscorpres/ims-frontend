@@ -29,6 +29,7 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 export default function AddComponents({
+  form,
   rowCount,
   setRowCount,
   setTotalValues,
@@ -303,7 +304,7 @@ export default function AddComponents({
         {
           component_code: value.value,
           vencode: newPurchaseOrder.vendorname.value,
-          project: newPurchaseOrder.project_name,
+          project: form.getFieldValue("project_name")==="object" ? form.getFieldValue("project_name").value : form.getFieldValue("project_name")||newPurchaseOrder.project_name==="object" ? newPurchaseOrder.project_name.value : newPurchaseOrder.project_name,
         }
       );
       setPageLoading(false);
@@ -360,7 +361,7 @@ export default function AddComponents({
             ...obj,
             rate_cap: data.data.project_rate,
             project_req_qty: data.data.project_req_qty,
-            po_exec_qty: data.data.po_ord_qty,
+            po_exec_qty: data.data.po_exec_qty,
             closing_stock: data.data.closing_stock || 0,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
           };
@@ -499,6 +500,11 @@ export default function AddComponents({
           loading1("select"),
           gstState
         ),
+    },
+    {
+      headerName: "Item Description",
+      width: 250,
+      renderCell: (params) => itemDescriptionCell(params, inputHandler),
     },
 
     {
@@ -673,13 +679,6 @@ export default function AddComponents({
   sortable: false,
   renderCell: (params) => internalRemarkCell(params, inputHandler), 
 },
-    
-
-    {
-      headerName: "Item Description",
-      width: 250,
-      renderCell: (params) => itemDescriptionCell(params, inputHandler),
-    },
   ];
   useEffect(() => {
     getCurrencies();

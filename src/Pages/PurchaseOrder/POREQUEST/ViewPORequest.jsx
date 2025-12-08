@@ -30,9 +30,9 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
   const [totalTaxValue, setTotalTaxValue] = useState([]);
   const [billingOptions, setBillingOptions] = useState([]);
   const [shippingOptions, setShippingOptions] = useState([]);
-  const [rejectReason, setRejectReason] = useState(""); // "rate_mismatch" | "other"
+  const [rejectReason, setRejectReason] = useState(""); 
 
-  // Vendor type mapping like EditPO
+
   const vendorDetailsOptions = [
     { text: "JWI (Job Work In)", value: "j01" },
     { text: "Vendor", value: "v01" },
@@ -156,47 +156,60 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseOrder, billingOptions, shippingOptions]);
 
-  const fetchPODetails = async () => {
-    setLoading(true);
-    try {
-      const { data } = await imsAxios.post("/purchaseOrder/fetchData4Update", {
-        pono: poId.replaceAll("_", "/"),
-      });
-      setLoading(false);
-      if (data?.code == 200) {
-        let obj = {
-          ...data.data.bill,
-          materials: data.data.materials,
-          ...data.data.ship,
-          ...data.data.vendor[0],
-        };
-        obj = {
-          ...obj,
-          poid: obj.orderid,
-          shipaddress: obj.shipaddress?.replaceAll("<br>", "\n") || "",
-          vendoraddress: obj.vendoraddress?.replaceAll("<br>", "\n") || "",
-          billaddress: obj.billaddress?.replaceAll("<br>", "\n") || "",
-        };
+  console.log("purchaseOrder", purchaseOrder);
 
-        // Format vendor data properly - ensure objects have proper structure
-        // If vendorcode is an object, keep it; if it's a string/value, try to preserve structure
-        if (obj.vendorcode && typeof obj.vendorcode !== "object") {
-          // If vendorcode is not an object, it might be just the value
-          // Keep vendorname for display
-        }
-        if (obj.vendorbranch && typeof obj.vendorbranch !== "object") {
-          // If vendorbranch is not an object, keep as is
-        }
+ const fetchPODetails = async () => {
+  setLoading(true);
+  try {
+    const { data } = await imsAxios.post("/purchaseOrder/fetchData4Update", {
+      pono: poId.replaceAll("_", "/"),
+    });
+    
+    if (data?.code == 200) {
+      let obj = {
+        ...data.data.bill,
+        materials: data.data.materials,
+        ...data.data.ship,
+        ...data.data.vendor[0],
+      };
 
-        setPurchaseOrder(obj);
-        // Format form values properly like EditPO - preserve object structure for form
-        form.setFieldsValue(obj);
-        form.setFieldValue("advancePayment", Number(obj?.advPayment) || 0);
+     
+      obj = {
+        ...obj,
+        poid: obj.orderid,
+        shipaddress: obj.shipaddress?.replaceAll("<br>", "\n") || "",
+        vendoraddress: obj.vendoraddress?.replaceAll("<br>", "\n") || "",
+        billaddress: obj.billaddress?.replaceAll("<br>", "\n") || "",
+      };
 
-        // Set materials/rowCount - format like EditPO
-        let arr = [];
-        obj.materials?.map((row, index) => {
-          // Handle gsttype - could be array with object or just value
+    
+      if (obj.ship_type === "vendor") {
+     
+        obj.ship_vendor_code = obj.ship_vendor_code || { value: obj.addrshipid, label: obj.addrshipname };
+        obj.ship_vendor_name = obj.addrshipname || obj.ship_vendor_name;
+        obj.ship_vendor_branch = obj.ship_vendor_branch || null;
+        
+       
+        obj.addrshipid = obj.addrshipid; 
+      } else {
+      
+        obj.addrshipid = obj.addrshipid;
+        obj.ship_vendor_code = null;
+        obj.ship_vendor_name = null;
+        obj.ship_vendor_branch = null;
+      }
+
+      setPurchaseOrder(obj);
+
+      
+      form.setFieldsValue(obj);
+      form.setFieldValue("advancePayment", Number(obj?.advPayment) || 0);
+
+
+      let arr = [];
+      if (obj.materials && Array.isArray(obj.materials)) {
+        obj.materials.map((row, index) => {
+          
           let gstTypeValue = "L";
           if (row.gsttype) {
             if (Array.isArray(row.gsttype) && row.gsttype[0]) {
@@ -210,7 +223,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
 
           arr.push({
             id: v4(),
-            currency: row.currency, // Keep as is - will be ID
+            currency: row.currency,
             exchange_rate: row.exchangerate == "" ? 1 : row.exchangerate,
             component: {
               label: row.component + " " + row.part_no,
@@ -238,19 +251,22 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
             last_rate: row.last_rate || "--",
           });
         });
-        setRowCount(arr);
-      } else {
-        toast.error(data?.message || "Failed to fetch PO details");
       }
-    } catch (error) {
-      setLoading(false);
-      toast.error("Error fetching PO details");
-    } finally {
-      setLoading(false); // ← finally mein false (100% safe)
+      
+      setRowCount(arr);
+      
+    } else {
+      toast.error(data?.message || "Failed to fetch PO details");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching PO details:", error);
+    toast.error("Error fetching PO details");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // Calculate tax summary like EditComponents
+ 
   useEffect(() => {
     if (rowCount.length > 0) {
       let obj = [
@@ -355,7 +371,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
           setTimeout(() => getRows(true), 500);
         }
       } else {
-        // IMPROVED ERROR HANDLING: Show which components have rate mismatch
+       
         if (response.data.data?.mismatch_components) {
           const mismatches = response.data.data.mismatch_components;
 
@@ -433,7 +449,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     }
 
     setShowRejectModal(false);
-    await handleStatusUpdate("R"); // This will use rejectRemark correctly
+    await handleStatusUpdate("R"); 
   };
 
   const printFun = async () => {
@@ -523,20 +539,20 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     //   sortable: false,
     //   renderCell: ({ row }) => <span>{row.tol_price || "--"}</span>,
     // },
-    // {
-    //   headerName: "Project Req Qty",
-    //   width: 150,
-    //   field: "project_qty",
-    //   sortable: false,
-    //   renderCell: ({ row }) => <span>{row.project_qty || "--"}</span>,
-    // },
-    // {
-    //   headerName: "PO Exq Qty",
-    //   width: 150,
-    //   field: "po_ord_qty",
-    //   sortable: false,
-    //   renderCell: ({ row }) => <span>{row.po_ord_qty || "--"}</span>,
-    // },
+    {
+      headerName: "Project Req Qty",
+      width: 150,
+      field: "project_qty",
+      sortable: false,
+      renderCell: ({ row }) => <span>{row.project_qty || "--"}</span>,
+    },
+    {
+      headerName: "PO Exq Qty",
+      width: 150,
+      field: "po_ord_qty",
+      sortable: false,
+      renderCell: ({ row }) => <span>{row.po_ord_qty || "--"}</span>,
+    },
     {
       headerName: "Taxable Value",
       width: 150,
@@ -730,7 +746,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
                     </Col>
                     <Col span={6}>
                       <Form.Item label="GSTIN">
-                        <Input size="default" value="--" disabled />
+                        <Input size="default" value={purchaseOrder?.vendorgst} disabled />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -866,49 +882,157 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
 
               <Divider />
 
-              {/* Shipping Details */}
-              <Row>
-                <Col span={4}>
-                  <Descriptions title="Shipping Details">
-                    <Descriptions.Item>Provide shipping information</Descriptions.Item>
-                  </Descriptions>
-                </Col>
-                <Col span={20}>
-                  <Row gutter={16}>
-                    <Col span={6}>
-                      <Form.Item
-                        name="addrshipid"
-                        label="Shipping Id"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select a shipping address!",
-                          },
-                        ]}
-                      >
-                        <MySelect disabled labelInValue options={shippingOptions} />
-                      </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                      <Form.Item name="shippanno" label="Pan No.">
-                        <Input size="default" disabled />
-                      </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                      <Form.Item name="shipgstid" label="GSTIN / UIN">
-                        <Input size="default" disabled />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={18}>
-                      <Form.Item name="shipaddress" label="Shipping Address">
-                        <TextArea style={{ resize: "none" }} rows={4} disabled />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
+             
+             {/* Shipping Details */}
+<Row>
+  <Col span={4}>
+    <Descriptions title="Shipping Details">
+      <Descriptions.Item>Provide shipping information</Descriptions.Item>
+    </Descriptions>
+  </Col>
+  <Col span={20}>
+    <Row gutter={16}>
+      {/* Shipping Type Display */}
+      <Col span={6}>
+        <Form.Item label="Shipping Type">
+          <Input 
+            size="default" 
+            disabled 
+            value={purchaseOrder?.ship_type ? 
+              purchaseOrder.ship_type.charAt(0).toUpperCase() + purchaseOrder.ship_type.slice(1).replace('_', ' ') : "--"
+            } 
+          />
+        </Form.Item>
+      </Col>
+    </Row>
+
+    {/* Saved Address Type (Default) */}
+    {purchaseOrder?.ship_type === "saved" && (
+      <>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Form.Item label="Shipping Id">
+              <Input 
+                size="default" 
+                disabled 
+                value={
+                  purchaseOrder?.addrshipid 
+                    ? (typeof purchaseOrder.addrshipid === "object" 
+                        ? purchaseOrder.addrshipid.label || purchaseOrder.addrshipid.value 
+                        : purchaseOrder.addrshipname)
+                    : "--"
+                } 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shippanno" label="Pan No.">
+              <Input size="default" disabled value={purchaseOrder?.shippanno || "--"} />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shipgstid" label="GSTIN / UIN">
+              <Input size="default" disabled value={purchaseOrder?.shipgstid || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={18}>
+            <Form.Item name="shipaddress" label="Shipping Address">
+              <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    )}
+
+    {/* Vendor Address Type */}
+    {purchaseOrder?.ship_type === "vendor" && (
+      <>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Form.Item label="Shipping Vendor">
+              <Input 
+                size="default" 
+                disabled 
+                value={purchaseOrder?.addrshipname || purchaseOrder?.ship_vendor_name || "--"} 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Shipping Branch">
+              <Input 
+                size="default" 
+                disabled 
+                value={purchaseOrder?.ship_vendor_branch?.label || purchaseOrder?.ship_vendor_branch || "--"} 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shipgstid" label="GSTIN / UIN">
+              <Input size="default" disabled value={purchaseOrder?.shipgstid || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={18}>
+            <Form.Item name="shipaddress" label="Shipping Address">
+              <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    )}
+
+    {/* Manual Entry Type */}
+    {purchaseOrder?.ship_type === "manual" && (
+      <>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={6}>
+            <Form.Item label="Party Name">
+              <Input 
+                size="default" 
+                disabled 
+                value={purchaseOrder?.ship_partyname || "--"} 
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shippanno" label="Pan No.">
+              <Input size="default" disabled value={purchaseOrder?.shippanno || "--"} />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="shipgstid" label="GSTIN / UIN">
+              <Input size="default" disabled value={purchaseOrder?.shipgstid || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginTop: 16 }}>
+          <Col span={18}>
+            <Form.Item name="shipaddress" label="Shipping Address">
+              <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    )}
+
+    {/* Fallback: If ship_type is not set or unknown, show basic shipping address */}
+    {purchaseOrder?.ship_type && 
+     purchaseOrder.ship_type !== "saved" && 
+     purchaseOrder.ship_type !== "vendor" && 
+     purchaseOrder.ship_type !== "manual" && (
+      <Row gutter={16} style={{ marginTop: 16 }}>
+        <Col span={18}>
+          <Form.Item name="shipaddress" label="Shipping Address">
+            <TextArea style={{ resize: "none" }} rows={4} disabled value={purchaseOrder?.shipaddress || "--"} />
+          </Form.Item>
+        </Col>
+      </Row>
+    )}
+  </Col>
+</Row>
             </div>
             <NavFooter backFunction={() => setPoId(null)} submitFunction={() => setActiveTab("2")} submitButton={true} backLabel="Cancel" />
           </Form>

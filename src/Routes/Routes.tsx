@@ -126,6 +126,8 @@ import {
   AllPages,
   AllUsers,
   JobworkApproval,
+  JwToJw,
+  JwToJwViewTransaction,
 } from "../Pages/index.jsx";
 
 import {
@@ -265,6 +267,7 @@ import ApprovalList from "@/Pages/R&D/products/approvalList.js";
 import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
+import SubGroup from "../Pages/Master/SubGroup.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -321,6 +324,10 @@ const Routes = [
   {
     path: "/group",
     main: () => <Group />,
+  },
+  {
+    path: "/sub-group",
+    main: () => <SubGroup />,
   },
   {
     path: "/location",
@@ -427,11 +434,16 @@ const Routes = [
     exact: true,
     main: () => <RmtoRm />,
   },
-  // {
-  //   path: "/sf-to-rm",
-  //   exact: true,
-  //   main: () => <RmtoRm />,
-  // },
+   {
+    path: "/warehouse/material-transfer/jw-to-jw",
+    exact: true,
+    main: () => <JwToJw />,
+  },
+    {
+    path: "/warehouse/material-transfer/jw-to-jw/view",
+    exact: true,
+    main: () => <JwToJwViewTransaction />,
+  },
   {
     path: "/view-transaction",
     exact: true,
@@ -1435,6 +1447,7 @@ const Routes = [
   },
   {
     path: "/assets/create",
+    //@ts-ignore
     main: () => <CreateAsset />,
   },
   {

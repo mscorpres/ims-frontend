@@ -5,12 +5,14 @@ import {
   useNavigate,
   useLocation,
   Link,
+  useSearchParams,
 } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
 import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Box, LinearProgress } from "@mui/material";
 import "buffer";
 import {
   logout,
@@ -20,6 +22,8 @@ import {
   setCompanyBranch,
   setCurrentLink,
   setSession,
+  setUser,
+  setSettings,
 } from "./Features/loginSlice/loginSlice.js";
 import UserMenu from "./Components/UserMenu";
 import Logo from "./Components/Logo";
@@ -28,13 +32,22 @@ import Notifications from "./Components/Notifications";
 import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
 import Layout, { Content, Header } from "antd/lib/layout/layout";
-import { Badge, Row, Select, Space, Switch, Typography } from "antd";
+import {
+  Badge,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Typography,
+  Modal,
+  Button,
+} from "antd";
 // icons import
 import {
   CustomerServiceOutlined,
   BellFilled,
-  StarFilled,
-  StarOutlined,
+  SwapOutlined,
+  EditOutlined,
   MenuOutlined,
   LoadingOutlined,
   SearchOutlined,
@@ -48,10 +61,16 @@ import MyAsyncSelect from "./Components/MyAsyncSelect";
 import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
-// import TopBanner from "./Components/TopBanner";
+import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tokenFromUrl = searchParams.get("token");
+  const sessionFromUrl = searchParams.get("session");
+  const branchFromUrl = searchParams.get("branch");
+  const comFromUrl = searchParams.get("company");
+  const [loadingSwitch, setLoadingSwitch] = useState(false);
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
@@ -85,6 +104,12 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showSetting, setShowSetting] = useState(false);
   const [enabledModules, setEnabledModules] = useState([]); // Added state for enabled modules
+  const [showSwitchModule, setShowSwitchModule] = useState(false);
+  const [isSwitchingModule, setIsSwitchingModule] = useState(false);
+  const [switchLocation, setSwitchLocation] = useState(null);
+  const [switchBranch, setSwitchBranch] = useState(null);
+  const [switchSession, setSwitchSession] = useState(null);
+  const [switchSuccess, setSwitchSuccess] = useState(false);
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -199,9 +224,60 @@ const App = () => {
     setIsConnected(false);
     setIsLoading(false);
   });
-  useEffect(() => {
-    const otherData = JSON.parse(localStorage.getItem("otherData"));
+  const fetchUserDeatils = async (token, session, com, branch) => {
+    setLoadingSwitch(true);
+    localStorage.removeItem("loggedInUser");
 
+    try {
+      const response = await imsAxios.get(
+        `/auth/switch?next=alwar.mscorpres.com&company=${com}&token=${token}&session=${session}&branch=${branch}`
+      );
+      if (response?.success) {
+        const payload = response?.data;
+        const obj = {
+          email: payload.crn_email,
+          phone: payload.crn_mobile,
+          comId: payload.company_id,
+          userName: payload.username,
+          token: payload.token,
+          favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
+          type: payload.crn_type,
+          mobileConfirmed: payload.other?.m_v,
+          emailConfirmed: payload.other?.e_v,
+          passwordChanged: payload.other?.c_p ?? "C",
+          company_branch: branch, // Use selected branch from login form
+          currentLink: JSON.parse(localStorage.getItem("branchData"))
+            ?.currentLink,
+          id: payload.crn_id,
+          showlegal: payload.department === "legal" ? true : false,
+          session: session,
+        };
+        localStorage.setItem("loggedInUser", JSON.stringify(obj));
+        dispatch(setUser(obj));
+        if (payload.settings) dispatch(setSettings(payload.settings));
+        setLoadingSwitch(false);
+        setSearchParams({}, { replace: true });
+      } else {
+        setLoadingSwitch(false);
+         toast.error(response?.message);
+         window.location.replace("https://alwar.mscorpres.com/");
+       
+      }
+    } catch (error) {
+      setLoadingSwitch(false);
+         toast.error(response?.message);
+        window.location.replace("https://alwar.mscorpres.com/");
+   
+    }
+  };
+
+  useEffect(() => {
+    if (tokenFromUrl && sessionFromUrl && comFromUrl && branchFromUrl) {
+      fetchUserDeatils(tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl);
+    }
+  }, [tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl]);
+
+  useEffect(() => {
     if (Notification.permission == "default") {
       Notification.requestPermission();
     }
@@ -405,7 +481,9 @@ const App = () => {
       }
     }
     if (user && user.token) {
-      imsAxios.defaults.headers["x-csrf-token"] = user.token;
+      // Use newToken from localStorage if available, otherwise use user.token
+      const tokenToUse = localStorage.getItem("newToken") || user.token;
+      imsAxios.defaults.headers["x-csrf-token"] = tokenToUse;
       imsAxios.defaults.headers["Company-Branch"] =
         user.company_branch || "BRMSC012";
       imsAxios.defaults.headers["Session"] = user.session || "25-26";
@@ -532,40 +610,53 @@ const App = () => {
   }, [user?.token]);
   // Added useEffect to fetch enabled modules
   useEffect(() => {
-  if (user && user.token && user.company_branch) {
-    const fetchEnabledModules = async () => {
-      try {
-        console.log("Fetching modules for branch:", user.company_branch); // Debug branch
-        const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
-          headers: {
-            "x-csrf-token": user.token,
-            "Company-Branch": user.company_branch,
-            Session: user.session,
-          },
-        });
-        console.log("Enabled Modules Response:", data); // Debug API response
-        if (data.code === 200) {
-          setEnabledModules(data.data || []); // Ensure empty array if undefined
-        } else {
-          toast.error(data.message?.msg || "Failed to fetch enabled modules");
+    if (user && user.token && user.company_branch) {
+      const fetchEnabledModules = async () => {
+        try {
+          console.log("Fetching modules for branch:", user.company_branch); // Debug branch
+          // Use newToken if available, otherwise use user.token
+          const tokenToUse = localStorage.getItem("newToken") || user.token;
+          const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
+            headers: {
+              "x-csrf-token": tokenToUse,
+              "Company-Branch": user.company_branch,
+              Session: user.session,
+            },
+          });
+          console.log("Enabled Modules Response:", data); // Debug API response
+          if (data.code === 200) {
+            setEnabledModules(data.data || []); // Ensure empty array if undefined
+          } else {
+            toast.error(data.message?.msg || "Failed to fetch enabled modules");
+            setEnabledModules([]);
+          }
+        } catch (error) {
+          console.error("Error fetching enabled modules:", error);
+          toast.error("Error fetching module permissions");
           setEnabledModules([]);
+          if (error.response?.status === 403) {
+            dispatch(logout());
+            navigate("/login");
+          }
         }
-      } catch (error) {
-        console.error("Error fetching enabled modules:", error);
-        toast.error("Error fetching module permissions");
-        setEnabledModules([]);
-        if (error.response?.status === 403) {
-          dispatch(logout());
-          navigate("/login");
-        }
-      }
-    };
-    fetchEnabledModules();
-  } else {
-    console.log("Missing user data:", { user, token: user?.token, branch: user?.company_branch });
-    setEnabledModules([]);
-  }
-}, [user, user?.token, user?.company_branch, user?.session, dispatch, navigate]);
+      };
+      fetchEnabledModules();
+    } else {
+      console.log("Missing user data:", {
+        user,
+        token: user?.token,
+        branch: user?.company_branch,
+      });
+      setEnabledModules([]);
+    }
+  }, [
+    user,
+    user?.token,
+    user?.company_branch,
+    user?.session,
+    dispatch,
+    navigate,
+  ]);
 
   useEffect(() => {
     setShowSideBar(false);
@@ -686,7 +777,7 @@ const App = () => {
   const options = [
     { label: "A-21 [BRMSC012]", value: "BRMSC012" },
     { label: "B-29 [BRMSC029]", value: "BRMSC029" },
-    { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+    { label: "B36 [ALWAR]", value: "BRALWR36" },
     { label: "D-160 [BRBAD116]", value: "BRBAD116" },
   ];
   const sessionOptions = [
@@ -695,6 +786,40 @@ const App = () => {
     { label: "Session 24-25", value: "24-25" },
     { label: "Session 25-26", value: "25-26" },
   ];
+
+  const locationBranchOptions = {
+    alwar: [{ label: "B36 [ALWAR]", value: "BRALWR36" }],
+    noida: [
+      { label: "A-21 [BRMSC012]", value: "BRMSC012" },
+      { label: "B-29 [BRMSC029]", value: "BRMSC029" },
+      { label: "D-160 [BRBAD116]", value: "BRBAD116" },
+    ],
+  };
+
+  const handleSwitchModule = async (location, branch, session) => {
+    const existing = JSON.parse(localStorage.getItem("loggedInUser")) || {};
+    const previousToken = existing?.token;
+
+    const company = location.toLowerCase() === "alwar" ? "COM0002" : "COM0001";
+    if (company === existing?.comId) {
+      toast.error(`You are already On ${location} Module`);
+      return;
+    }
+
+    const targetUrl = import.meta.env.VITE_REACT_APP_SWITCH_URL;
+
+    const urlParams = new URLSearchParams();
+    if (previousToken && location && branch && session) {
+      urlParams.append("token", previousToken);
+      urlParams.append("company", company);
+      urlParams.append("branch", branch);
+      urlParams.append("session", session);
+    }
+
+    const redirectUrl = `${targetUrl}?${urlParams.toString()}`;
+    window.location.replace(redirectUrl);
+  };
+
   const path = window.location.hostname;
 
   const refreshConnection = () => {
@@ -703,59 +828,119 @@ const App = () => {
     socket.open();
   };
 
-const filteredItems = items(user).map((item) => {
-  const isItemEnabled = enabledModules.some(
-    (mod) => String(mod.module_key) === String(item.module_key) && mod.enabled === 1
-  );
-  const isParentEnabled = enabledModules.some(
-    (mod) => String(mod.parent_module_key) === String(item.module_key) && mod.enabled === 1
-  );
+  const filteredItems = items(user)
+    .map((item) => {
+      const isItemEnabled = enabledModules.some(
+        (mod) =>
+          String(mod.module_key) === String(item.module_key) &&
+          mod.enabled === 1
+      );
+      const isParentEnabled = enabledModules.some(
+        (mod) =>
+          String(mod.parent_module_key) === String(item.module_key) &&
+          mod.enabled === 1
+      );
 
-  if (item.module_key) {
-    if (item.children) {
-      const enabledChildren = item.children.filter((child) => {
-        const isChildEnabled = child.module_key
-          ? enabledModules.some(
-              (mod) => String(mod.module_key) === String(child.module_key) && mod.enabled === 1
-            )
-          : isItemEnabled || isParentEnabled;
-        console.log(`Checking child ${child.label} (module_key: ${child.module_key || 'none'}):`, isChildEnabled);
-        return isChildEnabled;
-      });
-      if (isItemEnabled || isParentEnabled || enabledChildren.length > 0) {
-        console.log(`Showing ${item.label} (module_key: ${item.module_key}):`, {
-          isItemEnabled,
-          isParentEnabled,
-          hasEnabledChildren: enabledChildren.length > 0,
-        });
-        return { ...item, children: enabledChildren };
+      if (item.module_key) {
+        if (item.children) {
+          const enabledChildren = item.children.filter((child) => {
+            const isChildEnabled = child.module_key
+              ? enabledModules.some(
+                  (mod) =>
+                    String(mod.module_key) === String(child.module_key) &&
+                    mod.enabled === 1
+                )
+              : isItemEnabled || isParentEnabled;
+            console.log(
+              `Checking child ${child.label} (module_key: ${
+                child.module_key || "none"
+              }):`,
+              isChildEnabled
+            );
+            return isChildEnabled;
+          });
+          if (isItemEnabled || isParentEnabled || enabledChildren.length > 0) {
+            console.log(
+              `Showing ${item.label} (module_key: ${item.module_key}):`,
+              {
+                isItemEnabled,
+                isParentEnabled,
+                hasEnabledChildren: enabledChildren.length > 0,
+              }
+            );
+            return { ...item, children: enabledChildren };
+          }
+          console.log(
+            `Hiding ${item.label} (module_key: ${item.module_key}): no enabled children or not enabled`
+          );
+          return null;
+        }
+        if (isItemEnabled || isParentEnabled) {
+          console.log(
+            `Showing ${item.label} (module_key: ${item.module_key}):`,
+            { isItemEnabled, isParentEnabled }
+          );
+          return item;
+        }
+        console.log(
+          `Hiding ${item.label} (module_key: ${item.module_key}): not enabled`
+        );
+        return null;
       }
-      console.log(`Hiding ${item.label} (module_key: ${item.module_key}): no enabled children or not enabled`);
+
+      console.log("No module_key, hiding item:", item.label);
       return null;
-    }
-    if (isItemEnabled || isParentEnabled) {
-      console.log(`Showing ${item.label} (module_key: ${item.module_key}):`, { isItemEnabled, isParentEnabled });
-      return item;
-    }
-    console.log(`Hiding ${item.label} (module_key: ${item.module_key}): not enabled`);
-    return null;
+    })
+    .filter((item) => item !== null);
+
+  const filteredItems1 = items1(user, setShowTickets)
+    .map((item) => {
+      if (!item.module_key) {
+        console.log("No module_key, showing item1:", item.label);
+        return item;
+      }
+      const isEnabled = enabledModules.some(
+        (mod) =>
+          String(mod.module_key) === String(item.module_key) &&
+          mod.enabled === 1
+      );
+      console.log(
+        `Checking ${item.label} (module_key: ${item.module_key}):`,
+        isEnabled
+      );
+      return isEnabled ? item : null;
+    })
+    .filter((item) => item !== null);
+
+  if (loadingSwitch) {
+    return (
+      <Box sx={{ width: "100%", overflow: "hidden" }}>
+        <LinearProgress
+          sx={{
+            position: "sticky",
+            top: 0,
+            
+          }}
+        />
+        <Box
+          sx={{
+            width: "100%",
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src="/assets/images/mscorpres_auto_logo.png"
+            alt=""
+            style={{ width: 100, opacity: 0.8 }}
+          />
+        </Box>
+      </Box>
+    );
   }
 
-  console.log("No module_key, hiding item:", item.label);
-  return null;
-}).filter((item) => item !== null);
-
-const filteredItems1 = items1(user, setShowTickets).map((item) => {
-  if (!item.module_key) {
-    console.log("No module_key, showing item1:", item.label);
-    return item;
-  }
-  const isEnabled = enabledModules.some(
-    (mod) => String(mod.module_key) === String(item.module_key) && mod.enabled === 1
-  );
-  console.log(`Checking ${item.label} (module_key: ${item.module_key}):`, isEnabled);
-  return isEnabled ? item : null;
-}).filter((item) => item !== null);
   return (
     <div style={{ height: "100vh" }}>
       <ToastContainer
@@ -769,7 +954,6 @@ const filteredItems1 = items1(user, setShowTickets).map((item) => {
         pauseOnFocusLoss
         pauseOnHover
       />
-      {/* <TopBanner /> */}
       <Layout
         style={{
           width: "100%",
@@ -790,6 +974,7 @@ const filteredItems1 = items1(user, setShowTickets).map((item) => {
             TEST SERVER
           </div>
         )}
+        <TopBanner />
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
             <Header
@@ -904,6 +1089,18 @@ const filteredItems1 = items1(user, setShowTickets).map((item) => {
                       />
                     </>
                   )}
+                  <Tooltip title="Switch Module" placement="bottom">
+                    <SwapOutlined
+                      style={{
+                        fontSize: 18,
+
+                        color: "white",
+
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setShowSwitchModule(true)}
+                    />
+                  </Tooltip>
                   <Tooltip
                     title={`Socket ${
                       isConnected ? "Connected" : "Disconnected"
@@ -1008,8 +1205,210 @@ const filteredItems1 = items1(user, setShowTickets).map((item) => {
                       />
                     </Badge>
                   </div>
-                  <UserMenu user={user} logoutHandler={logoutHandler} setShowSettings={setShowSetting}/>
-                  {showSetting && <SettingDrawer open={showSetting} hide={() => setShowSetting(false)} />}
+                  <UserMenu
+                    user={user}
+                    logoutHandler={logoutHandler}
+                    setShowSettings={setShowSetting}
+                  />
+                  {showSetting && (
+                    <SettingDrawer
+                      open={showSetting}
+                      hide={() => setShowSetting(false)}
+                    />
+                  )}
+                  <Modal
+                    title={null}
+                    open={showSwitchModule}
+                    onCancel={() => {
+                      if (!isSwitchingModule) {
+                        setShowSwitchModule(false);
+                        setSwitchLocation(null);
+                        setSwitchBranch(null);
+                        setSwitchSession(null);
+                        setIsSwitchingModule(false);
+                        setSwitchingLocation(null);
+                        setSwitchSuccess(false);
+                      }
+                    }}
+                    footer={null}
+                    width={400}
+                    centered
+                    maskClosable={!isSwitchingModule}
+                    closable={!isSwitchingModule}
+                  >
+                    {isSwitchingModule ? (
+                      <div
+                        style={{
+                          padding: "60px 0",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {switchSuccess ? (
+                          <>
+                            <video
+                              src="/assets/check.mp4"
+                              autoPlay
+                              muted
+                              style={{ width: 120, height: 120 }}
+                            />
+                            <p
+                              style={{
+                                marginTop: 16,
+                                color: "#047780",
+                                fontWeight: 500,
+                              }}
+                            >
+                              Authenticated! Redirecting...
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <div
+                              style={{
+                                width: 50,
+                                height: 50,
+                                border: "4px solid #f3f3f3",
+                                borderTop: "4px solid #047780",
+                                borderRadius: "50%",
+                                animation: "spin 1s linear infinite",
+                              }}
+                            />
+                            <style>
+                              {`
+                                @keyframes spin {
+                                  0% { transform: rotate(0deg); }
+                                  100% { transform: rotate(360deg); }
+                                }
+                              `}
+                            </style>
+                            <p style={{ marginTop: 16, color: "#666" }}>
+                              Authenticating...
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          padding: "20px 0",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 60,
+                            height: 60,
+                            borderRadius: "50%",
+                            background: "#f5f5f5",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            marginBottom: 16,
+                          }}
+                        >
+                          <SwapOutlined
+                            style={{ fontSize: 28, color: "#047780" }}
+                          />
+                        </div>
+                        <h3 style={{ margin: "0 0 24px 0", color: "#333" }}>
+                          Switch Module
+                        </h3>
+                        <div style={{ width: "100%", maxWidth: 300 }}>
+                          <div style={{ marginBottom: 16 }}>
+                            <div
+                              style={{
+                                marginBottom: 6,
+                                fontWeight: 500,
+                                color: "#666",
+                              }}
+                            >
+                              Location
+                            </div>
+                            <Select
+                              style={{ width: "100%" }}
+                              placeholder="Select Location"
+                              options={[
+                                { label: "Alwar", value: "alwar" },
+                                { label: "Noida", value: "noida" },
+                              ]}
+                              value={switchLocation}
+                              onChange={(value) => {
+                                setSwitchLocation(value);
+                                setSwitchBranch(null);
+                              }}
+                            />
+                          </div>
+                          <div style={{ marginBottom: 16 }}>
+                            <div
+                              style={{
+                                marginBottom: 6,
+                                fontWeight: 500,
+                                color: "#666",
+                              }}
+                            >
+                              Branch
+                            </div>
+                            <Select
+                              style={{ width: "100%" }}
+                              placeholder="Select Branch"
+                              disabled={!switchLocation}
+                              options={
+                                switchLocation
+                                  ? locationBranchOptions[switchLocation]
+                                  : []
+                              }
+                              value={switchBranch}
+                              onChange={(value) => setSwitchBranch(value)}
+                            />
+                          </div>
+                          <div style={{ marginBottom: 24 }}>
+                            <div
+                              style={{
+                                marginBottom: 6,
+                                fontWeight: 500,
+                                color: "#666",
+                              }}
+                            >
+                              Session
+                            </div>
+                            <Select
+                              style={{ width: "100%" }}
+                              placeholder="Select Session"
+                              options={sessionOptions}
+                              value={switchSession || user?.session}
+                              onChange={(value) => setSwitchSession(value)}
+                            />
+                          </div>
+                          <Button
+                            type="primary"
+                            block
+                            size="large"
+                            style={{
+                              background: "#047780",
+                              borderColor: "#047780",
+                              height: 44,
+                            }}
+                            disabled={!switchLocation || !switchBranch}
+                            onClick={() => {
+                              handleSwitchModule(
+                                switchLocation.charAt(0).toUpperCase() +
+                                  switchLocation.slice(1),
+                                switchBranch,
+                                switchSession || user?.session
+                              );
+                            }}
+                          >
+                            Switch
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </Modal>
                 </Space>
               </Row>
             </Header>

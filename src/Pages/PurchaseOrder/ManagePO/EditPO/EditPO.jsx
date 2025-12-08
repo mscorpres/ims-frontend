@@ -2,33 +2,17 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import EditComponents from "./EditComponents";
 import NavFooter from "../../../../Components/NavFooter";
-import {
-  Button,
-  Col,
-  Descriptions,
-  Divider,
-  Drawer,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Row,
-  Tabs,
-  Radio
-} from "antd";
+import { Button, Col, Descriptions, Divider, Drawer, Form, Input, InputNumber, Modal, Row, Tabs, Radio, Checkbox } from "antd";
 import MySelect from "../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import TextArea from "antd/lib/input/TextArea";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { v4 } from "uuid";
-import {
-  getCostCentresOptions,
-  getVendorOptions,
-} from "../../../../api/general.ts";
+import { getCostCentresOptions, getVendorOptions } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
-export default function EditPO({ updatePoId, setUpdatePoId }) {
+export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
   const [purchaseOrder, setPurchaseOrder] = useState(null);
   const [activeTab, setActiveTab] = useState("1");
   const [vendorBranches, setVendorBranches] = useState([]);
@@ -50,7 +34,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
       };
     });
   };
-  
+
   const selectInputHandler = async (name, value) => {
     if (value) {
       let obj = purchaseOrder;
@@ -71,10 +55,10 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         });
         obj = {
           ...obj,
-          [name]: value,
-          shipgstid: data?.data.gstin,
-          shippanno: data?.data.pan,
-
+          addrshipid: value,
+          shipgstid: data?.data?.gstin,
+          shippanno: data?.data?.pan,
+          ship_partyname: data?.data?.ship_partyname,
           shipaddress: data.data?.address.replaceAll("<br>", "\n"),
         };
       } else if (name == "vendorcode") {
@@ -100,7 +84,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
             vendorname: value.label,
             vendorbranch: arr[0].value,
             vendoraddress: data1.data.address.replaceAll("<br>", "\n"),
-            vendorgst: data1.data.vendor.vendorgst
+            vendorgst: data1.data.vendor.vendorgst,
           };
         } else {
           toast.error(data.message.msg);
@@ -160,10 +144,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
     setBillingOptions(arr);
   };
   const getCostCenteres = async (search) => {
-    const response = await executeFun(
-      () => getCostCentresOptions(search),
-      "select"
-    );
+    const response = await executeFun(() => getCostCentresOptions(search), "select");
     let arr = [];
     if (response.success) arr = convertSelectOptions(response.data);
     setAsyncOptions(arr);
@@ -189,42 +170,63 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
     setRowCount(resetRowsDetailsData);
   };
   const getVendorBranches = async (vendorCode) => {
-    const { data } = await imsAxios.post("/backend/vendorBranchList", {
-      vendorcode: vendorCode,
-    });
-    if (data.code == 200) {
-      let arr = data.data.map((row) => {
-        return {
-          text: row.text,
-          value: row.id,
-        };
-      });
+    const { data } = await imsAxios.post("/backend/vendorBranchList", { vendorcode: vendorCode });
+    if (data.code === 200) {
+      const arr = data.data.map((row) => ({ text: row.text, value: row.id }));
       setVendorBranches(arr);
+      return arr;
     }
+    return [];
   };
-  useEffect(() => {
+ useEffect(() => {
     getShippingId();
     getBillTo();
-    let arr = [];
-    if (updatePoId) {
-      let obj = updatePoId;
-      obj = {
-        ...obj,
-        poid: updatePoId?.orderid,
-        shipaddress: updatePoId.shipaddress.replaceAll("<br>", "\n"),
-        vendoraddress: updatePoId.vendoraddress.replaceAll("<br>", "\n"),
-        billaddress: updatePoId.billaddress.replaceAll("<br>", "\n"),
-      };
-      setPurchaseOrder(obj);
-      setResetDetailsData(obj);
-      getVendorBranches(obj.vendorcode.value);
-      form.setFieldsValue(obj);
-      form.setFieldValue("advancePayment",Number(updatePoId?.advPayment));
+
+    if (!updatePoId) return;
+
+    const obj = { ...updatePoId };
+
+    
+    obj.ship_type = updatePoId.ship_type; 
+
+    obj.poid = updatePoId?.orderid;
+    obj.advancePayment = Number(updatePoId?.advPayment) || 0;
+    obj.shipaddress = (updatePoId.shipaddress || "").replaceAll("<br>", "\n");
+    obj.vendoraddress = (updatePoId.vendoraddress || "").replaceAll("<br>", "\n");
+    obj.billaddress = (updatePoId.billaddress || "").replaceAll("<br>", "\n");
+
+    
+    if (obj.ship_type === "saved" && updatePoId.po_ship_id && updatePoId.po_ship_id !== "--") {
+      obj.addrshipid = updatePoId.po_ship_id;
     }
 
-    updatePoId?.materials?.map((row, index) =>
-      arr.push({
-        id: v4(),
+
+    if (obj.ship_type === "vendor") {
+      obj.ship_vendor = {
+        label: updatePoId.ship_vendor_name || updatePoId.addrshipname || "Vendor",
+        value: updatePoId.po_ship_id || updatePoId.addrshipid,
+      };
+      if (updatePoId.po_ship_vendor_branch && updatePoId.po_ship_vendor_branch !== "--") {
+        obj.ship_vendor_branch = {
+          label: updatePoId.ship_vendor_branch_name || updatePoId.po_ship_vendor_branch,
+          value: updatePoId.po_ship_vendor_branch,
+        };
+      }
+    }
+
+    setPurchaseOrder(obj);
+    setResetDetailsData(obj);
+
+    if (obj.vendorcode?.value) {
+      getVendorBranches(obj.vendorcode.value);
+    }
+
+    
+    form.setFieldsValue(obj);
+
+    // Materials load
+    const materialsArr = updatePoId.materials?.map((row) => ({
+      id: v4(),
         currency: row.currency,
         exchange_rate: row.exchangerate == "" ? 1 : row.exchangerate,
         component: {
@@ -247,29 +249,66 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         unit: row.unitname,
         updateRow: row.updateid,
         project_rate: row.project_rate,
-        localPrice:
-          +Number(row.exchangerate).toFixed(2) * +Number(row.rate).toFixed(2),
+        localPrice: +Number(row.exchangerate).toFixed(2) * +Number(row.rate).toFixed(2),
         tol_price: +Number((row.project_rate * 1) / 100).toFixed(2),
         project_qty: row.project_qty,
         po_ord_qty: row.po_ord_qty,
-      })
-    );
-    console.log("this is the array", arr);
-    setRowCount(arr);
-    setResetRowsDetailsData(arr);
+        last_rate: row.last_rate || 0,
+    })) || [];
+
+    setRowCount(materialsArr);
+    setResetRowsDetailsData(materialsArr);
   }, [updatePoId]);
+
+  // Convert shipping ID to object with label and value once shippingOptions are loaded
+  useEffect(() => {
+    if (purchaseOrder?.addrshipid && shippingOptions.length > 0 && purchaseOrder?.ship_type === "saved") {
+      // Skip if already in object format with label
+      if (typeof purchaseOrder.addrshipid === "object" && purchaseOrder.addrshipid?.label) {
+        return;
+      }
+      
+      const shippingId = typeof purchaseOrder.addrshipid === "object" 
+        ? purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid?.id 
+        : purchaseOrder.addrshipid;
+      
+      const shippingOption = shippingOptions.find((opt) => String(opt.value) === String(shippingId));
+      
+      if (shippingOption) {
+        const shippingObj = {
+          label: shippingOption.text,
+          value: shippingOption.value,
+        };
+        
+        // Update form and purchaseOrder state
+        form.setFieldValue("addrshipid", shippingObj);
+        setPurchaseOrder((prev) => ({
+          ...prev,
+          addrshipid: shippingObj,
+        }));
+      } else if (purchaseOrder?.addrshipname) {
+        // Fallback: use addrshipname if shippingOption not found
+        const shippingObj = {
+          label: purchaseOrder.addrshipname,
+          value: shippingId,
+        };
+        
+        form.setFieldValue("addrshipid", shippingObj);
+        setPurchaseOrder((prev) => ({
+          ...prev,
+          addrshipid: shippingObj,
+        }));
+      }
+    }
+  }, [shippingOptions, purchaseOrder?.addrshipid, purchaseOrder?.ship_type, purchaseOrder?.addrshipname]);
+
   const finish = (values) => {
-    console.log(values);
+    console.log("Final Payload →", values);
     setActiveTab("2");
     setPurchaseOrder(values);
   };
   return (
-    <Drawer
-      title={`Updating PO: ${updatePoId?.orderid}`}
-      width="100vw"
-      open={updatePoId}
-      onClose={() => setUpdatePoId(null)}
-    >
+    <Drawer title={`Updating PR: ${updatePoId?.orderid}`} width="100vw" open={updatePoId} onClose={() => setUpdatePoId(null)}>
       <Tabs
         activeKey={activeTab}
         style={{
@@ -278,11 +317,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
         }}
         size="small"
       >
-        <Tabs.TabPane
-          style={{ height: "100%" }}
-          tab="Edit Purchase Order"
-          key="1"
-        >
+        <Tabs.TabPane style={{ height: "100%" }} tab="Edit Purchase Order" key="1">
           {/* reset confirm modal */}
           <Modal
             title="Confirm Reset!"
@@ -297,10 +332,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
               </Button>,
             ]}
           >
-            <p>
-              Are you sure to reset details of this Purchase Order to the
-              details it was created with?
-            </p>
+            <p>Are you sure to reset details of this Purchase Order to the details it was created with?</p>
           </Modal>
           <Form
             form={form}
@@ -327,9 +359,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
               <Row>
                 <Col span={4}>
                   <Descriptions title="Vendor Details">
-                    <Descriptions.Item>
-                      Type Name or Code of the vendor
-                    </Descriptions.Item>
+                    <Descriptions.Item>Type Name or Code of the vendor</Descriptions.Item>
                   </Descriptions>
                 </Col>
                 <Col span={20}>
@@ -346,10 +376,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                           },
                         ]}
                       >
-                        <MySelect
-                          size="default"
-                          options={vendorDetailsOptions}
-                        />
+                        <MySelect size="default" options={vendorDetailsOptions} />
                       </Form.Item>
                     </Col>
                     {/* vendor name */}
@@ -364,12 +391,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                           },
                         ]}
                       >
-                        <MyAsyncSelect
-                          onBlur={() => setAsyncOptions([])}
-                          optionsState={asyncOptions}
-                          labelInValue
-                          loadOptions={getVendors}
-                        />
+                        <MyAsyncSelect onBlur={() => setAsyncOptions([])} optionsState={asyncOptions} labelInValue loadOptions={getVendors} />
                       </Form.Item>
                     </Col>
                     {/* venodr branch */}
@@ -384,16 +406,12 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                           },
                         ]}
                       >
-                        <MySelect
-                          size="default"
-                          labelInValue
-                          options={vendorBranches}
-                        />
+                        <MySelect size="default" labelInValue options={vendorBranches} />
                       </Form.Item>
                     </Col>
                     <Col span={6}>
                       <Form.Item label="GSTIN" name="vendorgst">
-                        <Input size="default"  disabled />
+                        <Input size="default" disabled />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -419,20 +437,15 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
 
               <Row>
                 <Col span={4}>
-                  <Descriptions title="PO Terms">
-                    <Descriptions.Item>
-                      Provide PO terms and other information
-                    </Descriptions.Item>
+                  <Descriptions title="PR Terms">
+                    <Descriptions.Item>Provide PR terms and other information</Descriptions.Item>
                   </Descriptions>
                 </Col>
                 <Col span={20}>
                   <Row gutter={16}>
                     {/* terms and conditions */}
                     <Col span={6}>
-                      <Form.Item
-                        name="termsofcondition"
-                        label="Terms and Conditions"
-                      >
+                      <Form.Item name="termsofcondition" label="Terms and Conditions">
                         <Input size="default" />
                       </Form.Item>
                     </Col>
@@ -477,20 +490,13 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                           },
                         ]}
                       >
-                        <MyAsyncSelect
-                          onBlur={() => setAsyncOptions([])}
-                          optionsState={asyncOptions}
-                          loadOptions={getCostCenteres}
-                        />
+                        <MyAsyncSelect onBlur={() => setAsyncOptions([])} optionsState={asyncOptions} loadOptions={getCostCenteres} />
                       </Form.Item>
                     </Col>
                     {/* project name */}
                     <Col span={6}>
                       <Form.Item name="projectname" label="Project">
-                        <Input
-                          size="default"
-                          value={purchaseOrder?.projectname}
-                        />
+                        <Input size="default" value={purchaseOrder?.projectname} />
                       </Form.Item>
                     </Col>
                     {/* comments */}
@@ -514,9 +520,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
               <Row>
                 <Col span={4}>
                   <Descriptions title="Billing Details">
-                    <Descriptions.Item>
-                      Provide billing information
-                    </Descriptions.Item>
+                    <Descriptions.Item>Provide billing information</Descriptions.Item>
                   </Descriptions>
                 </Col>
                 <Col span={20}>
@@ -559,8 +563,7 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
                         rules={[
                           {
                             required: true,
-                            message:
-                              "Please enter billing address GSTIN number!",
+                            message: "Please enter billing address GSTIN number!",
                           },
                         ]}
                       >
@@ -589,79 +592,204 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
               </Row>
 
               <Divider />
-              <Row>
+              {/* Shipping Details */}
+             <Row>
                 <Col span={4}>
                   <Descriptions title="Shipping Details">
-                    <Descriptions.Item>
-                      Provide shipping information
-                    </Descriptions.Item>
+                    <Descriptions.Item>Provide shipping information</Descriptions.Item>
                   </Descriptions>
                 </Col>
-
                 <Col span={20}>
+                  {/* Shipping Type */}
                   <Row gutter={16}>
-                    {/* shipping id */}
-                    <Col span={6}>
-                      <Form.Item
-                        name="addrshipid"
-                        label="Shipping Id"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select a shipping address!",
-                          },
-                        ]}
-                      >
-                        <MySelect options={shippingOptions} />
+                    <Col span={8}>
+                      <Form.Item name="ship_type" label="Shipping Address Type">
+                        <Radio.Group
+                         
+                          onChange={(e) => {
+                            const type = e.target.value;
+
+                           
+                            form.setFieldsValue({
+                              addrshipid: undefined,
+                              ship_vendor: undefined,
+                              ship_vendor_branch: undefined,
+                              shipaddress: "",
+                              shippanno: "",
+                              ship_partyname: "",
+                              shipgstid: "",
+                              same_as_billing: false,
+                            });
+
+                            // Update state
+                            setPurchaseOrder((prev) => ({
+                              ...prev,
+                              ship_type: type,
+                              addrshipid: undefined,
+                              ship_vendor: undefined,
+                              ship_vendor_branch: undefined,
+                              shipaddress: "",
+                              shippanno: "",
+                              ship_partyname: "",
+                              shipgstid: "",
+                              same_as_billing: false,
+                            }));
+                          }}
+                        >
+                          <Radio value="saved">Default (Saved)</Radio>
+                          <Radio value="vendor">Vendor Address</Radio>
+                          <Radio value="manual">Manual Entry</Radio>
+                        </Radio.Group>
                       </Form.Item>
                     </Col>
-                    {/* pan number */}
-                    <Col span={6}>
-                      <Form.Item
-                        name="shippanno"
-                        label="Pan No."
-                        rules={[
-                          {
-                            required: true,
-                            message:
-                              "Please enter shipping address PAN number!",
-                          },
-                        ]}
-                      >
-                        <Input size="default" />
-                      </Form.Item>
-                    </Col>
-                    {/* gstin uin */}
-                    <Col span={6}>
-                      <Form.Item
-                        name="shipgstid"
-                        label="GSTIN / UIN"
-                        rules={[
-                          {
-                            required: true,
-                            message:
-                              "Please enter shipping address GST number!",
-                          },
-                        ]}
-                      >
-                        <Input size="default" />
-                      </Form.Item>
-                    </Col>
+
+                    {/* Same as Billing */}
+                    {form.getFieldValue("ship_type") === "saved" && (
+                      <Col span={8}>
+                        <Form.Item name="same_as_billing" valuePropName="checked">
+                          <Checkbox
+                            onChange={(e) => {
+                              if (e.target.checked && purchaseOrder?.addrbillid) {
+                                form.setFieldsValue({
+                                  addrshipid: purchaseOrder.addrbillid,
+                                  shipaddress: purchaseOrder.billaddress,
+                                  shippanno: purchaseOrder.billpanno,
+                                  shipgstid: purchaseOrder.billgstid,
+                                });
+                                setPurchaseOrder((prev) => ({
+                                  ...prev,
+                                  addrshipid: prev.addrbillid,
+                                  shipaddress: prev.billaddress,
+                                  shippanno: prev.billpanno,
+                                  shipgstid: prev.billgstid,
+                                }));
+                              } else {
+                                form.setFieldsValue({
+                                  addrshipid: undefined,
+                                  shipaddress: "",
+                                  shippanno: "",
+                                  shipgstid: "",
+                                });
+                                setPurchaseOrder((prev) => ({
+                                  ...prev,
+                                  addrshipid: undefined,
+                                  shipaddress: "",
+                                  shippanno: "",
+                                  shipgstid: "",
+                                }));
+                              }
+                            }}
+                          >
+                            Same as Billing Address
+                          </Checkbox>
+                        </Form.Item>
+                      </Col>
+                    )}
                   </Row>
-                  {/* shipping address */}
-                  <Row gutter={16}>
+
+                  {/* Saved Mode */}
+                  {form.getFieldValue("ship_type") === "saved" && (
+                    <Row gutter={16} style={{ marginTop: 16 }}>
+                      <Col span={8}>
+                        <Form.Item name="addrshipid" label="Shipping Address" rules={[{ required: true }]}>
+                          <MySelect options={shippingOptions} disabled={form.getFieldValue("same_as_billing")} onChange={(val) => selectInputHandler("addrshipid", val)} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item name="shippanno" label="PAN">
+                          <Input disabled />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item name="shipgstid" label="GSTIN">
+                          <Input disabled />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  )}
+
+                  {/* Vendor Mode */}
+                  {form.getFieldValue("ship_type") === "vendor" && (
+                    <Row gutter={16} style={{ marginTop: 16 }}>
+                      
+                      <Col span={8}>
+                        <Form.Item name="ship_vendor" label="Shipping Vendor" rules={[{ required: true }]}>
+                          <MyAsyncSelect
+                            labelInValue
+                            loadOptions={getVendors}
+                            onBlur={() => setAsyncOptions([])}
+                            optionsState={asyncOptions}
+                            onChange={async (val) => {
+                              const branches = await getVendorBranches(val.value);
+                              const { data } = await imsAxios.post("/backend/vendorAddress", {
+                                vendorcode: val.value,
+                                branchcode: branches[0]?.value,
+                              });
+                              form.setFieldsValue({
+                                ship_vendor_branch: branches[0] || null,
+                                shipaddress: data.data.address?.replaceAll("<br>", "\n") || "",
+                                shipgstid: data.data.gstid || "",
+                              });
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col span={8}>
+                        <Form.Item name="ship_vendor_branch" label="Branch" rules={[{ required: true }]}>
+                          <MySelect
+                            options={vendorBranches}
+                            labelInValue
+                            onChange={async (branch) => {
+                              const vendor = form.getFieldValue("ship_vendor");
+                              if (!vendor) return;
+                              const { data } = await imsAxios.post("/backend/vendorAddress", {
+                                vendorcode: vendor.value,
+                                branchcode: branch.value,
+                              });
+                              form.setFieldsValue({
+                                shipaddress: data.data.address?.replaceAll("<br>", "\n") || "",
+                                shipgstid: data.data.gstid || "",
+                              });
+                            }}
+                          />
+                        </Form.Item>
+                      </Col>
+                      
+                    </Row>
+                  )}
+
+                  {/* Manual Mode */}
+                  {form.getFieldValue("ship_type") === "manual" && (
+                    <Row gutter={16} style={{ marginTop: 16 }}>
+                      {/* //party name */}
+                      <Col span={8}>
+                        <Form.Item name="ship_partyname" label="Party Name" rules={[{ required: true }]}>
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="shippanno" label="PAN" rules={[{ required: false }]}>
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="shipgstid" label="GSTIN" rules={[{ required: false }]}>
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  )}
+
+                  {/* Common Shipping Address */}
+                  <Row gutter={16} style={{ marginTop: 16 }}>
                     <Col span={18}>
-                      <Form.Item
-                        name="shipaddress"
-                        label="Shipping Address"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter shipping address details!",
-                          },
-                        ]}
-                      >
-                        <TextArea style={{ resize: "none" }} rows={4} />
+                      <Form.Item name="shipaddress" label="Shipping Address" rules={[{ required: true }]}>
+                        <TextArea
+                          rows={5}
+                          disabled={form.getFieldValue("ship_type") !== "manual"}
+                          placeholder={form.getFieldValue("ship_type") === "manual" ? "Enter full address" : "Address populated automatically"}
+                        />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -669,22 +797,13 @@ export default function EditPO({ updatePoId, setUpdatePoId }) {
               </Row>
               {/* <Divider  /> */}
             </div>
-            <NavFooter
-              backFunction={() => setUpdatePoId(null)}
-              submithtmlType="submit"
-              submitButton={true}
-              resetFunction={() => setShowDetailsConfirm(true)}
-              backLabel="Cancel"
-            />
+            <NavFooter backFunction={() => setUpdatePoId(null)} submithtmlType="submit" submitButton={true} resetFunction={() => setShowDetailsConfirm(true)} backLabel="Cancel" />
           </Form>
         </Tabs.TabPane>
-        <Tabs.TabPane
-          tab="Edit Components Details"
-          style={{ height: "100%" }}
-          key="2"
-        >
+        <Tabs.TabPane tab="Edit Components Details" style={{ height: "100%" }} key="2">
           <EditComponents
             resetRows={resetRows}
+            getRows={getRows}
             materials={updatePoId?.materials}
             setUpdatePoId={setUpdatePoId}
             updatePoId={updatePoId}

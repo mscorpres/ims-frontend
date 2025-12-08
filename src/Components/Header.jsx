@@ -54,16 +54,12 @@ const Header = ({ showSideBar, setShowSideBar, notifications }) => {
     }),
   };
 
-  useEffect(() => {}, []);
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user]);
-  useEffect(() => {
-    // socket.on("notification", (data) => {
-  });
-  // });
+ 
 
   return (
     <Header

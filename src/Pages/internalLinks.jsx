@@ -347,7 +347,7 @@ const links = [
   // hsn map links
   [{ routeName: "HSN Map", routePath: "/hsn-map" }],
   // group links
-  [{ routeName: "Groups", routePath: "/group" }],
+  [{ routeName: "Groups", routePath: "/group" },{ routeName: "Sub Groups", routePath: "/sub-group" }],
   // master cost center links
   [
     {
@@ -463,6 +463,15 @@ const links = [
       routePath: "/view-transaction",
     },
   ],
+
+  [
+    { routeName: "JW To JW", routePath: "/warehouse/material-transfer/jw-to-jw" },
+    {
+      routeName: "View Transaction",
+      routePath: "/warehouse/material-transfer/jw-to-jw/view",
+    },
+  ],
+
   // RM to REJ links
   [
     { routeName: "RM To REJ", routePath: "/re-to-rej" },

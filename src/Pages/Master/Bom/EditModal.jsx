@@ -146,7 +146,7 @@ const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {
       );
     }
     setAddUpdateLoading(id);
-    const { data } = await imsAxios.post("/bom/updateBomComponent", {
+    const response = await imsAxios.post("/bom/updateBomComponent", {
       component_id: b.component.value,
       qty: b.requiredQty,
       category: b.category,
@@ -157,7 +157,7 @@ const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {
     });
     setAddUpdateLoading(false);
 
-    if (data.code == 200) {
+    if (response?.success) {
       // next();
       let arr = secondData;
       arr = arr.map((row) => {
@@ -172,9 +172,9 @@ const EditBranch = ({ modalEditOpen, setModalEditOpen }) => {
         }
       });
       setSecondData(arr);
-      toast.success(data.message);
+      toast.success(response.message);
     } else {
-      toast.error(errorToast(data.message));
+      toast.error(errorToast(response.message));
     }
   };
 
