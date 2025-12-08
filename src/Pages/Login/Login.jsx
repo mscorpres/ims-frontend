@@ -123,7 +123,7 @@ const Login = () => {
           dispatch(setUser(obj));
           if (payload.settings) dispatch(setSettings(payload.settings));
           toast.success("Login successful!");
-      
+          navigate("/");
         }
       } else {
         setRecaptchaValue(null);
