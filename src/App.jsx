@@ -66,7 +66,7 @@ import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tokenFromUrl = searchParams.get("previousToken");
+  const tokenFromUrl = searchParams.get("token");
   const sessionFromUrl = searchParams.get("session");
   const branchFromUrl = searchParams.get("branch");
   const comFromUrl = searchParams.get("company");
@@ -810,7 +810,7 @@ const App = () => {
 
     const urlParams = new URLSearchParams();
     if (previousToken && location && branch && session) {
-      urlParams.append("previousToken", previousToken);
+      urlParams.append("token", previousToken);
       urlParams.append("company", company);
       urlParams.append("branch", branch);
       urlParams.append("session", session);
