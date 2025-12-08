@@ -28,18 +28,20 @@ const CreateBom = () => {
       const values = await form.validateFields(["sku"]);
       const response = await imsAxios.get(`products/bySku?sku=${values.sku}`);
       const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          const product = data.data[0].p_name;
-          const productKey = data.data[0].product_key;
+
+    
+        if (response?.success) {
+          const product = data.productName;
+          const productKey = data.productKey;
           form.setFieldValue("product", product);
           form.setFieldValue("productKey", productKey);
           setProductSelected(true);
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message);
         }
-      }
+    
     } catch (error) {
+    
       console.log("error while fetching SKU details", error);
     } finally {
       setLoading(false);
