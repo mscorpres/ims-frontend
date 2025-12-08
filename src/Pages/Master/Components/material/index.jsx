@@ -106,6 +106,7 @@ const Material = () => {
 
         setGroupOptions(arr);
       } else {
+      
         toast.error(data.message.msg);
       }
     } catch (error) {
@@ -116,6 +117,7 @@ const Material = () => {
   };
 
   const getSubGroupOptions = async (groupId) => {
+  
     if (!groupId) {
       setSubGroupOptions([]);
       return;
@@ -131,6 +133,7 @@ const Material = () => {
 
         setSubGroupOptions(arr);
       } else {
+            setSubGroupOptions([]);
         toast.error(response.message);
       }
     } catch (error) {
@@ -361,21 +364,11 @@ const Material = () => {
       // });
     }
   };
-  const validateHandler = async () => {
-    Modal.confirm({
-      title: "Creating a new component",
-      content: "Please check all the values before proceeding",
-      okText: "Create",
-      // onOk: () => modalConfirmMaterial(payload),
-      // onOk: () => submitHandler(payload),
-    });
-  };
 
   const submitHandler = async (payload) => {
     try {
       setLoading("submit");
-      // return;
-      console.log("Here in submit handler");
+
       const response = await imsAxios.post(
         "/component/addComponent/save",
         payload
@@ -508,7 +501,6 @@ const Material = () => {
   }, [selectedCategory]);
   const typeIs = headerForm.getFieldValue("attrCategory");
 
-  // console.log("generatedCompName", generatedCompName);
   useEffect(() => {
     if (generatedCompName) {
       setGeneratedCompName(generatedCompName);
