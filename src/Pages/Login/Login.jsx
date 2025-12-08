@@ -123,7 +123,7 @@ const Login = () => {
           dispatch(setUser(obj));
           if (payload.settings) dispatch(setSettings(payload.settings));
           toast.success("Login successful!");
-          navigate("/");
+      
         }
       } else {
         setRecaptchaValue(null);
@@ -279,7 +279,7 @@ const Login = () => {
     }
   };
 
-  // OTP Backspace Handler
+  // OTP Backspace Handler`
   const handleOtpKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otpCode[index] && index > 0) {
       const prevInput = document.getElementById(`otp-input-${index - 1}`);
