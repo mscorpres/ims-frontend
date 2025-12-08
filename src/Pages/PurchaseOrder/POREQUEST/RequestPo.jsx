@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Col, Row, Space } from "antd";
+import { Col, Row, Space, Tooltip } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker.jsx";
 import { toast } from "react-toastify";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
@@ -55,60 +55,76 @@ const RequestPo = () => {
       ),
       width: 150,
     },
-    {
-      headerName: "PO ACCEPTANCE",
-      field: "poacceptstatus",
-      renderCell: ({ row }) => {
-        const status = row.poacceptstatus?.toUpperCase() || "";
-        let color = "#000000"; // default black
+  {
+  headerName: "PO ACCEPTANCE",
+  field: "poacceptstatus",
+  renderCell: ({ row }) => {
+    const status = (row.poacceptstatus || "").toUpperCase().trim();
+    const isUnderVerification = status === "UNDER VERIFICATION";
 
-        if (status === "APPROVED") {
-          color = "#52c41a"; // green
-        } else if (status === "REJECTED") {
-          color = "#ff4d4f"; // red
-        } else if (status === "PENDING") {
-          color = "#faad14"; // yellow
-        } else if (status === "UNDER VERIFICATION") {
-          color = "#8c8c8c"; // gray
-        }
+   
+    const leaderEmail = row.leader_email;  
 
-        // Adjust text color for better contrast on yellow background
-        const textColor = status === "PENDING" ? "#000000" : "#ffffff";
+    // Colors
+    let bgColor = "#8c8c8c";
+    if (status === "APPROVED") bgColor = "#52c41a";
+    else if (status === "REJECTED") bgColor = "#ff4d4f";
+    else if (status === "PENDING") bgColor = "#faad14";
 
-        return (
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: color,
-              color: textColor,
-              padding: "3px 14px",
-              borderRadius: "16px",
-              fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.75rem",
-              fontWeight: "600",
-              letterSpacing: "0.3px",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              maxWidth: "100%",
-              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-              border:
-                status === "PENDING"
-                  ? "1px solid rgba(0, 0, 0, 0.1)"
-                  : "1px solid rgba(255, 255, 255, 0.2)",
-              lineHeight: "1.4",
-              minHeight: "22px",
-            }}
-            title={row.poacceptstatus}
-          >
-            {row.poacceptstatus}
-          </div>
-        );
-      },
-      flex: 1,
-      minWidth: 150,
-    },
+    const textColor = status === "PENDING" ? "#000" : "#fff";
+
+    const badge = (
+      <div
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: bgColor,
+          color: textColor,
+          padding: "6px 18px",
+          borderRadius: "16px",
+          fontSize: "0.75rem",
+          fontWeight: 600,
+          minHeight: "28px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          cursor: isUnderVerification && leaderEmail ? "help" : "default",
+        }}
+      >
+        {row.poacceptstatus || "N/A"}
+      </div>
+    );
+
+   
+    if (isUnderVerification && leaderEmail) {
+      return (
+        <Tooltip
+          title={
+            <div style={{ textAlign: "center", lineHeight: "1.5" }}>
+              <small style={{ opacity: 0.85 }}>Under Verification by</small>
+              <br />
+              <strong style={{ fontSize: "15px", color: "#fff" }}>
+                {leaderEmail}
+              </strong>
+              <br />
+              <small style={{ opacity: 0.7, fontSize: "11px" }}>
+                {row.leader_name || ""}
+              </small>
+            </div>
+          }
+          color="#1a1a1a"
+          overlayInnerStyle={{ borderRadius: 10, padding: "10px 14px" }}
+          mouseEnterDelay={0}
+        >
+          <span style={{ display: "inline-block" }}>{badge}</span>
+        </Tooltip>
+      );
+    }
+
+    return <span style={{ display: "inline-block" }}>{badge}</span>;
+  },
+  flex: 1,
+  minWidth: 180,
+},
     {
       headerName: "Cost Center",
       field: "cost_center",
@@ -201,9 +217,9 @@ const RequestPo = () => {
       minWidth: 150,
     },
   ];
-  //getting rows from database from date wise filter
+ 
   const getSearchResults = async (silent = false) => {
-    // If no date range is set, silently skip refresh (e.g., after approve/reject)
+    
     if (!searchDateRange) {
       if (!silent) {
         toast.error("Please select start and end dates for the results");
@@ -226,9 +242,9 @@ const RequestPo = () => {
           index: index + 1,
         }));
         setRows(arr);
-        // If no results and not silent, show info message
+        
         if (arr.length === 0 && !silent) {
-          // Note: PO might have been approved/rejected and is no longer in requested list
+          
         }
       } else if (data.message?.msg) {
         if (!silent) {
