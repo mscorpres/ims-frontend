@@ -12,6 +12,7 @@ import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Box, LinearProgress } from "@mui/material";
 import "buffer";
 import {
   logout,
@@ -21,6 +22,8 @@ import {
   setCompanyBranch,
   setCurrentLink,
   setSession,
+  setUser,
+  setSettings,
 } from "./Features/loginSlice/loginSlice.js";
 import UserMenu from "./Components/UserMenu";
 import Logo from "./Components/Logo";
@@ -62,9 +65,12 @@ import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 
 const App = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const tokenFromUrl = searchParams.get("previousToken");
-
+  const sessionFromUrl = searchParams.get("session");
+  const branchFromUrl = searchParams.get("branch");
+  const comFromUrl = searchParams.get("company");
+  const [loadingSwitch, setLoadingSwitch] = useState(false);
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
@@ -218,13 +224,58 @@ const App = () => {
     setIsConnected(false);
     setIsLoading(false);
   });
-  // Extract token from URL and store in localStorage when it's available
-  useEffect(() => {
-    if (tokenFromUrl) {
-      localStorage.setItem("newToken", tokenFromUrl);
-      navigate("/");
+  const fetchUserDeatils = async (token, session, com, branch) => {
+    setLoadingSwitch(true);
+    localStorage.removeItem("loggedInUser");
+
+    try {
+      const response = await imsAxios.get(
+        `/auth/switch?next=alwar.mscorpres.com&company=${com}&token=${token}&session=${session}&branch=${branch}`
+      );
+      if (response?.success) {
+        const payload = response?.data;
+        const obj = {
+          email: payload.crn_email,
+          phone: payload.crn_mobile,
+          comId: payload.company_id,
+          userName: payload.username,
+          token: payload.token,
+          favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
+          type: payload.crn_type,
+          mobileConfirmed: payload.other?.m_v,
+          emailConfirmed: payload.other?.e_v,
+          passwordChanged: payload.other?.c_p ?? "C",
+          company_branch: branch, // Use selected branch from login form
+          currentLink: JSON.parse(localStorage.getItem("branchData"))
+            ?.currentLink,
+          id: payload.crn_id,
+          showlegal: payload.department === "legal" ? true : false,
+          session: session,
+        };
+        localStorage.setItem("loggedInUser", JSON.stringify(obj));
+        dispatch(setUser(obj));
+        if (payload.settings) dispatch(setSettings(payload.settings));
+        setLoadingSwitch(false);
+        setSearchParams({}, { replace: true });
+      } else {
+        setLoadingSwitch(false);
+         toast.error(response?.message);
+         window.location.replace("https://alwar.mscorpres.com/");
+       
+      }
+    } catch (error) {
+      setLoadingSwitch(false);
+         toast.error(response?.message);
+        window.location.replace("https://alwar.mscorpres.com/");
+   
     }
-  }, [tokenFromUrl]);
+  };
+
+  useEffect(() => {
+    if (tokenFromUrl && sessionFromUrl && comFromUrl && branchFromUrl) {
+      fetchUserDeatils(tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl);
+    }
+  }, [tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl]);
 
   useEffect(() => {
     if (Notification.permission == "default") {
@@ -403,7 +454,7 @@ const App = () => {
         dispatch(setNotifications(arr));
       });
     }
-  }, [tokenFromUrl]);
+  }, []);
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -726,7 +777,7 @@ const App = () => {
   const options = [
     { label: "A-21 [BRMSC012]", value: "BRMSC012" },
     { label: "B-29 [BRMSC029]", value: "BRMSC029" },
-    { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
+    { label: "B36 [ALWAR]", value: "BRALWR36" },
     { label: "D-160 [BRBAD116]", value: "BRBAD116" },
   ];
   const sessionOptions = [
@@ -737,91 +788,36 @@ const App = () => {
   ];
 
   const locationBranchOptions = {
-    alwar: [{ label: "B-36 Alwar [BRBA036]", value: "BRBA036" }],
-
+    alwar: [{ label: "B36 [ALWAR]", value: "BRALWR36" }],
     noida: [
       { label: "A-21 [BRMSC012]", value: "BRMSC012" },
-
       { label: "B-29 [BRMSC029]", value: "BRMSC029" },
-
       { label: "D-160 [BRBAD116]", value: "BRBAD116" },
     ],
   };
 
   const handleSwitchModule = async (location, branch, session) => {
-    setIsSwitchingModule(true);
+    const existing = JSON.parse(localStorage.getItem("loggedInUser")) || {};
+    const previousToken = existing?.token;
 
-
-    const company = location === "alwar" ? "com0002" : "com0001";
-
-    try {
-      const existing = JSON.parse(localStorage.getItem("loggedInUser")) || {};
-
-      const previousToken = existing?.token;
-
-      const response = await imsAxios.post(`/auth/switch?company=${company}`);
-
-      const isSuccess = response?.success ?? false;
-
-      const newToken = response?.data?.token;
-
-      const responseMessage = response?.message;
-
-      if (isSuccess && newToken) {
-        // Show success checkmark
-
-        setSwitchSuccess(true);
-
-        setTimeout(() => {
-          toast.success(`Switched to ${location} - ${branch}`);
-
-          dispatch(setCompanyBranch(branch));
-
-          dispatch(setSession(session));
-
-          socket.emit("getBranch", branch);
-
-          localStorage.setItem(
-            "loggedInUser",
-
-            JSON.stringify({
-              ...existing,
-
-              token: newToken,
-            })
-          );
-
-          const targetUrl =
-            location.toLowerCase() === "alwar"
-              ? import.meta.env.VITE_REACT_APP_SWITCH_URL
-              : "";
-
-          const urlParams = new URLSearchParams();
-
-          if (previousToken) {
-            urlParams.append("previousToken", previousToken);
-          }
-
-          const redirectUrl = `${targetUrl}?${urlParams.toString()}`;
-          localStorage.removeItem("otherData");
-          localStorage.removeItem("loggedInUser");
-          window.location.replace(redirectUrl);
-     
-        }, 1500);
-      } else {
-        setIsSwitchingModule(false);
-        toast.error(responseMessage || "Failed to switch module");
-      }
-    } catch (error) {
-      setIsSwitchingModule(false);
-
-      const errorMessage =
-        error?.message ||
-        error?.response?.message ||
-        "An error occurred while switching module";
-
-      toast.error(errorMessage);
+    const company = location.toLowerCase() === "alwar" ? "COM0002" : "COM0001";
+    if (company === existing?.comId) {
+      toast.error(`You are already On ${location} Module`);
+      return;
     }
+
+    const targetUrl = import.meta.env.VITE_REACT_APP_SWITCH_URL;
+
+    const urlParams = new URLSearchParams();
+    if (previousToken && location && branch && session) {
+      urlParams.append("previousToken", previousToken);
+      urlParams.append("company", company);
+      urlParams.append("branch", branch);
+      urlParams.append("session", session);
+    }
+
+    const redirectUrl = `${targetUrl}?${urlParams.toString()}`;
+    window.location.replace(redirectUrl);
   };
 
   const path = window.location.hostname;
@@ -915,6 +911,36 @@ const App = () => {
       return isEnabled ? item : null;
     })
     .filter((item) => item !== null);
+
+  if (loadingSwitch) {
+    return (
+      <Box sx={{ width: "100%", overflow: "hidden" }}>
+        <LinearProgress
+          sx={{
+            position: "sticky",
+            top: 0,
+            
+          }}
+        />
+        <Box
+          sx={{
+            width: "100%",
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src="/assets/images/mscorpres_auto_logo.png"
+            alt=""
+            style={{ width: 100, opacity: 0.8 }}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <div style={{ height: "100vh" }}>
       <ToastContainer
@@ -1378,7 +1404,7 @@ const App = () => {
                               );
                             }}
                           >
-                            Authenticate
+                            Switch
                           </Button>
                         </div>
                       </div>

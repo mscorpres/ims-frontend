@@ -107,6 +107,7 @@ const Login = () => {
             email: payload.crn_email,
             phone: payload.crn_mobile,
             userName: payload.username,
+               comId: payload.company_id,
             token: payload.token,
             favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
             type: payload.crn_type,
