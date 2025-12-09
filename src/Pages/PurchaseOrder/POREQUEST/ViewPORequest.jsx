@@ -229,6 +229,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
               label: row.component + " " + row.part_no,
               value: row.componentKey,
             },
+            part_no: row.part_no,
             qty: row.orderqty,
             rate: row.rate,
             duedate: row.duedate,
@@ -472,6 +473,13 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
   };
 
   const componentColumns = [
+     {
+      headerName: "Part no.",
+      width: 100,
+      field: "part_no",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.part_no || "--"} />,
+    },
     {
       headerName: "Component",
       width: 250,
