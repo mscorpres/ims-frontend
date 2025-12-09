@@ -51,8 +51,9 @@ function CPMMaster() {
 
   const handleSubmit = async (updatedData) => {
     try {
-      const response = await imsAxios.put('/ppr/update/project', updatedData);
-      if (response?.success) {
+      const data = await imsAxios.put('/ppr/update/project', updatedData);
+      const response = data?.data
+      if (response?.success || response.code == 200) {
         toast.success( response.message || "Project updated successfully!");
         setIsModalVisible(false);
         getAllDetailFun(); // Refresh the data after successful update
