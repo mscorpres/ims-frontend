@@ -79,6 +79,7 @@ export default function CreatePo() {
   const [billToOptions, setBillTopOptions] = useState([]);
   const [shipToOptions, setShipToOptions] = useState([]);
   const [vendorBranches, setVendorBranches] = useState([]);
+  const [shippingVendorBranches, setShippingVendorBranches] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
   const [stateCode, setStateCode] = useState("");
   const [showQtyWarning, setShowQtyWarning] = useState(false);
@@ -1024,7 +1025,12 @@ const [pendingPOData, setPendingPOData] = useState(null);
   //on selecting vendor from the list
   useEffect(() => {
     if (newPurchaseOrder.vendorname) {
-      getVendorBracnch();
+      const vendorCode = typeof newPurchaseOrder.vendorname === "object" 
+        ? newPurchaseOrder.vendorname.value 
+        : newPurchaseOrder.vendorname;
+      if (vendorCode) {
+        getVendorBracnch(vendorCode);
+      }
     }
   }, [newPurchaseOrder.vendorname]);
   // useE
@@ -1742,7 +1748,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
                             <Radio.Group
                               onChange={(e) => {
                                 const type = e.target.value;
-                                if (type === "manual") {
+                                if (type === "manual" || type === "saved") {
                                   form.setFieldsValue({
                                     ship_vendor: "",
                                     ship_vendor_branch: "",
@@ -1759,6 +1765,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
                                     shipPan: "",
                                     shipGST: "",
                                   }));
+                                  setShippingVendorBranches([]);
                                 }
                               }}
                             >
@@ -1811,7 +1818,15 @@ const [pendingPOData, setPendingPOData] = useState(null);
                                 optionsState={asyncOptions}
                                 onChange={async (value) => {
                                   if (!value) return;
-                                  const branches = await getVendorBracnch(value.value);
+                                  setPageLoading(true);
+                                  const { data } = await imsAxios.post("/backend/vendorBranchList", {
+                                    vendorcode: value.value,
+                                  });
+                                  setPageLoading(false);
+                                  const branches = data?.data?.map((d) => {
+                                    return { value: d.id, text: d.text };
+                                  });
+                                  setShippingVendorBranches(branches || []);
                                   const { address, gstin } = await getVendorAddress({
                                     vendorCode: value,
                                     vendorBranch: branches[0]?.value,
@@ -1835,7 +1850,7 @@ const [pendingPOData, setPendingPOData] = useState(null);
                           <Col span={8}>
                             <Form.Item name="ship_vendor_branch" label="Shipping vendor Branch" rules={[{ required: true, message: "Please select branch" }]}>
                               <MySelect
-                                options={vendorBranches}
+                                options={shippingVendorBranches}
                                 onChange={async (branch) => {
                                   if (!newPurchaseOrder.ship_vendor && !form.getFieldValue("ship_vendor")) return;
                                   const vendorValue = newPurchaseOrder.ship_vendor || form.getFieldValue("ship_vendor");
