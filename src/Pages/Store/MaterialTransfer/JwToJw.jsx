@@ -16,6 +16,7 @@ function JwToJw() {
     jwVendor: "",
     jwPo: "",
     locationFrom: "202102201753",
+    locationTo: "",
     remark: "",
   });
 
@@ -24,7 +25,6 @@ function JwToJw() {
       id: v4(),
       component: null,
       qty1: "",
-      locationTo: "",
       stockQty: "",
       unit: "",
     },
@@ -66,7 +66,6 @@ function JwToJw() {
         id: v4(),
         component: null,
         qty1: "",
-        locationTo: "",
         stockQty: "",
         unit: "",
       },
@@ -102,7 +101,7 @@ function JwToJw() {
 
   const getJwPoOptions = async (vendorId) => {
     try {
-      const response = await imsAxios.get(`/godown/transfer/jw-jw/po/${vendorId}`);
+      const response = await imsAxios.get(`/backend/fetchVendorJWLocation?vendor=${vendorId}`);
       let v = [];
       if (response?.data && Array.isArray(response.data)) {
         response.data.map((ad) =>
@@ -133,7 +132,7 @@ function JwToJw() {
   };
 
   const getLocationFunctionTo = async () => {
-    const response = await imsAxios.post("/godown/fetchLocationForJW2JW_to");
+    const response = await imsAxios.get(`/backend/fetchVendorJWLocation?vendor=${allData.jwVendor}`);
     let v = [];
     if (response?.data && Array.isArray(response.data)) {
       response.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
@@ -188,11 +187,11 @@ function JwToJw() {
       if (!row.qty1) {
         return toast.error(`Row ${i + 1}: Please enter Qty`);
       }
-      if (!row.locationTo) {
-        return toast.error(`Row ${i + 1}: Please select Drop Location`);
+      if (!allData.locationTo) {
+        return toast.error("Please select Drop Location");
       }
-      if (row.locationTo == allData.locationFrom) {
-        return toast.error(`Row ${i + 1}: Both Location Same`);
+      if (allData.locationTo == allData.locationFrom) {
+        return toast.error("Both Location Same");
       }
     }
 
@@ -200,7 +199,6 @@ function JwToJw() {
 
     // Prepare arrays for payload - extract value from object if needed
     const components = rows.map((row) => row.component?.value || row.component);
-    const tolocations = rows.map((row) => row.locationTo);
     const qtys = rows.map((row) => row.qty1);
 
     const response = await imsAxios.post("/godown/transferJW2JW", {
@@ -208,7 +206,7 @@ function JwToJw() {
       jw_po: allData.jwPo,
       fromlocation: allData.locationFrom,
       component: components,
-      tolocation: tolocations,
+      tolocation: allData.locationTo,
       qty: qtys,
       remark: allData.remark,
       type: "JW2JW",
@@ -221,6 +219,7 @@ function JwToJw() {
         jwVendor: "",
         jwPo: "",
         locationFrom: "202102201753",
+        locationTo: "",
         remark: "",
       });
       setJwPoOptions([]);
@@ -229,7 +228,6 @@ function JwToJw() {
           id: v4(),
           component: null,
           qty1: "",
-          locationTo: "",
           stockQty: "",
           unit: "",
         },
@@ -264,7 +262,7 @@ function JwToJw() {
 
   useEffect(() => {
     getLocationFunction();
-    getLocationFunctionTo();
+    // getLocationFunctionTo();
   }, []);
 
   // Add more rows to spreadsheet
@@ -347,7 +345,6 @@ function JwToJw() {
             label: `(${item.component_name}) ${item.part_no}`,
           },
           qty1: "",
-          locationTo: "",
           stockQty: item.pending_with_jw || "0",
           unit: item.uom || "",
         }));
@@ -474,6 +471,26 @@ function JwToJw() {
                     }
                   />
                 </Col>
+                <Col span={24} style={{ marginTop: "15px", marginBottom: "10px" }}>
+                  <span>SELECT DROP LOCATION</span>
+                </Col>
+                <Col span={24}>
+                  <Select
+                    style={{ width: "100%" }}
+                    options={locDataTo}
+                    value={allData.locationTo || undefined}
+                    placeholder="Select Location"
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                    }
+                    onChange={(e) => {
+                      setAllData((allData) => {
+                        return { ...allData, locationTo: e };
+                      });
+                    }}
+                  />
+                </Col>
               </Row>
             </Col>
 
@@ -522,9 +539,6 @@ function JwToJw() {
                           </th>
                           <th className="an" style={{ width: "15vw" }}>
                             TRANSFERING QTY
-                          </th>
-                          <th className="an" style={{ width: "20vw" }}>
-                            DROP LOCATION
                           </th>
                         </tr>
                       </thead>
@@ -625,28 +639,6 @@ function JwToJw() {
                                     Number(row.qty1) > Number(row.stockQty)
                                       ? "#ffcccc"
                                       : undefined,
-                                }}
-                              />
-                            </td>
-                            <td style={{ width: "20vw" }}>
-                              <Select
-                                style={{ width: "100%" }}
-                                options={locDataTo}
-                                value={row.locationTo || undefined}
-                                placeholder="Select Location"
-                                showSearch
-                                filterOption={(input, option) =>
-                                  (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-                                }
-                                onChange={(e) => {
-                                  setRows((prev) => {
-                                    const updated = [...prev];
-                                    updated[index] = {
-                                      ...updated[index],
-                                      locationTo: e,
-                                    };
-                                    return updated;
-                                  });
                                 }}
                               />
                             </td>
