@@ -201,15 +201,14 @@ function JwToJw() {
     const components = rows.map((row) => row.component?.value || row.component);
     const qtys = rows.map((row) => row.qty1);
 
-    const response = await imsAxios.post("/godown/transferJW2JW", {
-      jw_vendor: allData.jwVendor,
-      jw_po: allData.jwPo,
-      fromlocation: allData.locationFrom,
+    const response = await imsAxios.post("/godown/transfer/jw-jw/transfer", {
+      vendor: allData.jwVendor,
+      jw: allData.jwPo,
+      from: allData.locationFrom,
       component: components,
-      tolocation: allData.locationTo,
+      to: allData.locationTo,
       qty: qtys,
-      remark: allData.remark,
-      type: "JW2JW",
+      remarks: allData.remark,
     });
 
     if (response.success) {
