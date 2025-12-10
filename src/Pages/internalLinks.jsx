@@ -328,10 +328,10 @@ const links = [
       routeName: "Component Category",
       routePath: "/master/component/category",
     },
-    {
-      routeName: "StocKControl",
-      routePath: "/stockControl",
-    },
+    // {
+    //   routeName: "StocKControl",
+    //   routePath: "/stockControl",
+    // },
   ],
   // product links
   [

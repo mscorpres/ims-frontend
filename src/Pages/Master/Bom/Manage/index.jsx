@@ -57,9 +57,7 @@ const ManageBOM = () => {
       subject_id: id,
       status: statusText,
     });
-    const { data } = response;
-    if (data) {
-      if (data.status === "success") {
+      if (response?.success) {
         setRows((curr) =>
           curr.map((row) => {
             if (row.bomId === id) {
@@ -73,7 +71,7 @@ const ManageBOM = () => {
           })
         );
       }
-    }
+ 
     setLoading(false);
   };
   const handleBOMDownload = async (id, name) => {

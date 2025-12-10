@@ -47,9 +47,11 @@ const AddVendor = () => {
       });
       setSelectLoading(false);
       let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
+      if (data && Array.isArray(data)) {
+        arr = data.map((d) => {
+          return { text: d.text, value: d.id };
+        });
+      }
       setAsyncOptions(arr);
       // return arr;
     }
@@ -77,17 +79,14 @@ const AddVendor = () => {
       showSubmitConfirmModal
     );
     setLoading(false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        toast.success(data.message);
+      if (response.success) {
+        toast.success(response?.message);
         reset();
       } else {
         setShowSubmitConfirmModal(false);
         // console.log("data.message", data.message);
-        toast.error(data.message.msg);
+        toast.error(response.message);
       }
-    }
   };
 
   const validateHandler = async () => {
@@ -103,9 +102,13 @@ const AddVendor = () => {
 
     //   formData.append("file", r.file[0].originFileObj);
     // });
-    values.components.map((comp) => {
-      formData.append("file", comp.file[0]?.originFileObj);
-    });
+    if (values.components && Array.isArray(values.components)) {
+      values.components.map((comp) => {
+        if (comp.file && Array.isArray(comp.file) && comp.file[0]) {
+          formData.append("file", comp.file[0]?.originFileObj);
+        }
+      });
+    }
     // formData.append("file", values.components[0].file[0].originFileObj);
     // console.log("a-----", uploadedFie[0].file[0].originFileObj);
     // console.log("values", values);
@@ -128,13 +131,16 @@ const AddVendor = () => {
         eInvoice: values.applicability,
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
-        documentName: uploadedFie.map((r) => r.documentName),
+        documentName:
+          uploadedFie && Array.isArray(uploadedFie)
+            ? uploadedFie.map((r) => r.documentName)
+            : [],
         // file: formData,
       },
       branch: {
         branch: values.branch,
         address: values.address,
-        state: values.state,
+        state: values.state?.value || values.state,
         city: values.city,
         pincode: values.pincode,
         fax: values.fax == "" && "--",

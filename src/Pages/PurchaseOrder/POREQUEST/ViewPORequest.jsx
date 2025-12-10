@@ -229,6 +229,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
               label: row.component + " " + row.part_no,
               value: row.componentKey,
             },
+            part_no: row.part_no,
             qty: row.orderqty,
             rate: row.rate,
             duedate: row.duedate,
@@ -239,7 +240,6 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
             sgst: row.sgst == "--" ? 0 : row.sgst,
             igst: row.igst == "--" ? 0 : row.igst,
             remark: row.remark || "--",
-            internal_remark: row.internal_remark || "",
             inrValue: row.taxablevalue,
             foreginValue: row.exchangetaxablevalue,
             unit: row.unitname,
@@ -473,6 +473,13 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
   };
 
   const componentColumns = [
+     {
+      headerName: "Part no.",
+      width: 100,
+      field: "part_no",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.part_no || "--"} />,
+    },
     {
       headerName: "Component",
       width: 250,
@@ -626,15 +633,6 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       field: "remark",
       sortable: false,
       renderCell: ({ row }) => <ToolTipEllipses text={row.remark || "--"} />,
-    },
-    {
-      headerName: "Internal Remark",
-      width: 200,
-      field: "internal_remark",
-      sortable: false,
-      renderCell: ({ row }) => (
-          <ToolTipEllipses text={row.internal_remark || "--"} />
-      ),
     },
   ];
 

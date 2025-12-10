@@ -6,7 +6,7 @@ import { addProduct } from "../../../api/master/products";
 import { ResponseType } from "../../../types/general";
 import useApi from "../../../hooks/useApi";
 
-const Add = ({ uomOptions, productType, getProductRows }) => {
+const Add = ({ uomOptions, productType, getProductRows }:any) => {
   const [addProductForm] = Form.useForm();
   const { executeFun, loading } = useApi();
   const category = [

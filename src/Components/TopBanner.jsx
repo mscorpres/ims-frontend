@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const TopBanner = () => {
   const [visible, setVisible] = useState(true);
   const [currentColorIndex, setCurrentColorIndex] = useState(0);
+  const { pathname } = useLocation();
 
   const colors = [
     "#ff6b35", // Orange
@@ -28,7 +30,31 @@ const TopBanner = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (!visible) return null;
+  // List of exact master page paths (not starting with /master/ or /masters/)
+  const exactMasterPagePaths = [
+    "/uom",
+    "/material",
+    "/services",
+    "/group",
+    "/location",
+    "/billingAddress",
+    "/shippingAddress",
+    "/vendor",
+    "/add-vendor",
+    "/hsn-map",
+    "/cost-center",
+    "/stockControl",
+    "/master/reports/r19",
+    "/tally/clients/add"
+  ];
+
+  // Check if current pathname is a master page
+  const isMasterPage =
+    pathname.startsWith("/master/") ||
+    pathname.startsWith("/masters/") ||
+    exactMasterPagePaths.includes(pathname);
+
+  if (!visible || !isMasterPage) return null;
 
   return (
     <div
@@ -36,14 +62,10 @@ const TopBanner = () => {
         width: "100%",
         background: colors[currentColorIndex],
         color: currentTextColor,
-        padding: "6px 16px",
+        // padding: "6px 16px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 2000,
         fontWeight: 500,
         fontSize: "13px",
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
@@ -61,43 +83,10 @@ const TopBanner = () => {
           gap: "8px",
         }}
       >
-        <span style={{ fontSize: "14px" }}>🚀</span>
+        <span style={{ fontSize: "14px" }}>ℹ️</span>
         <span>
-          We are now completely moving to{" "}
-          <a
-            href="https://oakter.mscorpres.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: currentTextColor,
-              textDecoration: "underline",
-              fontWeight: "bold",
-              padding: "2px 6px",
-              borderRadius: "4px",
-              background:
-                currentTextColor === "white"
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.1)",
-              transition: "all 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background =
-                currentTextColor === "white"
-                  ? "rgba(255,255,255,0.3)"
-                  : "rgba(0,0,0,0.2)";
-              e.target.style.transform = "scale(1.05)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background =
-                currentTextColor === "white"
-                  ? "rgba(255,255,255,0.2)"
-                  : "rgba(0,0,0,0.1)";
-              e.target.style.transform = "scale(1)";
-            }}
-          >
-            oakter.mscorpres.com
-          </a>{" "}
-          on August 11, 2025. Please update your bookmarks! 📌
+          Master data is integrated with Alwar. Therefore, any data created in
+          this system will automatically reflect in the Alwar branch.
         </span>
       </div>
       <button

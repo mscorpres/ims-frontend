@@ -4,6 +4,8 @@ import { Button, Card, Flex, Form, Input, Modal, Typography } from "antd";
 import useApi from "@/hooks/useApi";
 import { sendOtp, verifyOtp, updatePassword } from "@/api/auth.js";
 import { InfoCircleFilled, InfoCircleOutlined } from "@ant-design/icons";
+import ReCAPTCHA from "react-google-recaptcha";
+import { toast } from "react-toastify";
 
 interface PropTypes extends ModalType {}
 
@@ -13,9 +15,15 @@ const ForgotPassword = (props: PropTypes) => {
   const [timer, setTimer] = useState(defaultTimer);
   const [form] = Form.useForm();
   const { executeFun, loading } = useApi();
+  const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null);
+  const [recaptchaKey, setRecaptchaKey] = useState(Math.random());
 
   const handleSubmit = async () => {
     if (stage === 0) {
+      if (!recaptchaValue) {
+        toast.error("Please verify the reCAPTCHA");
+        return;
+      }
       handleSendOtp();
     } else if (stage === 1) {
       const values = await form.validateFields(["email", "otp"]);
@@ -40,14 +48,28 @@ const ForgotPassword = (props: PropTypes) => {
     }
   };
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = async (skipCaptcha = false) => {
+    if (!skipCaptcha && !recaptchaValue) {
+      toast.error("Please verify the reCAPTCHA");
+      return;
+    }
     const values = await form.validateFields(["email"]);
     const response = await executeFun(() => sendOtp(values.email), "submit");
     console.log(response);
     if (response.success) {
       setStage(1);
       startTimer();
+    } else {
+      // Reset captcha on error (only if on stage 0)
+      if (stage === 0) {
+        setRecaptchaValue(null);
+        setRecaptchaKey(Math.random());
+      }
     }
+  };
+
+  const handleRecaptchaChange = (value: string | null) => {
+    setRecaptchaValue(value);
   };
   const startTimer = () => {
     setTimer(defaultTimer);
@@ -87,6 +109,16 @@ const ForgotPassword = (props: PropTypes) => {
             <Input disabled={stage > 0} style={{ width: "100%" }} />
           </Form.Item>
 
+          {stage === 0 && (
+            <Form.Item style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+              <ReCAPTCHA
+                sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                onChange={handleRecaptchaChange}
+                key={recaptchaKey}
+              />
+            </Form.Item>
+          )}
+
           {stage === 1 && (
             <Form.Item name="otp" label="Enter OTP">
               <Input.OTP size="large" length={6} />
@@ -94,7 +126,7 @@ const ForgotPassword = (props: PropTypes) => {
           )}
           <br />
           {stage === 1 && (
-            <Button onClick={handleSendOtp} disabled={timer > 0} type="link">
+            <Button onClick={() => handleSendOtp(true)} disabled={timer > 0} type="link">
               Resend
               {timer > 0 && (
                 <span style={{ marginLeft: 5 }}>

@@ -15,7 +15,7 @@ import {
 } from "antd";
 import React from "react";
 import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useParams } from "react-router";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
@@ -23,13 +23,7 @@ import MySelect from "../../../../Components/MySelect";
 import MyButton from "../../../../Components/MyButton";
 
 import Loading from "../../../../Components/Loading";
-import { Link } from "react-router-dom";
 import CategoryDrawer from "./CategoryDrawer";
-
-import useApi from "../../../../hooks/useApi.ts";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import MyDataTable from "../../../gstreco/myDataTable";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 
 import AlternatePartCode from "./AlternatePartCode";
 
@@ -37,6 +31,7 @@ export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
   const [uomOptions, setuomOptions] = useState([]);
   const [groupOptions, setgroupOptions] = useState([]);
+  const [subGroupOptions, setSubGroupOptions] = useState([]);
   const [attr_raw, setUniqueIdData] = useState("");
   const [tooldata, setTooldata] = useState({});
   const [categoryData, setCategoryData] = useState(null);
@@ -50,7 +45,9 @@ export default function UpdateComponent() {
 
   const [tooltipVisible, setTooltipVisible] = useState(true);
   const [isEnabled, setIsEnabled] = useState(false);
-  const { executeFun, loading: loading1 } = useApi();
+  const selectedGroup = Form.useWatch("group", componentForm);
+  const isInitialLoad = useRef(true);
+
   useEffect(() => {
     // console.log("attr_raw", attr_raw);/
     if (attr_raw) {
@@ -101,6 +98,7 @@ export default function UpdateComponent() {
             },
             mrp: value.mrp,
             group: value.groupid,
+            subgroup: value.subgroupid,
             isEnabled: value.enable_status,
             jobWork: value.jobwork_rate,
             qcStatus: value.qc_status,
@@ -140,6 +138,12 @@ export default function UpdateComponent() {
             value: value.attr_code,
           });
           setTooldata(finalObj.toolLabel);
+
+          // Fetch subgroup options first if group exists
+          if (finalObj.group) {
+            await getSubGroupOptions(finalObj.group);
+          }
+
           componentForm.setFieldsValue(finalObj);
 
           setFetchPartCode(finalObj);
@@ -208,6 +212,60 @@ export default function UpdateComponent() {
       setNewPartCodeDb(alterpartcode);
     }
   }, [fetchPartCode]);
+
+  const getSubGroupOptions = async (groupId) => {
+    if (!groupId) {
+      setSubGroupOptions([]);
+      return [];
+    }
+    try {
+      setLoading("fetch");
+      const response = await imsAxios.get(`/backend/sub-group/${groupId}`);
+      if (response?.success) {
+        const arr = response.data.map((row) => ({
+          text: row.name,
+          value: row.key,
+        }));
+
+        setSubGroupOptions(arr);
+        return arr;
+      } else {
+        toast.error(response.message);
+        return [];
+      }
+    } catch (error) {
+      setSubGroupOptions([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedGroup) {
+      getSubGroupOptions(selectedGroup).then((options) => {
+        // Only reset subgroup if it's not initial load
+        if (!isInitialLoad.current) {
+          const currentSubgroup = componentForm.getFieldValue("subgroup");
+          // Check if current subgroup exists in the new options
+          const subgroupExists = options?.some(
+            (opt) => opt.value === currentSubgroup
+          );
+          if (!subgroupExists) {
+            componentForm.setFieldValue("subgroup", undefined);
+          }
+        } else {
+          // Mark initial load as complete after first group options are loaded
+          isInitialLoad.current = false;
+        }
+      });
+    } else {
+      setSubGroupOptions([]);
+      if (!isInitialLoad.current) {
+        componentForm.setFieldValue("subgroup", undefined);
+      }
+    }
+  }, [selectedGroup]);
 
   const getUomOptions = async () => {
     try {
@@ -279,6 +337,7 @@ export default function UpdateComponent() {
       category: "--",
       mrn: values.mrp,
       group: values.group,
+      subgroup: values.subgroup,
       new_partno: values.newPartCode,
       enable_status: values.isEnabled,
       jobwork_rate: values.jobWork,
@@ -300,7 +359,7 @@ export default function UpdateComponent() {
       pocost: values.purchaseCost,
       othercost: values.otherCost,
       attr_code: attr_raw?.attributeCode ?? "--",
-      attr_raw: attr_raw?.attr_raw?attr_raw?.attr_raw:tooldata ?? "",
+      attr_raw: attr_raw?.attr_raw ? attr_raw?.attr_raw : tooldata ?? "",
       attr_category: attrCat,
       componentcategory: "--",
       manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
@@ -536,6 +595,11 @@ export default function UpdateComponent() {
                   <Col span={8}>
                     <Form.Item name="group" label="Group">
                       <MySelect options={groupOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="subgroup" label="Sub Group">
+                      <MySelect options={subGroupOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={8}>

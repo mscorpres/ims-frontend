@@ -123,17 +123,17 @@ const ReqWithBomModal = ({ allBom, back, setTab, reset }) => {
         </span>
       ),
     },
-    {
-      headerName: "SF Control",
-      flex: 1,
-      sortable: false,
-      field: "sfControlQty",
-      renderCell: ({ row }) => (
-        <span>
-          {row?.sfControlQty} {row?.unit}
-        </span>
-      ),
-    },
+    // {
+    //   headerName: "SF Control",
+    //   flex: 1,
+    //   sortable: false,
+    //   field: "sfControlQty",
+    //   renderCell: ({ row }) => (
+    //     <span>
+    //       {row?.sfControlQty} {row?.unit}
+    //     </span>
+    //   ),
+    // },
     {
       headerName: "Request",
       flex: 1,

@@ -96,7 +96,7 @@ function ProductModal({ productModal, setProductModal, fetchProductData }) {
   };
 
   const updateProduct = async () => {
-    const { data } = await imsAxios.post("/products/updateProduct", {
+    const response = await imsAxios.post("/products/updateProduct", {
       producttKey: productModal.product_key,
       category: product.productcategory,
       mrp: product?.mrp,
@@ -122,8 +122,8 @@ function ProductModal({ productModal, setProductModal, fetchProductData }) {
       jobworkcost: product?.jobworkcost,
       description: product?.description,
     });
-    console.log(data);
-    if (data.code == 200) {
+
+    if (response?.success) {
       setProductModal(false);
       fetchProductData();
     }

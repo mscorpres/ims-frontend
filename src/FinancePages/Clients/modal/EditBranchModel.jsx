@@ -91,13 +91,13 @@ function EditBranchModel({ setBranchId, branchId, setBranchModal, allBranch }) {
     };
     console.log("cointry", country);
     const response = await imsAxios.put("client/updateBranch", newobj);
-    const { data } = response;
-    if (data.code == 200) {
-      toast.success(data.message);
+
+    if (response?.success) {
+      toast.success(response?.message);
       setBranchId(null);
       setBranchModal(false);
-    } else if (data.code == 500) {
-      toast.error(data.status);
+    } else if (!response?.success) {
+      toast.error(response?.message);
       setBranchId(null);
       setBranchModal(false);
       setBranchModal(false);

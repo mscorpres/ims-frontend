@@ -1447,6 +1447,7 @@ const Routes = [
   },
   {
     path: "/assets/create",
+    //@ts-ignore
     main: () => <CreateAsset />,
   },
   {
