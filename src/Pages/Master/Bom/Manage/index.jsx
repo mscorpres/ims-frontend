@@ -10,10 +10,7 @@ import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
 import { downloadCSVnested2 } from "../../../../Components/exportToCSV";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
-<<<<<<< HEAD
-=======
 import { Row } from "antd";
->>>>>>> 2bf961517935a7ea258b9b2e2906dc4b1c27291b
 import {
   MaterialReactTable,
   useMaterialReactTable,
