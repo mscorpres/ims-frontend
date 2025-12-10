@@ -101,7 +101,7 @@ function JwToJw() {
 
   const getJwPoOptions = async (vendorId) => {
     try {
-      const response = await imsAxios.get(`/backend/fetchVendorJWLocation?vendor=${vendorId}`);
+      const response = await imsAxios.get(`/godown/transfer/jw-jw/po/${vendorId}`);
       let v = [];
       if (response?.data && Array.isArray(response.data)) {
         response.data.map((ad) =>
