@@ -750,7 +750,7 @@ export const items1 = (user, setShowTickets) => [
   //   "B",
   //   <CustomerServiceOutlined />
   // ),
-  getItem(<Link to="/version/files">Version</Link>, "V", <ContainerOutlined />),
+  getItem(<Link to="/version/files">Changelog</Link>, "V", <ContainerOutlined />),
   getItem(<Link to="/myprofile">Profile</Link>, "A", <UserOutlined />),
   // getItem(<Link to="/messenger">Messenger</Link>, "C", <MessageOutlined />),
 ];
