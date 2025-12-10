@@ -143,10 +143,7 @@ function JwToJw() {
   const getComponentList = async (e) => {
     if (e?.length > 2 && allData.jwPo) {
       try {
-        const response = await imsAxios.post("/godown/transfer/jw-jw/stock", {
-          part: e,
-          jw: allData.jwPo,
-        });
+        const response = await imsAxios.get(`/godown/transfer/jw-jw/stock?part=${e}&jw=${allData.jwPo}&vendor=${allData.jwVendor}`);
         
         if (response?.success && response?.data) {
           const data = Array.isArray(response.data) ? response.data : [response.data];
@@ -319,10 +316,7 @@ function JwToJw() {
       const partCodes = validRows.map((row) => row[0]?.value?.trim());
 
       // Call stock API with part codes
-      const response = await imsAxios.post("/godown/transfer/jw-jw/stock", {
-        part: partCodes,
-        jw: allData.jwPo,
-      });
+      const response = await imsAxios.get(`/godown/transfer/jw-jw/stock?part=${partCodes}&jw=${allData.jwPo}&vendor=${allData.jwVendor}`);
 
       if (response?.success && response?.data) {
         // Handle both single and array response

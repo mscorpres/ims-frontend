@@ -94,6 +94,7 @@ const newPurchaseOrder = {
 export default function CreateJW({}) {
   // initialize loading state
   const [loading, setLoading] = useLoading();
+  const [bomOptions, setBomOptions] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [asyncLocationOptions, setAsyncLocationOptions] = useState([]);
   const [requestByOptions, setRequestByOptions] = useState([]);
@@ -366,25 +367,27 @@ export default function CreateJW({}) {
   //   getting component details
   const getComponentDetails = async (inputValue) => {
     setLoading("fetch", true);
-    const response = await imsAxios.post("jobwork/fetchProductData4Table", {
-      product_name: inputValue,
-    });
+    const response = await imsAxios.get(
+      `jobwork/fetchProductData4Table?key=${inputValue}`
+    );
     setLoading("fetch", false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        setUom(data.data?.unit);
-        createPoForm.setFieldValue("qty", data.data?.description);
-        createPoForm.setFieldValue("rate", data.data?.rate);
-        createPoForm.setFieldValue("hsn", data.data?.hsn);
-        createPoForm.setFieldValue("gstRate", data.data?.gstrate);
-      } else {
-        toast.error(data.message.msg);
-      }
+    if (response?.success) {
+      setUom(response?.data?.unit);
+      setBomOptions(
+        response?.data?.bom?.map((row) => ({
+          text: row.name,
+          value: row.key,
+        }))
+      );
+      createPoForm.setFieldValue("qty", response?.data?.description);
+      createPoForm.setFieldValue("rate", response?.data?.rate);
+      createPoForm.setFieldValue("hsn", response?.data?.hsn);
+      createPoForm.setFieldValue("gstRate", response?.data?.gstrate);
     } else {
-      toast.error("Some error occured wile getting component details");
+      toast.error(response.message);
     }
   };
+
   const inputHandler = () => {
     let rate = createPoForm.getFieldValue("rate");
     let qty = createPoForm.getFieldValue("qty");
@@ -459,6 +462,7 @@ export default function CreateJW({}) {
       vendor_type: values.vendortype,
       vendor_branch: values.vendorbranch,
       vendor_address: values.vendoraddress,
+      bom: values.bom,
       location: values.location,
       product: [values.component],
       qty: [values.qty],
@@ -1143,6 +1147,24 @@ export default function CreateJW({}) {
                 </Form.Item>
               </Col>
               {/* order qty */}
+              <Col span={4}>
+                <Form.Item
+                  name="bom"
+                  label="BOM"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select bom code",
+                    },
+                  ]}
+                >
+                  <MyAsyncSelect
+                    selectLoading={loading === "select"}
+                    optionsState={bomOptions}
+                    onBlur={() => setAsyncOptions([])}
+                  />
+                </Form.Item>
+              </Col>
               <Col span={4}>
                 <Form.Item
                   label="Qty"
