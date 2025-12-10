@@ -39,6 +39,11 @@ export default function PoDetailsView({ viewPoDetails, setViewPoDetails }) {
   const columns = [
     { headerName: "Sr. No", field: "id", width: 80 },
     {
+      headerName: "Part Code",
+      field: "componentPartID",
+      width: 100,
+    },
+    {
       headerName: "Component",
       field: "po_components",
       width: 250,
