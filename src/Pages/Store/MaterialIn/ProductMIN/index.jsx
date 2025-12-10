@@ -448,25 +448,20 @@ export default function ProductMIN() {
     if (name == "component") {
       if (value) {
         setPageLoading(true);
-        const { data } = await imsAxios.post(
-          "/jobwork/fetchProductData4Table",
-          {
-            product_name: value.value,
-          }
-        );
+        const response = await imsAxios.get(`/jobwork/fetchProductData4Table?key=${value.value}`);
         setPageLoading(false);
 
-        if (data.code == 200) {
+        if (response?.success) {
           arr = arr.map((row) => {
             if (row.id == id) {
               let obj = row;
               obj = {
                 ...obj,
                 [name]: value,
-                gstrate: data.data.gstrate,
-                orderrate: data.data.rate,
-                unitsname: data.data.unit,
-                hsn: data.data.hsn,
+                gstrate: response?.data.gstrate,
+                orderrate: response?.data.rate,
+                unitsname: response?.data.unit,
+                hsn: response?.data.hsn,
               };
               return obj;
             } else {
@@ -474,7 +469,7 @@ export default function ProductMIN() {
             }
           });
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message);
         }
       } else {
         arr = arr.map((row) => ({
