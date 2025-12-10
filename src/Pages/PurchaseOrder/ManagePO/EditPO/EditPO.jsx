@@ -254,6 +254,7 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
         project_qty: row.project_qty,
         po_ord_qty: row.po_ord_qty,
         last_rate: row.last_rate || 0,
+        part_no: row.part_no,
     })) || [];
 
     setRowCount(materialsArr);
