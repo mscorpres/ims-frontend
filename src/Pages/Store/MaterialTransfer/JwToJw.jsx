@@ -131,8 +131,8 @@ function JwToJw() {
     setloctionData([{ label: "JW001", value: "202102201753" }]);
   };
 
-  const getLocationFunctionTo = async () => {
-    const response = await imsAxios.get(`/backend/fetchVendorJWLocation?vendor=${allData.jwVendor}`);
+  const getLocationFunctionTo = async (vendorId) => {
+    const response = await imsAxios.get(`/backend/fetchVendorJWLocation?vendor=${vendorId}`);
     let v = [];
     if (response?.data && Array.isArray(response.data)) {
       response.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
@@ -409,6 +409,7 @@ function JwToJw() {
                         return { ...allData, jwVendor: e, jwPo: "" };
                       });
                       getJwPoOptions(e);
+                      getLocationFunctionTo(e);
                     }}
                   />
                 </Col>
