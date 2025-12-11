@@ -138,15 +138,13 @@ const Sidebar = ({
     }
   };
 
-  const isSubSidebarVisible = (key) => {
-    return activeKey === key && isSecondSidebarOpen;
-  };
+
 
   const hoveredItem = useMemo(() => {
     return sidebar1Items.find((item) => item.key === activeKey);
   }, [activeKey, sidebar1Items]);
 
-  // Dynamic sidebar2 items based on selected item's children
+  
   const sidebar2Items = useMemo(() => {
     if (useJsonConfig) {
       return hoveredItem?.children || [];
@@ -179,7 +177,7 @@ const Sidebar = ({
                   style={{
                     padding: "16px 16px 8px 16px",
                     color: "#474545",
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: "600",
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
@@ -256,8 +254,8 @@ const Sidebar = ({
                   display: "flex",
                   alignItems: "center",
                   gap: shouldShowText ? 12 : 0,
-                  fontSize: 16,
-                  // fontWeight: isActive || isPathActive ? "500" : "400",
+                  fontSize: 13,
+                  fontWeight: "600",
                   backgroundColor:
                     isActive || isPathActive
                       ? isSubMenu
@@ -274,8 +272,8 @@ const Sidebar = ({
               >
                 <span
                   style={{
-                    width: 20,
-                    height: 20,
+                    width: 18,
+                    height: 18,
                     display: "inline-flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -363,9 +361,6 @@ const Sidebar = ({
     setShowSideBar(!showSideBar);
   };
 
-  const toggleSecondSidebar = () => {
-    setIsSecondSidebarOpen(!isSecondSidebarOpen);
-  };
 
   const toggleSecondSidebarCollapse = () => {
     setIsSecondSidebarCollapsed(!isSecondSidebarCollapsed);
@@ -630,20 +625,20 @@ const Sidebar = ({
                 overflowY: isSecondSidebarCollapsed ? "hidden" : "auto",
               }}
             >
-              {!isSecondSidebarCollapsed && (
+              {!isSecondSidebarCollapsed ? (
                 <div style={{ padding: "8px 0" }}>
                   {renderList(hoveredItem.children, true, true)}
                 </div>
-              )}
-
-              {isSecondSidebarCollapsed && (
-                <div style={{ padding: "8px 0" }}>
+              ) : (
+                   <div style={{ padding: "8px 0" }}>
                   {renderList(hoveredItem.children, false, true)}
                 </div>
               )}
+
+         
             </div>
 
-            {/* Collapse/Expand Button for Second Sidebar - Bottom Right */}
+           
             <button
               onClick={toggleSecondSidebarCollapse}
               style={{
