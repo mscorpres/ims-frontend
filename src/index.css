@@ -25,11 +25,86 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Open Sans", sans-serif !important;
+  font-family: Inter, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI",
+    sans-serif !important;
   list-style: none;
+}
+
+a {
+  color: #203624 !important;
+
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: #203624 !important;
+
+  text-decoration: none !important;
+}
+
+/* Sidebar menu links should be visible on dark background */
+
+.ant-menu a,
+.ant-menu a:hover {
+  color: inherit !important;
+
+  text-decoration: none !important;
 }
 .location-select .ant-select-arrow {
   color: white !important;
+}
+
+.header-search-select .ant-select-selector {
+  background-color: white !important;
+
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+
+  border-radius: 20px !important;
+
+  color: black !important;
+
+  height: 28px !important;
+
+  /* padding-left: 15px !important; */
+}
+
+.header-search-select .ant-select-selection-placeholder {
+  color: black !important;
+
+  font-size: 12px !important;
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  background-color: #d2f571 !important;
+
+  color: #12120e !important;
+
+  text-decoration: none !important;
+}
+
+.ant-tooltip .ant-tooltip-inner a,
+.ant-tooltip .ant-tooltip-inner span {
+  text-decoration: none !important;
+}
+
+.ant-tooltip .ant-tooltip-arrow::before {
+  background-color: #d2f571 !important;
+}
+
+/* Tab text bold */
+
+.ant-tabs-tab-btn {
+  font-weight: bold !important;
+}
+
+/* Active tab color */
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #203624 !important;
+}
+
+.ant-tabs-ink-bar {
+  background-color: #203624 !important;
 }
 .notifications {
   width: 400px;
@@ -331,9 +406,347 @@ textarea {
 }
 .ant-input {
   font-size: 0.8rem;
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
 }
+
+/* Disabled and readonly input background */
+
+.ant-input:disabled,
+.ant-input[disabled],
+.ant-input[readonly],
+.ant-input-disabled,
+.ant-input:read-only,
+.ant-select-disabled .ant-select-selector,
+.ant-input-number-disabled,
+.ant-input-number-readonly,
+.ant-picker-disabled,
+.ant-picker.ant-picker-disabled,
+.ant-input-affix-wrapper-disabled,
+.ant-input-affix-wrapper-readonly,
+textarea.ant-input:disabled,
+textarea.ant-input[readonly],
+textarea.ant-input:read-only,
+.ant-checkbox-disabled + span,
+.ant-radio-disabled + span,
+input:disabled,
+input[readonly],
+textarea:disabled,
+textarea[readonly],
+select:disabled,
+select[readonly] {
+  background-color: #ccc !important;
+
+  cursor: not-allowed !important;
+}
+
+.ant-select-selector {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+textarea.ant-input {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+.ant-input-number {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+.ant-picker {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+.ant-input-affix-wrapper {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+.ant-card {
+  border-radius: 0 !important;
+}
+
+.ant-card-head {
+  border-radius: 0 !important;
+}
+
+.ant-card-body {
+  border-radius: 0 !important;
+}
+
+/* Focus and hover border color - remove blue outline and shadow */
+
+.ant-input:hover,
+.ant-input:focus,
+.ant-input-focused {
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+.ant-select:hover .ant-select-selector,
+.ant-select-focused .ant-select-selector,
+.ant-select:focus .ant-select-selector {
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(
+    .ant-select-customize-input
+  )
+  .ant-select-selector {
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+textarea.ant-input:hover,
+textarea.ant-input:focus {
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+.ant-input-number:hover,
+.ant-input-number:focus,
+.ant-input-number-focused {
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+.ant-input-affix-wrapper:hover,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+.ant-picker:hover,
+.ant-picker:focus,
+.ant-picker-focused,
+.ant-picker-range:hover,
+.ant-picker-range-focused {
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+}
+
+* Disabled and readonly input background */ .ant-input:disabled,
+.ant-input[disabled],
+.ant-input[readonly],
+.ant-input-disabled,
+.ant-input:read-only,
+.ant-select-disabled .ant-select-selector,
+.ant-input-number-disabled,
+.ant-input-number-readonly,
+.ant-picker-disabled,
+.ant-picker.ant-picker-disabled,
+.ant-input-affix-wrapper-disabled,
+.ant-input-affix-wrapper-readonly,
+textarea.ant-input:disabled,
+textarea.ant-input[readonly],
+textarea.ant-input:read-only,
+.ant-checkbox-disabled + span,
+.ant-radio-disabled + span,
+input:disabled,
+input[readonly],
+textarea:disabled,
+textarea[readonly],
+select:disabled,
+select[readonly] {
+  background-color: #ccc !important;
+
+  cursor: not-allowed !important;
+}
+
+.ant-select-selector {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+textarea.ant-input {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+.ant-input-number {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+.ant-picker {
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+}
+
+
+
+
+.ant-input-affix-wrapper {
+
+  border-radius: 0 !important;
+
+  border-width: 2px !important;
+
+}
+
+.ant-card {
+
+  border-radius: 0 !important;
+
+}
+
+.ant-card-head {
+
+  border-radius: 0 !important;
+
+}
+
+.ant-card-body {
+
+  border-radius: 0 !important;
+
+}
+
+
 .ant-menu-title-content {
   font-size: 0.8rem;
+}
+/* Focus and hover border color - remove blue outline and shadow */
+
+.ant-input:hover,
+
+.ant-input:focus,
+
+.ant-input-focused {
+
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+.ant-select:hover .ant-select-selector,
+
+.ant-select-focused .ant-select-selector,
+
+.ant-select:focus .ant-select-selector {
+
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+textarea.ant-input:hover,
+
+textarea.ant-input:focus {
+
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+.ant-input-number:hover,
+
+.ant-input-number:focus,
+
+.ant-input-number-focused {
+
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+.ant-input-affix-wrapper:hover,
+
+.ant-input-affix-wrapper:focus,
+
+.ant-input-affix-wrapper-focused {
+
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+
+
+.ant-picker:hover,
+
+.ant-picker:focus,
+
+.ant-picker-focused,
+
+.ant-picker-range:hover,
+
+.ant-picker-range-focused {
+
+  border: 2px solid #4e8235 !important;
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
+}
+/* Remove all input focus shadows and outlines globally */
+
+.ant-input:focus-visible,
+
+.ant-select-selector:focus-visible,
+
+.ant-input-number:focus-visible,
+
+.ant-picker:focus-visible,
+
+.ant-input-affix-wrapper:focus-visible {
+
+  box-shadow: none !important;
+
+  outline: none !important;
+
 }
 .MuiTableCell-head {
   /* padding: 5px 5px !important; */
@@ -542,6 +955,7 @@ ul.MuiDataGrid-menuList li.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
 
   .ant-menu-title-content {
     font-size: 0.7rem;
+    font-weight: bold !important;
   }
   .heading {
     font-size: 0.7rem !important;

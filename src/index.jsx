@@ -15,6 +15,7 @@ const theme = {
     colorSuccess: "#04b0a8",
     fontSizeHeading5: 16,
   },
+
   components: {
     Button: {
       // colorText: "rgba(255, 255, 255, 0.88)",

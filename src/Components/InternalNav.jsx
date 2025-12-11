@@ -1,16 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Button, Col, Menu, Row, Tooltip, Typography } from "antd";
+import { Menu,  Tooltip, } from "antd";
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux/es/exports";
+import { useSelector, } from "react-redux/es/exports";
 import internalLinks from "../Pages/internalLinks";
 
-export default function InternalNav({
-  // links,
-  placeholder,
-  menuWidth,
-  additional,
-}) {
-  const { currentLinks: links } = useSelector((state) => state.login);
+export default function InternalNav() {
   const { pathname } = useLocation();
   const [linksList, setLinksList] = useState([]);
   const [current, setCurrent] = useState("");
@@ -27,18 +21,7 @@ export default function InternalNav({
 
     setCurrent(key);
   }, [linksList]);
-  // console.log(links);
-  // useEffect(() => {
-  //   if (links) {
-  //     let arr = links?.map((link, index) => {
-  //       return {
-  //         ...link,
-  //         key: index,
-  //       };
-  //     });
-  //     setLinksList(arr);
-  //   }
-  // }, [links]);
+ 
   useEffect(() => {
     let arr = [];
     internalLinks.map((group) => {
@@ -74,7 +57,7 @@ export default function InternalNav({
         marginBottom: 5,
         width: "100%",
         background: "white",
-        // background: "rgb(235, 235, 235)",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
       }}
       items={
         linksList &&
