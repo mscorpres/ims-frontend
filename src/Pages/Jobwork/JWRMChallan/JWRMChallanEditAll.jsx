@@ -37,6 +37,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   const [loadChallan, setLoadChallan] = useState(false);
   const [locationOptions, setLocationOptions] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [dropLocationOptions, setDropLocationOptions] = useState([]);
   const [dispatchBranches, setDispatchBranches] = useState([]);
   const [billingBranches, setBillingBranches] = useState([]);
   const [restCom, setRestCom] = useState({
@@ -179,6 +180,8 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
         nature: restCom?.nature,
         duration: restCom?.duration,
         other_ref: restCom?.otherRef,
+        picklocation: obj?.pickLocation,
+        droplocation: obj?.dropLocation,
       },
       material: finalObj,
       // transaction_id: obj?.,
@@ -242,6 +245,25 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       setDispatchBranches(arr);
     } else {
       setDispatchBranches([]);
+    }
+  };
+
+  const getDropLocation = async (value) => {
+    let vendor = createJobWorkChallanForm.getFieldsValue().vendorcode;
+    if (vendor) {
+      setLoading("select", true);
+      const response = await imsAxios.get(`/backend/fetchVendorJWLocation?vendor=${vendor?.value}`);
+      setLoading("select", false);
+      if (response.success) {
+        let arr = [];
+        arr = response.data.map((row) => ({
+          value: row.id,
+          text: row.text,
+        }));
+        setDropLocationOptions(arr);
+      } else {
+        toast.error(response.message);
+      }
     }
   };
   const getAsyncOptions = async (search, type) => {
@@ -501,6 +523,13 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       getDispatchBranchOptions();
     }
   }, [editiJWAll]);
+  
+  useEffect(() => {
+    if (createJobWorkChallanForm.getFieldsValue().vendorcode) {
+      getDropLocation();
+    }
+  }, [createJobWorkChallanForm.getFieldsValue().vendorcode]);
+
   return (
     <Drawer
       title={`Creating Jobwork Challan`}
@@ -668,6 +697,26 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
                 <Col span={8}>
                   <Form.Item label="Pin Code" name="dispatchfrompincode">
                     <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Pick Location"
+                    name="pickLocation"
+                  >
+                    <MySelect
+                      options={locationOptions}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    label="Drop Location"
+                    name="dropLocation"
+                  >
+                    <MySelect
+                      options={dropLocationOptions}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
