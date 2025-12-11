@@ -17,6 +17,7 @@ import {
   Checkbox,
 } from "antd";
 import { CloseCircleFilled, InboxOutlined } from "@ant-design/icons";
+import MySelect from "../../../Components/MySelect";
 import { v4 } from "uuid";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { toast } from "react-toastify";
@@ -54,6 +55,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [isApplicable, setIsApplicable] = useState(false);
   const [isScan, setIsScan] = useState(false);
+  const [pickLocationOptions, setPickLocationOptions] = useState([]);
   const [modalForm] = Form.useForm();
 
   const fileComponents = Form.useWatch("fileComponents", modalForm);
@@ -61,30 +63,31 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
     setModalLoad("fetch", true);
-    const { data } = await imsAxios.post(
-      "/jobwork/fetch_jw_sf_inward_components",
-      {
-        skucode: row.sku,
-        transaction: row.transaction_id,
-      }
+    const response = await imsAxios.get(
+      `/jobwork/fetch_jw_sf_inward_components?skucode=${row.sku}&transaction=${row.transaction_id}`
     );
 
-    if (data.code == 200) {
-      getLocation(data.header.cost_center);
-      let arr = data.data.map((row, index) => {
+    if (response.success) {
+      getLocation(response.data.header.costCenter);
+      let arr = response.data.body.map((row, index) => {
         return {
           ...row,
           id: v4(),
           index: index + 1,
-          component: { label: row.componentname, value: row.componentKey },
+          orderqty: row.orderQty,
+          unitsname: row.unit,
+          component: {
+            label: `${row.component.name} ${row.component.part}`,
+            value: row.component.key,
+          },
         };
       });
-      setIsApplicable(data.header.einvoice_status);
+      setIsApplicable(response.data.header.einvoiceStatus);
       setMainData(arr);
-      setHeaderData(data.header);
+      setHeaderData(response.data.header);
       setModalLoad("fetch", false);
-    } else if (data.code == 500) {
-      toast.error(data?.message?.msg);
+    } else {
+      toast.error(response.message);
     }
     setModalLoad("fetch", false);
   };
@@ -115,6 +118,28 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     setLocValue(arr);
   };
 
+  const getPickLocation = async () => {
+    let vendor = header?.vendor?.code;
+    if (vendor) {
+      try {
+        const response = await imsAxios.get(
+          `/backend/fetchVendorJWLocation?vendor=${vendor}`
+        );
+        if (response.success) {
+          let arr = [];
+          arr = response.data.map((row) => ({
+            value: row.id,
+            text: row.text,
+          }));
+          setPickLocationOptions(arr);
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        toast.error(error.message || "Failed to fetch pick location");
+      }
+    }
+  };
   const inputHandler = async (name, id, value) => {
     if (name == "component") {
       setMainData((a) =>
@@ -452,10 +477,11 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     // let filedata = modalForm.getFieldValue("fileComponents");
     let value = await modalForm.validateFields();
     let filedata = value.fileComponents;
+    let pickLocation = value.pickLocation;
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
-      cost_center: header.cost_center,
+      cost_center: header.costCenter,
       documentName: filedata.map((r) => r.documentName),
       component: mainData[0].component.value ?? mainData[0].component,
       consCompcomponents: bomList.map((r) => r.key),
@@ -464,19 +490,19 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       ewaybill: eWayBill,
       invoice: mainData[0].invoice,
       irn: irnNo,
-      jobwork_trans_id: mainData[0].jobwork_id,
+      jobwork_trans_id: header.jobworkID,
       location: mainData[0].location,
       product: row.sku_code,
       qty: mainData[0].orderqty,
       rate: mainData[0].rate,
       remark: mainData[0].remark,
       qrScan: isScan == true ? "Y" : "N",
+      pick_location: pickLocation,
     };
     setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
     // const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     const minNum = response.message;
-    const { data } = response;
 
     if (response.success) {
       setModalUploadLoad(false);
@@ -524,7 +550,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const getBomList = async () => {
     setLoading(true);
     let final = {
-      jwID: header?.jobwork_id,
+      jwID: header?.jobworkID,
       sfgCreateQty: mainData[0].orderqty,
     };
     const response = await executeFun(() => getBomItem(final), "select");
@@ -637,8 +663,15 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setShowBomList(false);
       setBomList([]);
       newMinFunction();
+      getPickLocation();
     }
   }, [editModal]);
+
+  useEffect(() => {
+    if (header?.vendor?.code) {
+      getPickLocation();
+    }
+  }, [header?.vendor?.code]);
 
   const text = "Are you sure to update this jw sf Inward?";
   const closeModal = () => {
@@ -677,68 +710,70 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         <>
           {!materialInSuccess && (
             <Skeleton active loading={modalLoad("fetch")}>
-              <Card type="inner" title={header?.jobwork_id}>
+              <Card type="inner" title={header?.jobworkID}>
                 <Row gutter={10}>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    JW PO ID: {header?.jobwork_id}
+                    JW PO ID: {header?.jobworkID}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    Jobwork ID: {header?.jobwork_id}
+                    Jobwork ID: {header?.jobworkID}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
                     FG/SFG Name & SKU:{" "}
-                    {`${header?.product_name} / ${header?.sku_code}`}
+                    {`${header?.product?.name || ""} / ${
+                      header?.product?.sku || ""
+                    }`}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    JW PO created by: {header?.created_by}
+                    JW PO created by: {header?.createdBy}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    FG/SFG BOM of Recipe: {header?.subject_name}
+                    FG/SFG BOM of Recipe: {header?.bom?.name}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    Regisered Date & Time: {header?.registered_date}
+                    Regisered Date & Time: {header?.registereDt}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    FG/SFG Ord Qty: {header?.ordered_qty}
+                    FG/SFG Ord Qty: {header?.orderedQty}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    Job ID Status: {header?.jw_status}
+                    Job ID Status: {header?.jwStatus}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    FG/SFG processed Qty: {header?.proceed_qty}
+                    FG/SFG processed Qty: {header?.proceedQty}
                   </Col>
                   <Col
                     span={8}
                     style={{ fontSize: "12px", fontWeight: "bolder" }}
                   >
-                    Job Worker: {header?.vendor_name}
+                    Job Worker: {header?.vendor?.name}
                   </Col>
                   <Col
                     span={8}
@@ -756,6 +791,20 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                           value={eWayBill}
                           onChange={(e) => setEWayBill(e.target.value)}
                         />
+                      </Form.Item>
+                    </Form>
+                  </Col>
+                  <Col
+                    span={8}
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: "bolder",
+                      marginTop: "20px",
+                    }}
+                  >
+                    <Form size="small">
+                      <Form.Item label="Pick Location" name="pickLocation">
+                        <MySelect options={pickLocationOptions} />
                       </Form.Item>
                     </Form>
                   </Col>
