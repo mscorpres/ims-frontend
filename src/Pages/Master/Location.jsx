@@ -64,7 +64,7 @@ function Location() {
         const current = {
           ...rest,
           parentLocation: parentNode ? parentNode.name : "--",
-          label: node.id, // backend key for actions
+          label: node.label, // backend key for actions
         };
         result.push(current);
 
