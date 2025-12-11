@@ -7,12 +7,13 @@ import {
   Link,
   useSearchParams,
 } from "react-router-dom";
-import Sidebar from "./Components/Sidebar";
+// import Sidebar from "./Components/Sidebar";
 import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Box, LinearProgress } from "@mui/material";
+import Sidebar from "./new/Sidebar/Sidebar.jsx";
 import "buffer";
 import {
   logout,
@@ -31,30 +32,7 @@ import socket from "./Components/socket.js";
 import Notifications from "./Components/Notifications";
 import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
-import Layout, { Content, Header } from "antd/lib/layout/layout";
-import {
-  Badge,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Typography,
-  Modal,
-  Button,
-} from "antd";
-// icons import
-import {
-  CustomerServiceOutlined,
-  BellFilled,
-  SwapOutlined,
-  EditOutlined,
-  MenuOutlined,
-  LoadingOutlined,
-  SearchOutlined,
-  ControlOutlined,
-} from "@ant-design/icons";
-import { Tooltip, IconButton } from "@mui/material";
-import { SiSocketdotio } from "react-icons/si";
+import Layout, { Content } from "antd/lib/layout/layout";
 import InternalNav from "./Components/InternalNav";
 import { imsAxios } from "./axiosInterceptor";
 import MyAsyncSelect from "./Components/MyAsyncSelect";
@@ -63,6 +41,7 @@ import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
+import AppHeader from "./new/Header/AppHeader.jsx";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -977,7 +956,104 @@ const App = () => {
         <TopBanner />
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
-            <Header
+                    <AppHeader
+              onToggleSidebar={() => setShowSideBar((open) => !open)}
+              logo={<Logo />}
+              title="IMS"
+              branchOptions={options}
+              sessionOptions={sessionOptions}
+              branchValue={user.company_branch}
+              sessionValue={user.session}
+              onChangeBranch={(value) => handleSelectCompanyBranch(value)}
+              onChangeSession={(value) => handleSelectSession(value)}
+              showSearch
+              searchComponent={
+                <MyAsyncSelect
+                  // style={{ color: "black" }}
+                  placeholder="Select Module"
+                  onBlur={() => setModulesOptions([])}
+                  noBorder={true}
+                  hideArrow={true}
+                  searchIcon={false}
+                  color="white"
+                  optionsState={modulesOptions}
+                  loadOptions={getModuleSearchOptions}
+                  value={searchModule}
+                  onChange={setSearchModule}
+                  onMouseEnter={showRecentSearch}
+                  options={showHisList}
+                />
+              }
+              testSwitchVisible={
+                user?.type && user?.type.toLowerCase() == "developer"
+              }
+              testSwitchValue={testPage}
+              testSwitchLoading={testToggleLoading}
+              onChangeTestSwitch={(value) => handleChangePageStatus(value)}
+              showControlIcon={
+                user?.type && user?.type.toLowerCase() == "developer"
+              }
+              onClickControl={() => navToControl()}
+              socketConnected={isConnected}
+              socketLoading={isLoading}
+              onRefreshSocket={() => refreshConnection()}
+              notificationsCount={
+                notifications.filter((not) => not?.type != "message")?.length
+              }
+              onClickNotifications={() => setShowNotifications((n) => !n)}
+              messagesCount={
+                notifications.filter((not) => not?.type == "message").length
+              }
+              onClickMessages={() => setShowTickets(true)}
+              userMenu={
+                <UserMenu
+                  user={user}
+                  logoutHandler={logoutHandler}
+                  setShowSettings={setShowSetting}
+                />
+              }
+              extraRight={
+                showSetting ? (
+                  <SettingDrawer
+                    open={showSetting}
+                    hide={() => setShowSetting(false)}
+                  />
+                ) : null
+              }
+            />
+            {showNotifications &&
+              createPortal(
+                <div
+                  id="notifications-panel"
+                  style={{
+                    position: "fixed",
+                    top: 60,
+                    right: 12,
+                    zIndex: 10000,
+                    width: 420,
+                    maxHeight: "calc(100vh - 72px)",
+                    overflowY: "auto",
+                    background: "#fff",
+                    borderRadius: 10,
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    pointerEvents: "auto",
+                    outline: "1px solid transparent",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Notifications
+                    source={"notifications"}
+                    showNotifications={showNotifications}
+                    notifications={notifications.filter(
+                      (not) => not?.type != "message"
+                    )}
+                    deleteNotification={deleteNotification}
+                  />
+                </div>,
+                document.body
+              )}
+            {/* <Header
               style={{
                 zIndex: 4,
                 height: 45,
@@ -1150,7 +1226,7 @@ const App = () => {
                         cursor: "pointer",
                       }}
                     />
-                  )} */}
+                  )} 
 
                   <div>
                     <Badge
@@ -1411,8 +1487,11 @@ const App = () => {
                   </Modal>
                 </Space>
               </Row>
-            </Header>
+            </Header> */}
           </Layout>
+
+
+          
         )}
         {/* header ends */}
         {/* sidebar starts */}
@@ -1428,14 +1507,26 @@ const App = () => {
             handleClose={() => setShowTickets(false)}
           />
           {user && user.passwordChanged === "C" && (
-            <Sidebar
-              items={filteredItems}
-              items1={filteredItems1}
-              className="site-layout-background"
-              key={1}
-              setShowSideBar={setShowSideBar}
-              showSideBar={showSideBar}
-            />
+            <>
+              <Sidebar
+                className="site-layout-background"
+                key={1}
+                setShowSideBar={setShowSideBar}
+                showSideBar={showSideBar}
+                useJsonConfig={true}
+                topOffset={
+                  path.includes("dev.mscorpres") || path.includes("localhost")
+                    ? 60
+                    : 45
+                }
+                onWidthChange={(w) => {
+                  const layout = document.querySelector(
+                    "#app-content-left-margin"
+                  );
+                  if (layout) layout.style.marginLeft = `${w}px`;
+                }}
+              />
+            </>
           )}
           {/* sidebar ends */}
           <Layout

@@ -552,3 +552,624 @@ ul.MuiDataGrid-menuList li.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
     line-height: 18px !important;
   }
 }
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&family=Roboto+Slab:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Hanuman:wght@100;300;400;700;900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  --primary-green: #4d636f;
+  --secondary-green: #3a4b53;
+  --header-height: 6vh;
+  --search-div-height: 5vh;
+  --nav-footer-height: 7%;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "MsCorpres EmberFont", "sans-serif";
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-weight: 200;
+  src: url(./fonts/MsCamz/Dv1WQ5DdeMS5qP7.woff2) format("woff2"),
+    url(./fonts/MsCamz/e0LnMbFWJC-TMQz.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-weight: 200;
+  font-style: italic;
+  src: url(./fonts/MsCamz/ozb5-CLHQWI6Soc.woff2) format("woff2"),
+    url(./fonts/MsCamz/twzZHebXjCHBb6v.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  src: url(./fonts/MsCamz/pDxWAF1pBB0dzGB.woff2) format("woff2"),
+    url(./fonts/MsCamz/kfKKBuoqcD$AUKL.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-style: italic;
+  src: url(./fonts/MsCamz/WOnTLzkiaEccV7F.woff2) format("woff2"),
+    url(./fonts/MsCamz/JJsp0ZvgpfwzJM6.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-weight: 500;
+  src: url(./fonts/MsCamz/VjTR4RqBzY0mUYx.woff2) format("woff2"),
+    url(./fonts/MsCamz/XIvhNCZAsrT80Wz.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-weight: 500;
+  font-style: italic;
+  src: url(./fonts/MsCamz/KwhNPG8Jz-Vz2X7.woff2) format("woff2"),
+    url(./fonts/MsCamz/YAEPfuhs1l-argd.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-weight: 700;
+  src: url(./fonts/MsCamz/KFPk-9IF4FqAqY-.woff2) format("woff2"),
+    url(./fonts/MsCamz/mzVbGSgvdBfRLX9.woff) format("woff");
+}
+
+@font-face {
+  font-family: "MsCorpres EmberFont";
+  font-style: italic;
+  font-weight: 700;
+  src: url(./fonts/MsCamz/2SazJx$EeTHfhMN.woff2) format("woff2"),
+    url(./fonts/MsCamz/CjbL$jCCegyfqZ7.woff) format("woff");
+}
+
+.location-select .ant-select-arrow {
+  color: white !important;
+}
+.notifications {
+  width: 400px;
+  min-height: 50px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: white;
+  position: absolute;
+  top: 50px;
+  box-shadow: 0px 2px 5px 0px gray;
+  left: -250px;
+}
+
+.input-date {
+  outline: none;
+  height: 33px;
+  width: 100%;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid #d9d9d9;
+}
+.login-sidebar {
+  position: relative;
+}
+.login-sidebar::after {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  content: "";
+  background-color: #02b0a9;
+  left: 0;
+  z-index: 1;
+  top: 0;
+}
+.remove-table-footer .MuiDataGrid-footerContainer {
+  display: none;
+}
+/* tree in create sub group icon background */
+.ant-layout {
+  background-color: white !important;
+}
+body {
+  height: 100vh;
+  overflow-y: hidden;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: auto;
+}
+.view-icon {
+  color: var(--secondary-green) !important;
+  font-size: 0.9rem !important;
+  opacity: 0.8;
+  margin: 0;
+}
+.view-icon.disable {
+  opacity: 0.5;
+  pointer-events: none;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+.nav-footer {
+  height: var(--nav-footer-height);
+}
+
+/* change tax modal style */
+.tax-modal {
+  position: fixed;
+  left: 15.5%;
+  border-radius: 7px;
+  background-color: white;
+  width: 25vw;
+  transition: all 250ms linear;
+  z-index: 1;
+  border: 1px solid #eeeeee;
+  transform: translate(-50%) translateY(50%);
+}
+
+.tax-modal.visible {
+  bottom: 145px;
+}
+
+.tax-modal .head {
+  width: 100%;
+  background: #047780;
+  height: 39px;
+  color: white;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: flex-start;
+  font-size: 0.85rem;
+  padding: 0 10px;
+}
+.tax-modal .head:hover {
+  background: #036168;
+}
+
+.tax-modal .body {
+  height: 87%;
+  padding: 10px 0;
+  padding-top: 0;
+  width: 100%;
+}
+.tax-modal .body div {
+  height: 37px;
+  width: 100%;
+  font-size: 0.75rem !important;
+  padding: 0 20px;
+  color: #7e7c7c;
+  display: flex;
+  border-top: 1px solid rgb(214, 214, 214);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ant-select-item {
+  font-weight: 500 !important;
+  color: rgb(71, 71, 71);
+}
+.ant-picker-cell .ant-picker-cell-inner,
+.ant-picker-content th {
+  font-size: 0.8rem;
+  font-weight: 500;
+  height: 24px !important;
+  min-width: 24px !important;
+  width: 24px !important;
+  line-height: 24px !important;
+}
+.remove-cell-border .MuiDataGrid-cell,
+.css-z139qr-MuiTableCell-root {
+  border: none !important;
+  /* border: 1px solid red !important; */
+}
+.date-text-input {
+  height: 34px;
+  outline: none;
+  width: 100%;
+  padding: 0 10px;
+  border-radius: 3px;
+  border: 1px solid #cfcfcf;
+}
+.MuiDataGrid-root .MuiDataGrid-columnHeader:focus,
+.MuiDataGrid-root .MuiDataGrid-cell:focus,
+.MuiDataGrid-columnHeader:focus-within {
+  outline: none !important;
+}
+.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
+.css-1a5j4pb-MuiDataGrid-root,
+.internal-nav ul li a {
+  font-size: 0.9rem !important;
+}
+.MuiDataGrid-cellContent {
+  font-size: 0.8rem !important;
+}
+input:disabled {
+  background-color: rgb(252, 252, 252) !important;
+  color: rgb(126, 124, 124) !important;
+}
+textarea {
+  resize: none !important;
+}
+.css-17jjc08-MuiDataGrid-footerContainer {
+  height: 45px !important;
+  min-height: 45px !important;
+  overflow: hidden;
+}
+.css-16c50h-MuiInputBase-root-MuiTablePagination-select {
+  margin-top: 5px !important;
+  overflow: hidden;
+}
+.css-rtrcn9-MuiTablePagination-root .MuiTablePagination-selectLabel,
+.css-levciy-MuiTablePagination-displayedRows,
+.css-1chpzqh {
+  display: flex !important;
+  align-items: center !important;
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
+}
+.main-header .user-div {
+  cursor: pointer;
+  color: white;
+  font-size: 0.8rem !important;
+}
+.main-header .user-avatar {
+  margin-right: 0;
+  font-size: 1.1rem !important;
+}
+
+.main-header .user-div .show-user {
+  position: relative;
+}
+
+.main-header .user-div {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 0 20px;
+  padding-right: 30px;
+  background-color: var(--secondary-green);
+}
+
+.ant-layout-header {
+  padding-left: 5px !important;
+}
+.nav-footer {
+  left: 0;
+  background-color: white;
+  box-shadow: 0px -1px 3px 0px rgb(185, 185, 185);
+}
+.ant-layout-header,
+.ant-menu.ant-menu-dark .ant-menu-sub {
+  line-height: 40.5px !important;
+  /* background: #fff !important; */
+  background: #047780 !important;
+}
+.ant-menu-sub {
+  max-height: 50vh !important;
+  overflow-y: scroll;
+}
+.MuiToolbar-regular .MuiTablePagination-toolbar,
+.css-8nphli {
+  min-height: 10px !important;
+  height: 30px !important;
+  overflow: hidden;
+}
+.header-icon {
+  padding: 0 10px;
+}
+.header-icon:hover {
+  background-color: #1d4672;
+}
+.messenger-user {
+  padding-left: 10% !important;
+  cursor: pointer;
+}
+.messenger-user:hover {
+  background: rgb(241, 241, 241);
+}
+.messenger-user.new-message {
+  background-color: #245181e7;
+  color: #245181;
+}
+*::-webkit-scrollbar {
+  width: 6px !important;
+  cursor: pointer;
+  height: 6px;
+}
+*::-webkit-scrollbar-track:active {
+  width: 10px !important;
+  cursor: pointer;
+}
+
+/* Track */
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+  cursor: pointer;
+}
+/* Handle */
+*::-webkit-scrollbar-thumb {
+  background: #0d9488 !important;
+  cursor: pointer;
+  border-radius: 500px;
+}
+
+/* Handle on hover */
+/* *::-webkit-scrollbar-thumb:hover {
+  background: #187bd8 !important;
+  cursor: pointer;
+} */
+.ant-menu-horizontal {
+  border: none !important;
+  margin: 0 !important;
+}
+.nested-table .ant-table-tbody .ant-table-row {
+  background-color: rgb(185, 185, 185);
+}
+.ant-table-column-title {
+  z-index: 0 !important;
+}
+.ant-table-thead > tr.ant-table-row-hover:not(.ant-table-expanded-row) > td,
+.ant-table-tbody > tr.ant-table-row-hover:not(.ant-table-expanded-row) > td,
+.ant-table-thead > tr:hover:not(.ant-table-expanded-row) > td,
+.ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+  background: unset !important;
+}
+.css-1h37f49-MuiTableCell-root {
+  z-index: 0 !important;
+}
+.ant-menu-item-selected {
+  background-color: unset !important;
+}
+.ant-input {
+  font-size: 0.8rem;
+}
+.ant-menu-title-content {
+  font-size: 0.8rem;
+}
+.MuiTableCell-head {
+  /* padding: 5px 5px !important; */
+}
+.css-z139qr-MuiTableCell-root {
+  padding: 2px 5px !important;
+}
+.ant-input-suffix {
+  padding: 0px 5px;
+  font-size: 0.8rem;
+}
+.material-in-upload > span:first-child {
+  display: flex !important;
+}
+.material-in-upload .ant-upload-span {
+  font-size: 0.7rem !important;
+  /* width: 250px; */
+  width: 15vw;
+  margin-left: 20px;
+}
+.ant-upload-list {
+  width: 100% !important;
+}
+.ant-tabs-content {
+  height: 100% !important;
+}
+.otp-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  text-align: center;
+  width: 30px;
+  border: 1px solid gray;
+}
+.otp-input:focus {
+  outline: 1px solid #1890ff;
+}
+/* .ant-form-item {
+  margin-bottom: 5px !important;
+} */
+.ant-form-item-label > label,
+ul.MuiDataGrid-menuList li.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
+.css-1a5j4pb-MuiDataGrid-root,
+.css-1km1ehz,
+.MuiDataGrid-cellContent,
+.ant-table-cell,
+.MuiDataGrid-columnHeaderTitle,
+.css-65awk6-MuiTableCell-root,
+.MuiTableCell-head,
+.ant-form-item-explain-error,
+.MuiFormControlLabel-label,
+.MuiDataGrid-panelFooter button,
+.css-1qjzotq-MuiDataGrid-panelHeader input,
+.css-mnn31,
+.MuiDataGrid-filterForm input,
+.MuiDataGrid-filterForm select,
+.ant-picker-input > input,
+.small-text .ant-typography,
+.ant-input-number-input,
+.MuiTableCell-sizeSmall,
+.css-1km1ehz,
+.css-cc8tf1 {
+  font-size: 0.825rem !important;
+}
+.hide-select .MuiDataGrid-cellCheckbox,
+.hide-select .MuiDataGrid-columnHeaderCheckbox {
+  display: none !important;
+}
+.location-select .ant-select-single .ant-select-selector {
+  color: white !important;
+}
+@media screen and (max-width: 1600px) {
+  .ant-tabs-small > .ant-tabs-nav .ant-tabs-tab {
+    font-size: 0.7rem !important;
+  }
+  .ant-form-item-label > label {
+    font-size: 0.625rem !important;
+    /* line-height: 1.33 !important; */
+  }
+  .ant-form-vertical .ant-form-item-label {
+    padding: 0 0 4px !important;
+  }
+  .MuiDataGrid-cellContent {
+    font-size: 0.7rem !important;
+  }
+  .date-text-input {
+    font-size: 0.85rem;
+  }
+
+  ul.MuiDataGrid-menuList li.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
+  .css-1a5j4pb-MuiDataGrid-root,
+  .css-1km1ehz,
+  .MuiDataGrid-cellContent,
+  .ant-table-cell,
+  .MuiDataGrid-columnHeaderTitle,
+  .css-65awk6-MuiTableCell-root,
+  .MuiTableCell-head,
+  .ant-form-item-explain-error,
+  .MuiFormControlLabel-label,
+  .MuiDataGrid-panelFooter button,
+  .css-1qjzotq-MuiDataGrid-panelHeader input,
+  .css-mnn31,
+  .MuiDataGrid-filterForm input,
+  .MuiDataGrid-filterForm select,
+  .ant-picker-input > input,
+  .small-text .ant-typography,
+  .ant-input-number-input,
+  .MuiTableCell-sizeSmall,
+  .css-1km1ehz {
+    font-size: 0.7rem !important;
+  }
+  .ant-picker-input > input {
+    padding: 2px 10px !important;
+  }
+  .ant-select-item {
+    color: rgb(71, 71, 71);
+  }
+  .ant-select,
+  .ant-input,
+  .ant-select-item {
+    font-size: 0.7rem !important;
+  }
+  .ant-btn,
+  .css-levciy-MuiTablePagination-displayedRows {
+    font-size: 0.8rem !important;
+  }
+  .ant-input {
+    padding: 6px 10px !important;
+  }
+  .ant-input-suffix {
+    padding: 0px 5px;
+    font-size: 0.7rem;
+  }
+  .ant-input-affix-wrapper {
+    padding: 0 !important;
+  }
+  .notification-div .bell {
+    font-size: 1rem;
+  }
+  .notification-div .notifications-container {
+    left: -13vw;
+  }
+  .notifications-container .header {
+    height: 30px;
+  }
+  .notifications-container .header p {
+    height: 30px;
+    font-size: 0.8rem;
+  }
+  .notification-div .notifications-container.open {
+    height: 60vh;
+  }
+  .notifications-container .header p {
+    border-bottom: 2px solid var(--primary-green);
+    padding-top: 2px;
+  }
+  .notifications-container .header p:hover {
+    border-bottom: 2px solid var(--primary-green);
+    padding-top: 2px;
+  }
+  .notifications-container .notification {
+    height: 53px;
+    padding: 5px 20px;
+  }
+
+  .notifications-container .notification .info {
+    font-size: 0.7rem;
+  }
+  .notifications-container .notification .info p {
+    font-weight: 600;
+  }
+
+  .notifications-container .notification .action {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .notifications-container .notification .action .view-icon {
+    font-size: 1rem !important;
+  }
+
+  div.update-service-details {
+    height: 104vh !important;
+    z-index: 10;
+    top: 1%;
+    transform: scale(0.9);
+    transition: all 400ms linear;
+  }
+  div.update-service-details.open {
+    right: -2vw;
+  }
+  div.update-service-details.closed {
+    right: -300vw;
+  }
+  div.update-service-details .heading {
+    font-size: 1rem !important;
+  }
+  div.update-service-details label {
+    font-size: 0.8rem;
+  }
+  div.update-service-details input {
+    font-size: 0.9rem !important;
+  }
+
+  .ant-menu-title-content {
+    font-size: 0.7rem;
+  }
+  .heading {
+    font-size: 0.7rem !important;
+  }
+
+  .ant-picker-cell .ant-picker-cell-inner,
+  .ant-picker-content th {
+    font-size: 0.7rem;
+    font-weight: 500;
+    height: 18px !important;
+    min-width: 18px !important;
+    width: 18px !important;
+    line-height: 18px !important;
+  }
+}

@@ -23,6 +23,7 @@
     "@mui/x-data-grid": "^5.17.8",
     "@reduxjs/toolkit": "^1.8.5",
     "@rollup/plugin-dynamic-import-vars": "^2.1.2",
+    "@tailwindcss/vite": "^4.1.17",
     "antd": "^5.17.2",
     "antd-table-saveas-excel": "^2.2.1",
     "axios": "^0.27.2",
@@ -54,6 +55,7 @@
     "recharts": "^2.12.5",
     "semantic-ui-react": "^2.1.4",
     "socket.io-client": "^4.5.2",
+    "tailwindcss": "^4.1.17",
     "vite-tsconfig-paths": "^4.3.2",
     "xlsx": "^0.18.5"
   },
