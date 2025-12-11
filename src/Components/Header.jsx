@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { logout } from "../Features/loginSlice.js/loginSlice";
-import { FaCube } from "react-icons/fa";
-import io from "socket.io-client";
-import UserMenu from "./UserMenu";
-let socket;
-// import { Space } from "antd";
-import Layout, { Content, Header } from "antd/lib/layout/layout";
+
+import { Space } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
+
+import  {  Header } from "antd/lib/layout/layout";
 import Logo from "./Logo";
 
 const Header = ({ showSideBar, setShowSideBar, notifications }) => {

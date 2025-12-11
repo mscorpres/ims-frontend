@@ -17,7 +17,7 @@
                 "key": "A11",
                 "label": "Dashboard",
                 "icon": "MdDashboard",
-                "path": "/dashboard"
+                "path": "/"
               },
               {
                 "key": "2",

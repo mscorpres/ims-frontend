@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Route,
   Routes,
@@ -12,7 +13,7 @@ import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, Tooltip } from "@mui/material";
 import Sidebar from "./new/Sidebar/Sidebar.jsx";
 import "buffer";
 import {
@@ -33,6 +34,7 @@ import Notifications from "./Components/Notifications";
 import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
 import Layout, { Content } from "antd/lib/layout/layout";
+import { Modal, Select, Button } from "antd";
 import InternalNav from "./Components/InternalNav";
 import { imsAxios } from "./axiosInterceptor";
 import MyAsyncSelect from "./Components/MyAsyncSelect";
@@ -42,6 +44,7 @@ import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 import AppHeader from "./new/Header/AppHeader.jsx";
+import { SearchOutlined, SwapOutlined } from "@ant-design/icons";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,6 +65,7 @@ const App = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showSideBar, setShowSideBar] = useState(false);
+  const [allModules, setAllModules] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessageDrawer, setShowMessageDrawer] = useState(false);
   const [showMessageNotifications, setShowMessageNotifications] =
@@ -135,7 +139,35 @@ const App = () => {
     }
     dispatch(setFavourites(favs));
   };
-  // to trigger
+
+  // Function to get all modules
+  const getAllModules = () => {
+    let arr = [];
+    let allModOpt = [];
+    internalLinks.map((row) => {
+      let a = row;
+      arr.push(...a);
+    });
+    arr.map((row) => {
+      if (row && row.routeName) {
+        let obj = {
+          label: row.routeName,
+          value: row.routePath,
+        };
+        allModOpt.push(obj);
+      }
+    });
+    return allModOpt;
+  };
+
+  // Load all modules on component mount
+  useEffect(() => {
+    const allMods = getAllModules();
+    setAllModules(allMods);
+    // Show all modules by default
+    setModulesOptions(allMods);
+  }, []);
+
   const navToControl = () => {
     if (user?.type == "user") {
       navigate("/");
@@ -171,7 +203,7 @@ const App = () => {
     arr.map((row) => {
       if (row.routeName?.toLowerCase().includes(search)) {
         let obj = {
-          text: row.routeName,
+          label: row.routeName,
           value: row.routePath,
         };
         modOpt.push(obj);
@@ -238,15 +270,13 @@ const App = () => {
         setSearchParams({}, { replace: true });
       } else {
         setLoadingSwitch(false);
-         toast.error(response?.message);
-         window.location.replace("https://alwar.mscorpres.com/");
-       
+        toast.error(response?.message);
+        window.location.replace("https://alwar.mscorpres.com/");
       }
     } catch (error) {
       setLoadingSwitch(false);
-         toast.error(response?.message);
-        window.location.replace("https://alwar.mscorpres.com/");
-   
+      toast.error(response?.message);
+      window.location.replace("https://alwar.mscorpres.com/");
     }
   };
 
@@ -705,7 +735,6 @@ const App = () => {
   }, [navigate, user]);
   useEffect(() => {
     window.addEventListener("offline", (e) => {
-      console.log("offline", e);
       toast(
         "You are no longer connected to the Internet, please check your connection and try again."
       );
@@ -721,19 +750,14 @@ const App = () => {
   useEffect(() => {
     setModulesOptions([]);
     if (searchModule.length > 2) {
-      // console.log("Search module is here", searchModule);
-      // console.log("Search msearchHis", searchHis);
       let searching = searchHis.filter((i) => i.value === searchModule);
       // setHisList([...hisList,searching]);
       let a = hisList.push(...hisList, ...searching);
-      const ids = hisList.map(({ text }) => text);
+      const ids = hisList.map(({ label, text }) => label || text); // Support both formats
       const filtered = hisList.filter(
-        ({ text }, index) => !ids.includes(text, index + 1)
+        ({ label, text }, index) => !ids.includes(label || text, index + 1)
       );
-      // console.log("Search module Array after filtering in here", a);
-      // console.log("Search module Array after filtering in here", filtered);
-      // setHisList(filtered);
-      // localStorage.setItem("searchHistory", hisList);
+
       localStorage.setItem("searchHistory", JSON.stringify({ filtered }));
 
       navigate(searchModule);
@@ -741,15 +765,12 @@ const App = () => {
   }, [searchModule]);
 
   const showRecentSearch = () => {
-    console.log("obj in fnc");
     let obj = JSON.parse(localStorage.getItem("searchHistory"));
-    // localStorage.setItem("searchHistory", JSON.stringify({ filtered }));
 
     let arr = obj?.filtered?.map((row) => ({
-      text: row.text,
+      label: row.text || row.label, // Support both old format (text) and new format (label)
       value: row.value,
     }));
-    // console.log("obj arr", arr);
     setShowHisList(arr);
   };
 
@@ -898,7 +919,6 @@ const App = () => {
           sx={{
             position: "sticky",
             top: 0,
-            
           }}
         />
         <Box
@@ -956,7 +976,7 @@ const App = () => {
         <TopBanner />
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
-                    <AppHeader
+            <AppHeader
               onToggleSidebar={() => setShowSideBar((open) => !open)}
               logo={<Logo />}
               title="IMS"
@@ -968,20 +988,50 @@ const App = () => {
               onChangeSession={(value) => handleSelectSession(value)}
               showSearch
               searchComponent={
-                <MyAsyncSelect
-                  // style={{ color: "black" }}
-                  placeholder="Select Module"
-                  onBlur={() => setModulesOptions([])}
-                  noBorder={true}
-                  hideArrow={true}
-                  searchIcon={false}
-                  color="white"
-                  optionsState={modulesOptions}
-                  loadOptions={getModuleSearchOptions}
-                  value={searchModule}
-                  onChange={setSearchModule}
-                  onMouseEnter={showRecentSearch}
-                  options={showHisList}
+                <Select
+                  showSearch
+                  placeholder="Search..."
+                  value={searchModule || undefined}
+                  onChange={(value) => {
+                    setSearchModule(value);
+                    navigate(value);
+                  }}
+                  onSearch={(value) => {
+                    if (value && value.trim().length > 0) {
+                      getModuleSearchOptions(value.toLowerCase());
+                    } else {
+                      // Show all modules when search is cleared
+                      setModulesOptions(
+                        allModules.length > 0 ? allModules : []
+                      );
+                    }
+                  }}
+                  options={
+                    modulesOptions?.length > 0
+                      ? modulesOptions
+                      : allModules.length > 0
+                      ? allModules
+                      : showHisList || []
+                  }
+                  filterOption={false}
+                  notFoundContent={null}
+                  style={{
+                    width: 200,
+                  }}
+                  className="header-search-select"
+                  suffixIcon={
+                    <SearchOutlined style={{ color: "rgba(0, 0, 0, 0.45)" }} />
+                  }
+                  onFocus={() => {
+                    // Show all modules when focused if no search is active
+                    if (!searchModule && allModules.length > 0) {
+                      setModulesOptions(allModules);
+                    }
+                    // Load search history if available
+                    if (showHisList.length === 0) {
+                      showRecentSearch();
+                    }
+                  }}
                 />
               }
               testSwitchVisible={
@@ -1005,6 +1055,18 @@ const App = () => {
                 notifications.filter((not) => not?.type == "message").length
               }
               onClickMessages={() => setShowTickets(true)}
+              switchModule={
+                <Tooltip title="Switch Module" placement="bottom">
+                  <SwapOutlined
+                    style={{
+                      fontSize: 18,
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setShowSwitchModule(true)}
+                  />
+                </Tooltip>
+              }
               userMenu={
                 <UserMenu
                   user={user}
@@ -1302,7 +1364,6 @@ const App = () => {
                         setSwitchBranch(null);
                         setSwitchSession(null);
                         setIsSwitchingModule(false);
-                        setSwitchingLocation(null);
                         setSwitchSuccess(false);
                       }
                     }}
@@ -1489,9 +1550,6 @@ const App = () => {
               </Row>
             </Header> */}
           </Layout>
-
-
-          
         )}
         {/* header ends */}
         {/* sidebar starts */}
@@ -1502,72 +1560,272 @@ const App = () => {
             pointerEvents: user && !branchSelected ? "none" : "all",
           }}
         >
-          <TicketsModal
-            open={showTickets}
-            handleClose={() => setShowTickets(false)}
-          />
-          {user && user.passwordChanged === "C" && (
-            <>
-              <Sidebar
-                className="site-layout-background"
-                key={1}
-                setShowSideBar={setShowSideBar}
-                showSideBar={showSideBar}
-                useJsonConfig={true}
-                topOffset={
-                  path.includes("dev.mscorpres") || path.includes("localhost")
-                    ? 60
-                    : 45
-                }
-                onWidthChange={(w) => {
-                  const layout = document.querySelector(
-                    "#app-content-left-margin"
-                  );
-                  if (layout) layout.style.marginLeft = `${w}px`;
-                }}
-              />
-            </>
-          )}
-          {/* sidebar ends */}
-          <Layout
-            onClick={() => {
-              setShowNotifications(false);
-              setShowMessageNotifications(false);
-            }}
-            style={{ height: "100%" }}
-          >
-            <Content style={{ height: "100%" }}>
-              <InternalNav links={internalLinks} />
-
-              <div
-                style={{
-                  height: "calc(100vh - 50px)",
-                  width: "100%",
-                  opacity: testPage ? 0.5 : 1,
-                  pointerEvents:
-                    testPage && user?.type != "developer" ? "none" : "all",
-
-                  overflowX: "hidden",
-                }}
-              >
-                <MessageModal
-                  showMessageDrawer={showMessageDrawer}
-                  setShowMessageDrawer={setShowMessageDrawer}
+          {" "}
+          <div style={{ display: "flex", height: "100%", paddingTop: 45 }}>
+            <TicketsModal
+              open={showTickets}
+              handleClose={() => setShowTickets(false)}
+            />
+            {user && user.passwordChanged === "C" && (
+              <>
+                <Sidebar
+                  className="site-layout-background"
+                  key={1}
+                  setShowSideBar={setShowSideBar}
+                  showSideBar={showSideBar}
+                  useJsonConfig={true}
+                  topOffset={
+                    path.includes("dev.mscorpres") || path.includes("localhost")
+                      ? 60
+                      : 45
+                  }
+                  onWidthChange={(w) => {
+                    const layout = document.querySelector(
+                      "#app-content-left-margin"
+                    );
+                    if (layout) layout.style.marginLeft = `${w}px`;
+                  }}
                 />
-                <Routes>
-                  {filteredRoutes.map((route, index) => (
-                    <Route
-                      key={index}
-                      path={route.path}
-                      element={<route.main />}
-                    />
-                  ))}
-                </Routes>
-              </div>
-            </Content>
-          </Layout>
+              </>
+            )}
+            {/* sidebar ends */}
+            <Layout
+              onClick={() => {
+                setShowNotifications(false);
+                setShowMessageNotifications(false);
+              }}
+              id="app-content-left-margin"
+              style={{
+                height: "100%",
+
+                marginLeft: showSideBar ? 230 : 56,
+
+                minWidth: 0,
+              }}
+            >
+              <Content style={{ height: "100%" }}>
+                <InternalNav links={internalLinks} />
+
+                <div
+                  style={{
+                    height: "calc(100vh - 50px)",
+                    width: "100%",
+                    opacity: testPage ? 0.5 : 1,
+                    pointerEvents:
+                      testPage && user?.type != "developer" ? "none" : "all",
+
+                    overflowX: "hidden",
+                  }}
+                >
+                  <MessageModal
+                    showMessageDrawer={showMessageDrawer}
+                    setShowMessageDrawer={setShowMessageDrawer}
+                  />
+                  <Routes>
+                    {filteredRoutes.map((route, index) => (
+                      <Route
+                        key={index}
+                        path={route.path}
+                        element={<route.main />}
+                      />
+                    ))}
+                  </Routes>
+                </div>
+              </Content>
+            </Layout>
+          </div>
         </Layout>
       </Layout>
+
+      <Modal
+        title={null}
+        open={showSwitchModule}
+        onCancel={() => {
+          if (!isSwitchingModule) {
+            setShowSwitchModule(false);
+            setSwitchLocation(null);
+            setSwitchBranch(null);
+            setSwitchSession(null);
+            setIsSwitchingModule(false);
+            setSwitchingLocation(null);
+            setSwitchSuccess(false);
+          }
+        }}
+        footer={null}
+        width={400}
+        centered
+        maskClosable={!isSwitchingModule}
+        closable={!isSwitchingModule}
+      >
+        {isSwitchingModule ? (
+          <div
+            style={{
+              padding: "60px 0",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {switchSuccess ? (
+              <>
+                <video
+                  src="/assets/check.mp4"
+                  autoPlay
+                  muted
+                  style={{ width: 120, height: 120 }}
+                />
+                <p
+                  style={{
+                    marginTop: 16,
+                    color: "#047780",
+                    fontWeight: 500,
+                  }}
+                >
+                  Authenticated! Redirecting...
+                </p>
+              </>
+            ) : (
+              <>
+                <div
+                  style={{
+                    width: 50,
+                    height: 50,
+                    border: "4px solid #f3f3f3",
+                    borderTop: "4px solid #047780",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
+                  }}
+                />
+                <style>
+                  {`
+                                @keyframes spin {
+                                  0% { transform: rotate(0deg); }
+                                  100% { transform: rotate(360deg); }
+                                }
+                              `}
+                </style>
+                <p style={{ marginTop: 16, color: "#666" }}>
+                  Authenticating...
+                </p>
+              </>
+            )}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "20px 0",
+            }}
+          >
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: "50%",
+                background: "#f5f5f5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 16,
+              }}
+            >
+              <SwapOutlined style={{ fontSize: 28, color: "#047780" }} />
+            </div>
+            <h3 style={{ margin: "0 0 24px 0", color: "#333" }}>
+              Switch Module
+            </h3>
+            <div style={{ width: "100%", maxWidth: 300 }}>
+              <div style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    marginBottom: 6,
+                    fontWeight: 500,
+                    color: "#666",
+                  }}
+                >
+                  Location
+                </div>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Select Location"
+                  options={[
+                    { label: "Alwar", value: "alwar" },
+                    { label: "Noida", value: "noida" },
+                  ]}
+                  value={switchLocation}
+                  onChange={(value) => {
+                    setSwitchLocation(value);
+                    setSwitchBranch(null);
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    marginBottom: 6,
+                    fontWeight: 500,
+                    color: "#666",
+                  }}
+                >
+                  Branch
+                </div>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Select Branch"
+                  disabled={!switchLocation}
+                  options={
+                    switchLocation ? locationBranchOptions[switchLocation] : []
+                  }
+                  value={switchBranch}
+                  onChange={(value) => setSwitchBranch(value)}
+                />
+              </div>
+              <div style={{ marginBottom: 24 }}>
+                <div
+                  style={{
+                    marginBottom: 6,
+                    fontWeight: 500,
+                    color: "#666",
+                  }}
+                >
+                  Session
+                </div>
+                <Select
+                  style={{ width: "100%" }}
+                  placeholder="Select Session"
+                  options={sessionOptions}
+                  value={switchSession || user?.session}
+                  onChange={(value) => setSwitchSession(value)}
+                />
+              </div>
+              <Button
+                type="primary"
+                block
+                size="large"
+                style={{
+                  background: "#047780",
+                  borderColor: "#047780",
+                  height: 44,
+                }}
+                disabled={!switchLocation || !switchBranch}
+                onClick={() => {
+                  handleSwitchModule(
+                    switchLocation.charAt(0).toUpperCase() +
+                      switchLocation.slice(1),
+                    switchBranch,
+                    switchSession || user?.session
+                  );
+                }}
+              >
+                Switch
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
