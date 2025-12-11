@@ -14,7 +14,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 // @ts-ignore
-import MyDatePicker from "../../../Components/MyDatePicker.jsx";
+import MyDatePicker from "../../Components/MyDatePicker";
 import {
   fetchGatePassSummary,
   fetchMasterSummary,
@@ -24,7 +24,7 @@ import {
   fetchTransactionsSummary,
   setSummaryDate,
   // @ts-ignore
-} from "../../../Features/dashboardSlice/dashboardSlice";
+} from "../../Features/dashboardSlice/dashboardSlice";
 import {
   ResponsiveContainer,
   BarChart,

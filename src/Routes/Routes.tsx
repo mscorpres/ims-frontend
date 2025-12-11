@@ -102,7 +102,7 @@ import {
   ViewandEditClient,
   PartCodeConversion,
   ProductMIN,
-  Dashboard,
+  // Dashboard,
   JWUpdateRate,
   CreateBranchTransferChallan,
   ViewBranchTransfer,
@@ -128,8 +128,10 @@ import {
   JobworkApproval,
   JwToJw,
   JwToJwViewTransaction,
+  //@ts-ignore
 } from "../Pages/index.jsx";
-
+//@ts-ignore
+import Dashboard from "../new/dashboard/Dashboard.jsx";
 import {
   CreateMaster,
   Ledger,
