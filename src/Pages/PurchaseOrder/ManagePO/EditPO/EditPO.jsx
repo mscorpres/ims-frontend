@@ -77,14 +77,13 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
             vendorcode: value.value,
             branchcode: arr[0].value,
           });
-          console.log(data);
           obj = {
             ...obj,
             [name]: value,
             vendorname: value.label,
             vendorbranch: arr[0].value,
             vendoraddress: data1.data.address.replaceAll("<br>", "\n"),
-            vendorgst: data1.data.vendor.vendorgst,
+            vendorgst: data1.data.gstid,
           };
         } else {
           toast.error(data.message.msg);
@@ -92,7 +91,7 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
       } else if (name == "vendorbranch") {
         const { data } = await imsAxios.post("backend/vendorAddress", {
           vendorcode: purchaseOrder.vendorcode.value,
-          branchcode: value.value,
+          branchcode: arr[0].value,
         });
         if (data.code == 200) {
           obj = {
