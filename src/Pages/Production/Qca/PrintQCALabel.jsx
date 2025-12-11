@@ -28,7 +28,7 @@ const PrintQCALabel = () => {
   };
 
   return (
-    <Row style={{ height: "90%" }} justify="center">
+    <Row style={{ height: "90%" }} >
       <Col span={6}>
         <Card>
           <Form

@@ -101,7 +101,7 @@ function ProductionMIS() {
       initialValues={initialValues}
     >
       <Row
-        justify="center"
+        
         gutter={4}
         style={{ height: "100%", overflowY: "hidden" }}
       >

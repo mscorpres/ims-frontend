@@ -31,7 +31,7 @@ const SelectChallanTypeModal = ({
       width={400}
       okText="Create Challan"
     >
-      <Row justify="center">
+      <Row >
         <Col span={18}>
           <MySelect
             options={typeOptions}

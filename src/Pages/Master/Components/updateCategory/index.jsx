@@ -142,7 +142,7 @@ const UpdateCategory = () => {
   }, [selectedCategory]);
   return (
     <Row
-      justify="center"
+      
       style={{ height: "90%", position: "relative", marginTop: 150 }}
     >
       {loading && <Loading />}

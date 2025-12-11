@@ -37,7 +37,7 @@ const FARUpload = () => {
     return e?.fileList;
   };
   return (
-    <Row justify="center" style={{ padding: 10, paddingTop: 200 }}>
+    <Row  style={{ padding: 10, paddingTop: 200 }}>
       <ConfirmModal
         show={showConfirm}
         hide={() => setShowConfirm(false)}

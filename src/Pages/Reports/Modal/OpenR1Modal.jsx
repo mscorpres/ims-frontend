@@ -114,7 +114,7 @@ const OpenR1Modal = ({
         onCancel={() => setViewModal(false)}
         width={800}
       >
-        <Row justify="center" gutter={16}>
+        <Row  gutter={16}>
           <Col span={12}>
             <MyAsyncSelect
               selectLoading={selectLoading}

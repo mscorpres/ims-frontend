@@ -68,7 +68,7 @@ export default function SuccessPage({
               } from ${po?.vendor?.vendorname ?? po?.vendor}`
         }
         extra={[
-          <Row justify="center" gutter={16}>
+          <Row  gutter={16}>
             <Col>
               <CommonIcons action={"refreshButton"} onClick={newMinFunction} />
             </Col>

@@ -77,7 +77,7 @@ export default function SuccessPage({
           po?.components.length
         } component${po?.components.length > 1 ? "s" : ""}) `}
         extra={[
-          <Row justify="center" gutter={16}>
+          <Row  gutter={16}>
             <Col>
               <CommonIcons action={"refreshButton"} onClick={setNewPO} />
             </Col>

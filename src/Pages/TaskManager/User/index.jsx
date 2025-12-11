@@ -39,7 +39,7 @@ const UserTasks = () => {
     getTasks();
   }, []);
   return (
-    <Row justify="center" style={{ height: "90%" }}>
+    <Row  style={{ height: "90%" }}>
       <Col span={18}>
         <Row gutter={6}>
           {tasks.map((task, index) => (

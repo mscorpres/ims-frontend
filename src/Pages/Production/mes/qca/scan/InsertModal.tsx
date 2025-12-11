@@ -37,7 +37,7 @@ const InsertModal = ({
   }, [show]);
   return (
     <Modal title="Insert QCA Entry" open={show} onCancel={hide} footer={<></>}>
-      <Flex gap={10} align="center" justify="space-between">
+      <Flex gap={10}  justify="space-between">
         <Flex style={{ flex: 1 }} justify="center">
           <MyButton
             loading={loading("singleScan-PASS")}
@@ -49,7 +49,7 @@ const InsertModal = ({
         <Divider type="vertical" style={{ height: 100 }}>
           OR
         </Divider>
-        <Flex vertical style={{ flex: 1 }} align="center" gap={5}>
+        <Flex vertical style={{ flex: 1 }}  gap={5}>
           <div style={{ width: 200 }}>
             <MySelect
               value={reason}

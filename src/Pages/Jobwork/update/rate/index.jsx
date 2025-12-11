@@ -163,7 +163,7 @@ const JWUpdateRate = () => {
     }
   }, [file]);
   return (
-    <Row justify="center" gutter={6} style={{ padding: 10, height: "90%" }}>
+    <Row  gutter={6} style={{ padding: 10, height: "90%" }}>
       <Col span={4}>
         <Card>
           <Form

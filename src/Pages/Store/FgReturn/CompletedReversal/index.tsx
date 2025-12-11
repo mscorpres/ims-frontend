@@ -36,7 +36,7 @@ const CompletedFgReturn = () => {
           <Form layout="vertical" form={form}>
             <Form.Item name="date" label="Period">
               <MyDatePicker
-                setDateRange={(value) => form.setFieldValue("date", value)}
+                setDateRange={(value:any) => form.setFieldValue("date", value)}
               />
             </Form.Item>
           </Form>

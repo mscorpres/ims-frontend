@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import  { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
   Route,
   Routes,
   useNavigate,
   useLocation,
-  Link,
   useSearchParams,
 } from "react-router-dom";
 // import Sidebar from "./Components/Sidebar";
@@ -37,7 +36,6 @@ import Layout, { Content } from "antd/lib/layout/layout";
 import { Modal, Select, Button } from "antd";
 import InternalNav from "./Components/InternalNav";
 import { imsAxios } from "./axiosInterceptor";
-import MyAsyncSelect from "./Components/MyAsyncSelect";
 import internalLinks from "./Pages/internalLinks.jsx";
 import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
@@ -58,7 +56,6 @@ const App = () => {
   );
 
   const filteredRoutes = Rout.filter((route) => {
-    // Include the route if it doesn't have a "dept" property or if showlegal is true
     return !route.dept || user?.showlegal;
   });
 
@@ -71,9 +68,7 @@ const App = () => {
   const [showMessageNotifications, setShowMessageNotifications] =
     useState(false);
   const [newNotification, setNewNotification] = useState(null);
-  const [favLoading, setFavLoading] = useState(false);
   const { pathname } = useLocation();
-  const [testToggleLoading, setTestToggleLoading] = useState(false);
   const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);
   const [modulesOptions, setModulesOptions] = useState([]);
@@ -108,37 +103,6 @@ const App = () => {
     }
   }, [user?.type]);
 
-  const handleFavPages = async (status) => {
-    let favs = user.favPages;
-
-    if (!status) {
-      setFavLoading(true);
-      const { data } = await imsAxios.post("/backend/favouritePages", {
-        pageUrl: pathname,
-        source: "react",
-      });
-      setFavLoading(false);
-      if (data.code == 200) {
-        favs = JSON.parse(data.data);
-      } else {
-        toast.error(data.message.msg);
-      }
-    } else {
-      let page_id = favs.filter((f) => f.url == pathname)[0].page_id;
-      setFavLoading(true);
-      const { data } = await imsAxios.post("/backend/removeFavouritePages", {
-        page_id,
-      });
-      setFavLoading(false);
-      if (data.code == 200) {
-        let fav = JSON.parse(data.data);
-        favs = fav;
-      } else {
-        toast.error(data.message.msg);
-      }
-    }
-    dispatch(setFavourites(favs));
-  };
 
   // Function to get all modules
   const getAllModules = () => {
@@ -174,15 +138,6 @@ const App = () => {
     } else {
       navigate("/controlPanel/registeredUsers");
     }
-  };
-  const handleChangePageStatus = (value) => {
-    let status = value ? "TEST" : "LIVE";
-    socket.emit("setPageStatus", {
-      page: pathname,
-      status: status,
-    });
-    setTestToggleLoading(true);
-    setTestPage(value);
   };
   const handleSelectCompanyBranch = (value) => {
     dispatch(setCompanyBranch(value));
@@ -384,7 +339,6 @@ const App = () => {
       });
 
       socket.on("getPageStatus", (data) => {
-        setTestToggleLoading(false);
         let pages;
         if (testPages) {
           pages = testPages;
@@ -557,7 +511,6 @@ const App = () => {
       });
 
       socket.on("getPageStatus", (data) => {
-        setTestToggleLoading(false);
         let pages;
         if (testPages) {
           pages = testPages;
@@ -751,7 +704,7 @@ const App = () => {
     setModulesOptions([]);
     if (searchModule.length > 2) {
       let searching = searchHis.filter((i) => i.value === searchModule);
-      // setHisList([...hisList,searching]);
+      setHisList([...hisList,searching]);
       let a = hisList.push(...hisList, ...searching);
       const ids = hisList.map(({ label, text }) => label || text); // Support both formats
       const filtered = hisList.filter(
@@ -1034,16 +987,7 @@ const App = () => {
                   }}
                 />
               }
-              testSwitchVisible={
-                user?.type && user?.type.toLowerCase() == "developer"
-              }
-              testSwitchValue={testPage}
-              testSwitchLoading={testToggleLoading}
-              onChangeTestSwitch={(value) => handleChangePageStatus(value)}
-              showControlIcon={
-                user?.type && user?.type.toLowerCase() == "developer"
-              }
-              onClickControl={() => navToControl()}
+            
               socketConnected={isConnected}
               socketLoading={isLoading}
               onRefreshSocket={() => refreshConnection()}

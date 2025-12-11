@@ -111,7 +111,7 @@ function CreateFgReturn() {
 
   return (
     <div style={{ height: "90%" }}>
-      <Row gutter={10} style={{ margin: "10px" }} justify="center">
+      <Row gutter={10} style={{ margin: "10px" }} >
         <Form form={fgReturn} layout="vertical">
           <Row>
             <Col span={6}>

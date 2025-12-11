@@ -86,7 +86,7 @@ const PendingPhysicalProduction = () => {
   }, []);
   return (
     <div style={{ height: "95%", padding: 10 }}>
-      <Row style={{ height: "100%" }} justify="center">
+      <Row style={{ height: "100%" }} >
         <Col span={20}>
           <MyDataTable
             loading={loading("fetch") || loading("updateStatus")}

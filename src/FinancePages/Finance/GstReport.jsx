@@ -63,8 +63,7 @@ const GstReport = () => {
   };
   return (
     <Row
-      justify="center"
-      align="center"
+
       style={{ height: "95%", padding: 10, paddingTop: 150 }}
     >
       <Col span={4}>

@@ -236,7 +236,7 @@ function PIAScan() {
       {scanLoading && <Loading />}
 
       <Row
-        justify="center"
+        
         gutter={8}
         style={{
           padding: "0px 5px",

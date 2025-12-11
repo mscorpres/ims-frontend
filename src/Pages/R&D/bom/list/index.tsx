@@ -150,7 +150,7 @@ const BOMList = () => {
     handleFetchBOMList();
   }, []);
   return (
-    <Row justify="center" style={{ height: "95%", padding: 10 }}>
+    <Row  style={{ height: "95%", padding: 10 }}>
       {attachlist?.key && (
         // <Attachments
         //   show={showAttachments}

@@ -134,7 +134,7 @@ export default function Products() {
   };
 
   return (
-    <Row gutter={6} style={{ padding: 5, height: "95%" }} justify="center">
+    <Row gutter={6} style={{ padding: 5, height: "95%" }} >
       <ConfirmModal
         show={showConfirm}
         hide={() => setShowConfirm(false)}

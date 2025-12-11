@@ -1,10 +1,9 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../../index.css";
 import { loadMenuConfig } from "./menuLoader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-
 
 const Sidebar = ({
   showSideBar,
@@ -16,15 +15,13 @@ const Sidebar = ({
   topOffset = 45,
 }) => {
   const navigate = useNavigate();
-  const [hoveredKey, setHoveredKey] = useState(null);
+  const location = useLocation();
   const [activeKey, setActiveKey] = useState(null);
-  const [isSecondSidebarOpen, setIsSecondSidebarOpen] =
-    useState(false);
+  const [isSecondSidebarOpen, setIsSecondSidebarOpen] = useState(false);
   const [isSecondSidebarCollapsed, setIsSecondSidebarCollapsed] =
     useState(false);
   const [expandedHeading, setExpandedHeading] = useState(null);
 
-  // Load configuration based on useJsonConfig flag
   const config = useMemo(() => {
     if (useJsonConfig) {
       return loadMenuConfig();
@@ -36,29 +33,81 @@ const Sidebar = ({
 
   const sidebar1Items = config.sidebar1.items;
 
-  const handleItemHover = (key, hasChildren) => {
-    if (hasChildren) {
-      setHoveredKey(key);
+  const findActiveMenuItem = (
+    items,
+    currentPath,
+    parentKey = null,
+    headingKey = null
+  ) => {
+    for (const item of items) {
+      if (item.path && currentPath === item.path) {
+        return { item, parentKey, headingKey };
+      }
+
+      if (item.children) {
+        const currentHeadingKey = item.isHeading ? item.key : headingKey;
+
+        const currentParentKey =
+          !item.isHeading && item.children ? item.key : parentKey;
+
+        const result = findActiveMenuItem(
+          item.children,
+          currentPath,
+          currentParentKey || item.key,
+          currentHeadingKey
+        );
+
+        if (result) {
+          return result;
+        }
+      }
     }
+    return null;
   };
 
-  const handleItemClick = (
-    key,
-    hasChildren,
-    path,
-    isInSubMenu = false
-  ) => {
-    // If interacting within the second sidebar, ensure it is open and expanded
+  useEffect(() => {
+    const activeMenuItem = findActiveMenuItem(sidebar1Items, location.pathname);
+    if (activeMenuItem) {
+      if (activeMenuItem.parentKey) {
+        setActiveKey(activeMenuItem.parentKey);
+
+        if (showSideBar) {
+          setIsSecondSidebarOpen(true);
+          // Collapse second sidebar when module is active/open
+          setIsSecondSidebarCollapsed(true);
+        }
+
+        if (activeMenuItem.headingKey) {
+          setExpandedHeading(activeMenuItem.headingKey);
+        }
+      } else {
+        setActiveKey(null);
+        setIsSecondSidebarOpen(false);
+      }
+    } else {
+      setActiveKey(null);
+      setIsSecondSidebarOpen(false);
+      setExpandedHeading(null);
+    }
+  }, [location.pathname, sidebar1Items, showSideBar]);
+
+  useEffect(() => {
+    if (showSideBar && activeKey) {
+      setIsSecondSidebarOpen(true);
+      // Collapse second sidebar when module is open
+      setIsSecondSidebarCollapsed(true);
+    }
+  }, [showSideBar, activeKey]);
+
+  const handleItemClick = (key, hasChildren, path, isInSubMenu = false) => {
     if (isInSubMenu) {
       if (!isSecondSidebarOpen) setIsSecondSidebarOpen(true);
       if (isSecondSidebarCollapsed) setIsSecondSidebarCollapsed(false);
     }
     if (hasChildren) {
       if (isInSubMenu) {
-        // Accordion behavior for sub-sidebar headings: only one heading expanded at a time
         setExpandedHeading((prev) => (prev === key ? null : key));
-        // Do not change top-level activeKey when clicking inside sub sidebar
-        // Keep second sidebar open and expanded
+
         setIsSecondSidebarOpen(true);
         setIsSecondSidebarCollapsed(false);
       } else {
@@ -66,21 +115,23 @@ const Sidebar = ({
         const nextOpen = activeKey !== key;
         setIsSecondSidebarOpen(nextOpen);
         if (nextOpen) {
-          setIsSecondSidebarCollapsed(false); // Reset collapse when opening new submenu
+          setIsSecondSidebarCollapsed(false);
         }
       }
     } else if (path) {
-      // Navigate to the path if it exists
       navigate(path);
-      // Close second sidebar only when clicking a direct link from the main sidebar
+
+      setShowSideBar(false);
+      
+      // Collapse second sidebar when item is clicked
+      setIsSecondSidebarCollapsed(true);
+
       if (!isInSubMenu) {
         setActiveKey(null);
         setIsSecondSidebarOpen(false);
       }
     } else {
-      // If no children and no path
       if (!isInSubMenu) {
-        // Close any open submenu only for main sidebar clicks
         setActiveKey(null);
         setIsSecondSidebarOpen(false);
       }
@@ -103,11 +154,7 @@ const Sidebar = ({
     return items1 || [];
   }, [useJsonConfig, hoveredItem, items1]);
 
-  const renderList = (
-    arr,
-    alwaysShowText = false,
-    isSubMenu = false
-  ) => {
+  const renderList = (arr, alwaysShowText = false, isSubMenu = false) => {
     const shouldShowText = isSubMenu
       ? alwaysShowText && !isSecondSidebarCollapsed
       : showSideBar;
@@ -116,12 +163,12 @@ const Sidebar = ({
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {arr.map((c) => {
           const hasChildren = c.children && c.children.length > 0;
-          const isVisible = isSubSidebarVisible(c.key);
           const isActive = activeKey === c.key;
+
+          const isPathActive = c.path && location.pathname === c.path;
           const isHeading = c.isHeading;
           const isHeadingExpanded = expandedHeading === c.key;
 
-          // Render heading differently
           if (isHeading && shouldShowText) {
             return (
               <li key={c.key}>
@@ -181,16 +228,14 @@ const Sidebar = ({
             <li key={c.key}>
               <div
                 onMouseEnter={(e) => {
-                  handleItemHover(c.key, hasChildren);
-                  if (!isActive) {
+                  if (!isActive && !isPathActive) {
                     e.currentTarget.style.backgroundColor = isSubMenu
                       ? "#e8f4fd"
                       : "#d4edda";
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!activeKey) setHoveredKey(null);
-                  if (!isActive) {
+                  if (!isActive && !isPathActive) {
                     e.currentTarget.style.backgroundColor = "transparent";
                   }
                 }}
@@ -212,15 +257,17 @@ const Sidebar = ({
                   alignItems: "center",
                   gap: shouldShowText ? 12 : 0,
                   fontSize: 16,
-                  // fontWeight: isActive ? "500" : "400",
-                  backgroundColor: isActive
-                    ? isSubMenu
-                      ? "#e8f4fd"
-                      : "#f0f0f0"
-                    : "transparent",
-                  borderLeft: isActive
-                    ? "3px solid #007acc"
-                    : "3px solid transparent",
+                  // fontWeight: isActive || isPathActive ? "500" : "400",
+                  backgroundColor:
+                    isActive || isPathActive
+                      ? isSubMenu
+                        ? "#e8f4fd"
+                        : "#f0f0f0"
+                      : "transparent",
+                  borderLeft:
+                    isActive || isPathActive
+                      ? "3px solid #007acc"
+                      : "3px solid transparent",
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   justifyContent: shouldShowText ? "flex-start" : "center",
                 }}
@@ -293,7 +340,7 @@ const Sidebar = ({
     hoveredItem && hoveredItem.children && isSecondSidebarOpen;
   const secondSidebarWidth = isSecondSidebarCollapsed ? 56 : 280;
 
-  let rootWidth = 56; 
+  let rootWidth = 56;
 
   if (showSideBar && subSidebarOpen) {
     rootWidth = 280 + secondSidebarWidth;
@@ -467,7 +514,6 @@ const Sidebar = ({
             }}
             title={showSideBar ? "Collapse sidebar" : "Expand sidebar"}
           >
-           
             <KeyboardArrowLeftIcon
               fontSize="small"
               style={{
@@ -559,17 +605,16 @@ const Sidebar = ({
                       : "Collapse submenu"
                   }
                 >
-                 
-                        <KeyboardArrowLeftIcon
-              fontSize="small"
-              style={{
-              transform: isSecondSidebarCollapsed
+                  <KeyboardArrowLeftIcon
+                    fontSize="small"
+                    style={{
+                      transform: isSecondSidebarCollapsed
                         ? "rotate(180deg)"
                         : "rotate(0deg)",
                       transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                       display: "inline-block",
-              }}
-            />
+                    }}
+                  />
                 </button>
               </div>
             </div>
@@ -633,17 +678,16 @@ const Sidebar = ({
                 isSecondSidebarCollapsed ? "Expand submenu" : "Collapse submenu"
               }
             >
-             
-                    <KeyboardArrowLeftIcon
-              fontSize="small"
-              style={{
-                transform: isSecondSidebarCollapsed
+              <KeyboardArrowLeftIcon
+                fontSize="small"
+                style={{
+                  transform: isSecondSidebarCollapsed
                     ? "rotate(180deg)"
                     : "rotate(0deg)",
                   transition: "transform 0.3s ease",
                   display: "inline-block",
-              }}
-            />
+                }}
+              />
             </button>
           </div>
         )}

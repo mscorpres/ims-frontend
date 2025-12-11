@@ -105,7 +105,7 @@ const RecoReport = () => {
     ],
   };
   return (
-    <Row justify="center" style={{ height: "95%", padding: 10 }} gutter={6}>
+    <Row style={{ height: "95%", padding: 10 }} gutter={6}>
       <Col span={4}>
         <Flex vertical gap={6}>
           {" "}

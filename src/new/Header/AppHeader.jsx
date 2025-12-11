@@ -30,12 +30,7 @@ const AppHeader = (props) => {
     onChangeSession,
     showSearch = true,
     searchComponent,
-    testSwitchVisible,
-    testSwitchValue,
-    testSwitchLoading,
     onChangeTestSwitch,
-    showControlIcon,
-    onClickControl,
     socketConnected,
     socketLoading,
     onRefreshSocket,
@@ -129,39 +124,13 @@ const AppHeader = (props) => {
           </div>
 
           <div className="flex items-center gap-[24px] relative">
-            {testSwitchVisible && (
-              <Switch
-                size="small"
-                disabled={!!testSwitchLoading}
-                checked={!!testSwitchValue}
-                onChange={(_, checked) =>
-                  onChangeTestSwitch && onChangeTestSwitch(checked)
-                }
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "#fff",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "#fff",
-                  },
-                }}
-              />
-            )}
+            
 
             {switchModule && (
                 switchModule
             )}
 
-            {showControlIcon && (
-              <TuneIcon
-                onClick={onClickControl}
-                style={{
-                  fontSize: 18,
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              />
-            )}
+           
 
             {onRefreshSocket && (
               <Tooltip

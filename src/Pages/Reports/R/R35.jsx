@@ -186,7 +186,7 @@ function R35() {
   return (
     <div>
       {" "}
-      <Row justify="center" style={{ height: "100%" }}>
+      <Row style={{ height: "100%" }}>
         <Col span={23} style={{ height: "100%" }}>
           <Form
             layout="vertical "

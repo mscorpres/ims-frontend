@@ -106,7 +106,7 @@ const TransferModal = ({ show, hide }) => {
       confirmLoading={loading === "submit"}
       onCancel={hide}
     >
-      <Row justify="center">
+      <Row >
         <Typography.Text
           style={{ textAlign: "center" }}
           strong

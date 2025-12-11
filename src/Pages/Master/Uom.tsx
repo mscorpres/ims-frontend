@@ -107,7 +107,7 @@ const Uom = () => {
 
   return (
     <div style={{ height: "100%" }}>
-      <Row gutter={6} style={{ padding: 10 }} justify="center">
+      <Row gutter={6} style={{ padding: 10 }} >
         <Col span={4}>
           <Card size="small" title="Create UOM">
             <Form form={form} layout="vertical">

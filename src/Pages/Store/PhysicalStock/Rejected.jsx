@@ -83,7 +83,7 @@ const RejectedPhysicalStock = () => {
         updateHandler={handleUpdateAudit}
         loading={loading("submit")}
       />
-      <Row style={{ height: "100%" }} justify="center">
+      <Row style={{ height: "100%" }} >
         <Col span={20}>
           <MyDataTable
             loading={loading("fetch") || loading("updateStatus")}
