@@ -6,9 +6,10 @@ import { Button, Col, Descriptions, Divider, Drawer, Form, Input, InputNumber, M
 import MySelect from "../../../../Components/MySelect";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import TextArea from "antd/lib/input/TextArea";
+import Loading from "../../../../Components/Loading";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { v4 } from "uuid";
-import { getCostCentresOptions, getVendorOptions } from "../../../../api/general.ts";
+import { getCostCentresOptions, getVendorOptions, getProjectOptions } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
@@ -24,6 +25,8 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
   const [resetRowsDetailsData, setResetRowsDetailsData] = useState(null);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
+  const [projectDesc, setProjectDesc] = useState("");
+  const [pageLoading, setPageLoading] = useState(false);
   const [form] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
   const inputHandler = (name, value) => {
@@ -149,6 +152,69 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
     setAsyncOptions(arr);
   };
 
+  const handleFetchProjectOptions = async (search) => {
+    const response = await executeFun(() => getProjectOptions(search), "select");
+    setAsyncOptions(response.data);
+  };
+
+  const handleProjectChange = async (value) => {
+    const projectValue = typeof value === "object" ? value : { value: value, label: value };
+    
+    // Update form value to ensure it's synced
+    form.setFieldsValue({ projectname: projectValue });
+    
+    setPurchaseOrder((prev) => ({
+      ...prev,
+      projectname: projectValue,
+    }));
+
+    setPageLoading(true);
+    const response = await imsAxios.post("/backend/projectDescription", {
+      project_name: typeof value === "object" ? value.value : value,
+    });
+    setPageLoading(false);
+    const { data } = response;
+    if (data) {
+      if (data.code === 200) {
+        setProjectDesc(data.data.description);
+
+        await handleProjectCostCenter(typeof value === "object" ? value.value : value);
+      } else {
+        toast.error(data.message.msg);
+      }
+    }
+  };
+
+  const handleProjectCostCenter = async (projectName) => {
+    setPageLoading(true);
+    try {
+      const response = await imsAxios.post("/purchaseOrder/costCenter", {
+        project_name: projectName,
+      });
+      setPageLoading(false);
+      const responseData = response?.success !== undefined ? response : response?.data || response;
+
+      if (responseData && responseData.success && responseData.data && Array.isArray(responseData.data) && responseData.data.length > 0) {
+        const costCenterData = responseData.data[0];
+        const costCenterOption = {
+          value: costCenterData.id,
+          label: costCenterData.text,
+        };
+
+        form.setFieldsValue({ costcenter: costCenterOption });
+        setPurchaseOrder((prev) => ({
+          ...prev,
+          costcenter: costCenterOption,
+        }));
+      } else {
+        toast.error(responseData?.message?.msg || "Failed to fetch cost center");
+      }
+    } catch (error) {
+      setPageLoading(false);
+      toast.error("Error fetching project cost center");
+    }
+  };
+
   const getShippingId = async () => {
     const { data } = await imsAxios.post("/backend/shipingAddressList", {
       searchInput: "",
@@ -218,6 +284,32 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
 
     if (obj.vendorcode?.value) {
       getVendorBranches(obj.vendorcode.value);
+    }
+
+    // Handle project initialization - convert to object format if needed
+    if (updatePoId.projectname) {
+      if (typeof updatePoId.projectname === "string") {
+        obj.projectname = {
+          label: updatePoId.projectname,
+          value: updatePoId.projectname,
+        };
+      } else if (typeof updatePoId.projectname === "object") {
+        obj.projectname = updatePoId.projectname;
+      }
+      
+      // Fetch project description if project exists
+      if (obj.projectname?.value) {
+        imsAxios.post("/backend/projectDescription", {
+          project_name: obj.projectname.value,
+        }).then((response) => {
+          const { data } = response;
+          if (data && data.code === 200) {
+            setProjectDesc(data.data.description);
+          }
+        }).catch(() => {
+          // Silently fail if project description fetch fails
+        });
+      }
     }
 
     
@@ -354,6 +446,7 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
                 overflowX: "hidden",
               }}
             >
+              {pageLoading && <Loading />}
               {/* reset vendor form */}
               {/* vendor */}
               <Row>
@@ -479,7 +572,26 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
 
                   <Row gutter={16}>
                     {" "}
-                    <Col span={6}>
+                   
+                    {/* project id */}
+                    <Col span={5}>
+                      <Form.Item name="projectname" label="Project ID">
+                        <MyAsyncSelect
+                          selectLoading={loading1("select")}
+                          onBlur={() => setAsyncOptions([])}
+                          loadOptions={handleFetchProjectOptions}
+                          optionsState={asyncOptions}
+                          onChange={handleProjectChange}
+                        />
+                      </Form.Item>
+                    </Col>
+                    {/* project description */}
+                    <Col span={5}>
+                      <Form.Item label="Project Description">
+                        <Input size="default" disabled value={projectDesc} />
+                      </Form.Item>
+                    </Col>
+                     <Col span={4}>
                       <Form.Item
                         name="costcenter"
                         label="Cost Center"
@@ -493,14 +605,8 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
                         <MyAsyncSelect onBlur={() => setAsyncOptions([])} optionsState={asyncOptions} loadOptions={getCostCenteres} />
                       </Form.Item>
                     </Col>
-                    {/* project name */}
-                    <Col span={6}>
-                      <Form.Item name="projectname" label="Project">
-                        <Input size="default" value={purchaseOrder?.projectname} />
-                      </Form.Item>
-                    </Col>
                     {/* comments */}
-                    <Col span={6}>
+                    <Col span={5}>
                       <Form.Item name="pocomment" label="Comments">
                         <Input size="default" />
                       </Form.Item>
