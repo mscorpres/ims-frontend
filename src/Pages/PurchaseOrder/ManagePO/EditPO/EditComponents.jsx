@@ -570,13 +570,6 @@ export default function EditComponent({
       sortable: false,
     },
     {
-      headerName: "Part no.",
-      width: 100,
-      field: "part_no",
-      sortable: false,
-      renderCell: (params) => disabledCell(params.row.part_no, inputHandler),
-    },
-    {
       headerName: "Component",
       width: 250,
       field: "component",
