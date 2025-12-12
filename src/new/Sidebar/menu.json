@@ -932,13 +932,13 @@
     ]
   },
   "sidebar2": {
-    "title": "Account",
+    "title": "",
     "items": [
       {
-        "key": "A",
-        "label": "Profile",
-        "icon": "UserOutlined",
-        "path": "/myprofile"
+        "key": "changelog",
+        "label": "Changelog",
+        "icon": "AccessTimeIcon",
+        "path": "/version/files"
       }
     ]
   }

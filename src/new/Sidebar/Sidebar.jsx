@@ -4,6 +4,8 @@ import "../../index.css";
 import { loadMenuConfig } from "./menuLoader";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import { ContainerOutlined } from "@ant-design/icons";
+import { Link } from "@mui/material";
 
 const Sidebar = ({
   showSideBar,
@@ -32,6 +34,7 @@ const Sidebar = ({
   }, [useJsonConfig, items]);
 
   const sidebar1Items = config.sidebar1.items;
+  const sidebar2ItemsFromConfig = config.sidebar2?.items || [];
 
   const findActiveMenuItem = (
     items,
@@ -151,6 +154,7 @@ const Sidebar = ({
     }
     return items1 || [];
   }, [useJsonConfig, hoveredItem, items1]);
+
 
   const renderList = (arr, alwaysShowText = false, isSubMenu = false) => {
     const shouldShowText = isSubMenu
@@ -468,11 +472,11 @@ const Sidebar = ({
           {/* Main Menu Items */}
           <div style={{ padding: "8px 0" }}>{renderList(sidebar1Items)}</div>
 
-          {/* Bottom Section - Only show when not using JSON config */}
-          {!useJsonConfig && (
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
-              {renderSectionHeader("Account", false)}
-              {renderList(sidebar2Items)}
+          {/* Bottom Section - Show sidebar2 items from config or items1 */}
+          {(useJsonConfig ? sidebar2ItemsFromConfig.length > 0 : sidebar2Items.length > 0) && (
+            <div style={{ position: "absolute", bottom: 60, left: 0, right: 0 }}>
+            
+              {renderList(useJsonConfig ? sidebar2ItemsFromConfig : sidebar2Items)}
             </div>
           )}
 
@@ -571,6 +575,7 @@ const Sidebar = ({
                   : hoveredItem?.label?.props?.children || ""}
               </span>
               <div style={{ display: "flex", gap: "8px" }}>
+
                 <button
                   onClick={toggleSecondSidebarCollapse}
                   style={{
@@ -638,7 +643,7 @@ const Sidebar = ({
          
             </div>
 
-           
+       
             <button
               onClick={toggleSecondSidebarCollapse}
               style={{

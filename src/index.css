@@ -385,6 +385,7 @@ textarea {
 .ant-menu-horizontal {
   border: none !important;
   margin: 0 !important;
+  margin-bottom: 5px !important;
 }
 .nested-table .ant-table-tbody .ant-table-row {
   background-color: rgb(185, 185, 185);
@@ -488,7 +489,7 @@ textarea.ant-input {
 .ant-input:hover,
 .ant-input:focus,
 .ant-input-focused {
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
@@ -498,7 +499,7 @@ textarea.ant-input {
 .ant-select:hover .ant-select-selector,
 .ant-select-focused .ant-select-selector,
 .ant-select:focus .ant-select-selector {
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
@@ -516,7 +517,7 @@ textarea.ant-input {
 
 textarea.ant-input:hover,
 textarea.ant-input:focus {
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
@@ -526,7 +527,7 @@ textarea.ant-input:focus {
 .ant-input-number:hover,
 .ant-input-number:focus,
 .ant-input-number-focused {
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
@@ -536,7 +537,7 @@ textarea.ant-input:focus {
 .ant-input-affix-wrapper:hover,
 .ant-input-affix-wrapper:focus,
 .ant-input-affix-wrapper-focused {
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
@@ -548,7 +549,7 @@ textarea.ant-input:focus {
 .ant-picker-focused,
 .ant-picker-range:hover,
 .ant-picker-range-focused {
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
@@ -607,35 +608,23 @@ textarea.ant-input {
   border-width: 2px !important;
 }
 
-
-
-
 .ant-input-affix-wrapper {
-
   border-radius: 0 !important;
 
   border-width: 2px !important;
-
 }
 
 .ant-card {
-
   border-radius: 0 !important;
-
 }
 
 .ant-card-head {
-
   border-radius: 0 !important;
-
 }
 
 .ant-card-body {
-
   border-radius: 0 !important;
-
 }
-
 
 .ant-menu-title-content {
   font-size: 0.8rem;
@@ -643,110 +632,79 @@ textarea.ant-input {
 /* Focus and hover border color - remove blue outline and shadow */
 
 .ant-input:hover,
-
 .ant-input:focus,
-
 .ant-input-focused {
-
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 .ant-select:hover .ant-select-selector,
-
 .ant-select-focused .ant-select-selector,
-
 .ant-select:focus .ant-select-selector {
-
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
   outline: none !important;
-
 }
-.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(
+    .ant-select-customize-input
+  )
+  .ant-select-selector {
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 textarea.ant-input:hover,
-
 textarea.ant-input:focus {
-
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 .ant-input-number:hover,
-
 .ant-input-number:focus,
-
 .ant-input-number-focused {
-
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 .ant-input-affix-wrapper:hover,
-
 .ant-input-affix-wrapper:focus,
-
 .ant-input-affix-wrapper-focused {
-
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 
-
 .ant-picker:hover,
-
 .ant-picker:focus,
-
 .ant-picker-focused,
-
 .ant-picker-range:hover,
-
 .ant-picker-range-focused {
-
-  border: 2px solid #4e8235 !important;
+  border: 2px solid #0d9489 !important;
 
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 /* Remove all input focus shadows and outlines globally */
 
 .ant-input:focus-visible,
-
 .ant-select-selector:focus-visible,
-
 .ant-input-number:focus-visible,
-
 .ant-picker:focus-visible,
-
 .ant-input-affix-wrapper:focus-visible {
-
   box-shadow: none !important;
 
   outline: none !important;
-
 }
 .MuiTableCell-head {
   /* padding: 5px 5px !important; */
@@ -1336,10 +1294,7 @@ textarea {
   background: #187bd8 !important;
   cursor: pointer;
 } */
-.ant-menu-horizontal {
-  border: none !important;
-  margin: 0 !important;
-}
+
 .nested-table .ant-table-tbody .ant-table-row {
   background-color: rgb(185, 185, 185);
 }
@@ -1355,9 +1310,7 @@ textarea {
 .css-1h37f49-MuiTableCell-root {
   z-index: 0 !important;
 }
-.ant-menu-item-selected {
-  background-color: unset !important;
-}
+
 .ant-input {
   font-size: 0.8rem;
 }

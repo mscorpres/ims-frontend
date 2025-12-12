@@ -33,6 +33,7 @@ import { TbReportAnalytics } from "react-icons/tb";
 import { SiPaytm } from "react-icons/si";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';// Default icon for items without specific icons
 import AutorenewIcon from '@mui/icons-material/Autorenew';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const DefaultIcon = () => <MenuOutlined />;
 
@@ -142,6 +143,7 @@ const iconMap= {
   BarChartIcon: TbReportAnalytics,
   DownloadIcon: FileDownloadIcon,
   ResetIcon: AutorenewIcon,
+  AccessTimeIcon: AccessTimeIcon,
 };
 
 // Function to get icon component

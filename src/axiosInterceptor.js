@@ -106,7 +106,7 @@ imsAxios.interceptors.response.use(
     //   );
     // }
     if (!error.response.data?.message) {
-      toast.error(error.response?.data);
+      toast.error("Error - 404");
     }
     // }
     return error.response;

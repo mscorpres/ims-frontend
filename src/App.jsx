@@ -1,5 +1,4 @@
 import  { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import {
   Route,
   Routes,
@@ -26,10 +25,18 @@ import {
   setUser,
   setSettings,
 } from "./Features/loginSlice/loginSlice.js";
+import {
+  toggleNotifications,
+  setShowNotifications,
+  setShowMessageNotifications,
+  setShowTickets,
+  setShowSetting,
+  setShowSwitchModule,
+} from "./Features/uiSlice/uiSlice.js";
 import UserMenu from "./Components/UserMenu";
 import Logo from "./Components/Logo";
 import socket from "./Components/socket.js";
-import Notifications from "./Components/Notifications";
+import NotificationDropdown from "./Components/NotificationDropdown/NotificationDropdown";
 import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
 import Layout, { Content } from "antd/lib/layout/layout";
@@ -54,6 +61,13 @@ const App = () => {
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
+  const {
+    showNotifications,
+    showMessageNotifications,
+    showTickets,
+    showSetting,
+    showSwitchModule,
+  } = useSelector((state) => state.ui);
 
   const filteredRoutes = Rout.filter((route) => {
     return !route.dept || user?.showlegal;
@@ -63,26 +77,21 @@ const App = () => {
   const dispatch = useDispatch();
   const [showSideBar, setShowSideBar] = useState(false);
   const [allModules, setAllModules] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showMessageDrawer, setShowMessageDrawer] = useState(false);
-  const [showMessageNotifications, setShowMessageNotifications] =
-    useState(false);
   const [newNotification, setNewNotification] = useState(null);
   const { pathname } = useLocation();
   const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);
   const [modulesOptions, setModulesOptions] = useState([]);
   const [searchModule, setSearchModule] = useState("");
-  const [showTickets, setShowTickets] = useState(false);
   const [searchHis, setSearchHis] = useState("");
   const [hisList, setHisList] = useState([]);
   const [showHisList, setShowHisList] = useState([]);
   const notificationsRef = useRef();
+  const notificationButtonRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showSetting, setShowSetting] = useState(false);
   const [enabledModules, setEnabledModules] = useState([]); // Added state for enabled modules
-  const [showSwitchModule, setShowSwitchModule] = useState(false);
   const [isSwitchingModule, setIsSwitchingModule] = useState(false);
   const [switchLocation, setSwitchLocation] = useState(null);
   const [switchBranch, setSwitchBranch] = useState(null);
@@ -622,8 +631,8 @@ const App = () => {
 
   useEffect(() => {
     setShowSideBar(false);
-    setShowMessageNotifications(false);
-    setShowNotifications(false);
+    dispatch(setShowMessageNotifications(false));
+    dispatch(setShowNotifications(false));
     let currentLink = pathname;
     if (user) {
       if (pathname !== "login") {
@@ -665,17 +674,19 @@ const App = () => {
   useEffect(() => {
     if (showMessageNotifications) {
       {
-        setShowNotifications(false);
+        dispatch(setShowNotifications(false));
       }
     }
-  }, [showMessageNotifications]);
+  }, [showMessageNotifications, dispatch]);
   useEffect(() => {
     if (showNotifications) {
       {
-        setShowMessageNotifications(false);
+        dispatch(setShowMessageNotifications(false));
       }
     }
-  }, [showNotifications]);
+  }, [showNotifications, dispatch]);
+
+
   useEffect(() => {
     if (testPages) {
       let match = testPages?.filter((page) => page.url == pathname)[0];
@@ -846,7 +857,7 @@ const App = () => {
     })
     .filter((item) => item !== null);
 
-  const filteredItems1 = items1(user, setShowTickets)
+  const filteredItems1 = items1(user, () => dispatch(setShowTickets(true)))
     .map((item) => {
       if (!item.module_key) {
         console.log("No module_key, showing item1:", item.label);
@@ -994,11 +1005,12 @@ const App = () => {
               notificationsCount={
                 notifications.filter((not) => not?.type != "message")?.length
               }
-              onClickNotifications={() => setShowNotifications((n) => !n)}
+              onClickNotifications={() => dispatch(toggleNotifications())}
+              notificationButtonRef={notificationButtonRef}
               messagesCount={
                 notifications.filter((not) => not?.type == "message").length
               }
-              onClickMessages={() => setShowTickets(true)}
+              onClickMessages={() => dispatch(setShowTickets(true))}
               switchModule={
                 <Tooltip title="Switch Module" placement="bottom">
                   <SwapOutlined
@@ -1007,7 +1019,7 @@ const App = () => {
                       color: "white",
                       cursor: "pointer",
                     }}
-                    onClick={() => setShowSwitchModule(true)}
+                    onClick={() => dispatch(setShowSwitchModule(true))}
                   />
                 </Tooltip>
               }
@@ -1015,50 +1027,27 @@ const App = () => {
                 <UserMenu
                   user={user}
                   logoutHandler={logoutHandler}
-                  setShowSettings={setShowSetting}
+                  setShowSettings={(value) => dispatch(setShowSetting(value))}
                 />
               }
               extraRight={
                 showSetting ? (
                   <SettingDrawer
                     open={showSetting}
-                    hide={() => setShowSetting(false)}
+                    hide={() => dispatch(setShowSetting(false))}
                   />
                 ) : null
               }
             />
-            {showNotifications &&
-              createPortal(
-                <div
-                  id="notifications-panel"
-                  style={{
-                    position: "fixed",
-                    top: 60,
-                    right: 12,
-                    zIndex: 10000,
-                    width: 420,
-                    maxHeight: "calc(100vh - 72px)",
-                    overflowY: "auto",
-                    background: "#fff",
-                    borderRadius: 10,
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-                    border: "1px solid rgba(0,0,0,0.08)",
-                    pointerEvents: "auto",
-                    outline: "1px solid transparent",
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Notifications
-                    source={"notifications"}
-                    showNotifications={showNotifications}
-                    notifications={notifications.filter(
-                      (not) => not?.type != "message"
-                    )}
-                    deleteNotification={deleteNotification}
-                  />
-                </div>,
-                document.body
+            <NotificationDropdown
+              open={showNotifications}
+              onClose={() => dispatch(setShowNotifications(false))}
+              notifications={notifications.filter(
+                (not) => not?.type != "message"
               )}
+              deleteNotification={deleteNotification}
+              anchorRef={notificationButtonRef}
+            />
             {/* <Header
               style={{
                 zIndex: 4,
@@ -1180,7 +1169,7 @@ const App = () => {
 
                         cursor: "pointer",
                       }}
-                      onClick={() => setShowSwitchModule(true)}
+                      onClick={() => dispatch(setShowSwitchModule(true))}
                     />
                   </Tooltip>
                   <Tooltip
@@ -1250,7 +1239,7 @@ const App = () => {
                       }
                     >
                       <BellFilled
-                        onClick={() => setShowNotifications((n) => !n)}
+                        onClick={() => dispatch(toggleNotifications())}
                         style={{
                           fontSize: 18,
                           color: "white",
@@ -1278,7 +1267,7 @@ const App = () => {
                       }
                     >
                       <CustomerServiceOutlined
-                        onClick={() => setShowTickets(true)}
+                        onClick={() => dispatch(setShowTickets(true))}
                         style={{
                           fontSize: 18,
                           cursor: "pointer",
@@ -1290,12 +1279,12 @@ const App = () => {
                   <UserMenu
                     user={user}
                     logoutHandler={logoutHandler}
-                    setShowSettings={setShowSetting}
+                    setShowSettings={(value) => dispatch(setShowSetting(value))}
                   />
                   {showSetting && (
                     <SettingDrawer
                       open={showSetting}
-                      hide={() => setShowSetting(false)}
+                      hide={() => dispatch(setShowSetting(false))}
                     />
                   )}
                   <Modal
@@ -1303,7 +1292,7 @@ const App = () => {
                     open={showSwitchModule}
                     onCancel={() => {
                       if (!isSwitchingModule) {
-                        setShowSwitchModule(false);
+                        dispatch(setShowSwitchModule(false));
                         setSwitchLocation(null);
                         setSwitchBranch(null);
                         setSwitchSession(null);
@@ -1508,7 +1497,7 @@ const App = () => {
           <div style={{ display: "flex", height: "100%", paddingTop: 45 }}>
             <TicketsModal
               open={showTickets}
-              handleClose={() => setShowTickets(false)}
+              handleClose={() => dispatch(setShowTickets(false))}
             />
             {user && user.passwordChanged === "C" && (
               <>
@@ -1534,9 +1523,14 @@ const App = () => {
             )}
             {/* sidebar ends */}
             <Layout
-              onClick={() => {
-                setShowNotifications(false);
-                setShowMessageNotifications(false);
+              onClick={(e) => {
+                // Don't close if clicking on notification button
+                const target = e.target;
+                if (notificationButtonRef.current?.contains(target)) {
+                  return;
+                }
+                dispatch(setShowNotifications(false));
+                dispatch(setShowMessageNotifications(false));
               }}
               id="app-content-left-margin"
               style={{
@@ -1586,7 +1580,7 @@ const App = () => {
         open={showSwitchModule}
         onCancel={() => {
           if (!isSwitchingModule) {
-            setShowSwitchModule(false);
+            dispatch(setShowSwitchModule(false));
             setSwitchLocation(null);
             setSwitchBranch(null);
             setSwitchSession(null);

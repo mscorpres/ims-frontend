@@ -36,6 +36,7 @@ const AppHeader = (props) => {
     onRefreshSocket,
     notificationsCount = 0,
     onClickNotifications,
+    notificationButtonRef,
     messagesCount = 0,
     onClickMessages,
     userMenu,
@@ -162,7 +163,12 @@ const AppHeader = (props) => {
               </Tooltip>
             )}
 
-            <div>
+            <div
+              ref={notificationButtonRef}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
               <Badge
                 sx={{
                   "& .MuiBadge-badge": {
@@ -182,7 +188,6 @@ const AppHeader = (props) => {
                       typeof e.nativeEvent.stopImmediatePropagation ===
                         "function"
                     ) {
-                      // @ts-ignore
                       e.nativeEvent.stopImmediatePropagation();
                     }
                     onClickNotifications && onClickNotifications();

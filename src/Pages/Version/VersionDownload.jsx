@@ -317,13 +317,15 @@ const VersionDownload = () => {
         </Box>
 
         {changelogData.length === 0 ? (
-          <Paper sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h6" color="textSecondary">
+          <Paper sx={{ maxHeight: "80%", minHeight: "80%", justifyContent: "center", alignItems: "center", display: "flex",  }} elevation={0}>
+           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+             <Typography variant="h6" color="textSecondary">
               No changelog history found
             </Typography>
             <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
               Try adjusting your filters or add new changelog entries
             </Typography>
+           </div>
           </Paper>
         ) : (
           Object.keys(groupedData)
