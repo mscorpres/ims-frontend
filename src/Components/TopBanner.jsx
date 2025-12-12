@@ -1,135 +1,164 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  LeftOutlined,
+  RightOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 
-const TopBanner = () => {
-  const [visible, setVisible] = useState(true);
-  const [currentColorIndex, setCurrentColorIndex] = useState(0);
-  const { pathname } = useLocation();
+const BANNER_STORAGE_KEY = "topBannerClosedAt";
+const HIDE_DURATION = 60 * 60 * 1000;
 
-  const colors = [
-    "#ff6b35", // Orange
-    "#4ecdc4", // Teal
-    "#45b7d1", // Blue
-    "#96ceb4", // Mint
-    "#feca57", // Yellow
-  ];
+const BannerButton = ({ onClick, children, style = {} }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
-  // Function to determine if text should be black based on background color
-  const getTextColor = (backgroundColor) => {
-    const lightColors = ["#96ceb4", "#feca57", "#ff9ff3", "#54a0ff"];
-    return lightColors.includes(backgroundColor) ? "#333333" : "white";
-  };
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setIsActive(false);
+      }}
+      onMouseDown={() => setIsActive(true)}
+      onMouseUp={() => setIsActive(false)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
+      style={{
+        background: isHovered || isActive ? "#bde649" : "transparent",
+        border: "none",
+        color: "#555",
+        cursor: "pointer",
+        padding: "4px 6px",
+        display: "flex",
+        alignItems: "center",
+        borderRadius: "3px",
+        transition: "background 0.2s ease",
+        outline: "none",
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+};
 
-  const currentTextColor = getTextColor(colors[currentColorIndex]);
+const TopBanner = ({
+  messages = ["MY message here...."],
+  onVisibilityChange,
+}) => {
+  const [visible, setVisible] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const bannerRef = React.useRef(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentColorIndex((prev) => (prev + 1) % colors.length);
-    }, 3000); // Change color every 3 seconds
+    const closedAt = localStorage.getItem(BANNER_STORAGE_KEY);
 
-    return () => clearInterval(interval);
+    if (!closedAt) {
+      // Never closed before, show banner
+      setVisible(true);
+    } else {
+      const closedTime = parseInt(closedAt, 10);
+      const now = Date.now();
+      const timePassed = now - closedTime;
+
+      if (timePassed >= HIDE_DURATION) {
+        // 1 hour has passed, show banner again
+        setVisible(true);
+        localStorage.removeItem(BANNER_STORAGE_KEY);
+      } else {
+        // Still within 1 hour, keep hidden
+        setVisible(false);
+
+        // Set timeout to show banner after remaining time
+        const remainingTime = HIDE_DURATION - timePassed;
+        const timer = setTimeout(() => {
+          setVisible(true);
+          localStorage.removeItem(BANNER_STORAGE_KEY);
+        }, remainingTime);
+
+        return () => clearTimeout(timer);
+      }
+    }
   }, []);
 
-  // List of exact master page paths (not starting with /master/ or /masters/)
-  const exactMasterPagePaths = [
-    "/uom",
-    "/material",
-    "/services",
-    "/group",
-    "/location",
-    "/billingAddress",
-    "/shippingAddress",
-    "/vendor",
-    "/add-vendor",
-    "/hsn-map",
-    "/cost-center",
-    "/stockControl",
-    "/master/reports/r19",
-    "/tally/clients/add"
-  ];
+  useEffect(() => {
+    if (onVisibilityChange) {
+      onVisibilityChange(visible);
+    }
+  }, [visible, onVisibilityChange]);
 
-  // Check if current pathname is a master page
-  const isMasterPage =
-    pathname.startsWith("/master/") ||
-    pathname.startsWith("/masters/") ||
-    exactMasterPagePaths.includes(pathname);
+  const handleClose = () => {
+    setVisible(false);
+    localStorage.setItem(BANNER_STORAGE_KEY, Date.now().toString());
+  };
 
-  if (!visible || !isMasterPage) return null;
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : messages.length - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev < messages.length - 1 ? prev + 1 : 0));
+  };
+
+  if (!visible || messages.length === 0) return null;
 
   return (
     <div
+      ref={bannerRef}
       style={{
         width: "100%",
-        background: colors[currentColorIndex],
-        color: currentTextColor,
-        // padding: "6px 16px",
+        background: "#d2f571",
+        color: "#12120E",
+        padding: "8px 16px",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        fontWeight: 500,
+        justifyContent: "space-between",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        fontWeight: 400,
         fontSize: "13px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        transition: "background-color 0.5s ease-in-out",
-        borderBottom: "2px solid rgba(255,255,255,0.2)",
+        borderBottom: "1px solid #b8d95f",
       }}
     >
       <div
         style={{
-          flex: 1,
-          textAlign: "center",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
           gap: "8px",
+          flex: 1,
         }}
       >
-        <span style={{ fontSize: "14px" }}>ℹ️</span>
-        <span>
-          Master data is integrated with Alwar. Therefore, any data created in
-          this system will automatically reflect in the Alwar branch.
-        </span>
+        <InfoCircleOutlined style={{ color: "#203624", fontSize: "14px" }} />
+        <span style={{ color: "#203624", fontWeight: 600 }}>Information</span>
+        <span style={{ color: "#4a5a3a", margin: "0 4px" }}>|</span>
+        <span style={{ color: "#12120E" }}>{messages[currentIndex]}</span>
       </div>
-      <button
-        onClick={() => setVisible(false)}
-        aria-label="Dismiss announcement"
+
+      <div
         style={{
-          background:
-            currentTextColor === "white"
-              ? "rgba(255,255,255,0.2)"
-              : "rgba(0,0,0,0.1)",
-          border: "none",
-          color: currentTextColor,
-          fontSize: "16px",
-          fontWeight: "bold",
-          marginLeft: 12,
-          cursor: "pointer",
-          lineHeight: 1,
-          padding: "4px 8px",
-          borderRadius: "50%",
-          width: "24px",
-          height: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          transition: "all 0.3s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.background =
-            currentTextColor === "white"
-              ? "rgba(255,255,255,0.3)"
-              : "rgba(0,0,0,0.2)";
-          e.target.style.transform = "scale(1.1)";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background =
-            currentTextColor === "white"
-              ? "rgba(255,255,255,0.2)"
-              : "rgba(0,0,0,0.1)";
-          e.target.style.transform = "scale(1)";
+          gap: "4px",
         }}
       >
-        ✕
-      </button>
+        <BannerButton onClick={handlePrev}>
+          <LeftOutlined style={{ fontSize: "10px" }} />
+        </BannerButton>
+        <span style={{ color: "#555", fontSize: "12px", padding: "0 4px" }}>
+          {currentIndex + 1}/{messages.length}
+        </span>
+        <BannerButton onClick={handleNext}>
+          <RightOutlined style={{ fontSize: "10px" }} />
+        </BannerButton>
+        <BannerButton onClick={handleClose} style={{ marginLeft: "4px" }}>
+          <CloseOutlined style={{ fontSize: "12px" }} />
+        </BannerButton>
+      </div>
     </div>
   );
 };

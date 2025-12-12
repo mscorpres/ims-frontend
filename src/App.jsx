@@ -61,6 +61,8 @@ const App = () => {
   const { user, notifications, testPages } = useSelector(
     (state) => state.login
   );
+   const [showBlackScreen, setShowBlackScreen] = useState(false);
+    const [isBannerVisible, setIsBannerVisible] = useState(false);
   const {
     showNotifications,
     showMessageNotifications,
@@ -99,6 +101,7 @@ const App = () => {
   const [switchSuccess, setSwitchSuccess] = useState(false);
 
   const logoutHandler = () => {
+    setShowBlackScreen(false);
     dispatch(logout());
   };
   const deleteNotification = (id) => {
@@ -111,7 +114,9 @@ const App = () => {
       navigate("/");
     }
   }, [user?.type]);
-
+    const path = window.location.hostname;
+  const isTestServer =
+    path.includes("dev.mscorpres") || path.includes("localhost");
 
   // Function to get all modules
   const getAllModules = () => {
@@ -629,6 +634,21 @@ const App = () => {
     navigate,
   ]);
 
+
+ // Show black screen after TopBanner renders for some time
+  useEffect(() => {
+    if (user && user.passwordChanged === "C") {
+      const timer = setTimeout(() => {
+        setShowBlackScreen(true);
+      }, 1500); // Show black screen after 3 seconds
+
+      return () => clearTimeout(timer);
+    } else {
+      // Reset black screen when user logs out or passwordChanged is not "C"
+      setShowBlackScreen(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     setShowSideBar(false);
     dispatch(setShowMessageNotifications(false));
@@ -784,7 +804,7 @@ const App = () => {
     window.location.replace(redirectUrl);
   };
 
-  const path = window.location.hostname;
+
 
   const refreshConnection = () => {
     setIsLoading(true);
@@ -921,11 +941,12 @@ const App = () => {
         style={{
           width: "100%",
           top: 0,
+           paddingTop: isBannerVisible ? "30px" : "0px",
         }}
       >
         {/* header start */}
 
-        {(path.includes("dev.mscorpres") || path.includes("localhost")) && (
+         {isTestServer && (
           <div
             style={{
               backgroundColor: "yellow",
@@ -937,7 +958,15 @@ const App = () => {
             TEST SERVER
           </div>
         )}
-        <TopBanner />
+          {showBlackScreen && (
+        <TopBanner
+          messages={[
+            "Welcome to IMS Noida.",
+            "System maintenance scheduled for 7th December Sunday 01 AM - 23 PM",
+          ]}
+          onVisibilityChange={setIsBannerVisible}
+        />
+      )}
         {user && user.passwordChanged === "C" && (
           <Layout style={{ height: "100%" }}>
             <AppHeader
@@ -1508,8 +1537,8 @@ const App = () => {
                   showSideBar={showSideBar}
                   useJsonConfig={true}
                   topOffset={
-                    path.includes("dev.mscorpres") || path.includes("localhost")
-                      ? 60
+                    isTestServer || isBannerVisible
+                      ? 90
                       : 45
                   }
                   onWidthChange={(w) => {
@@ -1545,15 +1574,21 @@ const App = () => {
                 <InternalNav links={internalLinks} />
 
                 <div
-                  style={{
-                    height: "calc(100vh - 50px)",
-                    width: "100%",
-                    opacity: testPage ? 0.5 : 1,
-                    pointerEvents:
-                      testPage && user?.type != "developer" ? "none" : "all",
+                   style={{
+                  height: (() => {
+                    const headerHeight = 50;
+                    const bannerHeight = isBannerVisible ? 40 : 0;
+                    const testServerHeight = isTestServer ? 15 : 0;
+                    const byDefaultHeight = 20;
+                    return `calc(100vh - ${headerHeight}px - ${bannerHeight}px - ${testServerHeight}px - ${byDefaultHeight}px)  `;
+                  })(),
+                  width: "100%",
+                  opacity: testPage ? 0.5 : 1,
+                  pointerEvents:
+                    testPage && user?.type != "developer" ? "none" : "all",
 
-                    overflowX: "hidden",
-                  }}
+                  overflowX: "hidden",
+                }}
                 >
                   <MessageModal
                     showMessageDrawer={showMessageDrawer}

@@ -23,7 +23,7 @@ const Sidebar = ({
   const [isSecondSidebarCollapsed, setIsSecondSidebarCollapsed] =
     useState(false);
   const [expandedHeading, setExpandedHeading] = useState(null);
-
+console.log(location.pathname, "value  value")
   const config = useMemo(() => {
     if (useJsonConfig) {
       return loadMenuConfig();
@@ -312,29 +312,6 @@ const Sidebar = ({
           );
         })}
       </ul>
-    );
-  };
-
-  const renderSectionHeader = (title, isSubMenu = false) => {
-    const shouldShow = isSubMenu ? !isSecondSidebarCollapsed : showSideBar;
-
-    if (!shouldShow) return null;
-
-    return (
-      <div
-        style={{
-          padding: "16px 16px 8px 16px",
-          color: "#999",
-          fontSize: 11,
-          // fontWeight: "600",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-          borderTop: "1px solid #e0e0e0",
-          marginTop: 8,
-        }}
-      >
-        {title}
-      </div>
     );
   };
 

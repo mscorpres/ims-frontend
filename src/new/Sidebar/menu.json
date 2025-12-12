@@ -340,6 +340,12 @@
                 "icon": "ManageAccountsIcon",
                 "path": "/manage-po"
               },
+               {
+                "key": "B22",
+                "label": "Requested PO",
+                "icon": "ManageAccountsIcon",
+                "path": "/request-po"
+              },
               {
                 "key": "B23",
                 "label": "Completed PO",
