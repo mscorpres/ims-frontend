@@ -496,13 +496,13 @@ export default function EditComponent({
       });
       setSubmitLoading(false);
       if (data.code == 200) {
-        toast.success(data.message);
+        toast.success(data.message.msg||data.message);
         setUpdatePoId(null);
         if (getRows && typeof getRows === "function") {
           setTimeout(() => getRows(true), 500);
         }
       } else {
-        toast.error(data.message);
+        toast.error(data.message.msg||data.message);
       }
     }
   };
