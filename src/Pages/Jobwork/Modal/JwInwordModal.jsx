@@ -794,7 +794,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                       </Form.Item>
                     </Form>
                   </Col>
-                  <Col
+                  {showBomList && bomList && <Col
                     span={8}
                     style={{
                       fontSize: "15px",
@@ -807,7 +807,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                         <MySelect options={pickLocationOptions} />
                       </Form.Item>
                     </Form>
-                  </Col>
+                  </Col>}
                   {isApplicable == "Y" && (
                     <Col
                       span={6}

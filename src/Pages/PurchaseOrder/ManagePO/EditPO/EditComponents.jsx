@@ -251,7 +251,12 @@ export default function EditComponent({
             };
           }
         }
-        if (row.gsttype.value == "L" && name != "gsttype" && name != "remark" && name != "internal_remark") {
+        if (
+          row.gsttype.value == "L" &&
+          name != "gsttype" &&
+          name != "remark" &&
+          name != "internal_remark"
+        ) {
           let percentage = obj.gstrate / 2;
           obj = {
             ...obj,
@@ -259,7 +264,12 @@ export default function EditComponent({
             sgst: (obj.inrValue * percentage) / 100,
             igst: 0,
           };
-        } else if (row.gsttype.value == "I" && name != "gsttype" && name != "remark" && name != "internal_remark") {
+        } else if (
+          row.gsttype.value == "I" &&
+          name != "gsttype" &&
+          name != "remark" &&
+          name != "internal_remark"
+        ) {
           let percentage = obj.gstrate;
           obj = {
             ...obj,
@@ -356,100 +366,128 @@ export default function EditComponent({
     setRowCount(resetRowsDetailsData);
     setConfirmReset(false);
   };
- const validateData = () => {
-  let validation = true;
+  const validateData = () => {
+    let validation = true;
 
-  // Basic required field check
-  rowCount.forEach((row) => {
-    if (!row.component || !row.qty || !row.rate || !row.hsncode || !row.gsttype) {
-      validation = false;
+    // Basic required field check
+    rowCount.forEach((row) => {
+      if (
+        !row.component ||
+        !row.qty ||
+        !row.rate ||
+        !row.hsncode ||
+        !row.gsttype
+      ) {
+        validation = false;
+      }
+    });
+
+    if (!validation) {
+      toast.error("Please fill all required component fields");
+      return;
     }
-  });
 
-  if (!validation) {
-    toast.error("Please fill all required component fields");
-    return;
-  }
+    // Build components arrays
+    const components = {
+      component: [],
+      qty: [],
+      rate: [],
+      currency: [],
+      exchange_rate: [],
+      date: [],
+      hsn: [],
+      gsttype: [],
+      gstrate: [],
+      sgst: [],
+      igst: [],
+      cgst: [],
+      remark: [],
+      internal_remark: [],
+      updaterow: [],
+      rate_cap: [],
+      project_qty: [],
+      exq_po_qty: [],
+    };
 
-  // Build components arrays
-  const components = {
-    component: [], qty: [], rate: [], currency: [], exchange_rate: [],
-    date: [], hsn: [], gsttype: [], gstrate: [], sgst: [], igst: [], cgst: [],
-    remark: [], internal_remark: [], updaterow: [], rate_cap: [], project_qty: [], exq_po_qty: []
+    rowCount.forEach((row) => {
+      components.component.push(row.component?.value);
+      components.qty.push(row.qty);
+      components.rate.push(row.rate);
+      components.currency.push(row.currency);
+      components.exchange_rate.push(row.exchange_rate);
+      components.date.push(row.duedate || "");
+      components.hsn.push(row.hsncode);
+      components.gsttype.push(row.gsttype);
+      components.gstrate.push(row.gstrate);
+      components.sgst.push(row.sgst);
+      components.igst.push(row.igst);
+      components.cgst.push(row.cgst);
+      components.remark.push(row.remark);
+      components.internal_remark.push(row.internal_remark || "");
+      components.updaterow.push(row.updateRow || row.updaterow || "");
+      components.rate_cap.push(row.project_rate || 0);
+      components.project_qty.push(row.project_qty || 0);
+      components.exq_po_qty.push(row.po_ord_qty || 0);
+    });
+
+    if (
+      [...new Set(components.currency)].length > 1 ||
+      [...new Set(components.gsttype)].length > 1
+    ) {
+      toast.error("All items must have same Currency and GST Type");
+      return;
+    }
+
+    let finalPO = {
+      poid: updatePoId?.orderid,
+      vendor_name:
+        purchaseOrder?.vendorcode?.value || purchaseOrder?.vendorcode,
+      vendor_type: purchaseOrder?.vendortype_value,
+      vendor_branch:
+        purchaseOrder?.vendorbranch?.value || purchaseOrder?.vendorbranch,
+      vendor_address: purchaseOrder?.vendoraddress?.trim(),
+      paymentterms: purchaseOrder?.paymentterms?.trim(),
+      quotationterms: purchaseOrder?.termsofquotation?.trim(),
+      termsandcondition: purchaseOrder?.termsofcondition?.trim(),
+      costcenter: purchaseOrder?.costcenter?.value || purchaseOrder?.costcenter,
+      projectname: typeof purchaseOrder?.projectname === "object" ? purchaseOrder?.projectname?.value.trim() : purchaseOrder?.projectname?.trim(),
+      pocomment: purchaseOrder?.pocomment?.trim(),
+      bill_address_id: purchaseOrder.addrbillid,
+      billaddress: purchaseOrder.billaddress,
+      advancePayment: purchaseOrder.advancePayment || 0,
+      termsday: purchaseOrder.paymenttermsday || 30,
+
+      ship_type: purchaseOrder.ship_type,
+
+      ...(purchaseOrder.ship_type === "saved" && {
+        ship_address_id:
+          purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid,
+      }),
+
+      ...(purchaseOrder.ship_type === "vendor" && {
+        ship_vendor: purchaseOrder.ship_vendor?.value,
+        ship_vendor_branch: purchaseOrder.ship_vendor_branch?.value,
+        ship_address_id:
+          purchaseOrder.ship_vendor?.value || purchaseOrder.ship_vendor,
+      }),
+
+      // Manual mode → no IDs, only address
+      ship_address:
+        purchaseOrder.ship_type === "manual"
+          ? purchaseOrder.shipaddress?.trim()
+          : purchaseOrder.shipaddress?.trim() || "--",
+      ship_other_pan: purchaseOrder.shippanno?.trim(),
+      ship_other_gstin: purchaseOrder.shipgstid?.trim(),
+      ship_partyname: purchaseOrder.ship_partyname?.trim(),
+    };
+
+    // Always spread components at the end
+    Object.assign(finalPO, components);
+    finalPO.materials = null;
+
+    console.log("FINAL CLEAN PAYLOAD →", finalPO);
+    setSubmitConfirm(finalPO);
   };
-
-  rowCount.forEach(row => {
-    components.component.push(row.component?.value);
-    components.qty.push(row.qty);
-    components.rate.push(row.rate);
-    components.currency.push(row.currency);
-    components.exchange_rate.push(row.exchange_rate);
-    components.date.push(row.duedate || "");
-    components.hsn.push(row.hsncode);
-    components.gsttype.push(row.gsttype);
-    components.gstrate.push(row.gstrate);
-    components.sgst.push(row.sgst);
-    components.igst.push(row.igst);
-    components.cgst.push(row.cgst);
-    components.remark.push(row.remark);
-    components.internal_remark.push(row.internal_remark || "");
-    components.updaterow.push(row.updateRow || row.updaterow || "");
-    components.rate_cap.push(row.project_rate || 0);
-    components.project_qty.push(row.project_qty || 0);
-    components.exq_po_qty.push(row.po_ord_qty || 0);
-  });
-
- 
-  if ([...new Set(components.currency)].length > 1 || [...new Set(components.gsttype)].length > 1) {
-    toast.error("All items must have same Currency and GST Type");
-    return;
-  }
-
-  let finalPO = {
-    poid: updatePoId?.orderid,
-    vendor_name: purchaseOrder?.vendorcode?.value || purchaseOrder?.vendorcode,
-    vendor_type: purchaseOrder?.vendortype_value,
-    vendor_branch: purchaseOrder?.vendorbranch?.value || purchaseOrder?.vendorbranch,
-    vendor_address: purchaseOrder?.vendoraddress?.trim(),
-    paymentterms: purchaseOrder?.paymentterms?.trim(),
-    quotationterms: purchaseOrder?.termsofquotation?.trim(),
-    termsandcondition: purchaseOrder?.termsofcondition?.trim(),
-    costcenter: purchaseOrder?.costcenter?.value || purchaseOrder?.costcenter,
-    projectname: purchaseOrder?.projectname?.trim(),
-    pocomment: purchaseOrder?.pocomment?.trim(),
-    bill_address_id: purchaseOrder.addrbillid,
-    billaddress: purchaseOrder.billaddress,
-    advancePayment: purchaseOrder.advancePayment || 0,
-    termsday: purchaseOrder.paymenttermsday || 30,
-
-    ship_type: purchaseOrder.ship_type,  
-
-    ...(purchaseOrder.ship_type === "saved" && {
-      ship_address_id: purchaseOrder.addrshipid?.value || purchaseOrder.addrshipid,
-    }),
-
-    ...(purchaseOrder.ship_type === "vendor" && {
-      ship_vendor: purchaseOrder.ship_vendor?.value,
-      ship_vendor_branch: purchaseOrder.ship_vendor_branch?.value,
-      ship_address_id: purchaseOrder.ship_vendor?.value || purchaseOrder.ship_vendor, 
-    }),
-
-    // Manual mode → no IDs, only address
-    ship_address: purchaseOrder.ship_type === "manual" 
-      ? purchaseOrder.shipaddress?.trim() 
-      : purchaseOrder.shipaddress?.trim() || "--",
-    ship_other_pan: purchaseOrder.shippanno?.trim(),
-    ship_other_gstin: purchaseOrder.shipgstid?.trim(),
-    ship_partyname: purchaseOrder.ship_partyname?.trim(),
-  };
-
-  // Always spread components at the end
-  Object.assign(finalPO, components);
-  finalPO.materials = null;
-
-  console.log("FINAL CLEAN PAYLOAD →", finalPO);
-  setSubmitConfirm(finalPO);
-};
   const submitHandler = async () => {
     if (submitConfirm) {
       setSubmitLoading(true);
@@ -458,13 +496,13 @@ export default function EditComponent({
       });
       setSubmitLoading(false);
       if (data.code == 200) {
-        toast.success(data.message);
+        toast.success(data.message.msg||data.message);
         setUpdatePoId(null);
         if (getRows && typeof getRows === "function") {
           setTimeout(() => getRows(true), 500);
         }
       } else {
-        toast.error(data.message);
+        toast.error(data.message.msg||data.message);
       }
     }
   };
@@ -508,7 +546,7 @@ export default function EditComponent({
       headerName: (
         <Button size="small" icon={<PlusOutlined />} onClick={addRows} />
       ),
-      width: 20,
+      width: 50,
       field: "add",
       sortable: false,
       renderCell: ({ row }) =>
@@ -545,7 +583,13 @@ export default function EditComponent({
           asynOptions
         ),
     },
-   
+    {
+      headerName: "Item Description",
+      width: 200,
+      width: 250,
+      sortable: false,
+      renderCell: (params) => itemDescriptionCell(params, inputHandler),
+    },
     {
       headerName: "Ord. Qty",
       width: 130,
@@ -560,7 +604,7 @@ export default function EditComponent({
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
-     {
+    {
       headerName: "Last rate",
       width: 180,
       field: "last_rate",
@@ -682,13 +726,7 @@ export default function EditComponent({
       sortable: false,
       renderCell: (params) => internalRemarkCell(params, inputHandler),
     },
-    {
-      headerName: "Item Description",
-      width: 200,
-      width: 250,
-      sortable: false,
-      renderCell: (params) => itemDescriptionCell(params, inputHandler),
-    },
+   
   ];
   useEffect(() => {
     getCurrencies();
