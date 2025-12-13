@@ -315,10 +315,6 @@ function RmtoRm() {
                 options={[
                   { text: "A-21 [BRMSC012]", value: "BRMSC012" },
                   { text: "B-29 [BRMSC029]", value: "BRMSC029" },
-                  {
-                    text: "B-36 Alwar [BRBA036]",
-                    value: "BRBA036",
-                  },
                   { text: "D-160 [BRBAD116]", value: "BRBAD116" },
                 ]}
                 placeholder="Select Drop Branch"
