@@ -8,6 +8,7 @@ import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import MyButton from "../../../Components/MyButton";
+import dayjs from "dayjs";
 
 function JwToJwViewTransaction() {
   const [loading, setLoading] = useState(false);
@@ -40,20 +41,55 @@ function JwToJwViewTransaction() {
     downloadCSV(dataComesFromDateWise, columns, "JW To JW View Transaction");
   };
 
+  const formatDateForAPI = (dateValue) => {
+    // datee comes in format "DD-MM-YYYY-DD-MM-YYYY" from MyDatePicker
+    if (typeof dateValue === "string" && dateValue.includes("-")) {
+      // If it's a string like "10-12-2025-13-12-2025"
+      const parts = dateValue.split("-");
+      if (parts.length >= 6) {
+        // Extract dates: DD-MM-YYYY-DD-MM-YYYY
+        // parts[0] = DD, parts[1] = MM, parts[2] = YYYY, parts[3] = DD, parts[4] = MM, parts[5] = YYYY
+        const fromDate = `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD
+        const toDate = `${parts[5]}-${parts[4]}-${parts[3]}`; // YYYY-MM-DD
+        return { fromDate, toDate };
+      }
+    } else if (Array.isArray(dateValue) && dateValue.length === 2) {
+      // If it's an array of dayjs objects
+      const fromDate = dayjs(dateValue[0]).format("YYYY-MM-DD");
+      const toDate = dayjs(dateValue[1]).format("YYYY-MM-DD");
+      return { fromDate, toDate };
+    } else if (dateValue && typeof dateValue === "object") {
+      // Handle dayjs objects directly
+      if (dateValue[0] && dateValue[1]) {
+        const fromDate = dayjs(dateValue[0]).format("YYYY-MM-DD");
+        const toDate = dayjs(dateValue[1]).format("YYYY-MM-DD");
+        return { fromDate, toDate };
+      }
+    }
+    return null;
+  };
+
   const dateWise = async (e) => {
     e.preventDefault();
     if (!allData.selectdate) {
       toast.error("Please Select Mode Then Proceed Next");
-    } else if (!datee[0]) {
+    } else if (!datee) {
       toast.error("Please Select Date");
     } else {
       setDataComesFromDateWise([]);
       setLoading(true);
 
-      const response = await imsAxios.post("/godown/report_jw2jw", {
-        data: datee,
-        wise: allData.selectdate,
-      });
+      // Format dates to YYYY-MM-DD
+      const formattedDates = formatDateForAPI(datee);
+      if (!formattedDates) {
+        toast.error("Invalid date format");
+        setLoading(false);
+        return;
+      }
+
+      const response = await imsAxios.post(
+        `/godown/transfer/jw-jw/tranfer/view?from=${formattedDates.fromDate}&to=${formattedDates.toDate}`
+      );
 
       if (response?.success) {
         let arr = response?.data.map((row) => {
@@ -120,4 +156,3 @@ function JwToJwViewTransaction() {
 }
 
 export default JwToJwViewTransaction;
-

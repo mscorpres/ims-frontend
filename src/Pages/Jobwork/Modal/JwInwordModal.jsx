@@ -491,7 +491,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       invoice: mainData[0].invoice,
       irn: irnNo,
       jobwork_trans_id: header.jobworkID,
-      location: mainData[0].location,
+      drop_location: mainData[0].location,
       product: row.sku_code,
       qty: mainData[0].orderqty,
       rate: mainData[0].rate,
