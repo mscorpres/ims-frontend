@@ -487,6 +487,13 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       sortable: false,
       renderCell: ({ row }) => <ToolTipEllipses text={row.component?.label || "--"} />,
     },
+     {
+      headerName: "Item Description",
+      width: 250,
+      field: "remark",
+      sortable: false,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.remark || "--"} />,
+    },
     {
       headerName: "Ord. Qty",
       width: 130,
@@ -514,7 +521,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     },
     {
       headerName: "Last rate",
-      width: 180,
+      width: 250,
       field: "last_rate",
       sortable: false,
       renderCell: ({ row }) => {
@@ -627,12 +634,12 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
       sortable: false,
       renderCell: ({ row }) => <span>{row.igst || "--"}</span>,
     },
-    {
-      headerName: "Item Description",
-      width: 250,
-      field: "remark",
+   {
+      headerName: "Internal Remark",
+      width: 100,
+      field: "internal_remark",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.remark || "--"} />,
+      renderCell: ({ row }) => <span>{row.internal_remark || "--"}</span>,
     },
   ];
 

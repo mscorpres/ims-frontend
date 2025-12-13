@@ -68,22 +68,14 @@ export const foreignCell = ({ row }) => {
 };
 export const invoiceDateCell = ({ row }, inputHandler) => {
   return (
-    // <SingleDatePicker
-    //   row={row}
-    //   name="duedate"
-    //   value={row.duedate != "" ? row.duedate : "empty"}
-    //   tablePicker={true}
-    //   inputHandler={inputHandler}
-    // />
-    <InputMask
+    <SingleDatePicker
+      row={row}
+      value={row.duedate}
       name="duedate"
-      value={row.duedate ?? ""}
-      onChange={(e) => inputHandler("duedate", e.target.value, row.id)}
-      className="date-text-input"
-      mask="99-99-9999"
+      tablePicker={true}
+      inputHandler={inputHandler}
+      format="DD-MM-YYYY"
       placeholder="Invoice Date"
-      style={{ textAlign: "center" }}
-      // defaultValue="01-09-2022"
     />
   );
 };
