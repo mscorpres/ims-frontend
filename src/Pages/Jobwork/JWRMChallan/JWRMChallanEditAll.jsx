@@ -180,8 +180,9 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
         nature: restCom?.nature,
         duration: restCom?.duration,
         other_ref: restCom?.otherRef,
-        picklocation: obj?.pickLocation,
+        // picklocation: obj?.pickLocation,
         droplocation: obj?.dropLocation,
+        picklocation: obj?.pickLocation,
       },
       material: finalObj,
       // transaction_id: obj?.,
@@ -453,30 +454,30 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       ),
       width: 120,
     },
-    // {
-    //   field: "out_loc",
-    //   headerName: "Out Location",
-    //   renderCell: ({ row }) => (
-    //     <div style={{ width: "100%" }}>
-    //       <MySelect
-    //         // disabled
-    //         options={locationOptions}
-    //         value={row.out_loc}
-    //         onChange={(value) =>
-    //           inputHandler(
-    //             "out_loc",
-    //             {
-    //               value: value,
-    //               component: row.component_key,
-    //             },
-    //             row.id
-    //           )
-    //         }
-    //       />
-    //     </div>
-    //   ),
-    //   width: 120,
-    // },
+    {
+      field: "out_loc",
+      headerName: "Out Location",
+      renderCell: ({ row }) => (
+        <div style={{ width: "100%" }}>
+          <MySelect
+            // disabled
+            options={locationOptions}
+            value={row.out_loc}
+            onChange={(value) =>
+              inputHandler(
+                "out_loc",
+                {
+                  value: value,
+                  component: row.component_key,
+                },
+                row.id
+              )
+            }
+          />
+        </div>
+      ),
+      width: 120,
+    },
     {
       field: "remarks",
       headerName: "Description",

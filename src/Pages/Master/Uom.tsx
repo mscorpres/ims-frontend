@@ -11,6 +11,7 @@ import { ResponseType } from "../../types/general.ts";
 
 const Uom = () => {
   const [uomData, setUomData] = useState([]);
+  const [isDirty, setIsDirty] = useState(false);
 
   // old code
   // const [loading, setLoading] = useState(false);
@@ -21,6 +22,10 @@ const Uom = () => {
 
   const { executeFun, loading } = useApi();
   const [form] = Form.useForm();
+
+  // Watch form values to detect changes
+  const formValues = Form.useWatch([], form);
+  const initialData = { name: "", details: "" };
 
   //   fetch uom
   const handleFetchUOMList = async () => {
@@ -50,6 +55,7 @@ const Uom = () => {
     );
     if (response.success) {
       form.resetFields();
+      setIsDirty(false);
       handleFetchUOMList();
     }
 
@@ -81,6 +87,7 @@ const Uom = () => {
 
   const resetHandler = () => {
     form.resetFields();
+    setIsDirty(false);
 
     //old code
     // setNewUom({
@@ -100,6 +107,37 @@ const Uom = () => {
   //   { field: "units_name", headerName: "Unit", width: 170 },
   //   { field: "units_details", headerName: "Specification", width: 170 },
   // ];
+
+  // Check if form has unsaved changes
+  useEffect(() => {
+    if (formValues) {
+      const currentData = {
+        name: formValues.name || "",
+        details: formValues.details || "",
+      };
+      const hasChanges =
+        JSON.stringify(currentData) !== JSON.stringify(initialData);
+      setIsDirty(hasChanges);
+    } else {
+      setIsDirty(false);
+    }
+  }, [formValues]);
+
+  // Warn user when leaving the page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
 
   useEffect(() => {
     handleFetchUOMList();
