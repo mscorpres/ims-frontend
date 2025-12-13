@@ -372,7 +372,7 @@ function CreateJobChallanModel({ challanModal, setChallanModal }) {
     productData?.map((a) => comArray.push(a?.component_key));
     productData?.map((a) => qtyArray.push(a?.issue_qty));
     productData?.map((a) => rateArray.push(a?.rate));
-    productData?.map((a) => picklocationArray.push(a?.loc));
+    // productData?.map((a) => picklocationArray.push(a?.loc));
     productData?.map((a) => remarkArray.push(a?.desc));
     productData?.map((a) => hsnCodeArray.push(a?.hsn_code));
 
@@ -404,7 +404,7 @@ function CreateJobChallanModel({ challanModal, setChallanModal }) {
       component: comArray,
       qty: qtyArray,
       rate: rateArray,
-      picklocation: picklocationArray,
+      // picklocation: picklocationArray,
       remark: remarkArray,
       hsncode: hsnCodeArray,
     });
