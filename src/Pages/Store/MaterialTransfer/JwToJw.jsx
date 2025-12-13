@@ -205,7 +205,7 @@ function JwToJw() {
       component: components,
       to: allData.locationTo,
       qty: qtys,
-      remarks: allData.remark,
+      remark: allData.remark,
     });
 
     if (response.success) {
