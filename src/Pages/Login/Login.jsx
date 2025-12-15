@@ -131,12 +131,13 @@ const Login = () => {
         setRecaptchaKey(Math.random());
         toast.error(res?.message);
       }
-      // dispatch(
-      //   loginAuth({ username: inpVal.username, password: inpVal.password })
-      // );
-    }
+   }
   };
   const validatecreateNewUser = async () => {
+    if (!recaptchaValue) {
+      toast.error("Please verify the reCAPTCHA");
+      return;
+    }
     const values = await signUp.validateFields();
     askModalConfirm(values);
   };
@@ -838,6 +839,13 @@ const Login = () => {
                       <Input.Password />
                     </Form.Item>
                   </Form>
+                  <div className="flex justify-center">
+                          <ReCAPTCHA
+                            sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                            onChange={handleRecaptchaChange}
+                            key={recaptchaKey}
+                          />
+                        </div>
                   <Button
                     // loading={loading}
                     block

@@ -226,7 +226,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
             currency: row.currency,
             exchange_rate: row.exchangerate == "" ? 1 : row.exchangerate,
             component: {
-              label: row.component + " " + row.part_no,
+              label: '['+ row.part_no +']' + " " + row.component,
               value: row.componentKey,
             },
             part_no: row.part_no,

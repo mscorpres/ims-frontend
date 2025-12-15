@@ -11,6 +11,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import MyButton from "../../../Components/MyButton/index.jsx";
 import ViewPORequest from "./ViewPORequest.jsx";
 import EditPO from "../ManagePO/EditPO/EditPO.jsx";
+import ViewPOLogs from "./ViewPOLogs.jsx";
 
 const RequestPo = () => {
   const [searchLoading, setSearchLoading] = useState(false);
@@ -19,6 +20,7 @@ const RequestPo = () => {
   const [searchDateRange, setSearchDateRange] = useState("");
   const [updatePoId, setUpdatePoId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [viewPoLogsId, setViewPoLogsId] = useState(null);
 
   const columns = [
     {
@@ -39,6 +41,12 @@ const RequestPo = () => {
           label="Edit"
           onClick={() => getPoDetail(row.po_transaction)}
           disabled={row.poacceptstatus === "UNDER VERIFICATION"}
+        />,
+        <GridActionsCellItem
+          key="poLogs"
+          showInMenu
+          label="View PO Logs"
+          onClick={() => setViewPoLogsId(row.po_transaction)}
         />,
       ],
     },
@@ -65,66 +73,65 @@ const RequestPo = () => {
    
     const leaderEmail = row.leader_email;  
 
-    // Colors
-    let bgColor = "#8c8c8c";
-    if (status === "APPROVED") bgColor = "#52c41a";
-    else if (status === "REJECTED") bgColor = "#ff4d4f";
-    else if (status === "PENDING") bgColor = "#faad14";
+        // Colors
+        let bgColor = "#8c8c8c";
+        if (status === "APPROVED") bgColor = "#52c41a";
+        else if (status === "REJECTED") bgColor = "#ff4d4f";
+        else if (status === "PENDING") bgColor = "#faad14";
 
-    const textColor = status === "PENDING" ? "#000" : "#fff";
+        const textColor = status === "PENDING" ? "#000" : "#fff";
 
-    const badge = (
-      <div
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: bgColor,
-          color: textColor,
-          padding: "6px 18px",
-          borderRadius: "16px",
-          fontSize: "0.75rem",
-          fontWeight: 600,
-          minHeight: "28px",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-          cursor: isUnderVerification && leaderEmail ? "help" : "default",
-        }}
-      >
-        {row.poacceptstatus || "N/A"}
-      </div>
-    );
+        const badge = (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: bgColor,
+              color: textColor,
+              padding: "6px 18px",
+              borderRadius: "16px",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              minHeight: "28px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              cursor: isUnderVerification && leaderEmail ? "help" : "default",
+            }}
+          >
+            {row.poacceptstatus || "N/A"}
+          </div>
+        );
 
-   
-    if (isUnderVerification && leaderEmail) {
-      return (
-        <Tooltip
-          title={
-            <div style={{ textAlign: "center", lineHeight: "1.5" }}>
-              <small style={{ opacity: 0.85 }}>Under Verification by</small>
-              <br />
-              <strong style={{ fontSize: "15px", color: "#fff" }}>
-                {leaderEmail}
-              </strong>
-              <br />
-              <small style={{ opacity: 0.7, fontSize: "11px" }}>
-                {row.leader_name || ""}
-              </small>
-            </div>
-          }
-          color="#1a1a1a"
-          overlayInnerStyle={{ borderRadius: 10, padding: "10px 14px" }}
-          mouseEnterDelay={0}
-        >
-          <span style={{ display: "inline-block" }}>{badge}</span>
-        </Tooltip>
-      );
-    }
+        if (isUnderVerification && leaderEmail) {
+          return (
+            <Tooltip
+              title={
+                <div style={{ textAlign: "center", lineHeight: "1.5" }}>
+                  <small style={{ opacity: 0.85 }}>Under Verification by</small>
+                  <br />
+                  <strong style={{ fontSize: "15px", color: "#fff" }}>
+                    {leaderEmail}
+                  </strong>
+                  <br />
+                  <small style={{ opacity: 0.7, fontSize: "11px" }}>
+                    {row.leader_name || ""}
+                  </small>
+                </div>
+              }
+              color="#1a1a1a"
+              overlayInnerStyle={{ borderRadius: 10, padding: "10px 14px" }}
+              mouseEnterDelay={0}
+            >
+              <span style={{ display: "inline-block" }}>{badge}</span>
+            </Tooltip>
+          );
+        }
 
-    return <span style={{ display: "inline-block" }}>{badge}</span>;
-  },
-  flex: 1,
-  minWidth: 180,
-},
+        return <span style={{ display: "inline-block" }}>{badge}</span>;
+      },
+      flex: 1,
+      minWidth: 180,
+    },
     {
       headerName: "Cost Center",
       field: "cost_center",
@@ -217,9 +224,8 @@ const RequestPo = () => {
       minWidth: 150,
     },
   ];
- 
+
   const getSearchResults = async (silent = false) => {
-    
     if (!searchDateRange) {
       if (!silent) {
         toast.error("Please select start and end dates for the results");
@@ -242,9 +248,8 @@ const RequestPo = () => {
           index: index + 1,
         }));
         setRows(arr);
-        
+
         if (arr.length === 0 && !silent) {
-          
         }
       } else if (data.message?.msg) {
         if (!silent) {
@@ -352,8 +357,13 @@ const RequestPo = () => {
         getRows={getSearchResults}
       />
       {updatePoId && (
-        <EditPO updatePoId={updatePoId} setUpdatePoId={setUpdatePoId} getRows={getSearchResults}/>
+        <EditPO
+          updatePoId={updatePoId}
+          setUpdatePoId={setUpdatePoId}
+          getRows={getSearchResults}
+        />
       )}
+      <ViewPOLogs poId={viewPoLogsId} setPoId={setViewPoLogsId} />
     </div>
   );
 };
