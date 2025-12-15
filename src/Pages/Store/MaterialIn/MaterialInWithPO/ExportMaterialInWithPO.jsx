@@ -19,7 +19,7 @@ import {
   Drawer,
   DatePicker,
 } from "antd";
-import { locationCell, remarkCell } from "./TableCollumns.jsx";
+import { remarkCell, manualMFGCode, HSNCell } from "./TableCollumns.jsx";
 import SingleProduct from "../../../Master/Vendor/SingleProduct.jsx";
 import CurrenceModal from "../CurrenceModal.jsx";
 import UploadDocs from "./UploadDocs.jsx";
@@ -42,6 +42,7 @@ import useApi from "../../../../hooks/useApi.ts";
 import MyButton from "../../../../Components/MyButton/index.jsx";
 import FormTable from "../../../../Components/FormTable.jsx";
 import MySelect from "../../../../Components/MySelect.jsx";
+import { v4 } from "uuid";
 
 export default function ExportMaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
@@ -483,27 +484,124 @@ export default function ExportMaterialInWithPO({}) {
     arr = arr.map((row) => {
       let obj = row;
       if (id == row.id) {
-        if (name == "orderqty") {
-          if (value <= row.maxQty) {
-            obj = {
-              ...obj,
-              [name]: value,
-              inrValue: value * row.orderrate,
-              usdValue: value * row.orderrate * row.exchange_rate,
-              igst:
-                row.gsttype == "L"
-                  ? 0
-                  : (value * row.orderrate * row.gstrate) / 100,
-              sgst:
-                row.gsttype == "I"
-                  ? 0
-                  : (value * row.orderrate * row.gstrate) / 200,
-              cgst:
-                row.gsttype == "I"
-                  ? 0
-                  : (value * row.orderrate * row.gstrate) / 200,
-            };
-          }
+        if (name == "orderQty" || name == "orderqty") {
+          const qty = Number(value) || 0;
+          const rate = Number(row.rate) || 0;
+          const exchangeRate = Number(row.exchangeRate) || 0;
+          const customDuty = Number(row.customDuty) || 0;
+          const freightValue = Number(row.freightValue) || 0;
+
+          const taxableValue = qty * rate;
+          const foreignValue = taxableValue * exchangeRate;
+          const total = taxableValue + customDuty + freightValue;
+          const finalRate =
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
+
+          obj = {
+            ...obj,
+            orderQty: qty,
+            taxableValue: taxableValue,
+            foreignValue: foreignValue,
+            total: total,
+            finalRate: finalRate,
+          };
+          return obj;
+        } else if (name == "rate") {
+          const qty = Number(row.orderQty) || 0;
+          const rate = Number(value) || 0;
+          const exchangeRate = Number(row.exchangeRate) || 0;
+          const customDuty = Number(row.customDuty) || 0;
+          const freightValue = Number(row.freightValue) || 0;
+
+          const taxableValue = qty * rate;
+          const foreignValue = taxableValue * exchangeRate;
+          const total = taxableValue + customDuty + freightValue;
+          const finalRate =
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
+
+          obj = {
+            ...obj,
+            rate: rate,
+            taxableValue: taxableValue,
+            foreignValue: foreignValue,
+            total: total,
+            finalRate: finalRate,
+          };
+          return obj;
+        } else if (name == "exchangeRate") {
+          const qty = Number(row.orderQty) || 0;
+          const rate = Number(row.rate) || 0;
+          const exchangeRate = Number(value) || 0;
+          const customDuty = Number(row.customDuty) || 0;
+          const freightValue = Number(row.freightValue) || 0;
+
+          const taxableValue = qty * rate;
+          const foreignValue = taxableValue * exchangeRate;
+          const total = taxableValue + customDuty + freightValue;
+          const finalRate =
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
+
+          obj = {
+            ...obj,
+            exchangeRate: exchangeRate,
+            foreignValue: foreignValue,
+            total: total,
+            finalRate: finalRate,
+          };
+          return obj;
+        } else if (name == "customDuty") {
+          const qty = Number(row.orderQty) || 0;
+          const rate = Number(row.rate) || 0;
+          const exchangeRate = Number(row.exchangeRate) || 0;
+          const customDuty = Number(value) || 0;
+          const freightValue = Number(row.freightValue) || 0;
+
+          const taxableValue = qty * rate;
+          const foreignValue = taxableValue * exchangeRate;
+          const total = taxableValue + customDuty + freightValue;
+          const finalRate =
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
+
+          obj = {
+            ...obj,
+            customDuty: customDuty,
+            total: total,
+            finalRate: finalRate,
+          };
+          return obj;
+        } else if (name == "freightValue") {
+          const qty = Number(row.orderQty) || 0;
+          const rate = Number(row.rate) || 0;
+          const exchangeRate = Number(row.exchangeRate) || 0;
+          const customDuty = Number(row.customDuty) || 0;
+          const freightValue = Number(value) || 0;
+
+          const taxableValue = qty * rate;
+          const foreignValue = taxableValue * exchangeRate;
+          const total = taxableValue + customDuty + freightValue;
+          const finalRate =
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
+
+          obj = {
+            ...obj,
+            freightValue: freightValue,
+            total: total,
+            finalRate: finalRate,
+          };
+          return obj;
+        } else if (name == "mfgCode") {
+          obj = {
+            ...obj,
+            mfgCode: value,
+            manualMfgCode: value, // Keep both in sync
+          };
+          return obj;
+        } else if (name == "hsncode" || name == "hsn") {
+          obj = {
+            ...obj,
+            hsncode: value,
+            hsn: value, // Keep both in sync
+          };
           return obj;
         } else if (name == "location") {
           obj = {
@@ -561,8 +659,56 @@ export default function ExportMaterialInWithPO({}) {
       let obj = data.data;
       obj = {
         ...obj,
-
         poId: searchData.poNumber,
+        materials: obj.materials.map((mat, index) => {
+          // Calculate values
+          const orderQty = mat.orderqty || 0;
+          const orderRate = mat.orderrate || 0;
+          const exchangeRate = mat.exchange_rate || 0;
+          const taxableValue = mat.totalValue || orderQty * orderRate;
+          const foreignValue = mat.usdValue || taxableValue * exchangeRate;
+          const customDuty = mat.custom_duty || 0;
+          const freightValue = mat.freight_value || 0;
+          const total = taxableValue + customDuty + freightValue;
+          // Calculate finalRate, handle division by zero
+          const finalRate =
+            orderQty > 0
+              ? orderRate + customDuty / orderQty + freightValue / orderQty
+              : orderRate;
+
+          return {
+            ...mat,
+            id: v4(),
+            // Map field names to match column expectations
+            partCode: mat.partcode || mat.c_partno || "",
+            manualMfgCode: mat.mfgCode || "--",
+            mfgCode: mat.mfgCode || "--", // Also add for manualMFGCode cell component
+            orderQty: orderQty,
+            poOrderQty: mat.po_order_qty || 0,
+            pendingQty: Math.max(0, (mat.po_order_qty || 0) - orderQty),
+            rate: orderRate,
+            exchangeRate: exchangeRate,
+            hsn: mat.hsncode || "--",
+            hsncode: mat.hsncode || "--", // Also add for HSNCell component
+            // Add component object for rendering
+            component: {
+              label: mat.component_fullname || "",
+              value: mat.componentKey || "",
+            },
+            componentKey: mat.componentKey || "",
+            // Add calculated values
+            taxableValue: taxableValue,
+            foreignValue: foreignValue,
+            customDuty: customDuty,
+            freightValue: freightValue,
+            finalRate: finalRate,
+            total: total,
+            // Keep original fields for reference
+            orderremark: mat.orderremark || "",
+            gsttype: mat.gsttype || "I",
+            gstrate: mat.gstrate || "0",
+          };
+        }),
       };
       costCode = obj.headers.cost_center_key;
       setCodeCostCenter(costCode);
@@ -617,7 +763,7 @@ export default function ExportMaterialInWithPO({}) {
     {
       headerName: "MFG Code ",
       field: "manualMfgCode",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.manualMfgCode} />,
+      renderCell: (params) => manualMFGCode(params, inputHandler),
       sortable: false,
       width: 100,
     },
@@ -626,7 +772,14 @@ export default function ExportMaterialInWithPO({}) {
       headerName: "QTY",
       field: "orderQty",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.orderQty} />,
+      renderCell: (params) => (
+        <Input
+          value={params.row.orderQty}
+          onChange={(e) =>
+            inputHandler("orderQty", e.target.value, params.row.id)
+          }
+        />
+      ),
       width: 120,
     },
     {
@@ -647,63 +800,93 @@ export default function ExportMaterialInWithPO({}) {
       headerName: "Rate",
       field: "rate",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.rate} />,
+      renderCell: (params) => (
+        <Input
+          value={params.row.rate}
+          onChange={(e) => inputHandler("rate", e.target.value, params.row.id)}
+        />
+      ),
       width: 100,
     },
     {
       headerName: "Custom Duty",
       field: "customDuty",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.customDuty} />,
+      renderCell: (params) => (
+        <Input
+          value={params.row.customDuty}
+          onChange={(e) =>
+            inputHandler("customDuty", e.target.value, params.row.id)
+          }
+        />
+      ),
       width: 100,
     },
     {
       headerName: "Freight Charge",
       field: "freightValue",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.freightValue} />,
+      renderCell: (params) => (
+        <Input
+          value={params.row.freightValue}
+          onChange={(e) =>
+            inputHandler("freightValue", e.target.value, params.row.id)
+          }
+        />
+      ),
       width: 100,
     },
     {
       headerName: "Exchange Rate",
       field: "exchangeRate",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.exchangeRate} />,
+      renderCell: (params) => (
+        <Input
+          value={params.row.exchangeRate}
+          onChange={(e) =>
+            inputHandler("exchangeRate", e.target.value, params.row.id)
+          }
+        />
+      ),
       width: 100,
     },
     {
       headerName: "Taxable Value",
       field: "taxableValue",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.taxableValue} />,
+      renderCell: ({ row }) => (
+        <Input disabled={true} value={row.taxableValue} />
+      ),
       width: 120,
     },
     {
       headerName: "Foreign Value",
       field: "foreignValue",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.foreignValue} />,
+      renderCell: ({ row }) => (
+        <Input disabled={true} value={row.foreignValue} />
+      ),
       width: 120,
     },
     {
       headerName: "Final Rate",
       field: "finalRate",
       flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.finalRate} />,
+      renderCell: ({ row }) => <Input disabled={true} value={row.finalRate} />,
       width: 100,
     },
     {
       headerName: "Total",
       field: "total",
       flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.total} />,
+      renderCell: ({ row }) => <Input disabled={true} value={row.total} />,
       width: 100,
     },
     {
       headerName: "HSN Code",
       field: "hsn",
       sortable: false,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.hsn} />,
+      renderCell: (params) => HSNCell(params, inputHandler),
       width: 150,
     },
     {
