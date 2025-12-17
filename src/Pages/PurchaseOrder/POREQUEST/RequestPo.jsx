@@ -40,7 +40,7 @@ const RequestPo = () => {
           showInMenu
           label="Edit"
           onClick={() => getPoDetail(row.po_transaction)}
-          disabled={row.poacceptstatus === "UNDER VERIFICATION"}
+          disabled={row.poacceptstatus === "UNDER VERIFICATION"||row.poacceptstatus === "PENDING"}
         />,
         <GridActionsCellItem
           key="poLogs"
