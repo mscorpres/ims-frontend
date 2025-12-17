@@ -1159,9 +1159,10 @@ export default function CreateJW({}) {
                   ]}
                 >
                   <MyAsyncSelect
-                    selectLoading={loading === "select"}
+                    selectLoading={loading("select")}
                     optionsState={bomOptions}
-                    onBlur={() => setAsyncOptions([])}
+                    onBlur={() => setBomOptions([])}
+                    loadOptions={() => {}}
                   />
                 </Form.Item>
               </Col>
