@@ -226,7 +226,7 @@ const App = () => {
   });
   const fetchUserDeatils = async (token, session, com, branch) => {
     setLoadingSwitch(true);
-    localStorage.removeItem("loggedInUser");
+    
 
     try {
       const response = await imsAxios.get(
