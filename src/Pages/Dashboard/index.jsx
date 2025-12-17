@@ -7,13 +7,13 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import MINSummary from "./MINSummary";
 import MyDatePicker from "../../Components/MyDatePicker";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const [summaryDate, setSummaryDate] = useState("");
-  // const [gatePassDate, setGatePassDate] = useState("");
-  // const [pendingTransactionsDate, setpendingTransactionDate] = useState("");
-  // const [minDate, setMINDate] = useState("");
-  // const [mfgProductsDate, setMfgProductDate] = useState("");
+    const { user } = useSelector(
+      (state) => state.login
+    );
 
   const [transactionSummary, setTransactionSummary] = useState([
     {
@@ -381,8 +381,11 @@ const Dashboard = () => {
   }, [summaryDate]);
 
   useEffect(() => {
+    if (!user) {
+      return
+    }
     getMasterSummary();
-  }, []);
+  }, [user]);
   return (
     <Row justify="center" style={{ padding: 50 }}>
       <Col span={22}>
