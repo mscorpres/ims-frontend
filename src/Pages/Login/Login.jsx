@@ -85,16 +85,15 @@ const Login = () => {
           }),
         "submit"
       );
-      const { success } = res || {};
 
-      if (success) {
-        const isTwoStep = res?.isTwoStep ?? res?.data?.isTwoStep;
+      if (res?.success) {
+        const isTwoStep =  res?.data?.isTwoStep;
         if (isTwoStep === "Y") {
           // Two-step login, show OTP screen
           setUserCredentials({
             username,
-            token: res?.token,
-            qrCode: res?.qrCode,
+            token: res?.data?.token,
+            qrCode: res?.data?.qrCode,
             company_branch: inpVal.company_branch, // Store selected branch for OTP flow
           });
           setShowOTP(true);
