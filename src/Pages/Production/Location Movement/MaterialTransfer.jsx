@@ -8,6 +8,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { UploadOutlined } from "@ant-design/icons";
+import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
 const { paragraph } = Typography;
 
 const { TextArea } = Input;
@@ -45,7 +46,13 @@ function MaterialTransfer({ type }) {
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileInputRef = useRef(null);
-  // console.log(restDetail)
+  const sampleData = [
+    {
+      PART_CODE: "P5672",
+      TRANSFER_QTY: "1",
+      REMARK: "Remark",
+    },
+  ];
 
   const getLocation = async () => {
     let link = "";
@@ -397,6 +404,14 @@ function MaterialTransfer({ type }) {
                 gap: 10,
               }}
             >
+              <Button
+                onClick={() =>
+                  downloadCSVCustomColumns(sampleData, "MATERIALTRANSFER")
+                }
+                type="link"
+              >
+                Download Sample File
+              </Button>
               <Button
                 type="default"
                 icon={<UploadOutlined />}
