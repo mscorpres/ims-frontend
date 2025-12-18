@@ -151,26 +151,23 @@ function MaterialTransfer({ type }) {
     }
 
     const components = rows.map((r) => r.componentName);
-    const tolocations = rows.map((r) => r.rejLoc);
     const qtys = rows.map((r) => r.qty);
     const comments = rows.map((r) => r.comment || "");
 
     setLoading(true);
-    const { data } = await imsAxios.post(
+    const response = await imsAxios.post(
       type == "sftorej" ? "/godown/transferSF2REJ" : "/godown/transferSF2SF",
       {
-        comments: comments,
-        fromlocation: allData.locationSel,
+        pickLocation: allData.locationSel,
         component: components,
-        tolocation: tolocations,
+        comments: comments,
         qty: qtys,
         type: type == "sftorej" ? "SF2REJ" : "SF2SF",
-        tobranch: allData.dropBranch,
         dropLocation: allData.dropLoc,
       }
     );
 
-    if (data.code == 200) {
+    if (response.success) {
       setAllData({
         locationSel: "",
         dropBranch: "",
@@ -187,9 +184,9 @@ function MaterialTransfer({ type }) {
       ]);
       setLocDetail("");
       setLoading(false);
-      toast.success(data.message);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
+      toast.success(response.message);
+    } else{
+      toast.error(response.message);
       setLoading(false);
     }
   };
@@ -277,7 +274,15 @@ function MaterialTransfer({ type }) {
         toast.success(response.message || "File uploaded successfully");
         // Process the uploaded data and populate rows
         if (response.data && Array.isArray(response.data)) {
+          // Populate component options for the select to display names
+          const componentOptions = response.data.map((item) => ({
+            text: item.name || item.partCode || "",
+            value: item.key || "",
+          }));
+          setAsyncOptions(componentOptions);
+
           // Map the response data to row structure based on actual API response
+          // We already have all stock details from the API, no need to call getRowComponentDetail
           const uploadedRows = response.data.map((item) => ({
             componentName: item.key || "",
             qty: item.transferQty || "",
@@ -292,14 +297,11 @@ function MaterialTransfer({ type }) {
           }));
           setRows(uploadedRows);
 
-          // Fetch component details and drop location details for each row
-          for (let index = 0; index < uploadedRows.length; index++) {
-            const row = uploadedRows[index];
-            if (row.componentName) {
-              await getRowComponentDetail(index, row.componentName);
-            }
-            if (row.rejLoc) {
-              await getRowDropLocationDetail(index, row.rejLoc);
+          // Only fetch drop location details if drop location is selected
+          // No need to call getRowComponentDetail as we already have stock data
+          if (allData.dropLoc) {
+            for (let index = 0; index < uploadedRows.length; index++) {
+              await getRowDropLocationDetail(index, allData.dropLoc);
             }
           }
         }
@@ -371,22 +373,6 @@ function MaterialTransfer({ type }) {
               </Col>
               <Col span={24} style={{ padding: "5px" }}>
                 <TextArea disabled value={locDetail} />
-              </Col>
-              <Col span={24} style={{ padding: "5px" }}>
-                <span>DROP BRANCH</span>
-                <MySelect
-                  options={[
-                    { text: "A-21 [BRMSC012]", value: "BRMSC012" },
-                    { text: "B-29 [BRMSC029]", value: "BRMSC029" },
-                    { text: "D-160 [BRBAD116]", value: "BRBAD116" },
-                  ]}
-                  placeholder="Select Drop Branch"
-                  value={allData.dropBranch}
-                  onChange={async (e) => {
-                    setAllData((prev) => ({ ...prev, dropBranch: e }));
-                    await handleBranchSelection(e);
-                  }}
-                />
               </Col>
               <Col span={24} style={{ padding: "5px" }}>
                 <span>DROP Location</span>

@@ -488,7 +488,7 @@ export default function CreateJW({}) {
       pickLocation: values.location,
       venJwLocation: values.venJwLocation,
       billingAddressId: values.billaddressid,
-      billingaddr: values.billaddress,
+      billingAddr: values.billaddress,
       dispatchId: values.shipaddressid,
       vendorBranch: values.vendorbranch,
       vendorAddress: values.vendoraddress,
@@ -512,21 +512,16 @@ export default function CreateJW({}) {
       () => createJobWorkReq(finalObj),
       "select"
     );
-    console.log("response", response);
-
-    // const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
-    // setLoading("submitting", false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        toast.success(data.message);
+   
+      if (response.success) {
+        toast.success(response.message);
         resetHandler();
         setLoading("submitting", false);
       } else {
-        toast.error(data.message.msg);
+        toast.error(response.message);
         setLoading("submitting", false);
       }
-    }
+
     setLoading("submitting", false);
   };
   // reset handlerd
