@@ -488,7 +488,7 @@ export default function CreateJW({}) {
       pickLocation: values.location,
       venJwLocation: values.venJwLocation,
       billingAddressId: values.billaddressid,
-      billingAddr: values.billaddress,
+      billingAddress: values.billaddress,
       dispatchId: values.shipaddressid,
       vendorBranch: values.vendorbranch,
       vendorAddress: values.vendoraddress,
@@ -512,7 +512,7 @@ export default function CreateJW({}) {
       () => createJobWorkReq(finalObj),
       "select"
     );
-   
+   console.log(response)
       if (response.success) {
         toast.success(response.message);
         resetHandler();

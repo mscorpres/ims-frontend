@@ -45,7 +45,6 @@ function MaterialTransfer({ type }) {
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const fileInputRef = useRef(null);
-  // console.log(restDetail)
 
   const getLocation = async () => {
     let link = "";
@@ -397,6 +396,14 @@ function MaterialTransfer({ type }) {
                 gap: 10,
               }}
             >
+              <Button
+                onClick={() =>
+                  window.open("http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv", "_blank")
+                }
+                type="link"
+              >
+                Download Sample File
+              </Button>
               <Button
                 type="default"
                 icon={<UploadOutlined />}
