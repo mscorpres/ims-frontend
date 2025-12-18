@@ -1,13 +1,11 @@
-import { Button, Col, Input, Popconfirm, Row, Space, Tooltip } from "antd";
-import React from "react";
-import { useState } from "react";
+import { Button, Col, Input, Row, Space } from "antd";
+import React , { useState, useEffect } from "react";
 import MySelect from "../../../../Components/MySelect";
 import MyDatePicker from "../../../../Components/MyDatePicker";
-import { useEffect } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
-import TableActions, {
+import {
   CommonIcons,
 } from "../../../../Components/TableActions.jsx/TableActions";
 import MyDataTable from "../../../../Components/MyDataTable";
@@ -15,7 +13,6 @@ import PoDetailsView from "./PoDetailsView";
 import { downloadCSV } from "../../../../Components/exportToCSV";
 import PoRejectModa from "./PoRejectModa";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import { CloseOutlined, CheckOutlined, EyeOutlined } from "@ant-design/icons";
 import PoApprovalModel from "./PoApprovalModel";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import {
@@ -36,6 +33,7 @@ export default function PoApproval() {
   const [rows, setRows] = useState([]);
   const [approvePo, setApprovePo] = useState(null);
   const [selectedPo, setSelectedPo] = useState([]);
+  const [newPoLogs, setNewPoLogs] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
   const wiseOptions = [
     { text: "Date Wise", value: "datewise" },
@@ -124,6 +122,16 @@ export default function PoApproval() {
     setRejectPo(arr);
     // setApprovePo(arr);
   };
+
+  const getPoLogs = async (po_id) => {
+    const { data } = await imsAxios.post("/purchaseOthers/pologs", {
+      po_id,
+    });
+    if (data.code === "200" || data.code == 200) {
+      let arr = data.data;
+      setNewPoLogs(arr.reverse());
+    }
+  };
   const columns = [
     {
       headerName: "",
@@ -135,6 +143,7 @@ export default function PoApproval() {
           showInMenu
           onClick={() => {
             setViewPoDetails(row.po_transaction);
+            getPoLogs(row.po_transaction);
           }}
           label="View"
         />,
@@ -223,6 +232,7 @@ export default function PoApproval() {
       <PoDetailsView
         viewPoDetails={viewPoDetails}
         setViewPoDetails={setViewPoDetails}
+        newPoLogs={newPoLogs}
       />
       <Row justify="space-between">
         <Col span={18}>

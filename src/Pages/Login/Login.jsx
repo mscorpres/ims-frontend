@@ -85,16 +85,15 @@ const Login = () => {
           }),
         "submit"
       );
-      const { success } = res || {};
 
-      if (success) {
-        const isTwoStep = res?.isTwoStep ?? res?.data?.isTwoStep;
+      if (res?.success) {
+        const isTwoStep =  res?.data?.isTwoStep;
         if (isTwoStep === "Y") {
           // Two-step login, show OTP screen
           setUserCredentials({
             username,
-            token: res?.token,
-            qrCode: res?.qrCode,
+            token: res?.data?.token,
+            qrCode: res?.data?.qrCode,
             company_branch: inpVal.company_branch, // Store selected branch for OTP flow
           });
           setShowOTP(true);
@@ -131,12 +130,13 @@ const Login = () => {
         setRecaptchaKey(Math.random());
         toast.error(res?.message);
       }
-      // dispatch(
-      //   loginAuth({ username: inpVal.username, password: inpVal.password })
-      // );
-    }
+   }
   };
   const validatecreateNewUser = async () => {
+    if (!recaptchaValue) {
+      toast.error("Please verify the reCAPTCHA");
+      return;
+    }
     const values = await signUp.validateFields();
     askModalConfirm(values);
   };
@@ -579,7 +579,6 @@ const Login = () => {
                         options={[
                           { label: "A-21 [BRMSC012]", value: "BRMSC012" },
                           { label: "B-29 [BRMSC029]", value: "BRMSC029" },
-                          { label: "B-36 Alwar [BRBA036]", value: "BRBA036" },
                           { label: "D-160 [BRBAD116]", value: "BRBAD116" },
                         ]}
                         size="medium"
@@ -839,6 +838,13 @@ const Login = () => {
                       <Input.Password />
                     </Form.Item>
                   </Form>
+                  <div className="flex justify-center">
+                          <ReCAPTCHA
+                            sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                            onChange={handleRecaptchaChange}
+                            key={recaptchaKey}
+                          />
+                        </div>
                   <Button
                     // loading={loading}
                     block
