@@ -135,7 +135,6 @@ function MaterialTransfer({ type }) {
     // validations
     if (!allData?.locationSel)
       return toast.error("Please select a Pick Location");
-    if (!allData?.dropBranch) return toast.error("Please select Drop Branch");
 
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
@@ -160,7 +159,7 @@ function MaterialTransfer({ type }) {
       {
         pickLocation: allData.locationSel,
         component: components,
-        comments: comments,
+        remark: comments,
         qty: qtys,
         type: type == "sftorej" ? "SF2REJ" : "SF2SF",
         dropLocation: allData.dropLoc,
