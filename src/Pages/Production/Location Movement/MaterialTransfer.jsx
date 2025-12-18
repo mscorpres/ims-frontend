@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Col, Row, Input, Typography, Card, Button } from "antd";
 import MySelect from "../../../Components/MySelect";
 import NavFooter from "../../../Components/NavFooter";
-import { v4 } from "uuid";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { useSelector } from "react-redux";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import { UploadOutlined } from "@ant-design/icons";
 const { paragraph } = Typography;
 
 const { TextArea } = Input;
@@ -21,6 +20,7 @@ function MaterialTransfer({ type }) {
   const [allData, setAllData] = useState({
     locationSel: "",
     dropBranch: "",
+    dropLoc: "",
   });
   const { executeFun, loading: loading1 } = useApi();
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -43,6 +43,8 @@ function MaterialTransfer({ type }) {
   ]);
 
   const [loading, setLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const fileInputRef = useRef(null);
   // console.log(restDetail)
 
   const getLocation = async () => {
@@ -140,8 +142,6 @@ function MaterialTransfer({ type }) {
       if (!r.componentName)
         return toast.error(`Row ${i + 1}: Please select Component`);
       if (!r.qty) return toast.error(`Row ${i + 1}: Please enter Qty`);
-      if (!r.rejLoc)
-        return toast.error(`Row ${i + 1}: Please select Drop Location`);
       if (
         r.rejLoc == allData.locationSel &&
         allData.dropBranch ==
@@ -166,6 +166,7 @@ function MaterialTransfer({ type }) {
         qty: qtys,
         type: type == "sftorej" ? "SF2REJ" : "SF2SF",
         tobranch: allData.dropBranch,
+        dropLocation: allData.dropLoc,
       }
     );
 
@@ -252,6 +253,85 @@ function MaterialTransfer({ type }) {
     setRows((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate pick location is selected
+    if (!allData.locationSel) {
+      toast.error("Please select a Pick Location first");
+      return;
+    }
+
+    setUploadLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await imsAxios.post(
+        `/godown/validate/csv?type=sf-sf&pickLocation=${allData.locationSel}`,
+        formData
+      );
+
+      if (response.success || response.status === "success") {
+        toast.success(response.message || "File uploaded successfully");
+        // Process the uploaded data and populate rows
+        if (response.data && Array.isArray(response.data)) {
+          // Map the response data to row structure based on actual API response
+          const uploadedRows = response.data.map((item) => ({
+            componentName: item.key || "",
+            qty: item.transferQty || "",
+            rejLoc: allData.dropLoc || "",
+            restDetail: {
+              available_qty: item.available_qty || 0,
+              avr_rate: item.avr_rate || "0",
+              unit: item.unit || "",
+            },
+            address: "",
+            comment: item.remark || "",
+          }));
+          setRows(uploadedRows);
+
+          // Fetch component details and drop location details for each row
+          for (let index = 0; index < uploadedRows.length; index++) {
+            const row = uploadedRows[index];
+            if (row.componentName) {
+              await getRowComponentDetail(index, row.componentName);
+            }
+            if (row.rejLoc) {
+              await getRowDropLocationDetail(index, row.rejLoc);
+            }
+          }
+        }
+      } else {
+        toast.error(
+          response.message || response.data?.message || "Upload failed"
+        );
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error(
+        error.response?.data?.message?.msg ||
+          error.message ||
+          "Failed to upload file"
+      );
+    } finally {
+      setUploadLoading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleUploadClick = () => {
+    if (!allData.locationSel) {
+      toast.error("Please select a Pick Location first");
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
   useEffect(() => {
     getLocation();
     getDropLoc();
@@ -308,6 +388,17 @@ function MaterialTransfer({ type }) {
                   }}
                 />
               </Col>
+              <Col span={24} style={{ padding: "5px" }}>
+                <span>DROP Location</span>
+                <MySelect
+                  options={locRejDetail}
+                  placeholder="Location"
+                  value={allData.dropLoc}
+                  onChange={async (e) => {
+                    setAllData((prev) => ({ ...prev, dropLoc: e }));
+                  }}
+                />
+              </Col>
             </Row>
           </Card>
         </Col>
@@ -318,8 +409,25 @@ function MaterialTransfer({ type }) {
                 display: "flex",
                 justifyContent: "flex-end",
                 marginBottom: 10,
+                gap: 10,
               }}
             >
+              <Button
+                type="default"
+                icon={<UploadOutlined />}
+                onClick={handleUploadClick}
+                loading={uploadLoading}
+              >
+                Upload Excel
+              </Button>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".csv,.xlsx,.xls"
+                style={{ display: "none" }}
+              />
               <Button type="primary" onClick={addRow}>
                 Add Row
               </Button>
@@ -340,7 +448,6 @@ function MaterialTransfer({ type }) {
                     <th style={{ width: "20vw" }}>Component/Part</th>
                     <th style={{ width: "14vw" }}>In Stock Qty</th>
                     <th style={{ width: "14vw" }}>Transfer Qty</th>
-                    <th style={{ width: "18vw" }}>DROP (+) Loc</th>
                     <th style={{ width: "14vw" }}>Weighted Average Rate</th>
                     <th style={{ width: "24vw" }}>Address</th>
                     <th style={{ width: "24vw" }}>Comment</th>
@@ -391,21 +498,7 @@ function MaterialTransfer({ type }) {
                           }
                         />
                       </td>
-                      <td style={{ width: "18vw" }}>
-                        <MySelect
-                          options={locRejDetail}
-                          placeholder="Check Location"
-                          value={r.rejLoc}
-                          onChange={async (e) => {
-                            setRows((prev) => {
-                              const updated = [...prev];
-                              updated[idx] = { ...updated[idx], rejLoc: e };
-                              return updated;
-                            });
-                            await getRowDropLocationDetail(idx, e);
-                          }}
-                        />
-                      </td>
+
                       <td style={{ width: "14vw" }}>
                         <Input disabled value={r?.restDetail?.avr_rate} />
                       </td>
