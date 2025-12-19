@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 let socketLink = import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const imsLink =
-  // localStorage.getItem("currentUrl") ||
+  localStorage.getItem("currentUrl") ||
   import.meta.env.VITE_REACT_APP_API_BASE_URL; //for net
 const generateUniqueId = () => {
   return uuidv4();
