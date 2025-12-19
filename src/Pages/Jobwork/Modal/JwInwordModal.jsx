@@ -55,7 +55,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [isApplicable, setIsApplicable] = useState(false);
   const [isScan, setIsScan] = useState(false);
-  const [pickLocationOptions, setPickLocationOptions] = useState([]);
   const [modalForm] = Form.useForm();
 
   const fileComponents = Form.useWatch("fileComponents", modalForm);
@@ -663,15 +662,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setShowBomList(false);
       setBomList([]);
       newMinFunction();
-      getPickLocation();
     }
   }, [editModal]);
-
-  useEffect(() => {
-    if (header?.vendor?.code) {
-      getPickLocation();
-    }
-  }, [header?.vendor?.code]);
 
   const text = "Are you sure to update this jw sf Inward?";
   const closeModal = () => {
@@ -794,20 +786,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                       </Form.Item>
                     </Form>
                   </Col>
-                  {showBomList && bomList && <Col
-                    span={8}
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: "bolder",
-                      marginTop: "20px",
-                    }}
-                  >
-                    <Form size="small">
-                      <Form.Item label="Pick Location" name="pickLocation">
-                        <MySelect options={pickLocationOptions} />
-                      </Form.Item>
-                    </Form>
-                  </Col>}
                   {isApplicable == "Y" && (
                     <Col
                       span={6}
