@@ -89,6 +89,19 @@ function R9() {
     }
   };
 
+  const emitDownloadEvent = async () => {
+
+
+    const payload = {
+      skucode: allData.selectProduct,
+      subject: allData.selectBom,
+      date: selectDate,
+    };
+    socket.emit("bomRecipe", {
+      otherdata: payload,
+    });
+  };
+
   const getDataByLocation = async (e) => {
     const { data } = await imsAxios.post("/backend/fetchLocation");
     let v = [];
@@ -337,7 +350,7 @@ function R9() {
                     marginBottom: "5px",
                   }}
                 >
-                  <Button onClick={handleDownloadingCSV}>
+                  <Button onClick={emitDownloadEvent}>
                     <MdOutlineDownloadForOffline style={{ fontSize: "20px" }} />
                   </Button>
                 </div>
