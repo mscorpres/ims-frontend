@@ -90,14 +90,11 @@ function R9() {
   };
 
   const emitDownloadEvent = async () => {
-
-console.log("object")
     const payload = {
       skucode: allData.selectProduct,
       subject: allData.selectBom,
       date: selectDate,
     };
-    console.log(payload);
     socket.emit("bomRecipe", {
       otherdata: payload,
     });
@@ -319,15 +316,17 @@ console.log("object")
                 <TextArea rows={3} disabled value={locationDetail} />
               )}
             </Col>
-            {allData?.selectBom.length > 1 && (
+            {allData?.selectBom?.length > 1 && (
               <Col span={24} style={{ marginTop: "5px" }}>
-                <div style={{ display: "flex", justifyContent: "end" }}>
-                  {/* <Button
-                    onClick={reset}
-                    style={{ backgroundColor: "red", color: "white", marginRight: "5px" }}
+                <div style={{ display: "flex", justifyContent: "end", gap: "10px" }}>
+                <MyButton
+                    variant="download"
+                    onClick={()=>emitDownloadEvent()}
+                    type="primary"
+                    // disabled={selectDate?.length === 0}
                   >
-                    Cancel
-                  </Button> */}
+                    Download
+                  </MyButton>
                   <MyButton
                     variant="search"
                     onClick={fetchBySearch}
@@ -342,21 +341,6 @@ console.log("object")
         </Col>
         <Col span={19}>
           <Row>
-            {resData.length > 1 && (
-              <Col span={24}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "end",
-                    marginBottom: "5px",
-                  }}
-                >
-                  <Button onClick={()=>emitDownloadEvent()}>
-                    <MdOutlineDownloadForOffline style={{ fontSize: "20px" }} />
-                  </Button>
-                </div>
-              </Col>
-            )}
             <Col span={24}>
               <Skeleton loading={loading} active>
                 <div className="hide-select" style={{ height: "75vh" }}>
