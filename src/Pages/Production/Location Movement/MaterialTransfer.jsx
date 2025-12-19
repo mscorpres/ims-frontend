@@ -274,7 +274,7 @@ function MaterialTransfer({ type }) {
         if (response.data && Array.isArray(response.data)) {
           // Populate component options for the select to display names
           const componentOptions = response.data.map((item) => ({
-            text: item.name || item.partCode || "",
+            text: `[${item.partCode}] ${item.name}`,
             value: item.key || "",
           }));
           setAsyncOptions(componentOptions);
