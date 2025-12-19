@@ -91,12 +91,13 @@ function R9() {
 
   const emitDownloadEvent = async () => {
 
-
+console.log("object")
     const payload = {
       skucode: allData.selectProduct,
       subject: allData.selectBom,
       date: selectDate,
     };
+    console.log(payload);
     socket.emit("bomRecipe", {
       otherdata: payload,
     });
@@ -350,7 +351,7 @@ function R9() {
                     marginBottom: "5px",
                   }}
                 >
-                  <Button onClick={emitDownloadEvent}>
+                  <Button onClick={()=>emitDownloadEvent()}>
                     <MdOutlineDownloadForOffline style={{ fontSize: "20px" }} />
                   </Button>
                 </div>
