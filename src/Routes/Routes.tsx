@@ -67,6 +67,7 @@ import {
   JwIssue,
   JwsfInward,
   JwrmReturn,
+  JwRmConsumption,
   JwCompleted,
   UpdateRM,
   ReverseMin,
@@ -905,6 +906,10 @@ const Routes = [
   {
     path: "/jw-rm-return",
     main: () => <JwrmReturn />,
+  },
+  {
+    path: "/jw-rm-consumption",
+    main: () => <JwRmConsumption />,
   },
   {
     path: "/jw-completed",

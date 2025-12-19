@@ -115,6 +115,7 @@ export { default as JwRmChallan } from "./Jobwork/JWRMChallan/JwRwChallan";
 export { default as JwsfInward } from "./Jobwork/JwsfInward";
 export { default as JwPendingRequest } from "./Jobwork/JwPendingRequest";
 export { default as JwrmReturn } from "./Jobwork/JwrmReturn";
+export { default as JwRmConsumption } from "./Jobwork/JwRmConsumption";
 export { default as JwCompleted } from "./Jobwork/JwCompleted";
 export { default as JWSupplementary } from "./Jobwork/update/supplementary";
 export { default as JWUpdateRate } from "./Jobwork/update/rate";
