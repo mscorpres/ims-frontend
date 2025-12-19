@@ -6,7 +6,7 @@ import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { v4 } from "uuid";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions.jsx";
-import { Row } from "antd";
+import { Row, Tooltip } from "antd";
 import { downloadCSV } from "../../../Components/exportToCSV.jsx";
 import { imsAxios } from "../../../axiosInterceptor.js";
 
@@ -48,6 +48,51 @@ const Vendor = () => {
       flex: 1,
     },
     { field: "vendor_pan", headerName: "PAN No.", flex: 1 },
+    {
+      field: "msme",
+      headerName: "MSME Registered",
+      flex: 1,
+      renderCell: ({ row }) => {
+        const msme = row.msme || {};
+        const status = msme.status || "Non-MSME";
+        const statusColor = status === "MSME" ? "green" : "gray";
+
+        // Build tooltip content with all MSME details
+        const tooltipContent = (
+          <div style={{ lineHeight: "1.8" }}>
+            <div>
+              <strong>Status:</strong> {msme.status || "--"}
+            </div>
+            <div>
+              <strong>Registration ID:</strong> {msme.regID || "--"}
+            </div>
+            <div>
+              <strong>Year:</strong> {msme.year || "--"}
+            </div>
+            <div>
+              <strong>Type:</strong> {msme.type || "--"}
+            </div>
+            <div>
+              <strong>Activity:</strong> {msme.activity || "--"}
+            </div>
+          </div>
+        );
+
+        return (
+          <Tooltip title={tooltipContent} placement="top">
+            <span
+              style={{
+                color: statusColor,
+                cursor: "help",
+                fontWeight: status === "MSME" ? 500 : 400,
+              }}
+            >
+              {status}
+            </span>
+          </Tooltip>
+        );
+      },
+    },
     {
       field: "actions",
       headerName: "Action",
