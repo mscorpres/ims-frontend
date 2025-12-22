@@ -504,18 +504,37 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   };
 
   const saveFunction = async (fetchAttachment) => {
-    // let filedata = modalForm.getFieldValue("fileComponents");
-    let value = await modalForm.validateFields();
-    let filedata = value.fileComponents;
-    let pickLocation = value.pickLocation;
-
-    // Check if we're in BOM mode (from view/bom API)
+    // Check if we're in BOM mode (from view/bom API) - skip upload modal
     if (showBomList && editModal.qty && bomList.length > 0) {
-      // Use new rm-consumption/save API
+      // Validate required fields
+      if (!challanNo || challanNo.trim() === "") {
+        toast.error("Please enter Challan Number");
+        return;
+      }
+
+      const invoiceValue = invoice || mainData[0]?.invoice || "";
+      if (!invoiceValue || invoiceValue.trim() === "") {
+        toast.error("Please enter Invoice Name");
+        return;
+      }
+
+      // Check if documents are uploaded
+      // Use fetchAttachment if provided (from upload), otherwise check attachment state or fileComponents
+      if (!fetchAttachment) {
+        const fileComponentsValue = modalForm.getFieldValue("fileComponents");
+        if (!fileComponentsValue || fileComponentsValue.length === 0) {
+          if (!attachment || attachment === "") {
+            toast.error("Please upload documents");
+            return;
+          }
+        }
+      }
+
+      // Use new rm-consumption/save API directly without upload modal
       const payload = {
         jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
         consumptionQty: editModal.qty,
-        invoice: invoice || mainData[0]?.invoice || "",
+        invoice: invoiceValue,
         challan: challanNo,
         component: bomList.map((r) => r.key),
         qty: bomList.map((r) => r.rqdQty || 0),
@@ -523,7 +542,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         remark: bomList.map((r) => r.conRemark || ""),
       };
 
-      setModalUploadLoad(true);
+      setLoading(true);
       try {
         const response = await imsAxios.post(
           "/jobwork/rm-consumption/save",
@@ -531,7 +550,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         );
 
         if (response.success || response.data?.status === "success") {
-          setModalUploadLoad(false);
+          setLoading(false);
           toast.success(
             response.message ||
               response.data?.message ||
@@ -541,9 +560,10 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           modalForm.resetFields();
           setBomList([]);
           setChallanNo("");
+          setInvoice("");
           setEditModal(false);
         } else {
-          setModalUploadLoad(false);
+          setLoading(false);
           toast.error(
             response.message ||
               response.data?.message ||
@@ -551,11 +571,17 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           );
         }
       } catch (error) {
-        setModalUploadLoad(false);
+        setLoading(false);
         toast.error(error.message || "Error saving RM Consumption");
       }
       return;
     }
+
+    // Original flow for normal mode - requires upload modal
+    // let filedata = modalForm.getFieldValue("fileComponents");
+    let value = await modalForm.validateFields();
+    let filedata = value.fileComponents;
+    let pickLocation = value.pickLocation;
 
     // Original flow for normal mode
     let payload = {
@@ -699,22 +725,46 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     setMaterialInSuccess(false);
   };
   const submitHandler = async () => {
-    setUploadClicked(false);
-    const formData = new FormData();
-    const values = await modalForm.validateFields();
-    let fileName;
-    values.fileComponents.map((comp) => {
-      formData.append("files", comp.file[0]?.originFileObj);
-    });
-    const fileResponse = await executeFun(
-      () => uploadMinInvoice(formData),
-      "submit"
-    );
-    if (fileResponse.success) {
-      const { data } = fileResponse;
-      let fetchAttachment = data.data;
-      setAttachment(fetchAttachment);
-      // saveFunction(fetchAttachment);
+    try {
+      const values = await modalForm.validateFields();
+
+      // Validate fileComponents
+      if (!values.fileComponents || values.fileComponents.length === 0) {
+        toast.error("Please upload at least one document");
+        return;
+      }
+
+      const formData = new FormData();
+      values.fileComponents.forEach((comp) => {
+        if (comp.file && comp.file[0]?.originFileObj) {
+          formData.append("files", comp.file[0]?.originFileObj);
+        }
+      });
+
+      if (formData.getAll("files").length === 0) {
+        toast.error("Please upload at least one document file");
+        return;
+      }
+
+      const fileResponse = await executeFun(
+        () => uploadMinInvoice(formData),
+        "submit"
+      );
+      if (fileResponse.success) {
+        const { data } = fileResponse;
+        let fetchAttachment = data.data;
+        setAttachment(fetchAttachment);
+        setUploadClicked(false);
+
+        // If in BOM mode, automatically call saveFunction after upload
+        if (showBomList && editModal.qty && bomList.length > 0) {
+          saveFunction(fetchAttachment);
+        }
+      } else {
+        toast.error(fileResponse.message || "Failed to upload documents");
+      }
+    } catch (error) {
+      toast.error(error.message || "Error uploading documents");
     }
   };
 
@@ -842,7 +892,16 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                 <Col span={5} style={{ height: "50vh" }}>
                   <Card size="small" title="Details" style={{ height: "100%" }}>
                     <Form size="small" layout="vertical">
-                      <Form.Item label="Challan Number">
+                      <Form.Item
+                        label="Challan Number"
+                        required
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter Challan Number",
+                          },
+                        ]}
+                      >
                         <Input
                           size="medium"
                           value={challanNo}
@@ -850,7 +909,16 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                           placeholder="Enter Challan Number"
                         />
                       </Form.Item>
-                      <Form.Item label="Invoice Name">
+                      <Form.Item
+                        label="Invoice Name"
+                        required
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter Invoice Name",
+                          },
+                        ]}
+                      >
                         <Input
                           size="medium"
                           value={
@@ -909,9 +977,21 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                         <Button
                           style={{ marginLeft: 4 }}
                           type="primary"
-                          onClick={() => setUploadClicked(true)}
+                          onClick={() => {
+                            // In BOM mode, call saveFunction directly without upload modal
+                            if (
+                              showBomList &&
+                              editModal.qty &&
+                              bomList.length > 0
+                            ) {
+                              saveFunction();
+                            } else {
+                              // Normal mode - open upload modal
+                              setUploadClicked(true);
+                            }
+                          }}
                           // loading={loading}
-                          loading={modalUploadLoad}
+                          loading={loading || modalUploadLoad}
                         >
                           Save
                         </Button>
@@ -945,7 +1025,9 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
             title={"Upload Document"}
             // destroyOnClose={true}
             onOk={() => submitHandler()}
-            onCancel={() => setUploadClicked(false)}
+            onCancel={() => {
+              setUploadClicked(false);
+            }}
             // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
           >
             {" "}
@@ -965,33 +1047,62 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                       overflowY: "auto",
                     }}
                   >
-                    <Form.List name="fileComponents">
-                      {(fields, { add, remove }) => (
-                        <>
-                          <Col>
-                            {fields.map((field, index) => (
-                              <Form.Item noStyle>
-                                <SingleProduct
-                                  fields={fields}
-                                  field={field}
-                                  index={index}
-                                  add={add}
-                                  form={modalForm}
-                                  remove={remove}
-                                  // setFiles={setFiles}
-                                  // files={files}
-                                />
-                              </Form.Item>
-                            ))}
-                            <Row justify="center">
-                              <Typography.Text type="secondary">
-                                ----End of the List----
-                              </Typography.Text>
-                            </Row>
-                          </Col>
-                        </>
-                      )}
-                    </Form.List>
+                    <Form.Item
+                      name="fileComponents"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please upload at least one document",
+                          validator: (_, value) => {
+                            if (!value || value.length === 0) {
+                              return Promise.reject(
+                                new Error("Please upload at least one document")
+                              );
+                            }
+                            // Check if at least one file is uploaded
+                            const hasFile = value.some(
+                              (comp) => comp.file && comp.file[0]
+                            );
+                            if (!hasFile) {
+                              return Promise.reject(
+                                new Error(
+                                  "Please upload at least one document file"
+                                )
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Form.List name="fileComponents">
+                        {(fields, { add, remove }) => (
+                          <>
+                            <Col>
+                              {fields.map((field, index) => (
+                                <Form.Item noStyle key={field.key}>
+                                  <SingleProduct
+                                    fields={fields}
+                                    field={field}
+                                    index={index}
+                                    add={add}
+                                    form={modalForm}
+                                    remove={remove}
+                                    // setFiles={setFiles}
+                                    // files={files}
+                                  />
+                                </Form.Item>
+                              ))}
+                              <Row justify="center">
+                                <Typography.Text type="secondary">
+                                  ----End of the List----
+                                </Typography.Text>
+                              </Row>
+                            </Col>
+                          </>
+                        )}
+                      </Form.List>
+                    </Form.Item>
                   </Col>
                 </div>
               </Card>
