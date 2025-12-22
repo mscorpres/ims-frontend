@@ -18,6 +18,7 @@ import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 import { Tooltip } from "@mui/material";
+import { MdOutlineDownloadForOffline } from "react-icons/md";
 const { TextArea } = Input;
 function R9() {
   const [locDataTo, setloctionDataTo] = useState([]);
@@ -337,6 +338,21 @@ function R9() {
         </Col>
         <Col span={19}>
           <Row>
+            {resData.length > 1 && (
+              <Col span={24}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "end",
+                    marginBottom: "5px",
+                  }}
+                >
+                  <Button onClick={handleDownloadingCSV}>
+                    <MdOutlineDownloadForOffline style={{ fontSize: "20px" }} />
+                  </Button>
+                </div>
+              </Col>
+            )}
             <Col span={24}>
               <Skeleton loading={loading} active>
                 <div className="hide-select" style={{ height: "75vh" }}>
