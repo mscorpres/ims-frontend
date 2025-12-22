@@ -46,6 +46,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const { all, row } = editModal;
   const [mainData, setMainData] = useState([]);
   const [challanNo, setChallanNo] = useState("");
+  const [invoice, setInvoice] = useState("");
   const [bomList, setBomList] = useState([]);
   const [showBomList, setShowBomList] = useState(false);
   const [conrem, setConRem] = useState("");
@@ -62,6 +63,65 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
     setModalLoad("fetch", true);
+    if (editModal.bomData && editModal.qty) {
+      const jwId = row?.transaction_id || row?.jw_transaction_id;
+      if (jwId) {
+        try {
+          // Call BOM API with qty
+          const bomResponse = await imsAxios.get(
+            `/jobwork/rm-consumption/view/bom?jw=${encodeURIComponent(
+              jwId
+            )}&qty=${editModal.qty}`
+          );
+
+          if (bomResponse.success || bomResponse.data) {
+            // Process BOM data - response structure: { success, status, data: { header, body: [...] } }
+            const bomDataArray =
+              bomResponse.data?.body ||
+              bomResponse.data?.data ||
+              bomResponse.data ||
+              [];
+
+            // Also set header data if available
+            if (bomResponse.data?.header) {
+              setHeaderData(bomResponse.data.header);
+              setIsApplicable(bomResponse.data.header.einvoiceStatus);
+              if (bomResponse.data.header.costCenter) {
+                getLocation(bomResponse.data.header.costCenter);
+              }
+            }
+
+            const arr = bomDataArray.map((r, id) => {
+              return {
+                id: id + 1,
+                bomQty: r.bomQty,
+                partName: r.partName,
+                catPartName: r.catPartName,
+                partNo: r.partNo,
+                pendingStock: r.pendingStock || 0,
+                rqdQty: r.reqQty || r.rqdQty || 0,
+                pendingWithjobwork: r.pendingWithjobwork || 0,
+                uom: r.uom,
+                key: r.key,
+                conRemark: r.conRemark || "",
+              };
+            });
+            setBomList(arr);
+            setShowBomList(true);
+            setModalLoad("fetch", false);
+          } else {
+            toast.error(bomResponse.message || "Failed to fetch BOM data");
+            setModalLoad("fetch", false);
+          }
+        } catch (error) {
+          toast.error(error.message || "Error fetching BOM data");
+          setModalLoad("fetch", false);
+        }
+      }
+      return;
+    }
+
+    // Original API call for normal flow
     const response = await imsAxios.get(
       `/jobwork/fetch_jw_sf_inward_components?skucode=${row.sku}&transaction=${row.transaction_id}`
     );
@@ -328,7 +388,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           onChange={(e) => inputHandler("remark", row.id, e.target.value)}
         />
       ),
-    }
+    },
   ];
   const bomcolumns = [
     {
@@ -392,7 +452,13 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       field: "rqdQty",
       headerName: "Required Qty",
       width: 120,
-      renderCell: ({ row }) => <Input value={row.rqdQty} />,
+      renderCell: ({ row }) => (
+        <Input
+          value={row.rqdQty}
+          onChange={(e) => inputHandler("rqdQty", row.id, e.target.value)}
+          type="number"
+        />
+      ),
     },
     // {
     //   field: "pendingWithjobwork",
@@ -438,10 +504,86 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   };
 
   const saveFunction = async (fetchAttachment) => {
+    // Check if we're in BOM mode (from view/bom API) - skip upload modal
+    if (showBomList && editModal.qty && bomList.length > 0) {
+      // Validate required fields
+      if (!challanNo || challanNo.trim() === "") {
+        toast.error("Please enter Challan Number");
+        return;
+      }
+
+      const invoiceValue = invoice || mainData[0]?.invoice || "";
+      if (!invoiceValue || invoiceValue.trim() === "") {
+        toast.error("Please enter Invoice Name");
+        return;
+      }
+
+      // Check if documents are uploaded
+      // Use fetchAttachment if provided (from upload), otherwise check attachment state or fileComponents
+      if (!fetchAttachment) {
+        const fileComponentsValue = modalForm.getFieldValue("fileComponents");
+        if (!fileComponentsValue || fileComponentsValue.length === 0) {
+          if (!attachment || attachment === "") {
+            toast.error("Please upload documents");
+            return;
+          }
+        }
+      }
+
+      // Use new rm-consumption/save API directly without upload modal
+      const payload = {
+        jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
+        consumptionQty: editModal.qty,
+        invoice: invoiceValue,
+        challan: challanNo,
+        component: bomList.map((r) => r.key),
+        qty: bomList.map((r) => r.rqdQty || 0),
+        rate: bomList.map((r) => r.rate || 0),
+        remark: bomList.map((r) => r.conRemark || ""),
+      };
+
+      setLoading(true);
+      try {
+        const response = await imsAxios.post(
+          "/jobwork/rm-consumption/save",
+          payload
+        );
+
+        if (response.success || response.data?.status === "success") {
+          setLoading(false);
+          toast.success(
+            response.message ||
+              response.data?.message ||
+              "RM Consumption saved successfully"
+          );
+          setShowBomList(false);
+          modalForm.resetFields();
+          setBomList([]);
+          setChallanNo("");
+          setInvoice("");
+          setEditModal(false);
+        } else {
+          setLoading(false);
+          toast.error(
+            response.message ||
+              response.data?.message ||
+              "Failed to save RM Consumption"
+          );
+        }
+      } catch (error) {
+        setLoading(false);
+        toast.error(error.message || "Error saving RM Consumption");
+      }
+      return;
+    }
+
+    // Original flow for normal mode - requires upload modal
     // let filedata = modalForm.getFieldValue("fileComponents");
     let value = await modalForm.validateFields();
     let filedata = value.fileComponents;
     let pickLocation = value.pickLocation;
+
+    // Original flow for normal mode
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
@@ -583,33 +725,59 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     setMaterialInSuccess(false);
   };
   const submitHandler = async () => {
-    setUploadClicked(false);
-    const formData = new FormData();
-    const values = await modalForm.validateFields();
-    let fileName;
-    values.fileComponents.map((comp) => {
-      formData.append("files", comp.file[0]?.originFileObj);
-    });
-    const fileResponse = await executeFun(
-      () => uploadMinInvoice(formData),
-      "submit"
-    );
-    if (fileResponse.success) {
-      const { data } = fileResponse;
-      let fetchAttachment = data.data;
-      setAttachment(fetchAttachment);
-      saveFunction(fetchAttachment);
+    try {
+      const values = await modalForm.validateFields();
+
+      // Validate fileComponents
+      if (!values.fileComponents || values.fileComponents.length === 0) {
+        toast.error("Please upload at least one document");
+        return;
+      }
+
+      const formData = new FormData();
+      values.fileComponents.forEach((comp) => {
+        if (comp.file && comp.file[0]?.originFileObj) {
+          formData.append("files", comp.file[0]?.originFileObj);
+        }
+      });
+
+      if (formData.getAll("files").length === 0) {
+        toast.error("Please upload at least one document file");
+        return;
+      }
+
+      const fileResponse = await executeFun(
+        () => uploadMinInvoice(formData),
+        "submit"
+      );
+      if (fileResponse.success) {
+        const { data } = fileResponse;
+        let fetchAttachment = data.data;
+        setAttachment(fetchAttachment);
+        setUploadClicked(false);
+
+        // If in BOM mode, automatically call saveFunction after upload
+        if (showBomList && editModal.qty && bomList.length > 0) {
+          saveFunction(fetchAttachment);
+        }
+      } else {
+        toast.error(fileResponse.message || "Failed to upload documents");
+      }
+    } catch (error) {
+      toast.error(error.message || "Error uploading documents");
     }
   };
 
   useEffect(() => {
     if (editModal) {
       getFetchData();
-      // getLocation();
       setChallanNo("");
-      setShowBomList(false);
-      setBomList([]);
-      newMinFunction();
+      setInvoice("");
+      if (!editModal.bomData) {
+        setShowBomList(false);
+        setBomList([]);
+        newMinFunction();
+      }
     }
   }, [editModal]);
 
@@ -618,6 +786,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     setEditModal(false);
     setShowBomList(false);
     setBomList([]);
+    setChallanNo("");
+    setInvoice("");
     modalForm.resetFields();
   };
   return (
@@ -715,86 +885,88 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                   >
                     Job Worker: {header?.vendor?.name}
                   </Col>
-                  <Col
-                    span={8}
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: "bolder",
-                      marginTop: "20px",
-                    }}
-                  >
-                    <Form size="small">
-                      <Form.Item label="Challan Number">
-                        <Input
-                          style={{ width: "15rem" }}
-                          size="small"
-                          value={challanNo}
-                          onChange={(e) => setChallanNo(e.target.value)}
-                        />
-                      </Form.Item>
-                    </Form>
-                  </Col>
-                  {isApplicable == "Y" && (
-                    <Col
-                      span={6}
-                      style={{ display: "flex", paddingLeft: "-2px" }}
-                    >
-                      <span>
-                        <Col span={24}>
-                          <Checkbox
-                            checked={isScan}
-                            onChange={(e) => setIsScan(e.target.checked)}
-                          />
-                          <Typography.Text
-                            style={{
-                              fontSize: 11,
-                              marginLeft: "4px",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {" "}
-                            Scan with QR Code
-                          </Typography.Text>
-                        </Col>{" "}
-                        <Col
-                          span={24}
-                          style={{
-                            marginTop: "5px",
-                            fontSize: "12px",
-                            fontWeight: "bolder",
-                            // marginLeft: "8rem",
-                          }}
-                        >
-                          <Form size="small">
-                            <Form.Item label="Acknowledgment Number">
-                              <Input
-                                size="small"
-                                style={{ width: "15rem" }}
-                                value={irnNo}
-                                onChange={(e) => setIrnNo(e.target.value)}
-                                disabled={isScan}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </span>
-                    </Col>
-                  )}
                 </Row>
               </Card>
-              <div style={{ height: "50%", marginTop: "5px" }}>
-                <div style={{ height: "100%" }}>
-                  {showBomList && bomList ? (
-                    <FormTable
-                      data={bomList}
-                      columns={bomcolumns}
-                      loading={loading}
-                    />
-                  ) : (
-                    <FormTable data={mainData} columns={columns} />
-                  )}
-                </div>
-              </div>
+              <Row gutter={16} style={{ marginTop: "5px" }}>
+                {/* Left Section - 20% width (5/24 = ~20.8%) */}
+                <Col span={5} style={{ height: "50vh" }}>
+                  <Card size="small" title="Details" style={{ height: "100%" }}>
+                    <Form size="small" layout="vertical">
+                      <Form.Item
+                        label="Challan Number"
+                        required
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter Challan Number",
+                          },
+                        ]}
+                      >
+                        <Input
+                          size="medium"
+                          value={challanNo}
+                          onChange={(e) => setChallanNo(e.target.value)}
+                          placeholder="Enter Challan Number"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Invoice Name"
+                        required
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter Invoice Name",
+                          },
+                        ]}
+                      >
+                        <Input
+                          size="medium"
+                          value={
+                            showBomList ? invoice : mainData[0]?.invoice || ""
+                          }
+                          onChange={(e) => {
+                            if (showBomList) {
+                              setInvoice(e.target.value);
+                            } else if (mainData[0]?.id) {
+                              inputHandler(
+                                "invoice",
+                                mainData[0].id,
+                                e.target.value
+                              );
+                            }
+                          }}
+                          placeholder="Enter Invoice Name"
+                        />
+                      </Form.Item>
+                      <Form.Item label="Upload Documents">
+                        <Button
+                          type="default"
+                          size="medium"
+                          icon={<InboxOutlined />}
+                          onClick={() => setUploadClicked(true)}
+                          block
+                        >
+                          Upload
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                </Col>
+                {/* Right Section - 80% width (19/24 = ~79.2%) */}
+                <Col span={19} style={{ height: "50vh" }}>
+                  <div style={{ height: "100%" }}>
+                    {showBomList && bomList ? (
+                      <FormTable
+                        data={bomList}
+                        columns={bomcolumns}
+                        loading={loading}
+                      />
+                    ) : (
+                      <FormTable data={mainData} columns={columns} />
+                    )}
+                  </div>
+                </Col>
+              </Row>
               <Row style={{ marginTop: "50px" }}>
                 <Col span={24}>
                   <div style={{ textAlign: "end" }}>
@@ -805,9 +977,21 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                         <Button
                           style={{ marginLeft: 4 }}
                           type="primary"
-                          onClick={() => setUploadClicked(true)}
+                          onClick={() => {
+                            // In BOM mode, call saveFunction directly without upload modal
+                            if (
+                              showBomList &&
+                              editModal.qty &&
+                              bomList.length > 0
+                            ) {
+                              saveFunction();
+                            } else {
+                              // Normal mode - open upload modal
+                              setUploadClicked(true);
+                            }
+                          }}
                           // loading={loading}
-                          loading={modalUploadLoad}
+                          loading={loading || modalUploadLoad}
                         >
                           Save
                         </Button>
@@ -815,7 +999,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                     ) : (
                       <NavFooter
                         loading={loading}
-                        submitFunction={handleSave}
+                        submitFunction={saveFunction}
                         backFunction={closeModal}
                         // resetFunction={resetHandler}
                         nextLabel="Save"
@@ -841,7 +1025,9 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
             title={"Upload Document"}
             // destroyOnClose={true}
             onOk={() => submitHandler()}
-            onCancel={() => setUploadClicked(false)}
+            onCancel={() => {
+              setUploadClicked(false);
+            }}
             // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
           >
             {" "}
@@ -861,33 +1047,62 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                       overflowY: "auto",
                     }}
                   >
-                    <Form.List name="fileComponents">
-                      {(fields, { add, remove }) => (
-                        <>
-                          <Col>
-                            {fields.map((field, index) => (
-                              <Form.Item noStyle>
-                                <SingleProduct
-                                  fields={fields}
-                                  field={field}
-                                  index={index}
-                                  add={add}
-                                  form={modalForm}
-                                  remove={remove}
-                                  // setFiles={setFiles}
-                                  // files={files}
-                                />
-                              </Form.Item>
-                            ))}
-                            <Row justify="center">
-                              <Typography.Text type="secondary">
-                                ----End of the List----
-                              </Typography.Text>
-                            </Row>
-                          </Col>
-                        </>
-                      )}
-                    </Form.List>
+                    <Form.Item
+                      name="fileComponents"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please upload at least one document",
+                          validator: (_, value) => {
+                            if (!value || value.length === 0) {
+                              return Promise.reject(
+                                new Error("Please upload at least one document")
+                              );
+                            }
+                            // Check if at least one file is uploaded
+                            const hasFile = value.some(
+                              (comp) => comp.file && comp.file[0]
+                            );
+                            if (!hasFile) {
+                              return Promise.reject(
+                                new Error(
+                                  "Please upload at least one document file"
+                                )
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Form.List name="fileComponents">
+                        {(fields, { add, remove }) => (
+                          <>
+                            <Col>
+                              {fields.map((field, index) => (
+                                <Form.Item noStyle key={field.key}>
+                                  <SingleProduct
+                                    fields={fields}
+                                    field={field}
+                                    index={index}
+                                    add={add}
+                                    form={modalForm}
+                                    remove={remove}
+                                    // setFiles={setFiles}
+                                    // files={files}
+                                  />
+                                </Form.Item>
+                              ))}
+                              <Row justify="center">
+                                <Typography.Text type="secondary">
+                                  ----End of the List----
+                                </Typography.Text>
+                              </Row>
+                            </Col>
+                          </>
+                        )}
+                      </Form.List>
+                    </Form.Item>
                   </Col>
                 </div>
               </Card>
