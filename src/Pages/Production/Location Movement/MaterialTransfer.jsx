@@ -24,11 +24,10 @@ function MaterialTransfer({ type }) {
   });
   const { executeFun, loading: loading1 } = useApi();
   const [asyncOptions, setAsyncOptions] = useState([]);
-  // console.log(allData)
-  const [submitLoading, setSubmitLoading] = useState(false);
   const [locationData, setLocationData] = useState([]);
 
   const [locDetail, setLocDetail] = useState("");
+  const [locDetailTo, setLocDetailTo] = useState("");
   const [locRejDetail, setLocRejDetail] = useState("");
 
   const [rows, setRows] = useState([
@@ -68,6 +67,13 @@ function MaterialTransfer({ type }) {
     });
     // console.log(data.data)
     setLocDetail(data.data);
+  };
+
+  const getLocationDetailTo = async () => {
+    const { data } = await imsAxios.post("godown/fetchLocationDetail_to", {
+      location_key: allData.dropLoc,
+    });
+    setLocDetailTo(data.data);
   };
 
   const getComponent = async (e) => {
@@ -343,6 +349,12 @@ function MaterialTransfer({ type }) {
     }
   }, [allData.locationSel]);
 
+  useEffect(() => {
+    if (allData.dropLoc) {
+      getLocationDetailTo();
+    }
+  }, [allData.dropLoc]);
+
   // when pick location changes, refresh each row's stock detail (if component selected)
   useEffect(() => {
     if (allData?.locationSel) {
@@ -383,6 +395,9 @@ function MaterialTransfer({ type }) {
                   }}
                 />
               </Col>
+              <Col span={24} style={{ padding: "5px" }}>
+                <TextArea disabled value={locDetailTo} />
+              </Col>
             </Row>
           </Card>
         </Col>
@@ -397,9 +412,15 @@ function MaterialTransfer({ type }) {
               }}
             >
               <Button
-                onClick={() =>
-                  window.open("http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv", "_blank")
-                }
+                onClick={(e) => {
+                  e.preventDefault();
+                  const link = document.createElement("a");
+                  link.href = "http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
+                  link.download = "Sample-GodownTransfer.csv";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
                 type="link"
               >
                 Download Sample File

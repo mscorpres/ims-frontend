@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./r.css";
-import axios from "axios";
-
+import socket from "../../../Components/socket";
 import { Button, Col, DatePicker, Input, Row, Skeleton } from "antd";
 import { toast } from "react-toastify";
 import {
@@ -14,12 +13,9 @@ import { v4 } from "uuid";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
-
-import { MdOutlineDownloadForOffline } from "react-icons/md";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getProductsOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import { convertSelectOptions } from "../../../utils/general.ts";
 import MyButton from "../../../Components/MyButton";
 import { Tooltip } from "@mui/material";
 const { TextArea } = Input;
@@ -87,6 +83,17 @@ function R9() {
       );
       setAsyncOptions(response.data);
     }
+  };
+
+  const emitDownloadEvent = async () => {
+    const payload = {
+      skucode: allData.selectProduct,
+      subject: allData.selectBom,
+      date: selectDate,
+    };
+    socket.emit("bomRecipe", {
+      otherdata: payload,
+    });
   };
 
   const getDataByLocation = async (e) => {
@@ -305,15 +312,17 @@ function R9() {
                 <TextArea rows={3} disabled value={locationDetail} />
               )}
             </Col>
-            {allData?.selectBom.length > 1 && (
+            {allData?.selectBom?.length > 1 && (
               <Col span={24} style={{ marginTop: "5px" }}>
-                <div style={{ display: "flex", justifyContent: "end" }}>
-                  {/* <Button
-                    onClick={reset}
-                    style={{ backgroundColor: "red", color: "white", marginRight: "5px" }}
+                <div style={{ display: "flex", justifyContent: "end", gap: "10px" }}>
+                <MyButton
+                    variant="download"
+                    onClick={()=>emitDownloadEvent()}
+                    type="primary"
+                    // disabled={selectDate?.length === 0}
                   >
-                    Cancel
-                  </Button> */}
+                    Download
+                  </MyButton>
                   <MyButton
                     variant="search"
                     onClick={fetchBySearch}
@@ -328,21 +337,6 @@ function R9() {
         </Col>
         <Col span={19}>
           <Row>
-            {resData.length > 1 && (
-              <Col span={24}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "end",
-                    marginBottom: "5px",
-                  }}
-                >
-                  <Button onClick={handleDownloadingCSV}>
-                    <MdOutlineDownloadForOffline style={{ fontSize: "20px" }} />
-                  </Button>
-                </div>
-              </Col>
-            )}
             <Col span={24}>
               <Skeleton loading={loading} active>
                 <div className="hide-select" style={{ height: "75vh" }}>
