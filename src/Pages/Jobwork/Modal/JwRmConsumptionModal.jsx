@@ -46,6 +46,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const { all, row } = editModal;
   const [mainData, setMainData] = useState([]);
   const [challanNo, setChallanNo] = useState("");
+  const [invoice, setInvoice] = useState("");
   const [bomList, setBomList] = useState([]);
   const [showBomList, setShowBomList] = useState(false);
   const [conrem, setConRem] = useState("");
@@ -62,6 +63,65 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
     setModalLoad("fetch", true);
+    if (editModal.bomData && editModal.qty) {
+      const jwId = row?.transaction_id || row?.jw_transaction_id;
+      if (jwId) {
+        try {
+          // Call BOM API with qty
+          const bomResponse = await imsAxios.get(
+            `/jobwork/rm-consumption/view/bom?jw=${encodeURIComponent(
+              jwId
+            )}&qty=${editModal.qty}`
+          );
+
+          if (bomResponse.success || bomResponse.data) {
+            // Process BOM data - response structure: { success, status, data: { header, body: [...] } }
+            const bomDataArray =
+              bomResponse.data?.body ||
+              bomResponse.data?.data ||
+              bomResponse.data ||
+              [];
+
+            // Also set header data if available
+            if (bomResponse.data?.header) {
+              setHeaderData(bomResponse.data.header);
+              setIsApplicable(bomResponse.data.header.einvoiceStatus);
+              if (bomResponse.data.header.costCenter) {
+                getLocation(bomResponse.data.header.costCenter);
+              }
+            }
+
+            const arr = bomDataArray.map((r, id) => {
+              return {
+                id: id + 1,
+                bomQty: r.bomQty,
+                partName: r.partName,
+                catPartName: r.catPartName,
+                partNo: r.partNo,
+                pendingStock: r.pendingStock || 0,
+                rqdQty: r.reqQty || r.rqdQty || 0,
+                pendingWithjobwork: r.pendingWithjobwork || 0,
+                uom: r.uom,
+                key: r.key,
+                conRemark: r.conRemark || "",
+              };
+            });
+            setBomList(arr);
+            setShowBomList(true);
+            setModalLoad("fetch", false);
+          } else {
+            toast.error(bomResponse.message || "Failed to fetch BOM data");
+            setModalLoad("fetch", false);
+          }
+        } catch (error) {
+          toast.error(error.message || "Error fetching BOM data");
+          setModalLoad("fetch", false);
+        }
+      }
+      return;
+    }
+
+    // Original API call for normal flow
     const response = await imsAxios.get(
       `/jobwork/fetch_jw_sf_inward_components?skucode=${row.sku}&transaction=${row.transaction_id}`
     );
@@ -392,7 +452,13 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       field: "rqdQty",
       headerName: "Required Qty",
       width: 120,
-      renderCell: ({ row }) => <Input value={row.rqdQty} />,
+      renderCell: ({ row }) => (
+        <Input
+          value={row.rqdQty}
+          onChange={(e) => inputHandler("rqdQty", row.id, e.target.value)}
+          type="number"
+        />
+      ),
     },
     // {
     //   field: "pendingWithjobwork",
@@ -442,6 +508,56 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     let value = await modalForm.validateFields();
     let filedata = value.fileComponents;
     let pickLocation = value.pickLocation;
+
+    // Check if we're in BOM mode (from view/bom API)
+    if (showBomList && editModal.qty && bomList.length > 0) {
+      // Use new rm-consumption/save API
+      const payload = {
+        jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
+        consumptionQty: editModal.qty,
+        invoice: invoice || mainData[0]?.invoice || "",
+        challan: challanNo,
+        component: bomList.map((r) => r.key),
+        qty: bomList.map((r) => r.rqdQty || 0),
+        rate: bomList.map((r) => r.rate || 0),
+        remark: bomList.map((r) => r.conRemark || ""),
+      };
+
+      setModalUploadLoad(true);
+      try {
+        const response = await imsAxios.post(
+          "/jobwork/rm-consumption/save",
+          payload
+        );
+
+        if (response.success || response.data?.status === "success") {
+          setModalUploadLoad(false);
+          toast.success(
+            response.message ||
+              response.data?.message ||
+              "RM Consumption saved successfully"
+          );
+          setShowBomList(false);
+          modalForm.resetFields();
+          setBomList([]);
+          setChallanNo("");
+          setEditModal(false);
+        } else {
+          setModalUploadLoad(false);
+          toast.error(
+            response.message ||
+              response.data?.message ||
+              "Failed to save RM Consumption"
+          );
+        }
+      } catch (error) {
+        setModalUploadLoad(false);
+        toast.error(error.message || "Error saving RM Consumption");
+      }
+      return;
+    }
+
+    // Original flow for normal mode
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
@@ -605,11 +721,13 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   useEffect(() => {
     if (editModal) {
       getFetchData();
-      // getLocation();
       setChallanNo("");
-      setShowBomList(false);
-      setBomList([]);
-      newMinFunction();
+      setInvoice("");
+      if (!editModal.bomData) {
+        setShowBomList(false);
+        setBomList([]);
+        newMinFunction();
+      }
     }
   }, [editModal]);
 
@@ -618,6 +736,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     setEditModal(false);
     setShowBomList(false);
     setBomList([]);
+    setChallanNo("");
+    setInvoice("");
     modalForm.resetFields();
   };
   return (
@@ -733,9 +853,13 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                       <Form.Item label="Invoice Name">
                         <Input
                           size="medium"
-                          value={mainData[0]?.invoice || ""}
+                          value={
+                            showBomList ? invoice : mainData[0]?.invoice || ""
+                          }
                           onChange={(e) => {
-                            if (mainData[0]?.id) {
+                            if (showBomList) {
+                              setInvoice(e.target.value);
+                            } else if (mainData[0]?.id) {
                               inputHandler(
                                 "invoice",
                                 mainData[0].id,
@@ -795,7 +919,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                     ) : (
                       <NavFooter
                         loading={loading}
-                        submitFunction={handleSave}
+                        submitFunction={saveFunction}
                         backFunction={closeModal}
                         // resetFunction={resetHandler}
                         nextLabel="Save"

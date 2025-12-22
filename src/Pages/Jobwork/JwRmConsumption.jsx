@@ -190,11 +190,12 @@ const JwRmConsumption = () => {
       if (response.success || response.data) {
         toast.success("BOM data fetched successfully");
         setQtyModalVisible(false);
-        // Open the edit modal with the row data
+        // Open the edit modal with the row data, including qty for BOM API call
         setEditModal({
           all: allData.setType,
           row: selectedRow,
           bomData: response.data || response,
+          qty: qty, // Store qty for use in getFetchData
         });
       } else {
         toast.error(response.message || "Failed to fetch BOM data");
