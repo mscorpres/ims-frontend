@@ -512,12 +512,6 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         return;
       }
 
-      const invoiceValue = invoice || mainData[0]?.invoice || "";
-      if (!invoiceValue || invoiceValue.trim() === "") {
-        toast.error("Please enter Invoice Name");
-        return;
-      }
-
       // Check if documents are uploaded
       // Use fetchAttachment if provided (from upload), otherwise check attachment state or fileComponents
       if (!fetchAttachment) {
@@ -757,9 +751,9 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         setUploadClicked(false);
 
         // If in BOM mode, automatically call saveFunction after upload
-        if (showBomList && editModal.qty && bomList.length > 0) {
-          saveFunction(fetchAttachment);
-        }
+        // if (showBomList && editModal.qty && bomList.length > 0) {
+        //   saveFunction(fetchAttachment);
+        // }
       } else {
         toast.error(fileResponse.message || "Failed to upload documents");
       }
@@ -909,35 +903,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                           placeholder="Enter Challan Number"
                         />
                       </Form.Item>
-                      <Form.Item
-                        label="Invoice Name"
-                        required
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter Invoice Name",
-                          },
-                        ]}
-                      >
-                        <Input
-                          size="medium"
-                          value={
-                            showBomList ? invoice : mainData[0]?.invoice || ""
-                          }
-                          onChange={(e) => {
-                            if (showBomList) {
-                              setInvoice(e.target.value);
-                            } else if (mainData[0]?.id) {
-                              inputHandler(
-                                "invoice",
-                                mainData[0].id,
-                                e.target.value
-                              );
-                            }
-                          }}
-                          placeholder="Enter Invoice Name"
-                        />
-                      </Form.Item>
+                     
                       <Form.Item label="Upload Documents">
                         <Button
                           type="default"
