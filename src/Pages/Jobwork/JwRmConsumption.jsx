@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Col, Input, Row, Select } from "antd";
+import { Button, Col, Input, Row, Select, Modal, Form } from "antd";
 import MyDatePicker from "../../Components/MyDatePicker.jsx";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../Components/MyAsyncSelect.jsx";
@@ -29,6 +29,10 @@ const JwRmConsumption = () => {
   const [jwData, setDJWData] = useState([]);
   const [skuData, setSKUData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
+  const [qtyModalVisible, setQtyModalVisible] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [qtyForm] = Form.useForm();
+  const [bomLoading, setBomLoading] = useState(false);
   // console.log(allData);
   const { executeFun, loading: loading1 } = useApi();
   const option = [
@@ -157,6 +161,57 @@ const JwRmConsumption = () => {
     }
   };
 
+  const handleActionsClick = (row) => {
+    setSelectedRow(row);
+    setQtyModalVisible(true);
+    qtyForm.resetFields();
+  };
+
+  const handleQtyModalSave = async () => {
+    try {
+      const values = await qtyForm.validateFields();
+      const qty = values.qty;
+      const jwId =
+        selectedRow?.transaction_id || selectedRow?.jw_transaction_id;
+
+      if (!jwId) {
+        toast.error("JW ID is missing");
+        return;
+      }
+
+      setBomLoading(true);
+      // Execute GET request to fetch BOM data
+      const response = await imsAxios.get(
+        `/jobwork/rm-consumption/view/bom?jw=${encodeURIComponent(
+          jwId
+        )}&qty=${qty}`
+      );
+
+      if (response.success || response.data) {
+        toast.success("BOM data fetched successfully");
+        setQtyModalVisible(false);
+        // Open the edit modal with the row data
+        setEditModal({
+          all: allData.setType,
+          row: selectedRow,
+          bomData: response.data || response,
+        });
+      } else {
+        toast.error(response.message || "Failed to fetch BOM data");
+      }
+      setBomLoading(false);
+    } catch (error) {
+      setBomLoading(false);
+      toast.error(error.message || "Error fetching BOM data");
+    }
+  };
+
+  const handleQtyModalCancel = () => {
+    setQtyModalVisible(false);
+    setSelectedRow(null);
+    qtyForm.resetFields();
+  };
+
   const columns = [
     { field: "index", headerName: "S No.", width: 8 },
     { field: "date", headerName: "JW Date", width: 120 },
@@ -176,8 +231,8 @@ const JwRmConsumption = () => {
         // <TableActions action="print" onClick={() => console.log(row)} />,
         // <TableActions action="edit" />,
         <ArrowRightOutlined
-          onClick={() => setEditModal({ all: allData.setType, row })}
-          style={{ color: "#1890ff", fontSize: "15px" }}
+          onClick={() => handleActionsClick(row)}
+          style={{ color: "#1890ff", fontSize: "15px", cursor: "pointer" }}
         />,
       ],
     },
@@ -336,6 +391,47 @@ const JwRmConsumption = () => {
         fetchSKUwise={fetchSKUwise}
         fetchVendorwise={fetchVendorwise}
       />
+
+      {/* Quantity Input Modal */}
+      <Modal
+        title="Enter Quantity"
+        open={qtyModalVisible}
+        onOk={handleQtyModalSave}
+        onCancel={handleQtyModalCancel}
+        confirmLoading={bomLoading}
+        okText="Save"
+        cancelText="Cancel"
+      >
+        <Form form={qtyForm} layout="vertical">
+          <Form.Item
+            name="qty"
+            label="Quantity"
+            rules={[
+              { required: true, message: "Please enter quantity" },
+              {
+                pattern: /^\d+(\.\d+)?$/,
+                message: "Please enter a valid number",
+              },
+            ]}
+          >
+            <Input
+              type="number"
+              placeholder="Enter quantity"
+              autoFocus
+              onPressEnter={handleQtyModalSave}
+            />
+          </Form.Item>
+          {selectedRow && (
+            <div style={{ marginTop: 10, fontSize: 12, color: "#666" }}>
+              <div>
+                JW ID:{" "}
+                {selectedRow.transaction_id || selectedRow.jw_transaction_id}
+              </div>
+              <div>Product: {selectedRow.sku_name}</div>
+            </div>
+          )}
+        </Form>
+      </Modal>
     </div>
   );
 };
