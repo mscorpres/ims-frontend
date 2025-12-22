@@ -328,7 +328,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           onChange={(e) => inputHandler("remark", row.id, e.target.value)}
         />
       ),
-    }
+    },
   ];
   const bomcolumns = [
     {
@@ -598,7 +598,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       const { data } = fileResponse;
       let fetchAttachment = data.data;
       setAttachment(fetchAttachment);
-      saveFunction(fetchAttachment);
+      // saveFunction(fetchAttachment);
     }
   };
 
@@ -715,86 +715,66 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                   >
                     Job Worker: {header?.vendor?.name}
                   </Col>
-                  <Col
-                    span={8}
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: "bolder",
-                      marginTop: "20px",
-                    }}
-                  >
-                    <Form size="small">
-                      <Form.Item label="Challan Number">
-                        <Input
-                          style={{ width: "15rem" }}
-                          size="small"
-                          value={challanNo}
-                          onChange={(e) => setChallanNo(e.target.value)}
-                        />
-                      </Form.Item>
-                    </Form>
-                  </Col>
-                  {isApplicable == "Y" && (
-                    <Col
-                      span={6}
-                      style={{ display: "flex", paddingLeft: "-2px" }}
-                    >
-                      <span>
-                        <Col span={24}>
-                          <Checkbox
-                            checked={isScan}
-                            onChange={(e) => setIsScan(e.target.checked)}
-                          />
-                          <Typography.Text
-                            style={{
-                              fontSize: 11,
-                              marginLeft: "4px",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {" "}
-                            Scan with QR Code
-                          </Typography.Text>
-                        </Col>{" "}
-                        <Col
-                          span={24}
-                          style={{
-                            marginTop: "5px",
-                            fontSize: "12px",
-                            fontWeight: "bolder",
-                            // marginLeft: "8rem",
-                          }}
-                        >
-                          <Form size="small">
-                            <Form.Item label="Acknowledgment Number">
-                              <Input
-                                size="small"
-                                style={{ width: "15rem" }}
-                                value={irnNo}
-                                onChange={(e) => setIrnNo(e.target.value)}
-                                disabled={isScan}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </span>
-                    </Col>
-                  )}
                 </Row>
               </Card>
-              <div style={{ height: "50%", marginTop: "5px" }}>
-                <div style={{ height: "100%" }}>
-                  {showBomList && bomList ? (
-                    <FormTable
-                      data={bomList}
-                      columns={bomcolumns}
-                      loading={loading}
-                    />
-                  ) : (
-                    <FormTable data={mainData} columns={columns} />
-                  )}
-                </div>
-              </div>
+              <Row gutter={16} style={{ marginTop: "5px" }}>
+                {/* Left Section - 20% width (5/24 = ~20.8%) */}
+                <Col span={5} style={{ height: "50vh" }}>
+                  <Card size="small" title="Details" style={{ height: "100%" }}>
+                    <Form size="small" layout="vertical">
+                      <Form.Item label="Challan Number">
+                        <Input
+                          size="medium"
+                          value={challanNo}
+                          onChange={(e) => setChallanNo(e.target.value)}
+                          placeholder="Enter Challan Number"
+                        />
+                      </Form.Item>
+                      <Form.Item label="Invoice Name">
+                        <Input
+                          size="medium"
+                          value={mainData[0]?.invoice || ""}
+                          onChange={(e) => {
+                            if (mainData[0]?.id) {
+                              inputHandler(
+                                "invoice",
+                                mainData[0].id,
+                                e.target.value
+                              );
+                            }
+                          }}
+                          placeholder="Enter Invoice Name"
+                        />
+                      </Form.Item>
+                      <Form.Item label="Upload Documents">
+                        <Button
+                          type="default"
+                          size="medium"
+                          icon={<InboxOutlined />}
+                          onClick={() => setUploadClicked(true)}
+                          block
+                        >
+                          Upload
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                </Col>
+                {/* Right Section - 80% width (19/24 = ~79.2%) */}
+                <Col span={19} style={{ height: "50vh" }}>
+                  <div style={{ height: "100%" }}>
+                    {showBomList && bomList ? (
+                      <FormTable
+                        data={bomList}
+                        columns={bomcolumns}
+                        loading={loading}
+                      />
+                    ) : (
+                      <FormTable data={mainData} columns={columns} />
+                    )}
+                  </div>
+                </Col>
+              </Row>
               <Row style={{ marginTop: "50px" }}>
                 <Col span={24}>
                   <div style={{ textAlign: "end" }}>
