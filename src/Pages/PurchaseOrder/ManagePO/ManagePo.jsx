@@ -377,9 +377,7 @@ const ManagePO = () => {
       toast.error(data?.message || message);
     }
   };
-  useEffect(() => {
-    console.log("this is the wise in po", wise);
-  }, [wise]);
+
 
   return (
     <div className="manage-po" style={{ position: "relative", height: "100%" }}>
