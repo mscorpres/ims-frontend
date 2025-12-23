@@ -268,6 +268,7 @@ import BOMCreate from "@/Pages/R&D/bom/create/index.js";
 import BOMList from "@/Pages/R&D/bom/list/index.js";
 import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 import SubGroup from "../Pages/Master/SubGroup.jsx";
+import AddCostCenter from "../Pages/Master/AddCostCenter.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -555,6 +556,11 @@ const Routes = [
     path: "/pending-qc",
     exact: true,
     main: () => <PendingQC />,
+  },
+    {
+    path: "/masters/cost-center",
+    exact: true,
+    main: () => <AddCostCenter />,
   },
   {
     path: "/completed-qc",
