@@ -87,7 +87,7 @@ const Login = () => {
       );
 
       if (res?.success) {
-        const isTwoStep =  res?.data?.isTwoStep;
+        const isTwoStep = res?.data?.isTwoStep;
         if (isTwoStep === "Y") {
           // Two-step login, show OTP screen
           setUserCredentials({
@@ -106,7 +106,7 @@ const Login = () => {
             email: payload.crn_email,
             phone: payload.crn_mobile,
             userName: payload.username,
-               comId: payload.company_id,
+            comId: payload.company_id,
             token: payload.token,
             favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
             type: payload.crn_type,
@@ -130,7 +130,7 @@ const Login = () => {
         setRecaptchaKey(Math.random());
         toast.error(res?.message);
       }
-   }
+    }
   };
   const validatecreateNewUser = async () => {
     if (!recaptchaValue) {
@@ -280,11 +280,50 @@ const Login = () => {
     }
   };
 
-  // OTP Backspace Handler`
+  // OTP Paste Handler
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData("text");
+    const pastedOtp = pastedText.replace(/\D/g, "").slice(0, 6);
+    
+    if (pastedOtp.length > 0) {
+      const newOtpCode = ["", "", "", "", "", ""];
+      for (let i = 0; i < pastedOtp.length; i++) {
+        newOtpCode[i] = pastedOtp[i];
+      }
+      setOtpCode(newOtpCode);
+      // Focus the next empty input or the last one
+      const nextIndex = Math.min(pastedOtp.length, 5);
+      setTimeout(() => {
+        const nextInput = document.getElementById(`otp-input-${nextIndex}`);
+        if (nextInput) nextInput.focus();
+      }, 0);
+    }
+  };
+
+  // OTP Backspace Handler
   const handleOtpKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otpCode[index] && index > 0) {
       const prevInput = document.getElementById(`otp-input-${index - 1}`);
       if (prevInput) prevInput.focus();
+    }
+
+    if (e.key === "v" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      navigator.clipboard.readText().then((text) => {
+        const pastedOtp = text.replace(/\D/g, "").slice(0, 6);
+        const newOtpCode = ["", "", "", "", "", ""];
+        for (let i = 0; i < pastedOtp.length; i++) {
+          newOtpCode[i] = pastedOtp[i];
+        }
+        setOtpCode(newOtpCode);
+        // Focus the next empty input or the last one
+        const nextIndex = Math.min(pastedOtp.length, 5);
+        setTimeout(() => {
+          const nextInput = document.getElementById(`otp-input-${nextIndex}`);
+          if (nextInput) nextInput.focus();
+        }, 0);
+      });
     }
   };
 
@@ -466,7 +505,7 @@ const Login = () => {
                     }}
                   >
                     Enter the 6-digit verification code sent to your registered
-                    Email address (expires in 5 minutes)
+                    Email address (expires in 10 minutes)
                   </Text>
 
                   <div
@@ -484,6 +523,7 @@ const Login = () => {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                        onPaste={index === 0 ? handleOtpPaste : undefined}
                         maxLength={1}
                         style={{
                           width: 50,
@@ -834,17 +874,17 @@ const Login = () => {
                           },
                         }),
                       ]}
-                    > 
+                    >
                       <Input.Password />
                     </Form.Item>
                   </Form>
                   <div className="flex justify-center">
-                          <ReCAPTCHA
-                            sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
-                            onChange={handleRecaptchaChange}
-                            key={recaptchaKey}
-                          />
-                        </div>
+                    <ReCAPTCHA
+                      sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
+                      onChange={handleRecaptchaChange}
+                      key={recaptchaKey}
+                    />
+                  </div>
                   <Button
                     // loading={loading}
                     block
