@@ -308,23 +308,7 @@ const Login = () => {
       if (prevInput) prevInput.focus();
     }
 
-    if (e.key === "v" && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      navigator.clipboard.readText().then((text) => {
-        const pastedOtp = text.replace(/\D/g, "").slice(0, 6);
-        const newOtpCode = ["", "", "", "", "", ""];
-        for (let i = 0; i < pastedOtp.length; i++) {
-          newOtpCode[i] = pastedOtp[i];
-        }
-        setOtpCode(newOtpCode);
-        // Focus the next empty input or the last one
-        const nextIndex = Math.min(pastedOtp.length, 5);
-        setTimeout(() => {
-          const nextInput = document.getElementById(`otp-input-${nextIndex}`);
-          if (nextInput) nextInput.focus();
-        }, 0);
-      });
-    }
+   
   };
 
   // Verify OTP
