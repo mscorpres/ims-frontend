@@ -346,98 +346,6 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     });
   };
 
-  const columns = [
-    {
-      field: "componentname",
-      headerName: "Part Name",
-      width: 320,
-      renderCell: ({ row }) => (
-        <MyAsyncSelect
-          style={{ width: "100%" }}
-          onBlur={() => setAsyncOptions([])}
-          loadOptions={getOption}
-          value={row.component}
-          optionsState={asyncOptions}
-          onChange={(e) => inputHandler("component", row.id, e)}
-          placeholder="Part/Name"
-          selectLoading={loading1("select")}
-        />
-      ),
-    },
-    // {
-    //   field: "orderqty",
-    //   headerName: "Quantity",
-    //   width: 180,
-    //   renderCell: ({ row }) => (
-    //     <Input
-    //       suffix={row.unitsname}
-    //       value={row.orderqty}
-    //       type="number"
-    //       placeholder="Qty"
-    //       onChange={(e) => inputHandler("orderqty", row.id, e.target.value)}
-    //     />
-    //   ),
-    // },
-    // {
-    //   field: "rate",
-    //   headerName: "Rate",
-    //   width: 180,
-    //   renderCell: ({ row }) => (
-    //     <Input
-    //       type="number"
-    //       //  value={row.orderqty}
-    //       placeholder="Rate"
-    //       onChange={(e) => inputHandler("rate", row.id, e.target.value)}
-    //       disabled
-    //     />
-    //   ),
-    // },
-    {
-      field: "consumptionQty",
-      headerName: "Consumption Qty",
-      width: 180,
-      renderCell: ({ row }) => {
-        const stockQty = row?.stock || row?.orderqty || 0;
-        return (
-          <Input
-            type="number"
-            placeholder="Consumption Qty"
-            value={row.consumptionQty || ""}
-            onChange={(e) =>
-              inputHandler("consumptionQty", row.id, e.target.value)
-            }
-            max={stockQty - 0.01}
-            min={0}
-          />
-        );
-      },
-    },
-    {
-      field: "stock",
-      headerName: "Stock",
-      width: 120,
-      renderCell: ({ row }) => (
-        <Input
-          disabled
-          value={row.orderqty * row.rate ? row.orderqty * row.rate : "--"}
-          placeholder="Value"
-          onChange={(e) => inputHandler("value", row.id, e.target.value)}
-        />
-      ),
-    },
-    {
-      field: "remark",
-      headerName: "Remark",
-      width: 220,
-      renderCell: ({ row }) => (
-        <Input
-          //  value={row.orderqty}
-          placeholder="Remark"
-          onChange={(e) => inputHandler("remark", row.id, e.target.value)}
-        />
-      ),
-    },
-  ];
   const bomcolumns = [
     {
       headerName: "",
@@ -491,22 +399,24 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       renderCell: ({ row }) => <Input disabled value={row.partName} />,
     },
     {
-      field: "bomQty",
-      headerName: "Bom Qty",
-      width: 150,
-      renderCell: ({ row }) => <Input disabled value={row.bomQty} />,
-    },
-    {
-      field: "rqdQty",
-      headerName: "Required Qty",
-      width: 120,
-      renderCell: ({ row }) => (
-        <Input
-          value={row.rqdQty}
-          onChange={(e) => inputHandler("rqdQty", row.id, e.target.value)}
-          type="number"
-        />
-      ),
+      field: "consumptionQty",
+      headerName: "Consumption Qty",
+      width: 180,
+      renderCell: ({ row }) => {
+        const stockQty = row?.stock || row?.orderqty || 0;
+        return (
+          <Input
+            type="number"
+            placeholder="Consumption Qty"
+            value={row.consumptionQty || ""}
+            onChange={(e) =>
+              inputHandler("consumptionQty", row.id, e.target.value)
+            }
+            max={stockQty - 0.01}
+            min={0}
+          />
+        );
+      },
     },
     // {
     //   field: "pendingWithjobwork",
@@ -969,15 +879,13 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                 {/* Right Section - 80% width (19/24 = ~79.2%) */}
                 <Col span={19} style={{ height: "50vh" }}>
                   <div style={{ height: "100%" }}>
-                    {showBomList && bomList ? (
+              
                       <FormTable
                         data={bomList}
                         columns={bomcolumns}
                         loading={loading}
                       />
-                    ) : (
-                      <FormTable data={mainData} columns={columns} />
-                    )}
+                  
                   </div>
                 </Col>
               </Row>
