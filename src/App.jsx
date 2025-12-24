@@ -613,7 +613,7 @@ const App = () => {
     if (user && user.token && user.company_branch) {
       const fetchEnabledModules = async () => {
         try {
-          console.log("Fetching modules for branch:", user.company_branch); // Debug branch
+         
           // Use newToken if available, otherwise use user.token
           const tokenToUse = localStorage.getItem("newToken") || user.token;
           const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
@@ -623,7 +623,7 @@ const App = () => {
               Session: user.session,
             },
           });
-          console.log("Enabled Modules Response:", data); // Debug API response
+        
           if (data.code === 200) {
             setEnabledModules(data.data || []); // Ensure empty array if undefined
           } else {
@@ -851,40 +851,21 @@ const App = () => {
                     mod.enabled === 1
                 )
               : isItemEnabled || isParentEnabled;
-            console.log(
-              `Checking child ${child.label} (module_key: ${
-                child.module_key || "none"
-              }):`,
-              isChildEnabled
-            );
+          
             return isChildEnabled;
           });
           if (isItemEnabled || isParentEnabled || enabledChildren.length > 0) {
-            console.log(
-              `Showing ${item.label} (module_key: ${item.module_key}):`,
-              {
-                isItemEnabled,
-                isParentEnabled,
-                hasEnabledChildren: enabledChildren.length > 0,
-              }
-            );
+           
             return { ...item, children: enabledChildren };
           }
-          console.log(
-            `Hiding ${item.label} (module_key: ${item.module_key}): no enabled children or not enabled`
-          );
+        
           return null;
         }
         if (isItemEnabled || isParentEnabled) {
-          console.log(
-            `Showing ${item.label} (module_key: ${item.module_key}):`,
-            { isItemEnabled, isParentEnabled }
-          );
+         
           return item;
         }
-        console.log(
-          `Hiding ${item.label} (module_key: ${item.module_key}): not enabled`
-        );
+       
         return null;
       }
 
@@ -896,7 +877,7 @@ const App = () => {
   const filteredItems1 = items1(user, setShowTickets)
     .map((item) => {
       if (!item.module_key) {
-        console.log("No module_key, showing item1:", item.label);
+       
         return item;
       }
       const isEnabled = enabledModules.some(
@@ -904,10 +885,7 @@ const App = () => {
           String(mod.module_key) === String(item.module_key) &&
           mod.enabled === 1
       );
-      console.log(
-        `Checking ${item.label} (module_key: ${item.module_key}):`,
-        isEnabled
-      );
+    
       return isEnabled ? item : null;
     })
     .filter((item) => item !== null);

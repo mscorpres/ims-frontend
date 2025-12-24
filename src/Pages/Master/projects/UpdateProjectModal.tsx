@@ -5,17 +5,16 @@ import { getBomOptions, getCostCentresOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "@/utils/general";
 import useApi from "@/hooks/useApi";
 
-const UpdateProjectModal = ({ 
-  data, 
-  setIsModalVisible, 
-  isModalVisible, 
-  onUpdate 
+const UpdateProjectModal = ({
+  data,
+  setIsModalVisible,
+  isModalVisible,
+  onUpdate,
 }) => {
   const [form] = Form.useForm();
 
-
-  const [bomOptions, setBomOptions] = useState([]);           
-  const [costCenterOptions, setCostCenterOptions] = useState([]); 
+  const [bomOptions, setBomOptions] = useState([]);
+  const [costCenterOptions, setCostCenterOptions] = useState([]);
 
   const { executeFun } = useApi();
 
@@ -23,7 +22,8 @@ const UpdateProjectModal = ({
   const loadBomOptions = async (search) => {
     const response = await executeFun(() => getBomOptions(search), "select");
     if (response.success) {
-      const options = convertSelectOptions(response.data); 
+      const options = convertSelectOptions(response.data);
+      console.log(options, "value");
       setBomOptions(options);
     } else {
       setBomOptions([]);
@@ -32,9 +32,13 @@ const UpdateProjectModal = ({
 
   // Load Cost Center options
   const loadCostCenterOptions = async (search) => {
-    const response = await executeFun(() => getCostCentresOptions(search), "select");
+    const response = await executeFun(
+      () => getCostCentresOptions(search),
+      "select"
+    );
     if (response.success) {
       const options = convertSelectOptions(response.data);
+
       setCostCenterOptions(options);
     } else {
       setCostCenterOptions([]);
@@ -48,17 +52,36 @@ const UpdateProjectModal = ({
         project: data.project,
         description: data.description || "",
         qty: data.qty || 1,
-        
-        bom: data.bomSubject || null,        
-        costcenter: data.costcenter || null,
+
+        bom: data.bomSubject
+          ? {
+              label: data.bomSubject?.subject_name,
+              value: data.bomSubject?.subject_id,
+            }
+          : null,
+        costcenter: data.costcenter
+          ? {
+              label: data.costcenter?.cost_center_name,
+              value: data.costcenter?.cost_center_key,
+            }
+          : null,
       });
 
-    
       if (data.bomSubject) {
-        setBomOptions([{ label: data.bomSubject, value: data.bomSubject }]);
+        setBomOptions([
+          {
+            label: data.bomSubject?.subject_name,
+            value: data.bomSubject?.subject_id,
+          },
+        ]);
       }
       if (data.costcenter) {
-        setCostCenterOptions([{ label: data.costcenter, value: data.costcenter }]);
+        setCostCenterOptions([
+          {
+            label: data.costcenter?.cost_center_name,
+            value: data.costcenter?.cost_center_key,
+          },
+        ]);
       }
     }
   }, [data, isModalVisible, form]);
@@ -74,15 +97,13 @@ const UpdateProjectModal = ({
     form
       .validateFields()
       .then((values) => {
-        console.log("Submitting updated project:", values); 
-
-        
+       
         const updatedData = {
           project: values.project,
           description: values.description?.trim(),
           qty: values.qty,
-          bomSubject: values.bom || null,        
-          costcenter: values.costcenter || null, 
+          bomSubject: values.bom?.value  ? values.bom?.value  : values.bom ?? null,
+          costcenter: values.costcenter?.value ? values.costcenter?.value : values.costcenter ?? null,
         };
 
         onUpdate(updatedData); // Send to parent
@@ -95,7 +116,7 @@ const UpdateProjectModal = ({
   return (
     <Modal
       title="Update Project"
-      open={isModalVisible}           
+      open={isModalVisible}
       onCancel={handleCancel}
       width={600}
       footer={[
@@ -108,9 +129,9 @@ const UpdateProjectModal = ({
       ]}
     >
       <Form form={form} layout="vertical">
-        <Form.Item 
-          name="project" 
-          label="Project ID" 
+        <Form.Item
+          name="project"
+          label="Project ID"
           rules={[{ required: true }]}
         >
           <Input disabled />
@@ -119,9 +140,14 @@ const UpdateProjectModal = ({
         <Form.Item
           name="description"
           label="Project Description"
-          rules={[{ required: true, message: "Please enter project description" }]}
+          rules={[
+            { required: true, message: "Please enter project description" },
+          ]}
         >
-          <Input.TextArea rows={3} placeholder="Enter project name/description" />
+          <Input.TextArea
+            rows={3}
+            placeholder="Enter project name/description"
+          />
         </Form.Item>
 
         <Form.Item name="qty" label="Quantity" rules={[{ required: true }]}>
@@ -133,8 +159,8 @@ const UpdateProjectModal = ({
           <MyAsyncSelect
             placeholder="Search and select BOM..."
             loadOptions={loadBomOptions}
-            optionsState={bomOptions}           
-            onBlur={() => setBomOptions([])}  
+            optionsState={bomOptions}
+            onBlur={() => setBomOptions([])}
             allowClear
           />
         </Form.Item>
@@ -144,7 +170,7 @@ const UpdateProjectModal = ({
           <MyAsyncSelect
             placeholder="Search and select Cost Center..."
             loadOptions={loadCostCenterOptions}
-            optionsState={costCenterOptions}       
+            optionsState={costCenterOptions}
             onBlur={() => setCostCenterOptions([])}
             allowClear
           />

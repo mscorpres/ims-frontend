@@ -49,6 +49,8 @@ function CPMMaster() {
     }
   };
 
+ 
+
   const handleSubmit = async (updatedData) => {
     try {
       const data = await imsAxios.put('/ppr/update/project', updatedData);
@@ -104,8 +106,16 @@ function CPMMaster() {
     { field: "project", headerName: "Project Id", width: 180 },
     { field: "description", headerName: "Project Name", flex: 1 },
     {field:"qty",headerName:"Quantity",width:180,flex:1},
-    { field: "costcenter", headerName: "Cost Center", width: 180, flex: 1 },
-    {field:"bomSubject",headerName:"BOM",width:180,flex:1},
+    { field: "costcenter", headerName: "Cost Center", width: 180, flex: 1, renderCell: ({row}) => (
+      <>
+        {row.costcenter ? row.costcenter?.cost_center_name  : "N/A"}
+      </>
+    ), },
+    {field:"bomSubject",headerName:"BOM",width:180,flex:1, renderCell: ({row}) => (
+      <>
+        {row.bomSubject ? row.bomSubject?.subject_name : "N/A"}
+      </>
+    ),},
     { field: "insert_dt", headerName: "Insert Date", flex: 1 },
     {
       headerName: "Status",
