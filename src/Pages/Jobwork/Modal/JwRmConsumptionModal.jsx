@@ -486,12 +486,13 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       const payload = {
         jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
         consumptionQty: editModal.qty,
-        invoice: invoiceValue,
+        invoice: "",
         challan: challanNo,
         component: bomList.map((r) => r.key),
         qty: bomList.map((r) => r.rqdQty || 0),
         rate: bomList.map((r) => r.rate || 0),
         remark: bomList.map((r) => r.conRemark || ""),
+        consumptionQty: bomList.map((r) => r.consumptionQty || 0),
       };
 
       setLoading(true);
