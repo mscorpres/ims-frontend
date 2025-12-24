@@ -53,6 +53,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const [loading, setLoading] = useState(false);
   const [attachment, setAttachment] = useState("");
   const [irnNo, setIrnNo] = useState("");
+  const [uploadedInvoiceDetails, setUploadedInvoiceDetails] = useState(null);
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [isApplicable, setIsApplicable] = useState(false);
   const [isScan, setIsScan] = useState(false);
@@ -483,15 +484,23 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       }
 
       // Use new rm-consumption/save API directly without upload modal
+      // Extract invoice details from uploaded data
+      // The upload API returns { success: true, data: { data: invoiceData } }
+      const invoiceData =
+        uploadedInvoiceDetails?.data?.data ||
+        uploadedInvoiceDetails?.data ||
+        (fetchAttachment ? fetchAttachment : "");
+
       const payload = {
         jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
         consumptionQty: editModal.qty,
-        invoice: invoiceValue,
+        invoice: invoiceData,
         challan: challanNo,
         component: bomList.map((r) => r.key),
         qty: bomList.map((r) => r.rqdQty || 0),
         rate: bomList.map((r) => r.rate || 0),
         remark: bomList.map((r) => r.conRemark || ""),
+        consumptionQty: bomList.map((r) => r.consumptionQty || 0),
       };
 
       setLoading(true);
@@ -513,6 +522,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           setBomList([]);
           setChallanNo("");
           setInvoice("");
+          setUploadedInvoiceDetails(null);
+          setAttachment("");
           setEditModal(false);
         } else {
           setLoading(false);
@@ -706,6 +717,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         const { data } = fileResponse;
         let fetchAttachment = data.data;
         setAttachment(fetchAttachment);
+        // Store invoice details from upload response
+        setUploadedInvoiceDetails(data);
         setUploadClicked(false);
 
         // If in BOM mode, automatically call saveFunction after upload
@@ -861,7 +874,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                           placeholder="Enter Challan Number"
                         />
                       </Form.Item>
-                    
+
                       <Form.Item label="Upload Documents">
                         <Button
                           type="default"
@@ -879,13 +892,11 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                 {/* Right Section - 80% width (19/24 = ~79.2%) */}
                 <Col span={19} style={{ height: "50vh" }}>
                   <div style={{ height: "100%" }}>
-              
-                      <FormTable
-                        data={bomList}
-                        columns={bomcolumns}
-                        loading={loading}
-                      />
-                  
+                    <FormTable
+                      data={bomList}
+                      columns={bomcolumns}
+                      loading={loading}
+                    />
                   </div>
                 </Col>
               </Row>
