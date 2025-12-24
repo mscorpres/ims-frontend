@@ -308,6 +308,34 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           }
         })
       );
+    } else if (name == "consumptionQty") {
+      const numValue = parseFloat(value);
+      const currentRow = mainData.find((aa) => aa.id == id);
+      const stockQty = currentRow?.stock || currentRow?.orderqty || 0;
+
+      if (isNaN(numValue) || numValue < 0) {
+        toast.error("Please enter a valid positive number");
+        return;
+      }
+
+      if (numValue >= stockQty) {
+        toast.error(
+          `Consumption quantity must be less than stock quantity (${stockQty})`
+        );
+        return;
+      }
+
+      setMainData((a) =>
+        a.map((aa) => {
+          if (aa.id == id) {
+            {
+              return { ...aa, consumptionQty: numValue };
+            }
+          } else {
+            return aa;
+          }
+        })
+      );
     }
   };
   const removeRow = (id) => {
@@ -336,33 +364,53 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         />
       ),
     },
+    // {
+    //   field: "orderqty",
+    //   headerName: "Quantity",
+    //   width: 180,
+    //   renderCell: ({ row }) => (
+    //     <Input
+    //       suffix={row.unitsname}
+    //       value={row.orderqty}
+    //       type="number"
+    //       placeholder="Qty"
+    //       onChange={(e) => inputHandler("orderqty", row.id, e.target.value)}
+    //     />
+    //   ),
+    // },
+    // {
+    //   field: "rate",
+    //   headerName: "Rate",
+    //   width: 180,
+    //   renderCell: ({ row }) => (
+    //     <Input
+    //       type="number"
+    //       //  value={row.orderqty}
+    //       placeholder="Rate"
+    //       onChange={(e) => inputHandler("rate", row.id, e.target.value)}
+    //       disabled
+    //     />
+    //   ),
+    // },
     {
-      field: "orderqty",
-      headerName: "Quantity",
+      field: "consumptionQty",
+      headerName: "Consumption Qty",
       width: 180,
-      renderCell: ({ row }) => (
-        <Input
-          suffix={row.unitsname}
-          value={row.orderqty}
-          type="number"
-          placeholder="Qty"
-          onChange={(e) => inputHandler("orderqty", row.id, e.target.value)}
-        />
-      ),
-    },
-    {
-      field: "rate",
-      headerName: "Rate",
-      width: 180,
-      renderCell: ({ row }) => (
-        <Input
-          type="number"
-          //  value={row.orderqty}
-          placeholder="Rate"
-          onChange={(e) => inputHandler("rate", row.id, e.target.value)}
-          disabled
-        />
-      ),
+      renderCell: ({ row }) => {
+        const stockQty = row?.stock || row?.orderqty || 0;
+        return (
+          <Input
+            type="number"
+            placeholder="Consumption Qty"
+            value={row.consumptionQty || ""}
+            onChange={(e) =>
+              inputHandler("consumptionQty", row.id, e.target.value)
+            }
+            max={stockQty - 0.01}
+            min={0}
+          />
+        );
+      },
     },
     {
       field: "stock",
@@ -903,7 +951,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                           placeholder="Enter Challan Number"
                         />
                       </Form.Item>
-                     
+                    
                       <Form.Item label="Upload Documents">
                         <Button
                           type="default"
