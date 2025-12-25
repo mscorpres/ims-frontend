@@ -84,9 +84,9 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
             if (bomResponse.data?.header) {
               setHeaderData(bomResponse.data.header);
               setIsApplicable(bomResponse.data.header.einvoiceStatus);
-              if (bomResponse.data.header.costCenter) {
-                getLocation(bomResponse.data.header.costCenter);
-              }
+              // if (bomResponse.data.header.costCenter) {
+              //   getLocation(bomResponse.data.header.costCenter);
+              // }
             }
 
             const arr = bomDataArray.map((r, id) => {
@@ -97,6 +97,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                 catPartName: r.catPartName,
                 partNo: r.partNo,
                 venLocationStock: r.venLocationStock || 0,
+                stock: r.stock || r.venLocationStock || 0,
                 rqdQty: r.reqQty || r.rqdQty || 0,
                 pendingWithjobwork: r.pendingWithjobwork || 0,
                 uom: r.uom,
@@ -125,7 +126,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     );
 
     if (response.success) {
-      getLocation(response.data.header.costCenter);
+      // getLocation(response.data.header.costCenter);
       let arr = response.data.body.map((row, index) => {
         return {
           ...row,
@@ -163,16 +164,6 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       });
       setAsyncOptions(arr);
     }
-  };
-  const getLocation = async (costCenter) => {
-    const { data } = await imsAxios.post("/backend/jw_sf_inward_location", {
-      cost_center: costCenter,
-    });
-    let arr = [];
-    arr = data.data.map((d) => {
-      return { label: d.text, value: d.id };
-    });
-    setLocValue(arr);
   };
 
   const getPickLocation = async () => {
@@ -307,33 +298,53 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         })
       );
     } else if (name == "consumptionQty") {
-      const numValue = parseFloat(value);
-      const currentRow = mainData.find((aa) => aa.id == id);
-      const stockQty = currentRow?.stock || currentRow?.orderqty || 0;
+      const numValue = Number.parseFloat(value);
 
-      if (isNaN(numValue) || numValue < 0) {
+      // Check if we're in BOM mode (showBomList is true) - search in bomList
+      // Otherwise search in mainData
+      const currentRow = showBomList
+        ? bomList.find((aa) => aa.id == id)
+        : mainData.find((aa) => aa.id == id);
+
+      // Get stock quantity - in BOM mode use venLocationStock, otherwise use stock or orderqty
+      const stockQty = showBomList
+        ? currentRow?.venLocationStock || currentRow?.stock || 0
+        : currentRow?.stock || currentRow?.orderqty || 0;
+
+      if (Number.isNaN(numValue) || numValue < 0) {
         toast.error("Please enter a valid positive number");
         return;
       }
 
-      if (numValue >= stockQty) {
+      if (numValue > stockQty) {
         toast.error(
-          `Consumption quantity must be less than stock quantity (${stockQty})`
+          `Consumption quantity cannot exceed stock quantity (${stockQty})`
         );
         return;
       }
 
-      setMainData((a) =>
-        a.map((aa) => {
-          if (aa.id == id) {
-            {
+      // Update the appropriate state based on mode
+      if (showBomList) {
+        setBomList((a) =>
+          a.map((aa) => {
+            if (aa.id == id) {
               return { ...aa, consumptionQty: numValue };
+            } else {
+              return aa;
             }
-          } else {
-            return aa;
-          }
-        })
-      );
+          })
+        );
+      } else {
+        setMainData((a) =>
+          a.map((aa) => {
+            if (aa.id == id) {
+              return { ...aa, consumptionQty: numValue };
+            } else {
+              return aa;
+            }
+          })
+        );
+      }
     }
   };
   const removeRow = (id) => {
@@ -401,7 +412,9 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       headerName: "Consumption Qty",
       width: 180,
       renderCell: ({ row }) => {
-        const stockQty = row?.stock || row?.orderqty || 0;
+        // Use venLocationStock if available (BOM mode), otherwise use stock or orderqty
+        const stockQty =
+          row?.venLocationStock || row?.stock || row?.orderqty || 0;
         return (
           <Input
             type="number"
@@ -410,8 +423,9 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
             onChange={(e) =>
               inputHandler("consumptionQty", row.id, e.target.value)
             }
-            max={stockQty - 0.01}
+            max={stockQty}
             min={0}
+            step="any"
           />
         );
       },
