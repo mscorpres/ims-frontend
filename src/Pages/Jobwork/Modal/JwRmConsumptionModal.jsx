@@ -311,10 +311,10 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         ? currentRow?.venLocationStock || currentRow?.stock || 0
         : currentRow?.stock || currentRow?.orderqty || 0;
 
-      if (Number.isNaN(numValue) || numValue < 0) {
-        toast.error("Please enter a valid positive number");
-        return;
-      }
+      // if (Number.isNaN(numValue) || numValue < 0) {
+      //   toast.error("Please enter a valid positive number");
+      //   return;
+      // }
 
       if (numValue > stockQty) {
         toast.error(
