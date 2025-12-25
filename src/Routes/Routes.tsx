@@ -7,6 +7,7 @@ import {
   // MaterialTransaction,
   TransactionIn,
   TransactionOut,
+  JWRMConsumptionReport,
   CompletedFG,
   PendingFG,
   CreateFGOut,
@@ -400,6 +401,10 @@ const Routes = [
   {
     path: "/transaction-Out",
     main: () => <TransactionOut />,
+  },
+  {
+    path: "/jw-rm-consumption-report",
+    main: () => <JWRMConsumptionReport />,
   },
   {
     path: "/completedFG",
