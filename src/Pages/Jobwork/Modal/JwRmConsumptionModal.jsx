@@ -434,6 +434,12 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
     {
+      field: "pendingStock",
+      headerName: "Pending Stock",
+      width: 180,
+      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
+    },
+    {
       field: "conRemark",
       headerName: "Consumption Remark",
       width: 150,
@@ -447,12 +453,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         />
       ),
     },
-    {
-      field: "pendingStock",
-      headerName: "Pending Stock",
-      width: 180,
-      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
-    },
+    
   ];
   const prev = async () => {
     getFetchData();
@@ -470,37 +471,28 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         toast.error("Please enter Challan Number");
         return;
       }
+      // if (!fetchAttachment) {
+      //   const fileComponentsValue = modalForm.getFieldValue("fileComponents");
+      //   if (!fileComponentsValue || fileComponentsValue.length === 0) {
+      //     if (!attachment || attachment === "") {
+      //       toast.error("Please upload documents");
+      //       return;
+      //     }
+      //   }
+      // }
 
-      // Check if documents are uploaded
-      // Use fetchAttachment if provided (from upload), otherwise check attachment state or fileComponents
-      if (!fetchAttachment) {
-        const fileComponentsValue = modalForm.getFieldValue("fileComponents");
-        if (!fileComponentsValue || fileComponentsValue.length === 0) {
-          if (!attachment || attachment === "") {
-            toast.error("Please upload documents");
-            return;
-          }
-        }
-      }
-
-      // Use new rm-consumption/save API directly without upload modal
-      // Extract invoice details from uploaded data
-      // The upload API returns { success: true, data: { data: invoiceData } }
       const invoiceData =
         uploadedInvoiceDetails?.data?.data ||
         uploadedInvoiceDetails?.data ||
         (fetchAttachment ? fetchAttachment : "");
 
       const payload = {
+        challanNo: challanNo,
         jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
-        consumptionQty: editModal.qty,
-        invoice: invoiceData,
-        challan: challanNo,
         component: bomList.map((r) => r.key),
-        qty: bomList.map((r) => r.rqdQty || 0),
-        rate: bomList.map((r) => r.rate || 0),
+        consumpQty: bomList.map((r) => r.consumptionQty || 0),
+        invoice: invoiceData,
         remark: bomList.map((r) => r.conRemark || ""),
-        consumptionQty: bomList.map((r) => r.consumptionQty || 0),
       };
 
       setLoading(true);
