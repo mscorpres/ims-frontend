@@ -6,20 +6,16 @@ import {
   Row,
   Space,
   Input,
-  Select,
   Button,
   Skeleton,
-  Popconfirm,
   Form,
   Typography,
-  Upload,
   Modal,
-  Checkbox,
 } from "antd";
 import { CloseCircleFilled, InboxOutlined } from "@ant-design/icons";
 import MySelect from "../../../Components/MySelect.jsx";
 import { v4 } from "uuid";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect.jsx";
+import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor.js";
 import FormTable from "../../../Components/FormTable.jsx";
@@ -58,7 +54,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const [isApplicable, setIsApplicable] = useState(false);
   const [isScan, setIsScan] = useState(false);
   const [modalForm] = Form.useForm();
-
+  const [challanDate, setChallanDate] = useState(null);
+  const [consumpLoc, setConsumpLoc] = useState("20211028124102");
   const fileComponents = Form.useWatch("fileComponents", modalForm);
   const [uplaoaClicked, setUploadClicked] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
@@ -99,7 +96,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                 partName: r.partName,
                 catPartName: r.catPartName,
                 partNo: r.partNo,
-                pendingStock: r.pendingStock || 0,
+                venLocationStock: r.venLocationStock || 0,
                 rqdQty: r.reqQty || r.rqdQty || 0,
                 pendingWithjobwork: r.pendingWithjobwork || 0,
                 uom: r.uom,
@@ -434,10 +431,10 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
     {
-      field: "pendingStock",
-      headerName: "Pending Stock",
+      field: "venLocationStock",
+      headerName: "Vendor Location Stock",
       width: 180,
-      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
+      renderCell: ({ row }) => <Input disabled value={row.venLocationStock} />,
     },
     {
       field: "conRemark",
@@ -453,7 +450,6 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         />
       ),
     },
-    
   ];
   const prev = async () => {
     getFetchData();
@@ -469,6 +465,14 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       // Validate required fields
       if (!challanNo || challanNo.trim() === "") {
         toast.error("Please enter Challan Number");
+        return;
+      }
+      if (!challanDate || challanDate.trim() === "") {
+        toast.error("Please select Challan Date");
+        return;
+      }
+      if (!consumpLoc || consumpLoc.trim() === "") {
+        toast.error("Please select Consumption Location");
         return;
       }
       // if (!fetchAttachment) {
@@ -493,6 +497,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         consumpQty: bomList.map((r) => r.consumptionQty || 0),
         invoice: invoiceData,
         remark: bomList.map((r) => r.conRemark || ""),
+        consumpLoc: consumpLoc,
+        challanDate: challanDate,
       };
 
       setLoading(true);
@@ -625,7 +631,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           partName: r.part_name,
           catPartName: r.catPartName,
           partNo: r.part_no,
-          pendingStock: r.pendingWithjobwork,
+          venLocationStock: r.venLocationStock,
           rqdQty: r.rqd_qty,
           pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
@@ -659,9 +665,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           partName: r.part_name,
           catPartName: r.catPartName,
           partNo: r.part_no,
-          pendingStock: r.pendingWithjobwork,
+          venLocationStock: r.venLocationStock,
           rqdQty: r.rqd_qty,
-          pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
           key: r.key,
         };
@@ -864,6 +869,60 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                           value={challanNo}
                           onChange={(e) => setChallanNo(e.target.value)}
                           placeholder="Enter Challan Number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter Challan Number",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Challan Date"
+                        name="challanDate"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select Challan Date",
+                          },
+                        ]}
+                      >
+                        <SingleDatePicker
+                          size="medium"
+                          value={challanDate}
+                          setDate={(date) => setChallanDate(date)}
+                          placeholder="Select Challan Date"
+                          format={"DD-MM-YYYY"}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select Challan Date",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Consumption Location"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select Consumption Location",
+                          },
+                        ]}
+                        name="consumpLoc"
+                      >
+                        <MySelect
+                          options={[
+                            { text: "Cons021", value: "20211028124102" },
+                          ]}
+                          onChange={(value) => setConsumpLoc(value)}
+                          placeholder="Select Consumption Location"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select Consumption Location",
+                            },
+                          ]}
                         />
                       </Form.Item>
 

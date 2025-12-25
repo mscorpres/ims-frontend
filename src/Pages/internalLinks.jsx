@@ -664,6 +664,10 @@ const links = [
       routeName: "View Documents",
       routePath: "/uploaded-documents",
     },
+    {
+      routeName: "JW RM Consumption Report",
+      routePath: "/jw-rm-consumption-report",
+    },
   ],
   // reports r1-r14 links
   [

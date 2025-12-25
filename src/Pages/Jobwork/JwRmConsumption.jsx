@@ -32,10 +32,10 @@ const JwRmConsumption = () => {
   // console.log(allData);
   const { executeFun, loading: loading1 } = useApi();
   const option = [
-    { label: "Date Wise", value: "datewise" },
-    { label: "JW ID Wise", value: "jw_transaction_wise" },
-    { label: "SFG SKU Wise", value: "jw_sfg_wise" },
-    { label: "Vendor Wise", value: "vendorwise" },
+    { label: "Date Wise", value: "date" },
+    { label: "JW ID Wise", value: "jw" },
+    { label: "SFG SKU Wise", value: "sfg" },
+    { label: "Vendor Wise", value: "vendor" },
   ];
 
   const getOption = async (e) => {
@@ -71,22 +71,34 @@ const JwRmConsumption = () => {
       toast.error("Please Select Option");
     } else {
       setLoading("fetch", true);
-      const { data } = await imsAxios.post("/jobwork/jw_sf_inward", {
-        data: datee,
-        wise: allData.setType,
-      });
-      if (data.code == 200) {
-        let arr = data.data.map((row, index) => {
+      const response = await imsAxios.get(
+        `jobwork/rm-consumption/view?data=${encodeURIComponent(datee)}&wise=${
+          allData.setType
+        }`
+      );
+      if (response.success) {
+        let arr = response.data.map((row, index) => {
           return {
-            ...row,
             id: v4(),
             index: index + 1,
+            date: row.date,
+            transaction_id: row.transaction,
+            transaction: row.transaction,
+            vendor: row.vendor?.name || "",
+            vendorCode: row.vendor?.code || "",
+            sku_code: row.product?.sku || "",
+            sku_name: row.product?.name || "",
+            productKey: row.product?.skey || "",
+            ord_qty: row.qty?.order || "0",
+            consump_qty: row.qty?.consump || "0",
+            // Keep original nested structure for reference
+            originalData: row,
           };
         });
         setDateData(arr);
         setLoading("fetch", false);
-      } else if (data.code == 500) {
-        toast.error(data.message.msg);
+      } else {
+        toast.error(response.message);
         setLoading("fetch", false);
       }
     }
@@ -94,72 +106,115 @@ const JwRmConsumption = () => {
 
   const fetchJWwise = async () => {
     setLoading("fetch", true);
-    const { data } = await imsAxios.post("/jobwork/jw_sf_inward", {
-      data: allData.jw,
-      wise: allData.setType,
-    });
-    if (data.code == 200) {
-      let arr = data.data.map((row, index) => {
+    const response = await imsAxios.get(
+      `jobwork/rm-consumption/view?jw=${allData.jw}&wise=${allData.setType}`
+    );
+    if (response.success) {
+      let arr = response.data.map((row, index) => {
         return {
-          ...row,
           id: v4(),
           index: index + 1,
+          date: row.date,
+          transaction_id: row.transaction,
+          transaction: row.transaction,
+          vendor: row.vendor?.name || "",
+          vendorCode: row.vendor?.code || "",
+          sku_code: row.product?.sku || "",
+          sku_name: row.product?.name || "",
+          productKey: row.product?.skey || "",
+          ord_qty: row.qty?.order || "0",
+          consump_qty: row.qty?.consump || "0",
+          // Keep original nested structure for reference
+          originalData: row,
         };
       });
       setDJWData(arr);
       setLoading("fetch", false);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
+    } else {
+      toast.error(response.message);
       setLoading("fetch", false);
     }
   };
 
   const fetchSKUwise = async () => {
     setLoading("fetch", true);
-    const { data } = await imsAxios.post("/jobwork/jw_sf_inward", {
-      data: allData.sku,
-      wise: allData.setType,
-    });
-    if (data.code == 200) {
-      let arr = data.data.map((row, index) => {
+    // Extract the value from the select object if it's an object
+    const skuValue =
+      typeof allData.sku === "object"
+        ? allData.sku?.value || allData.sku?.id
+        : allData.sku;
+    const response = await imsAxios.get(
+      `jobwork/rm-consumption/view?sku=${skuValue}&wise=${allData.setType}`
+    );
+    if (response.success) {
+      let arr = response.data.map((row, index) => {
         return {
-          ...row,
           id: v4(),
           index: index + 1,
+          date: row.date,
+          transaction_id: row.transaction,
+          transaction: row.transaction,
+          vendor: row.vendor?.name || "",
+          vendorCode: row.vendor?.code || "",
+          sku_code: row.product?.sku || "",
+          sku_name: row.product?.name || "",
+          productKey: row.product?.skey || "",
+          ord_qty: row.qty?.order || "0",
+          consump_qty: row.qty?.consump || "0",
+          // Keep original nested structure for reference
+          originalData: row,
         };
       });
       setSKUData(arr);
       setLoading("fetch", false);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
+    } else {
+      toast.error(response.message);
       setLoading("fetch", false);
     }
   };
   const fetchVendorwise = async () => {
     setLoading("fetch", true);
-    const { data } = await imsAxios.post("/jobwork/jw_sf_inward", {
-      data: allData.ven,
-      wise: allData.setType,
-    });
-    if (data.code == 200) {
-      let arr = data.data.map((row, index) => {
+    // Extract the value from the select object if it's an object
+    const venValue =
+      typeof allData.ven === "object"
+        ? allData.ven?.value || allData.ven?.id
+        : allData.ven;
+    const response = await imsAxios.get(
+      `jobwork/rm-consumption/view?ven=${venValue}&wise=${allData.setType}`
+    );
+    if (response.success) {
+      let arr = response.data.map((row, index) => {
         return {
-          ...row,
           id: v4(),
           index: index + 1,
+          date: row.date,
+          transaction_id: row.transaction,
+          transaction: row.transaction,
+          vendor: row.vendor?.name || "",
+          vendorCode: row.vendor?.code || "",
+          sku_code: row.product?.sku || "",
+          sku_name: row.product?.name || "",
+          productKey: row.product?.skey || "",
+          ord_qty: row.qty?.order || "0",
+          consump_qty: row.qty?.consump || "0",
+          // Keep original nested structure for reference
+          originalData: row,
         };
       });
       setVendorData(arr);
       setLoading("fetch", false);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
+    } else {
+      toast.error(response.message);
       setLoading("fetch", false);
     }
   };
 
   const handleActionsClick = async (row) => {
-    const jwId = row?.transaction_id || row?.jw_transaction_id;
-    const qty = row?.ord_qty || 0;
+    // Use transaction_id or transaction field from the mapped data
+    const jwId =
+      row?.transaction_id || row?.transaction || row?.originalData?.transaction;
+    // Convert qty to number if it's a string
+    const qty = parseFloat(row?.ord_qty) || 0;
 
     if (!jwId) {
       toast.error("JW ID is missing");
@@ -200,23 +255,19 @@ const JwRmConsumption = () => {
   };
 
   const columns = [
-    { field: "index", headerName: "S No.", width: 8 },
+    { field: "index", headerName: "S No.", width: 80 },
     { field: "date", headerName: "JW Date", width: 120 },
-    { field: "vendor", headerName: "Vendor", width: 380 },
+    { field: "vendor", headerName: "Vendor", width: 250 },
     { field: "transaction_id", headerName: "JW Id", width: 150 },
-    { field: "sku_code", headerName: "SKU", width: 100 },
-    { field: "sku_name", headerName: "Product", width: 340 },
+    { field: "sku_code", headerName: "SKU", width: 120 },
+    { field: "sku_name", headerName: "Product", width: 300 },
     { field: "ord_qty", headerName: "JW PO Order Qty", width: 150 },
-    // { field: "jw_sku_name", headerName: "Actions", width: 260 },
+    { field: "consump_qty", headerName: "Consumed Qty", width: 150 },
     {
       type: "actions",
       headerName: "Actions",
-      width: 150,
+      width: 100,
       getActions: ({ row }) => [
-        // <TableActions action="view" onClick={() => setViewModalOpen(row)} />,
-        // <TableActions action="cancel" onClick={() => setCloseModalOpen(row)} />,
-        // <TableActions action="print" onClick={() => console.log(row)} />,
-        // <TableActions action="edit" />,
         <ArrowRightOutlined
           onClick={() => handleActionsClick(row)}
           style={{ color: "#1890ff", fontSize: "15px", cursor: "pointer" }}
@@ -241,7 +292,7 @@ const JwRmConsumption = () => {
             }
           />
         </Col>
-        {allData.setType == "datewise" ? (
+        {allData.setType == "date" ? (
           <>
             <Col span={5}>
               <MyDatePicker setDateRange={setDatee} size="default" />
@@ -256,7 +307,7 @@ const JwRmConsumption = () => {
               </Button>
             </Col>
           </>
-        ) : allData.setType == "jw_transaction_wise" ? (
+        ) : allData.setType == "jw" ? (
           <>
             <Col span={6}>
               <Input
@@ -279,7 +330,7 @@ const JwRmConsumption = () => {
               </Button>
             </Col>
           </>
-        ) : allData.setType == "jw_sfg_wise" ? (
+        ) : allData.setType == "sfg" ? (
           <>
             <Col span={6}>
               <MyAsyncSelect
@@ -306,7 +357,7 @@ const JwRmConsumption = () => {
               </Button>
             </Col>
           </>
-        ) : allData.setType == "vendorwise" ? (
+        ) : allData.setType == "vendor" ? (
           <>
             <Col span={6}>
               <MyAsyncSelect
@@ -353,17 +404,17 @@ const JwRmConsumption = () => {
       </Row>
 
       <div style={{ height: "89%", margin: "10px" }}>
-        {allData.setType == "datewise" ? (
+        {allData.setType == "date" ? (
           <MyDataTable
             loading={loading("fetch")}
             data={dateData}
             columns={columns}
           />
-        ) : allData.setType == "jw_transaction_wise" ? (
+        ) : allData.setType == "jw" ? (
           <MyDataTable data={jwData} columns={columns} />
-        ) : allData.setType == "jw_sfg_wise" ? (
+        ) : allData.setType == "sfg" ? (
           <MyDataTable data={skuData} columns={columns} />
-        ) : allData.setType == "vendorwise" ? (
+        ) : allData.setType == "vendor" ? (
           <MyDataTable data={vendorData} columns={columns} />
         ) : (
           <MyDataTable data={dateData} columns={columns} />
