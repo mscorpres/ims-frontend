@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux/es/exports";
+import { useSelector } from "react-redux/es/exports";
 import { toast } from "react-toastify";
 
-import { Button, Col, Popover, Row, Space } from "antd";
+import { Button, Col, Row, Space } from "antd";
 import MyDataTable from "../../Components/MyDataTable.jsx";
 import { v4 } from "uuid";
-import { MdOutlineDownloadForOffline } from "react-icons/md";
 import MyDatePicker from "../../Components/MyDatePicker.jsx";
-import { setNotifications } from "../../Features/loginSlice/loginSlice.js";
 import socket from "../../Components/socket.js";
-import {
-  downloadCSV,
-  downloadCSVCustomColumns,
-} from "../../Components/exportToCSV.jsx";
+import { downloadCSV } from "../../Components/exportToCSV.jsx";
 import { imsAxios } from "../../axiosInterceptor.js";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions.jsx";
 import { DownloadOutlined } from "@ant-design/icons";
@@ -24,43 +19,22 @@ const JWRMConsumptionReport = () => {
   const [dateData, setDateData] = useState([]);
   const [fetchData, setFetchData] = useState([]);
   const [search, setSearch] = useState("");
-  const dispatch = useDispatch();
-  const { user, notifications } = useSelector((state) => state.login);
-
-  const content1 = (row) => (
-    <div>
-      <span
-        style={{ fontWeight: "bold" }}
-        dangerouslySetInnerHTML={{ __html: row }}
-      />
-    </div>
-  );
+  const { user } = useSelector((state) => state.login);
 
   const columns = [
-    { field: "DATE", headerName: "Date", width: 170 },
-    { field: "TYPE", headerName: "Type", width: 100 },
-    { field: "PART", headerName: "Part No.", width: 150 },
-    { field: "PART_NEW", headerName: "Cat Part Code", width: 150 },
-    { field: "COMPONENT", headerName: "Component", minWidth: 200, flex: 1 },
-    { field: "FROMLOCATION", headerName: "From Location", width: 160 },
-    { field: "TOLOCATION", headerName: "To Location", width: 160 },
-    { field: "OUTQTY", headerName: "Out Qty", width: 140 },
-    { field: "UNIT", headerName: "UoM", width: 140 },
-    {
-      field: "VENDORCODE",
-      headerName: "Vendor",
-      width: 160,
-      renderCell: ({ row }) => (
-        // console.log(row),
-        <Popover content={content1(row?.VENDORNAME)}>
-          <span style={{ fontWeight: "bolder", cursor: "pointer" }}>
-            {row?.VENDORCODE}
-          </span>
-        </Popover>
-      ),
-    },
-    { field: "REQUESTEDBY", headerName: "Requested By", width: 160 },
-    { field: "ISSUEBY", headerName: "Approved By", width: 160 },
+    { field: "date", headerName: "Date", width: 120 },
+    { field: "type", headerName: "Type", width: 100 },
+    { field: "partNo", headerName: "Part No", width: 120 },
+    { field: "catPartNo", headerName: "Cat Part No", width: 130 },
+    { field: "component", headerName: "Component", minWidth: 200, flex: 1 },
+    { field: "fromLocation", headerName: "From Location", width: 150 },
+    { field: "toLocation", headerName: "To Location", width: 150 },
+    { field: "qty", headerName: "Qty", width: 100 },
+    { field: "uom", headerName: "UOM", width: 100 },
+    { field: "remark", headerName: "Remark", width: 150 },
+    { field: "jobworkId", headerName: "Jobwork ID", width: 150 },
+    { field: "transactionId", headerName: "Transaction ID", width: 150 },
+    { field: "transactionBy", headerName: "Transaction By", width: 150 },
   ];
 
   const handleDownloadingCSV = () => {
@@ -71,7 +45,7 @@ const JWRMConsumptionReport = () => {
     });
   };
   const handleSimmpleDownloadingCSV = () => {
-    downloadCSV(dateData, columns, "RM Register Report");
+    downloadCSV(dateData, columns, "JW RM Consumption Report");
   };
   // const handleDownloadXML = () => {
   //   console.log("fetching report");
@@ -86,37 +60,75 @@ const JWRMConsumptionReport = () => {
   const rmIssue = async (e) => {
     e.preventDefault();
 
-    if (!datee[0] || !datee[1]) {
-      toast.error("a");
+    if (!datee) {
+      toast.error("Please select date range");
+      return;
     } else {
       setLoading(true);
       setDateData([]);
-      const response = await imsAxios.get(`/jobwork/jw-rm-consumption-report?date=${datee}`, {
-        data: datee,
-      });
-      // console.log("Response", data);
-      if (response.success) {
-        let arr = response.data.map((row) => {
-          return {
-            ...row,
-            id: v4(),
-          };
-        });
-        setDateData(arr);
-        setLoading(false);
-      } else  {
-        toast.error(response.message);
+      try {
+        const response = await imsAxios.get(
+          `/jobwork/jw-rm-consumption-report?date=${encodeURIComponent(datee)}`
+        );
+        // console.log("Response", response);
+        if (response.success) {
+          // Handle both array and single object response
+          const dataArray = Array.isArray(response.data)
+            ? response.data
+            : response.data?.data
+            ? Array.isArray(response.data.data)
+              ? response.data.data
+              : [response.data.data]
+            : response.data
+            ? [response.data]
+            : [];
+
+          let arr = dataArray.map((row) => {
+            return {
+              id: v4(),
+              date: row.txnDt || row.date || "",
+              type: row.type || "",
+              partNo: row.part?.code || row.partNo || "",
+              catPartNo: row.part?.catCode || row.catPartNo || "",
+              component: row.part?.name || row.component || "",
+              fromLocation: row.from || row.fromLocation || "",
+              toLocation: row.to || row.toLocation || "",
+              qty: row.qty || "0",
+              uom: row.uom || row.unit || "",
+              remark: row.remark || "",
+              jobworkId: row.jw || row.jobworkId || "",
+              transactionId: row.txn || row.transactionId || "",
+              transactionBy: row.by || row.transactionBy || "",
+              // Keep original data for reference
+              originalData: row,
+            };
+          });
+          setDateData(arr);
+          setLoading(false);
+        } else {
+          toast.error(response.message || "Failed to fetch report data");
+          setLoading(false);
+        }
+      } catch (error) {
+        toast.error(error.message || "Error fetching report data");
         setLoading(false);
       }
     }
   };
 
   useEffect(() => {
-    const ress = dateData.filter((a) => {
-      return a.PART.toLowerCase().match(search.toLowerCase());
-    });
-    setFetchData(ress);
-  }, [search]);
+    if (search) {
+      const ress = dateData.filter((a) => {
+        const partNo = (a.partNo || "").toLowerCase();
+        const component = (a.component || "").toLowerCase();
+        const searchLower = search.toLowerCase();
+        return partNo.match(searchLower) || component.match(searchLower);
+      });
+      setFetchData(ress);
+    } else {
+      setFetchData(dateData);
+    }
+  }, [search, dateData]);
 
   // console.log(dateData);
   return (
@@ -157,7 +169,11 @@ const JWRMConsumptionReport = () => {
         {/* // )} */}
       </Row>
       <div style={{ height: "87%", margin: "10px" }}>
-        <MyDataTable loading={loading} data={dateData} columns={columns} />
+        <MyDataTable
+          loading={loading}
+          data={search ? fetchData : dateData}
+          columns={columns}
+        />
       </div>
     </div>
   );
