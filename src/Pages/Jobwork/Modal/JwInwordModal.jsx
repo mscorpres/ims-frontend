@@ -73,7 +73,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           ...row,
           id: v4(),
           index: index + 1,
-          orderqty: row.orderQty,
+          // orderqty: row.orderQty,
           unitsname: row.unit,
           component: {
             label: `${row.component.name} ${row.component.part}`,
@@ -459,7 +459,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     },
     {
       field: "pendingStock",
-      headerName: "Pending Stock",
+      headerName: "JW Pending Stock",
       width: 180,
       renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
     },
