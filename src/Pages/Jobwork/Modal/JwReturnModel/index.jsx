@@ -197,11 +197,8 @@ const JwReturnModel = ({ show, close }) => {
     try {
       setLoading("submit", true);
       const response = await imsAxios.post("/jobwork/saveJwRmReturn", values);
-      // console.log("response is here->", response);
-      let { data } = response;
       if (response.success) {
-        // console.log("data.message", data.message.msg);
-        toast.success(response.message.msg);
+        toast.success(response.message);
         setPreview(false);
         setPreviewRows([]);
         setSelectedRows([]);
@@ -210,7 +207,11 @@ const JwReturnModel = ({ show, close }) => {
           window.location.reload();
         }, 1500); // 1500 milliseconds  = 1.5 seconds
       }
+      else{
+        toast.error(response.message);
+      }
     } catch (error) {
+      toast.error(error.message);
     } finally {
       setLoading("submit", false);
     }
