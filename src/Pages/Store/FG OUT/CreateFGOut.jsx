@@ -143,6 +143,18 @@ const CreateFGOut = () => {
           }
         })
       );
+    } else if (name == "location") {
+      setAddRowData((location) =>
+        location.map((h) => {
+          if (h.id == id) {
+            {
+              return { ...h, location: value };
+            }
+          } else {
+            return h;
+          }
+        })
+      );
     }
   };
 
@@ -279,7 +291,7 @@ const CreateFGOut = () => {
       renderCell: ({ row }) => (
         <MySelect
           value={row?.location}
-          onChange={(value) => compInputHandler("quantity", row.id, value)
+          onChange={(value) => compInputHandler("location", row.id, value)
           
           }
           options={locationOptions}
