@@ -7,12 +7,14 @@ import MyDataTable from "../../../Components/MyDataTable";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
+import MySelect from "../../../Components/MySelect";
 
 const { TextArea } = Input;
 const CreateFGOut = () => {
   const [loading, setLoading] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [selLoading, setSelLoading] = useState(false);
+   const [locationOptions, setLocationOptions] = useState([]);
   const options = [
     { label: "Sale", value: "SL001" },
     { label: "Replacement", value: "REPL" },
@@ -36,12 +38,12 @@ const CreateFGOut = () => {
       product: "",
       quantity: "",
       total: "",
+      location: "",
       remarks: "",
       uom: "",
     },
   ]);
-  console.log(addRowData);
-  // console.log(restValue);
+
 
   const plusRow = () => {
     setAddRowData((addRowData) => [
@@ -51,6 +53,7 @@ const CreateFGOut = () => {
         product: "",
         quantity: "",
         total: "",
+        location: "",
         remarks: "",
       },
     ]);
@@ -61,6 +64,19 @@ const CreateFGOut = () => {
       return addRowData.filter((row) => row.id != id);
     });
   };
+
+    const getLocations = async () => {
+    const { data } = await imsAxios.get("/ppr/mfg_locations");
+    const arr = [];
+    data.data.map((a) => arr.push({ text: a.text, value: a.id }));
+    setLocationOptions(arr);
+  };
+
+
+  useEffect(() => {
+    getLocations();
+  }, [])
+  
 
   const getOption = async (productSearchInput) => {
     if (productSearchInput?.length > 2) {
@@ -135,9 +151,11 @@ const CreateFGOut = () => {
     let arrPro = [];
     let arrQty = [];
     let arrRemark = [];
+    let arrLoc = [];
     addRowData.map((a) => arrPro.push(a.product));
     addRowData.map((a) => arrQty.push(a.quantity));
     addRowData.map((a) => arrRemark.push(a.remarks));
+    addRowData.map((a) => arrLoc.push(a.location));
     // addRowData.map((a) => console.log(a));
     // console.log(arrQty);
 
@@ -149,6 +167,7 @@ const CreateFGOut = () => {
         fg_out_type: createFgOut.selectType,
         product: arrPro,
         qty: arrQty,
+        location: arrLoc,
         remark: arrRemark,
         comment: createFgOut.comment,
       });
@@ -174,7 +193,9 @@ const CreateFGOut = () => {
         id: v4(),
         product: "",
         quantity: "",
+
         total: "",
+        location: "",
         remarks: "",
       },
     ]);
@@ -248,6 +269,20 @@ const CreateFGOut = () => {
           suffix={row?.uom}
           value={addRowData?.quantity}
           onChange={(e) => compInputHandler("quantity", row.id, e.target.value)}
+        />
+      ),
+    },
+    {
+      headerName: "Location",
+      field: "location",
+      width: 400,
+      renderCell: ({ row }) => (
+        <MySelect
+          value={row?.location}
+          onChange={(value) => compInputHandler("quantity", row.id, value)
+          
+          }
+          options={locationOptions}
         />
       ),
     },
