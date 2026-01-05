@@ -8,7 +8,7 @@ import {
   Divider,
   Skeleton,
 } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyDataTable from "../../../Components/MyDataTable";
@@ -16,13 +16,27 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyButton from "../../../Components/MyButton";
+import MySelect from "../../../Components/MySelect";
 
 const Q3 = () => {
   const [searchInput, setSearchInput] = useState("");
+  const [location, setLocation] = useState("");
   const [rows, setRows] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
+
+  const getLocations = async () => {
+    const { data } = await imsAxios.get("/ppr/mfg_locations");
+    const arr = [];
+    data.data.map((a) => arr.push({ text: a.text, value: a.id }));
+    setLocationOptions(arr);
+  };
+
+  useEffect(() => {
+    getLocations();
+  }, []);
 
   const getProductOptions = async (search) => {
     try {
@@ -50,6 +64,7 @@ const Q3 = () => {
       setRows([]);
       const { data } = await imsAxios.post("/skuQueryA/fetchSKU_logs", {
         sku_code: searchInput,
+        location: location,
       });
       if (data) {
         const { data1, data2 } = data.response;
@@ -78,10 +93,11 @@ const Q3 = () => {
   };
   return (
     <div style={{ height: "90%" }}>
-      <Row justify="space-between" style={{ padding: 5, paddingTop: 0 }}>
+      <Row justify="space-between" style={{ padding: 8, paddingTop: 0 }}>
         <Col>
           <Space>
             <div style={{ width: 250 }}>
+              <Typography.Text type="secondary" >Product Name</Typography.Text>
               <MyAsyncSelect
                 placeholder="Enter Product Name"
                 onBlur={() => setAsyncOptions([])}
@@ -91,8 +107,19 @@ const Q3 = () => {
                 selectLoading={loading === "select"}
                 value={searchInput}
               />
+             
             </div>
-            <MyButton
+             <div style={{ width: 250 }}>
+              <Typography.Text type="secondary">Location</Typography.Text>
+               <MySelect
+                value={location}
+                onChange={(value) => setLocation(value)}
+                options={locationOptions}
+              />
+            </div>
+                <div style={{ width: 250, marginTop: 20 }}>
+                  
+                <MyButton
               variant="search"
               loading={loading == "fetch"}
               disabled={!searchInput || searchInput.length === 0}
@@ -101,6 +128,9 @@ const Q3 = () => {
             >
               Fetch
             </MyButton>
+            </div>
+           
+        
           </Space>
         </Col>
         <CommonIcons
@@ -110,7 +140,7 @@ const Q3 = () => {
         />
       </Row>
       <Row
-        style={{ height: "95%", paddingRight: 5, paddingLeft: 5 }}
+        style={{ height: "90%", paddingRight: 5, paddingLeft: 5 }}
         gutter={6}
       >
         <Col span={4}>
