@@ -7,15 +7,24 @@ export default function CurrenceModal({ showCurrency, setShowCurrencyModal }) {
   const [rate, setRate] = useState(showCurrency.exchange_rate || 0);
 
   const submitHandler = () => {
-    showCurrency.form.setFieldValue(
-      ["components", showCurrency.rowId, "exchangeRate"],
-      rate
-    );
-    // showCurrency.inputHandler(
-    //   "exchange_rate",
-    //   { rate: rate, currency: showCurrency.currency },
-    //   showCurrency.rowId
-    // );
+    const form = showCurrency.form;
+    const rowId = showCurrency.rowId;
+
+    if (rowId !== undefined && rowId !== null) {
+      // Set exchangeRate for a specific row
+      form.setFieldValue(
+        ["components", rowId, "exchangeRate"],
+        Number(rate) || 0
+      );
+    } else {
+      // Set exchangeRate for all components when rowId is not provided
+      const currentComponents = form.getFieldValue("components") || [];
+      const updatedComponents = currentComponents.map((comp) => ({
+        ...comp,
+        exchangeRate: Number(rate) || 0,
+      }));
+      form.setFieldValue("components", updatedComponents);
+    }
     setShowCurrencyModal(null);
   };
   return (
@@ -51,10 +60,10 @@ export default function CurrenceModal({ showCurrency, setShowCurrencyModal }) {
         level={5}
         style={{ display: "flex", justifyContent: "center", marginTop: "15px" }}
       >
-       ₹  {rate * showCurrency?.price}
+        ₹ {rate * showCurrency?.price}
       </Title>
       <Title level={5} style={{ display: "flex", justifyContent: "center" }}>
-         {showCurrency?.symbol} {showCurrency?.price}
+        {showCurrency?.symbol} {showCurrency?.price}
       </Title>
     </Modal>
   );
