@@ -61,6 +61,7 @@ const defaultValues = {
   companybranch: "BRMSC012",
   projectID: "",
   costCenter: "",
+  currency: "364907247",
   components: [
     {
       gstType: "L",
@@ -197,7 +198,6 @@ export default function MaterialInWithoutPO() {
         () => materialInWithoutPo(values, fileName, vendorType),
         "submit"
       );
-      console.log("response-------", response);
       if (response.success) {
         // const { data } = response.data;
         if (response.data.code == 200) {
@@ -741,37 +741,21 @@ export default function MaterialInWithoutPO() {
           },
         },
       ],
-      field: (row, index) => (
-        <Input
-          onChange={(e) => compareRates(e.target.value, index)}
-          addonAfter={
-            <div style={{ width: 50 }}>
-              <Form.Item noStyle name={[index, "currency"]}>
-                <MySelect
-                  options={currencies}
-                  onChange={(value) => {
-                    value !== "364907247"
-                      ? setShowCurrenncy({
-                          currency: value,
-                          price: row.value,
-                          exchangeRate: row.exchangeRate,
-                          symbol: currencies.filter(
-                            (cur) => cur.value == value
-                          )[0].text,
-                          rowId: index,
-                          form: form,
-                        })
-                      : form.setFieldValue(
-                          ["components", index, "exchangeRate"],
-                          1
-                        );
-                  }}
-                />
-              </Form.Item>
-            </div>
-          }
-        />
-      ),
+      field: (row, index) => {
+        const currencySymbol = currencies.find(
+          (cur) => cur.value == row.currency
+        )?.text || row.currency;
+        return (
+          <Input
+            onChange={(e) => compareRates(e.target.value, index)}
+            addonAfter={
+              <div style={{ width: 50 }}>
+                <Typography.Text>{currencySymbol}</Typography.Text>
+              </div>
+            }
+          />
+        );
+      },
       width: 200,
     },
 
@@ -1232,6 +1216,29 @@ export default function MaterialInWithoutPO() {
                     <Col span={12}>
                       <Form.Item label="Project Name" name="projectName">
                         <Input size="default" disabled />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Currency" name="currency">
+                        <MySelect
+                          options={currencies}
+                          onChange={(value) => {
+                            const currentComponents = form.getFieldValue("components") || [];
+                            const updatedComponents = currentComponents.map((comp) => {
+                              const updatedComp = {
+                                ...comp,
+                                currency: value,
+                              };
+                              if (value === "364907247") {
+                                updatedComp.exchangeRate = 1;
+                              } else if (!updatedComp.exchangeRate) {
+                                updatedComp.exchangeRate = 1;
+                              }
+                              return updatedComp;
+                            });
+                            form.setFieldValue("components", updatedComponents);
+                          }}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={24}>
