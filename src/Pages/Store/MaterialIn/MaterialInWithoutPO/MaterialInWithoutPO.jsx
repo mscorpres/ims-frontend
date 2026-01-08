@@ -834,6 +834,22 @@ export default function MaterialInWithoutPO() {
       field: () => <Input />,
       width: 250,
     },
+    {
+      headerName: "",
+      name: "currency",
+      field: () => <Input type="hidden" style={{ display: "none" }} />,
+      width: 0,
+      conditional: true,
+      condition: () => false, // Never show this column
+    },
+    {
+      headerName: "",
+      name: "exchangeRate",
+      field: () => <Input type="hidden" style={{ display: "none" }} />,
+      width: 0,
+      conditional: true,
+      condition: () => false, // Never show this column
+    },
   ];
   const closeDrawer = () => {
     setPreview(false);

@@ -90,8 +90,8 @@ export const materialInWithoutPo = async (values, fileName, vendorType) => {
     location: values.components.map((row) => row.location.value),
     out_location: values.components.map((row) => row.autoConsumption),
   };
-  // console.log("payload",payload)
-  // return
+  console.log("payload",payload)
+  return
   const response = await imsAxios.post("/transaction/min_transaction", payload);
 
   return response;
