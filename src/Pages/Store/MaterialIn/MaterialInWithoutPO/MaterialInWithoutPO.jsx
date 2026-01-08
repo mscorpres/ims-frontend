@@ -199,7 +199,7 @@ export default function MaterialInWithoutPO() {
         "submit"
       );
       if (response.success) {
-        // const { data } = response.data;
+       
         if (response.data.code == 200) {
           setShowSuccessPage({
             materialInId: response.data.data.txn,
@@ -221,11 +221,11 @@ export default function MaterialInWithoutPO() {
           setPreviewRows([]);
           setPreview(false);
         } else {
-          // console.log("r/esponse.data.message", response.data.message);
-          toast.error(response.data.message);
+         
+          toast.error(response.data.message || response.data.message?.msg);
         }
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || response.data.message?.msg);
       }
     }
   };
