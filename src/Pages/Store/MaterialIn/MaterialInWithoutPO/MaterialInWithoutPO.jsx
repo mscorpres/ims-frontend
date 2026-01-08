@@ -1224,19 +1224,42 @@ export default function MaterialInWithoutPO() {
                           options={currencies}
                           onChange={(value) => {
                             const currentComponents = form.getFieldValue("components") || [];
-                            const updatedComponents = currentComponents.map((comp) => {
-                              const updatedComp = {
+                            if (value === "364907247") {
+                              const updatedComponents = currentComponents.map((comp) => ({
                                 ...comp,
                                 currency: value,
-                              };
-                              if (value === "364907247") {
-                                updatedComp.exchangeRate = 1;
-                              } else if (!updatedComp.exchangeRate) {
-                                updatedComp.exchangeRate = 1;
+                                exchangeRate: 1,
+                              }));
+                              form.setFieldValue("components", updatedComponents);
+                            } else {
+                               const updatedComponents = currentComponents.map((comp) => ({
+                                ...comp,
+                                currency: value,
+                              }));
+                              form.setFieldValue("components", updatedComponents);
+                              
+                                if (currentComponents.length > 0) {
+                                const totalPrice = currentComponents.reduce((sum, comp) => {
+                                  return sum + (Number(comp.value) || 0);
+                                }, 0);
+                                
+                                const selectedCurrency = currencies.find(
+                                  (cur) => cur.value == value
+                                );
+                                
+                            if (selectedCurrency) {
+                                  setShowCurrenncy({
+                                    currency: value,
+                                    price: totalPrice || 0,
+                                    exchangeRate: currentComponents[0]?.exchangeRate || 1,
+                                    symbol: selectedCurrency.text,
+                                  
+                                    form: form,
+                                    
+                                  });
+                                }
                               }
-                              return updatedComp;
-                            });
-                            form.setFieldValue("components", updatedComponents);
+                            }
                           }}
                         />
                       </Form.Item>
