@@ -422,12 +422,15 @@ export default function MaterialInWithoutPO() {
   };
   const calculation = (rowId, obj) => {
     const { gstRate, gstType, qty, rate, exchangeRate, currency } = obj;
-    const inrValue = getInt(qty) * getInt(rate) * getInt(exchangeRate ?? 1);
-    const foreignValue = getInt(qty) * getInt(rate);
+   
+    const latestExchangeRate = form.getFieldValue(["components", rowId, "exchangeRate"]) ?? exchangeRate ?? 1;
+   
+    const inrValue = getInt(Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate));
+    const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
 
     let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
     let gst = getInt((inrValue * finalGstRate) / 100);
-    form.setFieldValue(["components", rowId, "value"], getInt(inrValue));
+    form.setFieldValue(["components", rowId, "value"], inrValue);
     form.setFieldValue(
       ["components", rowId, "cgst"],
       gstType === "L" ? gst : 0
