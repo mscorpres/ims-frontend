@@ -304,32 +304,30 @@ const columns = [
   },
   {
     headerName: "Qty IN",
-    field: "qtyIn",
+    field: "qty_in",
     width: 100,
   },
    {
     headerName: "Qty out",
-    field: "qtyOut",
+    field: "qty_out",
     width: 100,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+    
   },
     {
     headerName: "IN Rate",
-    field: "rateIn",
+    field: "qty_in_rate",
     width: 100,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+    
   },
     {
     headerName: "Out Rate",
-    field: "rateOut",
+    field: "out_rate",
     width: 100,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
   },
    {
     headerName: "Weighted Average",
-    field: "weightedAvg",
+    field: "weightedSKURate",
     width: 200,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
   },
   {
     headerName: "Method",
@@ -339,13 +337,13 @@ const columns = [
   },
     {
     headerName: "Location IN",
-    field: "locationIn",
+    field: "location_in",
     width: 200,
     renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
   },
     {
     headerName: "Location OUT",
-    field: "locationOut",
+    field: "location_out",
     width: 200,
     renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
   },
@@ -357,8 +355,8 @@ const columns = [
   {
     headerName: "Created / Approved By",
     field: "doneby",
-    minWidth: 180,
-    renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
+    minWidth: 250,
+    renderCell: ({ row }) => <ToolTipEllipses text={`${row.created_by} / ${row.approved_by}`} />,
     flex: 1,
   },
  
