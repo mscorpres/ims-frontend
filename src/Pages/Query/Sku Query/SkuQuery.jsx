@@ -158,7 +158,7 @@ const Q3 = () => {
                       <Col span={24}>
                         {loading !== "fetch" && (
                           <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            {details.product} - {details.sku}
+                            {details.product ?? "--"} - {details.sku ?? "--"}
                           </Typography.Text>
                         )}
                         {loading === "fetch" && (
@@ -178,7 +178,7 @@ const Q3 = () => {
                       <Col span={24}>
                         {loading !== "fetch" && (
                           <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            {details.stock} {details.uom}
+                            {details.stock ?? "--"} {details.uom ?? "--"}
                           </Typography.Text>
                         )}
                         {loading === "fetch" && (
@@ -196,13 +196,50 @@ const Q3 = () => {
                       <Col span={24}>
                         {loading !== "fetch" && (
                           <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            {details.pending} {details.uom}
+                            {details.pending ?? "--"} {details.uom ?? "--"}
                           </Typography.Text>
                         )}
                         {loading === "fetch" && (
                           <Skeleton.Input size="small" block active />
                         )}
                       </Col>
+                      
+                    </Row>
+                      <Row>
+                      <Col span={24}>
+                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                          Opening Stock :
+                        </Typography.Text>
+                      </Col>
+                      <Col span={24}>
+                        {loading !== "fetch" && (
+                          <Typography.Text style={{ fontSize: "0.8rem" }}>
+                            { "--"} { "--"}
+                          </Typography.Text>
+                        )}
+                        {loading === "fetch" && (
+                          <Skeleton.Input size="small" block active />
+                        )}
+                      </Col>
+                      
+                    </Row>
+                      <Row>
+                      <Col span={24}>
+                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
+                          Last Rate :
+                        </Typography.Text>
+                      </Col>
+                      <Col span={24}>
+                        {loading !== "fetch" && (
+                          <Typography.Text style={{ fontSize: "0.8rem" }}>
+                            { "--"} {"--"}
+                          </Typography.Text>
+                        )}
+                        {loading === "fetch" && (
+                          <Skeleton.Input size="small" block active />
+                        )}
+                      </Col>
+                      
                     </Row>
                   </Col>
                 </Row>
@@ -259,12 +296,59 @@ const columns = [
         ></div>
       ),
   },
+    {
+    headerName: "Transaction",
+    field: "txn",
+    renderCell: ({ row }) => <ToolTipEllipses text={row.txn} />,
+    width: 250,
+  },
   {
-    headerName: "Qty",
-    field: "qty",
+    headerName: "Qty IN",
+    field: "qtyIn",
     width: 100,
   },
-
+   {
+    headerName: "Qty out",
+    field: "qtyOut",
+    width: 100,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
+    {
+    headerName: "IN Rate",
+    field: "rateIn",
+    width: 100,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
+    {
+    headerName: "Out Rate",
+    field: "rateOut",
+    width: 100,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
+   {
+    headerName: "Weighted Average",
+    field: "weightedAvg",
+    width: 200,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
+  {
+    headerName: "Method",
+    field: "method",
+    width: 200,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
+    {
+    headerName: "Location IN",
+    field: "locationIn",
+    width: 200,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
+    {
+    headerName: "Location OUT",
+    field: "locationOut",
+    width: 200,
+    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+  },
   {
     headerName: "UoM",
     field: "uom",
@@ -277,6 +361,7 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
     flex: 1,
   },
+ 
 
   {
     headerName: "Remarks",
@@ -285,12 +370,7 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.remark} />,
     flex: 1,
   },
-  {
-    headerName: "Transaction",
-    field: "txn",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.txn} />,
-    width: 250,
-  },
+ 
 ];
 
 export default Q3;
