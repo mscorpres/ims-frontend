@@ -189,7 +189,7 @@ function MaterialTransfer({ type }) {
       setLocDetail("");
       setLoading(false);
       toast.success(response.message);
-    } else{
+    } else {
       toast.error(response.message);
       setLoading(false);
     }
@@ -412,16 +412,15 @@ function MaterialTransfer({ type }) {
               }}
             >
               <Button
+                type="link"
                 onClick={(e) => {
                   e.preventDefault();
-                  const link = document.createElement("a");
-                  link.href = "http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
-                  link.download = "Sample-GodownTransfer.csv";
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
+                  window.open(
+                    "http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv",
+                    "_blank",
+                    "noopener,noreferrer"
+                  );
                 }}
-                type="link"
               >
                 Download Sample File
               </Button>
