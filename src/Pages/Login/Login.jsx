@@ -395,8 +395,7 @@ const Login = () => {
       .then((res) => {
         if (res?.success) {
           showToast(res?.message, "success");
-          localStorage.setItem("user", JSON.stringify(res.data));
-          sessionStorage.setItem("user", JSON.stringify(res.data));
+   
           dispatch(setUser(res.data));
           setIsGoogleLogin(false);
           navigate("/");
