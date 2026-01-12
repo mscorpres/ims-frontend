@@ -3,11 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ForgotPassword from "./ForgotPassword.tsx";
-// import {
-//   loginAuth,
-//   setSettings,
-//   setUser,
-// } from "../../Features/loginSlice/loginSlice.js";
+import { GoogleLogin } from "@react-oauth/google";
 import {
   Button,
   Card,
@@ -43,6 +39,7 @@ const Login = () => {
   const { executeFun, loading } = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isGoogleLogin, setIsGoogleLogin] = useState(false);
 
   const [inpVal, setInpVal] = useState({
     username: "",
@@ -285,7 +282,7 @@ const Login = () => {
     e.preventDefault();
     const pastedText = e.clipboardData.getData("text");
     const pastedOtp = pastedText.replace(/\D/g, "").slice(0, 6);
-    
+
     if (pastedOtp.length > 0) {
       const newOtpCode = ["", "", "", "", "", ""];
       for (let i = 0; i < pastedOtp.length; i++) {
@@ -307,8 +304,6 @@ const Login = () => {
       const prevInput = document.getElementById(`otp-input-${index - 1}`);
       if (prevInput) prevInput.focus();
     }
-
-   
   };
 
   // Verify OTP
@@ -389,6 +384,37 @@ const Login = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+  const handleLoginWithGoogle = (googleResponse) => {
+    setIsGoogleLogin(true);
+    const data = {
+      credential: googleResponse.credential,
+    };
+    imsAxios
+      .post("/auth/google", data)
+      .then((res) => {
+        if (res?.success) {
+          showToast(res?.message, "success");
+          localStorage.setItem("user", JSON.stringify(res.data));
+          sessionStorage.setItem("user", JSON.stringify(res.data));
+          dispatch(setUser(res.data));
+          setIsGoogleLogin(false);
+          navigate("/");
+
+        } else {
+          setIsGoogleLogin(false);
+          showToast(res?.message, "error");
+        }
+      })
+      .catch((err) => {
+        setIsGoogleLogin(false);
+        showToast(
+          err?.data?.message ||
+            err?.message ||
+            "We're Sorry An unexpected error has occured. Our technical staff has been automatically notified and will be looking into this with utmost urgency.",
+          "error"
+        );
+      });
   };
 
   // console.log("ispassSame", ispassSame);
@@ -688,6 +714,43 @@ const Login = () => {
                             Log In
                           </Button>
                         </Form.Item>
+                        {!loading("submit") && !isGoogleLogin ? (
+                          <Typography style={{
+                            textAlign:"center",
+
+                          }}>
+                            OR
+                          </Typography>
+                        ) : (
+                          <Typography style={{
+                            textAlign:"center",
+                            
+                          }}>
+                            Please wait.....
+                          </Typography>
+                        )}
+                        <div style={{
+                          display:"flex",
+                          justifyContent:"center",
+                          alignItems:"center",
+                          width:"100%",
+                          padding:"0px 8px"
+                        }}>
+                          {!loading("submit") && !isGoogleLogin && (
+                            <>
+                              <GoogleLogin
+                                onSuccess={(credentialResponse) => {
+                                  handleLoginWithGoogle(credentialResponse);
+                                }}
+                                onError={() => {
+                                  showToast("Login failed", "error");
+                                }}
+                                shape="circle"
+                                text="continue_with"
+                              />
+                            </>
+                          )}
+                        </div>
                         <Flex justify="end">
                           <Button
                             onClick={() => setShowForgotPassword(true)}
