@@ -107,7 +107,7 @@ const JwRmConsumption = () => {
   const fetchJWwise = async () => {
     setLoading("fetch", true);
     const response = await imsAxios.get(
-      `jobwork/rm-consumption/view?jw=${allData.jw}&wise=${allData.setType}`
+      `jobwork/rm-consumption/view?data=${allData.jw}&wise=${allData.setType}`
     );
     if (response.success) {
       let arr = response.data.map((row, index) => {
@@ -144,7 +144,7 @@ const JwRmConsumption = () => {
         ? allData.sku?.value || allData.sku?.id
         : allData.sku;
     const response = await imsAxios.get(
-      `jobwork/rm-consumption/view?sku=${skuValue}&wise=${allData.setType}`
+      `jobwork/rm-consumption/view?data=${skuValue}&wise=${allData.setType}`
     );
     if (response.success) {
       let arr = response.data.map((row, index) => {
@@ -180,7 +180,7 @@ const JwRmConsumption = () => {
         ? allData.ven?.value || allData.ven?.id
         : allData.ven;
     const response = await imsAxios.get(
-      `jobwork/rm-consumption/view?ven=${venValue}&wise=${allData.setType}`
+      `jobwork/rm-consumption/view?data=${venValue}&wise=${allData.setType}`
     );
     if (response.success) {
       let arr = response.data.map((row, index) => {
