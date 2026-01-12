@@ -92,162 +92,135 @@ const Q3 = () => {
     }
   };
   return (
-    <div style={{ height: "90%" }}>
-      <Row justify="space-between" style={{ padding: 8, paddingTop: 0 }}>
-        <Col>
-          <Space>
-            <div style={{ width: 250 }}>
-              <Typography.Text type="secondary" >Product Name</Typography.Text>
-              <MyAsyncSelect
-                placeholder="Enter Product Name"
-                onBlur={() => setAsyncOptions([])}
-                loadOptions={getProductOptions}
-                optionsState={asyncOptions}
-                onChange={setSearchInput}
-                selectLoading={loading === "select"}
-                value={searchInput}
-              />
-             
-            </div>
-             <div style={{ width: 250 }}>
-              <Typography.Text type="secondary">Location</Typography.Text>
-               <MySelect
-                value={location}
-                onChange={(value) => setLocation(value)}
-                options={locationOptions}
-              />
-            </div>
-                <div style={{ width: 250, marginTop: 20 }}>
-                  
-                <MyButton
-              variant="search"
-              loading={loading == "fetch"}
-              disabled={!searchInput || searchInput.length === 0}
-              onClick={getRows}
-              type="primary"
-            >
-              Fetch
-            </MyButton>
-            </div>
-           
-        
-          </Space>
-        </Col>
+    <div style={{ height: "92%" }}>
+      <Row justify="end" style={{ padding: 8, paddingTop: 0 }}>
         <CommonIcons
           action="downloadButton"
           type="primary"
           onClick={() => downloadCSV(rows, columns, "Q3 Report")}
         />
       </Row>
-      <Row
-        style={{ height: "90%", paddingRight: 5, paddingLeft: 5 }}
-        gutter={6}
-      >
-        <Col span={4}>
-          <Row>
-            <Col span={24}>
-              <Card size="small" title="Stock Details">
-                <Row gutter={[0, 6]}>
-                  <Col span={24}>
-                    <Row>
-                      <Col span={24}>
-                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                          Product :
-                        </Typography.Text>
-                      </Col>
-                      <Col span={24}>
-                        {loading !== "fetch" && (
-                          <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            {details.product ?? "--"} - {details.sku ?? "--"}
-                          </Typography.Text>
-                        )}
-                        {loading === "fetch" && (
-                          <Skeleton.Input size="small" block active />
-                        )}
-                      </Col>
-                    </Row>
-                  </Col>
-                  <Divider style={{ marginTop: 5, marginBottom: 5 }} />
-                  <Col span={24}>
-                    <Row>
-                      <Col span={24}>
-                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                          Closing Stock :
-                        </Typography.Text>
-                      </Col>
-                      <Col span={24}>
-                        {loading !== "fetch" && (
-                          <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            {details.stock ?? "--"} {details.uom ?? "--"}
-                          </Typography.Text>
-                        )}
-                        {loading === "fetch" && (
-                          <Skeleton.Input size="small" block active />
-                        )}
-                      </Col>
-                    </Row>
-                    <Divider style={{ marginTop: 5, marginBottom: 5 }} />
-                    <Row>
-                      <Col span={24}>
-                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                          Not Okay Pending Stock :
-                        </Typography.Text>
-                      </Col>
-                      <Col span={24}>
-                        {loading !== "fetch" && (
-                          <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            {details.pending ?? "--"} {details.uom ?? "--"}
-                          </Typography.Text>
-                        )}
-                        {loading === "fetch" && (
-                          <Skeleton.Input size="small" block active />
-                        )}
-                      </Col>
-                      
-                    </Row>
-                      <Row>
-                      <Col span={24}>
-                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                          Opening Stock :
-                        </Typography.Text>
-                      </Col>
-                      <Col span={24}>
-                        {loading !== "fetch" && (
-                          <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            { "--"} { "--"}
-                          </Typography.Text>
-                        )}
-                        {loading === "fetch" && (
-                          <Skeleton.Input size="small" block active />
-                        )}
-                      </Col>
-                      
-                    </Row>
-                      <Row>
-                      <Col span={24}>
-                        <Typography.Text style={{ fontSize: "0.8rem" }} strong>
-                          Last Rate :
-                        </Typography.Text>
-                      </Col>
-                      <Col span={24}>
-                        {loading !== "fetch" && (
-                          <Typography.Text style={{ fontSize: "0.8rem" }}>
-                            { "--"} {"--"}
-                          </Typography.Text>
-                        )}
-                        {loading === "fetch" && (
-                          <Skeleton.Input size="small" block active />
-                        )}
-                      </Col>
-                      
-                    </Row>
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          </Row>
+
+      <Row style={{ height: "90%",  }} gutter={8}>
+        <Col span={6} style={{ height: "100%", overflow: "auto" }}>
+          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            {/* Filters */}
+            <Card size="small" title="Filters">
+              <Space direction="vertical" size={12} style={{ width: "100%" }}>
+                <div>
+                  <Typography.Text type="secondary">
+                    Product Name
+                  </Typography.Text>
+                  <MyAsyncSelect
+                    placeholder="Enter Product Name"
+                    onBlur={() => setAsyncOptions([])}
+                    loadOptions={getProductOptions}
+                    optionsState={asyncOptions}
+                    onChange={setSearchInput}
+                    selectLoading={loading === "select"}
+                    value={searchInput}
+                  />
+                </div>
+
+                <div>
+                  <Typography.Text type="secondary">Location</Typography.Text>
+                  <MySelect
+                    value={location}
+                    onChange={setLocation}
+                    options={locationOptions}
+                  />
+                </div>
+
+                <MyButton
+                  variant="search"
+                  loading={loading === "fetch"}
+                  disabled={!searchInput}
+                  onClick={getRows}
+                  type="primary"
+                  block
+                >
+                  Fetch
+                </MyButton>
+              </Space>
+            </Card>
+
+            {/* Stock Details */}
+            <Card size="small" title="Stock Details">
+              <Row gutter={[0, 6]}>
+                <Col span={24}>
+                  <Typography.Text strong style={{ fontSize: "0.8rem" }}>
+                    Product:
+                  </Typography.Text>
+                  <br />
+                  {loading !== "fetch" ? (
+                    <Typography.Text style={{ fontSize: "0.8rem" }}>
+                      {details.product ?? "--"} - {details.sku ?? "--"}
+                    </Typography.Text>
+                  ) : (
+                    <Skeleton.Input size="small" block active />
+                  )}
+                </Col>
+
+                <Divider />
+
+                <Col span={24}>
+                  <Typography.Text strong style={{ fontSize: "0.8rem" }}>
+                    Closing Stock:
+                  </Typography.Text>
+                  <br />
+                  {loading !== "fetch" ? (
+                    <Typography.Text style={{ fontSize: "0.8rem" }}>
+                      {details.stock ?? "--"} {details.uom ?? "--"}
+                    </Typography.Text>
+                  ) : (
+                    <Skeleton.Input size="small" block active />
+                  )}
+                </Col>
+
+                <Divider />
+
+                <Col span={24}>
+                  <Typography.Text strong style={{ fontSize: "0.8rem" }}>
+                    Not Okay Pending Stock:
+                  </Typography.Text>
+                  <br />
+                  {loading !== "fetch" ? (
+                    <Typography.Text style={{ fontSize: "0.8rem" }}>
+                      {details.pending ?? "--"} {details.uom ?? "--"}
+                    </Typography.Text>
+                  ) : (
+                    <Skeleton.Input size="small" block active />
+                  )}
+                </Col>
+
+                <Divider />
+
+                <Col span={24}>
+                  <Typography.Text strong style={{ fontSize: "0.8rem" }}>
+                    Opening Stock:
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text style={{ fontSize: "0.8rem" }}>
+                    --
+                  </Typography.Text>
+                </Col>
+
+                <Col span={24}>
+                  <Typography.Text strong style={{ fontSize: "0.8rem" }}>
+                    Last Rate:
+                  </Typography.Text>
+                  <br />
+                  <Typography.Text style={{ fontSize: "0.8rem" }}>
+                    --
+                  </Typography.Text>
+                </Col>
+              </Row>
+            </Card>
+          </Space>
         </Col>
-        <Col span={20}>
+
+        {/* RIGHT COLUMN – TABLE */}
+        <Col span={18}>
           <MyDataTable
             loading={loading === "fetch"}
             columns={columns}
@@ -273,7 +246,7 @@ const columns = [
   {
     headerName: "Type",
     field: "transaction_type",
-    width: 50,
+    width: 150,
     renderCell: (a) =>
       a.row.type ==
       '<span class="d-inline-block radius-round p-2 bgc-red"></span>' ? (
@@ -296,7 +269,7 @@ const columns = [
         ></div>
       ),
   },
-    {
+  {
     headerName: "Transaction",
     field: "txn",
     renderCell: ({ row }) => <ToolTipEllipses text={row.txn} />,
@@ -307,24 +280,22 @@ const columns = [
     field: "qty_in",
     width: 200,
   },
-   {
+  {
     headerName: "Qty out",
     field: "qty_out",
     width: 200,
-    
   },
-    {
+  {
     headerName: "IN Rate",
     field: "qty_in_rate",
     width: 200,
-    
   },
-    {
+  {
     headerName: "Out Rate",
     field: "out_rate",
     width: 200,
   },
-   {
+  {
     headerName: "Weighted Average",
     field: "weightedSKURate",
     width: 200,
@@ -333,19 +304,19 @@ const columns = [
     headerName: "Method",
     field: "method",
     width: 200,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+    renderCell: ({ row }) => <ToolTipEllipses text={"--"} />,
   },
-    {
+  {
     headerName: "Location IN",
     field: "location_in",
     width: 200,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+    renderCell: ({ row }) => <ToolTipEllipses text={"--"} />,
   },
-    {
+  {
     headerName: "Location OUT",
     field: "location_out",
     width: 200,
-    renderCell: ({ row }) =>  <ToolTipEllipses text={"--"} />,
+    renderCell: ({ row }) => <ToolTipEllipses text={"--"} />,
   },
   {
     headerName: "UoM",
@@ -356,10 +327,11 @@ const columns = [
     headerName: "Created / Approved By",
     field: "doneby",
     minWidth: 250,
-    renderCell: ({ row }) => <ToolTipEllipses text={`${row.created_by} / ${row.approved_by}`} />,
+    renderCell: ({ row }) => (
+      <ToolTipEllipses text={`${row.created_by} / ${row.approved_by}`} />
+    ),
     flex: 1,
   },
- 
 
   {
     headerName: "Remarks",
@@ -368,7 +340,6 @@ const columns = [
     renderCell: ({ row }) => <ToolTipEllipses text={row.remark} />,
     flex: 1,
   },
- 
 ];
 
 export default Q3;
