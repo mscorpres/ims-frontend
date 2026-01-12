@@ -411,16 +411,17 @@ function MaterialTransfer({ type }) {
                 gap: 10,
               }}
             >
-              <Button
-                type="link"
+                 <Button
                 onClick={(e) => {
                   e.preventDefault();
-                  window.open(
-                    "http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv",
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
+                  const link = document.createElement("a");
+                  link.href = "https://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
+                  link.download = "Sample-GodownTransfer.csv";
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
                 }}
+                type="link"
               >
                 Download Sample File
               </Button>
