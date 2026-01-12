@@ -305,24 +305,24 @@ const columns = [
   {
     headerName: "Qty IN",
     field: "qty_in",
-    width: 100,
+    width: 200,
   },
    {
     headerName: "Qty out",
     field: "qty_out",
-    width: 100,
+    width: 200,
     
   },
     {
     headerName: "IN Rate",
     field: "qty_in_rate",
-    width: 100,
+    width: 200,
     
   },
     {
     headerName: "Out Rate",
     field: "out_rate",
-    width: 100,
+    width: 200,
   },
    {
     headerName: "Weighted Average",
