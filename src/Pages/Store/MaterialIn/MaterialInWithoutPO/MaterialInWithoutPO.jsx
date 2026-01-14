@@ -61,6 +61,7 @@ const defaultValues = {
   companybranch: "BRMSC012",
   projectID: "",
   costCenter: "",
+  currency: "364907247",
   components: [
     {
       gstType: "L",
@@ -221,11 +222,10 @@ export default function MaterialInWithoutPO() {
           setPreviewRows([]);
           setPreview(false);
         } else {
-          // console.log("r/esponse.data.message", response.data.message);
-          toast.error(response.data.message);
+           toast.error(response.data.message || response.data.message?.msg);
         }
       } else {
-        toast.error(response.data.message);
+       toast.error(response.data.message || response.data.message?.msg);
       }
     }
   };
@@ -422,12 +422,18 @@ export default function MaterialInWithoutPO() {
   };
   const calculation = (rowId, obj) => {
     const { gstRate, gstType, qty, rate, exchangeRate, currency } = obj;
-    const inrValue = getInt(qty) * getInt(rate) * getInt(exchangeRate ?? 1);
-    const foreignValue = getInt(qty) * getInt(rate);
+    const latestExchangeRate =
+      form.getFieldValue(["components", rowId, "exchangeRate"]) ??
+      exchangeRate ??
+      1;
 
+    const inrValue = getInt(
+      Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate)
+    );
+    const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
     let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
     let gst = getInt((inrValue * finalGstRate) / 100);
-    form.setFieldValue(["components", rowId, "value"], getInt(inrValue));
+    form.setFieldValue(["components", rowId, "value"], inrValue);
     form.setFieldValue(
       ["components", rowId, "cgst"],
       gstType === "L" ? gst : 0
@@ -741,37 +747,21 @@ export default function MaterialInWithoutPO() {
           },
         },
       ],
-      field: (row, index) => (
-        <Input
-          onChange={(e) => compareRates(e.target.value, index)}
-          addonAfter={
-            <div style={{ width: 50 }}>
-              <Form.Item noStyle name={[index, "currency"]}>
-                <MySelect
-                  options={currencies}
-                  onChange={(value) => {
-                    value !== "364907247"
-                      ? setShowCurrenncy({
-                          currency: value,
-                          price: row.value,
-                          exchangeRate: row.exchangeRate,
-                          symbol: currencies.filter(
-                            (cur) => cur.value == value
-                          )[0].text,
-                          rowId: index,
-                          form: form,
-                        })
-                      : form.setFieldValue(
-                          ["components", index, "exchangeRate"],
-                          1
-                        );
-                  }}
-                />
-              </Form.Item>
-            </div>
-          }
-        />
-      ),
+      field: (row, index) => {
+        const currencySymbol =
+          currencies.find((cur) => cur.value == row.currency)?.text ||
+          row.currency;
+        return (
+          <Input
+            onChange={(e) => compareRates(e.target.value, index)}
+            addonAfter={
+              <div style={{ width: 50 }}>
+                <Typography.Text>{currencySymbol}</Typography.Text>
+              </div>
+            }
+          />
+        );
+      },
       width: 200,
     },
 
@@ -849,6 +839,22 @@ export default function MaterialInWithoutPO() {
       name: "remarks",
       field: () => <Input />,
       width: 250,
+    },
+    {
+      headerName: "",
+      name: "currency",
+      field: () => <Input type="hidden" style={{ display: "none" }} />,
+      width: 0,
+      conditional: true,
+      condition: () => false, // Never show this column
+    },
+    {
+      headerName: "",
+      name: "exchangeRate",
+      field: () => <Input type="hidden" style={{ display: "none" }} />,
+      width: 0,
+      conditional: true,
+      condition: () => false, // Never show this column
     },
   ];
   const closeDrawer = () => {
@@ -1232,6 +1238,66 @@ export default function MaterialInWithoutPO() {
                     <Col span={12}>
                       <Form.Item label="Project Name" name="projectName">
                         <Input size="default" disabled />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Currency" name="currency">
+                        <MySelect
+                          options={currencies}
+                          onChange={(value) => {
+                            const currentComponents =
+                              form.getFieldValue("components") || [];
+                            if (value === "364907247") {
+                              const updatedComponents = currentComponents.map(
+                                (comp) => ({
+                                  ...comp,
+                                  currency: value,
+                                  exchangeRate: 1,
+                                })
+                              );
+                              form.setFieldValue(
+                                "components",
+                                updatedComponents
+                              );
+                            } else {
+                              const updatedComponents = currentComponents.map(
+                                (comp) => ({
+                                  ...comp,
+                                  currency: value,
+                                })
+                              );
+                              form.setFieldValue(
+                                "components",
+                                updatedComponents
+                              );
+
+                              if (currentComponents.length > 0) {
+                                const totalPrice = currentComponents.reduce(
+                                  (sum, comp) => {
+                                    return sum + (Number(comp.value) || 0);
+                                  },
+                                  0
+                                );
+
+                                const selectedCurrency = currencies.find(
+                                  (cur) => cur.value == value
+                                );
+
+                                if (selectedCurrency) {
+                                  setShowCurrenncy({
+                                    currency: value,
+                                    price: totalPrice || 0,
+                                    exchangeRate:
+                                      currentComponents[0]?.exchangeRate || 1,
+                                    symbol: selectedCurrency.text,
+
+                                    form: form,
+                                  });
+                                }
+                              }
+                            }
+                          }}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={24}>

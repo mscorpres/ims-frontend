@@ -92,9 +92,10 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
           toast.error(data.message.msg);
         }
       } else if (name == "vendorbranch") {
+        const branchValue = typeof value === "object" ? value.value : value;
         const { data } = await imsAxios.post("backend/vendorAddress", {
           vendorcode: purchaseOrder.vendorcode.value,
-          branchcode: arr[0].value,
+          branchcode: branchValue,
         });
         if (data.code == 200) {
           obj = {
@@ -102,6 +103,7 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
             [name]: value,
             // vendorBranchName: value.label,
             vendoraddress: data.data.address.replaceAll("<br>", "\n"),
+            vendorgst: data.data.gstid,
           };
         } else {
           toast.error(data.message.msg);

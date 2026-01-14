@@ -29,19 +29,16 @@ const CreateBom = () => {
       const response = await imsAxios.get(`products/bySku?sku=${values.sku}`);
       const { data } = response;
 
-    
-        if (response?.success) {
-          const product = data.productName;
-          const productKey = data.productKey;
-          form.setFieldValue("product", product);
-          form.setFieldValue("productKey", productKey);
-          setProductSelected(true);
-        } else {
-          toast.error(response.message);
-        }
-    
+      if (response?.success) {
+        const product = data.productName;
+        const productKey = data.productKey;
+        form.setFieldValue("product", product);
+        form.setFieldValue("productKey", productKey);
+        setProductSelected(true);
+      } else {
+        toast.error(response.message);
+      }
     } catch (error) {
-    
       console.log("error while fetching SKU details", error);
     } finally {
       setLoading(false);
@@ -82,7 +79,7 @@ const CreateBom = () => {
       formData.append("mapped_sfg", obj.mapped_sfg);
       formData.append("sku", obj.sku);
       formData.append("bom_level", obj.bom_level);
-      formData.append("bom_project",obj.project)
+      formData.append("bom_project", obj.bom_project);
 
       finalObj = formData;
     }
@@ -121,34 +118,52 @@ const CreateBom = () => {
       setLoading("submit");
       // console.log("submig handler valuesssss", values, url);
       const response = await imsAxios.post(url, values);
-      const { data } = response;
-        if (response?.success) {
-          if (stage === "preview") {
-            const arr = data.map((row, index) => ({
-              id: index + 1,
-              category: row.CATEGORY,
-              source: row.COMP_SOURCE,
-              partCode: row.PARTCODE,
-              priority: row.PRIORITY,
-              process: row.PROCESS,
-              qty: row.QTY,
-              smyLoc: row.SMY_MI_LOC,
-              status: row.STATUS,
-              vendorCode: row.VENDOR,
-            }));
-            setStage("submit");
-            setpreviewData(arr);
-          }
-          if (stage === "submit") {
-            toast.success(response?.message);
-            setProductSelected(false);
-            form.resetFields();
-            setpreviewData([]);
-          }
-        } else {
-          toast.error(response.message);
+      // Handle both response formats: success property or status/code properties
+      const isSuccess =
+        response?.success ||
+        response?.data?.status === "success" ||
+        response?.data?.code === 200;
+
+      if (isSuccess) {
+        if (stage === "preview") {
+          // Extract data array - could be in response.data or response.data.data
+          const dataArray = Array.isArray(response?.data)
+            ? response.data
+            : response?.data?.data || [];
+
+          const arr = dataArray.map((row, index) => ({
+            id: index + 1,
+            category: row.CATEGORY,
+            source: row.COMP_SOURCE,
+            partCode: row.PARTCODE,
+            priority: row.PRIORITY,
+            process: row.PROCESS,
+            qty: row.QTY,
+            smyLoc: row.SMY_MI_LOC,
+            status: row.STATUS,
+            vendorCode: row.VENDOR,
+          }));
+          setStage("submit");
+          setpreviewData(arr);
         }
+        if (stage === "submit") {
+          toast.success(
+            response?.message ||
+              response?.data?.message ||
+              "BOM created successfully"
+          );
+          setProductSelected(false);
+          form.resetFields();
+          setpreviewData([]);
+        }
+      } else {
+        toast.error(
+          response?.message || response?.data?.message || "An error occurred"
+        );
+      }
     } catch (error) {
+      console.error("Error in submitHandler:", error);
+      toast.error(error?.response?.data?.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -158,7 +173,7 @@ const CreateBom = () => {
       () => getComponentOptions(search),
       "select"
     );
-   
+
     const { data } = response;
     // setLoading(false);
     if (data) {
@@ -198,8 +213,8 @@ const CreateBom = () => {
 
   useEffect(() => {
     fetchProjects();
-  },[])
-  
+  }, []);
+
   useEffect(() => {
     if (files) {
       setStage("preview");
