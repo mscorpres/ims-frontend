@@ -500,7 +500,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     };
     setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
-    // const response = await imsAxios.post("/jobwork/savejwsfinward", payload);
     const minNum = response.message;
 
     if (response.success) {
