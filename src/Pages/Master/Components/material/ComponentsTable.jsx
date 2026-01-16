@@ -43,6 +43,11 @@ const columns = [
     width: 150,
   },
   {
+    headerName: "Sub Group",
+    field: "subGroup",
+    width: 150,
+  },
+  {
     headerName: "UoM",
     field: "unit",
     width: 150,

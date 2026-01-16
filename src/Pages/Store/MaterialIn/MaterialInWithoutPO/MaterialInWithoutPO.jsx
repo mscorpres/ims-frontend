@@ -221,11 +221,10 @@ export default function MaterialInWithoutPO() {
           setPreviewRows([]);
           setPreview(false);
         } else {
-         
-          toast.error(response.data.message || response.data.message?.msg);
+           toast.error(response.data.message || response.data.message?.msg);
         }
       } else {
-        toast.error(response.data.message || response.data.message?.msg);
+       toast.error(response.data.message || response.data.message?.msg);
       }
     }
   };
@@ -422,12 +421,15 @@ export default function MaterialInWithoutPO() {
   };
   const calculation = (rowId, obj) => {
     const { gstRate, gstType, qty, rate, exchangeRate, currency } = obj;
-   
-    const latestExchangeRate = form.getFieldValue(["components", rowId, "exchangeRate"]) ?? exchangeRate ?? 1;
-   
-    const inrValue = getInt(Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate));
-    const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
+    const latestExchangeRate =
+      form.getFieldValue(["components", rowId, "exchangeRate"]) ??
+      exchangeRate ??
+      1;
 
+    const inrValue = getInt(
+      Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate)
+    );
+    const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
     let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
     let gst = getInt((inrValue * finalGstRate) / 100);
     form.setFieldValue(["components", rowId, "value"], inrValue);
@@ -745,9 +747,9 @@ export default function MaterialInWithoutPO() {
         },
       ],
       field: (row, index) => {
-        const currencySymbol = currencies.find(
-          (cur) => cur.value == row.currency
-        )?.text || row.currency;
+        const currencySymbol =
+          currencies.find((cur) => cur.value == row.currency)?.text ||
+          row.currency;
         return (
           <Input
             onChange={(e) => compareRates(e.target.value, index)}
@@ -1242,39 +1244,53 @@ export default function MaterialInWithoutPO() {
                         <MySelect
                           options={currencies}
                           onChange={(value) => {
-                            const currentComponents = form.getFieldValue("components") || [];
+                            const currentComponents =
+                              form.getFieldValue("components") || [];
                             if (value === "364907247") {
-                              const updatedComponents = currentComponents.map((comp) => ({
-                                ...comp,
-                                currency: value,
-                                exchangeRate: 1,
-                              }));
-                              form.setFieldValue("components", updatedComponents);
+                              const updatedComponents = currentComponents.map(
+                                (comp) => ({
+                                  ...comp,
+                                  currency: value,
+                                  exchangeRate: 1,
+                                })
+                              );
+                              form.setFieldValue(
+                                "components",
+                                updatedComponents
+                              );
                             } else {
-                               const updatedComponents = currentComponents.map((comp) => ({
-                                ...comp,
-                                currency: value,
-                              }));
-                              form.setFieldValue("components", updatedComponents);
-                              
-                                if (currentComponents.length > 0) {
-                                const totalPrice = currentComponents.reduce((sum, comp) => {
-                                  return sum + (Number(comp.value) || 0);
-                                }, 0);
-                                
+                              const updatedComponents = currentComponents.map(
+                                (comp) => ({
+                                  ...comp,
+                                  currency: value,
+                                })
+                              );
+                              form.setFieldValue(
+                                "components",
+                                updatedComponents
+                              );
+
+                              if (currentComponents.length > 0) {
+                                const totalPrice = currentComponents.reduce(
+                                  (sum, comp) => {
+                                    return sum + (Number(comp.value) || 0);
+                                  },
+                                  0
+                                );
+
                                 const selectedCurrency = currencies.find(
                                   (cur) => cur.value == value
                                 );
-                                
-                            if (selectedCurrency) {
+
+                                if (selectedCurrency) {
                                   setShowCurrenncy({
                                     currency: value,
                                     price: totalPrice || 0,
-                                    exchangeRate: currentComponents[0]?.exchangeRate || 1,
+                                    exchangeRate:
+                                      currentComponents[0]?.exchangeRate || 1,
                                     symbol: selectedCurrency.text,
-                                  
+
                                     form: form,
-                                    
                                   });
                                 }
                               }

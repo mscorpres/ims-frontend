@@ -9,7 +9,6 @@ export default function CurrenceModal({ showCurrency, setShowCurrencyModal }) {
   const submitHandler = () => {
     const form = showCurrency.form;
     const rowId = showCurrency.rowId;
-    
     if (rowId !== undefined && rowId !== null) {
       // Set exchangeRate for a specific row
       form.setFieldValue(
@@ -60,10 +59,10 @@ export default function CurrenceModal({ showCurrency, setShowCurrencyModal }) {
         level={5}
         style={{ display: "flex", justifyContent: "center", marginTop: "15px" }}
       >
-       ₹  {rate * showCurrency?.price}
+        ₹ {rate * showCurrency?.price}
       </Title>
       <Title level={5} style={{ display: "flex", justifyContent: "center" }}>
-         {showCurrency?.symbol} {showCurrency?.price}
+        {showCurrency?.symbol} {showCurrency?.price}
       </Title>
     </Modal>
   );

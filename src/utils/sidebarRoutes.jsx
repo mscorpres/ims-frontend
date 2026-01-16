@@ -225,6 +225,11 @@ export const items = (user) => [
           // <AiOutlineMinus />
         ),
       ]),
+            getItem(
+        <Link to="/masters/cost-center">Cost Center</Link>,
+        "Component/B13"
+        // <AiOutlineMinus />
+      ),
       getItem(
         <Link to="/masters/products/fg">Products</Link>,
         "Component/B13"

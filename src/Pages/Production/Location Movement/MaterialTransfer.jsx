@@ -189,7 +189,7 @@ function MaterialTransfer({ type }) {
       setLocDetail("");
       setLoading(false);
       toast.success(response.message);
-    } else{
+    } else {
       toast.error(response.message);
       setLoading(false);
     }
@@ -411,11 +411,11 @@ function MaterialTransfer({ type }) {
                 gap: 10,
               }}
             >
-              <Button
+                 <Button
                 onClick={(e) => {
                   e.preventDefault();
                   const link = document.createElement("a");
-                  link.href = "http://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
+                  link.href = "https://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
                   link.download = "Sample-GodownTransfer.csv";
                   document.body.appendChild(link);
                   link.click();

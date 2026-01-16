@@ -73,6 +73,7 @@ const Material = () => {
             id: index + 1,
             componentName: row.c_name,
             partCode: row.c_part_no,
+              subGroup: row.sub_group_name,
             key: row.component_key,
             unit: row.units_name,
             status: row.is_enabled === "YES" ? "Active" : "Inactive",

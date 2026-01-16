@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Col, Row, Space, Tooltip } from "antd";
+import { Col, Input, Row, Space, Tooltip } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker.jsx";
 import { toast } from "react-toastify";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
@@ -12,11 +12,19 @@ import MyButton from "../../../Components/MyButton/index.jsx";
 import ViewPORequest from "./ViewPORequest.jsx";
 import EditPO from "../ManagePO/EditPO/EditPO.jsx";
 import ViewPOLogs from "./ViewPOLogs.jsx";
+import MySelect from "../../../Components/MySelect.jsx";
+
+const wiseOptions = [
+  { value: "single_date_wise", text: "Date Wise" },
+  { value: "po_wise", text: "PO ID Wise" },
+];
 
 const RequestPo = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [viewPoId, setViewPoId] = useState(null);
   const [rows, setRows] = useState([]);
+  const [wise, setWise] = useState("single_date_wise");
+  const [searchInput, setSearchInput] = useState("");
   const [searchDateRange, setSearchDateRange] = useState("");
   const [updatePoId, setUpdatePoId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +48,10 @@ const RequestPo = () => {
           showInMenu
           label="Edit"
           onClick={() => getPoDetail(row.po_transaction)}
-          disabled={row.poacceptstatus === "UNDER VERIFICATION"||row.poacceptstatus === "PENDING"}
+          disabled={
+            row.poacceptstatus === "UNDER VERIFICATION" ||
+            row.poacceptstatus === "PENDING"
+          }
         />,
         <GridActionsCellItem
           key="poLogs"
@@ -63,15 +74,14 @@ const RequestPo = () => {
       ),
       width: 150,
     },
-  {
-  headerName: "PO ACCEPTANCE",
-  field: "poacceptstatus",
-  renderCell: ({ row }) => {
-    const status = (row.poacceptstatus || "").toUpperCase().trim();
-    const isUnderVerification = status === "UNDER VERIFICATION";
+    {
+      headerName: "PO ACCEPTANCE",
+      field: "poacceptstatus",
+      renderCell: ({ row }) => {
+        const status = (row.poacceptstatus || "").toUpperCase().trim();
+        const isUnderVerification = status === "UNDER VERIFICATION";
 
-   
-    const leaderEmail = row.leader_email;  
+        const leaderEmail = row.leader_email;
 
         // Colors
         let bgColor = "#8c8c8c";
@@ -226,45 +236,65 @@ const RequestPo = () => {
   ];
 
   const getSearchResults = async (silent = false) => {
-    if (!searchDateRange) {
-      if (!silent) {
-        toast.error("Please select start and end dates for the results");
-      }
+    
+    if (!searchInput && !searchDateRange) {
+      setRows([]);
+      setSearchLoading(false);
       return;
     }
 
-    setRows([]);
     setSearchLoading(true);
-    try {
-      const { data } = await imsAxios.post("/purchaseOrder/requested", {
-        data: searchDateRange,
-        wise: "single_date_wise",
-      });
-      setSearchLoading(false);
-      if (data.code == 200) {
-        let arr = data?.data?.map((row, index) => ({
-          ...row,
-          id: row.po_transaction,
-          index: index + 1,
-        }));
-        setRows(arr);
 
-        if (arr.length === 0 && !silent) {
-        }
-      } else if (data.message?.msg) {
-        if (!silent) {
-          toast.error(data.message.msg);
+    try {
+      let payloadData = null;
+
+      if (wise === "po_wise") {
+        payloadData =
+          typeof searchInput === "string" ? searchInput.trim() : searchInput;
+      } else if (wise === "single_date_wise") {
+        payloadData = searchDateRange;
+      }
+
+      const { data } = await imsAxios.post("/purchaseOrder/requested", {
+        data: payloadData,
+        wise,
+      });
+
+      if (data?.code === 200) {
+        const rows = Array.isArray(data?.data)
+          ? data.data.map((row, index) => ({
+              ...row,
+              id: row.po_transaction || index, // fallback id
+              index: index + 1,
+            }))
+          : [];
+
+        setRows(rows);
+
+        if (rows.length === 0 && !silent) {
+          toast.info("No purchase orders found");
+           setRows([]);
         }
       } else {
         if (!silent) {
-          toast.error(data.message);
+          toast.error(
+            data?.message?.msg || data?.message || "Something went wrong"
+          );
+           
         }
+        toast.error(
+            data?.message?.msg || data?.message || "Something went wrong"
+          );
+           setRows([]);
       }
     } catch (error) {
-      setSearchLoading(false);
       if (!silent) {
         toast.error("Error fetching PO list");
       }
+       setRows([]);
+    } finally {
+      setSearchLoading(false);
+      
     }
   };
 
@@ -308,13 +338,26 @@ const RequestPo = () => {
       >
         <Col>
           <Space>
+            <div style={{ width: 150 }}>
+              <MySelect options={wiseOptions} onChange={setWise} value={wise} />
+            </div>
             <div style={{ width: 300 }}>
-              <MyDatePicker
-                size="default"
-                setDateRange={setSearchDateRange}
-                dateRange={searchDateRange}
-                value={searchDateRange}
-              />
+              {wise === "single_date_wise" ? (
+                <MyDatePicker
+                  size="default"
+                  setDateRange={setSearchDateRange}
+                  dateRange={searchDateRange}
+                  value={searchDateRange}
+                />
+              ) : (
+                <Input
+                  style={{ width: "100%" }}
+                  type="text"
+                  placeholder="Enter Po Number"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+              )}
             </div>
             <MyButton
               disabled={searchDateRange === ""}

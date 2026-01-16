@@ -63,6 +63,7 @@ import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -918,8 +919,9 @@ const App = () => {
       </Box>
     );
   }
-
+const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
   return (
+    <GoogleOAuthProvider clientId={googleId}>
     <div style={{ height: "100vh" }}>
       <ToastContainer
         position="bottom-center"
@@ -1456,6 +1458,7 @@ const App = () => {
         </Layout>
       </Layout>
     </div>
+    </GoogleOAuthProvider>
   );
 };
 
