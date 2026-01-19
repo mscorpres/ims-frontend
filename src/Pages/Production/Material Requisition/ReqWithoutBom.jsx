@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Button,
   Card,
@@ -36,6 +36,7 @@ export default function ReqWithoutBom() {
 
   const [requestForm] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
+  const headerLocation = Form.useWatch("location", requestForm);
   const [rows, setRows] = useState([
     {
       id: v4(),
@@ -45,6 +46,7 @@ export default function ReqWithoutBom() {
       remarks: "",
       leftQty: "",
       unit: "--",
+      reason: "",
     },
   ]);
 
@@ -60,6 +62,7 @@ export default function ReqWithoutBom() {
         remarks: "",
         leftQty: "",
         unit: "--",
+        reason: "",
       },
     ];
     setRows(arr);
@@ -295,6 +298,7 @@ export default function ReqWithoutBom() {
         remarks: "",
         leftQty: "",
         unit: "--",
+        reason: "",
       },
     ]);
     requestForm.resetFields();
@@ -347,6 +351,7 @@ export default function ReqWithoutBom() {
       pic_loc: rows.map((row) => row.pickLocation),
       qty: rows.map((row) => row.qty),
       remark: rows.map((row) => row.remarks),
+      reason: rows.map((row) => row.reason || ""),
     };
     Modal.confirm({
       title: "Are you sure you want to submit the request?",
@@ -358,84 +363,127 @@ export default function ReqWithoutBom() {
     });
   };
 
+  // Find the header location text from options
+  const headerLocationOption = headerLocationOptionsm.find(
+    (opt) => opt.value === headerLocation
+  );
+  const headerLocationText = headerLocationOption?.text || "";
+
   // table columns
-  const columns = [
-    {
-      headerName: <CommonIcons action="addRow" onClick={addRows} />,
-      width: 30,
-      type: "rowChange",
-      field: "add",
-      renderCell: ({ row }) =>
-        rows.length > 1 && (
-          <div style={{ width: "100%" }}>
-            <CommonIcons
-              action="removeRow"
-              onClick={() => removeRows(row?.id)}
-            />
-          </div>
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        headerName: <CommonIcons action="addRow" onClick={addRows} />,
+        width: 30,
+        type: "rowChange",
+        field: "add",
+        renderCell: ({ row }) =>
+          rows.length > 1 && (
+            <div style={{ width: "100%" }}>
+              <CommonIcons
+                action="removeRow"
+                onClick={() => removeRows(row?.id)}
+              />
+            </div>
+          ),
+      },
+      {
+        headerName: "Component",
+        width: 200,
+        renderCell: ({ row }) => (
+          <MyAsyncSelect
+            loadOptions={getComponentOption}
+            optionsState={asyncOptions}
+            selectLoading={loading1("select")}
+            onBlur={() => setAsyncOptions([])}
+            value={row.component}
+            onChange={(value) =>
+              inputHandler(
+                "component",
+                { component: value, location: row.pickLocation },
+                row.id
+              )
+            }
+          />
         ),
-    },
-    {
-      headerName: "Component",
-      width: 200,
-      renderCell: ({ row }) => (
-        <MyAsyncSelect
-          loadOptions={getComponentOption}
-          optionsState={asyncOptions}
-          selectLoading={loading1("select")}
-          onBlur={() => setAsyncOptions([])}
-          value={row.component}
-          onChange={(value) =>
-            inputHandler(
-              "component",
-              { component: value, location: row.pickLocation },
-              row.id
-            )
-          }
-        />
-      ),
-    },
-    {
-      headerName: "Pick Location",
-      width: 100,
-      renderCell: ({ row }) => (
-        <MyAsyncSelect
-          loadOptions={getPickLocationOptions}
-          optionsState={pickLocationOptions}
-          onBlur={() => setPickLocationOptions([])}
-          value={row.pickLocation}
-          onChange={(value) =>
-            inputHandler(
-              "pickLocation",
-              { location: value, component: row.component },
-              row.id
-            )
-          }
-        />
-      ),
-    },
-    {
-      headerName: "Order Qty",
-      width: 150,
-      renderCell: ({ row }) => (
-        <Input
-          value={row.qty}
-          suffix={`${row.leftQty} ${row.unit}`}
-          onChange={(e) => inputHandler("qty", e.target.value, row.id)}
-        />
-      ),
-    },
-    {
-      headerName: "Remarks",
-      width: 150,
-      renderCell: ({ row }) => (
-        <Input
-          value={row.remarks}
-          onChange={(e) => inputHandler("remarks", e.target.value, row.id)}
-        />
-      ),
-    },
-  ];
+      },
+      {
+        headerName: "Pick Location",
+        width: 100,
+        renderCell: ({ row }) => (
+          <MyAsyncSelect
+            loadOptions={getPickLocationOptions}
+            optionsState={pickLocationOptions}
+            onBlur={() => setPickLocationOptions([])}
+            value={row.pickLocation}
+            onChange={(value) =>
+              inputHandler(
+                "pickLocation",
+                { location: value, component: row.component },
+                row.id
+              )
+            }
+          />
+        ),
+      },
+      {
+        headerName: "Order Qty",
+        width: 150,
+        renderCell: ({ row }) => (
+          <Input
+            value={row.qty}
+            suffix={`${row.leftQty} ${row.unit}`}
+            onChange={(e) => inputHandler("qty", e.target.value, row.id)}
+          />
+        ),
+      },
+      {
+        headerName: "Remarks",
+        width: 150,
+        renderCell: ({ row }) => (
+          <Input
+            value={row.remarks}
+            onChange={(e) => inputHandler("remarks", e.target.value, row.id)}
+          />
+        ),
+      },
+    ];
+
+    // Conditionally add reason column when header location is "SF024"
+    if (headerLocationText === "SF024") {
+      baseColumns.push({
+        headerName: "Reason",
+        width: 150,
+        renderCell: ({ row }) => {
+          const reasonOptions = [
+            { value: "SRTQTY", text: "Sort QTY" },
+            { value: "VENREJ", text: "Vendor Rejection" },
+            { value: "PRCREJ", text: "Process Rejection" },
+          ];
+          return (
+            <MySelect
+              options={reasonOptions}
+              value={row.reason}
+              onChange={(value) => inputHandler("reason", value, row.id)}
+            />
+          );
+        },
+      });
+    }
+
+    return baseColumns;
+  }, [
+    rows,
+    asyncOptions,
+    pickLocationOptions,
+    headerLocationText,
+    loading1,
+    addRows,
+    removeRows,
+    inputHandler,
+    getComponentOption,
+    getPickLocationOptions,
+  ]);
   useEffect(() => {
     getHeaderLocationOptions();
     getPickLocationOptions("");
