@@ -352,6 +352,14 @@ export default function ReqWithoutBom() {
       qty: rows.map((row) => row.qty),
       remark: rows.map((row) => row.remarks),
       reason: rows.map((row) => row.reason || ""),
+      tasks: rows.map((row) => ({
+        id: row.id,
+        component: row.component,
+        pickLocation: row.pickLocation,
+        qty: row.qty,
+        remarks: row.remarks,
+        reason: row.reason || "",
+      })),
     };
     Modal.confirm({
       title: "Are you sure you want to submit the request?",
