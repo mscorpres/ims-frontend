@@ -41,14 +41,13 @@ export default function CostCenterMapping() {
     ) {
       setSubmitLoading(true);
       const payload = {
-        costName: newCostCenter.costCenterName,
-        leaderId: newCostCenter.leaderName,
-        memberId: newCostCenter.memberName,
+        cost_center_name: newCostCenter.costCenterName,
+        leader_name: newCostCenter.leaderName,
+        member_name: newCostCenter.memberName,
       };
-      console.log(payload,"data")
-      return
+    
 
-      const { data } = await imsAxios.post("/purchaseOrder/createCostCenter",payload );
+      const { data } = await imsAxios.post("/admin/costCenterMapping/mapPOuserWithCostCenter",payload );
       setSubmitLoading(false);
       if (data.code == 200) {
         toast.success(data.message);
@@ -57,6 +56,7 @@ export default function CostCenterMapping() {
           leaderName: "",
           memberName: "",
         });
+        fetchCostCenterMapping();
       } else {
         toast.error(data.message.msg);
       }
@@ -150,7 +150,7 @@ export default function CostCenterMapping() {
               />
             </Form.Item>
             <Form.Item label="Cost Center Name">
-              <MyAsyncSelect selectLoading={loading1("select")} onBlur={() => setUserOptions([])} loadOptions={handleFetchCostCenterOptions} optionsState={userOptions} />
+              <MyAsyncSelect selectLoading={loading1("select")} onBlur={() => setUserOptions([])} loadOptions={handleFetchCostCenterOptions} optionsState={userOptions} onChange={(value: any) => inputHandler("costCenterName", value)} />
             </Form.Item>
           </Form>
           <Row justify="end">
