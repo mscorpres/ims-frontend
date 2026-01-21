@@ -130,6 +130,7 @@ import {
   JobworkApproval,
   JwToJw,
   JwToJwViewTransaction,
+  //@ts-ignore
 } from "../Pages/index.jsx";
 
 import {
@@ -271,6 +272,7 @@ import BOMList from "@/Pages/R&D/bom/list/index.js";
 import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 import SubGroup from "../Pages/Master/SubGroup.jsx";
 import AddCostCenter from "../Pages/Master/AddCostCenter.jsx";
+import CostCenterMapping from "@/Pages/Master/CostCenterMapping.js";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -567,6 +569,11 @@ const Routes = [
     path: "/masters/cost-center",
     exact: true,
     main: () => <AddCostCenter />,
+  },
+    {
+    path: "/masters/cost-center/mapping",
+    exact: true,
+    main: () => <CostCenterMapping />,
   },
   {
     path: "/completed-qc",
