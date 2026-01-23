@@ -128,6 +128,7 @@ import {
   JobworkApproval,
   JwToJw,
   JwToJwViewTransaction,
+  AddSKUOpeningRate,
 } from "../Pages/index.jsx";
 
 import {
@@ -321,6 +322,10 @@ const Routes = [
   {
     path: "/masters/products/sfg",
     main: () => <Product />,
+  },
+  {
+    path: "/masters/sku-opening-rate",
+    main: () => <AddSKUOpeningRate />,
   },
   {
     path: "/group",
