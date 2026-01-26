@@ -67,7 +67,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     );
 
     if (response.success) {
-      getLocation(response.data.header.costCenter);
+      getLocation(response.data.header.vendor.code);
       let arr = response.data.body.map((row, index) => {
         return {
           ...row,
@@ -106,13 +106,11 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setAsyncOptions(arr);
     }
   };
-  const getLocation = async (costCenter) => {
-    const { data } = await imsAxios.post("/backend/jw_sf_inward_location", {
-      cost_center: costCenter,
-    });
+  const getLocation = async (vendor) => {
+    const { data } = await imsAxios.get(`/backend/jw_sf_inward_location?vendor=${vendor}`);
     let arr = [];
     arr = data.data.map((d) => {
-      return { label: d.text, value: d.id };
+      return { label: d.loc_name, value: d.location_key };
     });
     setLocValue(arr);
   };
