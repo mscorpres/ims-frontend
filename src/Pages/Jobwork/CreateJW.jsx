@@ -106,6 +106,7 @@ export default function CreateJW({}) {
   const [showBranchModel, setShowBranchModal] = useState(false);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showAddVendorModal, setShowAddVendorModal] = useState(false);
+  const [dropLocationOptions, setDropLocationOptions] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
   const [taxSummary, setTaxSummary] = useState({
     value: "0",
@@ -200,6 +201,34 @@ export default function CreateJW({}) {
     });
     getData(response);
   };
+  console.log(createPoForm.getFieldValue("vendorname")?.value)
+
+    const getDropLocation = async () => {
+    let vendor = createPoForm.getFieldValue("vendorname")?.value;
+    if (vendor) {
+      try {
+        const response = await imsAxios.get(
+          `/backend/fetchVendorJWLocation?vendor=${vendor}`
+        );
+        if (response.success) {
+          let arr = [];
+          arr = response.data.map((row) => ({
+            value: row.id,
+            text: row.text,
+          }));
+          setDropLocationOptions(arr);
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        toast.error(error.message || "Failed to fetch pick location");
+      }
+    }
+  };
+
+  useEffect(()=>{
+    getDropLocation();
+  },[createPoForm.getFieldValue("vendorname")?.value])
 
   //   get cost center options
 
@@ -446,33 +475,34 @@ export default function CreateJW({}) {
     //validating form values
     const values = await createPoForm.validateFields();
     let finalObj = {
-      billingaddrid: values.billaddressid,
-      billingaddr: values.billaddress,
-      dispatch_id: values.shipaddressid,
-      dispatch_address: values.shipaddress,
-      termscondition: values.termscondition ?? "--",
-      quotationdetail: values.quotationdetail ?? "--",
-      paymentterms: values.paymentterms ?? "--",
-      paymenttermsday: values.paymenttermsday ?? 30,
-      pocostcenter: values.pocostcenter,
-      poproject_name: values.project_name,
-      jw_raise_by: values.jw_raise_by,
-      po_remark: values.po_comment ?? "--",
-      vendor_name: values.vendorname.value,
-      vendor_type: values.vendortype,
-      vendor_branch: values.vendorbranch,
-      vendor_address: values.vendoraddress,
-      bom: values.bom,
-      location: values.location,
-      product: [values.component],
+      poType: values.pocreatetype,
       qty: [values.qty],
+      gstRate: [values.gstRate],
+      gstType: [values.gstType],
+      product: [values.component],
+      project: values.project_name,
+      bom: values.bom,
       rate: [values.rate],
-      duedate: [values.dueDate],
-      part_remark: [values.description],
-      part_remark: [values.description],
-      hsncode: [values.hsn],
-      gsttype: [values.gstType],
-      gstrate: [values.gstRate],
+      costCenter: values.pocostcenter,
+      raiseBy: values.jw_raise_by,
+      pickLocation: values.location,
+      venJwLocation: values.venJwLocation,
+      billingAddressId: values.billaddressid,
+      billingAddress: values.billaddress,
+      dispatchId: values.shipaddressid,
+      vendorBranch: values.vendorbranch,
+      vendorAddress: values.vendoraddress,
+      dispatchAddress : values.shipaddress,
+      termsCondition: values.termscondition ?? "--",
+      quotationDetail: values.quotationdetail ?? "--",
+      paymentTerms: values.paymentterms ?? "--",
+      termsDay: values.paymenttermsday ?? 30,
+      poRemark: values.po_comment ?? "--",
+      partRemark: [values.description],
+      vendor: values.vendorname.value,
+      vendorType: values.vendortype,
+      dueDate: [values.dueDate],
+      hsnCode: [values.hsn],
       igst: [values.igst],
       cgst: [values.cgst],
       sgst: [values.sgst],
@@ -482,21 +512,16 @@ export default function CreateJW({}) {
       () => createJobWorkReq(finalObj),
       "select"
     );
-    console.log("response", response);
-
-    // const response = await imsAxios.post("/jobwork/createJobWorkReq", finalObj);
-    // setLoading("submitting", false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        toast.success(data.message);
+   console.log(response)
+      if (response.success) {
+        toast.success(response.message);
         resetHandler();
         setLoading("submitting", false);
       } else {
-        toast.error(data.message.msg);
+        toast.error(response.message);
         setLoading("submitting", false);
       }
-    }
+
     setLoading("submitting", false);
   };
   // reset handlerd
@@ -1211,11 +1236,11 @@ export default function CreateJW({}) {
             <Row gutter={6}>
               <Col span={4}>
                 <Form.Item
-                  label="Location"
+                  label="Pick Location"
                   rules={[
                     {
                       required: true,
-                      message: "Please Select a Location!",
+                      message: "Please Select a Pick Location!",
                     },
                   ]}
                   name="location"
@@ -1225,6 +1250,25 @@ export default function CreateJW({}) {
                     loadOptions={getLocatonOptions}
                     optionsState={asyncLocationOptions}
                     selectLoading={loading === "selectLocation"}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item
+                  label="Drop Location(Vendor Location)"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please Select a Drop Location!",
+                    },
+                  ]}
+                  name="venJwLocation"
+                >
+                  <MyAsyncSelect
+                    onBlur={() => setDropLocationOptions([])}
+                    loadOptions={getDropLocation}
+                    optionsState={dropLocationOptions}
+                    selectLoading={loading === "selectDropLocation"}
                   />
                 </Form.Item>
               </Col>

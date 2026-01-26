@@ -51,6 +51,7 @@ export { default as Services } from "../Pages/Master/Components/services/index.j
 export { default as StockControl } from "../Pages/Master/Components/stockControl/index.jsx";
 export { default as TransactionIn } from "./Store/Transaction/TransactionIn";
 export { default as TransactionOut } from "./Store/Transaction/TransactionOut";
+export { default as JWRMConsumptionReport } from "./Store/JWRMConsumptionReport";
 export { default as CompletedFG } from "./Store/FoodGoods/CompletedFG";
 export { default as PendingFG } from "./Store/FoodGoods/PendingFG";
 export { default as CreatePhysical } from "./Store/PhysicalStock/CreatePhysical";
@@ -116,6 +117,7 @@ export { default as JwRmChallan } from "./Jobwork/JWRMChallan/JwRwChallan";
 export { default as JwsfInward } from "./Jobwork/JwsfInward";
 export { default as JwPendingRequest } from "./Jobwork/JwPendingRequest";
 export { default as JwrmReturn } from "./Jobwork/JwrmReturn";
+export { default as JwRmConsumption } from "./Jobwork/JwRmConsumption";
 export { default as JwCompleted } from "./Jobwork/JwCompleted";
 export { default as JWSupplementary } from "./Jobwork/update/supplementary";
 export { default as JWUpdateRate } from "./Jobwork/update/rate";

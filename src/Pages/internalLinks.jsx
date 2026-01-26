@@ -530,6 +530,10 @@ const links = [
       routePath: "/jw-rm-return",
     },
     {
+      routeName: "JW RM CONSUMPTION",
+      routePath: "/jw-rm-consumption",
+    },
+    {
       routeName: "JW COMPLETED",
       routePath: "/jw-completed",
     },
@@ -663,6 +667,10 @@ const links = [
     {
       routeName: "View Documents",
       routePath: "/uploaded-documents",
+    },
+    {
+      routeName: "JW RM Consumption Report",
+      routePath: "/jw-rm-consumption-report",
     },
   ],
   // reports r1-r14 links

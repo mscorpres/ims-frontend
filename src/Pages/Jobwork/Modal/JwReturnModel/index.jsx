@@ -11,6 +11,7 @@ import {
   Upload,
   Button,
 } from "antd";
+import MySelect from "../../../../Components/MySelect";
 import HeaderDetails from "./HeaderDetails";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { useEffect } from "react";
@@ -36,10 +37,12 @@ const JwReturnModel = ({ show, close }) => {
   const [rows, setRows] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [autoConsOptions, setAutoConsumptionOption] = useState([]);
+  const [vendorLocationOptions, setVendorLocationOptions] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [open, setOpen] = useState(false);
   const [preview, setPreview] = useState(false);
   const [previewRows, setPreviewRows] = useState([]);
+  const [vendor, setVendor] = useState("");
 
   const { executeFun, loading: loading1 } = useApi();
   const [form] = Form.useForm();
@@ -74,6 +77,28 @@ const JwReturnModel = ({ show, close }) => {
       setLoading("fetch", false);
     }
   };
+  const getVendorLocationOptions = async (vendor) => {
+    if (vendor) {
+      try {
+        const response = await imsAxios.get(
+          `/backend/fetchVendorJWLocation?vendor=${vendor}`
+        );
+        if (response.success) {
+          let arr = [];
+          arr = response.data.map((row) => ({
+            value: row.id,
+            text: row.text,
+          }));
+          setVendorLocationOptions(arr);
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        toast.error(error.message || "Failed to fetch pick location");
+      }
+    }
+  };
+
   const getAutoComnsumptionOptions = async () => {
     // setPageLoading(true);
     let { data } = await imsAxios.get("/transaction/fetchAutoConsumpLocation");
@@ -97,6 +122,7 @@ const JwReturnModel = ({ show, close }) => {
         transaction: transaction,
       });
       const headerValues = data.header;
+      setVendor(headerValues?.vendor?.code)
       let headerArr = [];
       const headerObj = {
         "Created By": headerValues.created_by,
@@ -150,6 +176,7 @@ const JwReturnModel = ({ show, close }) => {
       remark: selectedRows.map((row) => row.remark ?? "--"),
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
+      vendor_location:values?.vendor_location?.value
     };
     // console.log("finalObj", finalObj);
 
@@ -170,11 +197,8 @@ const JwReturnModel = ({ show, close }) => {
     try {
       setLoading("submit", true);
       const response = await imsAxios.post("/jobwork/saveJwRmReturn", values);
-      // console.log("response is here->", response);
-      let { data } = response;
       if (response.success) {
-        // console.log("data.message", data.message.msg);
-        toast.success(response.message.msg);
+        toast.success(response.message);
         setPreview(false);
         setPreviewRows([]);
         setSelectedRows([]);
@@ -183,7 +207,11 @@ const JwReturnModel = ({ show, close }) => {
           window.location.reload();
         }, 1500); // 1500 milliseconds  = 1.5 seconds
       }
+      else{
+        toast.error(response.message);
+      }
     } catch (error) {
+      toast.error(error.message);
     } finally {
       setLoading("submit", false);
     }
@@ -203,6 +231,11 @@ const JwReturnModel = ({ show, close }) => {
       getLocationOptions();
     }
   }, [show]);
+
+  useEffect(()=>{
+    getVendorLocationOptions(vendor);
+  },[vendor])
+  
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;
@@ -397,7 +430,10 @@ const JwReturnModel = ({ show, close }) => {
                   <Card size="small" title="Header Details">
                     <Form.Item name="ewayBill" label="E-Way Bill No.">
                       <Input />
-                    </Form.Item>
+            </Form.Item>
+                    <Form.Item label="Vendor Location" name="vendor_location">
+          <MySelect labelInValue={true} options={vendorLocationOptions} />
+        </Form.Item>
                   </Card>
                 </Col>
 

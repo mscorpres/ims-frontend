@@ -181,8 +181,8 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
         duration: restCom?.duration,
         other_ref: restCom?.otherRef,
         // picklocation: obj?.pickLocation,
-        droplocation: obj?.dropLocation,
-        picklocation: obj?.pickLocation,
+        // droplocation: obj?.dropLocation,
+        // picklocation: obj?.pickLocation,
       },
       material: finalObj,
       // transaction_id: obj?.,
@@ -698,26 +698,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
                 <Col span={8}>
                   <Form.Item label="Pin Code" name="dispatchfrompincode">
                     <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    label="Pick Location"
-                    name="pickLocation"
-                  >
-                    <MySelect
-                      options={locationOptions}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    label="Drop Location"
-                    name="dropLocation"
-                  >
-                    <MySelect
-                      options={dropLocationOptions}
-                    />
                   </Form.Item>
                 </Col>
               </Row>

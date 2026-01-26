@@ -6,38 +6,34 @@ import {
   Row,
   Space,
   Input,
-  Select,
   Button,
   Skeleton,
-  Popconfirm,
   Form,
   Typography,
-  Upload,
   Modal,
-  Checkbox,
 } from "antd";
 import { CloseCircleFilled, InboxOutlined } from "@ant-design/icons";
-import MySelect from "../../../Components/MySelect";
+import MySelect from "../../../Components/MySelect.jsx";
 import { v4 } from "uuid";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
+import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { toast } from "react-toastify";
-import { imsAxios } from "../../../axiosInterceptor";
-import FormTable from "../../../Components/FormTable";
-import useLoading from "../../../hooks/useLoading";
+import { imsAxios } from "../../../axiosInterceptor.js";
+import FormTable from "../../../Components/FormTable.jsx";
+import useLoading from "../../../hooks/useLoading.js";
 import {
   getBomItem,
   getComponentOptions,
   savejwsfinward,
 } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-import NavFooter from "../../../Components/NavFooter";
+import NavFooter from "../../../Components/NavFooter.jsx";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { AiOutlineMinusSquare } from "react-icons/ai";
-import { uploadMinInvoice } from "../../../api/store/material-in";
-import SuccessPage from "../../Store/MaterialIn/SuccessPage";
-import ToolTipEllipses from "../../../Components/ToolTipEllipses";
-import SingleProduct from "../../Master/Vendor/SingleProduct";
-export default function JwInwordModal({ editModal, setEditModal }) {
+import { uploadMinInvoice } from "../../../api/store/material-in.js";
+import SuccessPage from "../../Store/MaterialIn/SuccessPage.jsx";
+import ToolTipEllipses from "../../../Components/ToolTipEllipses.jsx";
+import SingleProduct from "../../Master/Vendor/SingleProduct.jsx";
+export default function JwRmConsumptionModal({ editModal, setEditModal }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locValue, setLocValue] = useState([]);
   const [header, setHeaderData] = useState([]);
@@ -45,35 +41,98 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const [modalUploadLoad, setModalUploadLoad] = useState(false);
   const { all, row } = editModal;
   const [mainData, setMainData] = useState([]);
-  const [eWayBill, setEWayBill] = useState("");
+  const [challanNo, setChallanNo] = useState("");
+  const [invoice, setInvoice] = useState("");
   const [bomList, setBomList] = useState([]);
   const [showBomList, setShowBomList] = useState(false);
   const [conrem, setConRem] = useState("");
   const [loading, setLoading] = useState(false);
   const [attachment, setAttachment] = useState("");
   const [irnNo, setIrnNo] = useState("");
+  const [uploadedInvoiceDetails, setUploadedInvoiceDetails] = useState(null);
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [isApplicable, setIsApplicable] = useState(false);
   const [isScan, setIsScan] = useState(false);
   const [modalForm] = Form.useForm();
-
+  const [challanDate, setChallanDate] = useState(null);
+  const [consumpLoc, setConsumpLoc] = useState("20211028124102");
   const fileComponents = Form.useWatch("fileComponents", modalForm);
   const [uplaoaClicked, setUploadClicked] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const getFetchData = async () => {
     setModalLoad("fetch", true);
+    if (editModal.bomData && editModal.qty) {
+      const jwId = row?.transaction_id || row?.jw_transaction_id;
+      if (jwId) {
+        try {
+          // Call BOM API with qty
+          const bomResponse = await imsAxios.get(
+            `/jobwork/rm-consumption/view/bom?jw=${encodeURIComponent(
+              jwId
+            )}&qty=${editModal.qty}`
+          );
+
+          if (bomResponse.success || bomResponse.data) {
+            // Process BOM data - response structure: { success, status, data: { header, body: [...] } }
+            const bomDataArray =
+              bomResponse.data?.body ||
+              bomResponse.data?.data ||
+              bomResponse.data ||
+              [];
+
+            // Also set header data if available
+            if (bomResponse.data?.header) {
+              setHeaderData(bomResponse.data.header);
+              setIsApplicable(bomResponse.data.header.einvoiceStatus);
+              // if (bomResponse.data.header.costCenter) {
+              //   getLocation(bomResponse.data.header.costCenter);
+              // }
+            }
+
+            const arr = bomDataArray.map((r, id) => {
+              return {
+                id: id + 1,
+                bomQty: r.bomQty,
+                partName: r.partName,
+                catPartName: r.catPartName,
+                partNo: r.partNo,
+                venLocationStock: r.venLocationStock || 0,
+                stock: r.stock || r.venLocationStock || 0,
+                rqdQty: r.reqQty || r.rqdQty || 0,
+                pendingWithjobwork: r.pendingWithjobwork || 0,
+                uom: r.uom,
+                key: r.key,
+                conRemark: r.conRemark || "",
+              };
+            });
+            setBomList(arr);
+            setShowBomList(true);
+            setModalLoad("fetch", false);
+          } else {
+            toast.error(bomResponse.message || "Failed to fetch BOM data");
+            setModalLoad("fetch", false);
+          }
+        } catch (error) {
+          toast.error(error.message || "Error fetching BOM data");
+          setModalLoad("fetch", false);
+        }
+      }
+      return;
+    }
+
+    // Original API call for normal flow
     const response = await imsAxios.get(
       `/jobwork/fetch_jw_sf_inward_components?skucode=${row.sku}&transaction=${row.transaction_id}`
     );
 
     if (response.success) {
-      getLocation(response.data.header.costCenter);
+      // getLocation(response.data.header.costCenter);
       let arr = response.data.body.map((row, index) => {
         return {
           ...row,
           id: v4(),
           index: index + 1,
-          // orderqty: row.orderQty,
+          orderqty: row.orderQty,
           unitsname: row.unit,
           component: {
             label: `${row.component.name} ${row.component.part}`,
@@ -105,16 +164,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       });
       setAsyncOptions(arr);
     }
-  };
-  const getLocation = async (costCenter) => {
-    const { data } = await imsAxios.post("/backend/jw_sf_inward_location", {
-      cost_center: costCenter,
-    });
-    let arr = [];
-    arr = data.data.map((d) => {
-      return { label: d.text, value: d.id };
-    });
-    setLocValue(arr);
   };
 
   const getPickLocation = async () => {
@@ -248,6 +297,54 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           }
         })
       );
+    } else if (name == "consumptionQty") {
+      const numValue = Number.parseFloat(value);
+
+      // Check if we're in BOM mode (showBomList is true) - search in bomList
+      // Otherwise search in mainData
+      const currentRow = showBomList
+        ? bomList.find((aa) => aa.id == id)
+        : mainData.find((aa) => aa.id == id);
+
+      // Get stock quantity - in BOM mode use venLocationStock, otherwise use stock or orderqty
+      const stockQty = showBomList
+        ? currentRow?.venLocationStock || currentRow?.stock || 0
+        : currentRow?.stock || currentRow?.orderqty || 0;
+
+      // if (Number.isNaN(numValue) || numValue < 0) {
+      //   toast.error("Please enter a valid positive number");
+      //   return;
+      // }
+
+      if (numValue > stockQty) {
+        toast.error(
+          `Consumption quantity cannot exceed stock quantity (${stockQty})`
+        );
+        return;
+      }
+
+      // Update the appropriate state based on mode
+      if (showBomList) {
+        setBomList((a) =>
+          a.map((aa) => {
+            if (aa.id == id) {
+              return { ...aa, consumptionQty: numValue };
+            } else {
+              return aa;
+            }
+          })
+        );
+      } else {
+        setMainData((a) =>
+          a.map((aa) => {
+            if (aa.id == id) {
+              return { ...aa, consumptionQty: numValue };
+            } else {
+              return aa;
+            }
+          })
+        );
+      }
     }
   };
   const removeRow = (id) => {
@@ -258,113 +355,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     });
   };
 
-  const columns = [
-    {
-      field: "componentname",
-      headerName: "Part Name",
-      width: 320,
-      renderCell: ({ row }) => (
-        <MyAsyncSelect
-          style={{ width: "100%" }}
-          onBlur={() => setAsyncOptions([])}
-          loadOptions={getOption}
-          value={row.component}
-          optionsState={asyncOptions}
-          onChange={(e) => inputHandler("component", row.id, e)}
-          placeholder="Part/Name"
-          selectLoading={loading1("select")}
-        />
-      ),
-    },
-    {
-      field: "orderqty",
-      headerName: "Quantity",
-      width: 180,
-      renderCell: ({ row }) => (
-        <Input
-          suffix={row.unitsname}
-          value={row.orderqty}
-          type="number"
-          placeholder="Qty"
-          onChange={(e) => inputHandler("orderqty", row.id, e.target.value)}
-        />
-      ),
-    },
-    {
-      field: "rate",
-      headerName: "Rate",
-      width: 180,
-      renderCell: ({ row }) => (
-        <Input
-          type="number"
-          //  value={row.orderqty}
-          placeholder="Rate"
-          onChange={(e) => inputHandler("rate", row.id, e.target.value)}
-        />
-      ),
-    },
-    {
-      field: "value",
-      headerName: "Value",
-      width: 120,
-      renderCell: ({ row }) => (
-        <Input
-          disabled
-          value={row.orderqty * row.rate ? row.orderqty * row.rate : "--"}
-          placeholder="Value"
-          onChange={(e) => inputHandler("value", row.id, e.target.value)}
-        />
-      ),
-    },
-    {
-      field: "invoice",
-      headerName: "Invoice Id",
-      width: 220,
-      renderCell: ({ row }) => (
-        <Input
-          //  value={row.orderqty}
-          placeholder="Invoice"
-          onChange={(e) => inputHandler("invoice", row.id, e.target.value)}
-        />
-      ),
-    },
-    // {
-    //   field: "irn",
-    //   headerName: "Acknowledgment Number",
-    //   width: 220,
-    //   renderCell: ({ row }) => (
-    //     <Input
-    //       //  value={row.orderqty}
-    //       placeholder="Acknowledgment Number"
-    //       onChange={(e) => inputHandler("irn", row.id, e.target.value)}
-    //     />
-    //   ),
-    // },
-    {
-      field: "remark",
-      headerName: "Remark",
-      width: 220,
-      renderCell: ({ row }) => (
-        <Input
-          //  value={row.orderqty}
-          placeholder="Remark"
-          onChange={(e) => inputHandler("remark", row.id, e.target.value)}
-        />
-      ),
-    },
-    {
-      field: "location",
-      headerName: "Location",
-      width: 120,
-      renderCell: ({ row }) => (
-        <Select
-          style={{ width: "100%" }}
-          options={locValue}
-          onChange={(e) => inputHandler("location", row.id, e)}
-        />
-      ),
-    },
-  ];
   const bomcolumns = [
     {
       headerName: "",
@@ -418,16 +408,27 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       renderCell: ({ row }) => <Input disabled value={row.partName} />,
     },
     {
-      field: "bomQty",
-      headerName: "Bom Qty",
-      width: 150,
-      renderCell: ({ row }) => <Input disabled value={row.bomQty} />,
-    },
-    {
-      field: "rqdQty",
-      headerName: "Required Qty",
-      width: 120,
-      renderCell: ({ row }) => <Input value={row.rqdQty} />,
+      field: "consumptionQty",
+      headerName: "Consumption Qty",
+      width: 180,
+      renderCell: ({ row }) => {
+        // Use venLocationStock if available (BOM mode), otherwise use stock or orderqty
+        const stockQty =
+          row?.venLocationStock || row?.stock || row?.orderqty || 0;
+        return (
+          <Input
+            type="number"
+            placeholder="Consumption Qty"
+            value={row.consumptionQty || ""}
+            onChange={(e) =>
+              inputHandler("consumptionQty", row.id, e.target.value)
+            }
+            max={stockQty}
+            min={0}
+            step="any"
+          />
+        );
+      },
     },
     // {
     //   field: "pendingWithjobwork",
@@ -444,6 +445,12 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       renderCell: ({ row }) => <Typography.Text>{row.uom}</Typography.Text>,
     },
     {
+      field: "venLocationStock",
+      headerName: "Vendor Location Stock",
+      width: 180,
+      renderCell: ({ row }) => <Input disabled value={row.venLocationStock} />,
+    },
+    {
       field: "conRemark",
       headerName: "Consumption Remark",
       width: 150,
@@ -457,12 +464,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
         />
       ),
     },
-    {
-      field: "pendingStock",
-      headerName: "JW Pending Stock",
-      width: 180,
-      renderCell: ({ row }) => <Input disabled value={row.pendingStock} />,
-    },
   ];
   const prev = async () => {
     getFetchData();
@@ -473,10 +474,91 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   };
 
   const saveFunction = async (fetchAttachment) => {
+    // Check if we're in BOM mode (from view/bom API) - skip upload modal
+    if (showBomList && editModal.qty && bomList.length > 0) {
+      // Validate required fields
+      if (!challanNo || challanNo.trim() === "") {
+        toast.error("Please enter Challan Number");
+        return;
+      }
+      if (!challanDate || challanDate.trim() === "") {
+        toast.error("Please select Challan Date");
+        return;
+      }
+      if (!consumpLoc || consumpLoc.trim() === "") {
+        toast.error("Please select Consumption Location");
+        return;
+      }
+      // if (!fetchAttachment) {
+      //   const fileComponentsValue = modalForm.getFieldValue("fileComponents");
+      //   if (!fileComponentsValue || fileComponentsValue.length === 0) {
+      //     if (!attachment || attachment === "") {
+      //       toast.error("Please upload documents");
+      //       return;
+      //     }
+      //   }
+      // }
+
+      const invoiceData =
+        uploadedInvoiceDetails?.data?.data ||
+        uploadedInvoiceDetails?.data ||
+        (fetchAttachment ? fetchAttachment : "");
+
+      const payload = {
+        challanNo: challanNo,
+        jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
+        component: bomList.map((r) => r.key),
+        consumpQty: bomList.map((r) => r.consumptionQty || 0),
+        invoice: invoiceData,
+        remark: bomList.map((r) => r.conRemark || ""),
+        consumpLoc: consumpLoc,
+        challanDate: challanDate,
+      };
+
+      setLoading(true);
+      try {
+        const response = await imsAxios.post(
+          "/jobwork/rm-consumption/save",
+          payload
+        );
+
+        if (response.success || response.data?.status === "success") {
+          setLoading(false);
+          toast.success(
+            response.message ||
+              response.data?.message ||
+              "RM Consumption saved successfully"
+          );
+          setShowBomList(false);
+          modalForm.resetFields();
+          setBomList([]);
+          setChallanNo("");
+          setInvoice("");
+          setUploadedInvoiceDetails(null);
+          setAttachment("");
+          setEditModal(false);
+        } else {
+          setLoading(false);
+          toast.error(
+            response.message ||
+              response.data?.message ||
+              "Failed to save RM Consumption"
+          );
+        }
+      } catch (error) {
+        setLoading(false);
+        toast.error(error.message || "Error saving RM Consumption");
+      }
+      return;
+    }
+
+    // Original flow for normal mode - requires upload modal
     // let filedata = modalForm.getFieldValue("fileComponents");
     let value = await modalForm.validateFields();
     let filedata = value.fileComponents;
     let pickLocation = value.pickLocation;
+
+    // Original flow for normal mode
     let payload = {
       attachment: fetchAttachment,
       companybranch: "BRMSC012",
@@ -486,7 +568,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       consCompcomponents: bomList.map((r) => r.key),
       consQty: bomList.map((r) => r.rqdQty),
       consRemark: bomList.map((r) => r.conRemark),
-      ewaybill: eWayBill,
+      challanNo: challanNo,
       invoice: mainData[0].invoice,
       irn: irnNo,
       jobwork_trans_id: header.jobworkID,
@@ -562,7 +644,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           partName: r.part_name,
           catPartName: r.catPartName,
           partNo: r.part_no,
-          pendingStock: r.pendingWithjobwork,
+          venLocationStock: r.venLocationStock,
           rqdQty: r.rqd_qty,
           pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
@@ -579,88 +661,98 @@ export default function JwInwordModal({ editModal, setEditModal }) {
 
     setLoading(false);
   };
-  // const addAttachmentModal = async () => {
-  //   // const values = await modalForm.validateFields();
-  //   Modal.confirm({
-  //     title: "Do you want to submit this JW SF Inward??",
-  //     content: (
-  //       <Form form={modalForm} layout="vertical">
-  //         <Form.Item
-  //           label="Invoice / Document"
-  //           rules={[
-  //             {
-  //               required: true,
-  //               message: "Please Select attachment!",
-  //             },
-  //           ]}
-  //         >
-  //           <Form.Item
-  //             name="invoice"
-  //             valuePropName="file"
-  //             getValueFromEvent={(e) => e?.file}
-  //             noStyle
-  //             rules={[
-  //               {
-  //                 required: true,
-  //                 message: "Please Select attachment!",
-  //               },
-  //             ]}
-  //           >
-  //             <Upload.Dragger
-  //               name="invoice"
-  //               beforeUpload={() => false}
-  //               // maxCount={1}
-  //               multiple={true}
-  //             >
-  //               <p className="ant-upload-drag-icon">
-  //                 <InboxOutlined />
-  //               </p>
-  //               <p className="ant-upload-text">
-  //                 Click or drag file to this area to upload
-  //               </p>
-  //               <p className="ant-upload-hint">
-  //                 Upload vendor invoice / Document.
-  //               </p>
-  //             </Upload.Dragger>
-  //           </Form.Item>
-  //         </Form.Item>
-  //       </Form>
-  //     ),
-  //     onOk: () => submitHandler(),
-  //     okText: "Submit",
-  //   });
-  // };
+
+  const handleSave = async () => {
+    setLoading(true);
+    let final = {
+      jwID: header?.jobworkID,
+      sfgCreateQty: mainData[0].orderqty,
+    };
+    const response = await executeFun(() => getBomItem(final), "select");
+    if (response.data.status === "success" || response.data.code == 200) {
+      const { data } = response;
+      let arr = data.data.map((r, id) => {
+        return {
+          id: id + 1,
+          bomQty: r.bom_qty,
+          partName: r.part_name,
+          catPartName: r.catPartName,
+          partNo: r.part_no,
+          venLocationStock: r.venLocationStock,
+          rqdQty: r.rqd_qty,
+          uom: r.uom,
+          key: r.key,
+        };
+      });
+      setBomList(arr);
+      setLoading(false);
+      // Directly open upload modal for save
+      setUploadClicked(true);
+    } else {
+      toast.error(response.data.message.msg);
+      setLoading(false);
+    }
+  };
+
   const newMinFunction = () => {
     setMaterialInSuccess(false);
   };
   const submitHandler = async () => {
-    setUploadClicked(false);
-    const formData = new FormData();
-    const values = await modalForm.validateFields();
-    let fileName;
-    values.fileComponents.map((comp) => {
-      formData.append("files", comp.file[0]?.originFileObj);
-    });
-    const fileResponse = await executeFun(
-      () => uploadMinInvoice(formData),
-      "submit"
-    );
-    if (fileResponse.success) {
-      const { data } = fileResponse;
-      let fetchAttachment = data.data;
-      setAttachment(fetchAttachment);
-      saveFunction(fetchAttachment);
+    try {
+      const values = await modalForm.validateFields();
+
+      // Validate fileComponents
+      if (!values.fileComponents || values.fileComponents.length === 0) {
+        toast.error("Please upload at least one document");
+        return;
+      }
+
+      const formData = new FormData();
+      values.fileComponents.forEach((comp) => {
+        if (comp.file && comp.file[0]?.originFileObj) {
+          formData.append("files", comp.file[0]?.originFileObj);
+        }
+      });
+
+      if (formData.getAll("files").length === 0) {
+        toast.error("Please upload at least one document file");
+        return;
+      }
+
+      const fileResponse = await executeFun(
+        () => uploadMinInvoice(formData),
+        "submit"
+      );
+      if (fileResponse.success) {
+        const { data } = fileResponse;
+        let fetchAttachment = data.data;
+        setAttachment(fetchAttachment);
+        // Store invoice details from upload response
+        setUploadedInvoiceDetails(data);
+        setUploadClicked(false);
+
+        // If in BOM mode, automatically call saveFunction after upload
+        // if (showBomList && editModal.qty && bomList.length > 0) {
+        //   saveFunction(fetchAttachment);
+        // }
+      } else {
+        toast.error(fileResponse.message || "Failed to upload documents");
+      }
+    } catch (error) {
+      toast.error(error.message || "Error uploading documents");
     }
   };
 
   useEffect(() => {
     if (editModal) {
       getFetchData();
-      // getLocation();
-      setEWayBill("");
-      setShowBomList(false);
-      setBomList([]);
-      newMinFunction();
+      setChallanNo("");
+      setInvoice("");
+      if (!editModal.bomData) {
+        setShowBomList(false);
+        setBomList([]);
+        newMinFunction();
+      }
     }
   }, [editModal]);
 
@@ -669,6 +761,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     setEditModal(false);
     setShowBomList(false);
     setBomList([]);
+    setChallanNo("");
+    setInvoice("");
     modalForm.resetFields();
   };
   return (
@@ -766,86 +860,110 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                   >
                     Job Worker: {header?.vendor?.name}
                   </Col>
-                  <Col
-                    span={8}
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: "bolder",
-                      marginTop: "20px",
-                    }}
-                  >
-                    <Form size="small">
-                      <Form.Item label="E-Way Bill No.">
-                        <Input
-                          style={{ width: "15rem" }}
-                          size="small"
-                          value={eWayBill}
-                          onChange={(e) => setEWayBill(e.target.value)}
-                        />
-                      </Form.Item>
-                    </Form>
-                  </Col>
-                  {isApplicable == "Y" && (
-                    <Col
-                      span={6}
-                      style={{ display: "flex", paddingLeft: "-2px" }}
-                    >
-                      <span>
-                        <Col span={24}>
-                          <Checkbox
-                            checked={isScan}
-                            onChange={(e) => setIsScan(e.target.checked)}
-                          />
-                          <Typography.Text
-                            style={{
-                              fontSize: 11,
-                              marginLeft: "4px",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {" "}
-                            Scan with QR Code
-                          </Typography.Text>
-                        </Col>{" "}
-                        <Col
-                          span={24}
-                          style={{
-                            marginTop: "5px",
-                            fontSize: "12px",
-                            fontWeight: "bolder",
-                            // marginLeft: "8rem",
-                          }}
-                        >
-                          <Form size="small">
-                            <Form.Item label="Acknowledgment Number">
-                              <Input
-                                size="small"
-                                style={{ width: "15rem" }}
-                                value={irnNo}
-                                onChange={(e) => setIrnNo(e.target.value)}
-                                disabled={isScan}
-                              />
-                            </Form.Item>
-                          </Form>
-                        </Col>
-                      </span>
-                    </Col>
-                  )}
                 </Row>
               </Card>
-              <div style={{ height: "50%", marginTop: "5px" }}>
-                <div style={{ height: "100%" }}>
-                  {showBomList && bomList ? (
+              <Row gutter={16} style={{ marginTop: "5px" }}>
+                {/* Left Section - 20% width (5/24 = ~20.8%) */}
+                <Col span={5} style={{ height: "50vh" }}>
+                  <Card size="small" title="Details" style={{ height: "100%" }}>
+                    <Form size="small" layout="vertical">
+                      <Form.Item
+                        label="Challan Number"
+                        required
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter Challan Number",
+                          },
+                        ]}
+                      >
+                        <Input
+                          size="medium"
+                          value={challanNo}
+                          onChange={(e) => setChallanNo(e.target.value)}
+                          placeholder="Enter Challan Number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please enter Challan Number",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Challan Date"
+                        name="challanDate"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select Challan Date",
+                          },
+                        ]}
+                      >
+                        <SingleDatePicker
+                          size="medium"
+                          value={challanDate}
+                          setDate={(date) => setChallanDate(date)}
+                          placeholder="Select Challan Date"
+                          format={"DD-MM-YYYY"}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select Challan Date",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Consumption Location"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select Consumption Location",
+                          },
+                        ]}
+                        name="consumpLoc"
+                      >
+                        <MySelect
+                          options={[
+                            { text: "Cons021", value: "20211028124102" },
+                          ]}
+                          onChange={(value) => setConsumpLoc(value)}
+                          placeholder="Select Consumption Location"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select Consumption Location",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+
+                      <Form.Item label="Upload Documents">
+                        <Button
+                          type="default"
+                          size="medium"
+                          icon={<InboxOutlined />}
+                          onClick={() => setUploadClicked(true)}
+                          block
+                        >
+                          Upload
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                </Col>
+                {/* Right Section - 80% width (19/24 = ~79.2%) */}
+                <Col span={19} style={{ height: "50vh" }}>
+                  <div style={{ height: "100%" }}>
                     <FormTable
                       data={bomList}
                       columns={bomcolumns}
                       loading={loading}
                     />
-                  ) : (
-                    <FormTable data={mainData} columns={columns} />
-                  )}
-                </div>
-              </div>
+                  </div>
+                </Col>
+              </Row>
               <Row style={{ marginTop: "50px" }}>
                 <Col span={24}>
                   <div style={{ textAlign: "end" }}>
@@ -856,9 +974,21 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                         <Button
                           style={{ marginLeft: 4 }}
                           type="primary"
-                          onClick={() => setUploadClicked(true)}
+                          onClick={() => {
+                            // In BOM mode, call saveFunction directly without upload modal
+                            if (
+                              showBomList &&
+                              editModal.qty &&
+                              bomList.length > 0
+                            ) {
+                              saveFunction();
+                            } else {
+                              // Normal mode - open upload modal
+                              setUploadClicked(true);
+                            }
+                          }}
                           // loading={loading}
-                          loading={modalUploadLoad}
+                          loading={loading || modalUploadLoad}
                         >
                           Save
                         </Button>
@@ -866,10 +996,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                     ) : (
                       <NavFooter
                         loading={loading}
-                        submitFunction={getBomList}
+                        submitFunction={saveFunction}
                         backFunction={closeModal}
                         // resetFunction={resetHandler}
-                        nextLabel="Next"
+                        nextLabel="Save"
                       />
                     )}
                   </div>
@@ -892,7 +1022,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
             title={"Upload Document"}
             // destroyOnClose={true}
             onOk={() => submitHandler()}
-            onCancel={() => setUploadClicked(false)}
+            onCancel={() => {
+              setUploadClicked(false);
+            }}
             // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
           >
             {" "}
@@ -912,33 +1044,62 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                       overflowY: "auto",
                     }}
                   >
-                    <Form.List name="fileComponents">
-                      {(fields, { add, remove }) => (
-                        <>
-                          <Col>
-                            {fields.map((field, index) => (
-                              <Form.Item noStyle>
-                                <SingleProduct
-                                  fields={fields}
-                                  field={field}
-                                  index={index}
-                                  add={add}
-                                  form={modalForm}
-                                  remove={remove}
-                                  // setFiles={setFiles}
-                                  // files={files}
-                                />
-                              </Form.Item>
-                            ))}
-                            <Row justify="center">
-                              <Typography.Text type="secondary">
-                                ----End of the List----
-                              </Typography.Text>
-                            </Row>
-                          </Col>
-                        </>
-                      )}
-                    </Form.List>
+                    <Form.Item
+                      name="fileComponents"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please upload at least one document",
+                          validator: (_, value) => {
+                            if (!value || value.length === 0) {
+                              return Promise.reject(
+                                new Error("Please upload at least one document")
+                              );
+                            }
+                            // Check if at least one file is uploaded
+                            const hasFile = value.some(
+                              (comp) => comp.file && comp.file[0]
+                            );
+                            if (!hasFile) {
+                              return Promise.reject(
+                                new Error(
+                                  "Please upload at least one document file"
+                                )
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Form.List name="fileComponents">
+                        {(fields, { add, remove }) => (
+                          <>
+                            <Col>
+                              {fields.map((field, index) => (
+                                <Form.Item noStyle key={field.key}>
+                                  <SingleProduct
+                                    fields={fields}
+                                    field={field}
+                                    index={index}
+                                    add={add}
+                                    form={modalForm}
+                                    remove={remove}
+                                    // setFiles={setFiles}
+                                    // files={files}
+                                  />
+                                </Form.Item>
+                              ))}
+                              <Row justify="center">
+                                <Typography.Text type="secondary">
+                                  ----End of the List----
+                                </Typography.Text>
+                              </Row>
+                            </Col>
+                          </>
+                        )}
+                      </Form.List>
+                    </Form.Item>
                   </Col>
                 </div>
               </Card>

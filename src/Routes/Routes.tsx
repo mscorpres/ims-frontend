@@ -7,6 +7,7 @@ import {
   // MaterialTransaction,
   TransactionIn,
   TransactionOut,
+  JWRMConsumptionReport,
   CompletedFG,
   PendingFG,
   CreateFGOut,
@@ -67,6 +68,7 @@ import {
   JwIssue,
   JwsfInward,
   JwrmReturn,
+  JwRmConsumption,
   JwCompleted,
   UpdateRM,
   ReverseMin,
@@ -405,6 +407,10 @@ const Routes = [
   {
     path: "/transaction-Out",
     main: () => <TransactionOut />,
+  },
+  {
+    path: "/jw-rm-consumption-report",
+    main: () => <JWRMConsumptionReport />,
   },
   {
     path: "/completedFG",
@@ -916,6 +922,10 @@ const Routes = [
   {
     path: "/jw-rm-return",
     main: () => <JwrmReturn />,
+  },
+  {
+    path: "/jw-rm-consumption",
+    main: () => <JwRmConsumption />,
   },
   {
     path: "/jw-completed",
