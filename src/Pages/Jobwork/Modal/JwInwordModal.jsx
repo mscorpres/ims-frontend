@@ -110,7 +110,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     const { data } = await imsAxios.get(`/backend/jw_sf_inward_location?vendor=${vendor}`);
     let arr = [];
     arr = data.data.map((d) => {
-      return { label: d.loc_name, value: d.location_key };
+      return { label: d.name, value: d.key };
     });
     setLocValue(arr);
   };
