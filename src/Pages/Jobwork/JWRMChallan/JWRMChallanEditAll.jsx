@@ -82,7 +82,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   };
 
   const inputHandler = async (name, value, id) => {
-    console.log(name, value, id);
     let arr = rows;
     if (name === "out_loc") {
       setLoading("tableSpinner", true);
@@ -142,7 +141,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       picklocation: rows.map((row) => row.out_loc),
       // transaction_id: editiJWAll.saveTransactionId,
     };
-    // console.log(rows)
     setLoading("submit", true);
     // const response = await imsAxios.post("/jobwork/saveCreateChallan", {
     //   header: {
@@ -188,8 +186,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       // transaction_id: obj?.,
     };
     const response = await executeFun(() => saveCreateChallan(final), "select");
-    // console.log("response", response);
-
     setLoading("submit", false);
     if (response.data.code === 200) {
       toast.success(response.data.message);
@@ -204,11 +200,12 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     }
   };
   const getLocations = async () => {
-    const response = await imsAxios.get("/jobwork/jwChallanLocations");
+    let vendor = createJobWorkChallanForm.getFieldsValue().vendorcode?.value;
+    const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}`);
     if (response.data.code === 200) {
       let arr = response.data.data.map((row) => ({
-        text: row.text,
-        value: row.id,
+        text: row.name,
+        value: row.key,
       }));
       setLocationOptions(arr);
     } else {
@@ -494,7 +491,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   ];
 
   const deleteRow = async (i) => {
-    console.log(i);
     setLoading("tableSpinner", true);
     const { data } = await imsAxios.post("/jobwork/removeChallanJWPart", {
       partcode: i?.component_key,
@@ -514,7 +510,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       toast.error(data.message.msg);
       setLoadChallan(false);
     }
-    // console.log(data);
   };
   useEffect(() => {
     if (editiJWAll) {

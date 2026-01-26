@@ -107,7 +107,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     }
   };
   const getLocation = async (vendor) => {
-    const { data } = await imsAxios.get(`/backend/jw_sf_inward_location?vendor=${vendor}`);
+    const { data } = await imsAxios.get(`/backend/jw/warehouse/location?vendor=${vendor}`);
     let arr = [];
     arr = data.data.map((d) => {
       return { label: d.name, value: d.key };
