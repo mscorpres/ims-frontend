@@ -201,7 +201,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   };
   const getLocations = async () => {
     let vendor = createJobWorkChallanForm.getFieldsValue().vendorcode?.value;
-    const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}`);
+    const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}&jw=${editiJWAll.saveTransactionId}`);
     if (response.data.code === 200) {
       let arr = response.data.data.map((row) => ({
         text: row.name,
