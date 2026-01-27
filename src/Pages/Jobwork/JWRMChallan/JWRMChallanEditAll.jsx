@@ -78,6 +78,10 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       };
       // console.log(obj.vendorcode)
       createJobWorkChallanForm.setFieldsValue(obj);
+      // Call getLocations after vendor is set
+      if (obj.vendorcode?.value) {
+        getLocations(obj.vendorcode?.value);
+      }
     }
   };
 
@@ -199,8 +203,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       }
     }
   };
-  const getLocations = async () => {
-    let vendor = createJobWorkChallanForm.getFieldsValue().vendorcode?.value;
+  const getLocations = async (vendor) => {
     const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}&jw=${editiJWAll.saveTransactionId}`);
     if (response.data.code === 200) {
       let arr = response.data.data.map((row) => ({
@@ -210,7 +213,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       setLocationOptions(arr);
     } else {
       setLocationOptions([]);
-      toast.error(response.data.message.msg);
+      toast.error(response.data.message);
     }
   };
   const getBillingBranchOptions = async () => {
@@ -514,15 +517,16 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   useEffect(() => {
     if (editiJWAll) {
       getDetails();
-      getLocations();
       getBillingBranchOptions();
       getDispatchBranchOptions();
     }
   }, [editiJWAll]);
   
   useEffect(() => {
-    if (createJobWorkChallanForm.getFieldsValue().vendorcode) {
+    const vendorcode = createJobWorkChallanForm.getFieldsValue().vendorcode;
+    if (vendorcode) {
       getDropLocation();
+      getLocations(vendorcode?.value);
     }
   }, [createJobWorkChallanForm.getFieldsValue().vendorcode]);
 
