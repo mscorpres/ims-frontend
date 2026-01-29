@@ -18,14 +18,12 @@ import { v4 } from "uuid";
 import FormTableDataGrid from "../../../Components/FormTableDataGrid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import Loading from "../../../Components/Loading";
 import NavFooter from "../../../Components/NavFooter";
 import errorToast from "../../../Components/errorToast";
 import {
-  UserAddOutlined,
-  ToolOutlined,
   DeleteTwoTone,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import useLoading from "../../../hooks/useLoading";
 import { saveCreateChallan } from "../../../api/general";
@@ -127,6 +125,36 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     }
 
     setRows(arr);
+  };
+
+  const refreshStockHandler = async (row) => {
+    if (!row.out_loc) {
+      toast.warning("Please choose Out Location first");
+      return;
+    }
+    setLoading("tableSpinner", true);
+    try {
+      const response = await imsAxios.post("/backend/compStockLoc", {
+        component: row.component_key,
+        location: row.out_loc,
+      });
+      const { data } = response;
+      if (data?.code === 200) {
+        setRows((prev) =>
+          prev.map((r) =>
+            r.id === row.id
+              ? { ...r, availableQty: data.data.closingStock }
+              : r
+          )
+        );
+      } else {
+        toast.error(data?.message?.msg || "Failed to fetch stock");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message?.msg || "Failed to fetch stock");
+    } finally {
+      setLoading("tableSpinner", false);
+    }
   };
 
   const submitHandler = async () => {
@@ -401,18 +429,20 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       field: "availableQty",
       headerName: "Avail. Qty",
       renderCell: ({ row }) => (
-        <div style={{ width: "100%" }}>
-          <Input
-            disabled
-            style={{ width: "100%" }}
-            value={row.availableQty}
-            type="number"
-            // onChange={(e) => inputHandler("issue_qty", e.target.value, row.id)}
-            // suffix={row.availableQty}
+        <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          {row.availableQty != null && row.availableQty !== "" ? (
+            <span>{row.availableQty}</span>
+          ) : (
+            <span />
+          )}
+          <ReloadOutlined
+            style={{ cursor: "pointer", fontSize: 16 }}
+            title="Refresh stock"
+            onClick={() => refreshStockHandler(row)}
           />
         </div>
       ),
-      width: 180,
+      width: 120,
     },
     {
       field: "assign_rate",
