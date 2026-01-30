@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ForgotPassword from "./ForgotPassword.tsx";
-import { GoogleLogin } from "@react-oauth/google";
 import {
   Button,
   Card,
@@ -60,12 +59,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     if (!recaptchaValue) {
       toast.error("Please verify the reCAPTCHA");
-      // return;
+      return;
     }
-    // if (!recaptchaValue) {
-    //   toast.error("Please verify the reCAPTCHA");
-    //   // return;
-    // }
+ 
     const { username, password } = inpVal;
     if (username === "" && password === "") {
       toast.error("Please fill the field");
@@ -117,10 +113,12 @@ const Login = () => {
             showlegal: payload.department === "legal" ? true : false,
             session: "25-26",
           };
+
           dispatch(setUser(obj));
           if (payload.settings) dispatch(setSettings(payload.settings));
           toast.success("Login successful!");
           navigate("/");
+          window.location.reload();
         }
       } else {
         setRecaptchaValue(null);
@@ -356,11 +354,12 @@ const Login = () => {
           showlegal: payload.department === "legal" ? true : false,
           session: "25-26",
         };
+
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
         toast.success("Login successful!");
         navigate("/");
-        window.location.reload();
+      window.location.reload();
       } else {
         toast.error(res?.message || "Invalid OTP. Please try again.");
         setOtpCode(["", "", "", "", "", ""]);
@@ -385,36 +384,7 @@ const Login = () => {
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
-  const handleLoginWithGoogle = (googleResponse) => {
-    setIsGoogleLogin(true);
-    const data = {
-      credential: googleResponse.credential,
-    };
-    imsAxios
-      .post("/auth/google", data)
-      .then((res) => {
-        if (res?.success) {
-          showToast(res?.message, "success");
-   
-          dispatch(setUser(res.data));
-          setIsGoogleLogin(false);
-          navigate("/");
 
-        } else {
-          setIsGoogleLogin(false);
-          showToast(res?.message, "error");
-        }
-      })
-      .catch((err) => {
-        setIsGoogleLogin(false);
-        showToast(
-          err?.data?.message ||
-            err?.message ||
-            "We're Sorry An unexpected error has occured. Our technical staff has been automatically notified and will be looking into this with utmost urgency.",
-          "error"
-        );
-      });
-  };
 
   // console.log("ispassSame", ispassSame);
   return (
@@ -713,43 +683,8 @@ const Login = () => {
                             Log In
                           </Button>
                         </Form.Item>
-                        {!loading("submit") && !isGoogleLogin ? (
-                          <Typography style={{
-                            textAlign:"center",
-
-                          }}>
-                            OR
-                          </Typography>
-                        ) : (
-                          <Typography style={{
-                            textAlign:"center",
-                            
-                          }}>
-                            Please wait.....
-                          </Typography>
-                        )}
-                        <div style={{
-                          display:"flex",
-                          justifyContent:"center",
-                          alignItems:"center",
-                          width:"100%",
-                          padding:"0px 8px"
-                        }}>
-                          {!loading("submit") && !isGoogleLogin && (
-                            <>
-                              <GoogleLogin
-                                onSuccess={(credentialResponse) => {
-                                  handleLoginWithGoogle(credentialResponse);
-                                }}
-                                onError={() => {
-                                  showToast("Login failed", "error");
-                                }}
-                                shape="circle"
-                                text="continue_with"
-                              />
-                            </>
-                          )}
-                        </div>
+                    
+                      
                         <Flex justify="end">
                           <Button
                             onClick={() => setShowForgotPassword(true)}

@@ -31,26 +31,37 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
 
   const submitData = async () => {
     setLoadingModal(true);
-    const { data } = await imsAxios.post("/fgIN/saveFGs", {
-      pprqty: allPendingData.qty,
-      pprrequest1: fGModal.mfg_ref_transid_1,
-      pprrequest2: fGModal.mfg_transaction,
-      pprsku: fGModal.mfg_sku,
-    });
-    //  console.log(data.message)
-    if (data.code === 200) {
-      getPendingData();
-      setAllPendingData({
-        qty: "",
+    try {
+      const { data } = await imsAxios.post("/fgIN/saveFGs", {
+        pprqty: allPendingData.qty,
+        pprrequest1: fGModal.mfg_ref_transid_1,
+        pprrequest2: fGModal.mfg_transaction,
+        pprsku: fGModal.mfg_sku,
       });
-      setLoadingModal(false);
-      setFGModal(false);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
-      setAllPendingData({
-        qty: "",
-      });
-      setFGModal(false);
+      //  console.log(data.message)
+      if (data.code === 200) {
+        getPendingData();
+        setAllPendingData({
+          qty: "",
+        });
+        setLoadingModal(false);
+        setFGModal(false);
+      } else if (data.code == 500) {
+        toast.error(data.message.msg);
+        setAllPendingData({
+          qty: "",
+        });
+        setLoadingModal(false);
+        setFGModal(false);
+      } else {
+        // Handle other error codes
+        toast.error(data.message?.msg || "An error occurred");
+        setLoadingModal(false);
+      }
+    } catch (error) {
+      // Handle network errors, timeouts, etc.
+      console.error("Error submitting data:", error);
+      toast.error(error.response?.data?.message || "Failed to submit data. Please try again.");
       setLoadingModal(false);
     }
   };
@@ -67,10 +78,8 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
       title="FG Inwarding"
       centered
       open={fGModal}
-      onOk={() => {
-        submitData();
-        getPendingData();
-        setFGModal(false);
+      onOk={async () => {
+        await submitData();
       }}
       onCancel={() => setFGModal(false)}
       width={900}

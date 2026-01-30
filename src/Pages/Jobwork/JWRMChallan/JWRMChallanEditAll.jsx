@@ -18,14 +18,12 @@ import { v4 } from "uuid";
 import FormTableDataGrid from "../../../Components/FormTableDataGrid";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { toast } from "react-toastify";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import Loading from "../../../Components/Loading";
 import NavFooter from "../../../Components/NavFooter";
 import errorToast from "../../../Components/errorToast";
 import {
-  UserAddOutlined,
-  ToolOutlined,
   DeleteTwoTone,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import useLoading from "../../../hooks/useLoading";
 import { saveCreateChallan } from "../../../api/general";
@@ -78,11 +76,14 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       };
       // console.log(obj.vendorcode)
       createJobWorkChallanForm.setFieldsValue(obj);
+      // Call getLocations after vendor is set
+      if (obj.vendorcode?.value) {
+        getLocations(obj.vendorcode?.value);
+      }
     }
   };
 
   const inputHandler = async (name, value, id) => {
-    console.log(name, value, id);
     let arr = rows;
     if (name === "out_loc") {
       setLoading("tableSpinner", true);
@@ -126,6 +127,36 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     setRows(arr);
   };
 
+  const refreshStockHandler = async (row) => {
+    if (!row.out_loc) {
+      toast.warning("Please choose Out Location first");
+      return;
+    }
+    setLoading("tableSpinner", true);
+    try {
+      const response = await imsAxios.post("/backend/compStockLoc", {
+        component: row.component_key,
+        location: row.out_loc,
+      });
+      const { data } = response;
+      if (data?.code === 200) {
+        setRows((prev) =>
+          prev.map((r) =>
+            r.id === row.id
+              ? { ...r, availableQty: data.data.closingStock }
+              : r
+          )
+        );
+      } else {
+        toast.error(data?.message?.msg || "Failed to fetch stock");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message?.msg || "Failed to fetch stock");
+    } finally {
+      setLoading("tableSpinner", false);
+    }
+  };
+
   const submitHandler = async () => {
     let obj = await createJobWorkChallanForm.validateFields();
     obj = {
@@ -142,7 +173,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       picklocation: rows.map((row) => row.out_loc),
       // transaction_id: editiJWAll.saveTransactionId,
     };
-    // console.log(rows)
     setLoading("submit", true);
     // const response = await imsAxios.post("/jobwork/saveCreateChallan", {
     //   header: {
@@ -188,8 +218,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       // transaction_id: obj?.,
     };
     const response = await executeFun(() => saveCreateChallan(final), "select");
-    // console.log("response", response);
-
     setLoading("submit", false);
     if (response.data.code === 200) {
       toast.success(response.data.message);
@@ -203,17 +231,17 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       }
     }
   };
-  const getLocations = async () => {
-    const response = await imsAxios.get("/jobwork/jwChallanLocations");
+  const getLocations = async (vendor) => {
+    const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}&jw=${editiJWAll.saveTransactionId}`);
     if (response.data.code === 200) {
       let arr = response.data.data.map((row) => ({
-        text: row.text,
-        value: row.id,
+        text: row.name,
+        value: row.key,
       }));
       setLocationOptions(arr);
     } else {
       setLocationOptions([]);
-      toast.error(response.data.message.msg);
+      toast.error(response.data.message);
     }
   };
   const getBillingBranchOptions = async () => {
@@ -401,18 +429,20 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       field: "availableQty",
       headerName: "Avail. Qty",
       renderCell: ({ row }) => (
-        <div style={{ width: "100%" }}>
-          <Input
-            disabled
-            style={{ width: "100%" }}
-            value={row.availableQty}
-            type="number"
-            // onChange={(e) => inputHandler("issue_qty", e.target.value, row.id)}
-            // suffix={row.availableQty}
+        <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          {row.availableQty != null && row.availableQty !== "" ? (
+            <span>{row.availableQty}</span>
+          ) : (
+            <span />
+          )}
+          <ReloadOutlined
+            style={{ cursor: "pointer", fontSize: 16 }}
+            title="Refresh stock"
+            onClick={() => refreshStockHandler(row)}
           />
         </div>
       ),
-      width: 180,
+      width: 120,
     },
     {
       field: "assign_rate",
@@ -494,7 +524,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   ];
 
   const deleteRow = async (i) => {
-    console.log(i);
     setLoading("tableSpinner", true);
     const { data } = await imsAxios.post("/jobwork/removeChallanJWPart", {
       partcode: i?.component_key,
@@ -514,20 +543,20 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       toast.error(data.message.msg);
       setLoadChallan(false);
     }
-    // console.log(data);
   };
   useEffect(() => {
     if (editiJWAll) {
       getDetails();
-      getLocations();
       getBillingBranchOptions();
       getDispatchBranchOptions();
     }
   }, [editiJWAll]);
   
   useEffect(() => {
-    if (createJobWorkChallanForm.getFieldsValue().vendorcode) {
+    const vendorcode = createJobWorkChallanForm.getFieldsValue().vendorcode;
+    if (vendorcode) {
       getDropLocation();
+      getLocations(vendorcode?.value);
     }
   }, [createJobWorkChallanForm.getFieldsValue().vendorcode]);
 
