@@ -12,6 +12,7 @@ import MyButton from "../../../Components/MyButton/index.jsx";
 import ViewPORequest from "./ViewPORequest.jsx";
 import EditPO from "../ManagePO/EditPO/EditPO.jsx";
 import ViewPOLogs from "./ViewPOLogs.jsx";
+import CancelPO from "../ManagePO/Sidebars/CancelPO.jsx";
 import MySelect from "../../../Components/MySelect.jsx";
 
 const wiseOptions = [
@@ -29,6 +30,20 @@ const RequestPo = () => {
   const [updatePoId, setUpdatePoId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [viewPoLogsId, setViewPoLogsId] = useState(null);
+  const [showCancelPO, setShowCancelPO] = useState(null);
+
+  const handleCancelPO = async (poid) => {
+    setLoading(true);
+    const { data } = await imsAxios.post("/purchaseOrder/fetchStatus4PO", {
+      purchaseOrder: poid,
+    });
+    setLoading(false);
+    if (data.code == 200) {
+      setShowCancelPO(poid);
+    } else {
+      toast.error("PO is already cancelled");
+    }
+  };
 
   const columns = [
     {
@@ -58,6 +73,12 @@ const RequestPo = () => {
           showInMenu
           label="View PO Logs"
           onClick={() => setViewPoLogsId(row.po_transaction)}
+        />,
+        <GridActionsCellItem
+          key="cancel"
+          showInMenu
+          label="Cancel"
+          onClick={() => handleCancelPO(row.po_transaction)}
         />,
       ],
     },
@@ -407,6 +428,13 @@ const RequestPo = () => {
         />
       )}
       <ViewPOLogs poId={viewPoLogsId} setPoId={setViewPoLogsId} />
+      <CancelPO
+        getSearchResults={getSearchResults}
+        setShowCancelPO={setShowCancelPO}
+        showCancelPO={showCancelPO}
+        setRows={setRows}
+        rows={rows}
+      />
     </div>
   );
 };
