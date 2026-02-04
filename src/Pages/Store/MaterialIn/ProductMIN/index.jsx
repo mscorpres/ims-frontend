@@ -283,7 +283,13 @@ export default function ProductMIN() {
             setActiveTab("1");
             setShowSuccessPage({
               materialInId: data.data.txn,
-              vendor: { vendorname: vendorDetails.vendor },
+              vendor: {
+                vendorname:
+                  values.vendorValues?.customerName ??
+                  vendorDetails.vendor ??
+                  vendorDetails.vendorName ??
+                  "",
+              },
               components: materialInward.map((row, index) => {
                 return {
                   id: index,

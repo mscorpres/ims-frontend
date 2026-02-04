@@ -36,7 +36,6 @@ import {
 } from "./TableCollumns";
 import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import CurrenceModal from "../CurrenceModal";
-import UploadDocs from "./UploadDocs";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import FormTable from "../../../../Components/FormTable";
@@ -351,13 +350,16 @@ export default function MaterialInWithPO({}) {
     }
   };
   const inputHandler = (name, value, id) => {
-    console.log(poData);
     let arr = poData?.materials;
     arr = arr.map((row) => {
       let obj = row;
       if (id == row.id) {
         if (name == "orderqty") {
-          if (value <= row.maxQty) {
+         
+          
+        
+          if (Number(value) <= Number(row.maxQty) ) {
+
             obj = {
               ...obj,
               [name]: value,

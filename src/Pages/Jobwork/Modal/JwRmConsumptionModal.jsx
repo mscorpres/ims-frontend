@@ -987,8 +987,8 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                               setUploadClicked(true);
                             }
                           }}
-                          // loading={loading}
                           loading={loading || modalUploadLoad}
+                          disabled={loading || modalUploadLoad}
                         >
                           Save
                         </Button>
@@ -996,6 +996,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                     ) : (
                       <NavFooter
                         loading={loading}
+                        disabled={{ next: loading }}
                         submitFunction={saveFunction}
                         backFunction={closeModal}
                         // resetFunction={resetHandler}
