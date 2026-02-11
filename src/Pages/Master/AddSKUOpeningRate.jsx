@@ -98,6 +98,8 @@ const AddSKUOpeningRate = () => {
     { field: "serialNo", headerName: "Serial No", width: 100 },
     { field: "productName", headerName: "Product Name", flex: 1 },
     { field: "product_key", headerName: "Product Key", width: 180 },
+     { field: "p_sku", headerName: "SKU", width: 180 },
+    
     {
       field: "closing_qty",
       headerName: "Closing Qty",
@@ -116,6 +118,7 @@ const AddSKUOpeningRate = () => {
       width: 150,
       type: "number",
     },
+      { field: "date", headerName: "Date", width: 180 },
   ];
 
   return (
