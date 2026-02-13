@@ -17,6 +17,16 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { DownloadOutlined } from "@ant-design/icons";
 import MyButton from "../../../Components/MyButton/index.jsx";
+import MySelect from "../../../Components/MySelect.jsx";
+
+const wiseOptions = [
+  { text: "Issue", value: "ISSUE" },
+  { text: "Job Work", value: "JOBWORK" },
+  { text: "Rejection", value: "REJECTION" },
+  { text: "Consumption", value: "CONSUMPTION" },
+  { text: "SFG Consumption", value: "SFG-CONSUMPTION" },
+  { text: "Transfer", value: "TRANSFER" },
+];
 
 const TransactionOut = () => {
   const [loading, setLoading] = useState(false);
@@ -25,6 +35,7 @@ const TransactionOut = () => {
   const [fetchData, setFetchData] = useState([]);
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
+  const [wise, setWise] = useState("ISSUE");
   const { user, notifications } = useSelector((state) => state.login);
 
   const content1 = (row) => (
@@ -91,9 +102,7 @@ const TransactionOut = () => {
     } else {
       setLoading(true);
       setDateData([]);
-      const { data } = await imsAxios.post("/transaction/transactionOut", {
-        data: datee,
-      });
+      const { data } = await imsAxios.post(`/transaction/transactionOut?data=${datee}&type=${wise}`);
       // console.log("Response", data);
       if (data.code == 200) {
         let arr = data.data.map((row) => {
@@ -124,6 +133,14 @@ const TransactionOut = () => {
       <Row gutter={10} style={{ margin: "5px" }} justify="space-between">
         <Col>
           <Space>
+           <div style={{ width: "200px" }}> 
+             <MySelect
+              options={wiseOptions}
+              defaultValue={wiseOptions.filter((o) => o.value === wise)[0]}
+              onChange={setWise}
+              value={wise}
+            />
+           </div>
             <MyDatePicker setDateRange={setDatee} size="default" />
 
             <MyButton
