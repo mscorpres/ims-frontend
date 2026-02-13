@@ -102,7 +102,7 @@ const TransactionOut = () => {
     } else {
       setLoading(true);
       setDateData([]);
-      const { data } = await imsAxios.post(`/transaction/transactionOut?data=${datee}&type=${wise}`);
+      const { data } = await imsAxios.get(`/transaction/transactionOut?data=${datee}&type=${wise}`);
       // console.log("Response", data);
       if (data.code == 200) {
         let arr = data.data.map((row) => {
