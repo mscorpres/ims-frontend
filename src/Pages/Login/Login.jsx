@@ -20,17 +20,18 @@ import {
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
 import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
-import ReCAPTCHA from "react-google-recaptcha";
+import ImageCaptcha from "../../Components/ImageCaptcha/ImageCaptcha";
 import { ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons";
 
 const Login = () => {
   document.title = "IMS Login";
   const [signUpPage, setSignUpPage] = useState("1");
   const [forgotPassword, setForgotPassword] = useState("0");
-  const [recaptchaValue, setRecaptchaValue] = React.useState(null);
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [captchaExpectedCode, setCaptchaExpectedCode] = useState("");
+  const [captchaKey, setCaptchaKey] = useState(() => Math.random());
   const [ispassSame, setIsPassSame] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [recaptchaKey, setRecaptchaKey] = React.useState(Math.random());
   const [showOTP, setShowOTP] = useState(false);
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
   const [otpTimer, setOtpTimer] = useState(600); // 10 minutes in seconds
@@ -56,9 +57,12 @@ const Login = () => {
     });
   };
 
+  const isCaptchaValid = () =>
+    captchaInput?.trim()?.toUpperCase() === captchaExpectedCode;
+
   const handleSubmit = async (e) => {
-    if (!recaptchaValue) {
-      toast.error("Please verify the reCAPTCHA");
+    if (!isCaptchaValid()) {
+      toast.error("Please enter the captcha correctly");
       return;
     }
  
@@ -121,15 +125,15 @@ const Login = () => {
           window.location.reload();
         }
       } else {
-        setRecaptchaValue(null);
-        setRecaptchaKey(Math.random());
+        setCaptchaInput("");
+        setCaptchaKey(Math.random());
         toast.error(res?.message);
       }
     }
   };
   const validatecreateNewUser = async () => {
-    if (!recaptchaValue) {
-      toast.error("Please verify the reCAPTCHA");
+    if (!isCaptchaValid()) {
+      toast.error("Please enter the captcha correctly");
       return;
     }
     const values = await signUp.validateFields();
@@ -240,10 +244,6 @@ const Login = () => {
     signUp.getFieldValue("confirmPassword"),
     signUp.getFieldValue("password"),
   ]);
-
-  const handleRecaptchaChange = (value) => {
-    setRecaptchaValue(value);
-  };
 
   // OTP Timer Effect
   useEffect(() => {
@@ -573,7 +573,7 @@ const Login = () => {
                   />
                 </Card>
               ) : signUpPage === "1" ? (
-                <Card style={{ height: 350 }}>
+                <Card style={{ height: 550 }}>
                   <Title
                     style={{
                       color: "gray",
@@ -665,10 +665,12 @@ const Login = () => {
                           Forgot Password
                         </Link> */}
                         <div className="flex justify-center">
-                          <ReCAPTCHA
-                            sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
-                            onChange={handleRecaptchaChange}
-                            key={recaptchaKey}
+                          <ImageCaptcha
+                            value={captchaInput}
+                            onChange={(e) => setCaptchaInput(e.target.value)}
+                            onCodeChange={setCaptchaExpectedCode}
+                            onRefresh={() => setCaptchaInput("")}
+                            key={captchaKey}
                           />
                         </div>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
@@ -860,10 +862,12 @@ const Login = () => {
                     </Form.Item>
                   </Form>
                   <div className="flex justify-center">
-                    <ReCAPTCHA
-                      sitekey="6LdmVcArAAAAAOb1vljqG4DTEEi2zP1TIjDd_0wR"
-                      onChange={handleRecaptchaChange}
-                      key={recaptchaKey}
+                    <ImageCaptcha
+                      value={captchaInput}
+                      onChange={(e) => setCaptchaInput(e.target.value)}
+                      onCodeChange={setCaptchaExpectedCode}
+                      onRefresh={() => setCaptchaInput("")}
+                      key={captchaKey}
                     />
                   </div>
                   <Button
