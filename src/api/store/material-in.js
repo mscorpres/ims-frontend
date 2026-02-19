@@ -132,8 +132,50 @@ export const getMINLabelRows = async (wise, value) => {
   return response;
 };
 
+export const getFGMINLabelRows = async (wise, value) => {
+  const response = await imsAxios.post("/transaction/getFGMinTransactionByDate", {
+    data: value,
+    wise,
+  });
+
+  let arr = [];
+  if (response.data.code === 200) {
+    arr = response.data.data.map((row, index) => ({
+      id: index + 1,
+      createdDate: row.datetime,
+      invoice: row.invoice,
+      vendor: row.vendorname,
+      partCode: row.partcode,
+      qty: row.inqty,
+      location: row.location,
+      createdBy: row.inby,
+      consumptionStatus: row.consumptionStatus,
+      invoiceStatus: row.invoiceStatus,
+      minId: row.transaction,
+    }));
+  }
+  response.data = arr;
+
+  return response;
+};
+
 export const printMIN = async (minId, action) => {
   const response = await imsAxios.post("minPrint/printSingleMin", {
+    transaction: minId,
+  });
+
+  if (response.data.code === 200) {
+    if (!action) {
+      printFunction(response.data.data.buffer.data);
+    } else if (action === "download") {
+      downloadFunction(response.data.data.buffer.data, minId);
+    }
+  }
+
+  return response;
+};
+export const printFGMIN = async (minId, action) => {
+  const response = await imsAxios.post("minPrint/printFGMin", {
     transaction: minId,
   });
 

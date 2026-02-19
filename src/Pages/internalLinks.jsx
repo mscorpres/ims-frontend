@@ -867,6 +867,10 @@ const links = [
       routeName: "View and Print MIN Label",
       routePath: "/warehouse/print-view-min",
     },
+    {
+      routeName: "View and Print FG MIN",
+      routePath: "/warehouse/print-view-fg-min",
+    },
   ],
   // query reports
   [
