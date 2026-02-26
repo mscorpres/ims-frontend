@@ -2,13 +2,14 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Input, Button, Space } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 
-const ALPHABETS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // Exclude I,O for clarity
+// Uppercase + lowercase (exclude I,O,i,l for clarity) + digits
+const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz0123456789";
 const LENGTH = 5;
 
 const generateCode = () => {
   let code = "";
   for (let i = 0; i < LENGTH; i++) {
-    code += ALPHABETS[Math.floor(Math.random() * ALPHABETS.length)];
+    code += CHARS[Math.floor(Math.random() * CHARS.length)];
   }
   return code;
 };
@@ -68,14 +69,14 @@ const drawCaptcha = (canvasRef, code) => {
  * @param {function} onChange - (e) => setValue(e.target.value)
  * @param {function} onCodeChange - (code) => setExpectedCode(code) so parent can validate
  * @param {function} onRefresh - Called when refresh icon is clicked (optional)
- * @param {boolean} caseSensitive - If false, comparison is case-insensitive (default: false)
+ * @param {boolean} caseSensitive - If false, comparison is case-insensitive (default: true)
  */
 const ImageCaptcha = ({
   value = "",
   onChange,
   onCodeChange,
   onRefresh,
-  caseSensitive = false,
+  caseSensitive = true,
   placeholder = "Enter text shown above",
   inputStyle,
   ...rest
