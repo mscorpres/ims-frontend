@@ -164,6 +164,7 @@ const AddSKUOpeningRate = () => {
                   style={{ width: "100%" }}
                     min={0}
                     step={1}
+                    type="number"
                 />
               </Form.Item>
 
@@ -182,6 +183,7 @@ const AddSKUOpeningRate = () => {
                   placeholder="Enter weighted average rate"
                   style={{ width: "100%" }}
                   min={0}
+                  type="number"
                 />
               </Form.Item>
 
@@ -202,6 +204,7 @@ const AddSKUOpeningRate = () => {
                   min={0}
                   step={0.01}
                   precision={2}
+                  type="number"
                 />
               </Form.Item>
 
