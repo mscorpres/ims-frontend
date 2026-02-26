@@ -55,31 +55,26 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     let tdsArr = tdsData?.data.map((row) => {
       return { text: row.tds_name, value: row.tds_key };
     });
+    const vendor = Array.isArray(vendorData?.data) ? vendorData.data[0] : vendorData?.data;
     let obj = {
-      msmeStatus: vendorData.data.vendor_msme_status,
-      year: vendorData.data.vendor_msme_year,
-      msmeId: vendorData.data.vendor_msme_id,
-      type: vendorData.data.vendor_msme_type,
-      activity: vendorData.data.vendor_msme_activity,
-      applicability: vendorData.data.eInvoice?.status,
-      ...vendorData?.data[0],
+      msmeStatus: vendor?.vendor_msme_status,
+      year: vendor?.vendor_msme_year,
+      msmeId: vendor?.vendor_msme_id,
+      type: vendor?.vendor_msme_type,
+      activity: vendor?.vendor_msme_activity,
+      ...vendor,
+      applicability: vendor?.eInvoice?.status ?? vendor?.applicability,
     };
     updateVendorForm.setFieldsValue(obj);
     setVendorStatus(obj.vendor_status);
     setTdsOptions(tdsArr);
-    let msmedata = vendorData.data;
-    let a = msmedata[0]?.msme_data.map(
-      (r, id) => {
-        // if (r.year !== "--") {
-        return {
-          vendor_msme_year: r.year,
-          vendor_msme_type: r.type,
-          vendor_msme_activity: r.activity,
-          id: v4(),
-        };
-      }
-      // return;
-    );
+    let a =
+      vendor?.msme_data?.map((r) => ({
+        vendor_msme_year: r.year,
+        vendor_msme_type: r.type,
+        vendor_msme_activity: r.activity,
+        id: v4(),
+      })) ?? [];
 
     setRows(a);
     setIsMSMEEdited(false);
