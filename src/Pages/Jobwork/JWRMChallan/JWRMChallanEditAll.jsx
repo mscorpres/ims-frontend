@@ -36,6 +36,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   const [locationOptions, setLocationOptions] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [dropLocationOptions, setDropLocationOptions] = useState([]);
+  const [costCenter, setCostCenter] = useState("");
   const [dispatchBranches, setDispatchBranches] = useState([]);
   const [billingBranches, setBillingBranches] = useState([]);
   const [restCom, setRestCom] = useState({
@@ -76,9 +77,10 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       };
       // console.log(obj.vendorcode)
       createJobWorkChallanForm.setFieldsValue(obj);
+      setCostCenter(obj.cc ?? "");
       // Call getLocations after vendor is set
       if (obj.vendorcode?.value) {
-        getLocations(obj.vendorcode?.value);
+        getLocations(obj.vendorcode?.value,obj.cc ?? "");
       }
     }
   };
@@ -231,8 +233,8 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       }
     }
   };
-  const getLocations = async (vendor) => {
-    const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}&jw=${editiJWAll.saveTransactionId}`);
+  const getLocations = async (vendor,cc) => {
+    const response = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}&jw=${editiJWAll.saveTransactionId}&cc=${cc}`);
     if (response.data.code === 200) {
       let arr = response.data.data.map((row) => ({
         text: row.name,
@@ -551,14 +553,13 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
       getDispatchBranchOptions();
     }
   }, [editiJWAll]);
-  
   useEffect(() => {
     const vendorcode = createJobWorkChallanForm.getFieldsValue().vendorcode;
     if (vendorcode) {
       getDropLocation();
-      getLocations(vendorcode?.value);
+      getLocations(vendorcode?.value,costCenter ?? "");
     }
-  }, [createJobWorkChallanForm.getFieldsValue().vendorcode]);
+  }, [createJobWorkChallanForm.getFieldsValue().vendorcode,costCenter]);
 
   return (
     <Drawer

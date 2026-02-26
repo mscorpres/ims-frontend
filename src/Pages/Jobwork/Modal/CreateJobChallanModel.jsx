@@ -307,8 +307,8 @@ function CreateJobChallanModel({ challanModal, setChallanModal }) {
     },
   ];
 
-  const getArrayLocation = async (vendor) => {
-    const { data } = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}`);
+  const getArrayLocation = async (vendor,cc) => {
+    const { data } = await imsAxios.get(`backend/jw/warehouse/location?vendor=${vendor}&cc=${cc}`);
     //  console.log(data);
     let arr = [];
     arr = data.data.map((d) => {
@@ -328,10 +328,11 @@ function CreateJobChallanModel({ challanModal, setChallanModal }) {
       getBillingLocation();
       setrestBillingAddress([]);
       getDispatchLocation();
-      getArrayLocation(vendorData?.vendor_code);
+      getArrayLocation(vendorData?.vendor_code,vendorData?.cc ?? "");
       // getLocation();
     }
   }, [challanModal]);
+
 
   useEffect(() => {
     if (userData?.billingLocationValue) {
