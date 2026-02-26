@@ -146,6 +146,7 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
                   placeholder="Qty"
                   style={{ width: "60%" }}
                   value={allPendingData.qty}
+                  type="number"
                   onChange={(e) =>
                     setAllPendingData((allPendingData) => {
                       return { ...allPendingData, qty: e.target.value };

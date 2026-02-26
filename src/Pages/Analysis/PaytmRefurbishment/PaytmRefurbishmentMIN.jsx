@@ -301,7 +301,7 @@ function PaytmRefurbishmentMIN() {
                     },
                   ]}
                 >
-                  <Input placeholder="0" onChange={inputHandler} />
+                  <Input placeholder="0" onChange={inputHandler} type="number" />
                 </Form.Item>
               </Col>
               <Col span={4}>
@@ -315,7 +315,7 @@ function PaytmRefurbishmentMIN() {
                     },
                   ]}
                 >
-                  <Input placeholder="0" onChange={inputHandler} />
+                  <Input placeholder="0" onChange={inputHandler} type="number" />
                 </Form.Item>
               </Col>
             </Row>

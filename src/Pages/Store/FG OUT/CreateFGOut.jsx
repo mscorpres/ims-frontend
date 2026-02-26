@@ -268,7 +268,7 @@ const CreateFGOut = () => {
       // field: "qty",
       width: 170,
       renderCell: ({ row }) => (
-        <Input suffix={row?.uom} disabled value={row?.total} />
+        <Input suffix={row?.uom} disabled value={row?.total} type="number" />
       ),
     },
     {
@@ -281,6 +281,7 @@ const CreateFGOut = () => {
           suffix={row?.uom}
           value={addRowData?.quantity}
           onChange={(e) => compInputHandler("quantity", row.id, e.target.value)}
+          type="number"
         />
       ),
     },

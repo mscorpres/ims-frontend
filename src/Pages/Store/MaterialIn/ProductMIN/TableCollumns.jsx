@@ -32,6 +32,7 @@ export const QuantityCell = ({ row }, inputHandler) => (
     value={row.orderqty}
     onChange={(e) => inputHandler("orderqty", e.target.value, row.id)}
     suffix={row.unitsname}
+    type="number"
   />
 );
 export const rateCell = ({ row }, inputHandler, currencies) => (
@@ -40,6 +41,7 @@ export const rateCell = ({ row }, inputHandler, currencies) => (
       style={{ width: "65%" }}
       value={row.orderrate}
       onChange={(e) => inputHandler("orderrate", e.target.value, row.id)}
+       type="number"
     />
     <div style={{ width: "35%" }}>
       <MySelect

@@ -434,6 +434,7 @@ export default function ReqWithoutBom() {
             value={row.qty}
             suffix={`${row.leftQty} ${row.unit}`}
             onChange={(e) => inputHandler("qty", e.target.value, row.id)}
+            type="number"
           />
         ),
       },
