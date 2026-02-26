@@ -420,6 +420,7 @@ function RmtoRm() {
                           </td>
                           <td style={{ width: "12vw" }}>
                             <Input
+                              type="number"
                               value={row.qty1}
                               onChange={(e) => {
                                 setRows((prev) => {
