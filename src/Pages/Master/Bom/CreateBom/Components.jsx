@@ -68,6 +68,6 @@ const componentsItems = () => [
     name: "qty",
     width: 250,
     flex: true,
-    field: () => <Input />,
+    field: () => <Input type="number" />,
   },
 ];

@@ -753,6 +753,7 @@ export default function MaterialInWithoutPO() {
         return (
           <Input
             onChange={(e) => compareRates(e.target.value, index)}
+            type="number"
             addonAfter={
               <div style={{ width: 50 }}>
                 <Typography.Text>{currencySymbol}</Typography.Text>

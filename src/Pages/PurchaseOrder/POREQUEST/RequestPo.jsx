@@ -41,7 +41,7 @@ const RequestPo = () => {
     if (data.code == 200) {
       setShowCancelPO(poid);
     } else {
-      toast.error("PO is already cancelled");
+      toast.error("PO is already closed");
     }
   };
 
@@ -75,9 +75,9 @@ const RequestPo = () => {
           onClick={() => setViewPoLogsId(row.po_transaction)}
         />,
         <GridActionsCellItem
-          key="cancel"
+          key="close"
           showInMenu
-          label="Cancel"
+          label="Close PO"
           onClick={() => handleCancelPO(row.po_transaction)}
         />,
       ],
@@ -434,6 +434,7 @@ const RequestPo = () => {
         showCancelPO={showCancelPO}
         setRows={setRows}
         rows={rows}
+        variant="close"
       />
     </div>
   );

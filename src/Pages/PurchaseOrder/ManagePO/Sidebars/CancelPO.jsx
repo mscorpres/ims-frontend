@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { Button, Col, Drawer, Form, Input, Row, Modal } from "antd";
 import { imsAxios } from "../../../../axiosInterceptor";
 
+const isCloseVariant = (v) => v === "close";
+
 export default function CancelPO({
   showCancelPO,
   setShowCancelPO,
@@ -11,7 +13,9 @@ export default function CancelPO({
   getSearchResults,
   componentStatus,
   rows,
+  variant,
 }) {
+  const closeMode = isCloseVariant(variant);
   const [reason, setReason] = useState("");
   const [status, setStatus] = useState();
   const [payment, setPayment] = useState(false);
@@ -33,8 +37,9 @@ export default function CancelPO({
   const showCofirmModal = () => {
     Modal.confirm({
       okText: "Save",
-      title:
-        "Are you sure you want to cancel this PO ? Since the advanced payment has already been made to the vendor.",
+      title: closeMode
+        ? "Are you sure you want to close this PO ? Since the advanced payment has already been made to the vendor."
+        : "Are you sure you want to cancel this PO ? Since the advanced payment has already been made to the vendor.",
       onOk() {
         handleCancelPO();
       },
@@ -89,9 +94,18 @@ export default function CancelPO({
   useEffect(() => {
     console.log(reason);
   }, [reason]);
+  const drawerTitle = closeMode
+    ? `Closing Purchase Order: ${showCancelPO}`
+    : `Cancelling Purchase Order: ${showCancelPO}`;
+  const reasonLabel = closeMode ? "Closing Reason" : "Cancelation Reason";
+  const reasonMessage = closeMode
+    ? "Please enter Closing Reason"
+    : "Please enter Cancelation Reason";
+  const submitButtonLabel = closeMode ? "Close PO" : "Cancel PO";
+
   return (
     <Drawer
-      title={`Cancelling Purchase Order: ${showCancelPO}`}
+      title={drawerTitle}
       width="50vw"
       onClose={() => setShowCancelPO(null)}
       open={showCancelPO}
@@ -101,16 +115,14 @@ export default function CancelPO({
           <Col span={24}>
             <Form.Item
               name="reason"
-              label="Cancelation Reason"
-              rules={[
-                { required: true, message: "Please enter Cancelation Reason" },
-              ]}
+              label={reasonLabel}
+              rules={[{ required: true, message: reasonMessage }]}
             >
               <Input.TextArea
                 rows={6}
                 style={{ resize: "none" }}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Please enter Cancelation Reason"
+                placeholder={reasonMessage}
                 value={reason}
               />
             </Form.Item>
@@ -124,7 +136,7 @@ export default function CancelPO({
               onClick={payment ? showCofirmModal : handleCancelPO}
               type="primary"
             >
-              Cancel PO
+              {submitButtonLabel}
             </Button>
           </Col>
         </Row>

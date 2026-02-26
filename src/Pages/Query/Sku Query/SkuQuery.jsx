@@ -17,7 +17,8 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../Components/exportToCSV";
 import MyButton from "../../../Components/MyButton";
 import MySelect from "../../../Components/MySelect";
-
+import { toast } from "react-toastify";
+ 
 const Q3 = () => {
   const [searchInput, setSearchInput] = useState("");
   const [location, setLocation] = useState("");
@@ -26,18 +27,18 @@ const Q3 = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
-
+ 
   const getLocations = async () => {
-    const { data } = await imsAxios.get("/ppr/mfg_locations");
+    const { data } = await imsAxios.get("/skuQueryA/q3Location");
     const arr = [];
     data.data.map((a) => arr.push({ text: a.text, value: a.id }));
     setLocationOptions(arr);
   };
-
+ 
   useEffect(() => {
     getLocations();
   }, []);
-
+ 
   const getProductOptions = async (search) => {
     try {
       let arr = [];
@@ -66,7 +67,16 @@ const Q3 = () => {
         sku_code: searchInput,
         location: location,
       });
-      if (data) {
+ 
+      // Check if response has error status
+      if (data && data.status === "error") {
+        const errorMessage = data.message?.msg || data.message || "An error occurred while fetching data";
+        toast.error(errorMessage);
+        setLoading(false);
+        return;
+      }
+ 
+      if (data && data.response) {
         const { data1, data2 } = data.response;
         const detailsObj = {
           stock: data1.closingqty,
@@ -74,19 +84,22 @@ const Q3 = () => {
           pending: data1.pendingfgReturnQty,
           sku: data1.sku,
           uom: data1.uom,
+          rate: data1.lastRate,
         };
-
+ 
         const arr = data2.map((row, index) => ({
           ...row,
           id: index + 1,
           txn: removeHtml(row.txn),
         }));
         setRows(arr);
-
+ 
         setDetails(detailsObj);
       }
     } catch (error) {
       console.log("Some error occured while fetching rows", error);
+      const errorMessage = error.response?.data?.message?.msg || error.response?.data?.message || error.message || "An error occurred while fetching rows";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -100,7 +113,7 @@ const Q3 = () => {
           onClick={() => downloadCSV(rows, columns, "Q3 Report")}
         />
       </Row>
-
+ 
       <Row style={{ height: "90%",  }} gutter={8}>
         <Col span={6} style={{ height: "100%", overflow: "auto" }}>
           <Space direction="vertical" size={16} style={{ width: "100%" }}>
@@ -121,7 +134,7 @@ const Q3 = () => {
                     value={searchInput}
                   />
                 </div>
-
+ 
                 <div>
                   <Typography.Text type="secondary">Location</Typography.Text>
                   <MySelect
@@ -130,7 +143,7 @@ const Q3 = () => {
                     options={locationOptions}
                   />
                 </div>
-
+ 
                 <MyButton
                   variant="search"
                   loading={loading === "fetch"}
@@ -143,7 +156,7 @@ const Q3 = () => {
                 </MyButton>
               </Space>
             </Card>
-
+ 
             {/* Stock Details */}
             <Card size="small" title="Stock Details">
               <Row gutter={[0, 6]}>
@@ -160,9 +173,9 @@ const Q3 = () => {
                     <Skeleton.Input size="small" block active />
                   )}
                 </Col>
-
+ 
                 <Divider />
-
+ 
                 <Col span={24}>
                   <Typography.Text strong style={{ fontSize: "0.8rem" }}>
                     Closing Stock:
@@ -176,9 +189,9 @@ const Q3 = () => {
                     <Skeleton.Input size="small" block active />
                   )}
                 </Col>
-
+ 
                 <Divider />
-
+ 
                 <Col span={24}>
                   <Typography.Text strong style={{ fontSize: "0.8rem" }}>
                     Not Okay Pending Stock:
@@ -192,9 +205,9 @@ const Q3 = () => {
                     <Skeleton.Input size="small" block active />
                   )}
                 </Col>
-
+ 
                 <Divider />
-
+ 
                 <Col span={24}>
                   <Typography.Text strong style={{ fontSize: "0.8rem" }}>
                     Opening Stock:
@@ -204,21 +217,21 @@ const Q3 = () => {
                     --
                   </Typography.Text>
                 </Col>
-
+ 
                 <Col span={24}>
                   <Typography.Text strong style={{ fontSize: "0.8rem" }}>
                     Last Rate:
                   </Typography.Text>
                   <br />
                   <Typography.Text style={{ fontSize: "0.8rem" }}>
-                    --
+                    {details.rate ?? "--"}
                   </Typography.Text>
                 </Col>
               </Row>
             </Card>
           </Space>
         </Col>
-
+ 
         {/* RIGHT COLUMN – TABLE */}
         <Col span={18}>
           <MyDataTable
@@ -231,7 +244,7 @@ const Q3 = () => {
     </div>
   );
 };
-
+ 
 const columns = [
   {
     headerName: "#",
@@ -302,21 +315,19 @@ const columns = [
   },
   {
     headerName: "Method",
-    field: "method",
+    field: "mode",
     width: 200,
-    renderCell: ({ row }) => <ToolTipEllipses text={"--"} />,
   },
   {
     headerName: "Location IN",
     field: "location_in",
     width: 200,
-    renderCell: ({ row }) => <ToolTipEllipses text={"--"} />,
+ 
   },
   {
     headerName: "Location OUT",
     field: "location_out",
     width: 200,
-    renderCell: ({ row }) => <ToolTipEllipses text={"--"} />,
   },
   {
     headerName: "UoM",
@@ -332,7 +343,7 @@ const columns = [
     ),
     flex: 1,
   },
-
+ 
   {
     headerName: "Remarks",
     field: "remark",
@@ -341,5 +352,5 @@ const columns = [
     flex: 1,
   },
 ];
-
+ 
 export default Q3;

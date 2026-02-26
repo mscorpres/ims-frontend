@@ -223,6 +223,7 @@ export default function NatureOfTDS() {
                 <Col span={12}>
                   <Form.Item label="Percentage">
                     <Input
+                    type="number"
                       size="default"
                       value={newTDS.percentage}
                       onChange={(e) =>

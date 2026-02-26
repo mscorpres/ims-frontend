@@ -255,6 +255,7 @@ const EditModal = ({ show, close, bomType }) => {
         <Input
           value={row.priority}
           onChange={(e) => inputHandler("priority", e.target.value, row.id)}
+          type="number"
         />
       ),
     },
@@ -265,6 +266,7 @@ const EditModal = ({ show, close, bomType }) => {
         <Input
           value={row.qty}
           onChange={(e) => inputHandler("qty", e.target.value, row.id)}
+          type="number"
         />
       ),
     },

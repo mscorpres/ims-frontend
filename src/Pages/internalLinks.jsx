@@ -507,10 +507,10 @@ const links = [
   // jobwork links
   [
     { routeName: "CREATE JW PO", routePath: "/create-jw" },
-    {
-      routeName: "JW Approval",
-      routePath: "/approval-jw"
-    },
+    // {
+    //   routeName: "JW Approval",
+    //   routePath: "/approval-jw"
+    // },
     { routeName: "PO ANALYSIS", routePath: "/po-analysis" },
     { routeName: "JW RM ISSUE", routePath: "/jw-rw-issue" },
     {

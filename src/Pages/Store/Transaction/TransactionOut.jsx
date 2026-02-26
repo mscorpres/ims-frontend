@@ -22,7 +22,6 @@ import MySelect from "../../../Components/MySelect.jsx";
 const wiseOptions = [
   { text: "Issue", value: "ISSUE" },
   { text: "Job Work", value: "JOBWORK" },
-  { text: "Rejection", value: "REJECTION" },
   { text: "Consumption", value: "CONSUMPTION" },
   { text: "SFG Consumption", value: "SFG-CONSUMPTION" },
   { text: "Transfer", value: "TRANSFER" },
@@ -105,6 +104,7 @@ const TransactionOut = () => {
       const { data } = await imsAxios.get(`/transaction/transactionOut?data=${datee}&type=${wise}`);
       // console.log("Response", data);
       if (data.code == 200) {
+
         let arr = data.data.map((row) => {
           return {
             ...row,

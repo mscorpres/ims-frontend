@@ -95,6 +95,7 @@ function ViewModal({ viewModal, setViewModal }) {
                       placeholder="Qty"
                       style={{ width: "30%" }}
                       value={allPenData.quantity}
+                      type="number"
                       onChange={(e) =>
                         setAllPenData((allPenData) => {
                           return { ...allPenData, quantity: e.target.value };
