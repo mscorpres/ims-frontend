@@ -339,7 +339,7 @@ const columns = [
     field: "doneby",
     minWidth: 250,
     renderCell: ({ row }) => (
-      <ToolTipEllipses text={`${row.created_by} / ${row.approved_by}`} />
+      <ToolTipEllipses text={`${row.doneby}`} />
     ),
     flex: 1,
   },
