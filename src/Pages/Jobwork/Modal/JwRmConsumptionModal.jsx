@@ -199,7 +199,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "orderqty") {
       setMainData((a) =>
@@ -211,7 +211,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "rate") {
       setMainData((a) =>
@@ -223,7 +223,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "invoice") {
       setMainData((a) =>
@@ -235,7 +235,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "remark") {
       setMainData((a) =>
@@ -247,7 +247,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "conRemark") {
       setBomList((a) =>
@@ -259,7 +259,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "location") {
       setMainData((a) =>
@@ -271,7 +271,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "rqdQty") {
       setMainData((a) =>
@@ -283,7 +283,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "irn") {
       setMainData((a) =>
@@ -295,54 +295,62 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "consumptionQty") {
-      const numValue = Number.parseFloat(value);
+      // Decimal-friendly: allow only digits and one decimal point
+      let allowed = String(value).replace(/[^0-9.]/g, "");
+      const parts = allowed.split(".");
+      if (parts.length > 2) allowed = parts[0] + "." + parts.slice(1).join("");
 
-      // Check if we're in BOM mode (showBomList is true) - search in bomList
-      // Otherwise search in mainData
+      const isEmpty = allowed === "";
+      const numValue = Number.parseFloat(allowed);
+      // "0." and "0.0" parse to 0, so we'd overwrite with 0 and user can't type "0.01".
+      // Keep string when parsed value would display differently (user still typing).
+      const wouldLoseInput = !isEmpty && (Number.isNaN(numValue) || String(numValue) !== allowed);
+
       const currentRow = showBomList
         ? bomList.find((aa) => aa.id == id)
         : mainData.find((aa) => aa.id == id);
 
-      // Get stock quantity - in BOM mode use venLocationStock, otherwise use stock or orderqty
-      const stockQty = showBomList
-        ? currentRow?.venLocationStock || currentRow?.stock || 0
-        : currentRow?.stock || currentRow?.orderqty || 0;
+      const rawStock = showBomList
+        ? currentRow?.venLocationStock ?? currentRow?.stock ?? 0
+        : currentRow?.stock ?? currentRow?.orderqty ?? 0;
+      const stockQty = Number(rawStock);
 
-      // if (Number.isNaN(numValue) || numValue < 0) {
-      //   toast.error("Please enter a valid positive number");
-      //   return;
-      // }
-
-      if (numValue > stockQty) {
-        toast.error(
-          `Consumption quantity cannot exceed stock quantity (${stockQty})`
-        );
+      if (wouldLoseInput) {
+        if (showBomList) {
+          setBomList((a) =>
+            a.map((aa) => (aa.id == id ? { ...aa, consumptionQty: allowed } : aa))
+          );
+        } else {
+          setMainData((a) =>
+            a.map((aa) => (aa.id == id ? { ...aa, consumptionQty: allowed } : aa))
+          );
+        }
         return;
       }
 
-      // Update the appropriate state based on mode
+      const finalNum = isEmpty ? "" : numValue;
+      const epsilon = 1e-9;
+      if (!isEmpty && !Number.isNaN(numValue)) {
+        if (numValue < 0) {
+          toast.error("Consumption quantity cannot be negative");
+          return;
+        }
+        if (numValue > stockQty + epsilon) {
+          toast.error(`Consumption quantity cannot exceed stock (${stockQty})`);
+          return;
+        }
+      }
+
       if (showBomList) {
         setBomList((a) =>
-          a.map((aa) => {
-            if (aa.id == id) {
-              return { ...aa, consumptionQty: numValue };
-            } else {
-              return aa;
-            }
-          })
+          a.map((aa) => (aa.id == id ? { ...aa, consumptionQty: finalNum } : aa))
         );
       } else {
         setMainData((a) =>
-          a.map((aa) => {
-            if (aa.id == id) {
-              return { ...aa, consumptionQty: numValue };
-            } else {
-              return aa;
-            }
-          })
+          a.map((aa) => (aa.id == id ? { ...aa, consumptionQty: finalNum } : aa))
         );
       }
     }
@@ -412,20 +420,20 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       headerName: "Consumption Qty",
       width: 180,
       renderCell: ({ row }) => {
-        // Use venLocationStock if available (BOM mode), otherwise use stock or orderqty
-        const stockQty =
-          row?.venLocationStock || row?.stock || row?.orderqty || 0;
+        const val = row.consumptionQty;
+        const displayVal =
+          val === "" || val === undefined || val === null
+            ? ""
+            : String(val);
         return (
           <Input
-            type="number"
-            placeholder="Consumption Qty"
-            value={row.consumptionQty || ""}
+            type="text"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={displayVal}
             onChange={(e) =>
               inputHandler("consumptionQty", row.id, e.target.value)
             }
-            max={stockQty}
-            min={0}
-            step="any"
           />
         );
       },
@@ -508,7 +516,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
         challanNo: challanNo,
         jw: header?.jobworkID || row?.transaction_id || row?.jw_transaction_id,
         component: bomList.map((r) => r.key),
-        consumpQty: bomList.map((r) => r.consumptionQty || 0),
+        consumpQty: bomList.map((r) => Number(r.consumptionQty) || 0),
         invoice: invoiceData,
         remark: bomList.map((r) => r.conRemark || ""),
         consumpLoc: consumpLoc,
@@ -519,7 +527,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       try {
         const response = await imsAxios.post(
           "/jobwork/rm-consumption/save",
-          payload
+          payload,
         );
 
         if (response.success || response.data?.status === "success") {
@@ -527,7 +535,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           toast.success(
             response.message ||
               response.data?.message ||
-              "RM Consumption saved successfully"
+              "RM Consumption saved successfully",
           );
           setShowBomList(false);
           modalForm.resetFields();
@@ -542,7 +550,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
           toast.error(
             response.message ||
               response.data?.message ||
-              "Failed to save RM Consumption"
+              "Failed to save RM Consumption",
           );
         }
       } catch (error) {
@@ -721,7 +729,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
 
       const fileResponse = await executeFun(
         () => uploadMinInvoice(formData),
-        "submit"
+        "submit",
       );
       if (fileResponse.success) {
         const { data } = fileResponse;
@@ -1054,18 +1062,20 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
                           validator: (_, value) => {
                             if (!value || value.length === 0) {
                               return Promise.reject(
-                                new Error("Please upload at least one document")
+                                new Error(
+                                  "Please upload at least one document",
+                                ),
                               );
                             }
                             // Check if at least one file is uploaded
                             const hasFile = value.some(
-                              (comp) => comp.file && comp.file[0]
+                              (comp) => comp.file && comp.file[0],
                             );
                             if (!hasFile) {
                               return Promise.reject(
                                 new Error(
-                                  "Please upload at least one document file"
-                                )
+                                  "Please upload at least one document file",
+                                ),
                               );
                             }
                             return Promise.resolve();
