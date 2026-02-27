@@ -117,7 +117,6 @@ export default function CreateJW({}) {
   });
   const [uom, setUom] = useState("");
   const [createPoForm] = Form.useForm();
-  const costCenter = Form.useWatch("pocostcenter", createPoForm);
   // get po options
   //   in case of po type change
   const getPoOptions = async (inputValue) => {};
@@ -195,20 +194,12 @@ export default function CreateJW({}) {
     }
   };
 
-  const getLocatonOptions = async (search, costCenterParam) => {
-    const cc = costCenterParam ?? costCenter;
-    if (!cc) {
-      toast.error("Please select Cost Center first");
-      setLoading("selectLocation", false);
-      return;
-    }
-    setLoading("selectLocation", true);
-    try {
-      const response = await imsAxios.get(`/jobwork/warehouse/location?cc=${cc}&search=${search ?? ""}`);
-      getData(response);
-    } finally {
-      setLoading("selectLocation", false);
-    }
+  const getLocatonOptions = async (search) => {
+    setLoading("selectLocation");
+    const response = await imsAxios.post("/backend/fetchLocation", {
+      searchTerm: search,
+    });
+    getData(response);
   };
   console.log(createPoForm.getFieldValue("vendorname")?.value)
 
@@ -1256,7 +1247,7 @@ export default function CreateJW({}) {
                 >
                   <MyAsyncSelect
                     onBlur={() => setAsyncLocationOptions([])}
-                    loadOptions={(search) => getLocatonOptions(search, costCenter)}
+                    loadOptions={getLocatonOptions}
                     optionsState={asyncLocationOptions}
                     selectLoading={loading === "selectLocation"}
                   />
