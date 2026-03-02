@@ -177,7 +177,7 @@ export default function NewProjectForm() {
                 name="qty"
                 label="Quantity"
               >
-                <Input />
+                <Input  type="number"/>
               </Form.Item>
             </Col>
             {/* <Col span={24}>

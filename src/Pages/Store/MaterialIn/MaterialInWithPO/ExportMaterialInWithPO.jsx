@@ -225,7 +225,7 @@ export default function ExportMaterialInWithPO({}) {
       };
       const response = await executeFun(
         () => checkInvoiceforMIN(payload),
-        "select"
+        "select",
       );
       // const { data } = await imsAxios.post("/backend/checkInvoice", {
       //   invoice: invoices,
@@ -363,7 +363,7 @@ export default function ExportMaterialInWithPO({}) {
       setSubmitLoading(true);
       const { data: fileData } = await imsAxios.post(
         "/transaction/upload-invoice",
-        values.formData
+        values.formData,
       );
       if (fileData.code == "200") {
         let final = {
@@ -378,7 +378,7 @@ export default function ExportMaterialInWithPO({}) {
         final = { ...final, ...values.componentData };
         const response = await executeFun(
           () => poMINforImport(final),
-          "select"
+          "select",
         );
         // const { data } = await imsAxios.post("/purchaseOrder/poMIN", final);
         let { data } = response;
@@ -413,7 +413,7 @@ export default function ExportMaterialInWithPO({}) {
       } else {
         setSubmitLoading(false);
         toast.error(
-          "Some error occured while uploading invoices, Please try again"
+          "Some error occured while uploading invoices, Please try again",
         );
       }
     }
@@ -464,7 +464,7 @@ export default function ExportMaterialInWithPO({}) {
     setPageLoading(true);
 
     const { data } = await imsAxios.get(
-      "/transaction/fetchAutoConsumpLocation"
+      "/transaction/fetchAutoConsumpLocation",
     );
     setPageLoading(false);
     if (data.code == 200) {
@@ -651,7 +651,7 @@ export default function ExportMaterialInWithPO({}) {
     };
     const { data } = await imsAxios.post(
       "/purchaseOrder/fetchVendorPO",
-      search
+      search,
     );
     setSearchLoading(false);
 
@@ -778,6 +778,7 @@ export default function ExportMaterialInWithPO({}) {
           onChange={(e) =>
             inputHandler("orderQty", e.target.value, params.row.id)
           }
+          type="number"
         />
       ),
       width: 120,
@@ -804,6 +805,7 @@ export default function ExportMaterialInWithPO({}) {
         <Input
           value={params.row.rate}
           onChange={(e) => inputHandler("rate", e.target.value, params.row.id)}
+          type="number"
         />
       ),
       width: 100,
@@ -971,14 +973,14 @@ export default function ExportMaterialInWithPO({}) {
   }, []);
   useEffect(() => {
     let grandTotal = poData?.materials.map((row) =>
-      Number(row?.total).toFixed(2)
+      Number(row?.total).toFixed(2),
     );
     let totalTaxableValue = poData?.materials.map((row) =>
-      Number(row?.taxableValue)
+      Number(row?.taxableValue),
     );
     let customTotal = poData?.materials.map((row) => Number(row?.customDuty));
     let freightTotal = poData?.materials.map((row) =>
-      Number(row?.freightValue)
+      Number(row?.freightValue),
     );
     let inrValue = poData?.materials.map((row) => Number(row?.inrValue));
     let obj = [
@@ -1002,7 +1004,7 @@ export default function ExportMaterialInWithPO({}) {
     formData.append("po_id", searchData.poNumber);
     const response = await executeFun(
       () => uploadPOExportFile(formData),
-      "fetch"
+      "fetch",
     );
 
     if (response?.data?.status === "success") {
@@ -1313,7 +1315,7 @@ export default function ExportMaterialInWithPO({}) {
                             type="Paragraph"
                             text={poData?.headers?.vendoraddress?.replaceAll(
                               "<br>",
-                              " "
+                              " ",
                             )}
                           />
                         </Typography.Text>
@@ -1616,7 +1618,7 @@ export default function ExportMaterialInWithPO({}) {
                               {Number(
                                 row.values?.reduce((partialSum, a) => {
                                   return partialSum + Number(a);
-                                }, 0)
+                                }, 0),
                               ).toFixed(2)}
                             </span>
                           </Col>

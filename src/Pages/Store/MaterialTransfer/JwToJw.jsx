@@ -614,6 +614,7 @@ function JwToJw() {
                             </td>
                             <td style={{ width: "15vw" }}>
                               <Input
+                                type="number"
                                 value={row.qty1}
                                 onChange={(e) => {
                                   setRows((prev) => {
