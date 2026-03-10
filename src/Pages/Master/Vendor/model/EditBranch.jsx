@@ -86,6 +86,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       ? vendorData.data[0]
       : vendorData?.data;
 
+
     // Normalize MSME effective-from: API may send ISO (YYYY-MM-DD), DD-MM-YYYY, or "--".
     // SingleDatePicker expects DD-MM-YYYY, so parse with dayjs and pass a dayjs object
     // to avoid "Invalid Date" when the format doesn't match.
@@ -162,10 +163,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         "ledgerCurrency",
         updateVendorForm.getFieldsValue().ledgerCurrency,
       );
-      updateVendorForm.setFieldValue(
-        "bankBranch",
-        updateVendorForm.getFieldsValue().bank_branch,
-      );
+
     }
   }, [transactionType]);
   const formatMsmeEffectiveFrom = (val) => {
