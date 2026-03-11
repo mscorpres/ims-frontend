@@ -109,6 +109,15 @@ export const uplaodFileInMINInward = async (formdata) => {
   }
 };
 
+export const uplaodFGFileInMINInward = async (formdata) => {
+  try {
+    const response = await imsAxios.post("fgMIN/upload/item", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+
 export const uploadPOExportFile = async (formdata) => {
   try {
     const response = await imsAxios.post("purchaseOthers/uploadPoFile", formdata);

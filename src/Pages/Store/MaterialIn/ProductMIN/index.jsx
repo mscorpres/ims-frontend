@@ -6,13 +6,17 @@ import {
   Button,
   Card,
   Col,
+  Drawer,
   Form,
   Input,
   Modal,
   Row,
   Tabs,
   Typography,
+  Upload,
+  Flex,
 } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
 import {
   QuantityCell,
   taxableCell,
@@ -51,9 +55,18 @@ import {
   getProjectOptions,
   getVendorOptions,
   savefginward,
+  uplaodFGFileInMINInward,
 } from "../../../../api/general.ts";
-import { convertSelectOptions } from "../../../../utils/general.ts";
+import {
+  uploadMinInvoice,
+  validateInvoice,
+} from "../../../../api/store/material-in";
+import { convertSelectOptions, getInt } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import SingleDatePicker from "../../../../Components/SingleDatePicker";
+import MyButton from "../../../../Components/MyButton/index.jsx";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
+import MyDataTable from "../../../../Components/MyDataTable.jsx";
 
 export default function ProductMIN() {
   const [showCurrency, setShowCurrenncy] = useState(null);
@@ -69,7 +82,6 @@ export default function ProductMIN() {
   ]);
   const [currencies, setCurrencies] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
-  const [submitLoading, setSubmitLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [activeTab, setActiveTab] = useState("1");
   const [vendorDetails, setVendorDetails] = useState({
@@ -81,10 +93,19 @@ export default function ProductMIN() {
     ewaybill: "",
     companybranch: "BRMSC012",
     projectID: "",
+    projectName: "",
     costCenter: "",
+    currency: "364907247",
+    invoiceDate: "",
+    invoiceId: "",
   });
+  const [open, setOpen] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
+  const [uploadForm] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
   const [vendorBranchOptions, setVendorBranchOptions] = useState([]);
+
   const [materialInward, setMaterialInward] = useState([
     {
       id: v4(),
@@ -102,7 +123,7 @@ export default function ProductMIN() {
       igst: 0,
       invoiceDate: "",
       invoiceId: "",
-      location: "20210910145118",
+      location: "",
       exchange_rate: 0,
       orderremark: "",
       locationName: "",
@@ -116,19 +137,24 @@ export default function ProductMIN() {
   const [showSuccessPage, setShowSuccessPage] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const costCenter = Form.useWatch("costCenter", form);
   const vendorDetailsOptions = [
-    { text: "JWI (Job Work In)", value: "j01" },
     { text: "Vendor", value: "v01" },
-    { text: "Production Return", value: "p01" },
+    { text: "Sales Return", value: "s01" },
   ];
+  const getGstTypeValue = (v) => {
+    if (v == null || v === "") return "L";
+    return typeof v === "object" ? v?.value ?? v?.text ?? "L" : v;
+  };
+
   const addRow = () => {
     let arr = materialInward;
     let newRow = {
       id: v4(),
       component: "",
       orderqty: 0,
-      orderrate: 0, //will come from backend on co mponent selection
-      currency: materialInward[0].currency, //will be default at fiest, check
+      orderrate: 0,
+      currency: materialInward[0].currency,
       gstrate: 0,
       unitsname: "--",
       gsttype: "L",
@@ -139,7 +165,7 @@ export default function ProductMIN() {
       igst: 0,
       invoiceDate: "",
       invoiceId: "",
-      location: "20210910145118",
+      location: "",
       exchange_rate: 0,
       orderremark: "",
       locationName: "",
@@ -186,7 +212,8 @@ export default function ProductMIN() {
         });
       } else if (
         !invoices.length &&
-        form.getFieldValue("vendorType") == "v01"
+        form.getFieldValue("vendorType") == "v01" &&
+        form.getFieldValue("vendorType") == "s01"
       ) {
         return toast.error("Please add at least one file");
       }
@@ -197,14 +224,17 @@ export default function ProductMIN() {
           rate: [...componentData.rate, row.orderrate],
           currency: [...componentData.currency, row.currency],
           exchange: [...componentData.exchange, row.exchange_rate],
-          hsn_code: [...componentData.hsn_code, row.hsn ?? ""],
-          gst_type: [...componentData.gst_type, row.gsttype],
+          hsn_code: [...componentData.hsn_code, row.hsncode ?? ""],
+          gst_type: [...componentData.gst_type, getGstTypeValue(row.gsttype)],
           gstrate: [...componentData.gstrate, row.gstrate],
           cgst: [...componentData.cgst, row.cgst],
           sgst: [...componentData.sgst, row.sgst],
           igst: [...componentData.igst, row.igst],
           remark: [...componentData.remark, row.orderremark],
-          location: [...componentData.location, row.location],
+          location: [
+            ...componentData.location,
+            row.location?.value ?? row.location,
+          ],
         };
       });
       if (
@@ -242,112 +272,105 @@ export default function ProductMIN() {
     }
   };
   const submitMIN = async (values) => {
-    let fileData;
-    // console.log("these are the values", values);
-
     axiosResponseFunction(async () => {
-      if (invoices?.length) {
-        setSubmitLoading(true);
-        const { data: uploadedFile } = await imsAxios.post(
-          "/transaction/upload-invoice",
-          values.formData
+      const hasFiles = invoices?.length > 0;
+      const vendorName = values.vendorValues?.vendorName;
+
+      if (hasFiles && vendorName?.value) {
+        const checkPayload = {
+          components: materialInward.map((r) => ({
+            ...r,
+            invoiceId: values.vendorValues?.invoiceId ?? "",
+          })),
+          vendorName,
+          invoiceId: values.vendorValues?.invoiceId ?? "",
+        };
+        const checkResponse = await executeFun(
+          () => validateInvoice(checkPayload),
+          "submit",
         );
-        fileData = uploadedFile;
-        // form.getFieldValue("vendorType")
-        if (fileData.code != 200) {
-          return toast.error(
-            "Some error occured while uploading invoices, Please try again"
-          );
-        } else {
-          let final = {
-            companybranch: "BRMSC012",
-            attachment: fileData ? fileData.data : "",
-          };
-          let venDetails = {
-            cust_name: values.vendorValues.customerName,
-            cust_addr: values.vendorValues.customerAddress,
-            doc_id: values.vendorValues.docId,
-            doc_date: values.vendorValues.docDate,
-          };
-          final = {
-            ...final,
-            ...values.componentData,
-            ...venDetails,
-          };
-          setSubmitLoading(true);
-          let response = await executeFun(() => savefginward(final), "select");
-          const { data } = response
-          setSubmitLoading(false);
-          if (data.code == "200") {
-            // setvalues(false);
-            setActiveTab("1");
-            setShowSuccessPage({
-              materialInId: data.data.txn,
-              vendor: {
-                vendorname:
-                  values.vendorValues?.customerName ??
-                  vendorDetails.vendor ??
-                  vendorDetails.vendorName ??
-                  "",
-              },
-              components: materialInward.map((row, index) => {
-                return {
-                  id: index,
-                  componentName: row.component.label,
-                  inQuantity: row.orderqty,
-                  // location: row.locationName,
-                };
-              }),
-            });
-            vendorResetFunction();
-            materialResetFunction();
-          } else {
-            toast.error(data.message.msg);
-          }
+        if (checkResponse?.data?.invoicesFound?.length) {
+          const found = checkResponse.data.invoicesFound;
+          Modal.confirm({
+            title: "Invoices already found. Continue anyway?",
+            content: found.join(", "),
+            onOk: () => doUploadAndSave(values, hasFiles),
+          });
+          return;
         }
-      } else {
-        return toast.error("Please add at least one file!!");
-
-        // let final = {
-        //   companybranch: "BRMSC012",
-        //   attachment: fileData ? fileData.data : "",
-        // };
-        // let venDetails = {
-        //   companybranch: vendorDetails.companybranch,
-        //   vendor: vendorDetails.vendorName,
-        //   vendorbranch: vendorDetails.vendorBranch,
-        //   address: vendorDetails.vendorAddress,
-        //   vendortype: vendorDetails.vendorType,
-        //   ewaybill: vendorDetails.ewaybill ?? "--",
-        // };
-        // final = { ...final, ...values.componentData, ...venDetails };
-        // setSubmitLoading(true);
-
-        // const { data } = await imsAxios.post("/fgMIN/savefginward", final);
-        // setSubmitLoading(false);
-        // if (data.code == "200") {
-        //   setActiveTab("1");
-        //   setShowSuccessPage({
-        //     materialInId: data.data.txn,
-        //     vendor: { vendorname: vendorDetails.vendor },
-        //     components: materialInward.map((row, index) => {
-        //       return {
-        //         id: index,
-        //         componentName: row.component.label,
-        //         inQuantity: row.orderqty,
-        //         invoiceNumber: row.invoiceId,
-        //         invoiceDate: row.invoiceDate,
-        //         location: row.locationName,
-        //       };
-        //     }),
-        //   });
-        //   vendorResetFunction();
-        //   materialResetFunction();
-        // } else {
-        //   toast.error(data.message.msg);
-        // }
+        if (checkResponse?.error) return;
       }
+
+      await doUploadAndSave(values, hasFiles);
     });
+  };
+
+  const doUploadAndSave = async (values, hasFiles) => {
+    let attachmentValue = "";
+    if (hasFiles) {
+      const uploadResponse = await executeFun(
+        () => uploadMinInvoice(values.formData),
+        "submit",
+      );
+      if (uploadResponse?.error || uploadResponse?.data?.code != 200) {
+        toast.error(
+          uploadResponse?.data?.message?.msg ??
+            "Error uploading invoices. Please try again.",
+        );
+        return;
+      }
+      attachmentValue = uploadResponse?.data?.data ?? "";
+    }
+
+    let final = {
+      companybranch: "BRMSC012",
+      attachment: attachmentValue,
+    };
+    let venDetails = {
+      vendortype: values.vendorValues.vendorType ?? "",
+      vendor: values.vendorValues.vendorName ?? "",
+      vendorbranch: values.vendorValues.vendorBranch ?? "",
+      invoice: values.vendorValues.invoiceId ?? "",
+      invoice_date: values.vendorValues.invoiceDate ?? "",
+      cost_center: values.vendorValues.costCenter ?? "",
+      project_id: values.vendorValues.projectID ?? "",
+      address: values.vendorValues.vendorAddress ?? "",
+    };
+    final = {
+      ...final,
+      ...values.componentData,
+      ...venDetails,
+    };
+
+    const saveResponse = await executeFun(() => savefginward(final), "submit");
+    const data = saveResponse?.data;
+    if (data?.code == "200") {
+      // setvalues(false);
+      setActiveTab("1");
+      setShowSuccessPage({
+        materialInId: data.data.txn,
+        vendor: {
+          vendorname:
+            values.vendorValues?.vendorName?.label ??
+            values.vendorValues?.vendorName ??
+            vendorDetails.vendor ??
+            vendorDetails.vendorName ??
+            "",
+        },
+        components: materialInward.map((row, index) => {
+          return {
+            id: index,
+            componentName: row.component?.label ?? "",
+            inQuantity: row.orderqty,
+            // location: row.locationName,
+          };
+        }),
+      });
+      vendorResetFunction();
+      materialResetFunction();
+    } else {
+      toast.error(data?.message?.msg ?? data?.message ?? "Save failed");
+    }
   };
   const validateInvoices = async (values) => {
     // try {
@@ -440,7 +463,7 @@ export default function ProductMIN() {
     if (search?.length > 2) {
       const response = await executeFun(
         () => getVendorOptions(search),
-        "select"
+        "select",
       );
       let arr = [];
       if (response.success) {
@@ -454,7 +477,9 @@ export default function ProductMIN() {
     if (name == "component") {
       if (value) {
         setPageLoading(true);
-        const response = await imsAxios.get(`/jobwork/fetchProductData4Table?key=${value.value}`);
+        const response = await imsAxios.get(
+          `/jobwork/fetchProductData4Table?key=${value.value}`,
+        );
         setPageLoading(false);
 
         if (response?.success) {
@@ -464,10 +489,10 @@ export default function ProductMIN() {
               obj = {
                 ...obj,
                 [name]: value,
-                gstrate: response?.data.gstrate,
+                gstRate: response?.data.gstrate,
                 orderrate: response?.data.rate,
                 unitsname: response?.data.unit,
-                hsn: response?.data.hsn,
+                Hsn: response?.data.hsn,
               };
               return obj;
             } else {
@@ -494,15 +519,15 @@ export default function ProductMIN() {
               inrValue: value * row.orderrate,
               usdValue: value * row.orderrate * row.exchange_rate,
               igst:
-                row.gsttype == "L"
+                getGstTypeValue(row.gsttype) === "L"
                   ? 0
                   : (value * row.orderrate * row.gstrate) / 100,
               sgst:
-                row.gsttype == "I"
+                getGstTypeValue(row.gsttype) === "I"
                   ? 0
                   : (value * row.orderrate * row.gstrate) / 200,
               cgst:
-                row.gsttype == "I"
+                getGstTypeValue(row.gsttype) === "I"
                   ? 0
                   : (value * row.orderrate * row.gstrate) / 200,
             };
@@ -514,33 +539,34 @@ export default function ProductMIN() {
               inrValue: value * row.orderqty,
               usdValue: value * row.orderqty * row.exchange_rate,
               igst:
-                row.gsttype == "L"
+                getGstTypeValue(row.gsttype) === "L"
                   ? 0
                   : (value * row.orderqty * row.gstrate) / 100,
               sgst:
-                row.gsttype == "I"
+                getGstTypeValue(row.gsttype) === "I"
                   ? 0
                   : (value * row.orderqty * row.gstrate) / 200,
               cgst:
-                row.gsttype == "I"
+                getGstTypeValue(row.gsttype) === "I"
                   ? 0
                   : (value * row.orderqty * row.gstrate) / 200,
             };
             return obj;
           } else if (name == "gsttype") {
-            if (value == "I") {
+            const gstVal = getGstTypeValue(value);
+            if (gstVal === "I") {
               obj = {
                 ...obj,
-                [name]: value,
+                [name]: gstVal,
                 igst: (row.inrValue * row.gstrate) / 100,
                 sgst: 0,
                 cgst: 0,
               };
-            } else if (value == "L") {
+            } else {
               obj = {
                 ...obj,
+                [name]: gstVal,
                 igst: 0,
-                [name]: value,
                 sgst: (row.inrValue * row.gstrate) / 200,
                 cgst: (row.inrValue * row.gstrate) / 200,
               };
@@ -550,9 +576,9 @@ export default function ProductMIN() {
             obj = {
               ...obj,
               [name]: value,
-              igst: row.gsttype == "L" ? 0 : (value * row.inrValue) / 100,
-              sgst: row.gsttype == "I" ? 0 : (value * row.inrValue) / 200,
-              cgst: row.gsttype == "I" ? 0 : (value * row.inrValue) / 200,
+              igst: getGstTypeValue(row.gsttype) === "L" ? 0 : (value * row.inrValue) / 100,
+              sgst: getGstTypeValue(row.gsttype) === "I" ? 0 : (value * row.inrValue) / 200,
+              cgst: getGstTypeValue(row.gsttype) === "I" ? 0 : (value * row.inrValue) / 200,
             };
             return obj;
           } else if (name == "currency") {
@@ -588,10 +614,17 @@ export default function ProductMIN() {
             };
             return obj;
           } else if (name == "location") {
+            const locationObj = value
+              ? {
+                  value: value?.value ?? value?.id,
+                  text: value?.text ?? value?.label ?? "",
+                }
+              : "";
             obj = {
               ...obj,
-              [name]: value.value,
-              locationName: value.label,
+              location: locationObj,
+              locationName:
+                typeof locationObj === "object" ? locationObj?.text ?? "" : "",
             };
             return obj;
           } else {
@@ -627,7 +660,7 @@ export default function ProductMIN() {
             {
               vendorcode: value.value,
               branchcode: arr[0].value,
-            }
+            },
           );
           setVendorSectionLoading(false);
           setVendorBranchOptions(arr);
@@ -698,7 +731,7 @@ export default function ProductMIN() {
   const handleFetchCostCenterOptions = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
-      "select"
+      "select",
     );
     let arr = [];
     if (response.success) arr = convertSelectOptions(response.data);
@@ -707,7 +740,7 @@ export default function ProductMIN() {
   const handleFetchProjectOptions = async (search) => {
     const response = await executeFun(
       () => getProjectOptions(search),
-      "select"
+      "select",
     );
     setAsyncOptions(response.data);
   };
@@ -733,6 +766,12 @@ export default function ProductMIN() {
       vendorBranch: "",
       gstin: "",
       vendorAddress: "",
+      projectID: "",
+      projectName: "",
+      costCenter: "",
+      currency: "364907247",
+      invoiceDate: "",
+      invoiceId: "",
     };
     setVendorDetails(obj);
     setShowResetConfirm(false);
@@ -746,7 +785,7 @@ export default function ProductMIN() {
         component: "",
         orderqty: 0,
         orderrate: 0, //will come from backend on co mponent selection
-        currency: "364907247", //will be default at fiest, check
+        currency: "", //will be default at fiest, check
         gstrate: 0,
         unitsname: "--",
         gsttype: "L",
@@ -787,7 +826,7 @@ export default function ProductMIN() {
           setAsyncOptions,
           getProductOptions,
           asyncOptions,
-          selectLoading
+          selectLoading,
         ),
       width: 300,
     },
@@ -911,14 +950,245 @@ export default function ProductMIN() {
 
     // { headerName: "Location", field: "location", flex: 1 },
   ];
+  // Excel columns aligned with FGPMIN template (Part Code, Qty, Rate, HSN, Location, etc.)
+  const sampleData = [
+    {
+      P_SKU: "106101",
+      QTY: 12,
+      RATE: "12",
+      HSN: "123456",
+      GST_TYPE: "LOCAL",
+      GST_RATE: "18",
+      LOCATION: "FG001",
+      REMARK: "Sample remark",
+    },
+  ];
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+  const uploadProps = {
+    name: "file",
+    multiple: false,
+    maxCount: 1,
+    beforeUpload() {
+      return false;
+    },
+  };
+  const closeDrawer = () => {
+    setPreview(false);
+    setOpen(false);
+    const invoiceDate = form.getFieldValue("invoiceDate");
+    const invoiceId = form.getFieldValue("invoiceId");
+    const currency = form.getFieldValue("currency") || "";
+    const arr = previewRows.map((r) => {
+      const loc = r.location;
+      let locationForRow;
+      if (loc && typeof loc === "object") {
+        locationForRow = {
+          text: loc.text ?? loc.label ?? loc.name ?? "",
+          value: loc.value ?? loc.id,
+        };
+      } else if (loc && locationOptions?.length) {
+        const matched = locationOptions.find(
+          (opt) =>
+            opt.value === loc ||
+            String(opt.value) === String(loc) ||
+            opt.text === loc ||
+            String(opt.text).toLowerCase() === String(loc).toLowerCase()
+        );
+        locationForRow = matched
+          ? { text: matched.text, value: matched.value }
+          : loc;
+      } else {
+        locationForRow = loc ?? "";
+      }
+      const inrValue = (Number(r.qty) || 0) * (Number(r.rate) || 0);
+      const gstRateNum = Number(r.gstRate) || 0;
+      const rawGstType = r.gstType ?? "L";
+      const gstTypeNormalized =
+        typeof rawGstType === "object"
+          ? rawGstType.value ?? rawGstType.text ?? "L"
+          : rawGstType;
+      const isLocal =
+        gstTypeNormalized === "L" ||
+        String(gstTypeNormalized).toUpperCase().startsWith("LOCAL");
+      const finalGstRate = isLocal ? getInt(gstRateNum) / 2 : getInt(gstRateNum);
+      const gst = getInt((inrValue * finalGstRate) / 100);
+      const cgst = isLocal ? gst : 0;
+      const sgst = isLocal ? gst : 0;
+      const igst = isLocal ? 0 : gst;
+      const isBaseCurrency = currency === "364907247";
+      const usdValue = isBaseCurrency ? 0 : inrValue;
+      const gsttypeNormalized = isLocal ? "L" : "I";
+      return {
+        id: v4(),
+        component: r.component ?? { label: r.partName, value: r.partCode },
+        orderqty: Number(r.qty) || 0,
+        orderrate: Number(r.rate) || 0,
+        currency: currency,
+        gstrate: gstRateNum,
+        unitsname: "--",
+        gsttype: gsttypeNormalized,
+        hsncode: r.Hsn ?? r.hsn ?? "",
+        inrValue,
+        usdValue,
+        cgst,
+        sgst,
+        igst,
+        invoiceDate: invoiceDate ?? "",
+        invoiceId: invoiceId ?? "",
+        location: locationForRow,
+        locationName:
+          typeof locationForRow === "object" ? locationForRow.text : "",
+        exchange_rate: 0,
+        orderremark: r.Remark ?? r.remark ?? "",
+        autoConsumption:
+          r.Autoconsump === "Y" || r.autoConsName === "Yes" ? 1 : 0,
+      };
+    });
+    setMaterialInward(arr);
+  };
+  const saveTheData = async () => {
+    Modal.confirm({
+      title: "Are you sure you want to submit?",
+      content: "Please make sure that the values are correct",
+      onOk() {
+        closeDrawer();
+      },
+      onCancel() {},
+    });
+  };
+  const previewedcolumns = [
+    {
+      headerName: "#",
+      field: "id",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.id} />,
+      width: 50,
+    },
+    {
+      headerName: "Part Code",
+      field: "part_Code",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.partCode} />,
+      minWidth: 110,
+    },
+    // { headerName: "Part Name", field: "partName", renderCell: ({ row }) => <ToolTipEllipses text={row.partName} copy={true} />, minWidth: 250, flex: 1 },
+    {
+      headerName: "Location",
+      field: "locationName",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses
+          text={
+            row.location?.text ??
+            row.location?.label ??
+            row.location?.name ??
+            ""
+          }
+        />
+      ),
+      width: 100,
+    },
+    {
+      headerName: "Hsn",
+      field: "hsn",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.Hsn ?? row.hsn} />,
+      width: 110,
+    },
+    { headerName: "Rate", field: "rate", flex: 1, minWidth: 100 },
+    {
+      headerName: "Qty",
+      field: "qty",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.Qty ?? row.qty} copy={true} />
+      ),
+    },
+    // { headerName: "Auto Consumption", field: "autoConsName", minWidth: 150, flex: 1 },
+    { headerName: "Remark", field: "Remark", minWidth: 150, flex: 1 },
+    { headerName: "GST RATE", field: "Gstrate", flex: 1, minWidth: 100 },
+    {
+      headerName: "GST TYPE",
+      field: "Gsttype",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.gstType?.text} copy={true} />
+      ),
+    },
+  ];
+  const callFileUpload = async () => {
+    setPreview(true);
+    const values = uploadForm.getFieldsValue();
+    if (!values.files?.length || !values.files[0]?.originFileObj) {
+      toast.error("Please select a file");
+      setPreview(false);
+      return;
+    }
+    const file = values.files[0].originFileObj;
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await executeFun(
+      () => uplaodFGFileInMINInward(formData),
+      "fetch",
+    );
+    if (response?.data?.status === "success") {
+      const data = response.data;
+      const formattedHeaders = data.data.headers.map((header) =>
+        header
+          .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+            index === 0 ? match.toUpperCase() : match.toLowerCase(),
+          )
+          .replace(/\s+/g, ""),
+      );
+      const formattedRows = data.data.rows.map((row) => {
+        const rowObject = {};
+        formattedHeaders.forEach((header, index) => {
+          rowObject[header] = row[index];
+        });
+        return rowObject;
+      });
+
+    
+
+      const arr = formattedRows.map((r, index) => ({
+        id: index + 1,
+        partCode: r.Partcode?.partNo ?? r.Partcode ?? r.Psku?.pSku ?? "",
+        partName: r.Partcode?.name ?? r.Partcode ?? "",
+        location: r.Location,
+        component: r.Psku ? { label: r.Psku?.name, value: r.Psku?.pSku } : null,
+        qty: r.Qty,
+        rate: r.Rate,
+        hsn: r.Hsn,
+        autoConsName: r.Autoconsump === "Y" ? "Yes" : "No",
+        Remark: r.Remark,
+        gstRate: r.Gstrate,
+        gstType: r.Gsttype,
+   
+        ...r,
+      }));
+      setPreviewRows(arr);
+    } else {
+      toast.error(
+        response?.data?.message?.msg ?? response?.message ?? "Upload failed",
+      );
+      setPreview(false);
+    }
+  };
   useEffect(() => {
     getAutoComnsumptionOptions();
     getCurrencies();
+  }, []);
+
+  useEffect(() => {
     getLocation();
   }, []);
+  
   useEffect(() => {
     let grandTotal = materialInward?.map((row) =>
-      Number(row?.cgst + row?.sgst + row?.igst + row.inrValue)
+      Number(row?.cgst + row?.sgst + row?.igst + row.inrValue),
     );
     let cgsttotal = materialInward?.map((row) => Number(row?.cgst));
     let sgsttotal = materialInward?.map((row) => Number(row?.sgst));
@@ -1007,89 +1277,60 @@ export default function ProductMIN() {
             span={6}
             style={{ height: "98%", overflowY: "auto", overflowX: "hidden" }}
           >
-            <Card size="small" title="Customer details">
-              <Form
-                initialValues={vendorDetails}
-                form={form}
-                layout="vertical"
-                // onFinish={finish}
-                onFieldsChange={(value, allFields) => {
-                  if (value.length == 1) {
-                    vendorInputHandler(value[0].name[0], value[0].value);
-                  }
-                }}
-              >
-                {vendorSectionLoading && <Loading />}
-                <Row gutter={6}>
-                  <Col span={12}>
-                    <Form.Item name="docId" label="Document No.">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="docDate" label="Document Date">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  {/* <Col span={24}>
-                    <Form.Item
-                      name="vendorType"
-                      label="Vendor Type"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Select a vendor Type!",
-                      //   },
-                      // ]}
-                    >
-                      <MySelect size="default" options={vendorDetailsOptions} />
-                    </Form.Item>
-                  </Col> */}
-                  <Col span={24}>
-                    <Form.Item
-                      name="customerName"
-                      label="Customer Name"
-                      // label={
-                      //   <div
-                      //     style={{
-                      //       display: "flex",
-                      //       justifyContent: "space-between",
-                      //       width: 350,
-                      //     }}
-                      //   >
-                      //     Vendor Name
-                      //     <span
-                      //       onClick={() => setShowAddVendorModal(true)}
-                      //       style={{ color: "#1890FF", cursor: "pointer" }}
-                      //     >
-                      //       Add Vendor
-                      //     </span>
-                      //   </div>
-                      // }
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Select a vendor Name!",
-                      //   },
-                      // ]}
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  {/* <Col span={24}>
-                    <Form.Item
-                      name="vendorBranch"
-                      label={
-                        <div
-                          style={{
-                            fontSize: window.innerWidth < 1600 && "0.7rem",
-                            display: "flex",
-                            justifyContent: "space-between",
-                            width: 350,
-                          }}
-                        >
-                          Vendor Branch
-                          <span
+            <Flex vertical gap={6}>
+              <Card size="small">
+                <Form
+                  initialValues={vendorDetails}
+                  form={form}
+                  layout="vertical"
+                  onFieldsChange={(value, allFields) => {
+                    if (value.length == 1) {
+                      vendorInputHandler(value[0].name[0], value[0].value);
+                    }
+                  }}
+                >
+                  {vendorSectionLoading && <Loading />}
+                  <Row gutter={4}>
+                    <Col span={24}>
+                      <Form.Item name="vendorType" label="Vendor Type">
+                        <MySelect options={vendorDetailsOptions} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        style={{ marginBottom: -10 }}
+                        name="vendorName"
+                        extra={
+                          <p
+                            onClick={() => setShowAddVendorModal(true)}
+                            style={{
+                              textAlign: "end",
+                              color: "#1890FF",
+                              cursor: "pointer",
+                              marginTop: 5,
+                              fontSize: 12,
+                            }}
+                          >
+                            Add Vendor
+                          </p>
+                        }
+                        label="Vendor"
+                      >
+                        <MyAsyncSelect
+                          selectLoading={loading1("select")}
+                          disabled={form.getFieldValue("vendorType") === "p01"}
+                          labelInValue
+                          onBlur={() => setAsyncOptions([])}
+                          optionsState={asyncOptions}
+                          loadOptions={getVendors}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12} style={{ marginBottom: -10 }}>
+                      <Form.Item
+                        name="vendorBranch"
+                        extra={
+                          <p
                             onClick={() => {
                               vendorDetails.vendorName
                                 ? setShowBranchModal({
@@ -1097,130 +1338,177 @@ export default function ProductMIN() {
                                   })
                                 : toast.error("Please Select a vendor first");
                             }}
-                            style={{ color: "#1890FF" }}
+                            style={{
+                              color: "#1890FF",
+                              cursor: "pointer",
+                              fontSize: 12,
+                              textAlign: "end",
+                              marginTop: 5,
+                            }}
                           >
                             Add Branch
-                          </span>
-                        </div>
-                      }
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Select a vendor Branch!",
-                      //   },
-                      // ]}
-                    >
-                      <MySelect
-                        disabled={form.getFieldValue("vendorType") == "p01"}
-                        options={vendorBranchOptions}
-                      />
-                    </Form.Item>
-                  </Col> */}
-                  {/* <Col span={24}>
-                    <Row gutter={4}> */}
-                  {/* <Col
-                        span={
-                          form.getFieldValue("vendorType") == "j01" ? 12 : 24
+                          </p>
                         }
+                        label="Vendor Branch"
                       >
-                        <Form.Item name="gstin" label="GSTIN">
-                          <Input size="default" disabled />
-                        </Form.Item>
-                      </Col> */}
-                  {/* {form.getFieldValue("vendorType") == "j01" && (
-                        <Col span={12}>
-                          <Form.Item name="ewaybill" label="E-Way Bill Number">
-                            <Input size="default" />
-                          </Form.Item>
-                        </Col>
-                      )}*/}
-                  {/* </Row>
-                  </Col> */}
-                  {/* <Col span={24}>
-                    <Form.Item label="Cost Center" name="costCenter">
-                      <MyAsyncSelect
-                        selectLoading={selectLoading}
-                        onBlur={() => setAsyncOptions([])}
-                        optionsState={asyncOptions}
-                        loadOptions={getCostCenteres}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24}>
-                    <Row gutter={6}>
-                      <Col span={12}>
-                        <Form.Item label="Project ID" name="projectID">
-                          <MyAsyncSelect
-                            selectLoading={selectLoading}
-                            onBlur={() => setAsyncOptions([])}
-                            optionsState={asyncOptions}
-                            loadOptions={getProjectOptions}
-                            onChange={handleProjectChange}
-                          />
+                        <MySelect
+                          disabled={form.getFieldValue("vendorType") === "p01"}
+                          options={vendorBranchOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12} style={{ marginBottom: -10 }}>
+                      <Form.Item name="gstin" label="GSTIN">
+                        <Input size="default" disabled />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Cost Center" name="costCenter">
+                        <MyAsyncSelect
+                          selectLoading={loading1("select")}
+                          onBlur={() => setAsyncOptions([])}
+                          optionsState={asyncOptions}
+                          loadOptions={handleFetchCostCenterOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                    {form.getFieldValue("vendorType") === "j01" && (
+                      <Col span={24}>
+                        <Form.Item name="ewaybill" label="E-Way Bill Number">
+                          <Input size="default" />
                         </Form.Item>
                       </Col>
-                      <Col span={12}>
-                        <Form.Item label="Project Name" name="projectName">
-                          <Input size="default" disabled />
-                        </Form.Item>
+                    )}
+                    <Col span={12}>
+                      <Form.Item label="Project ID" name="projectID">
+                        <MyAsyncSelect
+                          selectLoading={loading1("select")}
+                          onBlur={() => setAsyncOptions([])}
+                          optionsState={asyncOptions}
+                          loadOptions={handleFetchProjectOptions}
+                          onChange={handleProjectChange}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Project Name" name="projectName">
+                        <Input size="default" disabled />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Currency" name="currency">
+                        <MySelect
+                          options={currencies}
+                          onChange={(value) => {
+                            const currentRows = [...materialInward];
+                            if (value === "364907247") {
+                              const updatedRows = currentRows.map((row) => ({
+                                ...row,
+                                currency: value,
+                                exchange_rate: 0,
+                              }));
+                              setMaterialInward(updatedRows);
+                            } else {
+                              const updatedRows = currentRows.map((row) => ({
+                                ...row,
+                                currency: value,
+                              }));
+                              setMaterialInward(updatedRows);
+                            }
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Form.Item name="vendorAddress" label="Bill From Address">
+                        <Input.TextArea
+                          rows={3}
+                          disabled={form.getFieldValue("vendorType") === "p01"}
+                          style={{ resize: "none" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Invoice Date" name="invoiceDate">
+                        <SingleDatePicker
+                          setDate={(value) => {
+                            form.setFieldValue("invoiceDate", value);
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item label="Invoice Id" name="invoiceId">
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                      <Typography.Text style={{ fontSize: 12 }}>
+                        Upload
+                      </Typography.Text>
+                    </Col>
+                    <Row
+                      span={24}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Col>
+                        <div className="material-in-upload">
+                          <UploadDocs setFiles={setInvoices} files={invoices} />
+                        </div>
+                      </Col>
+                      <Col>
+                        <MyButton
+                          variant="upload"
+                          text="Excel"
+                          onClick={() => setOpen(true)}
+                        >
+                          Excel
+                        </MyButton>
                       </Col>
                     </Row>
-                  </Col> */}
-
-                  <Col span={24}>
-                    <Form.Item
-                      name="customerAddress"
-                      label="Customer Address"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Please Enter bill from address!",
-                      //   },
-                      // ]}
-                    >
-                      <Input.TextArea
-                        rows={4}
-                        // disabled={form.getFieldValue("vendorType") == "p01"}
-                        style={{ resize: "none" }}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Form>
-              <Col span={24} style={{ height: "10%" }}>
-                <Row className="material-in-upload">
-                  <UploadDocs
-                    // disable={poData?.materials?.length == 0}
-                    setFiles={setInvoices}
-                    files={invoices}
-                  />
-                </Row>
-              </Col>
-            </Card>
-            <Card
-              className="small-text"
-              size="small"
-              style={{ marginTop: 5 }}
-              title="Tax Detail"
-            >
-              <Row gutter={[0, 4]}>
-                {totalValues?.map((row) => (
-                  <Col span={24} key={row.label}>
-                    <Row>
-                      <Col
-                        span={18}
-                        style={{
-                          fontWeight:
-                            totalValues?.indexOf(row) ==
-                              totalValues.length - 1 && 600,
-                        }}
-                      >
-                        <Typography.Text>{row.label}</Typography.Text>
-                      </Col>
-                      <Col span={6} className="right">
-                        {row.sign.toString() == "" ? (
-                          ""
-                        ) : (
+                  </Row>
+                </Form>
+              </Card>
+              <Card
+                className="small-text"
+                size="small"
+                style={{ marginTop: 5 }}
+                title="Tax Detail"
+              >
+                <Row gutter={[0, 4]}>
+                  {totalValues?.map((row) => (
+                    <Col span={24} key={row.label}>
+                      <Row>
+                        <Col
+                          span={18}
+                          style={{
+                            fontWeight:
+                              totalValues?.indexOf(row) ==
+                                totalValues.length - 1 && 600,
+                          }}
+                        >
+                          <Typography.Text>{row.label}</Typography.Text>
+                        </Col>
+                        <Col span={6} className="right">
+                          {row.sign.toString() == "" ? (
+                            ""
+                          ) : (
+                            <span
+                              style={{
+                                fontWeight:
+                                  totalValues?.indexOf(row) ==
+                                    totalValues.length - 1 && 600,
+                              }}
+                            >
+                              <Typography.Text>
+                                ({row.sign.toString()}){" "}
+                              </Typography.Text>
+                            </span>
+                          )}
                           <span
                             style={{
                               fontWeight:
@@ -1229,54 +1517,136 @@ export default function ProductMIN() {
                             }}
                           >
                             <Typography.Text>
-                              ({row.sign.toString()}){" "}
+                              {Number(
+                                row.values?.reduce((partialSum, a) => {
+                                  return partialSum + Number(a);
+                                }, 0),
+                              ).toFixed(2)}
                             </Typography.Text>
                           </span>
-                        )}
-                        <span
-                          style={{
-                            fontWeight:
-                              totalValues?.indexOf(row) ==
-                                totalValues.length - 1 && 600,
-                          }}
-                        >
-                          <Typography.Text>
-                            {Number(
-                              row.values?.reduce((partialSum, a) => {
-                                return partialSum + Number(a);
-                              }, 0)
-                            ).toFixed(2)}
-                          </Typography.Text>
-                        </span>
-                      </Col>
-                    </Row>
-                  </Col>
-                ))}
-              </Row>
-            </Card>
+                        </Col>
+                      </Row>
+                    </Col>
+                  ))}
+                </Row>
+              </Card>
+            </Flex>
           </Col>
           <Col style={{ height: "100%" }} span={18}>
             <div style={{ height: "98%", border: "1px solid #EEEEEE" }}>
-              {pageLoading ||loading1("select")&& <Loading />}
+              {pageLoading || (loading1("select") && <Loading />)}
               <FormTable columns={columns} data={materialInward} />
             </div>
           </Col>
         </Row>
       )}
+      <Modal
+        title="Upload File Here"
+        open={open}
+        width={500}
+        onCancel={() => setOpen(false)}
+        footer={[
+          <Button key="back" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={callFileUpload}>
+            Preview
+          </Button>,
+        ]}
+      >
+        {loading1("fetch") && <Loading />}
+        <Card>
+          <Form form={uploadForm} layout="vertical">
+            <Form.Item>
+              <Form.Item
+                name="files"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+                noStyle
+              >
+                <Upload.Dragger name="files" {...uploadProps}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Upload.Dragger>
+              </Form.Item>
+            </Form.Item>
+            <Row justify="end" style={{ marginTop: 5 }}>
+              <MyButton
+                variant="downloadSample"
+                onClick={() =>
+                  downloadCSVCustomColumns(sampleData, "FG MIN Inward")
+                }
+              />
+            </Row>
+          </Form>
+        </Card>
+      </Modal>
+      <Drawer
+        width="100%"
+        title="Preview Data From Excel"
+        placement="right"
+        onClose={() => setPreview(false)}
+        destroyOnClose={true}
+        open={preview}
+        bodyStyle={{ padding: 5 }}
+      >
+        {loading1("fetch") && <Loading />}
+        <Row
+          style={{
+            height: "95%",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Col
+            style={{
+              height: "90%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+            span={23}
+          >
+            <MyDataTable
+              columns={previewedcolumns}
+              data={previewRows}
+              loading={loading1("fetch")}
+              headText="center"
+            />
+          </Col>
+          <Row
+            span={24}
+            style={{
+              width: "100%",
+              height: "10%",
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <NavFooter
+              submitFunction={saveTheData}
+              nextLabel="Submit"
+              resetFunction={() => setPreview(false)}
+            />
+          </Row>
+        </Row>
+      </Drawer>
       <NavFooter
-        // uploadFun={() => {
-        //   setShowUploadDoc(materialInward);
-        // }}
         resetFunction={() => setShowResetConfirm(true)}
         submitFunction={validataData}
         nextLabel="Submit"
-        loading={submitLoading}
+        loading={loading1("submit")}
       />
       {showSuccessPage && (
         <SuccessPage
           newMinFunction={() => setShowSuccessPage(false)}
           successColumns={successColumns}
           po={showSuccessPage}
+          isFGMIN={true}
         />
       )}
     </div>

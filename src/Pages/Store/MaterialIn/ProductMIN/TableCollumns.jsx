@@ -7,13 +7,20 @@ const gstTypeOptions = [
   { value: "I", text: "INTER STATE" },
   { value: "L", text: "LOCAL" },
 ];
+
+const gstRateOptions = [
+  { value: 0, text: "0" },
+  { value: 12, text: "12" },
+  { value: 18, text: "18" },
+  { value: 28, text: "28" },
+];
 export const componentCell = (
   { row },
   inputHandler,
   setAsyncOptions,
   getComponentDetail,
   asyncOptions,
-  selectLoading
+  selectLoading,
 ) => (
   <MyAsyncSelect
     onBlur={() => setAsyncOptions([])}
@@ -155,8 +162,8 @@ export const invoiceDateCell = ({ row }, inputHandler) => {
 export const HSNCell = ({ row }, inputHandler) => (
   <Input
     type="text"
-    value={row.hsn}
-    onChange={(e) => inputHandler("hsn", e.target.value, row.id)}
+    value={row.hsncode}
+    onChange={(e) => inputHandler("hsncode", e.target.value, row.id)}
   />
 );
 export const gstTypeCell = ({ row }, inputHandler) => (
@@ -168,42 +175,70 @@ export const gstTypeCell = ({ row }, inputHandler) => (
   />
 );
 export const gstRate = ({ row }, inputHandler) => (
-  <Input
-    type="text"
+  <MySelect
     value={row.gstrate}
-    onChange={(e) => inputHandler("gstrate", e.target.value, row.id)}
+    onChange={(value) => inputHandler("gstrate", value, row.id)}
+    options={gstRateOptions}
   />
 );
-export const CGSTCell = ({ row }) => <Input disabled={true} value={row.cgst} />;
-export const SGSTCell = ({ row }) => <Input disabled={true} value={row.sgst} />;
-export const IGSTCell = ({ row }) => <Input disabled={true} value={row.igst} />;
+const isLocalGst = (row) => {
+  const g = row?.gsttype;
+  const v = typeof g === "object" ? g?.value ?? g?.text : g;
+  return v === "L" || String(v || "").toUpperCase().startsWith("LOCAL");
+};
+
+export const CGSTCell = ({ row }) => (
+  <Input disabled value={isLocalGst(row) ? row.cgst ?? 0 : 0} />
+);
+export const SGSTCell = ({ row }) => (
+  <Input disabled value={isLocalGst(row) ? row.sgst ?? 0 : 0} />
+);
+export const IGSTCell = ({ row }) => (
+  <Input disabled value={!isLocalGst(row) ? row.igst ?? 0 : 0} />
+);
+
+const getLocationDisplayValue = (rowLocation, locationOptions) => {
+  if (rowLocation == null || rowLocation === "") return undefined;
+  const hasDisplayKey =
+    typeof rowLocation === "object" &&
+    (rowLocation.text != null || rowLocation.label != null || rowLocation.name != null);
+  if (hasDisplayKey) {
+    return {
+      text: rowLocation.text ?? rowLocation.label ?? rowLocation.name ?? "",
+      value: rowLocation.value ?? rowLocation.id,
+    };
+  }
+  const option = locationOptions?.find(
+    (opt) =>
+      opt.value === rowLocation ||
+      String(opt.value) === String(rowLocation) ||
+      opt.text === rowLocation ||
+      String(opt.text).toLowerCase() === String(rowLocation).toLowerCase()
+  );
+  return option ? { text: option.text, value: option.value } : undefined;
+};
 
 export const locationCell = (
   { row },
   inputHandler,
 
-  locationOptions
+  locationOptions,
 ) => (
   <>
     <MySelect
       labelInValue
-      // onBlur={() => setAsyncOptions([])}
-      value={row?.location}
-      // selectLoading={selectLoading}
+      value={getLocationDisplayValue(row?.location, locationOptions)}
       onChange={(value) => {
         inputHandler("location", value, row.id);
       }}
       options={locationOptions}
-      // labelInValue
-      // loadOptions={getLocation}
-      // optionsState={asyncOptions}
     />
   </>
 );
 export const autoConsumptionCell = (
   { row },
   inputHandler,
-  autoConsumptionOptions
+  autoConsumptionOptions,
 ) => (
   <MySelect
     value={row?.autoConsumption}
