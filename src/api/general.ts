@@ -109,6 +109,15 @@ export const uplaodFileInMINInward = async (formdata) => {
   }
 };
 
+export const uplaodFGFileInMINInward = async (formdata) => {
+  try {
+    const response = await imsAxios.post("fgMIN/upload/item", formdata);
+    return response;
+  } catch (error) {
+    console.log("something happened wrong", error);
+  }
+};
+
 export const uploadPOExportFile = async (formdata) => {
   try {
     const response = await imsAxios.post("purchaseOthers/uploadPoFile", formdata);
@@ -285,6 +294,19 @@ export const getComponentDetail = async (componentKey, vendorCode) => {
 
 export const getMINOptions = async (search) => {
   const response = await imsAxios.post("/qrLabel/getMinsTransaction", {
+    searchTerm: search,
+  });
+
+  let arr = [];
+  if (response.data.code === 200) {
+    arr = convertSelectOptions(response.data.data);
+  }
+  response.data = arr;
+  return response;
+};
+
+export const getFGMINOptions = async (search) => {
+  const response = await imsAxios.post("/fgMinPrint/getFGMinsTransaction", {
     searchTerm: search,
   });
 
