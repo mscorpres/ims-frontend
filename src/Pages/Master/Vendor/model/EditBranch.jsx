@@ -18,12 +18,36 @@ import {
 } from "antd";
 import { imsAxios } from "../../../../axiosInterceptor";
 import UploadDocs from "../../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
-import MyDataTable from "../../../../Components/MyDataTable";
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import MyButton from "../../../../Components/MyButton";
 import { v4 } from "uuid";
+import dayjs from "dayjs";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
+
+const msmeOptions = [
+  { text: "Yes", value: "Y" },
+  { text: "No", value: "N" },
+];
+const msmeYearOptions = [
+  { text: "2023-2024", value: "2023-2024" },
+  { text: "2024-2025", value: "2024-2025" },
+];
+const msmeTypeOptions = [
+  { text: "Micro", value: "Micro" },
+  { text: "Small", value: "Small" },
+  { text: "Medium", value: "Medium" },
+];
+const msmeActivityOptions = [
+  { text: "Manufacturing", value: "Manufacturing" },
+  { text: "Service", value: "Service" },
+  { text: "Trading", value: "Trading" },
+];
+const transactionTypeOptions = [
+  { text: "Cheque", value: "cheque" },
+  { text: "e-Fund Transfer", value: "transfer" },
+  { text: "UPI", value: "upi" },
+  { text: "Other", value: "other" },
+  { text: "N/A", value: "na" },
+];
 
 const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -41,6 +65,9 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [isMSMEEdited, setIsMSMEEdited] = useState([]);
   const [msmeRow, setMsmeRows] = useState([]);
   const [add, isAdd] = useState(false);
+  const [groupOptions, setGroupOptions] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
+  const transactionType = Form.useWatch("transactionType", updateVendorForm);
   const einvoice = Form.useWatch("applicability", updateVendorForm);
   let msmeStat = "";
   msmeStat = Form.useWatch("vendor_msme_status", updateVendorForm);
@@ -55,15 +82,38 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     let tdsArr = tdsData?.data.map((row) => {
       return { text: row.tds_name, value: row.tds_key };
     });
-    const vendor = Array.isArray(vendorData?.data) ? vendorData.data[0] : vendorData?.data;
+    const vendor = Array.isArray(vendorData?.data)
+      ? vendorData.data[0]
+      : vendorData?.data;
+
+
+    // Normalize MSME effective-from: API may send ISO (YYYY-MM-DD), DD-MM-YYYY, or "--".
+    // SingleDatePicker expects DD-MM-YYYY, so parse with dayjs and pass a dayjs object
+    // to avoid "Invalid Date" when the format doesn't match.
+    const rawMsmeFrom = vendor?.msme_effective_from;
+    const hasValidMsmeDate =
+      rawMsmeFrom && rawMsmeFrom !== "--" && String(rawMsmeFrom).trim() !== "";
+    const parsedMsmeFrom = hasValidMsmeDate ? dayjs(rawMsmeFrom) : null;
+    const msmeEffectiveFrom = parsedMsmeFrom?.isValid()
+      ? parsedMsmeFrom
+      : undefined;
     let obj = {
       msmeStatus: vendor?.vendor_msme_status,
       year: vendor?.vendor_msme_year,
       msmeId: vendor?.vendor_msme_id,
       type: vendor?.vendor_msme_type,
       activity: vendor?.vendor_msme_activity,
+      group: vendor?.group,
+      transactionType: vendor?.transaction_type,
+      accountNo: vendor?.account_no,
+      ifsCode: vendor?.ifs_code,
+      bankName: vendor?.bank_name,
+      bankBranch: vendor?.bank_branch,
+      ledgerCurrency: vendor?.ledger_currency,
+      msmeEffectiveFrom,
       ...vendor,
       applicability: vendor?.eInvoice?.status ?? vendor?.applicability,
+      dobApplicabilty: vendor?.eInvoice?.date ?? vendor?.dobApplicabilty,
     };
     updateVendorForm.setFieldsValue(obj);
     setVendorStatus(obj.vendor_status);
@@ -84,12 +134,47 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     //   };
     // });
   };
+
+  useEffect(() => {
+    if (transactionType === "na") {
+      updateVendorForm.setFieldValue("accountNo", "N/A");
+      updateVendorForm.setFieldValue("ifsCode", "N/A");
+      updateVendorForm.setFieldValue("bankName", "N/A");
+      updateVendorForm.setFieldValue("bankBranch", "N/A");
+      updateVendorForm.setFieldValue("ledgerCurrency", "N/A");
+    } else if (transactionType !== undefined && transactionType !== "") {
+      updateVendorForm.setFieldValue(
+        "accountNo",
+        updateVendorForm.getFieldsValue().accountNo,
+      );
+      updateVendorForm.setFieldValue(
+        "ifsCode",
+        updateVendorForm.getFieldsValue().ifsCode,
+      );
+      updateVendorForm.setFieldValue(
+        "bankName",
+        updateVendorForm.getFieldsValue().bankName,
+      );
+      updateVendorForm.setFieldValue(
+        "bankBranch",
+        updateVendorForm.getFieldsValue().bankBranch,
+      );
+      updateVendorForm.setFieldValue(
+        "ledgerCurrency",
+        updateVendorForm.getFieldsValue().ledgerCurrency,
+      );
+
+    }
+  }, [transactionType]);
+  const formatMsmeEffectiveFrom = (val) => {
+    if (!val) return "--";
+    return dayjs.isDayjs(val) ? val.format("DD-MM-YYYY") : val;
+  };
+
   const submitHandler = async () => {
     let obj;
     const values = await updateVendorForm.validateFields();
-    console.log("values", values);
-    console.log("rows", rows);
-    // return
+
     if (values.vendor_msme_status === "Y") {
       obj = {
         vendorcode: editVendor?.vendor_code,
@@ -107,6 +192,14 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         eInvoice: values.applicability,
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
+        group: values.group,
+        transaction_type: values.transactionType,
+        account_no: values.accountNo,
+        ifs_code: values.ifsCode,
+        bank_name: values.bankName,
+        bank_branch: values.bankBranch,
+        ledger_currency: values.ledgerCurrency,
+        msme_effective_from: formatMsmeEffectiveFrom(values.msmeEffectiveFrom),
       };
     } else {
       obj = {
@@ -122,9 +215,17 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         eInvoice: values.applicability,
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
+        group: values.group,
+        transaction_type: values.transactionType,
+        account_no: values.accountNo,
+        ifs_code: values.ifsCode,
+        bank_name: values.bankName,
+        bank_branch: values.bankBranch,
+        ledger_currency: values.ledgerCurrency,
+        msme_effective_from: formatMsmeEffectiveFrom(values.msmeEffectiveFrom),
       };
     }
-    console.log("obj", obj);
+
     const formData = new FormData();
     formData.append("uploadfile", files[0] ?? []);
     formData.append("vendor", JSON.stringify(obj));
@@ -134,7 +235,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     // formData.append("tally_tds", values?.vendor_tds);
     // formData.append("vendor_loc", values?.vendor_loc);
     setSubmitLoading(true);
-    const  data  = await imsAxios.post("/vendor/updateVendor", formData);
+    const data = await imsAxios.post("/vendor/updateVendor", formData);
     setSubmitLoading(false);
     if (data?.success) {
       toast.success(data.message);
@@ -146,7 +247,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   };
   const changeStatus = async (value) => {
     setStatusLoading(true);
-    const  data  = await imsAxios.post("/vendor/updateVendorStatus", {
+    const data = await imsAxios.post("/vendor/updateVendorStatus", {
       status: value ? "B" : "A",
       vendor_code: editVendor?.vendor_code,
     });
@@ -174,30 +275,48 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     }
   };
 
+  const getGroupOptions = async () => {
+    try {
+      const response = await imsAxios.post("/groups/groupSelect2");
+      const { data } = response;
+      if (data?.code === 200) {
+        const arr = data.data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
+        setGroupOptions(arr);
+      } else if (data?.message?.msg) {
+        toast.error(data.message.msg);
+      }
+    } catch (error) {
+      setGroupOptions([]);
+    }
+  };
+
+  const getCurrencies = async () => {
+    try {
+      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+      const arr =
+        data?.data?.map((d) => ({
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        })) || [];
+      setCurrencies(arr);
+    } catch (error) {
+      setCurrencies([]);
+    }
+  };
+
   useEffect(() => {
     if (editVendor) {
       getDetails();
       getAllVendorLocationOptions();
+      getGroupOptions();
+      getCurrencies();
     }
   }, [editVendor]);
-  const msmeOptions = [
-    { text: "Yes", value: "Y" },
-    { text: "No", value: "N" },
-  ];
-  const msmeYearOptions = [
-    { text: "2023-2024", value: "2023-2024" },
-    { text: "2024-2025", value: "2024-2025" },
-  ];
-  const msmeTypeOptions = [
-    { text: "Micro", value: "Micro" },
-    { text: "Small", value: "Small" },
-    { text: "Medium", value: "Medium" },
-  ];
-  const msmeActivityOptions = [
-    { text: "Manufacturing", value: "Manufacturing" },
-    { text: "Service", value: "Service" },
-    { text: "Trading", value: "Trading" },
-  ];
+
   // console.//console.log("isMSMEEdited", isMSMEEdited);
 
   const deleteRow = (id) => {
@@ -235,11 +354,11 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       vendor_msme_activity: values.vendor_msme_activity,
     };
     const found = rows.find(
-      (row) => row.vendor_msme_year === val.vendor_msme_year
+      (row) => row.vendor_msme_year === val.vendor_msme_year,
     );
     if (found) {
       let removerow = rows.filter(
-        (r) => r.vendor_msme_year !== val.vendor_msme_year
+        (r) => r.vendor_msme_year !== val.vendor_msme_year,
       );
       value = [...removerow, val];
     } else {
@@ -345,6 +464,15 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                   </Col>
                 </Row>
               </Col>
+              {/* <Col span={24}>
+                <Row gutter={8}>
+                  <Col span={8}>
+                    <Form.Item label="Group" name="group">
+                      <MySelect options={groupOptions} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col> */}
               <Col span={24}>
                 <Form.Item label="Vendor TDS" name="vendor_tds">
                   <MySelect
@@ -414,6 +542,22 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                   <Col span={8}>
                     <Form.Item label="MSME Id" name="vendor_msme_id">
                       <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="Effective From" name="msmeEffectiveFrom">
+                      <SingleDatePicker
+                        size="default"
+                        setDate={(value) =>
+                          updateVendorForm.setFieldValue(
+                            "msmeEffectiveFrom",
+                            value,
+                          )
+                        }
+                        value={updateVendorForm.getFieldValue(
+                          "msmeEffectiveFrom",
+                        )}
+                      />
                     </Form.Item>
                   </Col>
                   <Row></Row>
@@ -587,6 +731,53 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
               </Col>
               <Divider />
               <Col span={24}>
+                <Divider />
+                <Row gutter={[10, 10]}>
+                  <Col span={24}>
+                    <Typography.Title level={5}>Bank Details</Typography.Title>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="Transaction Type" name="transactionType">
+                      <MySelect
+                        options={transactionTypeOptions}
+                        onChange={(value) =>
+                          updateVendorForm.setFieldValue(
+                            "transactionType",
+                            value,
+                          )
+                        }
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="A/c No" name="accountNo">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="IFS Code" name="ifsCode">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="Bank Name" name="bankName">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="Bank Branch" name="bankBranch">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="Currency of Ledger" name="ledgerCurrency">
+                      <MySelect options={currencies} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Divider />
                 <Form.Item label="Vendor Document" name="file">
                   <Row className="material-in-upload">
                     <UploadDocs
