@@ -28,7 +28,7 @@ const AlterModal = ({
   const dropDownData = async (search) => {
     setSearchLoading(true);
     const { data } = await imsAxios.post("/bom/getAlternativeComponents", {
-      subject: fetchData?.subjectid,
+      subject: fetchData?.bomId,
       current_component: altModal?.id,
       searchTerm: search,
     });
