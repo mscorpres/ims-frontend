@@ -23,7 +23,7 @@ const R38 = () => {
 
     try {
       setLoading(true);
-      socket.emit("weightedRateReport", {
+      socket.emit("skuMovementReport", {
         date,
         type,
       });
