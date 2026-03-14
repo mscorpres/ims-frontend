@@ -28,7 +28,7 @@ const R38 = () => {
         type,
       });
       toast.success(
-        "Weighted Rate Report generation started. You will be notified when it is ready.",
+        "FG Register Report generation started. You will be notified when it is ready.",
       );
     } catch (error) {
       toast.error("Error initiating report generation");
