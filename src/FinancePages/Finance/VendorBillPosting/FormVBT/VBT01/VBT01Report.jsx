@@ -196,7 +196,7 @@ function VBT01Report({
       }));
       getGl();
       // Reuse first response for TDS options to avoid duplicate fetch_multi_min_data call
-      const venTds = data.data[0]?.ven_tds ? [...data.data[0].ven_tds] : [];
+      const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
       venTds.push({
         ladger_name: "--",
         ledger_key: "--",

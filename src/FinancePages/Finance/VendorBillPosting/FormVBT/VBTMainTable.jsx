@@ -467,7 +467,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   }, [previewdisData]);
 
   return (
-    <div style={{ height: "95%" }}>
+    <div style={{ height: "92%", margin:8 }}>
       <MapVBTModal mapVBT={mapVBT} setMapVBT={setMapVBT} />
       <div
         style={{
