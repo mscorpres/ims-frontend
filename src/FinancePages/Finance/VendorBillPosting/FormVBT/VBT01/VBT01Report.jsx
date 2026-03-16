@@ -434,7 +434,7 @@ function VBT01Report({
         // ven_amounts: values.components.map((component) => component.venAmmount),
         ven_amounts: modifiedArray,
 
-        ven_code: values.components[0]?.ven_code,
+        ven_code: values.components[0]?.venCode,
         cifValue: values.components.map((component) => component.cifValue),
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
@@ -453,10 +453,16 @@ function VBT01Report({
         //   vbt_gstin: finalObj?.vbt_gstin.value ?? finalObj?.vbt_gstin;
         // },
       };
+      // Prefer type coming from the selected MIN rows (editingVBT),
+      // fall back to the first component's type if present.
+      const typeFromEditing =
+        Array.isArray(editingVBT) && editingVBT.length > 0
+          ? editingVBT[0]?.type
+          : undefined;
+      const typeFromComponent = values.components?.[0]?.type;
+      const typeParam = typeFromEditing || typeFromComponent || "";
 
-      // return;
-      const typeData = values.components.map((component) => component.type);
-      addVbt(finalData, typeData[0]);
+      addVbt(finalData, typeParam);
     } else {
       const values = await Vbt01.validateFields();
 
