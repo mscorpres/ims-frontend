@@ -4,7 +4,7 @@ import { imsAxios } from "../axiosInterceptor";
 import { RowProps } from "antd";
 import { toast } from "react-toastify";
 
-export const getVendorOptions = async (search) => {
+export const getVendorOptions = async (search:any) => {
   console.log("here", search);
   try {
     const response = await imsAxios.post("/backend/vendorList", {

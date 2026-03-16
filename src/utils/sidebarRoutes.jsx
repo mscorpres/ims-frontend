@@ -159,7 +159,7 @@ export const items = (user) => [
       ),
       getItem(
         <Link to="/tally/vouchers/reference/payableReport">Ageing Report</Link>,
-        "reports/day-book"
+        "reports/payableReport"
         // <AiOutlineMinus />
       ),
       getItem(
@@ -169,7 +169,7 @@ export const items = (user) => [
       ),
       getItem(
         <Link to="/tally/vouchers/reference/misReport">MIS Report</Link>,
-        "reports/tdsReport"
+        "reports/misReport"
         // <AiOutlineMinus />
       ),
       getItem(
@@ -232,7 +232,7 @@ export const items = (user) => [
       ),
       getItem(
         <Link to="/masters/products/fg">Products</Link>,
-        "Component/B13"
+        "Component/B13a"
         // <AiOutlineMinus />
       ),
       getItem(
@@ -298,7 +298,7 @@ export const items = (user) => [
       ),
       getItem(
         <Link to="/master/reports/r19">Reports</Link>,
-        "B21"
+        "B1-reports"
         // <MdDashboard />
       ),
     ], null, 100005),
@@ -418,7 +418,7 @@ export const items = (user) => [
         ),
         getItem(
           <Link to="/pending-transfer">Pending Transfer(s)</Link>,
-          "B363"
+          "B364"
           // <MdDashboard />
         ),
       ]),
@@ -460,12 +460,12 @@ export const items = (user) => [
       ]),
       getItem(
         <Link to="/create-dc">RGP - DC</Link>,
-        "B38"
+        "B38a"
         // <AiOutlineMinus />
       ),
       getItem(
         <Link to="/branchtransferchallan">Branch Transfer Challan</Link>,
-        "B35"
+        "B35a"
         // <AiOutlineMinus />
       ),
       getItem(
@@ -481,7 +481,7 @@ export const items = (user) => [
       // Part Code Conversion
       getItem(
         <Link to="/warehouse/part-code-conversion">Part Code Conversion</Link>,
-        "B41"
+        "B41-partcode"
         // <AiOutlineMinus />
       ),
     ], null, 100004),
@@ -534,7 +534,7 @@ export const items = (user) => [
       ),
       getItem(
         <Link to="/warehouse/eway-bill/report">E-Way Bill Report</Link>,
-        "B42"
+        "B42a"
         // <AiOutlineMinus />
       ),
     ], null, 100006),
@@ -637,7 +637,7 @@ export const items = (user) => [
           // <AiOutlineMinus />
         ),
         getItem(<Link to="/transaction-Out">RM Issue Register</Link>, "C412"),
-        getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412"),
+        getItem(<Link to="/weeklyAudit">Weekly Audit</Link>, "C412a"),
         getItem(
           <Link to="/r1">Reports R1 - R35</Link>,
           "C413"
@@ -647,7 +647,7 @@ export const items = (user) => [
     ]),
     getItem(
       <Link to="/production/prodMis">Production MIS</Link>,
-      "D1",
+      "C-prodMis",
       <MdAccountBox />
     ),
     getItem(
