@@ -91,7 +91,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
       id: "serial-no",
-      width: "10px",
+      width: 120,
     },
     {
       headerName: "Type",
@@ -179,9 +179,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       headerName: "Sr. No.",
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
-      flex: 1,
       id: "serial-no",
-      minWidth: "2px",
+      width: 120,
     },
     {
       headerName: "Type",
