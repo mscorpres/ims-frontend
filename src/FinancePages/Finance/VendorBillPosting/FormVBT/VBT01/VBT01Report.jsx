@@ -214,13 +214,13 @@ function VBT01Report({
         })),
       );
       Vbt01.setFieldValue("components", arr);
-      const partCodeArr = arr.map((row) => row.c_part_no);
+      const partCodeArr = arr.map((row) => row.itemCode);
       // console.log("vbtComponent?.data[0]", vbtComponent?.data[0], partCodeArr);
-      if (arr[0]?.ven_code) {
-        getLastPrice(arr[0]?.ven_code, partCodeArr);
+      if (arr[0]?.venCode) {
+        getLastPrice(arr[0]?.venCode, partCodeArr);
       }
-      if (arr[0].invoice_id && arr[0].ven_code) {
-        checkInvoice(arr[0].invoice_id, arr[0].ven_code);
+      if (arr[0].invoiceId && arr[0].venCode) {
+        checkInvoice(arr[0].invoiceId, arr[0].venCode);
       }
     } else {
       toast.error(data.message.msg);
