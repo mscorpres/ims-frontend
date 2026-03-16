@@ -36,6 +36,7 @@ function VBT01Report({
     form: Vbt01,
     preserve: true,
   });
+
   const backFunction = () => {
     if (editingVBT) {
       setEditingVBT(null);
@@ -134,7 +135,6 @@ function VBT01Report({
     const response = await imsAxios.post(link, {
       mins: minIdArr.map((row) => row?.transaction),
     });
-
 
     const { data } = response;
     if (data.code === 200) {
@@ -238,7 +238,7 @@ function VBT01Report({
       }
     }
   };
-  
+
   const getFreightGlOptions = async (vbtCode) => {
     // const vbtType = vbtCodes[0].split("/")[0].toLowerCase;
     try {
@@ -301,10 +301,11 @@ function VBT01Report({
       },
     });
   };
+
   // sumbit for both the edot and create fn
   const submitFunction = async () => {
     const values = await Vbt01.validateFields();
-    console.log("values", values);
+
     if (isCreate) {
       const roundarr = values.components.map(
         (component) => component.venAmmount,
@@ -314,7 +315,6 @@ function VBT01Report({
       let a;
       let val = roundarr[roundarr.length - 1];
       val = +Number(val);
-      console.log("val", val);
       if (roundOffSign.toString() === "+") {
         a = val + +Number(roundOffValue.toString());
       } else if (roundOffSign.toString() === "-") {
@@ -453,12 +453,12 @@ function VBT01Report({
         //   vbt_gstin: finalObj?.vbt_gstin.value ?? finalObj?.vbt_gstin;
         // },
       };
-      console.log("finalObj", finalObj);
+
       // return;
-      addVbt(finalData);
+      const typeData = values.components.map((component) => component.type);
+      addVbt(finalData, typeData[0]);
     } else {
       const values = await Vbt01.validateFields();
-      console.log("values", values);
 
       const roundarr = values.components.map(
         (component) => component.venAmmount,
@@ -574,7 +574,6 @@ function VBT01Report({
         acknowledgeIRN: values.ackNum,
       };
 
-      console.log("this is the finalData", finalObj);
       updateVbt(finalObj);
     }
   };
@@ -596,10 +595,10 @@ function VBT01Report({
       setLoading(false);
     }
   };
-  const addVbt = async (finalData) => {
+  const addVbt = async (finalData, type) => {
     setLoading(true);
     const response = await imsAxios.post(
-      `/tally/${apiUrl}/add_${apiUrl}`,
+      `/tally/${apiUrl}/add_${apiUrl}?type=${type}`,
       finalData,
     );
     const { data } = response;
@@ -808,8 +807,8 @@ function VBT01Report({
       open={editingVBT || editVbtDrawer}
       title={
         isCreate
-          ? vbtComponent?.data &&
-            `${vbtComponent?.data[0]?.ven_name} | ${vbtComponent?.data[0]?.ven_code}`
+          ? vbtComponent &&
+            `${vbtComponent[0]?.venName} | ${vbtComponent[0]?.venCode}`
           : `${editVbtDrawer}`
       }
     >
