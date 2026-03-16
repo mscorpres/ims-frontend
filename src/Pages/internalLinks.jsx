@@ -458,6 +458,17 @@ const links = [
     { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
     { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
   ],
+  // FG to FG transfer links
+  [
+    {
+      routeName: "FG To FG",
+      routePath: "/warehouse/material-transfer/fg-to-fg",
+    },
+    {
+      routeName: "View Transaction",
+      routePath: "/warehouse/material-transfer/fg-to-fg/view",
+    },
+  ],
   // RM to RM transfer links
   [
     { routeName: "RM To RM", routePath: "/rm-to-rm" },

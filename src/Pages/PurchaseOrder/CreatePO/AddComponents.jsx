@@ -7,7 +7,6 @@ import {
   componentSelect,
   disabledCell,
   foreignCell,
-  gstRate,
   gstTypeCell,
   HSNCell,
   IGSTCell,
@@ -18,16 +17,31 @@ import {
   SGSTCell,
   taxableCell,
   internalRemarkCell,
-  
 } from "./tableColumns";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import Loading from "../../../Components/Loading";
 import FormTable from "../../../Components/FormTable";
-import { Button, Card, Col, Modal, Row, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Drawer,
+  Form,
+  Modal,
+  Row,
+  Typography,
+  Upload,
+} from "antd";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
+import MyButton from "../../../Components/MyButton/index.jsx";
+import { InboxOutlined } from "@ant-design/icons";
+import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
+import { prsampleFile } from "../../../utils/samplefile.js";
+import MyDataTable from "../../../Components/MyDataTable.jsx";
+import { toast } from "react-toastify";
 export default function AddComponents({
   form,
   rowCount,
@@ -38,20 +52,27 @@ export default function AddComponents({
   totalValues,
   submitLoading,
   newPurchaseOrder,
-  setStateCode,
   gstState,
 }) {
+ 
+const projectId = form.getFieldsValue()?.project_name?.value;
+  const venderCode = form.getFieldsValue()?.vendorname?.key;
   const [currencies, setCurrencies] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [showCurrencyModal, setShowCurrencyModal] = useState(null);
+  const [open, setOpen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
     useState(false);
+  const [uploadForm] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
   const addRows = () => {
-    const defaultGstType = gstState || "L"; 
+    const defaultGstType = gstState || "L";
     const newRow = {
       id: v4(),
       index: rowCount.length + 1,
@@ -59,17 +80,17 @@ export default function AddComponents({
       exchange_rate: 1,
       component: "",
       qty: 1,
-      rate: "", 
-      last_rate: "", 
+      rate: "",
+      last_rate: "",
       duedate: "",
       hsncode: "",
-      gsttype: defaultGstType, 
+      gsttype: defaultGstType,
       gstrate: "",
       cgst: "",
       sgst: "",
       igst: "",
       remark: "--",
-      internal_remark: "",  
+      internal_remark: "",
       inrValue: 0,
       foreginValue: 0,
       unit: "",
@@ -78,10 +99,260 @@ export default function AddComponents({
       project_req_qty: 0,
       po_exec_qty: 0,
       diffPercentage: "--",
-      closing_stock: 0, // CHANGED: Added closing_stock field from previous update
+      closing_stock: 0,
     };
     setRowCount((rowCount) => [...rowCount, newRow]);
   };
+
+  const closeDrawer = () => {
+    setPreview(false);
+    setOpen(false);
+
+    const arr = previewRows.map((r, index) => {
+
+      const qty = Number(r.qty) || 0;
+      const rate = Number(r.rate) || 0;
+      const inrValue = qty * rate;
+
+      const gstRateNum = Number(r.gstRate ?? r.gstrate) || 0;
+      const rawGstType = gstState ?? "L";
+      const gstTypeNormalized =
+        typeof rawGstType === "object"
+          ? (rawGstType.value ?? rawGstType.text ?? "L")
+          : rawGstType;
+      const isLocal =
+        gstTypeNormalized === "L" ||
+        String(gstTypeNormalized).toUpperCase().startsWith("LOCAL");
+      const gsttype = isLocal ? "L" : "I";
+      const percentage = gsttype === "L" ? gstRateNum / 2 : gstRateNum;
+
+      const gstAmount = (inrValue * percentage) / 100;
+      const cgst = gsttype === "L" ? gstAmount : 0;
+      const sgst = gsttype === "L" ? gstAmount : 0;
+      const igst = gsttype === "I" ? gstAmount : 0;
+
+      // currency / exchange like default row
+      const currency = "364907247";
+      const exchange_rate = 1;
+      const foreginValue = inrValue * exchange_rate;
+
+      // project qty / approval fields
+      const project_req_qty = Number(r.projectReqQty) || 0;
+      const po_exec_qty = Number(r.poExecQty) || 0;
+      const diffForQty = project_req_qty - po_exec_qty;
+      const qtyApproval = diffForQty > +Number(qty).toFixed(2) ? false : true;
+
+      // rate cap / tolerance / approval like inputHandler
+      const rate_cap = Number(r.rate_cap) || 0;
+      const tol_price_raw =
+        r.tol_price != null
+          ? Number(r.tol_price)
+          : Number((rate_cap * 1) / 100);
+      const tol_price = Number(tol_price_raw).toFixed(2);
+
+      let approval = false;
+      const cappedRate = +Number(rate_cap).toFixed(2);
+      const currentRate = +Number(rate).toFixed(2);
+      if (currentRate > cappedRate) {
+        approval = true;
+      } else {
+        const diff = cappedRate - currentRate;
+        approval = diff > Number(tol_price);
+      }
+
+      // component object compatible with select/options
+      const partcodeObj = r.partcode || {};
+      const componentLabel =
+        partcodeObj.name ?? r.partName ?? partcodeObj.partNo ?? "";
+      const componentValue =
+        partcodeObj.id ?? partcodeObj.partNo ?? r.partCode ?? r.partcode ?? "";
+
+      return {
+        id: v4(),
+        index: index + 1,
+        currency,
+        exchange_rate,
+        component: {
+          label: componentLabel,
+          text: componentLabel,
+          value: componentValue,
+          key: r?.partKey,
+        },
+        qty,
+        rate,
+        last_rate: r.lastRate ?? "",
+        duedate: r.dueDate ?? r.duedate ?? "",
+        hsncode: r.hsn ?? r.hsncode ?? "",
+        gsttype,
+        gstrate: gstRateNum,
+        cgst,
+        sgst,
+        igst,
+        remark: r.itemDes ?? "--",
+        internal_remark: r.interremark ?? "",
+        inrValue,
+        foreginValue,
+        unit: r.uom ?? r.unitsname ?? "--",
+        rate_cap,
+        tol_price,
+        approval,
+        project_req_qty: r.projectReqQty ?? "--",
+        po_exec_qty : r.poExecQty ?? "--",
+        qtyApproval,
+        diffPercentage: r.diffPercentage ?? "--",
+        closing_stock: Number(r.closingStock) || 0,
+      };
+    });
+    setRowCount(arr);
+  };
+
+  const saveTheData = async () => {
+    Modal.confirm({
+      title: "Are you sure you want to submit?",
+      content: "Please make sure that the values are correct",
+      onOk() {
+        closeDrawer();
+      },
+      onCancel() {},
+    });
+  };
+  const previewedcolumns = [
+    {
+      headerName: "#",
+      field: "id",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.id} />,
+      width: 50,
+    },
+    {
+      headerName: "Part Code",
+      field: "part_Code",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.partCode} />,
+      minWidth: 110,
+    },
+    // { headerName: "Part Name", field: "partName", renderCell: ({ row }) => <ToolTipEllipses text={row.partName} copy={true} />, minWidth: 250, flex: 1 },
+    {
+      headerName: "Item Description",
+      field: "itemDes",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.itemDes} />,
+      width: 100,
+    },
+    {
+      headerName: "Hsn",
+      field: "hsn",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.hsn} />,
+      width: 110,
+    },
+    { headerName: "Rate", field: "rate", flex: 1, minWidth: 100 },
+    {
+      headerName: "Qty",
+      field: "qty",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.qty} copy={true} />,
+    },
+  {
+      headerName: "GST RATE",
+      field: "Gstrate",
+      flex: 1,
+      minWidth: 100,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.gstRate} copy={true} />
+      ),
+    },
+    // {
+    //   headerName: "GST TYPE",
+    //   field: "Gsttype",
+    //   flex: 1,
+    //   minWidth: 100,
+    //   renderCell: ({ row }) => <ToolTipEllipses text={row.gstType?.text} />,
+    // },
+    {
+      headerName: "Remark",
+      field: "internalRemark",
+      minWidth: 150,
+      flex: 1,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.interremark} />,
+    },
+  ];
+
+  const uploadExcelData = async () => {
+    setLoading(true);
+    setPreview(true);
+    const values = uploadForm.getFieldsValue();
+    if (!values.files?.length || !values.files[0]?.originFileObj) {
+      toast.error("Please select a file");
+      setPreview(false);
+      setLoading(false);
+      return;
+    }
+    const file = values.files[0].originFileObj;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("venderCode", venderCode);
+    formData.append("projectId", projectId);
+    try {
+      const response = await imsAxios.post(
+        "/purchaseOrder/upload/item",
+        formData,
+      );
+
+      if (response?.success || response?.data?.status === "success") {
+        const data = response.data?.data;
+
+        const formattedHeaders = data.headers.map((header) =>
+          header
+            .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+              index === 0 ? match.toLowerCase() : match.toLowerCase(),
+            )
+            .replace(/\s+/g, ""),
+        );
+
+        const formattedRows = data.rows.map((row) => {
+          const rowObject = {};
+          formattedHeaders.forEach((header, index) => {
+            rowObject[header] = row[index];
+          });
+          setLoading(false);
+          return rowObject;
+        });
+
+        const arr = formattedRows.map((r, index) => ({
+          id: index + 1,
+          partCode: r.partcode?.partNo ?? "",
+          partName: r.partcode?.name ?? "",
+          partKey: r.partcode?.key ?? "",
+          uom: r.partcode?.uom ?? "",
+          lastRate: r.partcode?.rate ?? "",
+          closingStock: r.partcode?.closing_stock ?? "",
+          projectReqQty: r.partcode?.project_req_qty ?? "",
+          poExecQty: r.partcode?.po_exec_qty ?? "",
+
+          itemDes: r.itemdescription ?? "",
+          qty: r.qty,
+          rate: r.rate,
+          hsn: r.hsn,
+          interremark: r.internalremark,
+          gstRate: r.gstrate,
+          gstType: r.gsttype,
+          dueDate: r.duedate,
+
+          ...r,
+        }));
+        setLoading(false);
+        setPreviewRows(arr);
+      } else {
+        toast.error(
+          response?.message?.msg ?? response?.message ?? "Upload failed",
+        );
+        setLoading(false);
+        setPreview(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error(error.message || "Excel upload failed");
+    }
+  };
+
   const removeRows = (id) => {
     const arr = rowCount.filter((c) => c.id != id);
     setRowCount(arr);
@@ -96,7 +367,7 @@ export default function AddComponents({
           usdValue: 0,
           exchange_rate: 1,
           currencySymbol: currencies.filter(
-            (row) => row.value == showCurrencyUpdateConfirmModal.value
+            (row) => row.value == showCurrencyUpdateConfirmModal.value,
           ),
         };
         return obj;
@@ -114,7 +385,6 @@ export default function AddComponents({
       if (row.id == id) {
         let obj = row;
         if (name == "rate") {
-          console.log("row.gsttype", row.gsttype);
           if (row.gsttype == "L") {
             let percentage = obj.gstrate / 2;
             obj = {
@@ -157,7 +427,12 @@ export default function AddComponents({
             ...obj,
             approval: app,
           };
-        } else if (name == "hsncode" || name == "duedate" || name == "remark" || name === "internal_remark") {
+        } else if (
+          name == "hsncode" ||
+          name == "duedate" ||
+          name == "remark" ||
+          name === "internal_remark"
+        ) {
           obj = {
             ...obj,
             [name]: value,
@@ -219,7 +494,7 @@ export default function AddComponents({
             currency: value.currency,
             foreginValue: row.inrValue * value.rate,
             currencySymbol: currencies.filter(
-              (row) => row.value == value.currency
+              (row) => row.value == value.currency,
             ),
           };
           // let rate = +Number(obj.rate).toString();
@@ -272,8 +547,13 @@ export default function AddComponents({
             };
           }
         }
-        
-        if (obj.gsttype == "L" && name != "gsttype" && name != "remark" && name != "internal_remark") {
+
+        if (
+          obj.gsttype == "L" &&
+          name != "gsttype" &&
+          name != "remark" &&
+          name != "internal_remark"
+        ) {
           let percentage = obj.gstrate / 2;
           obj = {
             ...obj,
@@ -281,7 +561,12 @@ export default function AddComponents({
             sgst: (obj.inrValue * percentage) / 100,
             igst: 0,
           };
-        } else if (obj.gsttype == "I" && name != "gsttype" && name != "remark" && name != "internal_remark") {
+        } else if (
+          obj.gsttype == "I" &&
+          name != "gsttype" &&
+          name != "remark" &&
+          name != "internal_remark"
+        ) {
           let percentage = obj.gstrate;
           obj = {
             ...obj,
@@ -295,17 +580,22 @@ export default function AddComponents({
         return row;
       }
     });
-    
+
     if (name == "component") {
-      console.log(newPurchaseOrder);
       setPageLoading(true);
       const { data } = await imsAxios.post(
         "/purchaseOrder/getComponentDetailsByCode",
         {
           component_code: value.value,
           vencode: newPurchaseOrder.vendorname.value,
-          project: form.getFieldValue("project_name")==="object" ? form.getFieldValue("project_name").value : form.getFieldValue("project_name")||newPurchaseOrder.project_name==="object" ? newPurchaseOrder.project_name.value : newPurchaseOrder.project_name,
-        }
+          project:
+            form.getFieldValue("project_name") === "object"
+              ? form.getFieldValue("project_name").value
+              : form.getFieldValue("project_name") ||
+                  newPurchaseOrder.project_name === "object"
+                ? newPurchaseOrder.project_name.value
+                : newPurchaseOrder.project_name,
+        },
       );
       setPageLoading(false);
       let arr1 = rowCount;
@@ -316,18 +606,18 @@ export default function AddComponents({
           let obj = row;
           let newLastRate = Number(data.data.rate.toString().trim());
           let percentage = data.data.gstrate;
-        
+
           if (autoGstType == "L") {
             percentage = data.data.gstrate / 2;
             obj = {
               ...obj,
               component: value,
-              gsttype: "L", 
+              gsttype: "L",
               last_rate: newLastRate,
               unit: data.data.unit,
               hsncode: data.data.hsn,
               gstrate: data.data.gstrate,
-           
+
               cgst: 0,
               sgst: 0,
               igst: 0,
@@ -337,21 +627,21 @@ export default function AddComponents({
               ...obj,
               cgst: 0,
               component: value,
-              gsttype: "I", 
+              gsttype: "I",
               last_rate: newLastRate,
               unit: data.data.unit,
               hsncode: data.data.hsn,
               gstrate: data.data.gstrate,
               sgst: 0,
-             
+
               igst: 0,
             };
           } else {
             obj = {
               ...obj,
               component: value,
-              gsttype: autoGstType, 
-              last_rate: newLastRate, 
+              gsttype: autoGstType,
+              last_rate: newLastRate,
               unit: data.data.unit,
               gstrate: data.data.gstrate,
               hsncode: data.data.hsn,
@@ -379,10 +669,9 @@ export default function AddComponents({
   };
   const getComponents = async (searchInput) => {
     if (searchInput.length > 2) {
-     
       const response = await executeFun(
         () => getComponentOptions(searchInput),
-        "select"
+        "select",
       );
       const { data } = response;
       let arr = [];
@@ -406,12 +695,12 @@ export default function AddComponents({
         exchange: "1",
         component: "",
         qty: 1,
-        rate: "", 
-        last_rate: "", 
+        rate: "",
+        last_rate: "",
         duedate: "",
         inrValue: 0,
         hsncode: "",
-        gsttype: defaultGstType, 
+        gsttype: defaultGstType,
         gstrate: "",
         cgst: 0,
         sgst: 0,
@@ -419,7 +708,7 @@ export default function AddComponents({
         remark: "--",
         internal_remark: "",
         unit: "--",
-        closing_stock: 0, 
+        closing_stock: 0,
       },
     ]);
     setConfirmReset(false);
@@ -454,7 +743,7 @@ export default function AddComponents({
             Number(row.inrValue) +
             Number(row.sgst) +
             Number(row.cgst) +
-            Number(row.igst)
+            Number(row.igst),
         ),
       },
     ];
@@ -498,7 +787,7 @@ export default function AddComponents({
           setAsyncOptions,
           asyncOptions,
           loading1("select"),
-          gstState
+          gstState,
         ),
     },
     {
@@ -516,13 +805,13 @@ export default function AddComponents({
     },
 
     {
-      headerName: "Rate", 
+      headerName: "Rate",
       width: 170,
       field: "rate",
       sortable: false,
       renderCell: (params) => rateCell(params, inputHandler, currencies),
     },
- 
+
     {
       headerName: "Last Rate",
       width: 170,
@@ -614,43 +903,43 @@ export default function AddComponents({
       renderCell: (params) => gstTypeCell(params, inputHandler),
     },
     {
-  headerName: "GST Rate",
-  width: 120,
-  field: "gstrate",
-  sortable: false,
-  renderCell: (params) => {
-    const options = [
-      { label: "0%", value: 0 },
-      { label: "5%", value: 5 },
-      { label: "18%", value: 18 },
-    ];
+      headerName: "GST Rate",
+      width: 120,
+      field: "gstrate",
+      sortable: false,
+      renderCell: (params) => {
+        const options = [
+          { label: "0%", value: 0 },
+          { label: "5%", value: 5 },
+          { label: "18%", value: 18 },
+        ];
 
-    return (
-      <select
-        style={{
-          width: "100%",
-          padding: "6px 8px",
-          border: "1px solid #d9d9d9",
-          borderRadius: 6,
-          backgroundColor: "white",
-          fontSize: 13,
-        }}
-        value={params.row.gstrate || ""}
-        onChange={(e) => {
-          const newRate = Number(e.target.value);
-          inputHandler("gstrate", newRate, params.row.id);
-        }}
-      >
-        <option value="">Select</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    );
-  },
-},
+        return (
+          <select
+            style={{
+              width: "100%",
+              padding: "6px 8px",
+              border: "1px solid #d9d9d9",
+              borderRadius: 6,
+              backgroundColor: "white",
+              fontSize: 13,
+            }}
+            value={params.row.gstrate || ""}
+            onChange={(e) => {
+              const newRate = Number(e.target.value);
+              inputHandler("gstrate", newRate, params.row.id);
+            }}
+          >
+            <option value="">Select</option>
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
     {
       headerName: "CGST",
       width: 150,
@@ -673,12 +962,12 @@ export default function AddComponents({
       renderCell: (params) => IGSTCell(params, inputHandler),
     },
     {
-  headerName: "Internal Remark",
-  width: 250,
-  field: "internal_remark",
-  sortable: false,
-  renderCell: (params) => internalRemarkCell(params, inputHandler), 
-},
+      headerName: "Internal Remark",
+      width: 250,
+      field: "internal_remark",
+      sortable: false,
+      renderCell: (params) => internalRemarkCell(params, inputHandler),
+    },
   ];
   useEffect(() => {
     getCurrencies();
@@ -743,13 +1032,28 @@ export default function AddComponents({
             row.gsttype !== prevRows[index].gsttype ||
             row.cgst !== prevRows[index].cgst ||
             row.sgst !== prevRows[index].sgst ||
-            row.igst !== prevRows[index].igst
+            row.igst !== prevRows[index].igst,
         );
 
         return hasChanges ? updatedRows : prevRows;
       });
     }
   }, [gstState, setRowCount]);
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+  const uploadProps = {
+    name: "file",
+    multiple: false,
+    maxCount: 1,
+    beforeUpload() {
+      return false;
+    },
+  };
 
   return (
     <div
@@ -861,7 +1165,7 @@ export default function AddComponents({
                         // type="Paragraph"
                         text={newPurchaseOrder?.vendoraddress?.replaceAll(
                           "<br>",
-                          " "
+                          " ",
                         )}
                       />
                     </Typography.Text>
@@ -889,6 +1193,24 @@ export default function AddComponents({
                 </Row>
               </Card>
             </Col>
+            <Row
+              span={24}
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Col>
+                <MyButton
+                  variant="upload"
+                  text="Excel"
+                  onClick={() => setOpen(true)}
+                >
+                  Excel
+                </MyButton>
+              </Col>
+            </Row>
             {/* tax detail card */}
             <Col span={24} style={{ height: "50%" }}>
               <Card
@@ -937,7 +1259,7 @@ export default function AddComponents({
                             {Number(
                               row.values?.reduce((partialSum, a) => {
                                 return partialSum + Number(a);
-                              }, 0)
+                              }, 0),
                             ).toFixed(2)}
                           </span>
                         </Col>
@@ -970,6 +1292,103 @@ export default function AddComponents({
           submitHandler(rowCount);
         }}
       />
+
+      <Modal
+        title="Upload File Here"
+        open={open}
+        width={500}
+        onCancel={() => setOpen(false)}
+        footer={[
+          <Button key="back" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" onClick={uploadExcelData}>
+            Preview
+          </Button>,
+        ]}
+      >
+        {loading1("fetch") && <Loading />}
+        <Card>
+          <Form form={uploadForm} layout="vertical">
+            <Form.Item>
+              <Form.Item
+                name="files"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+                noStyle
+              >
+                <Upload.Dragger name="files" {...uploadProps}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Upload.Dragger>
+              </Form.Item>
+            </Form.Item>
+            <Row justify="end" style={{ marginTop: 5 }}>
+              <MyButton
+                variant="downloadSample"
+                onClick={() =>
+                  downloadCSVCustomColumns(prsampleFile, "Purchase Order")
+                }
+              />
+            </Row>
+          </Form>
+        </Card>
+      </Modal>
+
+      <Drawer
+        width="100%"
+        title="Preview Data From Excel"
+        placement="right"
+        onClose={() => setPreview(false)}
+        destroyOnClose={true}
+        open={preview}
+        bodyStyle={{ padding: 5 }}
+      >
+        {loading1("fetch") && <Loading />}
+        <Row
+          style={{
+            height: "95%",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <Col
+            style={{
+              height: "90%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+            span={23}
+          >
+            <MyDataTable
+              columns={previewedcolumns}
+              data={previewRows}
+              loading={loading}
+              headText="center"
+            />
+          </Col>
+          <Row
+            span={24}
+            style={{
+              width: "100%",
+              height: "10%",
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <NavFooter
+              submitFunction={saveTheData}
+              nextLabel="Submit"
+              resetFunction={() => setPreview(false)}
+            />
+          </Row>
+        </Row>
+      </Drawer>
     </div>
   );
 }

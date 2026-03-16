@@ -34,6 +34,7 @@ import {
   Vendor,
   AddVendor,
   RmtoRm,
+  FGToFGTransfer,
   PendingTransfer,
   ViewTransaction,
   ReToRej,
@@ -130,6 +131,7 @@ import {
   JobworkApproval,
   JwToJw,
   JwToJwViewTransaction,
+  FGToFGViewTransaction,
   AddSKUOpeningRate,
 } from "../Pages/index.jsx";
 
@@ -447,6 +449,16 @@ const Routes = [
     path: "/rm-to-rm",
     exact: true,
     main: () => <RmtoRm />,
+  },
+  {
+    path: "/warehouse/material-transfer/fg-to-fg",
+    exact: true,
+    main: () => <FGToFGTransfer />,
+  },
+  {
+    path: "/warehouse/material-transfer/fg-to-fg/view",
+    exact: true,
+    main: () => <FGToFGViewTransaction />,
   },
    {
     path: "/warehouse/material-transfer/jw-to-jw",
