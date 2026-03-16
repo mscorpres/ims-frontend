@@ -613,7 +613,6 @@ export default function MaterialInWithoutPO() {
     { headerName: "Location", field: "location", flex: 1 },
   ];
   useEffect(() => {
-    console.log("isScan", isScan);
     if (isScan == true) {
       form.setFieldValue("QR", isScan);
     }

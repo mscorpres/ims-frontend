@@ -859,6 +859,12 @@ const links = [
 
       placeholder: "Job Work Inventory Report",
     },
+        {
+      routeName: "R38",
+      routePath: "/fg-register-report",
+
+      placeholder: "FG Register Report",
+    },
   ],
   // MIN label links
 
