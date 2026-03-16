@@ -37,12 +37,15 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
     });
     let a = [];
     data.data.final.map((d) => a.push({ text: d.text, value: d.id }));
-    getBranchDetails(a[0].value, "skeletonLoading");
+    if (a.length > 0) {
+      getBranchDetails(a[0].value, "skeletonLoading");
+    }
     setAllBranchData(a);
-    const { data: data1 } = await imsAxios.post("/vendor/getBranchDetails", {
-      addresscode: a[0].value,
-    });
-
+    if (a.length > 0) {
+      const { data: data1 } = await imsAxios.post("/vendor/getBranchDetails", {
+        addresscode: a[0].value,
+      });
+    }
     setSkeletonLoading(false);
   };
   // console.log(allField);
@@ -149,7 +152,6 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
   };
 
   useEffect(() => {
-    // console.log(viewVendor);
     if (viewVendor == false) {
       reset();
     } else if (viewVendor) {

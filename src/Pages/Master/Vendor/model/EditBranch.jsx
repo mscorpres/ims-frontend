@@ -57,7 +57,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [editMSME, setEditMSME] = useState([]);
   const [tdsOptions, setTdsOptions] = useState([]);
   // const [msmeStat, setMsmeStat] = useState("N");
-  const [locationOptions, setLocationOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [files, setFiles] = useState([]);
   const [updateVendorForm] = Form.useForm();
@@ -182,7 +181,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         panno: values?.vendor_pan,
         cinno: values?.vendor_cin,
         tally_tds: values.vendor_tds,
-        vendor_loc: values.vendor_loc,
         term_days: values.vendor_term_days,
         msme_status: values.vendor_msme_status,
         msme_year: rows.map((r) => r.vendor_msme_year),
@@ -208,7 +206,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         panno: values?.vendor_pan,
         cinno: values?.vendor_cin,
         tally_tds: values.vendor_tds,
-        vendor_loc: values.vendor_loc,
         term_days: values.vendor_term_days,
         msme_status: "N",
         msme_id: "--",
@@ -261,20 +258,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       }
     }
   };
-  const getAllVendorLocationOptions = async () => {
-    const { data } = await imsAxios.get("/vendor/getAllLocation");
-    if (data.code === 200) {
-      let arr = data.data.map((row) => ({
-        text: row.loc_name,
-        value: row.location_key,
-      }));
-      setLocationOptions(arr);
-    } else {
-      toast.error(data.message.msg);
-      setLocationOptions([]);
-    }
-  };
-
   const getGroupOptions = async () => {
     try {
       const response = await imsAxios.post("/groups/groupSelect2");
@@ -311,7 +294,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   useEffect(() => {
     if (editVendor) {
       getDetails();
-      getAllVendorLocationOptions();
       getGroupOptions();
       getCurrencies();
     }
@@ -485,15 +467,9 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                 </Form.Item>
               </Col>
               <Col span={24}>
-                <Form.Item label="Vendor Locations" name="vendor_loc">
-                  <MySelect
-                    // size="default"
-                    // mode="single"
-                    // value={allDetails.vendor_loc}
-                    // onChange={(value) => inputHandler("vendor_loc", value)}
-                    options={locationOptions}
-                  />
-                </Form.Item>
+                <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
+                  To manage vendor locations use &quot;Edit Vendor Location &quot; from the vendor list action menu.
+                </Typography.Text>
               </Col>
               <Col span={8}>
                 <Form.Item

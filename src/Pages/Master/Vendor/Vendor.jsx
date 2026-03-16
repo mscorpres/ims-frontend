@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import AddBranch from "./model/AddBranch.jsx";
 import EditBranch from "./model/EditBranch.jsx";
 import ViewModal from "./model/ViewModal.jsx";
+import EditVendorLocationModal from "./model/EditVendorLocationModal.jsx";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { v4 } from "uuid";
@@ -16,6 +17,7 @@ const Vendor = () => {
   const [editVendor, setEditVendor] = useState(false);
   const [viewVendor, setViewVendor] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [editVendorLocation, setEditVendorLocation] = useState(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -112,6 +114,11 @@ const Vendor = () => {
           showInMenu
         />,
         <GridActionsCellItem
+          label="Edit Vendor Location"
+          onClick={() => setEditVendorLocation(row)}
+          showInMenu
+        />,
+        <GridActionsCellItem
           // icon={<FileCopyIcon />}
           label="Edit / View Branch Details"
           onClick={() => setViewVendor(row)}
@@ -186,6 +193,12 @@ const Vendor = () => {
         showViewModal={showViewModal}
         setViewVendor={setViewVendor}
         viewVendor={viewVendor}
+      />
+      <EditVendorLocationModal
+        open={editVendorLocation}
+        onClose={() => setEditVendorLocation(null)}
+        vendor={editVendorLocation}
+        onSuccess={fetchVendor}
       />
     </div>
   );
