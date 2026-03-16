@@ -28,7 +28,7 @@ import { RiProhibitedLine } from "react-icons/ri";
 import { min } from "lodash";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
-  const [searchInput, setSearchInput] = useState("MIN/25-26/");
+  const [searchInput, setSearchInput] = useState("");
   const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
