@@ -402,6 +402,11 @@ export const items = (user) => [
           // <MdDashboard />
         ),
            getItem(
+          <Link to="/warehouse/material-transfer/fg-to-fg">FG To FG</Link>,
+          "B362"
+          // <MdDashboard />
+        ),
+           getItem(
           <Link to="/warehouse/material-transfer/jw-to-jw">JW To JW</Link>,
           "B365"
           // <MdDashboard />
