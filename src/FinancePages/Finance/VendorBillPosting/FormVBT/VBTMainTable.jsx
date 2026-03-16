@@ -25,6 +25,7 @@ import MyButton from "../../../../Components/MyButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
+import { min } from "lodash";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("MIN/25-26/");
@@ -98,34 +99,40 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       headerName: "Sr. No.",
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
-      flex: 1,
       id: "serial-no",
-      width: "8vw",
+      width: "10px",
     },
     {
+      headerName: "Type",
+      field: "type",
+      sortable: true,
+      flex: 1,
+      id: "type",
+    },
+       {
       headerName: "Vendor Code",
-      field: "ven_code",
+      field: "venCode",
       sortable: true,
       flex: 1,
       id: "vendor code",
     },
     {
-      headerName: "MIN ID",
-      field: "min_transaction",
+      headerName: "Transaction",
+      field: "transaction",
       sortable: true,
       flex: 1,
       id: "min id",
     },
     {
-      headerName: "PART ID",
-      field: "part_code",
+      headerName: "PART / SKU",
+      field: "itemCode",
       flex: 1,
       sortable: true,
       id: "part id",
     },
     {
       headerName: "MIN DATE",
-      field: "min_in_date",
+      field: "minDate",
       flex: 1,
       sortable: true,
       id: "min date",
@@ -138,8 +145,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       type: "actions",
       flex: 1,
       getActions: ({ row }) =>
-        (apiUrl == "vbt06" && row.vbp_status == "PENDING") ||
-        (apiUrl === "vbt01" && row.vbp_status == "PENDING")
+        (apiUrl == "vbt06" && row.vbpStatus == "PENDING") ||
+        (apiUrl === "vbt01" && row.vbpStatus == "PENDING")
           ? [
               <>
                 <GridActionsCellItem
@@ -152,7 +159,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                 />
                 <GridActionsCellItem
                   icon={<AiFillEdit />}
-                  onClick={() => setEditingVBT([row.min_transaction])}
+                  onClick={() => setEditingVBT([row.transaction])}
                   label="Edit"
                 />
               </>,
@@ -183,7 +190,14 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "serial-no",
-      width: "8vw",
+      minWidth: "2px",
+    },
+      {
+      headerName: "Type",
+      field: "type",
+      sortable: true,
+      flex: 1,
+      id: "type",
     },
     {
       headerName: "Vendor Code",
@@ -193,8 +207,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       id: "vendor code",
     },
     {
-      headerName: "MIN ID",
-      field: "min_transaction",
+      headerName: "Transaction",
+      field: "transaction",
       sortable: true,
       flex: 1,
       id: "min id",
@@ -223,7 +237,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       getActions: ({ row }) => [
         <GridActionsCellItem
           icon={<AiFillEdit />}
-          onClick={() => setEditingVBT([row.min_transaction])}
+          onClick={() => setEditingVBT([row.transaction])}
           label="Edit"
         />,
       ],
@@ -367,8 +381,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
 
   const disableVbt = async (singleRow) => {
     if (singleRow) {
-      ModalForm.setFieldValue("min_transaction", singleRow.min_transaction);
-      ModalForm.setFieldValue("part_code", singleRow.part_code);
+      ModalForm.setFieldValue("min_transaction", singleRow.transaction);
+      ModalForm.setFieldValue("part_code", singleRow.itemCode);
     }
 
     Modal.confirm({
@@ -378,7 +392,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
         <Form form={ModalForm} layout="vertical">
           <Form.Item
             name="min_transaction"
-            label="Min Transaction"
+            label="Transaction"
             rules={[
               {
                 required: true,
@@ -390,7 +404,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           </Form.Item>
           <Form.Item
             name="part_code"
-            label="Part Code"
+            label="Part / SKU"
             // rules={rules.nos_of_boxes}
             rules={[
               {

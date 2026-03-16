@@ -3,6 +3,7 @@ import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
 import { downloadCSV } from "../../Components/exportToCSV";
+import { toast } from "react-toastify";
 
 export const validateInvoice = async (values) => {
   let comp = values.components;
@@ -42,7 +43,7 @@ export const uploadVendorDoc = async (formData) => {
   // formData.append("files", file);
   const response = await imsAxios.post(
     "/transaction/vendor-document",
-    formData
+    formData,
   );
 
   return response;
@@ -60,7 +61,7 @@ export const materialInWithoutPo = async (values, fileName, vendorType) => {
   });
   values.components = newComp;
   const payload = {
-    attachment: vendorType !== "p01" ? fileName ?? "" : undefined,
+    attachment: vendorType !== "p01" ? (fileName ?? "") : undefined,
     vendor: values.vendorName.value ?? "--",
     vendorbranch: values.vendorBranch ?? "--",
     address: values.vendorAddress,
@@ -131,8 +132,37 @@ export const getMINLabelRows = async (wise, value) => {
   return response;
 };
 
+export const getFGMINLabelRows = async (wise, value) => {
+  try {
+    const response = await imsAxios.post("/fgMIN/getFGMinTransactionByDate", {
+      data: value,
+      wise,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    toast.error(error.message);
+  }
+};
+
 export const printMIN = async (minId, action) => {
   const response = await imsAxios.post("minPrint/printSingleMin", {
+    transaction: minId,
+  });
+
+  if (response.data.code === 200) {
+    if (!action) {
+      printFunction(response.data.data.buffer.data);
+    } else if (action === "download") {
+      downloadFunction(response.data.data.buffer.data, minId);
+    }
+  }
+
+  return response;
+};
+export const printFGMIN = async (minId, action) => {
+  const response = await imsAxios.post("/fgMinPrint/printFGMin", {
     transaction: minId,
   });
 
@@ -249,7 +279,7 @@ export const updateBoxQty = async (componentKey, values, stock) => {
 
   const response = await imsAxios.post(
     "/minBoxLablePrint/updateAvailQty",
-    payload
+    payload,
   );
 
   return response;
