@@ -499,9 +499,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     };
     setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
-    const minNum = response.message;
+    const minNum = response?.message;
 
-    if (response.success) {
+    if (response?.success) {
       setModalUploadLoad(false);
       const pattern = /\[(.*?)\]/;
       let getMin;
@@ -541,7 +541,13 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       });
     } else {
       setModalUploadLoad(false);
-      toast.error(response.message);
+      const backendMsg =
+        typeof response?.message === "string"
+          ? response.message
+          : response?.message?.msg ||
+            response?.message?.message ||
+            "Something went wrong";
+      toast.error(backendMsg);
     }
   };
   const getBomList = async () => {
