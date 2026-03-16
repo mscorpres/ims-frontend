@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import links from "../links";
 import MyDatePicker from "../../../../Components/MyDatePicker";
-import axios from "axios";
-import "../../../../";
 import { toast } from "react-toastify";
 import { AiFillEdit } from "react-icons/ai";
 import MyDataTable from "../../../../Components/MyDataTable";
@@ -13,9 +10,6 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Button, Checkbox, Form, Input, Modal, Row, Space, Switch } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
-import ConfirmModal from "../Shared/ConfirmModal";
-import { useSelector } from "react-redux";
-import { responseImmutable } from "@rc-component/context/lib/Immutable";
 import VBT01Report from "./VBT01/VBT01Report";
 import VBT02Report from "./VBTtype2/VBT02Report";
 import useApi from "../../../../hooks/useApi.ts";
@@ -25,11 +19,9 @@ import MyButton from "../../../../Components/MyButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
-import { min } from "lodash";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("");
-  const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -46,7 +38,6 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [open, setOpen] = useState(false);
   const [createVBT, setCreateVBT] = useState(false);
   const [selectedVendors, setSelectedVendors] = useState([]);
-  const [editUrl, setEditUrl] = useState("");
   const [editVBTCode, setEditVBTCode] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const [url, setUrl] = useState("");
@@ -109,7 +100,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       id: "type",
     },
-       {
+    {
       headerName: "Vendor Code",
       field: "venCode",
       sortable: true,
@@ -159,7 +150,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                 />
                 <GridActionsCellItem
                   icon={<AiFillEdit />}
-                  onClick={() => setEditingVBT([row.transaction])}
+                  onClick={() => setEditingVBT([row])}
                   label="Edit"
                 />
               </>,
@@ -192,7 +183,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       id: "serial-no",
       minWidth: "2px",
     },
-      {
+    {
       headerName: "Type",
       field: "type",
       sortable: true,
@@ -237,7 +228,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       getActions: ({ row }) => [
         <GridActionsCellItem
           icon={<AiFillEdit />}
-          onClick={() => setEditingVBT([row.transaction])}
+          onClick={() => setEditingVBT([row])}
           label="Edit"
         />,
       ],
@@ -276,7 +267,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     setLoading(true);
 
     let mins = selectedRows.map((row) => vbtData.filter((r) => r.id == row)[0]);
-    setEditingVBT(mins?.map((row) => row.min_transaction));
+    setEditingVBT(mins?.map((row) => row));
     // console.log(mins);
     // const { data } = await imsAxios.post(
     //   `/tally/${apiUrl}/fetch_multi_min_data`,
@@ -451,10 +442,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       toast.error(response.data.message);
     }
   };
-  // ----------------------------
   useEffect(() => {
     if (wise == "min_wise") {
-      setSearchInput("MIN/25-26/");
+      setSearchInput("");
     } else {
       setSearchInput(null);
     }
@@ -470,24 +460,12 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   }, [createVBT, selectedVendors]);
 
   useEffect(() => {
-    // console.log("previewdisData", previewdisData);
     if (previewdisData) {
-      // console.log("combinedData", combinedData);
-      // console.log("extracted", extracted);
       setVBTData(combinedData);
     } else {
       setVBTData(extracted);
     }
   }, [previewdisData]);
-  // useEffect(() => {
-  //   console.log("previewdisData", previewdisData);
-  //   if (previewdisData) {
-  //     console.log("combinedData", combinedData);
-  //     setShowAllData(combinedData);
-  //   } else {
-  //     setShowAllData(vbtData);
-  //   }
-  // }, [previewdisData]);
 
   return (
     <div style={{ height: "95%" }}>
@@ -576,8 +554,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                       ? true
                       : false
                     : !searchInput
-                    ? true
-                    : false
+                      ? true
+                      : false
                 }
                 loading={searchLoading}
                 type="primary"
