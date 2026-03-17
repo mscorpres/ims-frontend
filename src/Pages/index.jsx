@@ -164,7 +164,6 @@ export { default as MapProcesses } from "./MES/Process/Map";
 // Part code conversion (SF + RM)
 export { default as PartCodeConversion } from "../Pages/Store/PartCodeConversion";
 export { default as RMPartCodeConversion } from "../Pages/Store/RMPartCodeConversion";
-export { default as RMPartCodeConversionReport } from "../Pages/Store/RMPartCodeConversionReport/RMPartCodeConversionReport";
 
 //challan window Branch Transfer
 export { default as CreateBranchTransferChallan } from "./Store/branchtransfer/CreateDC/CreateBranchTransferChallan.jsx";

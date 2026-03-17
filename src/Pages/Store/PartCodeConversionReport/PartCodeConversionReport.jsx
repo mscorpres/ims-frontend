@@ -203,7 +203,7 @@ const PartCodeConversionReport = () => {
 
   const handleDownload = () => {
     const workbook = new Exceljs.Workbook();
-    const sheet = workbook.addWorksheet("SF Part Code Conversion Report");
+    const sheet = workbook.addWorksheet("Part Code Conversion Report");
 
     // sheet.getRow(1).border ={
     //   top:{style : thick , color : {argb:''}}
@@ -293,7 +293,7 @@ const PartCodeConversionReport = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "SFPartCodeConversionReport.xlsx";
+      link.download = "PartCodeConversionReport.xlsx";
       link.click();
       window.URL.revokeObjectURL(url);
     });

@@ -657,19 +657,12 @@ const links = [
       routePath: "/warehouse/part-code-conversion",
     },
     {
-      routeName: "SF Part Code Conversion Report",
-      routePath: "/warehouse/part-code-conversion-report",
-    },
-  ],
-  // RM Part Code Conversion
-  [
-    {
       routeName: "RM Part Code Conversion",
       routePath: "/warehouse/rm-part-code-conversion",
     },
     {
-      routeName: "RM Part Code Conversion Report",
-      routePath: "/warehouse/rm-part-code-conversion-report",
+      routeName: "SF Part Code Conversion Report",
+      routePath: "/warehouse/part-code-conversion-report",
     },
   ],
   // MIN register
