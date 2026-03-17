@@ -291,39 +291,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     }
   };
 
-  const getGroupOptions = async () => {
-    try {
-      const response = await imsAxios.post("/groups/groupSelect2");
-      const { data } = response;
-      if (data?.code === 200) {
-        const arr = data.data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
-        setGroupOptions(arr);
-      } else if (data?.message?.msg) {
-        toast.error(data.message.msg);
-      }
-    } catch (error) {
-      setGroupOptions([]);
-    }
-  };
-
-  const getCurrencies = async () => {
-    try {
-      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
-      const arr =
-        data?.data?.map((d) => ({
-          text: d.currency_symbol,
-          value: d.currency_id,
-          notes: d.currency_notes,
-        })) || [];
-      setCurrencies(arr);
-    } catch (error) {
-      setCurrencies([]);
-    }
-  };
-
   useEffect(() => {
     if (editVendor) {
       getDetails();
