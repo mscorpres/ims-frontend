@@ -1198,7 +1198,6 @@ const App = () => {
                         setSwitchBranch(null);
                         setSwitchSession(null);
                         setIsSwitchingModule(false);
-                        setSwitchingLocation(null);
                         setSwitchSuccess(false);
                       }
                     }}

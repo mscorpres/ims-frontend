@@ -11,10 +11,13 @@ const initialState = {
     ? {
         ...JSON.parse(localStorage.getItem("loggedInUser")),
         favPages: fav,
-        company_branch: JSON.parse(localStorage.getItem("otherData"))
-          ?.company_branch,
+        company_branch:
+          JSON.parse(localStorage.getItem("otherData"))?.company_branch ??
+          JSON.parse(localStorage.getItem("loggedInUser"))?.company_branch,
         session:
-          JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26",
+          JSON.parse(localStorage.getItem("otherData"))?.session ??
+          JSON.parse(localStorage.getItem("loggedInUser"))?.session ??
+          "25-26",
         passwordChanged: "C",
         showlegal:
           JSON.parse(localStorage.getItem("loggedInUser"))?.department ===
@@ -197,9 +200,13 @@ const loginSlice = createSlice({
         action.payload?.company_branch ?? obj.company_branch ?? "BRMSC012";
       const session = action.payload?.session ?? obj.session ?? "25-26";
 
+      const existingOtherData = JSON.parse(
+        localStorage.getItem("otherData") || "{}"
+      );
       localStorage.setItem(
         "otherData",
         JSON.stringify({
+          ...existingOtherData,
           company_branch,
           session,
         })
