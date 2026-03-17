@@ -38,7 +38,7 @@ const R11 = () => {
         </Col>
         <Col span={2}>
           <MyButton
-            variant="search"
+            variant="download"
             onClick={handleGenerate}
             loading={loading}
             type="primary"
