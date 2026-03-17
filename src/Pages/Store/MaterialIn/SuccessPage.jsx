@@ -13,6 +13,7 @@ export default function SuccessPage({
   successColumns,
   newMinFunction,
   title,
+  isFGMIN = false,
 }) {
   const [printLoading, setPringLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
@@ -20,7 +21,7 @@ export default function SuccessPage({
   const printFun = async () => {
     setPringLoading(true);
 
-    const { data } = await imsAxios.post("/minPrint/printSingleMin", {
+    const { data } = await imsAxios.post(isFGMIN ? "/fgMinPrint/printFGMin" : "/minPrint/printSingleMin", {
       transaction: po?.materialInId,
     });
     setPringLoading(false);
@@ -30,14 +31,21 @@ export default function SuccessPage({
     downloadCSV(po.components, successColumns, `SFG Inward Report`);
   };
   const handleDownload = async () => {
-    console.log("");
     setDownloadLoading(true);
-    const { data } = await imsAxios.post("/minPrint/printSingleMin", {
-      transaction: po?.materialInId,
-    });
-    setDownloadLoading(false);
-    let filename = `MIN ${po?.materialInId}`;
-    downloadFunction(data.data.buffer.data, filename);
+    if (isFGMIN) {
+      const { data } = await imsAxios.post("/printDoc/download", {
+        transaction: po?.materialInId,
+      });
+      setDownloadLoading(false);
+      window.open(data.url, "_blank");
+    } else {
+      const { data } = await imsAxios.post("/minPrint/printSingleMin", {
+        transaction: po?.materialInId,
+      });
+      setDownloadLoading(false);
+      let filename = `MIN ${po?.materialInId}`;
+      downloadFunction(data.data.buffer.data, filename);
+    }
   };
   useEffect(() => {
     if (po?.components) {

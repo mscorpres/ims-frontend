@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import AddIcon from '@mui/icons-material/Add';
 
 const STORAGE_KEY = "socketUrls";
-const CURRENT_SOCKET_URL_KEY = "currentSocketUrl";
+const CURRENT_SOCKET_URL_KEY = "https://socketv2.mscapi.live:3005";
 
 const SelectSocketEndPoint: React.FC = () => {
   const [urls, setUrls] = useState<string[]>(() => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));

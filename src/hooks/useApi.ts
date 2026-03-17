@@ -9,7 +9,6 @@ const useApi = () => {
       let message = "";
       setLoading(loadingLabel, true);
       const response = await fun();
-      console.log("response in use api", response);
       if(response.status==false){
         toast.error(response.message);
         return {

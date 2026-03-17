@@ -34,7 +34,7 @@ const EditModal = ({ show, close, bomType }) => {
       });
       await getRows(id);
       const { data } = response;
-      if (data) {
+     
         if (data.code === 200) {
           const detailsObj = {
             product: data.data.product,
@@ -47,7 +47,7 @@ const EditModal = ({ show, close, bomType }) => {
 
           setDetails(detailsObj);
         }
-      }
+    
     } catch (error) {
       console.log("some error occured while fetching rows or details", error);
     } finally {

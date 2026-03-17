@@ -34,6 +34,7 @@ import {
   Vendor,
   AddVendor,
   RmtoRm,
+  FGToFGTransfer,
   PendingTransfer,
   ViewTransaction,
   ReToRej,
@@ -130,6 +131,7 @@ import {
   JobworkApproval,
   JwToJw,
   JwToJwViewTransaction,
+  FGToFGViewTransaction,
   AddSKUOpeningRate,
 } from "../Pages/index.jsx";
 
@@ -259,6 +261,8 @@ import R34 from "@/Pages/Reports/R/R34/index.js";
 import FARUpload from "@/Pages/far/index.js";
 import R35 from "@/Pages/Reports/R/R35.jsx";
 import R37 from "@/Pages/Reports/R/R37.jsx";
+//@ts-ignore
+import R38 from "@/Pages/Reports/R/R38.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
@@ -271,7 +275,7 @@ import BOMList from "@/Pages/R&D/bom/list/index.js";
 import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 import SubGroup from "../Pages/Master/SubGroup.jsx";
 import AddCostCenter from "../Pages/Master/AddCostCenter.jsx";
-import CostCenterMapping from "@/Pages/Master/CostCenterMapping.js";
+import ViewFGMIN from "../Pages/Store/PrintFGMIN/ViewFGMIN.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -445,6 +449,16 @@ const Routes = [
     path: "/rm-to-rm",
     exact: true,
     main: () => <RmtoRm />,
+  },
+  {
+    path: "/warehouse/material-transfer/fg-to-fg",
+    exact: true,
+    main: () => <FGToFGTransfer />,
+  },
+  {
+    path: "/warehouse/material-transfer/fg-to-fg/view",
+    exact: true,
+    main: () => <FGToFGViewTransaction />,
   },
    {
     path: "/warehouse/material-transfer/jw-to-jw",
@@ -801,6 +815,11 @@ const Routes = [
 
     main: () => <R37 />,
   },
+    {
+    path: "/fg-register-report",
+
+    main: () => <R38 />,
+  },
   {
     path: "/reqWithBom",
     main: () => <ReqWithBom />,
@@ -856,6 +875,10 @@ const Routes = [
   {
     path: "/warehouse/print-view-min",
     main: () => <ViewMin />,
+  },
+  {
+    path: "/warehouse/print-view-fg-min",
+    main: () => <ViewFGMIN />,
   },
   {
     path: "/warehouse/material-in",
