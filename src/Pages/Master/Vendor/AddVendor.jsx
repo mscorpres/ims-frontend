@@ -64,12 +64,6 @@ const AddVendor = () => {
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
   const einvoice = Form.useWatch("applicability", addVendorForm);
-  console.log("okkk", einvoice);
-  const components = Form.useWatch("components", {
-    form: addVendorForm,
-    preserve: true,
-  });
-  const [groupOptions, setGroupOptions] = useState([]);
 
   const transactionType = Form.useWatch("transactionType", addVendorForm);
 

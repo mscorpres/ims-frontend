@@ -377,17 +377,17 @@ export default function SingleComponent({
           </Col>
           <Col span={3}>
             <Form.Item label="MIN ID" name={[field.name, "minId"]}>
-              <Input />
+              <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
             <Form.Item label="Part Code" name={[field.name, "partCode"]}>
-              <Input rows={1} />
+              <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
             <Form.Item label="Part Name" name={[field.name, "partName"]}>
-              <Input rows={1} />
+              <Input rows={1} disabled />
             </Form.Item>
           </Col>
           {/* <Col span={4}>

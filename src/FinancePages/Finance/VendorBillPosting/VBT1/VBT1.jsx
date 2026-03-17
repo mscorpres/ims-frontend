@@ -34,8 +34,7 @@ export default function VBT1() {
   const [editingVBT, setEditingVBT] = useState(null);
   const [mapVBT, setMapVBT] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  //////// confirm modal
-  const [checkInvoiceId, setCheckInvoiceId] = useState("");
+
   const [confirmModal, setConfirmModal] = useState(false);
   const [open, setOpen] = useState(false);
   const [createVBT, setCreateVBT] = useState(false);
