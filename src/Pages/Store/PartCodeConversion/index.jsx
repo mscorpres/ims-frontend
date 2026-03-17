@@ -149,11 +149,7 @@ const PartCodeConversion = () => {
   };
   const addComponent = async (type) => {
     if (type === "initial") {
-      // Limit to a single initial component (one Part Code at a time)
-      if (addedComponents.in.length >= 1) {
-        toast.error("Only one Part Code can be added at a time in SF conversion.");
-        return;
-      }
+     
       const values = await addComponentForm.validateFields([
         "componentIn",
         "qtyIn",
