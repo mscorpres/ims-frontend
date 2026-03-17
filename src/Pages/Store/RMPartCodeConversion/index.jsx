@@ -24,7 +24,7 @@ import MyButton from "../../../Components/MyButton";
 import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-const PartCodeConversion = () => {
+const RMPartCodeConversion = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [addedComponents, setAddedComponents] = useState({
@@ -48,11 +48,6 @@ const PartCodeConversion = () => {
       const payload = {
         search,
       };
-      // setLoading("select");
-      // const response = await imsAxios.post(
-      //   "/backend/getComponentByNameAndNo",
-      //   payload
-      // );
       const response = await executeFun(
         () => getComponentOptions(search),
         "select"
@@ -293,7 +288,7 @@ const PartCodeConversion = () => {
       },
     };
     Modal.confirm({
-      title: "Confirm SF Part Code Conversion.",
+      title: "Confirm RM Part Code Conversion.",
       content: (
         <Row gutter={[0, 12]}>
           <Col span={24}>
@@ -320,7 +315,6 @@ const PartCodeConversion = () => {
               <Form.Item label="Remarks" name="remarks">
                 <Input.TextArea
                   rows={3}
-                  // onChange={(e) => setRemarks(e.target.value)}
                 />
               </Form.Item>
             </Form>
@@ -724,4 +718,4 @@ const defaultValues = {
   qtyOut: "",
   locationOut: null,
 };
-export default PartCodeConversion;
+export default RMPartCodeConversion;

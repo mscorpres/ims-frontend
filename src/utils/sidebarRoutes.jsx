@@ -478,12 +478,17 @@ export const items = (user) => [
         "B40"
         // <AiOutlineMinus />
       ),
-      // Part Code Conversion
-      getItem(
-        <Link to="/warehouse/part-code-conversion">Part Code Conversion</Link>,
-        "B41-partcode"
-        // <AiOutlineMinus />
-      ),
+      // Part Code Conversion (SF + RM)
+      getItem("Part Code Conversion", "B41-partcode", <MdDashboard />, [
+        getItem(
+          <Link to="/warehouse/part-code-conversion">SF Partcode Conversion</Link>,
+          "B41-partcode-sf"
+        ),
+        getItem(
+          <Link to="/warehouse/rm-part-code-conversion">RM Part Code Conversion</Link>,
+          "B41-partcode-rm"
+        ),
+      ]),
     ], null, 100004),
     getItem("Sales Order", "C5", <TbReportAnalytics />, [
       getItem(<Link to="/sales/order/register">Register</Link>, "E51"),

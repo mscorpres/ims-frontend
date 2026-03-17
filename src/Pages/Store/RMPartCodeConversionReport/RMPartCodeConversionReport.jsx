@@ -23,7 +23,7 @@ import printFunction, {
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
-const PartCodeConversionReport = () => {
+const RMPartCodeConversionReport = () => {
   const wiseOptions = [
     {
       text: "Component Wise",
@@ -173,11 +173,6 @@ const PartCodeConversionReport = () => {
 
   const handleClientOptions = async (search) => {
     try {
-      // setLoading("select");
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: search,
-      // });
-      // console.log(data);
       const response = await executeFun(
         () => getComponentOptions(search),
         "select"
@@ -203,11 +198,7 @@ const PartCodeConversionReport = () => {
 
   const handleDownload = () => {
     const workbook = new Exceljs.Workbook();
-    const sheet = workbook.addWorksheet("SF Part Code Conversion Report");
-
-    // sheet.getRow(1).border ={
-    //   top:{style : thick , color : {argb:''}}
-    // }
+    const sheet = workbook.addWorksheet("RM Part Code Conversion Report");
 
     sheet.getRow(1).fill = {
       pattern: "solid",
@@ -240,12 +231,9 @@ const PartCodeConversionReport = () => {
       { header: "Pick Location", key: "pick_location", width: 20 },
     ];
 
-    // Add columns to the worksheet
     sheet.columns = columns;
 
-    // Add data to the worksheet
     fetchConversion.forEach((record) => {
-      // Add a row for the main record
       const rowData = {
         serial_no: record.serial_no,
         final_label: record.final_label,
@@ -257,14 +245,13 @@ const PartCodeConversionReport = () => {
         txn_id: record.txn_id,
         drop_location: record.drop_location,
         serial_no_consumption: "",
-        consump_part_name: "", // Empty values for consumption data
+        consump_part_name: "",
         consump_part_code: "",
         consump_qty: "",
         consump_uom: "",
         pick_location: "",
       };
 
-      // Add consumption data to the same row
       if (record.consumption && record.consumption.length > 0) {
         record.consumption.forEach((consumptionItem, index) => {
           const consumptionKeyPrefix = index === 0 ? "" : index;
@@ -285,7 +272,6 @@ const PartCodeConversionReport = () => {
       sheet.addRow(rowData);
     });
 
-    // Save the Excel file
     workbook.xlsx.writeBuffer().then((data) => {
       const blob = new Blob([data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
@@ -293,7 +279,7 @@ const PartCodeConversionReport = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "SFPartCodeConversionReport.xlsx";
+      link.download = "RMPartCodeConversionReport.xlsx";
       link.click();
       window.URL.revokeObjectURL(url);
     });
@@ -336,7 +322,6 @@ const PartCodeConversionReport = () => {
                 <MyButton
                   variant="search"
                   onClick={handleSubmit}
-                  // //   onClick={getRows}
                   loading={loading === "fetch"}
                   type="primary"
                 >
@@ -381,4 +366,4 @@ const PartCodeConversionReport = () => {
   );
 };
 
-export default PartCodeConversionReport;
+export default RMPartCodeConversionReport;

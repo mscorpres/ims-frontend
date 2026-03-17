@@ -104,6 +104,8 @@ import {
   AddClientInfo,
   ViewandEditClient,
   PartCodeConversion,
+  RMPartCodeConversion,
+  RMPartCodeConversionReport,
   ProductMIN,
   Dashboard,
   JWUpdateRate,
@@ -1378,10 +1380,17 @@ const Routes = [
     path: "/warehouse/part-code-conversion",
     main: () => <PartCodeConversion />,
   },
-  // to be added
   {
     path: "/warehouse/part-code-conversion-report",
     main: () => <PartCodeConversionReport />,
+  },
+  {
+    path: "/warehouse/rm-part-code-conversion",
+    main: () => <RMPartCodeConversion />,
+  },
+  {
+    path: "/warehouse/rm-part-code-conversion-report",
+    main: () => <RMPartCodeConversionReport />,
   },
   {
     path: "/warehouse/e-way/:typeId/:jwId",
