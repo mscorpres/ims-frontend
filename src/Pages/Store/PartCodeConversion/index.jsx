@@ -149,11 +149,7 @@ const PartCodeConversion = () => {
   };
   const addComponent = async (type) => {
     if (type === "initial") {
-      // Limit to a single initial component (one Part Code at a time)
-      if (addedComponents.in.length >= 1) {
-        toast.error("Only one Part Code can be added at a time in SF conversion.");
-        return;
-      }
+     
       const values = await addComponentForm.validateFields([
         "componentIn",
         "qtyIn",
@@ -536,13 +532,6 @@ const PartCodeConversion = () => {
         style={{ height: "80%", overflow: "hidden", marginTop: 10 }}
         bodyStyle={{ height: "95%", overflow: "hidden" }}
       >
-        <Row style={{ marginBottom: 8 }}>
-          <Col span={24}>
-            <Typography.Text type="secondary" style={{ fontSize: "0.8rem" }}>
-              Note: SF Part Code Conversion allows only one Part Code at a time.
-            </Typography.Text>
-          </Col>
-        </Row>
         <Row style={{ height: "98%", overflow: "hidden" }}>
           <Col span={24} style={{ height: "100%" }}>
             <Row gutter={6} style={{ height: "100%" }}>
