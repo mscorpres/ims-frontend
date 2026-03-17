@@ -478,7 +478,7 @@ export const items = (user) => [
         "B40"
         // <AiOutlineMinus />
       ),
-      // Part Code Conversion
+      // Part Code Conversion (SF + RM)
       getItem(
         <Link to="/warehouse/part-code-conversion">Part Code Conversion</Link>,
         "B41-partcode"
