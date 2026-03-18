@@ -56,8 +56,7 @@ const Login = () => {
   };
 
   const isCaptchaValid = () =>
-    (captchaInput?.trim() ?? "").toUpperCase() ===
-    (captchaExpectedCode ?? "").toUpperCase();
+    captchaInput?.trim() === captchaExpectedCode;
 
   const handleSubmit = async () => {
     if (!isCaptchaValid()) {
@@ -668,7 +667,6 @@ const Login = () => {
                             onChange={(e) => setCaptchaInput(e.target.value)}
                             onCodeChange={setCaptchaExpectedCode}
                             onRefresh={() => setCaptchaInput("")}
-                            caseSensitive={false}
                             key={captchaKey}
                           />
                         </div>
@@ -866,7 +864,6 @@ const Login = () => {
                       onChange={(e) => setCaptchaInput(e.target.value)}
                       onCodeChange={setCaptchaExpectedCode}
                       onRefresh={() => setCaptchaInput("")}
-                      caseSensitive={false}
                       key={captchaKey}
                     />
                   </div>

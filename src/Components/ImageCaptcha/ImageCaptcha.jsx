@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { Input, Button, Space } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
+import PropTypes from "prop-types";
 
 // Uppercase + lowercase (exclude I,O,i,l for clarity) + digits
 const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz0123456789";
@@ -25,6 +26,10 @@ const drawCaptcha = (canvasRef, code) => {
   canvas.height = height * dpr;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
+  // Important: reset transform before scaling, otherwise scale accumulates
+  // across re-draws and the captcha becomes distorted/unclear.
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.scale(dpr, dpr);
 
   // Background
@@ -69,14 +74,12 @@ const drawCaptcha = (canvasRef, code) => {
  * @param {function} onChange - (e) => setValue(e.target.value)
  * @param {function} onCodeChange - (code) => setExpectedCode(code) so parent can validate
  * @param {function} onRefresh - Called when refresh icon is clicked (optional)
- * @param {boolean} caseSensitive - If false, comparison is case-insensitive (default: true)
  */
 const ImageCaptcha = ({
   value = "",
   onChange,
   onCodeChange,
   onRefresh,
-  caseSensitive = true,
   placeholder = "Enter text shown above",
   inputStyle,
   ...rest
@@ -134,3 +137,12 @@ const ImageCaptcha = ({
 
 export default ImageCaptcha;
 export { generateCode, drawCaptcha, LENGTH as CAPTCHA_LENGTH };
+
+ImageCaptcha.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  onCodeChange: PropTypes.func,
+  onRefresh: PropTypes.func,
+  placeholder: PropTypes.string,
+  inputStyle: PropTypes.object,
+};
