@@ -17,6 +17,7 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import errorToast from "../../../../Components/errorToast";
 import { imsAxios } from "../../../../axiosInterceptor";
+import { getVendorBranchBankOptions } from "../vendorBranchBankOptions";
 
 const { TextArea } = Input;
 
@@ -366,9 +367,13 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
           </Col>
           <Col span={12} style={{ padding: "3px" }}>
             <Form.Item label="Bank Name">
-              <Input
-                value={addBilling.branch.bankName}
-                onChange={(e) => inputHandler("bankName", e.target.value)}
+              <MySelect
+                placeholder="Select bank"
+                options={getVendorBranchBankOptions(
+                  addBilling.branch.bankName,
+                )}
+                value={addBilling.branch.bankName || undefined}
+                onChange={(val) => inputHandler("bankName", val ?? "")}
               />
             </Form.Item>
           </Col>

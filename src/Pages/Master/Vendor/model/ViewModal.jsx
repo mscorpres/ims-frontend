@@ -19,6 +19,7 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import errorToast from "../../../../Components/errorToast";
 import Loading from "../../../../Components/Loading";
 import { imsAxios } from "../../../../axiosInterceptor";
+import { getVendorBranchBankOptions } from "../vendorBranchBankOptions";
 const { TextArea } = Input;
 
 const transactionTypeOptions = [
@@ -476,12 +477,14 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
               </Col>
               <Col span={12} style={{ padding: "3px" }}>
                 <Form.Item label="Bank Name">
-                  <Input
-                    value={allField.bankName}
-                    onChange={(e) =>
-                      setAllField((allField) => ({
-                        ...allField,
-                        bankName: e.target.value,
+                  <MySelect
+                    placeholder="Select bank"
+                    options={getVendorBranchBankOptions(allField.bankName)}
+                    value={allField.bankName || undefined}
+                    onChange={(val) =>
+                      setAllField((f) => ({
+                        ...f,
+                        bankName: val ?? "",
                       }))
                     }
                   />
