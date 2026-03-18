@@ -20,7 +20,8 @@ const ForgotPassword = (props: PropTypes) => {
   const [captchaKey, setCaptchaKey] = useState(Math.random());
 
   const isCaptchaValid = () =>
-    (captchaInput?.trim() ?? "").toUpperCase() === captchaExpectedCode;
+    (captchaInput?.trim() ?? "").toUpperCase() ===
+    (captchaExpectedCode ?? "").toUpperCase();
 
   const handleSubmit = async () => {
     if (stage === 0) {
@@ -117,6 +118,7 @@ const ForgotPassword = (props: PropTypes) => {
                 onChange={(e) => setCaptchaInput(e.target.value)}
                 onCodeChange={setCaptchaExpectedCode}
                 onRefresh={() => setCaptchaInput("")}
+                caseSensitive={false}
                 key={captchaKey}
               />
             </Form.Item>

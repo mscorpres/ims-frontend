@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import ForgotPassword from "./ForgotPassword.tsx";
 import {
   Button,
@@ -39,8 +39,6 @@ const Login = () => {
   const { executeFun, loading } = useApi();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isGoogleLogin, setIsGoogleLogin] = useState(false);
-
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
@@ -58,9 +56,10 @@ const Login = () => {
   };
 
   const isCaptchaValid = () =>
-    captchaInput?.trim() === captchaExpectedCode;
+    (captchaInput?.trim() ?? "").toUpperCase() ===
+    (captchaExpectedCode ?? "").toUpperCase();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     if (!isCaptchaValid()) {
       toast.error("Please enter the captcha correctly");
       return;
@@ -213,7 +212,6 @@ const Login = () => {
       new_password: values.confirmPassword,
     });
     // console.log("response", response);
-    const { data } = response;
     if (response.success) {
       // console.log("data.message", response.message);
       toast.success(response.message);
@@ -670,6 +668,7 @@ const Login = () => {
                             onChange={(e) => setCaptchaInput(e.target.value)}
                             onCodeChange={setCaptchaExpectedCode}
                             onRefresh={() => setCaptchaInput("")}
+                            caseSensitive={false}
                             key={captchaKey}
                           />
                         </div>
@@ -867,6 +866,7 @@ const Login = () => {
                       onChange={(e) => setCaptchaInput(e.target.value)}
                       onCodeChange={setCaptchaExpectedCode}
                       onRefresh={() => setCaptchaInput("")}
+                      caseSensitive={false}
                       key={captchaKey}
                     />
                   </div>
