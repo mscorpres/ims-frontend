@@ -166,9 +166,9 @@ const AddVendor = () => {
         state: values.state?.value || values.state,
         city: values.city,
         pincode: values.pincode,
-        fax: values.fax == "" && "--",
+        fax: values.fax === "" ? "--" : values.fax,
         mobile: values.mobile,
-        email: values.email == "" && "--",
+        email: values.email === "" ? "--" : values.email,
         gstin: values.gstin.toUpperCase(),
       },
     };
