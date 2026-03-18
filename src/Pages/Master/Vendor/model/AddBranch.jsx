@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import "../../Modal/modal.css";
 import {
   Button,
@@ -6,7 +7,6 @@ import {
   Col,
   Input,
   Drawer,
-  Skeleton,
   Form,
   Space,
   Typography,
@@ -180,6 +180,37 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
     reset();
     getCurrencies();
   }, [openBranch]);
+
+  /** When Type is N/A, fill bank fields with N/A (same as legacy Add Vendor). */
+  useEffect(() => {
+    const t = addBilling.branch.transactionType;
+    if (t === "na") {
+      setAddBilling((prev) => ({
+        ...prev,
+        branch: {
+          ...prev.branch,
+          accountNo: "N/A",
+          ifsCode: "N/A",
+          bankName: "N/A",
+          bankBranch: "N/A",
+          ledgerCurrency: "N/A",
+        },
+      }));
+    } else if (t !== undefined && t !== "") {
+      setAddBilling((prev) => ({
+        ...prev,
+        branch: {
+          ...prev.branch,
+          accountNo: "",
+          ifsCode: "",
+          bankName: "",
+          bankBranch: "",
+          ledgerCurrency: "",
+        },
+      }));
+    }
+  }, [addBilling.branch.transactionType]);
+
   return (
     <Drawer
       title={`Add Branch of Vendor: ${openBranch?.vendor_code}`}

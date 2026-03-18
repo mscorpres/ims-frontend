@@ -101,6 +101,21 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
     setSpinLoading(false);
     if (data.code == 200) {
       const d = data?.data?.final?.[0] || {};
+      const isNaType = (d.transaction_type ?? "") === "na";
+      const bankNA = {
+        accountNo: "N/A",
+        ifsCode: "N/A",
+        bankName: "N/A",
+        bankBranch: "N/A",
+        ledgerCurrency: "N/A",
+      };
+      const bankFromApi = {
+        accountNo: d.account_no ?? "",
+        ifsCode: d.ifs_code ?? "",
+        bankName: d.bank_name ?? "",
+        bankBranch: d.bank_branch ?? "",
+        ledgerCurrency: d.ledger_currency ?? "",
+      };
       setAllField((allField) => {
         return {
           ...allField,
@@ -118,11 +133,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
             label: d.statename,
           },
           transactionType: d.transaction_type ?? "",
-          accountNo: d.account_no ?? "",
-          ifsCode: d.ifs_code ?? "",
-          bankName: d.bank_name ?? "",
-          bankBranch: d.bank_branch ?? "",
-          ledgerCurrency: d.ledger_currency ?? "",
+          ...(isNaType ? bankNA : bankFromApi),
         };
       });
       setResetData((allField) => {
@@ -142,11 +153,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
             label: d.statename,
           },
           transactionType: d.transaction_type ?? "",
-          accountNo: d.account_no ?? "",
-          ifsCode: d.ifs_code ?? "",
-          bankName: d.bank_name ?? "",
-          bankBranch: d.bank_branch ?? "",
-          ledgerCurrency: d.ledger_currency ?? "",
+          ...(isNaType ? bankNA : bankFromApi),
         };
       });
     }
@@ -411,12 +418,33 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
                   <MySelect
                     value={allField.transactionType}
                     options={transactionTypeOptions}
-                    onChange={(val) =>
-                      setAllField((allField) => ({
-                        ...allField,
-                        transactionType: val,
-                      }))
-                    }
+                    onChange={(val) => {
+                      if (val === "na") {
+                        setAllField((f) => ({
+                          ...f,
+                          transactionType: val,
+                          accountNo: "N/A",
+                          ifsCode: "N/A",
+                          bankName: "N/A",
+                          bankBranch: "N/A",
+                          ledgerCurrency: "N/A",
+                        }));
+                      } else {
+                        setAllField((f) => ({
+                          ...f,
+                          transactionType: val,
+                          ...(f.transactionType === "na"
+                            ? {
+                                accountNo: "",
+                                ifsCode: "",
+                                bankName: "",
+                                bankBranch: "",
+                                ledgerCurrency: "",
+                              }
+                            : {}),
+                        }));
+                      }
+                    }}
                   />
                 </Form.Item>
               </Col>
