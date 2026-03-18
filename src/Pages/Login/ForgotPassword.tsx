@@ -20,7 +20,7 @@ const ForgotPassword = (props: PropTypes) => {
   const [captchaKey, setCaptchaKey] = useState(Math.random());
 
   const isCaptchaValid = () =>
-    (captchaInput?.trim() ?? "").toUpperCase() === captchaExpectedCode;
+    (captchaInput?.trim() ?? "") === (captchaExpectedCode ?? "");
 
   const handleSubmit = async () => {
     if (stage === 0) {
