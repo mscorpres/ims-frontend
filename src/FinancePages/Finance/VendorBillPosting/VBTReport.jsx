@@ -986,7 +986,7 @@ export default function VBTReport() {
     <div style={{ height: "90%" }}>
       {editVbtDrawer ? (
         editvbturl === "vbt03" ? (
-          <VBT02Report
+          <VBT01Report
             setEditVbtDrawer={setEditVbtDrawer}
             editVbtDrawer={editVbtDrawer}
           />
