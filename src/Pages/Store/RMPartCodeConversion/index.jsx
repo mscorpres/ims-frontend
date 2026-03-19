@@ -24,7 +24,7 @@ import MyButton from "../../../Components/MyButton";
 import Loading from "../../../Components/Loading";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
-const PartCodeConversion = () => {
+const RMPartCodeConversion = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [addedComponents, setAddedComponents] = useState({
@@ -43,16 +43,18 @@ const PartCodeConversion = () => {
   const componentOut = Form.useWatch("componentOut", addComponentForm);
   const locationIn = Form.useWatch("locationIn", addComponentForm);
 
+  // RM: pick and drop location must be the same — drop mirrors pick
+  useEffect(() => {
+    if (locationIn) {
+      addComponentForm.setFieldValue("locationOut", locationIn);
+    }
+  }, [locationIn]);
+
   const getComponentOption = async (search) => {
     try {
       const payload = {
         search,
       };
-      // setLoading("select");
-      // const response = await imsAxios.post(
-      //   "/backend/getComponentByNameAndNo",
-      //   payload
-      // );
       const response = await executeFun(
         () => getComponentOptions(search),
         "select"
@@ -78,29 +80,20 @@ const PartCodeConversion = () => {
   };
   const getLocationOptions = async (search) => {
     try {
-      const payload = {
-        searchTerm: search,
-      };
       setLoading("select");
-      const response = await imsAxios.post(
-        "/conversion/conversion_locations",
-        payload
+      const response = await imsAxios.get(
+        "/conversion/rm/location",
       );
-      const { data } = response;
-      if (data) {
+      
+      if (response.success) {
         let arr = [];
-        if (data.code === 200) {
-          arr = data.data.map((d) => {
-            return { text: d.text, value: d.id };
-          });
-          setAsyncOptions(arr);
-        } else {
-          setAsyncOptions([]);
-        }
+        arr = response.data.map((d) => {
+          return { text: d.text, value: d.id };
+        });
+        setAsyncOptions(arr);
       } else {
         setAsyncOptions([]);
       }
-    } catch (error) {
     } finally {
       setLoading(false);
     }
@@ -149,7 +142,11 @@ const PartCodeConversion = () => {
   };
   const addComponent = async (type) => {
     if (type === "initial") {
-     
+      // Only one initial component allowed at a time
+      if (addedComponents.in.length >= 1) {
+        toast.error("Only one Part Code can be added at a time in RM conversion.");
+        return;
+      }
       const values = await addComponentForm.validateFields([
         "componentIn",
         "qtyIn",
@@ -294,7 +291,7 @@ const PartCodeConversion = () => {
       },
     };
     Modal.confirm({
-      title: "Confirm SF Part Code Conversion.",
+      title: "Confirm RM Part Code Conversion.",
       content: (
         <Row gutter={[0, 12]}>
           <Col span={24}>
@@ -321,7 +318,6 @@ const PartCodeConversion = () => {
               <Form.Item label="Remarks" name="remarks">
                 <Input.TextArea
                   rows={3}
-                  // onChange={(e) => setRemarks(e.target.value)}
                 />
               </Form.Item>
             </Form>
@@ -440,7 +436,7 @@ const PartCodeConversion = () => {
 
                 <Col span={6}>
                   <Form.Item
-                    label="Pick Location"
+                    label="Location (Pick = Drop)"
                     rules={rules.locationIn}
                     name="locationIn"
                   >
@@ -487,8 +483,7 @@ const PartCodeConversion = () => {
 
                 <Col span={6}>
                   <Form.Item
-                    label="Drop Location"
-                    rules={rules.locationOut}
+                    label="Drop Location (same as Pick)"
                     name="locationOut"
                   >
                     <MyAsyncSelect
@@ -497,6 +492,8 @@ const PartCodeConversion = () => {
                       labelInValue
                       loadOptions={getLocationOptions}
                       optionsState={asyncOptions}
+                      disabled
+                      placeholder="Same as Location above"
                     />
                   </Form.Item>
                 </Col>
@@ -532,6 +529,13 @@ const PartCodeConversion = () => {
         style={{ height: "80%", overflow: "hidden", marginTop: 10 }}
         bodyStyle={{ height: "95%", overflow: "hidden" }}
       >
+        <Row style={{ marginBottom: 8 }}>
+          <Col span={24}>
+            <Typography.Text type="secondary" style={{ fontSize: "0.8rem" }}>
+              Note: RM Part Code Conversion allows only one Part Code at a time.
+            </Typography.Text>
+          </Col>
+        </Row>
         <Row style={{ height: "98%", overflow: "hidden" }}>
           <Col span={24} style={{ height: "100%" }}>
             <Row gutter={6} style={{ height: "100%" }}>
@@ -725,4 +729,4 @@ const defaultValues = {
   qtyOut: "",
   locationOut: null,
 };
-export default PartCodeConversion;
+export default RMPartCodeConversion;

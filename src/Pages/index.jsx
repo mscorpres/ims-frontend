@@ -161,8 +161,9 @@ export { default as FinalInvoices } from "./Invoice/Final";
 export { default as CreateProcess } from "./MES/Process/Create";
 export { default as MapProcesses } from "./MES/Process/Map";
 
-// Part code conversion
+// Part code conversion (SF + RM)
 export { default as PartCodeConversion } from "../Pages/Store/PartCodeConversion";
+export { default as RMPartCodeConversion } from "../Pages/Store/RMPartCodeConversion";
 
 //challan window Branch Transfer
 export { default as CreateBranchTransferChallan } from "./Store/branchtransfer/CreateDC/CreateBranchTransferChallan.jsx";
