@@ -83,16 +83,12 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       setApiUrl("vbt06");
     } else if (url === "VB7") {
       setApiUrl("vbt07");
-    } else {
-      // console.log("the api is not valid");
-      // if (editVbtDrawer) {
-      //   let editUrl = editVbtDrawer.split("/");
-      //   editUrl = editUrl[0];
-      //   setUrl(editUrl);
-      //   console.log("editUrl------", editUrl);
-      //
-    }
+    } 
   }, [url]);
+
+  const showTypeColumn = vbtData?.some(
+    (r) => r?.type != null && String(r.type).trim() !== ""
+  );
 
   const vbtTableColumnsonesix = [
     {
@@ -102,19 +98,24 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       id: "serial-no",
       width: "120px",
     },
-    {
-      headerName: "Type",
-      field: "type",
-      sortable: true,
-      flex: 1,
-      id: "type",
-    },
+    ...(showTypeColumn
+      ? [
+          {
+            headerName: "Type",
+            field: "type",
+            sortable: true,
+            flex: 1,
+            id: "type",
+          },
+        ]
+      : []),
        {
       headerName: "Vendor Code",
       field: "venCode",
       sortable: true,
       flex: 1,
       id: "vendor code",
+           renderCell: ({ row }) => <span>{row?.venCode ?? row?.ven_code}</span>,
     },
     {
       headerName: "Transaction",
@@ -122,6 +123,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
+       renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
     },
     {
       headerName: "PART / SKU",
@@ -129,13 +131,15 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
+           renderCell: ({ row }) => <span>{row?.itemCode ?? row?.part_code}</span>,
     },
     {
-      headerName: "MIN DATE",
+      headerName: "DATE",
       field: "minDate",
       flex: 1,
       sortable: true,
       id: "min date",
+           renderCell: ({ row }) => <span>{row?.minDate ?? row?.min_in_date}</span>,
     },
 
     {
@@ -145,8 +149,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       type: "actions",
       flex: 1,
       getActions: ({ row }) =>
-        (apiUrl == "vbt06" && row.vbpStatus == "PENDING") ||
-        (apiUrl === "vbt01" && row.vbpStatus == "PENDING")
+        (apiUrl == "vbt06" && (row.vbpStatus ?? row.vbp_status) == "PENDING") ||
+        (apiUrl === "vbt01" && (row.vbpStatus ?? row.vbp_status) == "PENDING")
           ? [
               <>
                 <GridActionsCellItem
@@ -174,11 +178,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                     />
                   }
                 />
-                {/* <GridActionsCellItem
-                  icon={<AiFillEdit />}
-                  onClick={() => setEditingVBT([row.min_transaction])}
-                  label="Edit"
-                /> */}
+               
               </>,
             ],
     },
@@ -192,13 +192,17 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       id: "serial-no",
       width: "120px",
     },
-      {
-      headerName: "Type",
-      field: "type",
-      sortable: true,
-      flex: 1,
-      id: "type",
-    },
+    ...(showTypeColumn
+      ? [
+          {
+            headerName: "Type",
+            field: "type",
+            sortable: true,
+            flex: 1,
+            id: "type",
+          },
+        ]
+      : []),
     {
       headerName: "Vendor Code",
       field: "ven_code",
@@ -212,20 +216,23 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
+         renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
     },
     {
-      headerName: "PART ID",
+      headerName: "PART / SKU",
       field: "part_code",
       flex: 1,
       sortable: true,
       id: "part id",
+           renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.part_code}</span>,
     },
     {
-      headerName: "MIN DATE",
+      headerName: "DATE",
       field: "min_in_date",
       flex: 1,
       sortable: true,
       id: "min date",
+           renderCell: ({ row }) => <span>{row?.min_in_date?? row?.transaction}</span>,
     },
 
     {
