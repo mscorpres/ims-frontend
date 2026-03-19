@@ -390,16 +390,7 @@ export default function SingleComponent({
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
-          {/* <Col span={4}>
-        <Form.Item label="Po Number" name={[field.name, "poNumber"]}>
-          <Input rows={1}   />
-        </Form.Item>
-      </Col>
-      <Col span={4}>
-        <Form.Item label="Project ID" name={[field.name, "projectID"]}>
-          <Input rows={1}   />
-        </Form.Item>
-      </Col> */}
+  
           <Col span={3}>
             <Form.Item label="Invoice Qty" name={[field.name, "vbtBillQty"]}>
               <Input />

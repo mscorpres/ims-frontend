@@ -19,9 +19,11 @@ import MyButton from "../../../../Components/MyButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
+import { min } from "lodash";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("");
+  const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -91,7 +93,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
       id: "serial-no",
-      width: 120,
+      width: "120px",
     },
     {
       headerName: "Type",
@@ -100,7 +102,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       id: "type",
     },
-    {
+       {
       headerName: "Vendor Code",
       field: "venCode",
       sortable: true,
@@ -180,9 +182,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
       id: "serial-no",
-      width: 120,
+      width: "120px",
     },
-    {
+      {
       headerName: "Type",
       field: "type",
       sortable: true,
@@ -234,7 +236,6 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     },
   ];
   const getVendors = async (search) => {
-    console.log("this is the search", search);
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
     if (response.success) {
@@ -242,24 +243,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     }
     setAsyncOptions(arr);
   };
-  // const getVBTDetail = async (minId) => {
-  //   console.log("there is a single vbt");
-  //   setLoading(true);
-  //   console.log("minid", minId);
-  //   const response = await imsAxios.post(`/tally/${apiUrl}/fetch_minData`, {
-  //     min_id: minId,
-  //   });
-  //   console.log("minid", response);
-  //   console.log("this is using the url");
-  //   const { data } = response;
-  //   if (data.code === 200) {
-  //     setEditingVBT(data.data);
-  //   } else {
-  //     toast.error(data.message.msg);
-  //     setEditingVBT(null);
-  //   }
-  //   setLoading(false);
-  // };
+
 
   const getMultipleVBTDetail = async () => {
     // console.log("there is not single vbt");
@@ -267,28 +251,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
 
     let mins = selectedRows.map((row) => vbtData.filter((r) => r.id == row)[0]);
     setEditingVBT(mins?.map((row) => row));
-    // console.log(mins);
-    // const { data } = await imsAxios.post(
-    //   `/tally/${apiUrl}/fetch_multi_min_data`,
-    //   {
-    //     mins: mins.map((row) => row.min_transaction),
-    //   }
-    // );
-    // setLoading(false);
-    // if (data.code === 200) {
-    //   console.log(data.data);
-    //   let arr = data.data;
-    //   arr = arr.map((row) => ({
-    //     ...row,
-    //     ven_tds: arr[0].ven_tds,
-    //   }));
-    //   console.log("arr--------------", arr);
-    //   setEditingVBT(arr);
-    // } else {
-    //   toast.error(data.message.msg);
-    //   setEditingVBT(null);
-    // }
-    // setLoading(false);
+ 
   };
   const getRows = async () => {
     setPreviewdisData(false);
@@ -459,7 +422,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   }, [createVBT, selectedVendors]);
 
   useEffect(() => {
+   
     if (previewdisData) {
+    
       setVBTData(combinedData);
     } else {
       setVBTData(extracted);
@@ -476,12 +441,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           overflow: "hidden",
         }}
       >
-        {/* search header
-        <CreateVBT1
-          setVBTData={setVBTData}
-          editingVBT={editingVBT}
-          setEditingVBT={setEditingVBT}
-        /> */}
+       
         {apiUrl === "vbt03" ? (
           <VBT02Report
             setVBTData={setVBTData}

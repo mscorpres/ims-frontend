@@ -51,7 +51,6 @@ function VBT01Report({
   };
   //checkinvoice fn
   const checkInvoice = async (checkInvoiceId, vendorCode) => {
-    // console.log("here in checkinvoice");
     const data = await imsAxios.get(
       `/tally/vbt/checkInvoice?vbtInvoiceNo=${checkInvoiceId}&vendor=${vendorCode}`,
     );
@@ -82,7 +81,6 @@ function VBT01Report({
   const getEditVbtDetails = async (vbtCode) => {
     setLoading(true);
     const response = await imsAxios.get(`/tally/vbt/getData?vbtKey=${vbtCode}`);
-    console.log(response, "response");
     if (response.status == 200) {
       const { data } = response;
       getGl();
@@ -215,7 +213,6 @@ function VBT01Report({
       );
       Vbt01.setFieldValue("components", arr);
       const partCodeArr = arr.map((row) => row.itemCode);
-      // console.log("vbtComponent?.data[0]", vbtComponent?.data[0], partCodeArr);
       if (arr[0]?.venCode) {
         getLastPrice(arr[0]?.venCode, partCodeArr);
       }
@@ -255,9 +252,7 @@ function VBT01Report({
         }));
         setFreightGlOptions(arr);
       }
-      // console.log("arr", arr);
     } catch (error) {
-      // toast.error("Some error occured while fetching freight Gls");
       console.log("Some error occured while fetching freight Gls", error);
     } finally {
       // setLoading(false);
@@ -305,12 +300,10 @@ function VBT01Report({
   // sumbit for both the edot and create fn
   const submitFunction = async () => {
     const values = await Vbt01.validateFields();
-
     if (isCreate) {
       const roundarr = values.components.map(
         (component) => component.venAmmount,
       );
-      console.log("roundarr ->", roundarr);
 
       let a;
       let val = roundarr[roundarr.length - 1];
@@ -449,12 +442,7 @@ function VBT01Report({
         ...finalObj,
         round_type: roundOffSign.toString(),
         round_value: roundOffValue.toString(),
-        // if(apiUrl) {
-        //   vbt_gstin: finalObj?.vbt_gstin.value ?? finalObj?.vbt_gstin;
-        // },
       };
-      // Prefer type coming from the selected MIN rows (editingVBT),
-      // fall back to the first component's type if present.
       const typeFromEditing =
         Array.isArray(editingVBT) && editingVBT.length > 0
           ? editingVBT[0]?.type
@@ -472,19 +460,14 @@ function VBT01Report({
       let a;
       if (roundOffSign.toString() === "+") {
         a = roundarr[roundarr.length - 1] + +Number(roundOffValue.toString());
-        // console.log("a", a);
       } else if (roundOffSign.toString() === "-") {
         a = roundarr[roundarr.length - 1] -= +Number(roundOffValue.toString());
       } else {
         a = roundarr[roundarr.length - 1];
-        // console.log("a- with out any roundoff", a);
       }
       const editmodifiedArray =
         roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
-      // console.log("modifiedArray", editmodifiedArray);
-      // console.log("roundarr", roundarr);
-      // console.log("a", a);
-      // return;
+  
       const tdsCodes = values.components.filter(
         (component) =>
           !component.tds_key ||
@@ -579,7 +562,6 @@ function VBT01Report({
         inrPrice: values.components.map((component) => component.inrPrice),
         acknowledgeIRN: values.ackNum,
       };
-
       updateVbt(finalObj);
     }
   };
@@ -587,11 +569,8 @@ function VBT01Report({
   const updateVbt = async (finalData) => {
     setLoading(true);
     let vbtCodeForEdit = getApiUrl(editVbtDrawer);
-    // console.log("vbtCodeForEdit", vbtCodeForEdit);
     let link = `/tally/${vbtCodeForEdit}/update`;
     const response = await imsAxios.put(link, finalData);
-    const { data } = response;
-    // console.log("data", response);
     if (response.status === 200) {
       toast.success(response.data);
       setEditVbtDrawer(null);
@@ -683,7 +662,6 @@ function VBT01Report({
       (partialSum, a) => partialSum + +Number(a.totalBilAmm).toFixed(2),
       0,
     );
-    // console.log("billvalues ->", billvalues);
     setBillam(billvalues);
     const values = components?.reduce(
       (partialSum, a) => partialSum + +Number(a.taxableValue).toFixed(2),
@@ -691,7 +669,6 @@ function VBT01Report({
     );
 
     const value = +Number(values).toFixed(2);
-    // console.log("v", value);
     const freight = components?.reduce(
       (partialSum, a) => partialSum + +Number(a.freightAmount).toFixed(2),
       0,
@@ -701,71 +678,52 @@ function VBT01Report({
       0,
     );
     const cgst = +Number(cgsts).toFixed(2);
-    // console.log("cgst", cgst);
     const sgsts = components?.reduce(
       (partialSum, a) => partialSum + +Number(a.sgstAmount).toFixed(2),
       0,
     );
     const sgst = +Number(sgsts).toFixed(2);
-    // console.log("sgst", sgst);
     const igsts = components?.reduce(
       (partialSum, a) => partialSum + +Number(a.igstAmount).toFixed(2),
       0,
     );
     const igst = +Number(igsts).toFixed(2);
-    // console.log("igst", igst);
 
     let vendorAmounts = components?.reduce(
       (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(2),
       0,
     );
     var vendorAmount = +Number(vendorAmounts).toFixed(2);
-    // console.log("vendorAmount-------------------", vendorAmount);
     const tds = components?.reduce(
       (a, b) => a + +Number(b.tdsAmount ?? 0).toFixed(0),
       0,
     );
 
     if (isCreate) {
-      // console.log("isCreate", roundOffValue);
       if (roundOffSign === "+") {
         let newven =
-          // vendorAmount =
           vendorAmount + +Number(roundOffValue.toString()).toFixed(2);
         vendorAmount = newven.toFixed(2);
-        // console.log("vendorAmount-------------------", vendorAmount);
       }
       if (roundOffSign.toString() === "-") {
         let newven = (vendorAmount -= +Number(roundOffValue.toString()).toFixed(
           2,
         ));
         vendorAmount = newven.toFixed(2);
-        // console.log("vendorAmount-------------------", vendorAmount);
       }
     } else {
-      // console.log("isCreate", isCreate);
-      // console.log("roundOffValue in VBT report", roundOffValue);
-      // console.log("roundOffSign in VBT report", roundOffSign);
       if (roundOffSign.toString() === "+") {
         let newven =
           vendorAmount + +Number(roundOffValue.toString()).toFixed(2);
         vendorAmount = newven.toFixed(2);
-        // console.log("vendorAmount-------------------", vendorAmount);
-        // console.log(
-        //   "vendorAmount + +Number(roundOffValue.toString()",
-        //   vendorAmount
-        // );
+     
       }
       if (roundOffSign.toString() === "-") {
         let newven = (vendorAmount -= +Number(roundOffValue.toString()).toFixed(
           2,
         ));
         vendorAmount = newven.toFixed(2);
-        // console.log("vendorAmount-------------------", vendorAmount);
-        // console.log(
-        //   "vendorAmount roundOffSign.toString() === " + "",
-        //   vendorAmount
-        // );
+   
       }
     }
 
@@ -813,8 +771,8 @@ function VBT01Report({
       open={editingVBT || editVbtDrawer}
       title={
         isCreate
-          ? vbtComponent &&
-            `${vbtComponent[0]?.venName} | ${vbtComponent[0]?.venCode}`
+          ? vbtComponent?.data &&
+            `${vbtComponent?.data[0]?.venName} | ${vbtComponent?.data[0]?.venCode}`
           : `${editVbtDrawer}`
       }
     >

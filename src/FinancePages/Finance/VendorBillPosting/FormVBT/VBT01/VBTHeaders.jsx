@@ -23,19 +23,6 @@ function VBTHeaders({
 }) {
 
 
-  //
-  // const totalBillingAmount = form.getFieldValue("billAmmount");
-  // let totalVenAm = form.getFieldValue([
-  //   "components",
-  //   field.name,
-  //   "venAmmount",
-  // ]);
-  // console.log("totalBillingAmount", totalBillingAmount);
-  // var values = components?.reduce(
-  //   (partialSum, a) => partialSum + +Number(a.totalBilAmm).toFixed(2),
-  //   0
-  // );
-
   const [pageHeaders, setPageHeaders] = useState("");
   useEffect(() => {
     let obj = {};

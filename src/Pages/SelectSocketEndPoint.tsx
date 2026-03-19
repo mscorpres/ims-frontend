@@ -25,6 +25,7 @@ const SelectSocketEndPoint: React.FC = () => {
   const [currentUrl, setCurrentUrl] = useState<string>(
     () =>
       localStorage.getItem(CURRENT_SOCKET_URL_KEY) ||
+      //@ts-ignore
       import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL ||
       "",
   );
@@ -108,6 +109,7 @@ const SelectSocketEndPoint: React.FC = () => {
             value={currentUrl}
             onChange={handleChange}
           >
+            {/* @ts-ignore */}
             {!urls.length && import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL && (
               <MenuItem value={import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL}>
                 {import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL}
