@@ -661,7 +661,7 @@ const links = [
       routePath: "/warehouse/rm-part-code-conversion",
     },
     {
-      routeName: "SF Part Code Conversion Report",
+      routeName: "Part Code Conversion Report",
       routePath: "/warehouse/part-code-conversion-report",
     },
   ],
