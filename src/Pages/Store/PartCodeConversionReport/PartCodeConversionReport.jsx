@@ -153,7 +153,7 @@ const PartCodeConversionReport = () => {
     try {
       setLoading(true);
       const response = await imsAxios.get(
-        `/conversion/fetch/conversion?wise=${wise}&data=${searchInput}&type=${type}`
+        `/conversion/fetch/conversion?wise=${wise}&data=${searchInput}`
       );
 
       console.log(response.data);
@@ -332,18 +332,6 @@ const PartCodeConversionReport = () => {
                 {wise === wiseOptions[1].value && (
                   <MyDatePicker setDateRange={setSearchInput} />
                 )}
-
-                <div style={{ width: 140 }}>
-                  <MySelect
-                    options={[
-                      { text: "RM", value: "rm" },
-                      { text: "SF", value: "sf" },
-                    ]}
-                    value={type}
-                    onChange={setType}
-                    placeholder="Type"
-                  />
-                </div>
 
                 <MyButton
                   variant="search"
