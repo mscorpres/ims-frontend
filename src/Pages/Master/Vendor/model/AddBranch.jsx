@@ -305,7 +305,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
                 <Input
                   size="default "
                   value={addBilling.branch.mobile}
-                  onChange={(e) => inputHandler("mobile", e.target.value)}
+                  onChange={(e) => inputHandler("mobile", e.target.value.replace(/\D/g, ""))}
                   // prefix={<UserOutlined />}
                 />
               </Form.Item>
