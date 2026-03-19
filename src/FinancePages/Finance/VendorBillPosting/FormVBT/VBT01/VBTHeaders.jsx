@@ -1,13 +1,11 @@
 import { Card, Col, Form, Input, Row, Typography } from "antd";
-import React, { useEffect, useState } from "react";
-import MySelect from "../../../../../Components/MySelect";
+import { useEffect, useState } from "react";
 import InputMask from "react-input-mask";
 import TaxDetails from "./TaxDetails";
 
 function VBTHeaders({
   form,
   vbtComponent,
-  setVbtComponent,
   taxDetails,
 
   editingVBT,
@@ -16,58 +14,34 @@ function VBTHeaders({
   setRoundOffSign,
   setRoundOffValue,
   apiUrl,
-  setEditVBTCode,
   editVBTCode,
-  components,
-  billvalues,
-  billam,
 }) {
-  //
-  // const totalBillingAmount = form.getFieldValue("billAmmount");
-  // let totalVenAm = form.getFieldValue([
-  //   "components",
-  //   field.name,
-  //   "venAmmount",
-  // ]);
-  // console.log("totalBillingAmount", totalBillingAmount);
-  // var values = components?.reduce(
-  //   (partialSum, a) => partialSum + +Number(a.totalBilAmm).toFixed(2),
-  //   0
-  // );
-
   const [pageHeaders, setPageHeaders] = useState("");
   useEffect(() => {
     let obj = {};
-    if (editingVBT && vbtComponent) {
-      if (vbtComponent && vbtComponent?.data) {
-        setPageHeaders(vbtComponent?.data[0]);
+    if (editingVBT && vbtComponent?.length > 0) {
+      if (vbtComponent && vbtComponent?.length > 0) {
+        setPageHeaders(vbtComponent[0]);
       }
 
       if (editingVBT && pageHeaders) {
         obj = {
-          invoiceNo: pageHeaders?.invoice_id,
+          invoiceNo: pageHeaders?.invoiceId,
 
-          // invoiceDate: vbtComponent[0]?.invoiceDate,
-          venAddress: pageHeaders?.in_vendor_addr,
-          // comment: pageHeaders?.comment,
-          gst: pageHeaders?.gstin_option[0],
-          venCode: pageHeaders?.ven_code,
+          venAddress: pageHeaders?.venAddress,
+          gst: pageHeaders?.gstin?.[0],
+          venCode: pageHeaders?.venCode,
           comment:
             apiUrl === "vbt06"
-              ? `Being Jobwork charges due of challan no:____on inv: ${pageHeaders?.invoice_id} dt:____of amount:____TDS:___ payable amt:____`
+              ? `Being Jobwork charges due of challan no:____on inv: ${pageHeaders?.invoiceId} dt:____of amount:____TDS:___ payable amt:____`
               : apiUrl === "vbt07"
-              ? `Being -- purchase on inv ${pageHeaders?.invoice_id} date:____ of amt: ___ TDS:___ `
-              : apiUrl === "vbt01"
-              ? `Being purchased for on INV no. ${pageHeaders?.invoice_id} date: ___ amount: ___ TDS:___ `
-              : apiUrl === "vbt02"
-              ? `Being Service charges due to INV no. ${pageHeaders?.invoice_id} date of amount TDS:___ `
-              : "",
+                ? `Being -- purchase on inv ${pageHeaders?.invoiceId} date:____ of amt: ___ TDS:___ `
+                : apiUrl === "vbt01"
+                  ? `Being purchased for on INV no. ${pageHeaders?.invoiceId} date: ___ amount: ___ TDS:___ `
+                  : apiUrl === "vbt02"
+                    ? `Being Service charges due to INV no. ${pageHeaders?.invoiceId} date of amount TDS:___ `
+                    : "",
           ackNum: pageHeaders?.acknowledgeIRN,
-          // billAmmount: billam,
-          // venAmmount: pageHeaders?.reduce(
-          //   (partialSum, a) => partialSum + +Number(a.venAmmount).toFixed(3),
-          //   0
-          // ),
         };
         form.setFieldsValue(obj);
       }
@@ -90,23 +64,18 @@ function VBTHeaders({
       form.setFieldsValue(obj);
     }
   }, [vbtComponent, pageHeaders]);
-  useEffect(() => {
-    if (editVBTCode) {
-      console.log("setting vbt data to", editVBTCode);
-      // setVbtComponent(editVBTCode); //changed here
-    }
-  }, [editVBTCode]);
+
   useEffect(() => {
     if (editVBTCode.length > 0) {
       let roundoffv = editVBTCode.map(
-        (component) => component.roundOffValue ?? "--"
+        (component) => component.roundOffValue ?? "--",
       );
       let rov = roundoffv.filter((i) => i !== "--");
       // console.log("rov", rov.toString());
       // console.log("roundoffv", roundoffv);
       setRoundOffValue(rov);
       let roundoffs = editVBTCode.map(
-        (component) => component.roundOffSign ?? "--"
+        (component) => component.roundOffSign ?? "--",
       );
       let ros = roundoffs.filter((i) => i !== "--");
       // console.log("ros", ros.toString());

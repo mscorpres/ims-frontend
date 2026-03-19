@@ -650,15 +650,16 @@ const links = [
       routePath: "/production/physical-stock/view",
     },
   ],
-  // part code conversion
-  //
+  // SF Part Code Conversion
   [
     {
-      routeName: "Part Code Conversion",
+      routeName: "SF Partcode Conversion",
       routePath: "/warehouse/part-code-conversion",
     },
-
-    // to be added
+    {
+      routeName: "RM Part Code Conversion",
+      routePath: "/warehouse/rm-part-code-conversion",
+    },
     {
       routeName: "Part Code Conversion Report",
       routePath: "/warehouse/part-code-conversion-report",
