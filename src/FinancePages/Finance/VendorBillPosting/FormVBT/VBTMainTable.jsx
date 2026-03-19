@@ -349,8 +349,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
 
   const disableVbt = async (singleRow) => {
     if (singleRow) {
-      ModalForm.setFieldValue("min_transaction", singleRow.transaction);
-      ModalForm.setFieldValue("part_code", singleRow.itemCode);
+      ModalForm.setFieldValue("min_transaction", singleRow.transaction ?? singleRow.min_transaction);
+      ModalForm.setFieldValue("part_code", singleRow.itemCode ?? singleRow.part_code);
     }
 
     Modal.confirm({
@@ -401,15 +401,15 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       okText: "Yes",
       cancelText: "No",
       onOk: async () => {
-        await disabletheSelelcted(singleRow);
+        await disabletheSelelcted();
       },
     });
   };
-  const disabletheSelelcted = async (singleRow) => {
+  const disabletheSelelcted = async () => {
     const values = await ModalForm.validateFields();
     const response = await imsAxios.put("/tally/vbt/disable_vbtprocess", {
-      min_transaction: values.min_transaction,
-      part_code: values.part_code,
+      min_transaction: values.min_transaction ,
+      part_code: values.part_code ,
       remark: values.remark,
     });
     if (response.data.code === 200) {
@@ -459,7 +459,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       >
        
         {apiUrl === "vbt03" ? (
-          <VBT02Report
+          <VBT01Report
             setVBTData={setVBTData}
             editingVBT={editingVBT}
             setEditingVBT={setEditingVBT}
