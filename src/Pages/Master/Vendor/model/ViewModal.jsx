@@ -80,9 +80,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
     });
     let a = [];
     data.data.final.map((d) => a.push({ text: d.text, value: d.id }));
-    if (a.length > 0) {
-      getBranchDetails(a[0].value, "skeletonLoading");
-    }
+  
     setAllBranchData(a);
     if (a.length > 0) {
       await imsAxios.post("/vendor/getBranchDetails", {
@@ -369,7 +367,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
                       // placeholder="Mobile"
                       onChange={(e) =>
                         setAllField((allField) => {
-                          return { ...allField, mob: e.target.value };
+                          return { ...allField,   mob: e.target.value.replace(/\D/g, ""), };
                         })
                       }
                       // prefix={<UserOutlined />}

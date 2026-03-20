@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Store } from "./Features/Store";
 import "./index.css";
-// import { unregister as unregisterServiceWorker } from "./serviceWorkerRegistration";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ConfigProvider } from "antd";
 
 const theme = {
@@ -62,15 +62,18 @@ const theme = {
     },
   },
 };
+const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 // unregisterServiceWorker();
 root.render(
-  <ConfigProvider theme={theme}>
-    <Provider store={Store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
-  </ConfigProvider>
+  <GoogleOAuthProvider clientId={googleId}>
+    <ConfigProvider theme={theme}>
+      <Provider store={Store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </ConfigProvider>
+  </GoogleOAuthProvider>,
 );
