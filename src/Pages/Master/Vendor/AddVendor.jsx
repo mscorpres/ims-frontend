@@ -593,85 +593,62 @@ const AddVendor = () => {
               </Col>
             </Row>
 
-            <Divider orientation="center">Bank Details</Divider>
             <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Type"
-                  name="transactionType"
-                  rules={[{ required: true, message: "Please select Type" }]}
+              <Col span={4}>
+                <Descriptions
+                  size="small"
+                  title={<p style={{ fontSize: "0.8rem" }}>Bank Details</p>}
                 >
-                  <MySelect options={transactionTypeOptions} />
-                </Form.Item>
+                  <Descriptions.Item
+                    contentStyle={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                    }}
+                  >
+                    Provide Bank Details
+                  </Descriptions.Item>
+                </Descriptions>
               </Col>
+              <Col span={20}>
+                <Row gutter={16}>
+                  <Col span={24}>
+                    <Form.Item label="Type" name="transactionType">
+                      <MySelect options={transactionTypeOptions} />
+                    </Form.Item>
+                  </Col>
 
-              <Col span={12}>
-                <Form.Item
-                  label="A/c No"
-                  name="accountNo"
-                  rules={[
-                    { required: true, message: "Please enter A/c No" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
+                  <Col span={12}>
+                    <Form.Item label="A/c No" name="accountNo">
+                      <Input />
+                    </Form.Item>
+                  </Col>
 
-              <Col span={12}>
-                <Form.Item
-                  label="IFS Code"
-                  name="ifsCode"
-                  rules={[
-                    { required: true, message: "Please enter IFS Code" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
+                  <Col span={12}>
+                    <Form.Item label="IFS Code" name="ifsCode">
+                      <Input />
+                    </Form.Item>
+                  </Col>
 
-              <Col span={12}>
-                <Form.Item
-                  label="Bank Name"
-                  name="bankName"
-                  rules={[
-                    { required: true, message: "Please select bank name" },
-                  ]}
-                >
-                  <MySelect
-                    placeholder="Select bank"
-                    options={getVendorBranchBankOptions(bankNameWatch)}
-                  />
-                </Form.Item>
-              </Col>
+                  <Col span={12}>
+                    <Form.Item label="Bank Name" name="bankName">
+                      <MySelect
+                        placeholder="Select bank"
+                        options={getVendorBranchBankOptions(bankNameWatch)}
+                      />
+                    </Form.Item>
+                  </Col>
 
-              <Col span={12}>
-                <Form.Item
-                  label="Bank Branch"
-                  name="bankBranch"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter Bank Branch",
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-              </Col>
+                  <Col span={12}>
+                    <Form.Item label="Bank Branch" name="bankBranch">
+                      <Input />
+                    </Form.Item>
+                  </Col>
 
-              <Col span={24}>
-                <Form.Item
-                  label="Currency of Ledger"
-                  name="ledgerCurrency"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select Currency of Ledger",
-                    },
-                  ]}
-                >
-                  <MySelect options={currencies} />
-                </Form.Item>
+                  <Col span={24}>
+                    <Form.Item label="Currency of Ledger" name="ledgerCurrency">
+                      <MySelect options={currencies} />
+                    </Form.Item>
+                  </Col>
+                </Row>
               </Col>
             </Row>
 
@@ -763,12 +740,12 @@ const initialValues = {
   city: "",
   pincode: "",
   address: "",
-  transactionType: "na",
-  accountNo: "N/A",
-  ifsCode: "N/A",
-  bankName: "N/A",
-  bankBranch: "N/A",
-  ledgerCurrency: "N/A",
+  transactionType: undefined,
+  accountNo: "",
+  ifsCode: "",
+  bankName: "",
+  bankBranch: "",
+  ledgerCurrency: "",
   msmeStatus: "N",
   group: undefined,
   components: [{}],
