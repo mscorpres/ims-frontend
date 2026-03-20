@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79/1jk5910ed";
-const TAWK_WIDGET_ID = "1jk5910ed";
+const TAWK_PROPERTY_ID = "69bd1624cfaccd1c35824b8c";
+const TAWK_WIDGET_ID = "1jk59t0ik";
 
 // This must match EXACTLY the department name in tawk.to dashboard
 const TAWK_DEPARTMENT = "Oakter";
