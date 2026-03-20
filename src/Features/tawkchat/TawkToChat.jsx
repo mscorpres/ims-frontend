@@ -3,15 +3,9 @@
 import { useEffect, useMemo } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-
-// ─── CONFIG ────────────────────────────────────────────────────────────────
 const TAWK_PROPERTY_ID = "69bd1624cfaccd1c35824b8c";
 const TAWK_WIDGET_ID = "1jk59t0ik";
-
-// This must match EXACTLY the department name in tawk.to dashboard
 const TAWK_DEPARTMENT = "Oakter";
-
-/** Paths where Tawk chat must be hidden */
 const HIDE_TAWK_PATHS = [
   "/login",
   "/forgot-password",
@@ -32,10 +26,10 @@ function getVisitorFromLocalStorage() {
 
     if (!data) return null;
 
-    const name = data.username ?? "";
-    const email = data.crn_email ?? "";
-    const id = data.crn_id ?? "";
-    const mobile = data.crn_mobile ?? "";
+    const name = data.userName ?? "";
+    const email = data.email ?? "";
+    const id = data.id ?? "";
+    const mobile = data.phone ?? "";
 
     if (!name && !email && !id && !mobile) return null;
 
@@ -70,9 +64,7 @@ function setTawkVisitorAttributes(visitor) {
 
   if (Object.keys(attrs).length === 0) return;
 
-  // @ts-ignore
   if (typeof window.Tawk_API?.setAttributes === "function") {
-    // @ts-ignore
     window.Tawk_API.setAttributes(attrs, (error) => {
       if (error) console.warn("Tawk setAttributes error:", error);
     });
@@ -142,58 +134,42 @@ export default function TawkToChatOakter() {
     const w = window;
     const scriptId = `tawk-embed-${TAWK_PROPERTY_ID}-${TAWK_WIDGET_ID}`;
     const scriptSrc = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
-
-    // Keep the latest hide/show intent accessible to the one-time onLoad handler.
     w.__tawkOakterShouldHide = shouldHideTawk;
-
-    // Setup the onLoad callback once
     if (!w.__tawkOakterOnLoadSet) {
       w.__tawkOakterOnLoadSet = true;
 
-      // @ts-ignore
       window.Tawk_API = window.Tawk_API || {};
-      // @ts-ignore
+
       window.Tawk_API.onLoad = function () {
         setTawkVisitorAttributes(getVisitorFromLocalStorage());
 
         // ── Auto-route to Oakter department ──────────────────────
-        // @ts-ignore
+
         if (typeof window.Tawk_API?.setDepartment === "function") {
-          // @ts-ignore
           window.Tawk_API.setDepartment(TAWK_DEPARTMENT);
         }
 
         // Hide or show based on auth state
-        // @ts-ignore
+
         if (w.__tawkOakterShouldHide) {
-          // @ts-ignore
           window.Tawk_API.hideWidget?.();
         } else {
-          // @ts-ignore
           window.Tawk_API.showWidget?.();
         }
       };
     }
 
-    // If the widget API is already ready, update hide/show immediately on route change
     if (w.Tawk_API) {
-      // @ts-ignore
       if (shouldHideTawk) {
-        // @ts-ignore
         w.Tawk_API.hideWidget?.();
       } else {
-        // @ts-ignore
         w.Tawk_API.showWidget?.();
-        // Re-apply department on route change in case it was reset
-        // @ts-ignore
+
         if (typeof w.Tawk_API?.setDepartment === "function") {
-          // @ts-ignore
           w.Tawk_API.setDepartment(TAWK_DEPARTMENT);
         }
       }
     }
-
-    // Load the widget script only when we should show it
     if (!shouldHideTawk) {
       const existing = document.getElementById(scriptId);
       if (!existing && !w.__tawkOakterScriptRequested) {
