@@ -5,26 +5,30 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79";
-const TAWK_WIDGET_ID = "1jjlctou9";
+const TAWK_PROPERTY_ID = "69b4f160ffafbe1c36c96d79/1jk5910ed";
+const TAWK_WIDGET_ID = "1jk5910ed";
 
 // This must match EXACTLY the department name in tawk.to dashboard
 const TAWK_DEPARTMENT = "Oakter";
 
 /** Paths where Tawk chat must be hidden */
-const HIDE_TAWK_PATHS = ["/login", "/forgot-password", "/verify-otp", "/password-recovery"];
+const HIDE_TAWK_PATHS = [
+  "/login",
+  "/forgot-password",
+  "/verify-otp",
+  "/password-recovery",
+];
 
 const LOGGED_IN_USER_KEY = "loggedInUser";
 
-
-function getVisitorFromLocalStorage(){
+function getVisitorFromLocalStorage() {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(LOGGED_IN_USER_KEY);
- 
+
     if (!raw) return null;
 
-    const data = JSON.parse(raw) 
+    const data = JSON.parse(raw);
 
     if (!data) return null;
 
@@ -52,7 +56,8 @@ function setTawkVisitorAttributes(visitor) {
   const MAX_INT = 2147483647;
 
   if (visitor.name != null && visitor.name !== "") attrs.name = visitor.name;
-  if (visitor.email != null && visitor.email !== "") attrs.email = visitor.email;
+  if (visitor.email != null && visitor.email !== "")
+    attrs.email = visitor.email;
   if (visitor.id != null && visitor.id !== "") attrs.id = String(visitor.id);
 
   if (
@@ -83,7 +88,7 @@ function usePathnameForTawk() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const w = window ;
+    const w = window;
     const eventName = "tawk-location-change";
 
     if (!w.__tawkHistoryPatched) {
@@ -93,14 +98,14 @@ function usePathnameForTawk() {
 
       const pushState = history.pushState;
       history.pushState = function (...args) {
-        const ret = pushState.apply(this, args );
+        const ret = pushState.apply(this, args);
         notify();
         return ret;
       };
 
       const replaceState = history.replaceState;
       history.replaceState = function (...args) {
-        const ret = replaceState.apply(this, args );
+        const ret = replaceState.apply(this, args);
         notify();
         return ret;
       };
@@ -109,11 +114,11 @@ function usePathnameForTawk() {
     const onChange = () => setPathname(window.location.pathname);
 
     window.addEventListener("popstate", onChange);
-    window.addEventListener(eventName, onChange );
+    window.addEventListener(eventName, onChange);
 
     return () => {
       window.removeEventListener("popstate", onChange);
-      window.removeEventListener(eventName, onChange );
+      window.removeEventListener(eventName, onChange);
     };
   }, []);
 
@@ -121,21 +126,20 @@ function usePathnameForTawk() {
 }
 
 export default function TawkToChatOakter() {
-   const { user } = useSelector(
-    (state) => state.login
-  );
+  const { user } = useSelector((state) => state.login);
   const pathname = usePathnameForTawk();
 
   const shouldHideTawk = useMemo(() => {
     const showOtpPage =
-      typeof window !== "undefined" && localStorage.getItem("showOtpPage") === "Y";
+      typeof window !== "undefined" &&
+      localStorage.getItem("showOtpPage") === "Y";
     return !user || HIDE_TAWK_PATHS.includes(pathname) || showOtpPage;
   }, [pathname, user]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const w = window ;
+    const w = window;
     const scriptId = `tawk-embed-${TAWK_PROPERTY_ID}-${TAWK_WIDGET_ID}`;
     const scriptSrc = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
 
