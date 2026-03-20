@@ -18,6 +18,7 @@ import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import SingleProduct from "./SingleProduct";
 import { validatePAN } from "../../../utils/general";
+import { getVendorBranchBankOptions } from "./vendorBranchBankOptions";
 
 const msmeOptions = [
   { text: "Yes", value: "Y" },
@@ -40,16 +41,27 @@ const msmeActivityOptions = [
   { text: "Trading", value: "Trading" },
 ];
 
+const transactionTypeOptions = [
+  { text: "Cheque", value: "cheque" },
+  { text: "e-Fund Transfer", value: "transfer" },
+  { text: "UPI", value: "upi" },
+  { text: "Other", value: "other" },
+  { text: "N/A", value: "na" },
+];
+
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [files, setFiles] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
   const [addVendorForm] = Form.useForm();
   const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
   const einvoice = Form.useWatch("applicability", addVendorForm);
+  const transactionType = Form.useWatch("transactionType", addVendorForm);
+  const bankNameWatch = Form.useWatch("bankName", addVendorForm);
 
 
   // const [groupOptions, setGroupOptions] = useState([]);
@@ -69,6 +81,21 @@ const AddVendor = () => {
       }
       setAsyncOptions(arr);
       // return arr;
+    }
+  };
+
+  const getCurrencies = async () => {
+    try {
+      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+      const arr =
+        data?.data?.map((d) => ({
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        })) || [];
+      setCurrencies([{ text: "N/A", value: "N/A" }, ...arr]);
+    } catch (e) {
+      setCurrencies([{ text: "N/A", value: "N/A" }]);
     }
   };
 
@@ -170,6 +197,12 @@ const AddVendor = () => {
         mobile: values.mobile,
         email: values.email === "" ? "--" : values.email,
         gstin: values.gstin.toUpperCase(),
+        transaction_type: values.transactionType,
+        account_no: values.accountNo,
+        ifs_code: values.ifsCode,
+        bank_name: values.bankName,
+        bank_branch: values.bankBranch,
+        ledger_currency: values.ledgerCurrency,
       },
     };
     // console.log("this is the obj", obj);
@@ -205,6 +238,41 @@ const AddVendor = () => {
   useEffect(() => {
     // getGroupOptions();
   }, []);
+
+  // Load currencies for "Currency of Ledger"
+  useEffect(() => {
+    getCurrencies();
+  }, []);
+
+  // Keep bank fields in sync with Type = N/A
+  useEffect(() => {
+    if (!transactionType) return;
+
+    if (transactionType === "na") {
+      addVendorForm.setFieldValue("accountNo", "N/A");
+      addVendorForm.setFieldValue("ifsCode", "N/A");
+      addVendorForm.setFieldValue("bankName", "N/A");
+      addVendorForm.setFieldValue("bankBranch", "N/A");
+      addVendorForm.setFieldValue("ledgerCurrency", "N/A");
+    } else {
+      // Clear fields when user selects a real payment type.
+      if (addVendorForm.getFieldValue("accountNo") === "N/A") {
+        addVendorForm.setFieldValue("accountNo", "");
+      }
+      if (addVendorForm.getFieldValue("ifsCode") === "N/A") {
+        addVendorForm.setFieldValue("ifsCode", "");
+      }
+      if (addVendorForm.getFieldValue("bankName") === "N/A") {
+        addVendorForm.setFieldValue("bankName", "");
+      }
+      if (addVendorForm.getFieldValue("bankBranch") === "N/A") {
+        addVendorForm.setFieldValue("bankBranch", "");
+      }
+      if (addVendorForm.getFieldValue("ledgerCurrency") === "N/A") {
+        addVendorForm.setFieldValue("ledgerCurrency", "");
+      }
+    }
+  }, [transactionType, addVendorForm]);
 
   return (
     <div style={{ height: "90%" }}>
@@ -525,6 +593,88 @@ const AddVendor = () => {
               </Col>
             </Row>
 
+            <Divider orientation="center">Bank Details</Divider>
+            <Row gutter={16}>
+              <Col span={24}>
+                <Form.Item
+                  label="Type"
+                  name="transactionType"
+                  rules={[{ required: true, message: "Please select Type" }]}
+                >
+                  <MySelect options={transactionTypeOptions} />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  label="A/c No"
+                  name="accountNo"
+                  rules={[
+                    { required: true, message: "Please enter A/c No" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  label="IFS Code"
+                  name="ifsCode"
+                  rules={[
+                    { required: true, message: "Please enter IFS Code" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  label="Bank Name"
+                  name="bankName"
+                  rules={[
+                    { required: true, message: "Please select bank name" },
+                  ]}
+                >
+                  <MySelect
+                    placeholder="Select bank"
+                    options={getVendorBranchBankOptions(bankNameWatch)}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  label="Bank Branch"
+                  name="bankBranch"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter Bank Branch",
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+
+              <Col span={24}>
+                <Form.Item
+                  label="Currency of Ledger"
+                  name="ledgerCurrency"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select Currency of Ledger",
+                    },
+                  ]}
+                >
+                  <MySelect options={currencies} />
+                </Form.Item>
+              </Col>
+            </Row>
+
           </Col>
         </Row>
         <Row gutter={16}>
@@ -613,6 +763,12 @@ const initialValues = {
   city: "",
   pincode: "",
   address: "",
+  transactionType: "na",
+  accountNo: "N/A",
+  ifsCode: "N/A",
+  bankName: "N/A",
+  bankBranch: "N/A",
+  ledgerCurrency: "N/A",
   msmeStatus: "N",
   group: undefined,
   components: [{}],
