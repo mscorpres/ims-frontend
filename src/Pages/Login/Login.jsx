@@ -16,12 +16,14 @@ import {
   Typography,
   Alert,
   Select,
+  Spin,
 } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import useApi from "../../hooks/useApi.ts";
 import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
 import ImageCaptcha from "../../Components/ImageCaptcha/ImageCaptcha";
 import { ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
   document.title = "IMS Login";
@@ -36,7 +38,9 @@ const Login = () => {
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
   const [otpTimer, setOtpTimer] = useState(600); // 10 minutes in seconds
   const [userCredentials, setUserCredentials] = useState(null);
+  const [googleLoginLoading, setGoogleLoginLoading] = useState(false);
   const { executeFun, loading } = useApi();
+  const isLoginBusy = loading("submit") || googleLoginLoading;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [inpVal, setInpVal] = useState({
@@ -55,15 +59,14 @@ const Login = () => {
     });
   };
 
-  const isCaptchaValid = () =>
-    captchaInput?.trim() === captchaExpectedCode;
+  const isCaptchaValid = () => captchaInput?.trim() === captchaExpectedCode;
 
   const handleSubmit = async () => {
     if (!isCaptchaValid()) {
       toast.error("Please enter the captcha correctly");
       return;
     }
- 
+
     const { username, password } = inpVal;
     if (username === "" && password === "") {
       toast.error("Please fill the field");
@@ -78,7 +81,7 @@ const Login = () => {
             username: username,
             password: password,
           }),
-        "submit"
+        "submit",
       );
 
       if (res?.success) {
@@ -326,9 +329,9 @@ const Login = () => {
                 "x-csrf-token": userCredentials.token,
                 Authorization: `${userCredentials.token}`,
               },
-            }
+            },
           ),
-        "verifyOtp"
+        "verifyOtp",
       );
 
       // debugger
@@ -356,7 +359,7 @@ const Login = () => {
         if (payload.settings) dispatch(setSettings(payload.settings));
         toast.success("Login successful!");
         navigate("/");
-      window.location.reload();
+        window.location.reload();
       } else {
         toast.error(res?.message || "Invalid OTP. Please try again.");
         setOtpCode(["", "", "", "", "", ""]);
@@ -382,6 +385,53 @@ const Login = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
+  const handleLoginWithGoogle = async (googleResponse) => {
+    setGoogleLoginLoading(true);
+    const data = {
+      credential: googleResponse.credential,
+    };
+    try {
+      const response = await imsAxios.post("/auth/google", data);
+
+      if (response?.success) {
+        const payload = response?.data;
+        console.log(payload, "data");
+
+        const obj = {
+          email: payload.crn_email,
+          phone: payload.crn_mobile,
+          userName: payload.username,
+          comId: payload.company_id,
+          token: payload.token,
+          favPages: payload.fav_pages ? JSON.parse(payload.fav_pages) : [],
+          type: payload.crn_type,
+          mobileConfirmed: payload.other?.m_v,
+          emailConfirmed: payload.other?.e_v,
+          passwordChanged: payload.other?.c_p ?? "C",
+          company_branch: inpVal.company_branch, // Use selected branch from login form
+          currentLink: JSON.parse(localStorage.getItem("otherData"))
+            ?.currentLink,
+          id: payload.crn_id,
+          showlegal: payload.department === "legal" ? true : false,
+          session: "25-26",
+        };
+
+        dispatch(setUser(obj));
+        if (payload.settings) dispatch(setSettings(payload.settings));
+        toast.success("Login successful!");
+        navigate("/");
+        window.location.reload();
+      } else {
+        toast.error(
+          response?.message || "Google login failed. Please try again.",
+        );
+        setGoogleLoginLoading(false);
+      }
+    } catch (error) {
+      toast.error("Google login failed. Please try again.");
+      setGoogleLoginLoading(false);
+    }
+  };
 
   // console.log("ispassSame", ispassSame);
   return (
@@ -598,6 +648,7 @@ const Login = () => {
                           { label: "D-160 [BRBAD116]", value: "BRBAD116" },
                         ]}
                         size="medium"
+                        disabled={isLoginBusy}
                       />
                     </Form.Item>
                     <Form.Item
@@ -617,6 +668,7 @@ const Login = () => {
                           inputHandler("username", e.target.value)
                         }
                         size="large"
+                        disabled={isLoginBusy}
                       />
                     </Form.Item>
                     <Form.Item
@@ -635,32 +687,13 @@ const Login = () => {
                           inputHandler("password", e.target.value)
                         }
                         size="large"
+                        disabled={isLoginBusy}
                       />
                     </Form.Item>
 
                     {forgotPassword === "0" ? (
                       <>
-                        {/* <Form.Item
-                          label="Password"
-                          name="password"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please input your password!",
-                            },
-                          ]}
-                        >
-                          <Input.Password
-                            value={inpVal.password}
-                            onChange={(e) =>
-                              inputHandler("password", e.target.value)
-                            }
-                            size="large"
-                          />
-                        </Form.Item> */}
-                        {/* <Link onClick={() => setForgotPassword("1")}>
-                          Forgot Password
-                        </Link> */}
+               
                         <div className="flex justify-center">
                           <ImageCaptcha
                             value={captchaInput}
@@ -668,11 +701,12 @@ const Login = () => {
                             onCodeChange={setCaptchaExpectedCode}
                             onRefresh={() => setCaptchaInput("")}
                             key={captchaKey}
+                            disabled={isLoginBusy}
                           />
                         </div>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
-                            loading={loading("submit")}
+                            loading={isLoginBusy}
                             block
                             size="large"
                             type="primary"
@@ -682,12 +716,49 @@ const Login = () => {
                             Log In
                           </Button>
                         </Form.Item>
-                    
-                      
+
+                        <div
+                          className="flex flex-col items-center justify-center w-full"
+                          style={{ marginTop: "0.5rem", textAlign: "center" }}
+                        >
+                          {googleLoginLoading && (
+                            <div
+                              className="flex justify-center items-center py-2"
+                              style={{ width: "100%" }}
+                            >
+                              <Spin />
+                            </div>
+                          )}
+                          {!loading("submit") && !googleLoginLoading && (
+                            <Typography
+                              style={{
+                                marginBottom: 8,
+                              }}
+                              variant="subtitle2"
+                            >
+                              OR
+                            </Typography>
+                          )}
+                          <div className="flex justify-center items-center w-full">
+                            {!loading("submit") && !googleLoginLoading && (
+                              <GoogleLogin
+                                onSuccess={(credentialResponse) => {
+                                  handleLoginWithGoogle(credentialResponse);
+                                }}
+                                onError={() => {
+                                  toast.error("Login Failed");
+                                }}
+                                shape="circle"
+                              />
+                            )}
+                          </div>
+                        </div>
+
                         <Flex justify="end">
                           <Button
                             onClick={() => setShowForgotPassword(true)}
                             type="link"
+                            disabled={isLoginBusy}
                           >
                             Forgot Password
                           </Button>
@@ -696,7 +767,15 @@ const Login = () => {
                           {" "}
                           Not Registered yet?
                         </Text>
-                        <Link style={{ marginLeft: "1em" }} onClick={createAcc}>
+                        <Link
+                          style={{
+                            marginLeft: "1em",
+                            ...(isLoginBusy
+                              ? { pointerEvents: "none", opacity: 0.5 }
+                              : {}),
+                          }}
+                          onClick={isLoginBusy ? undefined : createAcc}
+                        >
                           Create an Account
                         </Link>
                         <br />
@@ -848,8 +927,8 @@ const Login = () => {
                             }
                             return Promise.reject(
                               new Error(
-                                "The new password that you entered do not match!"
-                              )
+                                "The new password that you entered do not match!",
+                              ),
                             );
                           },
                         }),

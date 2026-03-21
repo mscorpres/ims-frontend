@@ -65,8 +65,7 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
   const [msmeRow, setMsmeRows] = useState([]);
   const [add, isAdd] = useState(false);
   const [groupOptions, setGroupOptions] = useState([]);
-  const [currencies, setCurrencies] = useState([]);
-  const transactionType = Form.useWatch("transactionType", updateVendorForm);
+  // Bank details are maintained per-branch (Add/Edit Branch), not at vendor level.
   const einvoice = Form.useWatch("applicability", updateVendorForm);
   let msmeStat = "";
   msmeStat = Form.useWatch("vendor_msme_status", updateVendorForm);
@@ -103,12 +102,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
       type: vendor?.vendor_msme_type,
       activity: vendor?.vendor_msme_activity,
       group: vendor?.group,
-      transactionType: vendor?.transaction_type,
-      accountNo: vendor?.account_no,
-      ifsCode: vendor?.ifs_code,
-      bankName: vendor?.bank_name,
-      bankBranch: vendor?.bank_branch,
-      ledgerCurrency: vendor?.ledger_currency,
       msmeEffectiveFrom,
       ...vendor,
       applicability: vendor?.eInvoice?.status ?? vendor?.applicability,
@@ -134,37 +127,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     // });
   };
 
-  useEffect(() => {
-    if (transactionType === "na") {
-      updateVendorForm.setFieldValue("accountNo", "N/A");
-      updateVendorForm.setFieldValue("ifsCode", "N/A");
-      updateVendorForm.setFieldValue("bankName", "N/A");
-      updateVendorForm.setFieldValue("bankBranch", "N/A");
-      updateVendorForm.setFieldValue("ledgerCurrency", "N/A");
-    } else if (transactionType !== undefined && transactionType !== "") {
-      updateVendorForm.setFieldValue(
-        "accountNo",
-        updateVendorForm.getFieldsValue().accountNo,
-      );
-      updateVendorForm.setFieldValue(
-        "ifsCode",
-        updateVendorForm.getFieldsValue().ifsCode,
-      );
-      updateVendorForm.setFieldValue(
-        "bankName",
-        updateVendorForm.getFieldsValue().bankName,
-      );
-      updateVendorForm.setFieldValue(
-        "bankBranch",
-        updateVendorForm.getFieldsValue().bankBranch,
-      );
-      updateVendorForm.setFieldValue(
-        "ledgerCurrency",
-        updateVendorForm.getFieldsValue().ledgerCurrency,
-      );
-
-    }
-  }, [transactionType]);
   const formatMsmeEffectiveFrom = (val) => {
     if (!val) return "--";
     return dayjs.isDayjs(val) ? val.format("DD-MM-YYYY") : val;
@@ -191,12 +153,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
         group: values.group,
-        transaction_type: values.transactionType,
-        account_no: values.accountNo,
-        ifs_code: values.ifsCode,
-        bank_name: values.bankName,
-        bank_branch: values.bankBranch,
-        ledger_currency: values.ledgerCurrency,
         msme_effective_from: formatMsmeEffectiveFrom(values.msmeEffectiveFrom),
       };
     } else {
@@ -213,12 +169,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
         group: values.group,
-        transaction_type: values.transactionType,
-        account_no: values.accountNo,
-        ifs_code: values.ifsCode,
-        bank_name: values.bankName,
-        bank_branch: values.bankBranch,
-        ledger_currency: values.ledgerCurrency,
         msme_effective_from: formatMsmeEffectiveFrom(values.msmeEffectiveFrom),
       };
     }
@@ -276,26 +226,10 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
     }
   };
 
-  const getCurrencies = async () => {
-    try {
-      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
-      const arr =
-        data?.data?.map((d) => ({
-          text: d.currency_symbol,
-          value: d.currency_id,
-          notes: d.currency_notes,
-        })) || [];
-      setCurrencies(arr);
-    } catch (error) {
-      setCurrencies([]);
-    }
-  };
-
   useEffect(() => {
     if (editVendor) {
       getDetails();
       getGroupOptions();
-      getCurrencies();
     }
   }, [editVendor]);
 
@@ -706,52 +640,6 @@ const EditBranch = ({ fetchVendor, setEditVendor, editVendor }) => {
                 </Flex>
               </Col>
               <Divider />
-              <Col span={24}>
-                <Divider />
-                <Row gutter={[10, 10]}>
-                  <Col span={24}>
-                    <Typography.Title level={5}>Bank Details</Typography.Title>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="Transaction Type" name="transactionType">
-                      <MySelect
-                        options={transactionTypeOptions}
-                        onChange={(value) =>
-                          updateVendorForm.setFieldValue(
-                            "transactionType",
-                            value,
-                          )
-                        }
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="A/c No" name="accountNo">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="IFS Code" name="ifsCode">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="Bank Name" name="bankName">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="Bank Branch" name="bankBranch">
-                      <Input />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="Currency of Ledger" name="ledgerCurrency">
-                      <MySelect options={currencies} />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </Col>
               <Col span={24}>
                 <Divider />
                 <Form.Item label="Vendor Document" name="file">

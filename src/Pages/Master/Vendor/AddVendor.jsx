@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   Row,
@@ -9,23 +9,18 @@ import {
   Divider,
   Modal,
   InputNumber,
-  Button,
   Typography,
 } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
-import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import SingleProduct from "./SingleProduct";
 import { validatePAN } from "../../../utils/general";
+import { getVendorBranchBankOptions } from "./vendorBranchBankOptions";
 
 const msmeOptions = [
-  { text: "Yes", value: "Y" },
-  { text: "No", value: "N" },
-];
-const accOptions = [
   { text: "Yes", value: "Y" },
   { text: "No", value: "N" },
 ];
@@ -58,17 +53,18 @@ const AddVendor = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [files, setFiles] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
   const [addVendorForm] = Form.useForm();
   const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
   const einvoice = Form.useWatch("applicability", addVendorForm);
-
   const transactionType = Form.useWatch("transactionType", addVendorForm);
+  const bankNameWatch = Form.useWatch("bankName", addVendorForm);
+
 
   // const [groupOptions, setGroupOptions] = useState([]);
-  const [currencies, setCurrencies] = useState([]);
 
   const getFetchState = async (e) => {
     if (e.length > 2) {
@@ -85,6 +81,21 @@ const AddVendor = () => {
       }
       setAsyncOptions(arr);
       // return arr;
+    }
+  };
+
+  const getCurrencies = async () => {
+    try {
+      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+      const arr =
+        data?.data?.map((d) => ({
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        })) || [];
+      setCurrencies([{ text: "N/A", value: "N/A" }, ...arr]);
+    } catch (e) {
+      setCurrencies([{ text: "N/A", value: "N/A" }]);
     }
   };
 
@@ -106,36 +117,6 @@ const AddVendor = () => {
   //   }
   // };
 
-  const getCurrencies = async () => {
-    try {
-      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
-      const arr =
-        data?.data?.map((d) => ({
-          text: d.currency_symbol,
-          value: d.currency_id,
-          notes: d.currency_notes,
-        })) || [];
-      setCurrencies(arr);
-    } catch (error) {
-      setCurrencies([]);
-    }
-  };
-
-  useEffect(() => {
-    if (transactionType === "na") {
-      addVendorForm.setFieldValue("accountNo", "N/A");
-      addVendorForm.setFieldValue("ifsCode", "N/A");
-      addVendorForm.setFieldValue("bankName", "N/A");
-      addVendorForm.setFieldValue("bankBranch", "N/A");
-      addVendorForm.setFieldValue("ledgerCurrency", "N/A");
-    } else if (transactionType !== undefined && transactionType !== "") {
-      addVendorForm.setFieldValue("accountNo", "");
-      addVendorForm.setFieldValue("ifsCode", "");
-      addVendorForm.setFieldValue("bankName", "");
-      addVendorForm.setFieldValue("bankBranch", "");
-      addVendorForm.setFieldValue("ledgerCurrency", undefined);
-    }
-  }, [transactionType]);
 
   const submitHandler = async () => {
     setLoading("submit");
@@ -212,9 +193,9 @@ const AddVendor = () => {
         state: values.state?.value || values.state,
         city: values.city,
         pincode: values.pincode,
-        fax: values.fax == "" && "--",
+        fax: values.fax === "" ? "--" : values.fax,
         mobile: values.mobile,
-        email: values.email == "" && "--",
+        email: values.email === "" ? "--" : values.email,
         gstin: values.gstin.toUpperCase(),
         transaction_type: values.transactionType,
         account_no: values.accountNo,
@@ -256,8 +237,42 @@ const AddVendor = () => {
 
   useEffect(() => {
     // getGroupOptions();
+  }, []);
+
+  // Load currencies for "Currency of Ledger"
+  useEffect(() => {
     getCurrencies();
   }, []);
+
+  // Keep bank fields in sync with Type = N/A
+  useEffect(() => {
+    if (!transactionType) return;
+
+    if (transactionType === "na") {
+      addVendorForm.setFieldValue("accountNo", "N/A");
+      addVendorForm.setFieldValue("ifsCode", "N/A");
+      addVendorForm.setFieldValue("bankName", "N/A");
+      addVendorForm.setFieldValue("bankBranch", "N/A");
+      addVendorForm.setFieldValue("ledgerCurrency", "N/A");
+    } else {
+      // Clear fields when user selects a real payment type.
+      if (addVendorForm.getFieldValue("accountNo") === "N/A") {
+        addVendorForm.setFieldValue("accountNo", "");
+      }
+      if (addVendorForm.getFieldValue("ifsCode") === "N/A") {
+        addVendorForm.setFieldValue("ifsCode", "");
+      }
+      if (addVendorForm.getFieldValue("bankName") === "N/A") {
+        addVendorForm.setFieldValue("bankName", "");
+      }
+      if (addVendorForm.getFieldValue("bankBranch") === "N/A") {
+        addVendorForm.setFieldValue("bankBranch", "");
+      }
+      if (addVendorForm.getFieldValue("ledgerCurrency") === "N/A") {
+        addVendorForm.setFieldValue("ledgerCurrency", "");
+      }
+    }
+  }, [transactionType, addVendorForm]);
 
   return (
     <div style={{ height: "90%" }}>
@@ -271,7 +286,7 @@ const AddVendor = () => {
           title="Submit Confirm"
           open={showSubmitConfirmModal}
           onOk={submitHandler}
-          // confirmLoading={loading === "submit"}
+          confirmLoading={loading === "submit"}
           onCancel={() => setShowSubmitConfirmModal(false)}
         >
           <p>Are you sure you want to create this vendor?</p>
@@ -448,68 +463,6 @@ const AddVendor = () => {
         </Row>
 
         <Divider />
-        <Row gutter={16}>
-          <Col span={4}>
-            <Descriptions
-              size="small"
-              title={<p style={{ fontSize: "0.8rem" }}>Bank Details</p>}
-            >
-              <Descriptions.Item
-                contentStyle={{
-                  fontSize: window.innerWidth < 1600 && "0.7rem",
-                }}
-              >
-                Provide Bank & Ledger Currency Details
-              </Descriptions.Item>
-            </Descriptions>
-          </Col>
-          <Col span={20}>
-            <Row gutter={16}>
-              <Col span={6}>
-                {/* <Form.Item label="Transaction Type" name="transactionType">
-                  <Input />
-                </Form.Item> */}
-
-                <Form.Item label="Transaction Type" name="transactionType">
-                  <MySelect
-                    options={transactionTypeOptions}
-                   
-                    onChange={(value) =>
-                      addVendorForm.setFieldValue("transactionType", value)
-                    }
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="A/c No" name="accountNo">
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="IFS Code" name="ifsCode">
-                  <Input />
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item label="Bank Name" name="bankName">
-                  <Input />
-                </Form.Item>
-              </Col>
-                    <Col span={6}>
-                <Form.Item label="Bank Branch" name="bankBranch">
-                  <Input />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Form.Item label="Currency of Ledger" name="ledgerCurrency">
-                  <MySelect options={currencies} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
         <Divider />
         <Row gutter={16}>
           <Col span={4}>
@@ -640,7 +593,65 @@ const AddVendor = () => {
               </Col>
             </Row>
 
-            {/* Bank details are maintained in a separate section */}
+            <Row gutter={16}>
+              <Col span={4}>
+                <Descriptions
+                  size="small"
+                  title={<p style={{ fontSize: "0.8rem" }}>Bank Details</p>}
+                >
+                  <Descriptions.Item
+                    contentStyle={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                    }}
+                  >
+                    Provide Bank Details
+                  </Descriptions.Item>
+                </Descriptions>
+              </Col>
+              <Col span={20}>
+                <Row gutter={16}>
+                  <Col span={24}>
+                    <Form.Item label="Type" name="transactionType">
+                      <MySelect options={transactionTypeOptions} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="A/c No" name="accountNo">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="IFS Code" name="ifsCode">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="Bank Name" name="bankName">
+                      <MySelect
+                        placeholder="Select bank"
+                        options={getVendorBranchBankOptions(bankNameWatch)}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="Bank Branch" name="bankBranch">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={24}>
+                    <Form.Item label="Currency of Ledger" name="ledgerCurrency">
+                      <MySelect options={currencies} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+
           </Col>
         </Row>
         <Row gutter={16}>
@@ -679,7 +690,7 @@ const AddVendor = () => {
                         <>
                           <Col>
                             {fields.map((field, index) => (
-                              <Form.Item noStyle>
+                              <Form.Item key={field.key} noStyle>
                                 <SingleProduct
                                   fields={fields}
                                   field={field}
@@ -727,17 +738,16 @@ const initialValues = {
   state: "",
   mobile: "",
   city: "",
-  vendorName: "",
   pincode: "",
   address: "",
-  msmeStatus: "N",
-  group: undefined,
-  transactionType: "",
+  transactionType: undefined,
   accountNo: "",
   ifsCode: "",
   bankName: "",
   bankBranch: "",
   ledgerCurrency: "",
+  msmeStatus: "N",
+  group: undefined,
   components: [{}],
 };
 
