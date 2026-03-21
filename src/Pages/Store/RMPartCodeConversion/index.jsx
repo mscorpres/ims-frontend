@@ -27,10 +27,8 @@ import useApi from "../../../hooks/useApi.ts";
 const RMPartCodeConversion = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [addedComponents, setAddedComponents] = useState({
-    in: [],
-    out: {},
-  });
+  /** Each pair: one Initial (in) then one Final (out) at same location; next Initial only after Final is added. */
+  const [pairs, setPairs] = useState([]);
   const [remarks, setRemarks] = useState();
   const [editingComponent, setEditingComponent] = useState(false);
   const [componentStock, setComponentStock] = useState("--");
@@ -118,20 +116,16 @@ const RMPartCodeConversion = () => {
       setLoading(false);
     }
   };
-  const deleteAddedComponent = (id, type) => {
-    setAddedComponents((curr) => {
-      if (type === "initial") {
-        return {
-          ...curr,
-          in: curr.in.filter((c) => c.id !== id),
-        };
-      } else {
-        return {
-          ...curr,
-          out: {},
-        };
-      }
-    });
+  const deletePair = (pairId) => {
+    setPairs((curr) => curr.filter((p) => p.id !== pairId));
+  };
+
+  const clearFinalForPair = (pairId) => {
+    setPairs((curr) =>
+      curr.map((p) =>
+        p.id === pairId ? { ...p, out: null } : p,
+      ),
+    );
   };
   const formResetHandler = (type) => {
     if (type === "initial") {
@@ -140,11 +134,23 @@ const RMPartCodeConversion = () => {
       addComponentForm.resetFields(["componentOut", "qtyOut", "locationOut"]);
     }
   };
+  const canAddInitial = () => {
+    if (pairs.length === 0) return true;
+    const last = pairs[pairs.length - 1];
+    return last.out != null;
+  };
+
+  const canAddFinal = () => {
+    if (pairs.length === 0) return false;
+    return pairs[pairs.length - 1].out == null;
+  };
+
   const addComponent = async (type) => {
     if (type === "initial") {
-      // Only one initial component allowed at a time
-      if (addedComponents.in.length >= 1) {
-        toast.error("Only one Part Code can be added at a time in RM conversion.");
+      if (!canAddInitial()) {
+        toast.error(
+          "Add the Final component for the current pair (same location) before adding another Initial.",
+        );
         return;
       }
       const values = await addComponentForm.validateFields([
@@ -153,51 +159,63 @@ const RMPartCodeConversion = () => {
         "locationIn",
       ]);
 
-      setAddedComponents((curr) => ({
-        in: [
-          {
-            id: v4(),
+      const pairId = v4();
+      const inId = v4();
+      setPairs((curr) => [
+        ...curr,
+        {
+          id: pairId,
+          in: {
+            id: inId,
             component: values.componentIn,
             qty: values.qtyIn,
             location: values.locationIn,
           },
-          ...curr.in,
-        ],
-        out: curr.out,
-      }));
+          out: null,
+        },
+      ]);
     } else {
+      if (!canAddFinal()) {
+        toast.error("Add an Initial component first, or this pair already has a Final.");
+        return;
+      }
       const values = await addComponentForm.validateFields([
         "componentOut",
         "qtyOut",
         "locationOut",
       ]);
 
-      setAddedComponents((curr) => ({
-        in: curr.in,
-        out: {
-          id: v4(),
-          component: values.componentOut,
-          qty: values.qtyOut,
-          location: values.locationOut,
-        },
-      }));
+      setPairs((curr) => {
+        const next = [...curr];
+        const idx = next.length - 1;
+        next[idx] = {
+          ...next[idx],
+          out: {
+            id: v4(),
+            component: values.componentOut,
+            qty: values.qtyOut,
+            location: values.locationOut,
+          },
+        };
+        return next;
+      });
     }
     formResetHandler(type);
   };
-  const editComponentView = (component, type) => {
+  const editComponentView = (pair, type) => {
     if (type === "initial") {
-      setEditingComponent({ id: component.id, type });
+      setEditingComponent({ pairId: pair.id, type: "initial" });
       addComponentForm.setFieldsValue({
-        componentIn: component.component,
-        qtyIn: component.qty,
-        locationIn: component.location,
+        componentIn: pair.in.component,
+        qtyIn: pair.in.qty,
+        locationIn: pair.in.location,
       });
     } else {
-      setEditingComponent({ component: true, type });
+      setEditingComponent({ pairId: pair.id, type: "final" });
       addComponentForm.setFieldsValue({
-        componentOut: addedComponents.out.component,
-        qtyOut: addedComponents.out.qty,
-        locationOut: addedComponents.out.location,
+        componentOut: pair.out.component,
+        qtyOut: pair.out.qty,
+        locationOut: pair.out.location,
       });
     }
   };
@@ -207,55 +225,60 @@ const RMPartCodeConversion = () => {
     formResetHandler(type);
   };
   const saveEditing = async () => {
-    if (editingComponent.type === "initial") {
+    if (!editingComponent?.pairId) return;
+    const { pairId, type } = editingComponent;
+    if (type === "initial") {
       const values = await addComponentForm.validateFields([
         "componentIn",
         "qtyIn",
         "locationIn",
       ]);
-      const updatedComponent = {
-        id: editingComponent.id,
-        component: values.componentIn,
-        location: values.locationIn,
-        qty: values.qtyIn,
-      };
-
-      setAddedComponents((curr) => ({
-        ...curr,
-        in: curr.in.map((comp) => {
-          if (comp.id === editingComponent.id) {
-            return updatedComponent;
-          } else {
-            return comp;
-          }
-        }),
-      }));
+      setPairs((curr) =>
+        curr.map((p) =>
+          p.id === pairId
+            ? {
+                ...p,
+                in: {
+                  ...p.in,
+                  component: values.componentIn,
+                  location: values.locationIn,
+                  qty: values.qtyIn,
+                },
+              }
+            : p,
+        ),
+      );
     } else {
       const values = await addComponentForm.validateFields([
         "componentOut",
         "qtyOut",
         "locationOut",
       ]);
-
-      setAddedComponents((curr) => ({
-        ...curr,
-        out: {
-          id: v4(),
-          component: values.componentOut,
-          qty: values.qtyOut,
-          location: values.locationOut,
-        },
-      }));
+      setPairs((curr) =>
+        curr.map((p) =>
+          p.id === pairId && p.out
+            ? {
+                ...p,
+                out: {
+                  ...p.out,
+                  component: values.componentOut,
+                  qty: values.qtyOut,
+                  location: values.locationOut,
+                },
+              }
+            : p,
+        ),
+      );
     }
-    handleCancelEditing(editingComponent.type);
+    handleCancelEditing(type);
   };
   let comQtyVal = addComponentForm.getFieldValue("qtyIn");
   const extraButtons = (isEditing, type) => {
-    if (type === isEditing.type) {
+    if (isEditing && type === isEditing?.type) {
       return (
         <Space>
           <Button onClick={() => handleCancelEditing(type)}>Cancel</Button>
-          <Button onClick={() => saveEditing(type)} type="primary">
+          <Button onClick={() => saveEditing()} type="primary">
             Save
           </Button>
         </Space>
@@ -266,9 +289,11 @@ const RMPartCodeConversion = () => {
           <MyButton variant="reset" onClick={() => formResetHandler(type)} />
           <MyButton
             disabled={
-              (addedComponents.out?.component && type === "final") ||
-              componentStock === "0 Pcs" ||
-              comQtyVal > componentStock
+              (type === "initial" &&
+                (!canAddInitial() ||
+                  componentStock === "0 Pcs" ||
+                  comQtyVal > componentStock)) ||
+              (type === "final" && !canAddFinal())
             }
             variant="add"
             onClick={() => addComponent(type)}
@@ -280,14 +305,14 @@ const RMPartCodeConversion = () => {
   const validateHandler = async () => {
     const payload = {
       initial: {
-        component_in: addedComponents.in.map((row) => row.component.value),
-        qty_in: addedComponents.in.map((row) => row.qty),
-        loc_in: addedComponents.in.map((row) => row.location.value),
+        component_in: pairs.map((p) => p.in.component.value),
+        qty_in: pairs.map((p) => p.in.qty),
+        loc_in: pairs.map((p) => p.in.location.value),
       },
       final: {
-        component_out: addedComponents.out.component.value,
-        qty_out: addedComponents.out.qty,
-        loc_out: addedComponents.out.location.value,
+        component_out: pairs.map((p) => p.out.component.value),
+        qty_out: pairs.map((p) => p.out.qty),
+        loc_out: pairs.map((p) => p.out.location.value),
       },
     };
     Modal.confirm({
@@ -301,9 +326,9 @@ const RMPartCodeConversion = () => {
           </Col>
           <Col span={24}>
             <Typography.Text>
-              You haved entered{" "}
-              <strong>{addedComponents.in.length} Components </strong>
-              to convert
+              You have entered{" "}
+              <strong>{pairs.length} conversion pair(s)</strong> (Initial + Final
+              each).
             </Typography.Text>
           </Col>
           <Col span={24}>
@@ -343,10 +368,7 @@ const RMPartCodeConversion = () => {
       if (data) {
         if (data.code === 200) {
           toast.success(data.message);
-          setAddedComponents({
-            in: [],
-            qty: {},
-          });
+          setPairs([]);
           remarksForm.resetFields();
 
           setRemarks("");
@@ -369,10 +391,7 @@ const RMPartCodeConversion = () => {
     });
   };
   const clearAddedComponents = () => {
-    setAddedComponents({
-      in: [],
-      out: {},
-    });
+    setPairs([]);
   };
 
   useEffect(() => {
@@ -519,8 +538,8 @@ const RMPartCodeConversion = () => {
               disabled={
                 componentIn ||
                 componentOut ||
-                !addedComponents.in[0] ||
-                !addedComponents.out?.component
+                pairs.length === 0 ||
+                pairs.some((p) => p.out == null)
               }
               onClick={validateHandler}
             />
@@ -532,7 +551,9 @@ const RMPartCodeConversion = () => {
         <Row style={{ marginBottom: 8 }}>
           <Col span={24}>
             <Typography.Text type="secondary" style={{ fontSize: "0.8rem" }}>
-              Note: RM Part Code Conversion allows only one Part Code at a time.
+              Note: Add one Initial (with location), then add the Final for that
+              pair (Pick = Drop). Complete the Final before adding the next
+              Initial — each pair can use its own location.
             </Typography.Text>
           </Col>
         </Row>
@@ -559,7 +580,7 @@ const RMPartCodeConversion = () => {
                     <Col span={4}>
                       <Typography.Text strong>Location</Typography.Text>
                     </Col>
-                    {addedComponents.in.length === 0 && (
+                    {pairs.length === 0 && (
                       <Col style={{ marginTop: 20 }} span={24}>
                         <Row justify="center">
                           <Empty description="No Components added" />
@@ -574,25 +595,20 @@ const RMPartCodeConversion = () => {
                         paddingBottom: 20,
                       }}
                     >
-                      {addedComponents.in.map((component) => (
-                        <Col span={24}>
+                      {pairs.map((pair) => (
+                        <Col span={24} key={`in-${pair.id}`}>
                           <Row align="middle">
                             <Col xl={5} xxl={3}>
                               {!editingComponent && (
                                 <Space>
                                   <Button
                                     onClick={() =>
-                                      editComponentView(component, "initial")
+                                      editComponentView(pair, "initial")
                                     }
                                     icon={<EditFilled />}
                                   />
                                   <Button
-                                    onClick={() =>
-                                      deleteAddedComponent(
-                                        component.id,
-                                        "initial"
-                                      )
-                                    }
+                                    onClick={() => deletePair(pair.id)}
                                     icon={<DeleteFilled />}
                                   />
                                 </Space>
@@ -600,15 +616,15 @@ const RMPartCodeConversion = () => {
                             </Col>
                             <Col xl={10} xxl={14}>
                               <Typography.Text>
-                                {component.component.label}
+                                {pair.in.component.label}
                               </Typography.Text>
                             </Col>
                             <Col span={3}>
-                              <Typography.Text>{component.qty}</Typography.Text>
+                              <Typography.Text>{pair.in.qty}</Typography.Text>
                             </Col>
                             <Col span={4}>
                               <Typography.Text>
-                                {component.location.label}
+                                {pair.in.location.label}
                               </Typography.Text>
                             </Col>
                           </Row>
@@ -636,42 +652,58 @@ const RMPartCodeConversion = () => {
                     <Col span={4}>
                       <Typography.Text strong>Location</Typography.Text>
                     </Col>
-                    {!addedComponents.out?.component && (
+                    {pairs.length === 0 && (
                       <Col style={{ marginTop: 20 }} span={24}>
                         <Row justify="center">
                           <Empty description="No Components added" />
                         </Row>
                       </Col>
                     )}
-                    <Col xl={5} xxl={3}>
-                      {addedComponents.out?.component && !editingComponent && (
-                        <Space>
-                          <Button
-                            onClick={() => editComponentView(null, "final")}
-                            icon={<EditFilled />}
-                          />
-                          <Button
-                            onClick={() => deleteAddedComponent(null, "final")}
-                            icon={<DeleteFilled />}
-                          />
-                        </Space>
-                      )}
-                    </Col>
-                    <Col xl={10} xxl={14}>
-                      <Typography.Text>
-                        {addedComponents.out?.component?.label}
-                      </Typography.Text>
-                    </Col>
-                    <Col span={3}>
-                      <Typography.Text>
-                        {addedComponents.out?.qty}
-                      </Typography.Text>
-                    </Col>
-                    <Col span={4}>
-                      <Typography.Text>
-                        {addedComponents.out?.location?.label}
-                      </Typography.Text>
-                    </Col>
+                    {pairs.map((pair) => (
+                      <Row
+                        align="middle"
+                        key={`out-${pair.id}`}
+                        style={{ marginBottom: 8 }}
+                      >
+                        <Col xl={5} xxl={3}>
+                          {pair.out && !editingComponent && (
+                            <Space>
+                              <Button
+                                onClick={() =>
+                                  editComponentView(pair, "final")
+                                }
+                                icon={<EditFilled />}
+                              />
+                              <Button
+                                onClick={() => clearFinalForPair(pair.id)}
+                                icon={<DeleteFilled />}
+                              />
+                            </Space>
+                          )}
+                        </Col>
+                        <Col xl={10} xxl={14}>
+                          {pair.out ? (
+                            <Typography.Text>
+                              {pair.out.component.label}
+                            </Typography.Text>
+                          ) : (
+                            <Typography.Text type="secondary">
+                              — Add Final above for this pair
+                            </Typography.Text>
+                          )}
+                        </Col>
+                        <Col span={3}>
+                          <Typography.Text>
+                            {pair.out ? pair.out.qty : "—"}
+                          </Typography.Text>
+                        </Col>
+                        <Col span={4}>
+                          <Typography.Text>
+                            {pair.out ? pair.out.location.label : "—"}
+                          </Typography.Text>
+                        </Col>
+                      </Row>
+                    ))}
                   </Row>
                 </Card>
               </Col>
