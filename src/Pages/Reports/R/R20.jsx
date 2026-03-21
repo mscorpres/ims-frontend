@@ -25,10 +25,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import Dragger from "antd/es/upload/Dragger";
 import { InboxOutlined, UploadOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
-import printFunction, {
-  downloadFunction,
-  downloadExcel,
-} from "../../../Components/printFunction";
+import { downloadExcel } from "../../../Components/printFunction";
 import useApi from "../../../hooks/useApi.ts";
 import { getComponentOptions } from "../../../api/general.ts";
 function R20() {
