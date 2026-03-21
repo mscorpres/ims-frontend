@@ -719,18 +719,19 @@ const Login = () => {
 
                         <div
                           className="flex flex-col items-center justify-center w-full"
-                          style={{ marginTop: "0.5rem" }}
+                          style={{ marginTop: "0.5rem", textAlign: "center" }}
                         >
                           {googleLoginLoading && (
-                            <div className="flex justify-center items-center py-2">
+                            <div
+                              className="flex justify-center items-center py-2"
+                              style={{ width: "100%" }}
+                            >
                               <Spin />
                             </div>
                           )}
                           {!loading("submit") && !googleLoginLoading && (
                             <Typography
                               style={{
-                                width: "100%",
-                                textAlign: "center",
                                 marginBottom: 8,
                               }}
                               variant="subtitle2"

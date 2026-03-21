@@ -7,6 +7,7 @@ import { Store } from "./Features/Store";
 import "./index.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ConfigProvider } from "antd";
+import RootLayout from "./Features/tawkchat/layout";
 
 const theme = {
   token: {
@@ -70,9 +71,11 @@ root.render(
   <GoogleOAuthProvider clientId={googleId}>
     <ConfigProvider theme={theme}>
       <Provider store={Store}>
+        <RootLayout>
         <BrowserRouter>
           <App />
         </BrowserRouter>
+        </RootLayout>
       </Provider>
     </ConfigProvider>
   </GoogleOAuthProvider>,
