@@ -342,6 +342,7 @@ const PartCodeConversion = () => {
       const response = await imsAxios.post("/conversion/saveConversion", {
         ...payload,
         ...remarks,
+        type: "sf",
       });
       const { data } = response;
       if (data) {
