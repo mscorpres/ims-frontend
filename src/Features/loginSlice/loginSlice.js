@@ -77,7 +77,7 @@ const initialState = {
 //             setting: data.data.settings,
 //           })
 //         );
-//         imsAxios.defaults.headers["x-csrf-token"] = data.data.token;
+//    
 //         imsAxios.defaults.headers["Company-Branch"] = "BRMSC012";
 //         return await {
 //           ...data.data,
@@ -97,16 +97,9 @@ const initialState = {
 const loginSlice = createSlice({
   name: "auth",
   initialState,
+
   reducers: {
-    logout: (state, action) => {
-      let otherData = JSON.parse(localStorage.getItem("otherData"));
-      otherData = { ...otherData, currentLink: state.user.currentLink };
-      state.user = null;
-      state.message = "User Logged Out!";
-      localStorage.removeItem("loggedInUser");
-      localStorage.setItem("otherData", JSON.stringify(otherData));
-      toast.info("User Logged Out!");
-    },
+ 
     addNotification: (state, action) => {
       state.notifications = [
         ...state.notifications,
@@ -156,7 +149,7 @@ const loginSlice = createSlice({
     },
     setCompanyBranch: (state, action) => {
       window.location.reload(true);
-      imsAxios.defaults.headers["Company-Branch"] = action.payload;
+      imsAxios.defaults.headers["Company-Branch"] = action.payload ?? "BRMSC012";
       // clientAxios.defaults.headers["Company-Branch"] = action.payload;
       let user = state.user;
       user = { ...user, company_branch: action.payload };
@@ -213,7 +206,7 @@ const loginSlice = createSlice({
       );
 
       // Update axios headers immediately
-      imsAxios.defaults.headers["Company-Branch"] = company_branch;
+      imsAxios.defaults.headers["Company-Branch"] = company_branch ?? "BRMSC012";
       imsAxios.defaults.headers["Session"] = session;
     },
     setSettings: (state, action) => {
@@ -264,7 +257,7 @@ const loginSlice = createSlice({
 export const selectUserDepartment = (state) => state;
 
 export const {
-  logout,
+ 
   addNotification,
   removeNotification,
   setNotifications,

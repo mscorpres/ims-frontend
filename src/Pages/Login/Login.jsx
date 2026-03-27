@@ -46,6 +46,7 @@ const Login = () => {
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
+    // Default branch so App effects that depend on truthy `user.company_branch` run immediately
     company_branch: "BRMSC012",
   });
   const { Title, Link, Text } = Typography;
@@ -132,6 +133,7 @@ const Login = () => {
       }
     }
   };
+
   const validatecreateNewUser = async () => {
     if (!isCaptchaValid()) {
       toast.error("Please enter the captcha correctly");
@@ -326,7 +328,6 @@ const Login = () => {
             { otp: otpString },
             {
               headers: {
-                "x-csrf-token": userCredentials.token,
                 Authorization: `${userCredentials.token}`,
               },
             },
@@ -637,6 +638,9 @@ const Login = () => {
                     onFinish={handleSubmit}
                     autoComplete="off"
                     form={signUp}
+                    initialValues={{
+                      company_branch: "BRMSC012",
+                    }}
                   >
                     <Form.Item label="Company Branch" name="company_branch">
                       <Select
@@ -693,7 +697,6 @@ const Login = () => {
 
                     {forgotPassword === "0" ? (
                       <>
-               
                         <div className="flex justify-center">
                           <ImageCaptcha
                             value={captchaInput}

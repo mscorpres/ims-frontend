@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 let socketLink = localStorage.getItem("currentSocketUrl") || import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
+const isSwitchInProgress = () => localStorage.getItem("switchInProgress") === "1";
 const imsLink =
   localStorage.getItem("currentUrl") ||
   import.meta.env.VITE_REACT_APP_API_BASE_URL; //for net
@@ -34,15 +35,32 @@ const getToken = () => {
   return JSON.parse(localStorage.getItem("loggedInUser"))?.token;
 };
 
+const getBranchFromStorage = () => {
+  const branchData = JSON.parse(localStorage.getItem("otherData") || "{}");
+  const user = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
+  return branchData?.company_branch || user?.company_branch || "BRALWR36";
+};
+const getSessionFromStorage = () => {
+  const branchData = JSON.parse(localStorage.getItem("otherData") || "{}");
+  const user = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
+  return branchData?.session || user?.session || "25-26";
+};
+
 const imsAxios = axios.create({
   baseURL: imsLink,
   headers: {
-    "x-csrf-token": getToken(),
+       "Authorization": `${await getToken()}`,
   },
 });
+
+
 imsAxios.interceptors.request.use(
   (config) => {
-    // Generate a new UUID and timestamp for each request
+   const url = String(config?.url || "");
+    if (isSwitchInProgress() && !url.includes("/auth/switch")) {
+      return Promise.reject(new axios.Cancel("Switch in progress please wait...."));
+    }
+
     const newId = uuidv4();
     const timestamp = formatTimestamp();
 
@@ -53,16 +71,14 @@ imsAxios.interceptors.request.use(
     // Use newToken if available, otherwise use loggedInUser token
     const token = getToken();
     if (token) {
-      config.headers["x-csrf-token"] = token;
+
+       config.headers["Authorization"]= `${token}`
     }
 
-    // Optionally add branch and session
-    let branch =
-      JSON.parse(localStorage.getItem("otherData"))?.company_branch ??
-      "BRMSC012";
-    let session =
-      JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26";
-    config.headers["Company-Branch"] = branch;
+    const branch = getBranchFromStorage();
+    const session = getSessionFromStorage();
+  
+    config.headers["Company-Branch"] = branch ?? "BRMSC012";
     config.headers["Session"] = session;
     config.headers["x-window-url"] = window.location.href;
 
@@ -81,6 +97,9 @@ imsAxios.interceptors.response.use(
     return response;
   },
   (error) => {
+      if (axios.isCancel?.(error)) {
+      return Promise.reject(error);
+    }
     if (typeof error.response?.data === "object") {
       if (error.response.data?.data?.logout) {
         toast.error(error.response.data.message);
@@ -113,11 +132,10 @@ imsAxios.interceptors.response.use(
   }
 );
 
-let branch =
-  JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "BRMSC012";
-let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26";
 
-imsAxios.defaults.headers["Company-Branch"] = branch;
+const branch = getBranchFromStorage();
+const session = getSessionFromStorage();
+imsAxios.defaults.headers["Company-Branch"] = branch ?? "BRMSC012";
 imsAxios.defaults.headers["Session"] = session;
 
 export { imsAxios, socketLink };
