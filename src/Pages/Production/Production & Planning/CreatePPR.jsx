@@ -153,7 +153,7 @@ const CreatePPR = () => {
       requesttype: values.type,
       customer: values.customer,
       duedate: values.dueDate,
-      planning_month: values.planningMonth
+      plannedMonth: values.planningMonth
         ? dayjs(values.planningMonth).format("YYYY-MM")
         : undefined,
       location: values.section,
