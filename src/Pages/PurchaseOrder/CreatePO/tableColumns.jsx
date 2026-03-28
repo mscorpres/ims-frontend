@@ -7,6 +7,12 @@ const gstTypeOptions = [
   { value: "L", text: "LOCAL" },
 ];
 
+const stripSpaces = (v) => String(v ?? "").replaceAll(/\s/g, "");
+
+const blockSpaceKey = (e) => {
+  if (e.key === " ") e.preventDefault();
+};
+
 export const componentSelect = (
   { row },
   inputHandler,
@@ -42,7 +48,8 @@ export const quantityCell = ({ row }, inputHandler) => (
     <Input
       style={{ borderColor: row.qtyApproval && "red" }}
       value={row.qty}
-      onChange={(e) => inputHandler("qty", e.target.value, row.id)}
+      onKeyDown={blockSpaceKey}
+      onChange={(e) => inputHandler("qty", stripSpaces(e.target.value), row.id)}
       suffix={row.uom ?? row.unit}
     />
   </Tooltip>
@@ -52,7 +59,10 @@ export const rateCell = ({ row }, inputHandler, currencies) => (
     <Input
       style={{ width: "62%", borderColor: row.approval && "red" }}
       value={row.rate}
-      onChange={(e) => inputHandler("rate", e.target.value, row.id)}
+      onKeyDown={blockSpaceKey}
+      onChange={(e) =>
+        inputHandler("rate", stripSpaces(e.target.value), row.id)
+      }
     />
     <div style={{ width: "35%", marginLeft: "2px" }}>
       <MySelect
