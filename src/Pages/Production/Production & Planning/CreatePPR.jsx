@@ -1,14 +1,19 @@
 import { useState, useEffect } from "react";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import {
   Col,
+  DatePicker,
   Descriptions,
   Divider,
   Form,
   Input,
   Modal,
   Row,
+  Space,
+  Tooltip,
   Typography,
 } from "antd";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import MySelect from "../../../Components/MySelect";
 import InputMask from "react-input-mask";
@@ -21,6 +26,24 @@ import { getProductsOptions, getProjectOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 
 const { TextArea } = Input;
+
+/** Next calendar month is selectable from this day of the current month onward. */
+const PLANNING_MONTH_NEXT_AVAILABLE_FROM_DAY = 25;
+
+const isPlanningMonthDisabled = (current) => {
+  if (!current) return false;
+  const today = dayjs();
+  const monthStart = current.startOf("month");
+  const thisMonthStart = today.startOf("month");
+  const nextMonthStart = today.add(1, "month").startOf("month");
+
+  if (monthStart.isBefore(thisMonthStart, "month")) return true;
+  if (monthStart.isSame(thisMonthStart, "month")) return false;
+  if (monthStart.isSame(nextMonthStart, "month")) {
+    return today.date() < PLANNING_MONTH_NEXT_AVAILABLE_FROM_DAY;
+  }
+  return true;
+};
 
 const CreatePPR = () => {
   const [loading, setLoading] = useState(false);
@@ -130,6 +153,9 @@ const CreatePPR = () => {
       requesttype: values.type,
       customer: values.customer,
       duedate: values.dueDate,
+      planning_month: values.planningMonth
+        ? dayjs(values.planningMonth).format("YYYY-MM")
+        : undefined,
       location: values.section,
       product: values.product.value,
       projectinfo: values.projectDescription,
@@ -311,6 +337,34 @@ const CreatePPR = () => {
                 </Col>
                 <Col span={6}>
                   <Form.Item
+                    rules={rules.planningMonth}
+                    name="planningMonth"
+                    label={
+                      <Space size={6} align="center">
+                        <span>Planning Month</span>
+                        <Tooltip
+                          title={`Next month opens for planning from day ${PLANNING_MONTH_NEXT_AVAILABLE_FROM_DAY} of the current month onward.`}
+                        >
+                          <InfoCircleOutlined
+                            style={{
+                              color: "rgba(0, 0, 0, 0.45)",
+                              cursor: "help",
+                            }}
+                          />
+                        </Tooltip>
+                      </Space>
+                    }
+                  >
+                    <DatePicker
+                      picker="month"
+                      format="MM-YYYY"
+                      style={{ width: "100%" }}
+                      disabledDate={isPlanningMonthDisabled}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={6}>
+                  <Form.Item
                     rules={rules.section}
                     name="section"
                     label="Section / Location"
@@ -359,6 +413,7 @@ const initialValues = {
   existingQty: "",
   stock: "",
   dueDate: "",
+  planningMonth: dayjs().startOf("month"),
   section: undefined,
   customer: undefined,
 };
@@ -404,6 +459,12 @@ const rules = {
     {
       required: true,
       message: "Please enter due date",
+    },
+  ],
+  planningMonth: [
+    {
+      required: true,
+      message: "Please select planning month",
     },
   ],
   section: [
