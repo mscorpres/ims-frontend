@@ -127,6 +127,8 @@ export default function CreatePo() {
       tol_price: 0,
       project_req_qty: 0,
       po_exec_qty: 0,
+      executed_qty: 0,
+      plan_qty: 0,
       diffPercentage: "--",
     },
   ]);
@@ -1126,6 +1128,8 @@ export default function CreatePo() {
         igst: 0,
         remark: "--",
         unit: "--",
+        executed_qty: 0,
+        plan_qty: 0,
       },
     ]);
   };
