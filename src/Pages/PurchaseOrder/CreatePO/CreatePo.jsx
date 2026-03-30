@@ -1595,7 +1595,14 @@ export default function CreatePo() {
                               </div>
                             }
                           >
-                            <MySelect options={pprOptions} size="default" />
+                             <MyAsyncSelect
+                              selectLoading={loading1("select")}
+                              size="default"
+                              labelInValue
+                              onBlur={() => setAsyncOptions([])}
+                              optionsState={asyncOptions}
+                              loadOptions={getVendors}
+                            />
                           </Form.Item>
                         </Col>
                         {/* venodr branch */}
