@@ -140,6 +140,7 @@ export default function CreatePo() {
   const termsCondition = Form.useWatch("termscondition", form);
   const advancePayment = Form.useWatch("advancePayment", form);
   const { executeFun, loading: loading1 } = useApi();
+
   const validatePO = () => {
     const formValues = form.getFieldsValue();
     const formProjectName = form.getFieldValue("project_name");
@@ -153,6 +154,9 @@ export default function CreatePo() {
               formValues.project_name !== null
             ? formValues.project_name
             : newPurchaseOrder.project_name,
+            pprId: formValues.pprId !== undefined && formValues.pprId !== null
+            ? formValues.ppr
+            : newPurchaseOrder.ppr,
       pocostcenter:
         formValues.pocostcenter !== undefined &&
         formValues.pocostcenter !== null
@@ -327,6 +331,7 @@ export default function CreatePo() {
         }
         return project;
       })(),
+      pprId: currentPurchaseOrder.pprId?.value || currentPurchaseOrder.label || "",
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
           ? 30
@@ -631,6 +636,7 @@ export default function CreatePo() {
         }
         return project;
       })(),
+      pprId: currentPurchaseOrder.pprId  ?? "",
 
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
