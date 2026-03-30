@@ -595,6 +595,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
                   newPurchaseOrder.project_name === "object"
                 ? newPurchaseOrder.project_name.value
                 : newPurchaseOrder.project_name,
+          pprId: form.getFieldValue("ppr") || newPurchaseOrder.ppr,
         },
       );
       setPageLoading(false);
