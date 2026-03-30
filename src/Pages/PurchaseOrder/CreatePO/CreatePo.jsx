@@ -101,6 +101,8 @@ export default function CreatePo() {
   const [showQtyWarning, setShowQtyWarning] = useState(false);
   const [qtyWarningData, setQtyWarningData] = useState(null);
   const [pendingPOData, setPendingPOData] = useState(null);
+  const [pprOptions, setPpROptions] = useState([]);
+  const [isPPRLoading, setIsPPRLoading] = useState(false);
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
@@ -494,6 +496,7 @@ export default function CreatePo() {
               formValues.project_name !== null
             ? formValues.project_name
             : newPurchaseOrder.project_name,
+
       pocostcenter:
         formValues.pocostcenter !== undefined &&
         formValues.pocostcenter !== null
@@ -628,6 +631,7 @@ export default function CreatePo() {
         }
         return project;
       })(),
+
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
           ? 30
@@ -1155,9 +1159,33 @@ export default function CreatePo() {
         await handleProjectCostCenter(
           typeof value === "object" ? value.value : value,
         );
+        await fetchPPROptions(typeof value === "object" ? value.value : value);
       } else {
         toast.error(data.message.msg);
       }
+    }
+  };
+
+  const fetchPPROptions = async (key) => {
+    try {
+      setIsPPRLoading(true);
+      const response = await imsAxios.post("/purchaseOrder/pprList", {
+        project_name: key,
+      });
+      let arr = [];
+
+      if (response?.data?.status === "success") {
+        arr = convertSelectOptions(response?.data?.data);
+
+        setPpROptions(arr);
+        setIsPPRLoading(false);
+      } else {
+        setPpROptions([]);
+        setIsPPRLoading(false);
+      }
+    } catch (error) {
+      setIsPPRLoading(false);
+      toast.error("Error fetching PPR options");
     }
   };
 
@@ -1567,14 +1595,7 @@ export default function CreatePo() {
                               </div>
                             }
                           >
-                            <MyAsyncSelect
-                              selectLoading={loading1("select")}
-                              size="default"
-                              labelInValue
-                              onBlur={() => setAsyncOptions([])}
-                              optionsState={asyncOptions}
-                              loadOptions={getVendors}
-                            />
+                            <MySelect options={pprOptions} size="default" />
                           </Form.Item>
                         </Col>
                         {/* venodr branch */}
@@ -1914,6 +1935,30 @@ export default function CreatePo() {
                               loadOptions={handleFetchProjectOptions}
                               optionsState={asyncOptions}
                               onChange={handleProjectChange}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={5}>
+                          <Form.Item
+                            name="ppr"
+                            rules={rules.ppr}
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                }}
+                              >
+                                PPR
+                              </div>
+                            }
+                          >
+                            <MySelect
+                              options={pprOptions}
+                              selectLoading={isPPRLoading}
                             />
                           </Form.Item>
                         </Col>
@@ -2495,6 +2540,12 @@ const rules = {
     {
       required: true,
       message: "Please Select a Project!",
+    },
+  ],
+  ppr: [
+    {
+      required: true,
+      message: "Please Select a PPR!",
     },
   ],
   raisedBy: [
