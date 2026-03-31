@@ -264,6 +264,8 @@ import R35 from "@/Pages/Reports/R/R35.jsx";
 import R37 from "@/Pages/Reports/R/R37.jsx";
 //@ts-ignore
 import R38 from "@/Pages/Reports/R/R38.jsx";
+//@ts-ignore
+import R39 from "@/Pages/Reports/R/R39.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
@@ -815,6 +817,10 @@ const Routes = [
     path: "/fg-register-report",
 
     main: () => <R38 />,
+  },
+  {
+    path: "/r39",
+    main: () => <R39 />,
   },
   {
     path: "/reqWithBom",

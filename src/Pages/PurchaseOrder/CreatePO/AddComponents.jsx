@@ -655,8 +655,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
             project_req_qty: data.data.project_req_qty,
             po_exec_qty: data.data.po_exec_qty,
             closing_stock: data.data.closing_stock || 0,
-            plan_qty: data.data.plan_qty || 0,
-            executed_qty: data.data.executed_qty || 0,
+            ppr_plan_qty: data.data.ppr_plan_qty || 0,
+            ppr_executed_qty: data.data.ppr_executed_qty || 0,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
           };
           return obj;
@@ -865,23 +865,23 @@ const projectId = form.getFieldsValue()?.project_name?.value;
        {
       headerName: "Plan PPR QTY",
       width: 100,
-      field: "plan_qty",
+      field: "ppr_plan_qty",
       sortable: false,
       renderCell: (params) =>
          <Input
             disabled
-            value={params.row.plan_qty}
+            value={params.row.ppr_plan_qty}
            
           />
     },   {
       headerName: "Exec. PPR QTY",
       width: 100,
-      field: "executed_qty",
+      field: "ppr_executed_qty",
       sortable: false,
       renderCell: (params) =>
          <Input
     disabled
-    value={params.row.executed_qty}
+    value={params.row.ppr_executed_qty}
   />
    
     },

@@ -877,6 +877,11 @@ const links = [
 
       placeholder: "FG Register Report",
     },
+    {
+      routeName: "R39",
+      routePath: "/r39",
+      placeholder: "Production PPR Report (by project / BOM)",
+    },
   ],
   // MIN label links
 
