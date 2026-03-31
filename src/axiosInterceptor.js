@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { getDefaultFinancialYearValue } from "./utils/financialYear";
 let socketLink = localStorage.getItem("currentSocketUrl") || import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const imsLink =
   localStorage.getItem("currentUrl") ||
@@ -61,7 +62,8 @@ imsAxios.interceptors.request.use(
       JSON.parse(localStorage.getItem("otherData"))?.company_branch ??
       "BRMSC012";
     let session =
-      JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26";
+      JSON.parse(localStorage.getItem("otherData"))?.session ??
+      getDefaultFinancialYearValue();
     config.headers["Company-Branch"] = branch;
     config.headers["Session"] = session;
     config.headers["x-window-url"] = window.location.href;
@@ -115,7 +117,9 @@ imsAxios.interceptors.response.use(
 
 let branch =
   JSON.parse(localStorage.getItem("otherData"))?.company_branch ?? "BRMSC012";
-let session = JSON.parse(localStorage.getItem("otherData"))?.session ?? "25-26";
+let session =
+  JSON.parse(localStorage.getItem("otherData"))?.session ??
+  getDefaultFinancialYearValue();
 
 imsAxios.defaults.headers["Company-Branch"] = branch;
 imsAxios.defaults.headers["Session"] = session;

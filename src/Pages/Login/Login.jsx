@@ -24,6 +24,7 @@ import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
 import ImageCaptcha from "../../Components/ImageCaptcha/ImageCaptcha";
 import { ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
+import { getDefaultFinancialYearValue } from "../../utils/financialYear";
 
 const Login = () => {
   document.title = "IMS Login";
@@ -116,7 +117,7 @@ const Login = () => {
               ?.currentLink,
             id: payload.crn_id,
             showlegal: payload.department === "legal" ? true : false,
-            session: "25-26",
+            session: getDefaultFinancialYearValue(),
           };
 
           dispatch(setUser(obj));
@@ -352,7 +353,7 @@ const Login = () => {
             ?.currentLink,
           id: payload.crn_id,
           showlegal: payload.department === "legal" ? true : false,
-          session: "25-26",
+          session: getDefaultFinancialYearValue(),
         };
 
         dispatch(setUser(obj));
@@ -413,7 +414,7 @@ const Login = () => {
             ?.currentLink,
           id: payload.crn_id,
           showlegal: payload.department === "legal" ? true : false,
-          session: "25-26",
+          session: getDefaultFinancialYearValue(),
         };
 
         dispatch(setUser(obj));
