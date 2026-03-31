@@ -27,10 +27,13 @@ import VBT02Report from "./FormVBT/VBTtype2/VBT02Report";
 import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
+import { getDefaultFinancialYearValue } from "../../../utils/financialYear";
 import MyButton from "../../../Components/MyButton";
 
 export default function VBTReport() {
-  const [searchInput, setSearchInput] = useState("MIN/25-26/");
+  const [searchInput, setSearchInput] = useState(
+    `MIN/${getDefaultFinancialYearValue()}/`
+  );
 
   const [wise, setWise] = useState("minwise");
   const [vbtOption, setVbtOption] = useState("ALL");
@@ -970,7 +973,7 @@ export default function VBTReport() {
   useEffect(() => {
     setRows([]);
     if (wise == "minwise") {
-      setSearchInput("MIN/25-26/");
+      setSearchInput(`MIN/${getDefaultFinancialYearValue()}/`);
     } else {
       setSearchInput("");
     }

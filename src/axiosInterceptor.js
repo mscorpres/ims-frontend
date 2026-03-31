@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { getDefaultFinancialYearValue } from "./utils/financialYear";
 let socketLink = localStorage.getItem("currentSocketUrl") || import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const isSwitchInProgress = () => localStorage.getItem("switchInProgress") === "1";
 const imsLink =
@@ -43,7 +44,7 @@ const getBranchFromStorage = () => {
 const getSessionFromStorage = () => {
   const branchData = JSON.parse(localStorage.getItem("otherData") || "{}");
   const user = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
-  return branchData?.session || user?.session || "25-26";
+  return branchData?.session || user?.session || getDefaultFinancialYearValue();
 };
 
 const imsAxios = axios.create({

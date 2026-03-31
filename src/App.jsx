@@ -64,6 +64,10 @@ import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
 import { logoutUser } from "./Features/loginSlice/logoutSlice.js";
+import {
+  getDefaultFinancialYearValue,
+  getFinancialYearOptions,
+} from "./utils/financialYear";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -494,7 +498,8 @@ const App = () => {
       imsAxios.defaults.headers["Authorization"] = `${tokenToUse}`;
       imsAxios.defaults.headers["Company-Branch"] =
         user.company_branch || "BRMSC012";
-      imsAxios.defaults.headers["Session"] = user.session || "25-26";
+      imsAxios.defaults.headers["Session"] =
+        user.session || getDefaultFinancialYearValue();
       socket.emit("fetch_notifications", {
         source: "react",
       });
@@ -792,12 +797,7 @@ const App = () => {
     { label: "B36 [ALWAR]", value: "BRALWR36" },
     { label: "D-160 [BRBAD116]", value: "BRBAD116" },
   ];
-  const sessionOptions = [
-    { label: "Session 22-23", value: "22-23" },
-    { label: "Session 23-24", value: "23-24" },
-    { label: "Session 24-25", value: "24-25" },
-    { label: "Session 25-26", value: "25-26" },
-  ];
+  const sessionOptions = getFinancialYearOptions(22);
 
   const locationBranchOptions = {
     alwar: [{ label: "B36 [ALWAR]", value: "BRALWR36" }],
