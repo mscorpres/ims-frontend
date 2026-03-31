@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../axiosInterceptor";
-import { getDefaultFinancialYearValue } from "../../utils/financialYear";
+import {
+  getDefaultFinancialYearValue,
+  resolveSessionFinancialYear,
+} from "../../utils/financialYear";
 let fav =
   typeof JSON.parse(localStorage.getItem("loggedInUser"))?.favPages == "string"
     ? JSON.parse(JSON.parse(localStorage.getItem("loggedInUser"))?.favPages)
@@ -15,10 +18,11 @@ const initialState = {
         company_branch:
           JSON.parse(localStorage.getItem("otherData"))?.company_branch ??
           JSON.parse(localStorage.getItem("loggedInUser"))?.company_branch,
-        session:
+        session: resolveSessionFinancialYear(
           JSON.parse(localStorage.getItem("otherData"))?.session ??
-          JSON.parse(localStorage.getItem("loggedInUser"))?.session ??
-          getDefaultFinancialYearValue(),
+            JSON.parse(localStorage.getItem("loggedInUser"))?.session ??
+            getDefaultFinancialYearValue()
+        ),
         passwordChanged: "C",
         showlegal:
           JSON.parse(localStorage.getItem("loggedInUser"))?.department ===
@@ -192,8 +196,9 @@ const loginSlice = createSlice({
       // Update axios headers with selected branch and session
       const company_branch =
         action.payload?.company_branch ?? obj.company_branch ?? "BRMSC012";
-      const session =
-        action.payload?.session ?? obj.session ?? getDefaultFinancialYearValue();
+      const session = resolveSessionFinancialYear(
+        action.payload?.session ?? obj.session ?? getDefaultFinancialYearValue()
+      );
 
       const existingOtherData = JSON.parse(
         localStorage.getItem("otherData") || "{}"

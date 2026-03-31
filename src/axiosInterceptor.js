@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
-import { getDefaultFinancialYearValue } from "./utils/financialYear";
+import {
+  getDefaultFinancialYearValue,
+  migrateFinancialYearSessionInStorage,
+} from "./utils/financialYear";
+
+migrateFinancialYearSessionInStorage();
 let socketLink = localStorage.getItem("currentSocketUrl") || import.meta.env.VITE_REACT_APP_SOCKET_BASE_URL;
 const isSwitchInProgress = () => localStorage.getItem("switchInProgress") === "1";
 const imsLink =
