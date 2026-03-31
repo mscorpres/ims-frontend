@@ -639,7 +639,7 @@ const App = () => {
               Session:
                 user.session ??
                 JSON.parse(localStorage.getItem("otherData"))?.session ??
-                "25-26",
+                getDefaultFinancialYearValue(),
             },
           });
           if (data.code === 200) {
@@ -653,7 +653,7 @@ const App = () => {
           toast.error( error?.message || "Error fetching module permissions");
           setEnabledModules([]);
           if (error.response?.status === 403) {
-            dispatch(logout());
+            dispatch(logoutUser());
             navigate("/login");
           }
         }
