@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../axiosInterceptor";
-import { getDefaultFinancialYearValue } from "../../utils/financialYear";
+import {
+  getDefaultFinancialYearValue,
+  resolveSessionFinancialYear,
+} from "../../utils/financialYear";
 let fav =
   typeof JSON.parse(localStorage.getItem("loggedInUser"))?.favPages == "string"
     ? JSON.parse(JSON.parse(localStorage.getItem("loggedInUser"))?.favPages)
@@ -15,10 +18,11 @@ const initialState = {
         company_branch:
           JSON.parse(localStorage.getItem("otherData"))?.company_branch ??
           JSON.parse(localStorage.getItem("loggedInUser"))?.company_branch,
-        session:
+        session: resolveSessionFinancialYear(
           JSON.parse(localStorage.getItem("otherData"))?.session ??
-          JSON.parse(localStorage.getItem("loggedInUser"))?.session ??
-          getDefaultFinancialYearValue(),
+            JSON.parse(localStorage.getItem("loggedInUser"))?.session ??
+            getDefaultFinancialYearValue()
+        ),
         passwordChanged: "C",
         showlegal:
           JSON.parse(localStorage.getItem("loggedInUser"))?.department ===
@@ -78,7 +82,7 @@ const initialState = {
 //             setting: data.data.settings,
 //           })
 //         );
-//         imsAxios.defaults.headers["x-csrf-token"] = data.data.token;
+//    
 //         imsAxios.defaults.headers["Company-Branch"] = "BRMSC012";
 //         return await {
 //           ...data.data,
@@ -98,16 +102,9 @@ const initialState = {
 const loginSlice = createSlice({
   name: "auth",
   initialState,
+
   reducers: {
-    logout: (state, action) => {
-      let otherData = JSON.parse(localStorage.getItem("otherData"));
-      otherData = { ...otherData, currentLink: state.user.currentLink };
-      state.user = null;
-      state.message = "User Logged Out!";
-      localStorage.removeItem("loggedInUser");
-      localStorage.setItem("otherData", JSON.stringify(otherData));
-      toast.info("User Logged Out!");
-    },
+ 
     addNotification: (state, action) => {
       state.notifications = [
         ...state.notifications,
@@ -157,7 +154,7 @@ const loginSlice = createSlice({
     },
     setCompanyBranch: (state, action) => {
       window.location.reload(true);
-      imsAxios.defaults.headers["Company-Branch"] = action.payload;
+      imsAxios.defaults.headers["Company-Branch"] = action.payload ?? "BRMSC012";
       // clientAxios.defaults.headers["Company-Branch"] = action.payload;
       let user = state.user;
       user = { ...user, company_branch: action.payload };
@@ -199,8 +196,9 @@ const loginSlice = createSlice({
       // Update axios headers with selected branch and session
       const company_branch =
         action.payload?.company_branch ?? obj.company_branch ?? "BRMSC012";
-      const session =
-        action.payload?.session ?? obj.session ?? getDefaultFinancialYearValue();
+      const session = resolveSessionFinancialYear(
+        action.payload?.session ?? obj.session ?? getDefaultFinancialYearValue()
+      );
 
       const existingOtherData = JSON.parse(
         localStorage.getItem("otherData") || "{}"
@@ -215,7 +213,7 @@ const loginSlice = createSlice({
       );
 
       // Update axios headers immediately
-      imsAxios.defaults.headers["Company-Branch"] = company_branch;
+      imsAxios.defaults.headers["Company-Branch"] = company_branch ?? "BRMSC012";
       imsAxios.defaults.headers["Session"] = session;
     },
     setSettings: (state, action) => {
@@ -266,7 +264,7 @@ const loginSlice = createSlice({
 export const selectUserDepartment = (state) => state;
 
 export const {
-  logout,
+ 
   addNotification,
   removeNotification,
   setNotifications,

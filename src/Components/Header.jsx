@@ -15,14 +15,8 @@ const Header = ({ showSideBar, setShowSideBar, notifications }) => {
   // const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [userMenu, setUserMenu] = useState(false);
-  const [location, setLocation] = useState("");
-  const locationOptions = [{ value: "BRMSC012", label: "A-21 [BRMSC012]" }];
-  const [norificationStatus, setNotificationStatus] = useState(false);
 
-  const logoutHandler = () => {
-    dispatch(logout());
-  };
+
   const toggleSideBar = () => {
     setShowSideBar((open) => !open);
   };
