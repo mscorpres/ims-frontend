@@ -141,7 +141,12 @@ const links = [
       routeName: "VBT7",
       placeholder: "RCM",
       routePath: "/tally/vendorbillposting/VB7",
-      key: 6,
+      key: 7,
+    },
+    {
+      routeName: "VBT8",
+      routePath: "/tally/vendorbillposting/VB8",
+      key: 8,
     },
   ],
   // JV links
@@ -1230,7 +1235,6 @@ const links = [
       routePath: routeConstants.researchAndDevelopment.bom.list,
     },
     {
-      routeName: "BOM Drafts",
       routeName: "BOM Drafts",
       routePath: routeConstants.researchAndDevelopment.bom.drafts,
     },

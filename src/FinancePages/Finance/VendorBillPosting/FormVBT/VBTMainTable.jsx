@@ -83,6 +83,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       setApiUrl("vbt06");
     } else if (url === "VB7") {
       setApiUrl("vbt07");
+    } else if (url === "VB8") {
+      // Clone of VBT1 module (vbt01) with vbt08 api endpoints
+      setApiUrl("vbt08");
     } 
   }, [url]);
 
@@ -150,7 +153,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       getActions: ({ row }) =>
         (apiUrl == "vbt06" && (row.vbpStatus ?? row.vbp_status) == "PENDING") ||
-        (apiUrl === "vbt01" && (row.vbpStatus ?? row.vbp_status) == "PENDING")
+        ((apiUrl === "vbt01" || apiUrl === "vbt08") &&
+          (row.vbpStatus ?? row.vbp_status) == "PENDING")
           ? [
               <>
                 <GridActionsCellItem
@@ -564,7 +568,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
             </Space>
           </div>
           <Space>
-            {(apiUrl == "vbt06" || apiUrl == "vbt01") && (
+            {(apiUrl == "vbt06" || apiUrl == "vbt01" || apiUrl == "vbt08") && (
               <Checkbox
                 // onClick={() => setPreviewdisData(!previewdisData)}
                 disabled={vbtData.length == 0}
@@ -590,7 +594,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
             checkboxSelection={wise == "vendor_wise"}
             loading={searchLoading}
             columns={
-              apiUrl == "vbt06" || apiUrl == "vbt01"
+              apiUrl == "vbt06" || apiUrl == "vbt01" || apiUrl == "vbt08"
                 ? vbtTableColumnsonesix
                 : vbtTableColumnselse
             }

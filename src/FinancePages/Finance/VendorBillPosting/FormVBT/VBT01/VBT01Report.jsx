@@ -172,7 +172,7 @@ function VBT01Report({
         igst: "TP486973272469",
 
         glCodeValue:
-          apiUrl === "vbt01"
+          apiUrl === "vbt01" || apiUrl === "vbt08"
             ? "TP821753548513"
             : apiUrl === "vbt06"
               ? "TP672531876660"

@@ -627,6 +627,7 @@ export default function SingleComponent({
             </Col>
           )} */}
           {apiUrl === "vbt01" ||
+          apiUrl === "vbt08" ||
           apiUrl === "vbt04" ||
           apiUrl === "vbt05" ||
           apiUrl === "vbt07" ? (
@@ -856,6 +857,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col> */}
           {editApiUrl === "vbt01" ||
+          editApiUrl === "vbt08" ||
           editApiUrl === "vbt04" ||
           editApiUrl === "vbt05" ? (
             <>
