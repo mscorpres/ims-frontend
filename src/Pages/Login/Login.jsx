@@ -102,6 +102,7 @@ const Login = () => {
         } else {
           // Normal login flow (no OTP)
           const payload = res?.data ?? res;
+        
           const obj = {
             email: payload.crn_email,
             phone: payload.crn_mobile,
@@ -398,6 +399,7 @@ const Login = () => {
       if (response?.success) {
         const payload = response?.data;
         console.log(payload, "data");
+      
 
         const obj = {
           email: payload.crn_email,
