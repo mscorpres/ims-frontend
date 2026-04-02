@@ -17,13 +17,14 @@ const UpdateProjectModal = ({
   const [bomOptions, setBomOptions] = useState([]);           
   const [costCenterOptions, setCostCenterOptions] = useState([]); 
 
+
   const { executeFun } = useApi();
 
   // Load BOM options
-  const loadBomOptions = async (search) => {
+  const loadBomOptions = async (search:any) => {
     const response = await executeFun(() => getBomOptions(search), "select");
     if (response.success) {
-      const options = convertSelectOptions(response.data); 
+      const options = convertSelectOptions(response.data);
       setBomOptions(options);
     } else {
       setBomOptions([]);
@@ -34,7 +35,7 @@ const UpdateProjectModal = ({
   const loadCostCenterOptions = async (search) => {
     const response = await executeFun(() => getCostCentresOptions(search), "select");
     if (response.success) {
-      const options = convertSelectOptions(response.data);
+        const options = convertSelectOptions(response.data);
       setCostCenterOptions(options);
     } else {
       setCostCenterOptions([]);
@@ -49,16 +50,16 @@ const UpdateProjectModal = ({
         description: data.description || "",
         qty: data.qty || 1,
         
-        bom: data.bomSubject || null,        
+        bom: data.bomSubject || null,
         costcenter: data.costcenter || null,
       });
 
     
       if (data.bomSubject) {
-        setBomOptions([{ label: data.bomSubject, value: data.bomSubject }]);
+        setBomOptions([{ id: data.bomSubject?.subject_id, text: data.bomSubject?.subject_name }]);
       }
       if (data.costcenter) {
-        setCostCenterOptions([{ label: data.costcenter, value: data.costcenter }]);
+        setCostCenterOptions([{ id: data.costcenter?.cost_center_key, text: data.costcenter?.cost_center_name }]);
       }
     }
   }, [data, isModalVisible, form]);
@@ -135,7 +136,8 @@ const UpdateProjectModal = ({
             loadOptions={loadBomOptions}
             optionsState={bomOptions}           
             onBlur={() => setBomOptions([])}  
-            allowClear
+            labelInValue={true}
+            
           />
         </Form.Item>
 
@@ -146,7 +148,8 @@ const UpdateProjectModal = ({
             loadOptions={loadCostCenterOptions}
             optionsState={costCenterOptions}       
             onBlur={() => setCostCenterOptions([])}
-            allowClear
+            labelInValue={true}
+     
           />
         </Form.Item>
       </Form>
