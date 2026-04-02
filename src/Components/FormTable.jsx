@@ -84,7 +84,7 @@ export default function FormTable({ columns, data, loading }) {
                       border: "none",
                     }}
                   >
-                    {col.renderCell({ row })}
+                    {col?.renderCell({ row })}
                   </TableCell>
                 ))}
               </TableRow>

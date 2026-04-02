@@ -149,8 +149,9 @@ input[type="number"]::-webkit-outer-spin-button {
   font-weight: 500 !important;
   color: rgb(71, 71, 71);
 }
-.ant-picker-cell .ant-picker-cell-inner,
-.ant-picker-content th {
+/* Day grid only — month/year panels need full cell width; global 24px breaks them */
+.ant-picker-date-panel .ant-picker-cell .ant-picker-cell-inner,
+.ant-picker-date-panel .ant-picker-content th {
   font-size: 0.8rem;
   font-weight: 500;
   height: 24px !important;
@@ -542,8 +543,8 @@ ul.MuiDataGrid-menuList li.css-kk1bwy-MuiButtonBase-root-MuiMenuItem-root,
     font-size: 0.7rem !important;
   }
 
-  .ant-picker-cell .ant-picker-cell-inner,
-  .ant-picker-content th {
+  .ant-picker-date-panel .ant-picker-cell .ant-picker-cell-inner,
+  .ant-picker-date-panel .ant-picker-content th {
     font-size: 0.7rem;
     font-weight: 500;
     height: 18px !important;

@@ -116,6 +116,11 @@ const R2 = () => {
       width: 120,
     },
     {
+      field: "ppr_no",
+      headerName: "PPR No",
+      width: 120,
+    },
+    {
       field: "branch",
       headerName: "Branch-In",
       width: 120,

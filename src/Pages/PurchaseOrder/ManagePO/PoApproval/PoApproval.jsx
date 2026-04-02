@@ -180,6 +180,12 @@ export default function PoApproval() {
       ),
     },
     {
+      headerName: "PPR No",
+      field: "ppr_no",
+      minWidth: 130,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.ppr_no} copy={true} />,
+    },
+    {
       headerName: "Vendor",
       field: "vendor_name",
       flex: 1,

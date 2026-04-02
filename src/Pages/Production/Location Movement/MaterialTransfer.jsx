@@ -5,7 +5,8 @@ import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { getComponentOptions } from "../../../api/general.ts";
+import { getComponentOptions, getProjectOptions } from "../../../api/general.ts";
+import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { UploadOutlined } from "@ant-design/icons";
 const { paragraph } = Typography;
@@ -29,6 +30,10 @@ function MaterialTransfer({ type }) {
   const [locDetail, setLocDetail] = useState("");
   const [locDetailTo, setLocDetailTo] = useState("");
   const [locRejDetail, setLocRejDetail] = useState("");
+  const [project, setProject] = useState(null);
+  const [projectAsyncOptions, setProjectAsyncOptions] = useState([]);
+  const [pprOptions, setPprOptions] = useState([]);
+  const [isPPRLoading, setIsPPRLoading] = useState(false);
 
   const [rows, setRows] = useState([
     {
@@ -91,6 +96,40 @@ function MaterialTransfer({ type }) {
     }
   };
 
+  const handleFetchProjectOptions = async (search) => {
+    const response = await executeFun(() => getProjectOptions(search), "select");
+    setProjectAsyncOptions(response?.data ?? []);
+  };
+
+  const fetchPPROptions = async (projectKey) => {
+    if (!projectKey) {
+      setPprOptions([]);
+      return;
+    }
+    try {
+      setIsPPRLoading(true);
+      const response = await imsAxios.post("/purchaseOrder/pprList", {
+        project_name: projectKey,
+      });
+      if (response?.data?.status === "success") {
+        setPprOptions(convertSelectOptions(response?.data?.data));
+      } else {
+        setPprOptions([]);
+      }
+    } catch {
+      setPprOptions([]);
+      toast.error("Error fetching PPR options");
+    } finally {
+      setIsPPRLoading(false);
+    }
+  };
+
+  const resolveProjectId = () => {
+    const p = project;
+    if (p == null || p === "") return "";
+    return typeof p === "object" ? p?.value ?? "" : p;
+  };
+
   const getRowComponentDetail = async (rowIndex, componentValue) => {
     const row = rows[rowIndex];
     const component = componentValue ?? row?.componentName;
@@ -146,12 +185,15 @@ function MaterialTransfer({ type }) {
       if (!r.componentName)
         return toast.error(`Row ${i + 1}: Please select Component`);
       if (!r.qty) return toast.error(`Row ${i + 1}: Please enter Qty`);
-      if (
-        r.rejLoc == allData.locationSel &&
-        allData.dropBranch ==
-          JSON.parse(localStorage.getItem("otherData"))?.company_branch
-      )
+      if (r.rejLoc == allData.locationSel)
         return toast.error(`Row ${i + 1}: Both Location Same`);
+    }
+
+    if (type == "sftorej") {
+      const projectId = resolveProjectId();
+      if (!projectId) return toast.error("Please select Project");
+      if (!allData.pprId && !pprOptions.length)
+        return toast.error("Please select PPR");
     }
 
     const components = rows.map((r) => r.componentName);
@@ -159,16 +201,30 @@ function MaterialTransfer({ type }) {
     const comments = rows.map((r) => r.comment || "");
 
     setLoading(true);
+    const payload =
+      type == "sftorej"
+        ? {
+            pickLocation: allData.locationSel,
+            component: components,
+            remark: comments,
+            qty: qtys,
+            type: "SF2REJ",
+            dropLocation: allData.dropLoc,
+            project_id: resolveProjectId(),
+            ppr_id: allData.pprId,
+          }
+        : {
+            pickLocation: allData.locationSel,
+            component: components,
+            remark: comments,
+            qty: qtys,
+            type: "SF2SF",
+            dropLocation: allData.dropLoc,
+          };
+
     const response = await imsAxios.post(
       type == "sftorej" ? "/godown/transferSF2REJ" : "/godown/transferSF2SF",
-      {
-        pickLocation: allData.locationSel,
-        component: components,
-        remark: comments,
-        qty: qtys,
-        type: type == "sftorej" ? "SF2REJ" : "SF2SF",
-        dropLocation: allData.dropLoc,
-      }
+      payload
     );
 
     if (response.success) {
@@ -200,6 +256,8 @@ function MaterialTransfer({ type }) {
       locationSel: "",
       dropBranch: "",
     });
+    setProject(null);
+    setPprOptions([]);
     setRows([
       {
         componentName: "",
@@ -398,6 +456,40 @@ function MaterialTransfer({ type }) {
               <Col span={24} style={{ padding: "5px" }}>
                 <TextArea disabled value={locDetailTo} />
               </Col>
+              {type == "sftorej" && (
+                <>
+                  <Col span={24} style={{ padding: "5px" }}>
+                    <span>Project</span>
+                    <MyAsyncSelect
+                      loadOptions={handleFetchProjectOptions}
+                      onBlur={() => setProjectAsyncOptions([])}
+                      placeholder="Project ID / name"
+                      optionsState={projectAsyncOptions}
+                      selectLoading={loading1("select")}
+                      value={project}
+                      onChange={(value) => {
+                        setProject(value);
+                        const key =
+                          value && typeof value === "object"
+                            ? value.value
+                            : value;
+                        fetchPPROptions(key);
+                      }}
+                    />
+                  </Col>
+                  <Col span={24} style={{ padding: "5px" }}>
+                    <span>PPR</span>
+                    <MySelect
+                      options={pprOptions}
+                      placeholder="Select PPR"
+                      value={allData.pprId}
+                      onChange={(value) =>
+                        setAllData((prev) => ({ ...prev, pprId: value }))
+                      }
+                    />
+                  </Col>
+                </>
+              )}
             </Row>
           </Card>
         </Col>

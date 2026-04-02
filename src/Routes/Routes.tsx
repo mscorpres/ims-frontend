@@ -216,6 +216,7 @@ import R27 from "../Pages/Reports/R/R27.jsx";
 import R28 from "../Pages/Reports/R/R28.jsx";
 import R29 from "../Pages/Reports/R/R29.jsx";
 import CompletedPPR from "../Pages/Production/Production & Planning/CompletedPPR.jsx";
+import PprQtyRequests from "../Pages/Production/Production & Planning/PprQtyRequests.jsx";
 import AccountsPayableReport from "../FinancePages/Finance/vouchers/AppReference/AccountsPayableReport.jsx";
 import VBTRecords from "../FinancePages/Finance/VBTRecords/VBTRecords.jsx";
 import DebitCentralizedRegister from "../FinancePages/Finance/Debit/DebitCentralizedRegister.jsx";
@@ -264,6 +265,8 @@ import R35 from "@/Pages/Reports/R/R35.jsx";
 import R37 from "@/Pages/Reports/R/R37.jsx";
 //@ts-ignore
 import R38 from "@/Pages/Reports/R/R38.jsx";
+//@ts-ignore
+import R39 from "@/Pages/Reports/R/R39.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
@@ -817,6 +820,10 @@ const Routes = [
     main: () => <R38 />,
   },
   {
+    path: "/r39",
+    main: () => <R39 />,
+  },
+  {
     path: "/reqWithBom",
     main: () => <ReqWithBom />,
   },
@@ -835,6 +842,10 @@ const Routes = [
   {
     path: "/completed-ppr",
     main: () => <CompletedPPR />,
+  },
+  {
+    path: "/ppr-qty-requests",
+    main: () => <PprQtyRequests />,
   },
   // Purchase Order
   {
