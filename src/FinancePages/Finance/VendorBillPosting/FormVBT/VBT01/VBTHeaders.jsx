@@ -36,7 +36,7 @@ function VBTHeaders({
               ? `Being Jobwork charges due of challan no:____on inv: ${pageHeaders?.invoiceId} dt:____of amount:____TDS:___ payable amt:____`
               : apiUrl === "vbt07"
                 ? `Being -- purchase on inv ${pageHeaders?.invoiceId} date:____ of amt: ___ TDS:___ `
-                : apiUrl === "vbt01"
+                : apiUrl === "vbt01" || apiUrl === "vbt08"
                   ? `Being purchased for on INV no. ${pageHeaders?.invoiceId} date: ___ amount: ___ TDS:___ `
                   : apiUrl === "vbt02"
                     ? `Being Service charges due to INV no. ${pageHeaders?.invoiceId} date of amount TDS:___ `
