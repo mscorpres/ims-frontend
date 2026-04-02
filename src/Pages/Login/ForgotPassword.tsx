@@ -23,6 +23,12 @@ const ForgotPassword = (props: PropTypes) => {
   const [captchaExpectedCode, setCaptchaExpectedCode] = useState("");
   const [captchaKey, setCaptchaKey] = useState(Math.random());
 
+  const emailWatch = Form.useWatch("email", form);
+  const trimmedEmail =
+    emailWatch == null ? "" : String(emailWatch).trim();
+  const isValidEmail =
+    trimmedEmail.length > 0 && emailPattern.test(trimmedEmail);
+
   const isCaptchaValid = () =>
     (captchaInput?.trim() ?? "") === (captchaExpectedCode ?? "");
 
@@ -99,14 +105,21 @@ const ForgotPassword = (props: PropTypes) => {
       open={props.show}
       onOk={handleSubmit}
       confirmLoading={loading("submit")}
-      okText={
-        stage === 0
-          ? "Send OTP"
-          : stage === 1
-          ? "Verify OTP"
-          : "Update Password"
+          okText={
+        <span style={{ display: "inline-flex", alignItems: "center" }}>
+          {stage === 0
+            ? "Send OTP"
+            : stage === 1
+              ? "Verify OTP"
+              : "Update Password"}
+        </span>
       }
+      okButtonProps={{
+        disabled: stage === 0 && !isValidEmail,
+      }}
+    
       onCancel={props.hide}
+      
     >
       <Form form={form} layout="vertical">
         <Flex style={{ width: "100%" }} vertical align="center">
