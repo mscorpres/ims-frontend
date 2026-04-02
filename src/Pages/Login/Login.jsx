@@ -47,7 +47,6 @@ const Login = () => {
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
-    // Default branch so App effects that depend on truthy `user.company_branch` run immediately
     company_branch: "BRMSC012",
   });
   const { Title, Link, Text } = Typography;
@@ -102,7 +101,7 @@ const Login = () => {
         } else {
           // Normal login flow (no OTP)
           const payload = res?.data ?? res;
-        
+   
           const obj = {
             email: payload.crn_email,
             phone: payload.crn_mobile,

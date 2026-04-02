@@ -9,6 +9,10 @@ import { toast } from "react-toastify";
 
 interface PropTypes extends ModalType {}
 
+const emailPattern =
+  /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
+
+
 let defaultTimer = 60;
 const ForgotPassword = (props: PropTypes) => {
   const [stage, setStage] = useState<0 | 1 | 2>(0);
@@ -106,12 +110,45 @@ const ForgotPassword = (props: PropTypes) => {
     >
       <Form form={form} layout="vertical">
         <Flex style={{ width: "100%" }} vertical align="center">
-          <Form.Item name="email" label="Email" style={{ width: "100%" }}>
-            <Input disabled={stage > 0} style={{ width: "100%" }} />
+               <Form.Item
+            name="email"
+            label="Email"
+            style={{ width: "100%" }}
+            rules={[
+              {
+                required: true,
+                message: "Please enter your email address",
+              },
+              {
+                validator: (_, value) => {
+                  if (value == null || String(value).trim() === "") {
+                    return Promise.resolve();
+                  }
+                  const trimmed = String(value).trim();
+                 
+                  if (!emailPattern.test(trimmed)) {
+                    return Promise.reject(
+                      new Error(
+                        "Please enter a valid email address"
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <Input
+              disabled={stage > 0}
+              style={{ width: "100%", marginBottom: 5 }}
+              placeholder="name@example.com"
+              inputMode="email"
+              autoComplete="email"
+            />
           </Form.Item>
 
           {stage === 0 && (
-            <Form.Item style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+            <Form.Item style={{ width: "100%", display: "flex", justifyContent: "center", marginTop:6 }}>
               <ImageCaptcha
                 value={captchaInput}
                 onChange={(e) => setCaptchaInput(e.target.value)}
