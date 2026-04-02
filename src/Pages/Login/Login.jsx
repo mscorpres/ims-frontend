@@ -92,7 +92,7 @@ const Login = () => {
           // Two-step login, show OTP screen
           setUserCredentials({
             username,
-            token: res?.data?.token,
+            token: res?.data?.tempToken,
             qrCode: res?.data?.qrCode,
             company_branch: inpVal.company_branch, // Store selected branch for OTP flow
           });
@@ -102,6 +102,7 @@ const Login = () => {
         } else {
           // Normal login flow (no OTP)
           const payload = res?.data ?? res;
+       
           const obj = {
             email: payload.crn_email,
             phone: payload.crn_mobile,
@@ -397,7 +398,8 @@ const Login = () => {
 
       if (response?.success) {
         const payload = response?.data;
-        console.log(payload, "data");
+    
+      
 
         const obj = {
           email: payload.crn_email,
