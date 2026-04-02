@@ -968,6 +968,11 @@ const links = [
       routeName: "Completed PPR",
       routePath: "/completed-ppr",
     },
+    {
+      routeName: "PPR Qty Requests",
+      routePath: "/ppr-qty-requests",
+      placeholder: "Approve / Reject PPR qty requests",
+    },
   ],
   // Material Requisition links
   [

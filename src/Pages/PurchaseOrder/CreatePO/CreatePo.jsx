@@ -678,9 +678,24 @@ export default function CreatePo() {
       setSubmitLoading(false);
       const responseData = response?.data || response;
       if (responseData) {
-        if (responseData.code === 400 && responseData.status === "warning") {
+        const warningsFromApi =
+          responseData?.data?.warnings ||
+          responseData?.warnings ||
+          null;
+
+        // Backend quantity-exceed warnings kabhi `400 warning` bhejta hai, aur kabhi `500 error` ke saath.
+        // Dono cases me hum same warning modal show karte hain taa ki user "Proceed Anyway" kar sake.
+        if (
+          (responseData.code === 400 &&
+            responseData.status === "warning") ||
+          (Array.isArray(warningsFromApi) && warningsFromApi.length > 0)
+        ) {
           setShowSubmitConfirm(null);
-          setQtyWarningData(responseData.data);
+          setQtyWarningData(
+            responseData?.data?.warnings
+              ? responseData.data
+              : { warnings: warningsFromApi },
+          );
           setShowQtyWarning(true);
           return;
         }
@@ -1336,9 +1351,9 @@ export default function CreatePo() {
             type="primary"
             loading={submitLoading}
             onClick={() => {
-              setPendingPOData(showSubmitConfirm); // ← Store the PR data
-              setShowSubmitConfirm(false); // ← Close this modal
-              submitHandler(false); // ← Try to submit (will trigger warning if needed)
+              setPendingPOData(showSubmitConfirm); 
+              setShowSubmitConfirm(false); 
+              submitHandler(false);
             }}
           >
             Yes
@@ -1367,9 +1382,24 @@ export default function CreatePo() {
       {/* Quantity Warning Modal */}
       <Modal
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "20px", color: "#faad14" }}>⚠️</span>
-            <span>Quantity Exceeds Project Requirement</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                background: "#fff7e6",
+                border: "1px solid #ffd591",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#faad14",
+                fontWeight: 700,
+              }}
+            >
+              !
+            </div>
+            <span style={{ fontWeight: 600 }}>Quantity Exceeds Project Requirement</span>
           </div>
         }
         open={showQtyWarning}
@@ -1380,31 +1410,21 @@ export default function CreatePo() {
         }}
         footer={[
           <Button
-            key="back"
+            key="ok"
+            type="primary"
             onClick={() => {
               setShowQtyWarning(false);
               setQtyWarningData(null);
+              setPendingPOData(null);
             }}
           >
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            danger
-            loading={submitLoading}
-            onClick={async () => {
-              setShowQtyWarning(false);
-              await submitHandler(true); // Pass confirmation flag - pendingPOData already has the data
-            }}
-          >
-            Proceed Anyway
+            OK
           </Button>,
         ]}
         width={700}
       >
         <div>
-          <p style={{ marginBottom: "16px", fontWeight: 500 }}>
+          <p style={{ marginBottom: 12, fontWeight: 600, color: "#595959" }}>
             The following components exceed the project quantity requirements:
           </p>
 
@@ -1412,23 +1432,29 @@ export default function CreatePo() {
             <div
               key={index}
               style={{
-                padding: "12px",
-                marginBottom: "12px",
+                padding: 12,
+                marginBottom: 12,
                 backgroundColor: "#fff7e6",
                 border: "1px solid #ffd591",
-                borderRadius: "4px",
+                borderRadius: 6,
               }}
             >
-              <p style={{ margin: "4px 0", fontSize: "14px" }}>
-                <strong>{warning.message}:</strong>
-              </p>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#262626" }}>
+                {typeof warning?.row !== "undefined" && warning?.row !== null
+                  ? `Row ${warning.row}`
+                  : `Component ${index + 1}`}
+                {warning?.component_name ? `: ${warning.component_name}` : ""}
+              </div>
+
+              <div style={{ marginTop: 6, fontSize: 13, color: "#595959", lineHeight: 1.4 }}>
+                {warning?.message}
+              </div>
             </div>
           ))}
 
-          <p style={{ marginTop: "16px", color: "#595959", fontSize: "13px" }}>
-            ⚠️ <strong>Warning:</strong> Proceeding will create a PR that
-            exceeds the project requirements. Please verify this is intentional
-            before continuing.
+          <p style={{ marginTop: 8, color: "#595959", fontSize: 13 }}>
+            PO cannot be created because some components exceed the project quantity
+            requirements. Please adjust the quantities and try again.
           </p>
         </div>
       </Modal>
@@ -2559,12 +2585,8 @@ const rules = {
       message: "Please Select a Project!",
     },
   ],
-  ppr: [
-    {
-      required: true,
-      message: "Please Select a PPR!",
-    },
-  ],
+  // PPR optional hai (required star/remove + submit-time block nahi)
+  ppr: [],
   raisedBy: [
     {
       required: true,

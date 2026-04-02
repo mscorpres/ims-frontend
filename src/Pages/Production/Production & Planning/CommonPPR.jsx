@@ -50,6 +50,12 @@ const CommonPPR = () => {
                 </Link>
                 <b className="sub-arrow"></b>
               </li>
+              <li className={`nav-item ${pathname == "/ppr-qty-requests" && "active"}`}>
+                <Link className="nav-link" to="/ppr-qty-requests">
+                  <span>Qty Requests</span>
+                </Link>
+                <b className="sub-arrow"></b>
+              </li>
             </ul>
           </nav>
         </div>

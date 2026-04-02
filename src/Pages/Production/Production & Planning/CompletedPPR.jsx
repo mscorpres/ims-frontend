@@ -10,6 +10,7 @@ import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
+import PprQtyLogsModal from "./PprQtyLogsModal";
 
 const CompletedPPR = () => {
   const [wise, setWise] = useState("skuwise");
@@ -18,6 +19,7 @@ const CompletedPPR = () => {
   const [selectLoading, setSelectLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [rows, setRows] = useState([]);
+  const [showQtyLogs, setShowQtyLogs] = useState(null); // {ppr_no, project_id}
 
   const wiseOptions = [
     { text: "Product SKU Wise  ", value: "skuwise" },
@@ -69,6 +71,26 @@ const CompletedPPR = () => {
   };
 
   const columns = [
+    {
+      headerName: "",
+      field: "action",
+      width: 120,
+      sortable: false,
+      renderCell: ({ row }) => (
+        <MyButton
+          variant="view"
+          size="small"
+          onClick={() =>
+            setShowQtyLogs({
+              ppr_no: row.prod_transaction,
+              project_id: row.prod_project,
+            })
+          }
+        >
+          Qty Logs
+        </MyButton>
+      ),
+    },
     { headerName: "Serial No.", width: 100, field: "index" },
     { headerName: "Type", width: 70, field: "prod_type" },
     { headerName: "Req No.", flex: 1, field: "prod_transaction" },
@@ -174,6 +196,11 @@ const CompletedPPR = () => {
           loading={searchLoading}
         />
       </div>
+      <PprQtyLogsModal
+        open={!!showQtyLogs}
+        onClose={() => setShowQtyLogs(null)}
+        initialFilters={showQtyLogs}
+      />
     </div>
   );
 };

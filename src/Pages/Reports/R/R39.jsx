@@ -54,12 +54,18 @@ const R39 = () => {
     }
   };
 
-  // Derive dynamic month columns from API response (month_exec)
-  const monthLabels = Array.from(
+  // Month columns should follow component-level execution, not SKU-level.
+  const componentMonthLabels = Array.from(
     new Set(
       rows.flatMap((row) =>
-        Array.isArray(row.month_exec)
-          ? row.month_exec.map((m) => m.month)
+        Array.isArray(row.components)
+          ? row.components.flatMap((component) =>
+              Array.isArray(component?.month_exec)
+                ? component.month_exec
+                    .map((m) => m?.month)
+                    .filter((m) => Boolean(m))
+                : [],
+            )
           : [],
       ),
     ),
@@ -106,12 +112,6 @@ const R39 = () => {
     { field: "bom_qty", headerName: "BOM Qty", width: 90 },
   ];
 
-  const monthColumns = monthLabels.map((label, index) => ({
-    field: `month_${index}`,
-    headerName: label,
-    width: 130,
-  }));
-
   const tailColumns = [
     {
       field: "planned_month",
@@ -131,28 +131,13 @@ const R39 = () => {
     },
   ];
 
-  const columns = [...baseColumns, ...monthColumns, ...tailColumns];
+  const columns = [...baseColumns, ...tailColumns];
 
   // Project-level rows; components neeche detail table me dikhayenge
-  const displayRows = rows.map((row, rowIndex) => {
-    const monthMap = {};
-    if (Array.isArray(row.month_exec)) {
-      row.month_exec.forEach((m) => {
-        if (m?.month) monthMap[m.month] = m.qty ?? 0;
-      });
-    }
-
-    const monthFields = monthLabels.reduce((acc, label, index) => {
-      acc[`month_${index}`] = monthMap[label] ?? 0;
-      return acc;
-    }, {});
-
-    return {
-      ...row,
-      ...monthFields,
-      id: row.id ?? rowIndex + 1,
-    };
-  });
+  const displayRows = rows.map((row, rowIndex) => ({
+    ...row,
+    id: row.id ?? rowIndex + 1,
+  }));
 
   return (
     <div style={{ height: "90%", padding: "10px" }}>
@@ -186,40 +171,57 @@ const R39 = () => {
             disabled={rows.length === 0}
             onClick={() => {
               const flatForCsv = rows.flatMap((row) => {
-                const monthMap = {};
-                if (Array.isArray(row.month_exec)) {
-                  row.month_exec.forEach((m) => {
-                    if (m?.month) monthMap[m.month] = m.qty ?? 0;
-                  });
-                }
-                const monthFields = monthLabels.reduce(
-                  (acc, label, index) => {
-                    acc[`month_${index}`] = monthMap[label] ?? 0;
-                    return acc;
-                  },
-                  {},
-                );
-
                 if (!Array.isArray(row.components) || !row.components.length) {
-                  return [{ ...row, ...monthFields }];
+                  return [{ ...row }];
                 }
 
-                return row.components.map((c) => ({
+                return row.components.map((c) => {
+                  const compMonthMap = {};
+                  if (Array.isArray(c.month_exec)) {
+                    c.month_exec.forEach((m) => {
+                      if (m?.month) compMonthMap[m.month] = m.qty ?? 0;
+                    });
+                  }
+                  const compMonthFields = componentMonthLabels.reduce(
+                    (acc, label, index) => {
+                      acc[`component_month_${index}`] = compMonthMap[label] ?? 0;
+                      return acc;
+                    },
+                    {},
+                  );
+
+                  return {
                   ...row,
-                  ...monthFields,
+                  ...compMonthFields,
                   component_part_no: c.part_no,
+                  component_name: c.name,
                   component_bom_qty: c.bom_qty,
                   component_unit: c.unit,
                   component_ppr_plan_qty: c.ppr_plan_qty,
                   component_ppr_executed_qty: c.ppr_executed_qty,
                   component_ppr_pending_qty: c.ppr_pending_qty,
-                }));
+                  };
+                });
               });
 
               const exportColumns = [
                 ...baseColumns,
-                ...monthColumns,
                 ...tailColumns,
+                {
+                  field: "component_part_no",
+                  headerName: "Part No",
+                  minWidth: 120,
+                },
+                {
+                  field: "component_name",
+                  headerName: "Component",
+                  minWidth: 180,
+                },
+                ...componentMonthLabels.map((label, index) => ({
+                  field: `component_month_${index}`,
+                  headerName: `Comp ${label}`,
+                  width: 130,
+                })),
               ];
 
               downloadCSV(
@@ -267,10 +269,6 @@ const R39 = () => {
             },
             { title: "BOM", dataIndex: "bom" },
             { title: "BOM Qty", dataIndex: "bom_qty" },
-            ...monthLabels.map((label, index) => ({
-              title: label,
-              dataIndex: `month_${index}`,
-            })),
             { title: "Planned Month", dataIndex: "planned_month" },
             { title: "Project Plan Qty", dataIndex: "project_plan_qty" },
             { title: "Project Executed Qty", dataIndex: "project_executed_qty" },
@@ -288,6 +286,23 @@ const R39 = () => {
                   </div>
                 );
               }
+              const formattedComps = comps.map((c, idx) => {
+                const monthMap = {};
+                if (Array.isArray(c.month_exec)) {
+                  c.month_exec.forEach((m) => {
+                    if (m?.month) monthMap[m.month] = m.qty ?? 0;
+                  });
+                }
+                const monthFields = componentMonthLabels.reduce(
+                  (acc, label, index) => {
+                    acc[`month_${index}`] = monthMap[label] ?? 0;
+                    return acc;
+                  },
+                  {},
+                );
+                return { key: idx + 1, ...c, ...monthFields };
+              });
+
               return (
                 <div style={{ padding: 8 }}>
                   <div style={{ marginBottom: 6, fontSize: 12 }}>
@@ -300,7 +315,7 @@ const R39 = () => {
                     size="small"
                     rowKey={(row) => row.component_id || row.part_no}
                     pagination={false}
-                    dataSource={comps.map((c, idx) => ({ key: idx + 1, ...c }))}
+                    dataSource={formattedComps}
                     columns={[
                       {
                         title: "Part No",
@@ -325,6 +340,10 @@ const R39 = () => {
                         title: "PPR Pending Qty",
                         dataIndex: "ppr_pending_qty",
                       },
+                      ...componentMonthLabels.map((label, index) => ({
+                        title: label,
+                        dataIndex: `month_${index}`,
+                      })),
                     ]}
                   />
                 </div>
