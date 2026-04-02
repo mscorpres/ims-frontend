@@ -16,13 +16,16 @@ import { useDispatch, useSelector } from "react-redux";
 import socket from "../../../Components/socket";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
+import { getDefaultFinancialYearValue } from "../../../utils/financialYear";
 import useApi from "../../../hooks/useApi.ts";
 function VBTRecords() {
   const [wise, setWise] = useState("datewise");
   const [rows, setRows] = useState([]);
 
   const [searchDateRange, setSearchDateRange] = useState("");
-  const [searchInput, setSearchInput] = useState("MIN/25-26/");
+  const [searchInput, setSearchInput] = useState(
+    `MIN/${getDefaultFinancialYearValue()}/`
+  );
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [vbtOption, setVbtOption] = useState("ALL");
@@ -159,7 +162,7 @@ function VBTRecords() {
   useEffect(() => {
     setRows([]);
     if (wise == "minwise") {
-      setSearchInput("MIN/25-26/");
+      setSearchInput(`MIN/${getDefaultFinancialYearValue()}/`);
     } else {
       setSearchInput("");
     }

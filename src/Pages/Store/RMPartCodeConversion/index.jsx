@@ -363,6 +363,7 @@ const RMPartCodeConversion = () => {
       const response = await imsAxios.post("/conversion/saveConversion", {
         ...payload,
         ...remarks,
+        type: "rm",
       });
       const { data } = response;
       if (data) {

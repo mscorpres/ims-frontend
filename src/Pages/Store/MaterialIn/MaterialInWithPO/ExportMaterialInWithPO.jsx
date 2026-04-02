@@ -680,7 +680,7 @@ export default function ExportMaterialInWithPO({}) {
             ...mat,
             id: v4(),
             // Map field names to match column expectations
-            partCode: mat.partcode || mat.c_partno || "",
+            partCode: mat.c_partno ||mat.partcode || "",
             manualMfgCode: mat.mfgCode || "--",
             mfgCode: mat.mfgCode || "--", // Also add for manualMFGCode cell component
             orderQty: orderQty,

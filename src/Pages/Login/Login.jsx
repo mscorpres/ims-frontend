@@ -24,6 +24,7 @@ import { setSettings, setUser } from "../../Features/loginSlice/loginSlice";
 import ImageCaptcha from "../../Components/ImageCaptcha/ImageCaptcha";
 import { ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
+import { getDefaultFinancialYearValue } from "../../utils/financialYear";
 
 const Login = () => {
   document.title = "IMS Login";
@@ -46,6 +47,7 @@ const Login = () => {
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
+    // Default branch so App effects that depend on truthy `user.company_branch` run immediately
     company_branch: "BRMSC012",
   });
   const { Title, Link, Text } = Typography;
@@ -116,7 +118,7 @@ const Login = () => {
               ?.currentLink,
             id: payload.crn_id,
             showlegal: payload.department === "legal" ? true : false,
-            session: "25-26",
+            session: getDefaultFinancialYearValue(),
           };
 
           dispatch(setUser(obj));
@@ -132,6 +134,7 @@ const Login = () => {
       }
     }
   };
+
   const validatecreateNewUser = async () => {
     if (!isCaptchaValid()) {
       toast.error("Please enter the captcha correctly");
@@ -326,7 +329,6 @@ const Login = () => {
             { otp: otpString },
             {
               headers: {
-                "x-csrf-token": userCredentials.token,
                 Authorization: `${userCredentials.token}`,
               },
             },
@@ -352,7 +354,7 @@ const Login = () => {
             ?.currentLink,
           id: payload.crn_id,
           showlegal: payload.department === "legal" ? true : false,
-          session: "25-26",
+          session: getDefaultFinancialYearValue(),
         };
 
         dispatch(setUser(obj));
@@ -413,7 +415,7 @@ const Login = () => {
             ?.currentLink,
           id: payload.crn_id,
           showlegal: payload.department === "legal" ? true : false,
-          session: "25-26",
+          session: getDefaultFinancialYearValue(),
         };
 
         dispatch(setUser(obj));
@@ -637,6 +639,9 @@ const Login = () => {
                     onFinish={handleSubmit}
                     autoComplete="off"
                     form={signUp}
+                    initialValues={{
+                      company_branch: "BRMSC012",
+                    }}
                   >
                     <Form.Item label="Company Branch" name="company_branch">
                       <Select
@@ -693,7 +698,6 @@ const Login = () => {
 
                     {forgotPassword === "0" ? (
                       <>
-               
                         <div className="flex justify-center">
                           <ImageCaptcha
                             value={captchaInput}
