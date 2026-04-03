@@ -13,6 +13,42 @@ export const convertSelectOptions = (
   }
 };
 
+/**
+ * Create PO and related APIs: when user picks "None" / placeholder PPR, backend
+ * must receive null — not "0" — or it tries to load PPR and errors.
+ */
+export const normalizePprForApiPayload = (
+  ppr: unknown,
+  pprId: unknown
+): { ppr: string | null; pprId: string | null } => {
+  const isNoPpr = (v: unknown) =>
+    v === undefined ||
+    v === null ||
+    v === "" ||
+    v === "0" ||
+    v === 0 ||
+    (typeof v === "string" && v.trim().toLowerCase() === "none");
+
+  const rawFrom = (v: unknown): string | number | null => {
+    if (v === undefined || v === null || v === "") return null;
+    if (typeof v === "object" && v !== null) {
+      const o = v as { value?: unknown; key?: unknown };
+      const inner = o.value ?? o.key;
+      if (isNoPpr(inner)) return null;
+      return inner as string | number;
+    }
+    if (isNoPpr(v)) return null;
+    return v as string | number;
+  };
+
+  const raw = rawFrom(pprId) ?? rawFrom(ppr);
+  if (raw === null || isNoPpr(raw)) {
+    return { ppr: null, pprId: null };
+  }
+  const s = String(raw);
+  return { ppr: s, pprId: s };
+};
+
 export const removeHtml = (value) => {
   return value.replace(/<[^>]*>/g, " ");
 };

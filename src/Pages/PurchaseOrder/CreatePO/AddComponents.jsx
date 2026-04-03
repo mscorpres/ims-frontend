@@ -35,6 +35,7 @@ import {
 } from "antd";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
+import { normalizePprForApiPayload } from "../../../utils/general.ts";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton/index.jsx";
@@ -596,7 +597,10 @@ const projectId = form.getFieldsValue()?.project_name?.value;
                   newPurchaseOrder.project_name === "object"
                 ? newPurchaseOrder.project_name.value
                 : newPurchaseOrder.project_name,
-          pprId: form.getFieldValue("ppr") || newPurchaseOrder.ppr,
+          pprId: normalizePprForApiPayload(
+            form.getFieldValue("ppr"),
+            newPurchaseOrder.ppr,
+          ).pprId,
         },
       );
       setPageLoading(false);
