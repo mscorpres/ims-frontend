@@ -12,7 +12,6 @@ interface PropTypes extends ModalType {}
 const emailPattern =
   /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/;
 
-
 let defaultTimer = 60;
 const ForgotPassword = (props: PropTypes) => {
   const [stage, setStage] = useState<0 | 1 | 2>(0);
@@ -24,8 +23,7 @@ const ForgotPassword = (props: PropTypes) => {
   const [captchaKey, setCaptchaKey] = useState(Math.random());
 
   const emailWatch = Form.useWatch("email", form);
-  const trimmedEmail =
-    emailWatch == null ? "" : String(emailWatch).trim();
+  const trimmedEmail = emailWatch == null ? "" : String(emailWatch).trim();
   const isValidEmail =
     trimmedEmail.length > 0 && emailPattern.test(trimmedEmail);
 
@@ -54,7 +52,7 @@ const ForgotPassword = (props: PropTypes) => {
       ]);
       const response = await executeFun(
         () => updatePassword(values.email, values.password),
-        "submit"
+        "submit",
       );
       if (response.success) {
         props.hide();
@@ -105,7 +103,7 @@ const ForgotPassword = (props: PropTypes) => {
       open={props.show}
       onOk={handleSubmit}
       confirmLoading={loading("submit")}
-          okText={
+      okText={
         <span style={{ display: "inline-flex", alignItems: "center" }}>
           {stage === 0
             ? "Send OTP"
@@ -117,13 +115,11 @@ const ForgotPassword = (props: PropTypes) => {
       okButtonProps={{
         disabled: stage === 0 && !isValidEmail,
       }}
-    
       onCancel={props.hide}
-      
     >
       <Form form={form} layout="vertical">
         <Flex style={{ width: "100%" }} vertical align="center">
-               <Form.Item
+          <Form.Item
             name="email"
             label="Email"
             style={{ width: "100%" }}
@@ -138,12 +134,10 @@ const ForgotPassword = (props: PropTypes) => {
                     return Promise.resolve();
                   }
                   const trimmed = String(value).trim();
-                 
+
                   if (!emailPattern.test(trimmed)) {
                     return Promise.reject(
-                      new Error(
-                        "Please enter a valid email address"
-                      )
+                      new Error("Please enter a valid email address"),
                     );
                   }
                   return Promise.resolve();
@@ -161,10 +155,17 @@ const ForgotPassword = (props: PropTypes) => {
           </Form.Item>
 
           {stage === 0 && (
-            <Form.Item style={{ width: "100%", display: "flex", justifyContent: "center", marginTop:6 }}>
+            <Form.Item
+              style={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                marginTop: 6,
+              }}
+            >
               <ImageCaptcha
                 value={captchaInput}
-                onChange={(e) => setCaptchaInput(e.target.value)}
+                onChange={(e: any) => setCaptchaInput(e.target.value)}
                 onCodeChange={setCaptchaExpectedCode}
                 onRefresh={() => setCaptchaInput("")}
                 key={captchaKey}
@@ -179,7 +180,11 @@ const ForgotPassword = (props: PropTypes) => {
           )}
           <br />
           {stage === 1 && (
-            <Button onClick={() => handleSendOtp(true)} disabled={timer > 0} type="link">
+            <Button
+              onClick={() => handleSendOtp(true)}
+              disabled={timer > 0}
+              type="link"
+            >
               Resend
               {timer > 0 && (
                 <span style={{ marginLeft: 5 }}>
@@ -215,8 +220,8 @@ const ForgotPassword = (props: PropTypes) => {
                       }
                       return Promise.reject(
                         new Error(
-                          "The new password that you entered do not match!"
-                        )
+                          "The new password that you entered do not match!",
+                        ),
                       );
                     },
                   }),

@@ -106,8 +106,9 @@ const ImageCaptcha = ({
 
   return (
     <Space direction="vertical" size="small" style={{ width: "100%" }}>
-      <Space align="center">
+    
         <canvas
+        onClick={refresh}
           ref={canvasRef}
           style={{
             border: "1px solid #d9d9d9",
@@ -115,14 +116,8 @@ const ImageCaptcha = ({
             display: "block",
           }}
         />
-        <Button
-          type="text"
-          icon={<ReloadOutlined />}
-          onClick={refresh}
-          title="Refresh captcha"
-          disabled={disabled}
-        />
-      </Space>
+       
+
       <Input
         value={value}
         size="large"
