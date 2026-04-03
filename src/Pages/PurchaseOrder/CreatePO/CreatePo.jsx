@@ -33,7 +33,10 @@ import {
   getProjectOptions,
   getVendorOptions,
 } from "../../../api/general.ts";
-import { convertSelectOptions } from "../../../utils/general.ts";
+import {
+  convertSelectOptions,
+  normalizePprForApiPayload,
+} from "../../../utils/general.ts";
 
 const deliveryTermOptions = [
   { label: "Within 10 days", value: "Within 10 days" },
@@ -156,9 +159,8 @@ export default function CreatePo() {
               formValues.project_name !== null
             ? formValues.project_name
             : newPurchaseOrder.project_name,
-            pprId: formValues.pprId !== undefined && formValues.pprId !== null
-            ? formValues.ppr
-            : newPurchaseOrder.ppr,
+            pprId:
+              formValues.pprId ?? formValues.ppr ?? newPurchaseOrder.pprId ?? newPurchaseOrder.ppr,
       pocostcenter:
         formValues.pocostcenter !== undefined &&
         formValues.pocostcenter !== null
@@ -333,7 +335,10 @@ export default function CreatePo() {
         }
         return project;
       })(),
-      pprId: currentPurchaseOrder.pprId?.value || currentPurchaseOrder.label || "",
+      ...normalizePprForApiPayload(
+        currentPurchaseOrder.ppr,
+        currentPurchaseOrder.pprId,
+      ),
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
           ? 30
@@ -593,6 +598,8 @@ export default function CreatePo() {
         formValues.pocreatetype !== null
           ? formValues.pocreatetype
           : newPurchaseOrder.pocreatetype,
+      pprId:
+        formValues.pprId ?? formValues.ppr ?? newPurchaseOrder.pprId ?? newPurchaseOrder.ppr,
     };
     const storedPOData = pendingPOData || showSubmitConfirm;
     if (!storedPOData) {
@@ -638,7 +645,10 @@ export default function CreatePo() {
         }
         return project;
       })(),
-      pprId: currentPurchaseOrder.pprId  ?? "",
+      ...normalizePprForApiPayload(
+        currentPurchaseOrder.ppr,
+        currentPurchaseOrder.pprId,
+      ),
 
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
