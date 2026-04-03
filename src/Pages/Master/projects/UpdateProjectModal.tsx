@@ -49,9 +49,18 @@ const UpdateProjectModal = ({
         project: data.project,
         description: data.description || "",
         qty: data.qty || 1,
-        
-        bom: data.bomSubject || null,
-        costcenter: data.costcenter || null,
+        bom: data.bomSubject
+          ? {
+              value: data.bomSubject?.subject_id,
+              label: data.bomSubject?.subject_name,
+            }
+          : null,
+        costcenter: data.costcenter
+          ? {
+              value: data.costcenter?.cost_center_key,
+              label: data.costcenter?.cost_center_name,
+            }
+          : null,
       });
 
     
@@ -76,14 +85,13 @@ const UpdateProjectModal = ({
       .validateFields()
       .then((values) => {
         console.log("Submitting updated project:", values); 
-
-        
         const updatedData = {
           project: values.project,
           description: values.description?.trim(),
           qty: values.qty,
-          bomSubject: values.bom || null,        
-          costcenter: values.costcenter || null, 
+          // Send only the identifiers, not the full select objects
+          bomSubject: values.bom?.value ?? null,
+          costcenter: values.costcenter?.value ?? null, 
         };
 
         onUpdate(updatedData); // Send to parent

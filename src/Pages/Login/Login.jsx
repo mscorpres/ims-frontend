@@ -47,7 +47,6 @@ const Login = () => {
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
-    // Default branch so App effects that depend on truthy `user.company_branch` run immediately
     company_branch: "BRMSC012",
   });
   const { Title, Link, Text } = Typography;
@@ -102,7 +101,7 @@ const Login = () => {
         } else {
           // Normal login flow (no OTP)
           const payload = res?.data ?? res;
-        
+
           const obj = {
             email: payload.crn_email,
             phone: payload.crn_mobile,
@@ -399,7 +398,6 @@ const Login = () => {
       if (response?.success) {
         const payload = response?.data;
         console.log(payload, "data");
-      
 
         const obj = {
           email: payload.crn_email,
@@ -665,7 +663,7 @@ const Login = () => {
                         {
                           required: true,
                           message:
-                            "Please provide either your email or phone number or CRN Nunber",
+                            "Please provide either your email or phone number or CRN Number",
                         },
                       ]}
                     >
@@ -700,8 +698,9 @@ const Login = () => {
 
                     {forgotPassword === "0" ? (
                       <>
-                        <div className="flex justify-center">
-                          <ImageCaptcha
+                        <div style={{display:"flex", justifyContent:"space-between", marginTop: "20px"}}>
+                          <div>
+                            <ImageCaptcha
                             value={captchaInput}
                             onChange={(e) => setCaptchaInput(e.target.value)}
                             onCodeChange={setCaptchaExpectedCode}
@@ -709,6 +708,16 @@ const Login = () => {
                             key={captchaKey}
                             disabled={isLoginBusy}
                           />
+                          </div>
+                          <div style={{ marginTop: "12px" }}>
+                            <Button
+                              onClick={() => setShowForgotPassword(true)}
+                              type="link"
+                              disabled={isLoginBusy}
+                            >
+                              Forgot Password ?
+                            </Button>
+                          </div>
                         </div>
                         <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
                           <Button
@@ -725,7 +734,7 @@ const Login = () => {
 
                         <div
                           className="flex flex-col items-center justify-center w-full"
-                          style={{ marginTop: "0.5rem", textAlign: "center" }}
+                          style={{ marginTop: "0.5rem", textAlign: "center", marginBottom: "0.5rem" }}
                         >
                           {googleLoginLoading && (
                             <div
@@ -745,7 +754,7 @@ const Login = () => {
                               OR
                             </Typography>
                           )}
-                          <div className="flex justify-center items-center w-full">
+                          <div className="flex justify-center items-center w-full ">
                             {!loading("submit") && !googleLoginLoading && (
                               <GoogleLogin
                                 onSuccess={(credentialResponse) => {
@@ -760,15 +769,6 @@ const Login = () => {
                           </div>
                         </div>
 
-                        <Flex justify="end">
-                          <Button
-                            onClick={() => setShowForgotPassword(true)}
-                            type="link"
-                            disabled={isLoginBusy}
-                          >
-                            Forgot Password
-                          </Button>
-                        </Flex>
                         <Text style={{ marginLeft: "8em" }}>
                           {" "}
                           Not Registered yet?
@@ -892,7 +892,7 @@ const Login = () => {
                         {
                           required: true,
                           message:
-                            "Please provide either your email or phone number or CRN Nunber",
+                            "Please provide either your email or phone number or CRN Number",
                         },
                       ]}
                     >
