@@ -952,7 +952,7 @@ const App = () => {
       >
         {/* header start */}
 
-        {(path.includes("dev-oakter.mscorpres") || path.includes("localhost")) && (
+        {(path.includes("oakter.mscorpres.net") || path.includes("localhost")) && (
           <div
             style={{
               backgroundColor: "yellow",
