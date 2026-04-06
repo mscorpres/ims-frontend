@@ -582,7 +582,11 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       arr1 = arr1.map((row) => {
         if (row.id == id) {
           let obj = row;
-          let newLastRate = Number(data.data.rate.toString().trim());
+          const rawLastRate = data?.data?.rate;
+          const newLastRate =
+            rawLastRate != null && rawLastRate !== ""
+              ? String(rawLastRate).trim()
+              : "";
           let percentage = data.data.gstrate;
 
           if (autoGstType == "L") {
