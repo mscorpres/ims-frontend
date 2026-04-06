@@ -45,6 +45,15 @@ import { prsampleFile } from "../../../utils/samplefile.js";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { toast } from "react-toastify";
 
+function formatTaxDetailRowTotal(rawSum) {
+  const n = Number(rawSum);
+  if (Number.isNaN(n)) return "0.00";
+  return n.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 /** Prefer live Form value so component details API gets the project the user just selected. */
 function resolveProjectIdForComponentApi(form, newPurchaseOrder) {
   const fromForm = form.getFieldValue("project_name");
@@ -1244,11 +1253,11 @@ export default function AddComponents({
                                   totalValues.length - 1 && 600,
                             }}
                           >
-                            {Number(
+                            {formatTaxDetailRowTotal(
                               row.values?.reduce((partialSum, a) => {
                                 return partialSum + Number(a);
                               }, 0),
-                            ).toFixed(2)}
+                            )}
                           </span>
                         </Col>
                       </Row>
