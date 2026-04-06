@@ -13,6 +13,7 @@ import {
   IGSTCell,
   invoiceDateCell,
   itemDescriptionCell,
+  bomQtyCell,
   internalRemarkCell,
   quantityCell,
   rateCell,
@@ -84,6 +85,7 @@ export default function EditComponent({
       foreginValue: 0,
       unit: "",
       updaterow: "",
+      po_bom_qty: "",
     };
     setRowCount((rowCount) => [...rowCount, newRow]);
   };
@@ -135,7 +137,11 @@ export default function EditComponent({
                 ? true
                 : false,
           };
-        } else if (name == "hsncode" || name == "duedate") {
+        } else if (
+          name == "hsncode" ||
+          name == "duedate" ||
+          name === "po_bom_qty"
+        ) {
           obj = {
             ...obj,
             [name]: value,
@@ -219,7 +225,8 @@ export default function EditComponent({
           row.gsttype.value == "L" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate / 2;
           obj = {
@@ -232,7 +239,8 @@ export default function EditComponent({
           row.gsttype.value == "I" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate;
           obj = {
@@ -371,6 +379,7 @@ export default function EditComponent({
       rate_cap: [],
       project_qty: [],
       exq_po_qty: [],
+      po_bom_qty: [],
     };
 
     rowCount.forEach((row) => {
@@ -392,6 +401,7 @@ export default function EditComponent({
       components.rate_cap.push(row.project_rate || 0);
       components.project_qty.push(row.project_qty || 0);
       components.exq_po_qty.push(row.po_ord_qty || 0);
+      components.po_bom_qty.push(row.po_bom_qty ?? "");
     });
 
     if (
@@ -559,6 +569,13 @@ export default function EditComponent({
       width: 250,
       sortable: false,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
+    },
+    {
+      headerName: "BOM Qty",
+      width: 120,
+      field: "po_bom_qty",
+      sortable: false,
+      renderCell: (params) => bomQtyCell(params, inputHandler),
     },
     {
       headerName: "Ord. Qty",

@@ -11,6 +11,7 @@ import {
   IGSTCell,
   invoiceDateCell,
   itemDescriptionCell,
+  bomQtyCell,
   quantityCell,
   rateCell,
   SGSTCell,
@@ -107,6 +108,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       po_exec_qty: 0,
       diffPercentage: "--",
       closing_stock: 0,
+      po_bom_qty: "",
     };
     setRowCount((rowCount) => [...rowCount, newRow]);
   };
@@ -216,6 +218,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
         qtyApproval,
         diffPercentage: r.diffPercentage ?? "--",
         closing_stock: Number(r.closingStock) || 0,
+        po_bom_qty: r.po_bom_qty ?? r.pobomqty ?? r.PO_BOM_QTY ?? "",
       };
     });
     setRowCount(arr);
@@ -281,6 +284,15 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     //   minWidth: 100,
     //   renderCell: ({ row }) => <ToolTipEllipses text={row.gstType?.text} />,
     // },
+    {
+      headerName: "BOM Qty",
+      field: "po_bom_qty",
+      minWidth: 100,
+      flex: 1,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={String(row.po_bom_qty ?? row.pobomqty ?? "")} />
+      ),
+    },
     {
       headerName: "Remark",
       field: "internalRemark",
@@ -425,7 +437,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           name == "hsncode" ||
           name == "duedate" ||
           name == "remark" ||
-          name === "internal_remark"
+          name === "internal_remark" ||
+          name === "po_bom_qty"
         ) {
           obj = {
             ...obj,
@@ -511,7 +524,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           obj.gsttype == "L" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate / 2;
           obj = {
@@ -524,7 +538,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           obj.gsttype == "I" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate;
           obj = {
@@ -683,6 +698,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
         internal_remark: "",
         unit: "--",
         closing_stock: 0,
+        po_bom_qty: "",
       },
     ]);
     setConfirmReset(false);
@@ -756,7 +772,13 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       width: 250,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
     },
-
+    {
+      headerName: "BOM Qty",
+      width: 120,
+      field: "po_bom_qty",
+      sortable: false,
+      renderCell: (params) => bomQtyCell(params, inputHandler),
+    },
     {
       headerName: "Ord. Qty",
       field: "qty",

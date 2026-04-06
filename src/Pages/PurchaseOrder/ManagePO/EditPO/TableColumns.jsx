@@ -111,6 +111,15 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
     placeholder="Enter Remark"
   />
 );
+
+export const bomQtyCell = ({ row }, inputHandler) => (
+  <Input
+    value={row.po_bom_qty ?? ""}
+    onChange={(e) => inputHandler("po_bom_qty", e.target.value, row.id)}
+    placeholder="BOM qty"
+  />
+);
+
 export const internalRemarkCell = ({ row }, inputHandler) => (
   <Input
     placeholder="Internal Remark..."

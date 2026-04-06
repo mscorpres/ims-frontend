@@ -438,6 +438,7 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
         po_ord_qty: row.po_ord_qty,
         last_rate: row.last_rate || 0,
         part_no: row.part_no,
+        po_bom_qty: row.po_bom_qty ?? row.bom_qty ?? "",
     })) || [];
 
     const firstRow = materialsArr[0];

@@ -137,6 +137,7 @@ export default function CreatePo() {
       ppr_executed_qty: 0,
       ppr_plan_qty: 0,
       diffPercentage: "--",
+      po_bom_qty: "",
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -300,6 +301,7 @@ export default function CreatePo() {
       tol_price: [],
       project_qty: [],
       exq_po_qty: [],
+      po_bom_qty: [],
     };
 
     rowCount.map((row) => {
@@ -320,6 +322,7 @@ export default function CreatePo() {
       componentData.rate_cap.push(row.rate_cap);
       componentData.project_qty.push(row.project_req_qty);
       componentData.exq_po_qty.push(row.po_exec_qty);
+      componentData.po_bom_qty.push(row.po_bom_qty ?? "");
     });
 
     newPo = {
@@ -1215,6 +1218,7 @@ export default function CreatePo() {
         unit: "--",
         ppr_executed_qty: 0,
         ppr_plan_qty: 0,
+        po_bom_qty: "",
       },
     ]);
   };
