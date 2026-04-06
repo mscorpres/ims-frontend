@@ -44,6 +44,20 @@ import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
 import { prsampleFile } from "../../../utils/samplefile.js";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { toast } from "react-toastify";
+
+/** Prefer live Form value so component details API gets the project the user just selected. */
+function resolveProjectIdForComponentApi(form, newPurchaseOrder) {
+  const fromForm = form.getFieldValue("project_name");
+  const formHasProject =
+    fromForm !== undefined && fromForm !== null && fromForm !== "";
+  const raw = formHasProject ? fromForm : newPurchaseOrder?.project_name;
+  if (raw === undefined || raw === null || raw === "") return "";
+  if (typeof raw === "object" && raw.value !== undefined && raw.value !== null) {
+    return raw.value;
+  }
+  return raw;
+}
+
 export default function AddComponents({
   form,
   rowCount,
@@ -57,8 +71,6 @@ export default function AddComponents({
   gstState,
   poCurrencies = [],
 }) {
- 
-const projectId = form.getFieldsValue()?.project_name?.value;
   const venderCode = form.getFieldsValue()?.vendorname?.key;
   const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
@@ -316,7 +328,10 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     const formData = new FormData();
     formData.append("file", file);
     formData.append("venderCode", venderCode);
-    formData.append("projectId", projectId);
+    formData.append(
+      "projectId",
+      resolveProjectIdForComponentApi(form, newPurchaseOrder),
+    );
     try {
       const response = await imsAxios.post(
         "/purchaseOrder/upload/item",
@@ -562,13 +577,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
         {
           component_code: value.value,
           vencode: newPurchaseOrder.vendorname.value,
-          project:
-            form.getFieldValue("project_name") === "object"
-              ? form.getFieldValue("project_name").value
-              : form.getFieldValue("project_name") ||
-                  newPurchaseOrder.project_name === "object"
-                ? newPurchaseOrder.project_name.value
-                : newPurchaseOrder.project_name,
+          project: resolveProjectIdForComponentApi(form, newPurchaseOrder),
           pprId: normalizePprForApiPayload(
             form.getFieldValue("ppr"),
             newPurchaseOrder.ppr,
