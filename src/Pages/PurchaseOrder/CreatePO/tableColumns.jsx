@@ -132,6 +132,17 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
   />
 );
 
+export const bomQtyCell = ({ row }, inputHandler) => (
+  <Input
+    value={row.po_bom_qty ?? ""}
+    onKeyDown={blockSpaceKey}
+    onChange={(e) =>
+      inputHandler("po_bom_qty", stripSpaces(e.target.value), row.id)
+    }
+    placeholder="BOM qty"
+  />
+);
+
 // Inside tableColumns.js or inline below
 export const internalRemarkCell = ({ row }, inputHandler) => (
   <Input

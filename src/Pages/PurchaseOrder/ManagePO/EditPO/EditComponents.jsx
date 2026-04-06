@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { v4 } from "uuid";
-import CurrenceModal from "../CurrenceModal";
 import { toast } from "react-toastify";
 import NavFooter from "../../../../Components/NavFooter";
 import {
@@ -14,6 +13,7 @@ import {
   IGSTCell,
   invoiceDateCell,
   itemDescriptionCell,
+  bomQtyCell,
   internalRemarkCell,
   quantityCell,
   rateCell,
@@ -42,25 +42,32 @@ export default function EditComponent({
   resetRowsDetailsData,
   updatePoId,
   getRows,
+  form,
+  poCurrencies = [],
 }) {
   const [asynOptions, setAsyncOptions] = useState([]);
-  const [currencies, setCurrencies] = useState([]);
-  const [showCurrencyModal, setShowCurrencyModal] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [submitConfirm, setSubmitConfirm] = useState(null);
   const [removePartLoading, setRemovePartLoading] = useState(false);
   const [totalTaxValue, setTotaTaxValue] = useState([]);
-  const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
-    useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const addRows = () => {
+    const headerCur = form?.getFieldValue("po_currency") ?? "364907247";
+    const headerEx =
+      String(headerCur) === "364907247"
+        ? 1
+        : Number(form?.getFieldValue("po_exchange_rate")) || 1;
+    const sym =
+      poCurrencies.find((c) => String(c.value) === String(headerCur))?.text ??
+      "";
     const newRow = {
       index: rowCount.length + 1,
       new: true,
       id: v4(),
-      currency: "364907247",
-      exchange_rate: 1,
+      currency: headerCur,
+      exchange_rate: headerEx,
+      symbol: sym,
       component: "",
       qty: 1,
       rate: 0,
@@ -78,29 +85,12 @@ export default function EditComponent({
       foreginValue: 0,
       unit: "",
       updaterow: "",
+      po_bom_qty: "",
     };
     setRowCount((rowCount) => [...rowCount, newRow]);
   };
   const removeRows = (id) => {
     const arr = rowCount?.filter((c) => c.id != id);
-    setRowCount(arr);
-  };
-  const changeCurrencyToINR = () => {
-    let arr = rowCount.map((row) => {
-      let obj = row;
-      if (row.id == showCurrencyUpdateConfirmModal.id) {
-        obj = {
-          ...obj,
-          currency: showCurrencyUpdateConfirmModal.value,
-          exchange_rate: 1,
-          foreginValue: 0,
-        };
-        return obj;
-      } else {
-        return obj;
-      }
-    });
-    setShowCurrencyUpdateConfirmModal(false);
     setRowCount(arr);
   };
   const inputHandler = async (name, value, id) => {
@@ -147,7 +137,11 @@ export default function EditComponent({
                 ? true
                 : false,
           };
-        } else if (name == "hsncode" || name == "duedate") {
+        } else if (
+          name == "hsncode" ||
+          name == "duedate" ||
+          name === "po_bom_qty"
+        ) {
           obj = {
             ...obj,
             [name]: value,
@@ -202,30 +196,6 @@ export default function EditComponent({
               igst: (obj.inrValue * percentage) / 100,
             };
           }
-        } else if (name == "exchange_rate") {
-          obj = {
-            ...obj,
-            exchange_rate: value.rate,
-            currency: value.currency,
-            foreginValue: row.inrValue * value.rate,
-            project_rate: row.project_rate,
-            localPrice:
-              +Number(value.rate).toFixed(2) * +Number(row.rate).toFixed(2),
-            tol_price: +Number((row.project_rate * 1) / 100).toFixed(2),
-          };
-        } else if (name == "currency") {
-          if (value != 364907247) {
-            setShowCurrencyModal({
-              currency: value,
-              price: row.inrValue,
-              exchange_rate: row.exchange_rate,
-              symbol: currencies.filter((cur) => cur.value == value)[0].text,
-              rowId: id,
-              inputHandler: inputHandler,
-            });
-          } else if (value == "364907247") {
-            setShowCurrencyUpdateConfirmModal({ value: value, id: id });
-          }
         } else if (name == "gstrate") {
           if (row.gsttype == "L" && name != "gsttype") {
             let percentage = value / 2;
@@ -255,7 +225,8 @@ export default function EditComponent({
           row.gsttype.value == "L" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate / 2;
           obj = {
@@ -268,7 +239,8 @@ export default function EditComponent({
           row.gsttype.value == "I" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate;
           obj = {
@@ -407,6 +379,7 @@ export default function EditComponent({
       rate_cap: [],
       project_qty: [],
       exq_po_qty: [],
+      po_bom_qty: [],
     };
 
     rowCount.forEach((row) => {
@@ -428,6 +401,7 @@ export default function EditComponent({
       components.rate_cap.push(row.project_rate || 0);
       components.project_qty.push(row.project_qty || 0);
       components.exq_po_qty.push(row.po_ord_qty || 0);
+      components.po_bom_qty.push(row.po_bom_qty ?? "");
     });
 
     if (
@@ -505,20 +479,6 @@ export default function EditComponent({
         toast.error(data.message.msg||data.message);
       }
     }
-  };
-  //getting currencies on page load
-  const getCurrencies = async () => {
-    const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
-
-    let arr = [];
-    arr = data.data.map((d) => {
-      return {
-        text: d.currency_symbol,
-        value: d.currency_id,
-        notes: d.currency_notes,
-      };
-    });
-    setCurrencies(arr);
   };
   const removePart = async (row) => {
     if (!row.new) {
@@ -611,6 +571,13 @@ export default function EditComponent({
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
     },
     {
+      headerName: "BOM Qty",
+      width: 120,
+      field: "po_bom_qty",
+      sortable: false,
+      renderCell: (params) => bomQtyCell(params, inputHandler),
+    },
+    {
       headerName: "Ord. Qty",
       width: 130,
       field: "qty",
@@ -622,7 +589,7 @@ export default function EditComponent({
       width: 180,
       field: "rate",
       sortable: false,
-      renderCell: (params) => rateCell(params, inputHandler, currencies),
+      renderCell: (params) => rateCell(params, inputHandler),
     },
     {
       headerName: "Last rate",
@@ -749,9 +716,6 @@ export default function EditComponent({
    
   ];
   useEffect(() => {
-    getCurrencies();
-  }, []);
-  useEffect(() => {
     let obj = [
       {
         label: "Sub-Total value before Taxes",
@@ -811,12 +775,6 @@ export default function EditComponent({
         <p>Are you sure you want to update this Purchase Order?</p>
       </Modal>
       {submitLoading && <Loading />}
-      {showCurrencyModal != null && (
-        <CurrenceModal
-          showCurrency={showCurrencyModal}
-          setShowCurrencyModal={setShowCurrencyModal}
-        />
-      )}
       {/* po reset confirm modal */}
       <Modal
         title="Confirm Reset!"
@@ -834,28 +792,6 @@ export default function EditComponent({
         <p>
           Are you sure to reset details of all components of this Purchase Order
           to the details it was created with?
-        </p>
-      </Modal>
-      {/* currency changed to inr confirm modal */}
-      <Modal
-        title="Confirm Currency Change!"
-        open={showCurrencyUpdateConfirmModal}
-        onCancel={() => setShowCurrencyUpdateConfirmModal(false)}
-        footer={[
-          <Button
-            key="back"
-            onClick={() => setShowCurrencyUpdateConfirmModal(false)}
-          >
-            No
-          </Button>,
-          <Button key="submit" type="primary" onClick={changeCurrencyToINR}>
-            Yes
-          </Button>,
-        ]}
-      >
-        <p>
-          Are you sure you want to change the currency to INR for this
-          component. The exchange rate will change to 1.
         </p>
       </Modal>
       <Row gutter={8} style={{ height: "100%" }}>
