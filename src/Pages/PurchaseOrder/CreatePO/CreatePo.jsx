@@ -1180,6 +1180,7 @@ export default function CreatePo() {
       advancePercentage: null,
       po_currency: "364907247",
       po_exchange_rate: 1,
+      ppr: undefined,
     };
 
     // form.reset
@@ -1187,6 +1188,10 @@ export default function CreatePo() {
     form.setFieldsValue(obj);
     setnewPurchaseOrder(obj);
     form.setFieldValue("advancePayment", "");
+    form.setFieldValue("ppr", undefined);
+    setPpROptions([]);
+    setIsPPRLoading(false);
+    setProjectDesc("");
     setSameAsBilling(false);
     setShowDetailsConfirm(false);
     setPendingPOData(null);
