@@ -37,6 +37,7 @@ import { uploadMinInvoice } from "../../../api/store/material-in";
 import SuccessPage from "../../Store/MaterialIn/SuccessPage";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import SingleProduct from "../../Master/Vendor/SingleProduct";
+import SingleDatePicker from "../../../Components/SingleDatePicker.jsx";
 export default function JwInwordModal({ editModal, setEditModal }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [locValue, setLocValue] = useState([]);
@@ -46,6 +47,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const { all, row } = editModal;
   const [mainData, setMainData] = useState([]);
   const [eWayBill, setEWayBill] = useState("");
+  const [challanDate, setChallanDate] = useState(null);
   const [bomList, setBomList] = useState([]);
   const [showBomList, setShowBomList] = useState(false);
   const [conrem, setConRem] = useState("");
@@ -55,6 +57,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const [materialInSuccess, setMaterialInSuccess] = useState(false);
   const [isApplicable, setIsApplicable] = useState(false);
   const [isScan, setIsScan] = useState(false);
+  
   const [modalForm] = Form.useForm();
 
   const fileComponents = Form.useWatch("fileComponents", modalForm);
@@ -63,7 +66,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   const getFetchData = async () => {
     setModalLoad("fetch", true);
     const response = await imsAxios.get(
-      `/jobwork/fetch_jw_sf_inward_components?skucode=${row.sku}&transaction=${row.transaction_id}`
+      `/jobwork/fetch_jw_sf_inward_components?skucode=${row.sku}&transaction=${row.transaction_id}`,
     );
 
     if (response.success) {
@@ -120,7 +123,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     if (vendor) {
       try {
         const response = await imsAxios.get(
-          `/backend/fetchVendorJWLocation?vendor=${vendor}`
+          `/backend/fetchVendorJWLocation?vendor=${vendor}`,
         );
         if (response.success) {
           let arr = [];
@@ -148,7 +151,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "orderqty") {
       setMainData((a) =>
@@ -160,7 +163,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "rate") {
       setMainData((a) =>
@@ -172,7 +175,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "invoice") {
       setMainData((a) =>
@@ -184,7 +187,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "remark") {
       setMainData((a) =>
@@ -196,7 +199,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "conRemark") {
       setBomList((a) =>
@@ -208,7 +211,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "location") {
       setMainData((a) =>
@@ -220,7 +223,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "rqdQty") {
       setMainData((a) =>
@@ -232,7 +235,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     } else if (name == "irn") {
       setMainData((a) =>
@@ -244,7 +247,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           } else {
             return aa;
           }
-        })
+        }),
       );
     }
   };
@@ -285,7 +288,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           type="number"
           placeholder="Qty"
           onChange={(e) => inputHandler("orderqty", row.id, e.target.value)}
-          
         />
       ),
     },
@@ -467,6 +469,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     getFetchData();
     // getLocation();
     setEWayBill("");
+    setChallanDate(null);
     setShowBomList(false);
     setBomList([]);
   };
@@ -496,6 +499,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       remark: mainData[0].remark,
       qrScan: isScan == true ? "Y" : "N",
       pick_location: pickLocation,
+      challan_date: challanDate,
     };
     setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
@@ -648,7 +652,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     });
     const fileResponse = await executeFun(
       () => uploadMinInvoice(formData),
-      "submit"
+      "submit",
     );
     if (fileResponse.success) {
       const { data } = fileResponse;
@@ -663,6 +667,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       getFetchData();
       // getLocation();
       setEWayBill("");
+      setChallanDate(null);
       setShowBomList(false);
       setBomList([]);
       newMinFunction();
@@ -789,7 +794,35 @@ export default function JwInwordModal({ editModal, setEditModal }) {
                         />
                       </Form.Item>
                     </Form>
+                         <Form size="small" >
+                      <Form.Item
+                        label="Challan Date"
+                        name="challanDate"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select Challan Date",
+                          },
+                        ]}
+                          style={{ width: "315px" }}
+                      >
+                        <SingleDatePicker
+                          size="medium"
+                          value={challanDate}
+                          setDate={(date) => setChallanDate(date)}
+                          placeholder="Select Challan Date"
+                          format={"DD-MM-YYYY"}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please select Challan Date",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Form>
                   </Col>
+              
                   {isApplicable == "Y" && (
                     <Col
                       span={6}
