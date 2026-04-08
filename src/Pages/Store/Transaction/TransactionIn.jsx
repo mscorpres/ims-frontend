@@ -79,7 +79,7 @@ const TransactionIn = () => {
     },
     { headerName: "Sr. No", field: "index", width: 80 },
     {
-      headerName: "Date",
+      headerName: "MIN Date",
       field: "DATE",
       width: 120,
       renderCell: ({ row }) => <ToolTipEllipses text={row.DATE} />,
@@ -111,6 +111,7 @@ const TransactionIn = () => {
       renderCell: ({ row }) => <ToolTipEllipses text={row.INVOICENUMBER} />,
     },
     { headerName: "Transaction Id", field: "TRANSACTION", width: 150 },
+     { headerName: "Challan Date", field: "challan_date", width: 150 },
     { headerName: "Document Date", field: "DOC_DATE", width: 150 },
     { headerName: "Cost Center", field: "COSTCENTER", width: 150 },
     { headerName: "By", field: "ISSUEBY", width: 120 },
