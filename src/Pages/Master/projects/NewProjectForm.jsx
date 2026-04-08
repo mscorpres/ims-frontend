@@ -72,15 +72,11 @@ export default function NewProjectForm() {
     const fgBomId = values?.fgBom?.value ?? values?.fgBom ?? null;
     const sfgBomId = values?.sfgBom?.value ?? values?.sfgBom ?? null;
 
-    if (!fgBomId) {
-      toast.error("Please select FG BOM");
-      return;
-    }
-    if (!sfgBomId) {
-      toast.error("Please select SFG BOM");
-      return;
-    }
-    if (String(fgBomId) === String(sfgBomId)) {
+    if (
+      fgBomId &&
+      sfgBomId &&
+      String(fgBomId) === String(sfgBomId)
+    ) {
       toast.error("FG and SFG BOM must be different");
       return;
     }
@@ -90,7 +86,7 @@ export default function NewProjectForm() {
       project_id: values.project_id?.trim(),
       costcenter: values.costcenter?.value ?? values.costcenter ?? null,
       qty: values.qty ? Number(values.qty) : 0,
-      bom: [fgBomId, sfgBomId],
+      bom: [fgBomId ?? null, sfgBomId ?? null],
     };
     setSubmitConfirm(payload);
   };

@@ -22,10 +22,22 @@ const UpdateProjectModal = ({
 
 
   const { executeFun } = useApi();
-  const getRecipeType = (row: any) =>
-    String(row?.bom_recipe_type ?? row?.recipe_type ?? row?.type ?? row?.bom_recipe ?? "")
+  const getRecipeType = (row: any) => {
+    const label = String(row?.bom_type_label ?? "")
       .trim()
       .toLowerCase();
+    if (label === "sfg") return "semi";
+    if (label === "fg") return "default";
+    return String(
+      row?.bom_recipe_type ??
+        row?.recipe_type ??
+        row?.type ??
+        row?.bom_recipe ??
+        ""
+    )
+      .trim()
+      .toLowerCase();
+  };
   const isFgType = (type: string) => ["default", "fg", "finished"].includes(type);
   const isSfgType = (type: string) => ["semi", "sfg", "semi-fg", "semifg"].includes(type);
   const toSelectOptions = (rows: any[]) =>
@@ -74,7 +86,13 @@ const UpdateProjectModal = ({
       return {
         type: recipeType,
         value: item?.subject_id ?? item?.id ?? item?.value ?? null,
-        label: item?.subject_name ?? item?.name ?? item?.label ?? item?.text ?? "",
+        label:
+          item?.display_text ??
+          item?.subject_name ??
+          item?.name ??
+          item?.label ??
+          item?.text ??
+          "",
       };
     }).filter((row: any) => row.value !== null && row.value !== undefined);
 
@@ -82,13 +100,20 @@ const UpdateProjectModal = ({
     let sfg = parsed.find((row: any) => isSfgType(row.type));
 
     if (!fg && !sfg && parsed.length >= 2) {
-      // Backend may return [SFG, FG] when type is absent.
       fg = parsed[1];
       sfg = parsed[0];
+    } else if (!fg && !sfg && parsed.length === 1) {
+      fg = parsed[0];
     } else {
-      if (!fg && parsed.length) fg = parsed[0];
-      if (!sfg && parsed.length > 1) {
-        sfg = parsed.find((row: any) => String(row.value) !== String(fg?.value)) ?? parsed[1];
+      if (!fg && sfg && parsed.length > 1) {
+        fg = parsed.find(
+          (row: any) => String(row.value) !== String(sfg.value)
+        );
+      }
+      if (!sfg && fg && parsed.length > 1) {
+        sfg = parsed.find(
+          (row: any) => String(row.value) !== String(fg.value)
+        );
       }
     }
 
@@ -137,15 +162,11 @@ const UpdateProjectModal = ({
         const fgBomId = values?.fgBom?.value ?? values?.fgBom ?? null;
         const sfgBomId = values?.sfgBom?.value ?? values?.sfgBom ?? null;
 
-        if (!fgBomId) {
-          message.error("Please select FG BOM");
-          return;
-        }
-        if (!sfgBomId) {
-          message.error("Please select SFG BOM");
-          return;
-        }
-        if (String(fgBomId) === String(sfgBomId)) {
+        if (
+          fgBomId &&
+          sfgBomId &&
+          String(fgBomId) === String(sfgBomId)
+        ) {
           message.error("FG and SFG BOM must be different");
           return;
         }
@@ -154,7 +175,7 @@ const UpdateProjectModal = ({
           project: values.project,
           description: values.description?.trim(),
           qty: values.qty ? Number(values.qty) : 0,
-          bomSubject: [fgBomId, sfgBomId],
+          bomSubject: [fgBomId ?? null, sfgBomId ?? null],
           costcenter: values.costcenter?.value ?? null, 
         };
 

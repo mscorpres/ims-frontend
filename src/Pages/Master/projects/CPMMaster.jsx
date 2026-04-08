@@ -106,14 +106,28 @@ function CPMMaster() {
   };
 
   const getBomName = (item) =>
-    item?.subject_name ?? item?.name ?? item?.text ?? "";
+    item?.display_text ??
+    item?.subject_name ??
+    item?.name ??
+    item?.text ??
+    "";
 
-  const getRecipeType = (item) =>
-    String(
-      item?.bom_recipe_type ?? item?.recipe_type ?? item?.type ?? item?.bom_recipe ?? ""
+  const getRecipeType = (item) => {
+    const label = String(item?.bom_type_label ?? "")
+      .trim()
+      .toLowerCase();
+    if (label === "sfg") return "semi";
+    if (label === "fg") return "default";
+    return String(
+      item?.bom_recipe_type ??
+        item?.recipe_type ??
+        item?.type ??
+        item?.bom_recipe ??
+        ""
     )
       .trim()
       .toLowerCase();
+  };
   const isFgType = (type) => ["default", "fg", "finished"].includes(type);
   const isSfgType = (type) => ["semi", "sfg", "semi-fg", "semifg"].includes(type);
   const getFgSfgBom = (row) => {
