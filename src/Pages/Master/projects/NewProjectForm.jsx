@@ -14,7 +14,10 @@ import { imsAxios } from "../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MyButton from "../../../Components/MyButton";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { getBomOptions, getCostCentresOptions } from "../../../api/general.ts";
+import {
+  getCostCentresOptions,
+  getBomOptions,
+} from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 
@@ -22,9 +25,16 @@ export default function NewProjectForm() {
   const [submitConfirm, setSubmitConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [newProjectForm] = Form.useForm();
-  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [costCenterOptions, setCostCenterOptions] = useState([]);
+  const [fgBomOptions, setFgBomOptions] = useState([]);
+  const [sfgBomOptions, setSfgBomOptions] = useState([]);
 
   const { executeFun } = useApi();
+  const toSelectOptions = (rows) =>
+    (rows ?? []).map((row) => ({
+      text: row?.text ?? row?.subject_name ?? row?.name ?? "",
+      value: row?.id ?? row?.subject_id ?? row?.value,
+    }));
 
   const getCostCenteres = async (search) => {
     const response = await executeFun(
@@ -33,20 +43,56 @@ export default function NewProjectForm() {
     );
     let arr = [];
     if (response.success) arr = convertSelectOptions(response.data);
-    setAsyncOptions(arr);
+    setCostCenterOptions(arr);
   };
-  const getBom = async (search) => {
+  const getFgBom = async (search) => {
     const response = await executeFun(
-      () => getBomOptions(search),
+      () => getBomOptions(search, "default"),
       "select"
     );
     let arr = [];
-    if (response.success) arr = convertSelectOptions(response.data);
-    setAsyncOptions(arr);
+    if (response.success) {
+      arr = toSelectOptions(response.data ?? []);
+    }
+    setFgBomOptions(arr);
+  };
+  const getSfgBom = async (search) => {
+    const response = await executeFun(
+      () => getBomOptions(search, "semi"),
+      "select"
+    );
+    let arr = [];
+    if (response.success) {
+      arr = toSelectOptions(response.data ?? []);
+    }
+    setSfgBomOptions(arr);
   };
 
   const validateData = (values) => {
-    setSubmitConfirm(values);
+    const fgBomId = values?.fgBom?.value ?? values?.fgBom ?? null;
+    const sfgBomId = values?.sfgBom?.value ?? values?.sfgBom ?? null;
+
+    if (!fgBomId) {
+      toast.error("Please select FG BOM");
+      return;
+    }
+    if (!sfgBomId) {
+      toast.error("Please select SFG BOM");
+      return;
+    }
+    if (String(fgBomId) === String(sfgBomId)) {
+      toast.error("FG and SFG BOM must be different");
+      return;
+    }
+
+    const payload = {
+      project_name: values.project_name?.trim(),
+      project_id: values.project_id?.trim(),
+      costcenter: values.costcenter?.value ?? values.costcenter ?? null,
+      qty: values.qty ? Number(values.qty) : 0,
+      bom: [fgBomId, sfgBomId],
+    };
+    setSubmitConfirm(payload);
   };
   const submitHandler = async () => {
     setLoading("submit");
@@ -69,10 +115,13 @@ export default function NewProjectForm() {
       project_description: "",
       costcenter: "",
       qty: "",
-      bom: "",
+      fgBom: "",
+      sfgBom: "",
     };
     newProjectForm.setFieldsValue(obj);
-    setAsyncOptions([]);
+    setCostCenterOptions([]);
+    setFgBomOptions([]);
+    setSfgBomOptions([]);
   };
   return (
     <Form
@@ -154,21 +203,36 @@ export default function NewProjectForm() {
                 ]}
               >
                 <MyAsyncSelect
-                  onBlur={() => setAsyncOptions([])}
-                  optionsState={asyncOptions}
+                  onBlur={() => setCostCenterOptions([])}
+                  optionsState={costCenterOptions}
                   loadOptions={getCostCenteres}
+                  labelInValue={true}
                 />
               </Form.Item>
             </Col>
             <Col span={24}>
               <Form.Item
-                name="bom"
-                label="BOM"
+                name="fgBom"
+                label="FG BOM"
               >
                 <MyAsyncSelect
-                  onBlur={() => setAsyncOptions([])}
-                  optionsState={asyncOptions}
-                  loadOptions={getBom}
+                  onBlur={() => setFgBomOptions([])}
+                  optionsState={fgBomOptions}
+                  loadOptions={getFgBom}
+                  labelInValue={true}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                name="sfgBom"
+                label="SFG BOM"
+              >
+                <MyAsyncSelect
+                  onBlur={() => setSfgBomOptions([])}
+                  optionsState={sfgBomOptions}
+                  loadOptions={getSfgBom}
+                  labelInValue={true}
                 />
               </Form.Item>
             </Col>

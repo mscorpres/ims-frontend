@@ -61,7 +61,7 @@ function CPMMaster() {
         toast.error(response.message);
       }
     } catch (error) {
-      toast.error("Failed to update the project. Please try again.");
+      toast.error(error?.response?.data?.message || error?.message || "Failed to update the project. Please try again.");
     }
   };
 
@@ -99,6 +99,37 @@ function CPMMaster() {
 
   };
 
+  const getBomList = (row) => {
+    const raw = row?.bomSubject ?? row?.bom;
+    if (Array.isArray(raw)) return raw;
+    return raw ? [raw] : [];
+  };
+
+  const getBomName = (item) =>
+    item?.subject_name ?? item?.name ?? item?.text ?? "";
+
+  const getRecipeType = (item) =>
+    String(
+      item?.bom_recipe_type ?? item?.recipe_type ?? item?.type ?? item?.bom_recipe ?? ""
+    )
+      .trim()
+      .toLowerCase();
+  const isFgType = (type) => ["default", "fg", "finished"].includes(type);
+  const isSfgType = (type) => ["semi", "sfg", "semi-fg", "semifg"].includes(type);
+  const getFgSfgBom = (row) => {
+    const list = getBomList(row);
+    const fgByType = list.find((item) => isFgType(getRecipeType(item)));
+    const sfgByType = list.find((item) => isSfgType(getRecipeType(item)));
+    if (fgByType || sfgByType) {
+      return { fg: fgByType ?? null, sfg: sfgByType ?? null };
+    }
+    // Backend often sends [SFG, FG] when type is missing.
+    if (list.length >= 2) {
+      return { fg: list[1], sfg: list[0] };
+    }
+    return { fg: list[0] ?? null, sfg: null };
+  };
+
   const columns = [
     { field: "index", headerName: "Sr. No", width: 80 },
     { field: "project", headerName: "Project Id", width: 180 },
@@ -113,12 +144,24 @@ function CPMMaster() {
         _value?.row?.costcenter?.cost_center_name  ?? "",
     },
     {
-      field: "bomSubjectName",
-      headerName: "BOM",
-      width: 180,
+      field: "fgBomName",
+      headerName: "FG BOM",
+      width: 200,
       flex: 1,
-      valueGetter: (_value, row) =>
-        _value?.row?.bomSubject?.subject_name ?? "",
+      valueGetter: (_value, row) => {
+        const { fg } = getFgSfgBom(_value?.row ?? row);
+        return getBomName(fg) || "";
+      },
+    },
+    {
+      field: "sfgBomName",
+      headerName: "SFG BOM",
+      width: 200,
+      flex: 1,
+      valueGetter: (_value, row) => {
+        const { sfg } = getFgSfgBom(_value?.row ?? row);
+        return getBomName(sfg) || "";
+      },
     },
     { field: "insert_dt", headerName: "Insert Date", flex: 1 },
     {
