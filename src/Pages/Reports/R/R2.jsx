@@ -66,6 +66,11 @@ const R2 = () => {
       headerName: "Po Order Id",
       width: 120,
     },
+    {
+      field: "po_bom_qty",
+      headerName: "BOM Qty",
+      width: 120,
+    },
     { field: "part_no", headerName: "Part", width: 100 },
     { field: "new_partno", headerName: "Cat Part Code", width: 150 },
     {
@@ -113,6 +118,11 @@ const R2 = () => {
     {
       field: "po_project",
       headerName: "Project Name",
+      width: 120,
+    },
+    {
+      field: "ppr_no",
+      headerName: "PPR No",
       width: 120,
     },
     {

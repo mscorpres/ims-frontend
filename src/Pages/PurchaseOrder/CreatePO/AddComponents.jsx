@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { v4 } from "uuid";
-import CurrenceModal from "../ManagePO/CurrenceModal";
 import NavFooter from "../../../Components/NavFooter";
 import {
   CGSTCell,
@@ -12,6 +11,7 @@ import {
   IGSTCell,
   invoiceDateCell,
   itemDescriptionCell,
+  bomQtyCell,
   quantityCell,
   rateCell,
   SGSTCell,
@@ -27,6 +27,7 @@ import {
   Col,
   Drawer,
   Form,
+  Input,
   Modal,
   Row,
   Typography,
@@ -34,6 +35,7 @@ import {
 } from "antd";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
+import { normalizePprForApiPayload } from "../../../utils/general.ts";
 import { getComponentOptions } from "../../../api/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton/index.jsx";
@@ -42,6 +44,29 @@ import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
 import { prsampleFile } from "../../../utils/samplefile.js";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { toast } from "react-toastify";
+
+function formatTaxDetailRowTotal(rawSum) {
+  const n = Number(rawSum);
+  if (Number.isNaN(n)) return "0.00";
+  return n.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+/** Prefer live Form value so component details API gets the project the user just selected. */
+function resolveProjectIdForComponentApi(form, newPurchaseOrder) {
+  const fromForm = form.getFieldValue("project_name");
+  const formHasProject =
+    fromForm !== undefined && fromForm !== null && fromForm !== "";
+  const raw = formHasProject ? fromForm : newPurchaseOrder?.project_name;
+  if (raw === undefined || raw === null || raw === "") return "";
+  if (typeof raw === "object" && raw.value !== undefined && raw.value !== null) {
+    return raw.value;
+  }
+  return raw;
+}
+
 export default function AddComponents({
   form,
   rowCount,
@@ -53,31 +78,35 @@ export default function AddComponents({
   submitLoading,
   newPurchaseOrder,
   gstState,
+  poCurrencies = [],
 }) {
- 
-const projectId = form.getFieldsValue()?.project_name?.value;
   const venderCode = form.getFieldsValue()?.vendorname?.key;
-  const [currencies, setCurrencies] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [showCurrencyModal, setShowCurrencyModal] = useState(null);
   const [open, setOpen] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [preview, setPreview] = useState(false);
   const [previewRows, setPreviewRows] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showCurrencyUpdateConfirmModal, setShowCurrencyUpdateConfirmModal] =
-    useState(false);
   const [uploadForm] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
   const addRows = () => {
     const defaultGstType = gstState || "L";
+    const headerCur = form.getFieldValue("po_currency") ?? "364907247";
+    const headerEx =
+      String(headerCur) === "364907247"
+        ? 1
+        : Number(form.getFieldValue("po_exchange_rate")) || 1;
+    const sym =
+      poCurrencies.find((c) => String(c.value) === String(headerCur))?.text ??
+      "";
     const newRow = {
       id: v4(),
       index: rowCount.length + 1,
-      currency: "364907247",
-      exchange_rate: 1,
+      currency: headerCur,
+      exchange_rate: headerEx,
+      symbol: sym,
       component: "",
       qty: 1,
       rate: "",
@@ -100,6 +129,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       po_exec_qty: 0,
       diffPercentage: "--",
       closing_stock: 0,
+      po_bom_qty: "",
     };
     setRowCount((rowCount) => [...rowCount, newRow]);
   };
@@ -131,9 +161,12 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       const sgst = gsttype === "L" ? gstAmount : 0;
       const igst = gsttype === "I" ? gstAmount : 0;
 
-      // currency / exchange like default row
-      const currency = "364907247";
-      const exchange_rate = 1;
+      const headerCur = form.getFieldValue("po_currency") ?? "364907247";
+      const exchange_rate =
+        String(headerCur) === "364907247"
+          ? 1
+          : Number(form.getFieldValue("po_exchange_rate")) || 1;
+      const currency = headerCur;
       const foreginValue = inrValue * exchange_rate;
 
       // project qty / approval fields
@@ -167,11 +200,16 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       const componentValue =
         partcodeObj.id ?? partcodeObj.partNo ?? r.partCode ?? r.partcode ?? "";
 
+      const sym =
+        poCurrencies.find((c) => String(c.value) === String(currency))?.text ??
+        "";
+
       return {
         id: v4(),
         index: index + 1,
         currency,
         exchange_rate,
+        symbol: sym,
         component: {
           label: componentLabel,
           text: componentLabel,
@@ -201,6 +239,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
         qtyApproval,
         diffPercentage: r.diffPercentage ?? "--",
         closing_stock: Number(r.closingStock) || 0,
+        po_bom_qty: r.po_bom_qty ?? r.pobomqty ?? r.PO_BOM_QTY ?? "",
       };
     });
     setRowCount(arr);
@@ -267,6 +306,15 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     //   renderCell: ({ row }) => <ToolTipEllipses text={row.gstType?.text} />,
     // },
     {
+      headerName: "BOM Qty",
+      field: "po_bom_qty",
+      minWidth: 100,
+      flex: 1,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={String(row.po_bom_qty ?? row.pobomqty ?? "")} />
+      ),
+    },
+    {
       headerName: "Remark",
       field: "internalRemark",
       minWidth: 150,
@@ -289,7 +337,10 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     const formData = new FormData();
     formData.append("file", file);
     formData.append("venderCode", venderCode);
-    formData.append("projectId", projectId);
+    formData.append(
+      "projectId",
+      resolveProjectIdForComponentApi(form, newPurchaseOrder),
+    );
     try {
       const response = await imsAxios.post(
         "/purchaseOrder/upload/item",
@@ -357,27 +408,6 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     const arr = rowCount.filter((c) => c.id != id);
     setRowCount(arr);
   };
-  const changeCurrencyToINR = () => {
-    let arr = rowCount.map((row) => {
-      let obj = row;
-      if (row.id == showCurrencyUpdateConfirmModal.id) {
-        obj = {
-          ...obj,
-          currency: showCurrencyUpdateConfirmModal.value,
-          usdValue: 0,
-          exchange_rate: 1,
-          currencySymbol: currencies.filter(
-            (row) => row.value == showCurrencyUpdateConfirmModal.value,
-          ),
-        };
-        return obj;
-      } else {
-        return obj;
-      }
-    });
-    setShowCurrencyUpdateConfirmModal(false);
-    setRowCount(arr);
-  };
   const inputHandler = async (name, value, id) => {
     let arr = rowCount;
 
@@ -431,7 +461,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           name == "hsncode" ||
           name == "duedate" ||
           name == "remark" ||
-          name === "internal_remark"
+          name === "internal_remark" ||
+          name === "po_bom_qty"
         ) {
           obj = {
             ...obj,
@@ -487,41 +518,6 @@ const projectId = form.getFieldsValue()?.project_name?.value;
               igst: (obj.inrValue * percentage) / 100,
             };
           }
-        } else if (name == "exchange_rate") {
-          obj = {
-            ...obj,
-            exchange_rate: value.rate,
-            currency: value.currency,
-            foreginValue: row.inrValue * value.rate,
-            currencySymbol: currencies.filter(
-              (row) => row.value == value.currency,
-            ),
-          };
-          // let rate = +Number(obj.rate).toString();
-          // let diff = obj.rate_cap * value.rate - rate * value.rate;
-          // let diff1 = obj.rate_cap - rate;
-          // let perc = (diff1 * 100) / obj.rate_cap;
-          // perc = perc.toFixed(2);
-          // obj = {
-          //   ...obj,
-          //   diffPercentage: perc,
-          //   tol_price: diff,
-          // };
-        } else if (name == "currency") {
-          if (value == "364907247") {
-            setShowCurrencyUpdateConfirmModal({ value: value, id: id });
-          } else {
-            setShowCurrencyModal({
-              currency: value,
-              price: row.inrValue,
-              exchange_rate: row.exchange_rate,
-              symbol: currencies.filter((cur) => cur.value == value)[0].text,
-              rowId: row.id,
-              inputHandler: inputHandler,
-            });
-          }
-
-          // return obj;
         } else if (name == "gstrate") {
           if (row.gsttype == "L" && name != "gsttype") {
             let percentage = value / 2;
@@ -552,7 +548,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           obj.gsttype == "L" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate / 2;
           obj = {
@@ -565,7 +562,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           obj.gsttype == "I" &&
           name != "gsttype" &&
           name != "remark" &&
-          name != "internal_remark"
+          name != "internal_remark" &&
+          name != "po_bom_qty"
         ) {
           let percentage = obj.gstrate;
           obj = {
@@ -588,13 +586,11 @@ const projectId = form.getFieldsValue()?.project_name?.value;
         {
           component_code: value.value,
           vencode: newPurchaseOrder.vendorname.value,
-          project:
-            form.getFieldValue("project_name") === "object"
-              ? form.getFieldValue("project_name").value
-              : form.getFieldValue("project_name") ||
-                  newPurchaseOrder.project_name === "object"
-                ? newPurchaseOrder.project_name.value
-                : newPurchaseOrder.project_name,
+          project: resolveProjectIdForComponentApi(form, newPurchaseOrder),
+          pprId: normalizePprForApiPayload(
+            form.getFieldValue("ppr"),
+            newPurchaseOrder.ppr,
+          ).pprId,
         },
       );
       setPageLoading(false);
@@ -604,7 +600,11 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       arr1 = arr1.map((row) => {
         if (row.id == id) {
           let obj = row;
-          let newLastRate = Number(data.data.rate.toString().trim());
+          const rawLastRate = data?.data?.rate;
+          const newLastRate =
+            rawLastRate != null && rawLastRate !== ""
+              ? String(rawLastRate).trim()
+              : "";
           let percentage = data.data.gstrate;
 
           if (autoGstType == "L") {
@@ -653,6 +653,8 @@ const projectId = form.getFieldsValue()?.project_name?.value;
             project_req_qty: data.data.project_req_qty,
             po_exec_qty: data.data.po_exec_qty,
             closing_stock: data.data.closing_stock || 0,
+            ppr_plan_qty: data.data.ppr_plan_qty || 0,
+            ppr_executed_qty: data.data.ppr_executed_qty || 0,
             tol_price: Number((data.data.project_rate * 1) / 100).toFixed(2),
           };
           return obj;
@@ -687,12 +689,21 @@ const projectId = form.getFieldsValue()?.project_name?.value;
   };
   const resetFunction = () => {
     const defaultGstType = gstState || "L";
+    const headerCur = form.getFieldValue("po_currency") ?? "364907247";
+    const headerEx =
+      String(headerCur) === "364907247"
+        ? 1
+        : Number(form.getFieldValue("po_exchange_rate")) || 1;
+    const sym =
+      poCurrencies.find((c) => String(c.value) === String(headerCur))?.text ??
+      "";
     setRowCount([
       {
         id: v4(),
         index: 1,
-        currency: "364907247",
-        exchange: "1",
+        currency: headerCur,
+        exchange_rate: headerEx,
+        symbol: sym,
         component: "",
         qty: 1,
         rate: "",
@@ -709,6 +720,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
         internal_remark: "",
         unit: "--",
         closing_stock: 0,
+        po_bom_qty: "",
       },
     ]);
     setConfirmReset(false);
@@ -749,19 +761,6 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     ];
     setTotalValues(obj);
   }, [rowCount]);
-  //getting currencies on page load
-  const getCurrencies = async () => {
-    const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
-    let arr = [];
-    arr = data.data.map((d) => {
-      return {
-        text: d.currency_symbol,
-        value: d.currency_id,
-        notes: d.currency_notes,
-      };
-    });
-    setCurrencies(arr);
-  };
   const columns = [
     {
       headerName: <CommonIcons action="addRow" onClick={addRows} />,
@@ -795,7 +794,13 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       width: 250,
       renderCell: (params) => itemDescriptionCell(params, inputHandler),
     },
-
+    {
+      headerName: "BOM Qty",
+      width: 120,
+      field: "po_bom_qty",
+      sortable: false,
+      renderCell: (params) => bomQtyCell(params, inputHandler),
+    },
     {
       headerName: "Ord. Qty",
       field: "qty",
@@ -809,7 +814,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       width: 170,
       field: "rate",
       sortable: false,
-      renderCell: (params) => rateCell(params, inputHandler, currencies),
+      renderCell: (params) => rateCell(params, inputHandler),
     },
 
     {
@@ -857,6 +862,29 @@ const projectId = form.getFieldsValue()?.project_name?.value;
       sortable: false,
       renderCell: (params) =>
         disabledCell(params, params.row.po_exec_qty, inputHandler),
+    },
+       {
+      headerName: "Plan PPR QTY",
+      width: 100,
+      field: "ppr_plan_qty",
+      sortable: false,
+      renderCell: (params) =>
+         <Input
+            disabled
+            value={params.row.ppr_plan_qty}
+           
+          />
+    },   {
+      headerName: "Exec. PPR QTY",
+      width: 100,
+      field: "ppr_executed_qty",
+      sortable: false,
+      renderCell: (params) =>
+         <Input
+    disabled
+    value={params.row.ppr_executed_qty}
+  />
+   
     },
     // CHANGED: Added Closing Stock column from previous update
     {
@@ -970,9 +998,6 @@ const projectId = form.getFieldsValue()?.project_name?.value;
     },
   ];
   useEffect(() => {
-    getCurrencies();
-  }, []);
-  useEffect(() => {
     if (selectLoading) {
       setTimeout(() => {
         setSelectLoading(false);
@@ -1082,35 +1107,7 @@ const projectId = form.getFieldsValue()?.project_name?.value;
           Order?
         </p>
       </Modal>
-      {/* currency changed to inr confirm modal */}
-      <Modal
-        title="Confirm Currency Change!"
-        open={showCurrencyUpdateConfirmModal}
-        onCancel={() => setShowCurrencyUpdateConfirmModal(false)}
-        footer={[
-          <Button
-            key="back"
-            onClick={() => setShowCurrencyUpdateConfirmModal(false)}
-          >
-            No
-          </Button>,
-          <Button key="submit" type="primary" onClick={changeCurrencyToINR}>
-            Yes
-          </Button>,
-        ]}
-      >
-        <p>
-          Are you sure you want to change the currency to INR for this
-          component. The exchange rate will change to 1.
-        </p>
-      </Modal>
       {pageLoading && <Loading />}
-      {showCurrencyModal != null && (
-        <CurrenceModal
-          showCurrency={showCurrencyModal}
-          setShowCurrencyModal={setShowCurrencyModal}
-        />
-      )}
       <Row style={{ height: "95%" }} gutter={8}>
         <Col style={{ height: "100%" }} span={6}>
           <Row gutter={[0, 4]} style={{ height: "100%" }}>
@@ -1256,11 +1253,11 @@ const projectId = form.getFieldsValue()?.project_name?.value;
                                   totalValues.length - 1 && 600,
                             }}
                           >
-                            {Number(
+                            {formatTaxDetailRowTotal(
                               row.values?.reduce((partialSum, a) => {
                                 return partialSum + Number(a);
                               }, 0),
-                            ).toFixed(2)}
+                            )}
                           </span>
                         </Col>
                       </Row>

@@ -2,6 +2,7 @@ export const prsampleFile  = [
   {
       PART_CODE: "P0001",
     ITEM_DESCRIPTION: "description 2",
+    PO_BOM_QTY: 10,
     QTY: 14,
     RATE: 2,
     HSN: 234543,
@@ -12,6 +13,7 @@ export const prsampleFile  = [
   {
       PART_CODE: "P0002",
     ITEM_DESCRIPTION: "description 2",
+    PO_BOM_QTY: 8,
     QTY: 12,
     RATE: 22,
     HSN: 123456,

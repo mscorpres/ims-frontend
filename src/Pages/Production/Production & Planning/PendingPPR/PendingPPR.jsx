@@ -17,6 +17,8 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import ExecutePPR from "./ExecutePPR";
 import ViewComponents from "./ViewComponents";
 import MyButton from "../../../../Components/MyButton";
+import RaisePprQtyRequestModal from "../RaisePprQtyRequestModal";
+import PprQtyLogsModal from "../PprQtyLogsModal";
 
 const PendingPPR = () => {
   const [cancelPPR, setsCancelPPR] = useState(null);
@@ -29,6 +31,8 @@ const PendingPPR = () => {
   const [rows, setRows] = useState([]);
   const [wise, setWise] = useState("pprno");
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [showRaiseQty, setShowRaiseQty] = useState(null); // ppr_no
+  const [showQtyLogs, setShowQtyLogs] = useState(null); // {ppr_no, project_id}
   const pprWiseOptions = [
     { text: "New", value: "new" },
     { text: "Repair", value: "repair" },
@@ -140,6 +144,23 @@ const PendingPPR = () => {
               remainingQty: row.consumptionRemaining,
             });
           }}
+        />,
+        <TableActions
+          showInMenu={true}
+          action="add"
+          label="Raise Qty Request"
+          onClick={() => setShowRaiseQty(row.prod_transaction)}
+        />,
+        <TableActions
+          showInMenu={true}
+          action="view"
+          label="View Qty Logs"
+          onClick={() =>
+            setShowQtyLogs({
+              ppr_no: row.prod_transaction,
+              project_id: row.prod_project,
+            })
+          }
         />,
       ],
     },
@@ -345,6 +366,16 @@ const PendingPPR = () => {
       <div style={{ height: "95%", padding: "0px 10px" }}>
         <MyDataTable columns={columns} data={rows} loading={searchLoading} />
       </div>
+      <RaisePprQtyRequestModal
+        open={!!showRaiseQty}
+        pprNo={showRaiseQty}
+        onClose={() => setShowRaiseQty(null)}
+      />
+      <PprQtyLogsModal
+        open={!!showQtyLogs}
+        onClose={() => setShowQtyLogs(null)}
+        initialFilters={showQtyLogs}
+      />
     </div>
   );
 };
