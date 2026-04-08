@@ -79,7 +79,7 @@ const TransactionIn = () => {
     },
     { headerName: "Sr. No", field: "index", width: 80 },
     {
-      headerName: "Date",
+      headerName: "MIN Date",
       field: "DATE",
       width: 120,
       renderCell: ({ row }) => <ToolTipEllipses text={row.DATE} />,
