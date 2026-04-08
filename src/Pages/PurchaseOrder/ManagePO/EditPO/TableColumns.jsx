@@ -37,21 +37,13 @@ export const quantityCell = ({ row }, inputHandler) => (
   />
 );
 
-export const rateCell = ({ row }, inputHandler, currencies) => (
-  <Input.Group compact>
-    <Input
-      style={{ width: "65%", border: row.rateAppr && "1px solid red" }}
-      value={row.rate}
-      onChange={(e) => inputHandler("rate", e.target.value, row.id)}
-    />
-    <div style={{ width: "35%" }}>
-      <MySelect
-        onChange={(value) => inputHandler("currency", value, row.id)}
-        value={row.currency}
-        options={currencies}
-      />
-    </div>
-  </Input.Group>
+export const rateCell = ({ row }, inputHandler) => (
+  <Input
+    style={{ width: "100%", border: row.rateAppr && "1px solid red" }}
+    value={row.rate}
+    onChange={(e) => inputHandler("rate", e.target.value, row.id)}
+    suffix={row.symbol ?? ""}
+  />
 );
 export const disabledCell = (value, inputHandler) => (
   <Input
@@ -64,7 +56,13 @@ export const taxableCell = ({ row }) => {
   return <Input disabled={true} value={row.inrValue} />;
 };
 export const foreignCell = ({ row }) => {
-  return <Input disabled={true} value={row.foreginValue} />;
+  const isInr = String(row?.currency) === "364907247";
+  return (
+    <Input
+      disabled={true}
+      value={isInr ? 0 : Number(row?.foreginValue).toFixed(2)}
+    />
+  );
 };
 export const invoiceDateCell = ({ row }, inputHandler) => {
   return (
@@ -113,6 +111,15 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
     placeholder="Enter Remark"
   />
 );
+
+export const bomQtyCell = ({ row }, inputHandler) => (
+  <Input
+    value={row.po_bom_qty ?? ""}
+    onChange={(e) => inputHandler("po_bom_qty", e.target.value, row.id)}
+    placeholder="BOM qty"
+  />
+);
+
 export const internalRemarkCell = ({ row }, inputHandler) => (
   <Input
     placeholder="Internal Remark..."

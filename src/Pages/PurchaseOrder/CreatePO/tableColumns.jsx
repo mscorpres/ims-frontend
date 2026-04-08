@@ -54,24 +54,16 @@ export const quantityCell = ({ row }, inputHandler) => (
     />
   </Tooltip>
 );
-export const rateCell = ({ row }, inputHandler, currencies) => (
-  <Input.Group compact>
-    <Input
-      style={{ width: "62%", borderColor: row.approval && "red" }}
-      value={row.rate}
-      onKeyDown={blockSpaceKey}
-      onChange={(e) =>
-        inputHandler("rate", stripSpaces(e.target.value), row.id)
-      }
-    />
-    <div style={{ width: "35%", marginLeft: "2px" }}>
-      <MySelect
-        options={currencies}
-        value={row.currency}
-        onChange={(value) => inputHandler("currency", value, row.id)}
-      />
-    </div>
-  </Input.Group>
+export const rateCell = ({ row }, inputHandler) => (
+  <Input
+    style={{ width: "100%", borderColor: row.approval && "red" }}
+    value={row.rate}
+    onKeyDown={blockSpaceKey}
+    onChange={(e) =>
+      inputHandler("rate", stripSpaces(e.target.value), row.id)
+    }
+    suffix={row.symbol ?? ""}
+  />
 );
 export const disabledCell = ({ row }, value, inputHandler, suffix) => (
   <Input
@@ -84,12 +76,11 @@ export const taxableCell = ({ row }) => {
   return <Input disabled={true} value={Number(row.inrValue).toFixed(2)} />;
 };
 export const foreignCell = ({ row }) => {
+  const isInr = String(row?.currency) === "364907247";
   return (
     <Input
       disabled={true}
-      value={
-        row?.currency == 364907247 ? 0 : Number(row?.foreginValue).toFixed(2)
-      }
+      value={isInr ? 0 : Number(row?.foreginValue).toFixed(2)}
     />
   );
 };
@@ -138,6 +129,17 @@ export const itemDescriptionCell = ({ row }, inputHandler) => (
     value={row.remark}
     onChange={(e) => inputHandler("remark", e.target.value, row.id)}
     placeholder="Enter Remark"
+  />
+);
+
+export const bomQtyCell = ({ row }, inputHandler) => (
+  <Input
+    value={row.po_bom_qty ?? ""}
+    onKeyDown={blockSpaceKey}
+    onChange={(e) =>
+      inputHandler("po_bom_qty", stripSpaces(e.target.value), row.id)
+    }
+    placeholder="BOM qty"
   />
 );
 

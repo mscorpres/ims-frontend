@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { v4 } from "uuid";
 import AddComponent from "./AddComponents";
 import { toast } from "react-toastify";
@@ -33,7 +33,10 @@ import {
   getProjectOptions,
   getVendorOptions,
 } from "../../../api/general.ts";
-import { convertSelectOptions } from "../../../utils/general.ts";
+import {
+  convertSelectOptions,
+  normalizePprForApiPayload,
+} from "../../../utils/general.ts";
 
 const deliveryTermOptions = [
   { label: "Within 10 days", value: "Within 10 days" },
@@ -82,6 +85,8 @@ export default function CreatePo() {
     pocreatetype: "N",
     original_po: "",
     raisedBy: "",
+    po_currency: "364907247",
+    po_exchange_rate: 1,
   });
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showDetailsCondirm, setShowDetailsConfirm] = useState(false);
@@ -101,12 +106,16 @@ export default function CreatePo() {
   const [showQtyWarning, setShowQtyWarning] = useState(false);
   const [qtyWarningData, setQtyWarningData] = useState(null);
   const [pendingPOData, setPendingPOData] = useState(null);
+  const [pprOptions, setPpROptions] = useState([]);
+  const [isPPRLoading, setIsPPRLoading] = useState(false);
+  const [poCurrencies, setPoCurrencies] = useState([]);
   const [rowCount, setRowCount] = useState([
     {
       id: v4(),
       index: 1,
       currency: "364907247",
       exchange_rate: 1,
+      symbol: "",
       component: "",
       qty: 1,
       rate: "",
@@ -125,7 +134,10 @@ export default function CreatePo() {
       tol_price: 0,
       project_req_qty: 0,
       po_exec_qty: 0,
+      ppr_executed_qty: 0,
+      ppr_plan_qty: 0,
       diffPercentage: "--",
+      po_bom_qty: "",
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -137,7 +149,31 @@ export default function CreatePo() {
 
   const termsCondition = Form.useWatch("termscondition", form);
   const advancePayment = Form.useWatch("advancePayment", form);
+  const poCurrencyWatched = Form.useWatch("po_currency", form);
+  const showPoExchangeField =
+    String(poCurrencyWatched ?? "364907247") !== "364907247";
+
+  const syncLineItemsCurrencyFromHeader = useCallback(
+    (currencyId, exchangeRate) => {
+      const isInr = String(currencyId) === "364907247";
+      const ex = isInr ? 1 : Number(exchangeRate) || 1;
+      const sym =
+        poCurrencies.find((c) => String(c.value) === String(currencyId))
+          ?.text ?? "";
+      setRowCount((rows) =>
+        rows.map((r) => ({
+          ...r,
+          currency: currencyId,
+          exchange_rate: ex,
+          symbol: sym,
+          foreginValue: Number(r.inrValue || 0) * ex,
+        })),
+      );
+    },
+    [poCurrencies],
+  );
   const { executeFun, loading: loading1 } = useApi();
+
   const validatePO = () => {
     const formValues = form.getFieldsValue();
     const formProjectName = form.getFieldValue("project_name");
@@ -151,6 +187,8 @@ export default function CreatePo() {
               formValues.project_name !== null
             ? formValues.project_name
             : newPurchaseOrder.project_name,
+            pprId:
+              formValues.pprId ?? formValues.ppr ?? newPurchaseOrder.pprId ?? newPurchaseOrder.ppr,
       pocostcenter:
         formValues.pocostcenter !== undefined &&
         formValues.pocostcenter !== null
@@ -263,6 +301,7 @@ export default function CreatePo() {
       tol_price: [],
       project_qty: [],
       exq_po_qty: [],
+      po_bom_qty: [],
     };
 
     rowCount.map((row) => {
@@ -283,6 +322,7 @@ export default function CreatePo() {
       componentData.rate_cap.push(row.rate_cap);
       componentData.project_qty.push(row.project_req_qty);
       componentData.exq_po_qty.push(row.po_exec_qty);
+      componentData.po_bom_qty.push(row.po_bom_qty ?? "");
     });
 
     newPo = {
@@ -325,6 +365,10 @@ export default function CreatePo() {
         }
         return project;
       })(),
+      ...normalizePprForApiPayload(
+        currentPurchaseOrder.ppr,
+        currentPurchaseOrder.pprId,
+      ),
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
           ? 30
@@ -464,7 +508,7 @@ export default function CreatePo() {
     rowCount.map((count) => {
       if (
         count.currency == "" ||
-        count.exchange == 0 ||
+        Number(count.exchange_rate) === 0 ||
         count.component == "" ||
         count.qty == 0 ||
         count.rate == ""
@@ -494,6 +538,7 @@ export default function CreatePo() {
               formValues.project_name !== null
             ? formValues.project_name
             : newPurchaseOrder.project_name,
+
       pocostcenter:
         formValues.pocostcenter !== undefined &&
         formValues.pocostcenter !== null
@@ -583,6 +628,8 @@ export default function CreatePo() {
         formValues.pocreatetype !== null
           ? formValues.pocreatetype
           : newPurchaseOrder.pocreatetype,
+      pprId:
+        formValues.pprId ?? formValues.ppr ?? newPurchaseOrder.pprId ?? newPurchaseOrder.ppr,
     };
     const storedPOData = pendingPOData || showSubmitConfirm;
     if (!storedPOData) {
@@ -628,6 +675,11 @@ export default function CreatePo() {
         }
         return project;
       })(),
+      ...normalizePprForApiPayload(
+        currentPurchaseOrder.ppr,
+        currentPurchaseOrder.pprId,
+      ),
+
       paymenttermsday: currentPurchaseOrder.paymenttermsday
         ? currentPurchaseOrder.paymenttermsday === ""
           ? 30
@@ -666,9 +718,24 @@ export default function CreatePo() {
       setSubmitLoading(false);
       const responseData = response?.data || response;
       if (responseData) {
-        if (responseData.code === 400 && responseData.status === "warning") {
+        const warningsFromApi =
+          responseData?.data?.warnings ||
+          responseData?.warnings ||
+          null;
+
+        // Backend quantity-exceed warnings kabhi `400 warning` bhejta hai, aur kabhi `500 error` ke saath.
+        // Dono cases me hum same warning modal show karte hain taa ki user "Proceed Anyway" kar sake.
+        if (
+          (responseData.code === 400 &&
+            responseData.status === "warning") ||
+          (Array.isArray(warningsFromApi) && warningsFromApi.length > 0)
+        ) {
           setShowSubmitConfirm(null);
-          setQtyWarningData(responseData.data);
+          setQtyWarningData(
+            responseData?.data?.warnings
+              ? responseData.data
+              : { warnings: warningsFromApi },
+          );
           setShowQtyWarning(true);
           return;
         }
@@ -860,6 +927,34 @@ export default function CreatePo() {
           shipGST: shippingDetails.gstin || "",
         }));
       }
+    } else if (name === "po_currency") {
+      const isInr = String(value) === "364907247";
+      const nextEx = isInr
+        ? 1
+        : Number(form.getFieldValue("po_exchange_rate")) || 1;
+      form.setFieldsValue({
+        po_currency: value,
+        po_exchange_rate: nextEx,
+      });
+      setnewPurchaseOrder((prev) => ({
+        ...prev,
+        po_currency: value,
+        po_exchange_rate: nextEx,
+      }));
+      syncLineItemsCurrencyFromHeader(value, nextEx);
+    } else if (name === "po_exchange_rate") {
+      const cur = form.getFieldValue("po_currency") ?? "364907247";
+      if (String(cur) === "364907247") return;
+      const ex =
+        value === null || value === undefined || value === ""
+          ? 1
+          : Number(value) || 1;
+      form.setFieldsValue({ po_exchange_rate: ex });
+      setnewPurchaseOrder((prev) => ({
+        ...prev,
+        po_exchange_rate: ex,
+      }));
+      syncLineItemsCurrencyFromHeader(cur, ex);
     } else {
       form.setFieldsValue({ [name]: value });
       setnewPurchaseOrder((prev) => ({ ...prev, [name]: value }));
@@ -1083,6 +1178,9 @@ export default function CreatePo() {
       paymentterms: "",
       advancePayment: 0,
       advancePercentage: null,
+      po_currency: "364907247",
+      po_exchange_rate: 1,
+      ppr: undefined,
     };
 
     // form.reset
@@ -1090,6 +1188,10 @@ export default function CreatePo() {
     form.setFieldsValue(obj);
     setnewPurchaseOrder(obj);
     form.setFieldValue("advancePayment", "");
+    form.setFieldValue("ppr", undefined);
+    setPpROptions([]);
+    setIsPPRLoading(false);
+    setProjectDesc("");
     setSameAsBilling(false);
     setShowDetailsConfirm(false);
     setPendingPOData(null);
@@ -1103,6 +1205,9 @@ export default function CreatePo() {
         index: 1,
         currency: "364907247",
         exchange_rate: 1,
+        symbol:
+          poCurrencies.find((c) => String(c.value) === "364907247")?.text ??
+          "",
         component: "",
         qty: 1,
         rate: "",
@@ -1116,6 +1221,9 @@ export default function CreatePo() {
         igst: 0,
         remark: "--",
         unit: "--",
+        ppr_executed_qty: 0,
+        ppr_plan_qty: 0,
+        po_bom_qty: "",
       },
     ]);
   };
@@ -1155,9 +1263,33 @@ export default function CreatePo() {
         await handleProjectCostCenter(
           typeof value === "object" ? value.value : value,
         );
+        await fetchPPROptions(typeof value === "object" ? value.value : value);
       } else {
         toast.error(data.message.msg);
       }
+    }
+  };
+
+  const fetchPPROptions = async (key) => {
+    try {
+      setIsPPRLoading(true);
+      const response = await imsAxios.post("/purchaseOrder/pprList", {
+        project_name: key,
+      });
+      let arr = [];
+
+      if (response?.data?.status === "success") {
+        arr = convertSelectOptions(response?.data?.data);
+
+        setPpROptions(arr);
+        setIsPPRLoading(false);
+      } else {
+        setPpROptions([]);
+        setIsPPRLoading(false);
+      }
+    } catch (error) {
+      setIsPPRLoading(false);
+      toast.error("Error fetching PPR options");
     }
   };
 
@@ -1191,7 +1323,11 @@ export default function CreatePo() {
         };
         setnewPurchaseOrder(updatedPO);
       } else {
-        toast.error(data?.message?.msg || "Failed to fetch cost center");
+        toast.error(
+          responseData?.message?.msg ||
+            responseData?.message ||
+            "Failed to fetch cost center",
+        );
       }
     } catch (error) {
       setPageLoading(false);
@@ -1218,6 +1354,39 @@ export default function CreatePo() {
       }
     }
   }, [newPurchaseOrder.vendorname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+        if (cancelled || !data?.data) return;
+        const arr = data.data.map((d) => ({
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        }));
+        setPoCurrencies(arr);
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!poCurrencies.length) return;
+    const cur = form.getFieldValue("po_currency") ?? "364907247";
+    const ex =
+      String(cur) === "364907247"
+        ? 1
+        : Number(form.getFieldValue("po_exchange_rate")) || 1;
+    syncLineItemsCurrencyFromHeader(cur, ex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- form instance is stable; avoid re-sync loops
+  }, [poCurrencies.length, syncLineItemsCurrencyFromHeader]);
+
   // useE
   useEffect(() => {
     getBillTo();
@@ -1298,9 +1467,9 @@ export default function CreatePo() {
             type="primary"
             loading={submitLoading}
             onClick={() => {
-              setPendingPOData(showSubmitConfirm); // ← Store the PR data
-              setShowSubmitConfirm(false); // ← Close this modal
-              submitHandler(false); // ← Try to submit (will trigger warning if needed)
+              setPendingPOData(showSubmitConfirm); 
+              setShowSubmitConfirm(false); 
+              submitHandler(false);
             }}
           >
             Yes
@@ -1329,9 +1498,24 @@ export default function CreatePo() {
       {/* Quantity Warning Modal */}
       <Modal
         title={
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "20px", color: "#faad14" }}>⚠️</span>
-            <span>Quantity Exceeds Project Requirement</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                background: "#fff7e6",
+                border: "1px solid #ffd591",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#faad14",
+                fontWeight: 700,
+              }}
+            >
+              !
+            </div>
+            <span style={{ fontWeight: 600 }}>Quantity Exceeds Project Requirement</span>
           </div>
         }
         open={showQtyWarning}
@@ -1342,31 +1526,21 @@ export default function CreatePo() {
         }}
         footer={[
           <Button
-            key="back"
+            key="ok"
+            type="primary"
             onClick={() => {
               setShowQtyWarning(false);
               setQtyWarningData(null);
+              setPendingPOData(null);
             }}
           >
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            danger
-            loading={submitLoading}
-            onClick={async () => {
-              setShowQtyWarning(false);
-              await submitHandler(true); // Pass confirmation flag - pendingPOData already has the data
-            }}
-          >
-            Proceed Anyway
+            OK
           </Button>,
         ]}
         width={700}
       >
         <div>
-          <p style={{ marginBottom: "16px", fontWeight: 500 }}>
+          <p style={{ marginBottom: 12, fontWeight: 600, color: "#595959" }}>
             The following components exceed the project quantity requirements:
           </p>
 
@@ -1374,23 +1548,29 @@ export default function CreatePo() {
             <div
               key={index}
               style={{
-                padding: "12px",
-                marginBottom: "12px",
+                padding: 12,
+                marginBottom: 12,
                 backgroundColor: "#fff7e6",
                 border: "1px solid #ffd591",
-                borderRadius: "4px",
+                borderRadius: 6,
               }}
             >
-              <p style={{ margin: "4px 0", fontSize: "14px" }}>
-                <strong>{warning.message}:</strong>
-              </p>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#262626" }}>
+                {typeof warning?.row !== "undefined" && warning?.row !== null
+                  ? `Row ${warning.row}`
+                  : `Component ${index + 1}`}
+                {warning?.component_name ? `: ${warning.component_name}` : ""}
+              </div>
+
+              <div style={{ marginTop: 6, fontSize: 13, color: "#595959", lineHeight: 1.4 }}>
+                {warning?.message}
+              </div>
             </div>
           ))}
 
-          <p style={{ marginTop: "16px", color: "#595959", fontSize: "13px" }}>
-            ⚠️ <strong>Warning:</strong> Proceeding will create a PR that
-            exceeds the project requirements. Please verify this is intentional
-            before continuing.
+          <p style={{ marginTop: 8, color: "#595959", fontSize: 13 }}>
+            PO cannot be created because some components exceed the project quantity
+            requirements. Please adjust the quantities and try again.
           </p>
         </div>
       </Modal>
@@ -1567,7 +1747,7 @@ export default function CreatePo() {
                               </div>
                             }
                           >
-                            <MyAsyncSelect
+                             <MyAsyncSelect
                               selectLoading={loading1("select")}
                               size="default"
                               labelInValue
@@ -1656,6 +1836,7 @@ export default function CreatePo() {
                           </Form.Item>
                         </Col>
                       </Row>
+            
                     </Col>
                   </Row>
                   <Divider />
@@ -1917,6 +2098,30 @@ export default function CreatePo() {
                             />
                           </Form.Item>
                         </Col>
+                        <Col span={5}>
+                          <Form.Item
+                            name="ppr"
+                            rules={rules.ppr}
+                            label={
+                              <div
+                                style={{
+                                  fontSize:
+                                    window.innerWidth < 1600 && "0.7rem",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  width: 350,
+                                }}
+                              >
+                                PPR
+                              </div>
+                            }
+                          >
+                            <MySelect
+                              options={pprOptions}
+                              selectLoading={isPPRLoading}
+                            />
+                          </Form.Item>
+                        </Col>
                         {/* project name */}
                         <Col span={5}>
                           <Form.Item label="Project Description">
@@ -1988,6 +2193,32 @@ export default function CreatePo() {
                             />
                           </Form.Item>
                         </Col>
+                        <Col span={6}>
+                          <Form.Item
+                            name="po_currency"
+                            label="PO Currency"
+                            rules={rules.po_currency}
+                          >
+                            <MySelect options={poCurrencies} />
+                          </Form.Item>
+                        </Col>
+                        {showPoExchangeField && (
+                          <Col span={6}>
+                            <Form.Item
+                              name="po_exchange_rate"
+                              label="Exchange rate (to INR)"
+                              rules={rules.po_exchange_rate}
+                            >
+                              <InputNumber
+                                min={0}
+                                step={0.0001}
+                                style={{ width: "100%" }}
+                                size="default"
+                              />
+                            </Form.Item>
+                          </Col>
+                        )}
+                    
                       </Row>
                     </Col>
                   </Row>
@@ -2425,6 +2656,7 @@ export default function CreatePo() {
                   submitLoading={submitLoading}
                   totalValues={totalValues}
                   setStateCode={setStateCode}
+                  poCurrencies={poCurrencies}
                   gstState={
                     newPurchaseOrder.billCode == newPurchaseOrder.venCode
                       ? "L"
@@ -2497,6 +2729,8 @@ const rules = {
       message: "Please Select a Project!",
     },
   ],
+  // PPR optional hai (required star/remove + submit-time block nahi)
+  ppr: [],
   raisedBy: [
     {
       required: true,
@@ -2549,6 +2783,18 @@ const rules = {
     {
       required: true,
       message: "Please enter Billing GSTIN Number!",
+    },
+  ],
+  po_currency: [
+    {
+      required: true,
+      message: "Please select PO currency!",
+    },
+  ],
+  po_exchange_rate: [
+    {
+      required: true,
+      message: "Please enter exchange rate!",
     },
   ],
 };

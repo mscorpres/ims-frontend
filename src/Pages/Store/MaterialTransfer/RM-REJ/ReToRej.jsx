@@ -18,7 +18,6 @@ function ReToRej() {
     qty1: "",
     locationTo: "",
   });
-  console.log(allDataRej);
   const [locationFrom, setLocationFrom] = useState([]);
   const [branch, setBranch] = useState([]);
   const [locDataTo, setloctionDataTo] = useState([]);

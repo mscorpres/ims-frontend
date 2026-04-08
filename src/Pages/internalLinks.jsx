@@ -877,6 +877,11 @@ const links = [
 
       placeholder: "FG Register Report",
     },
+    {
+      routeName: "R39",
+      routePath: "/r39",
+      placeholder: "Production PPR Report (by project / BOM)",
+    },
   ],
   // MIN label links
 
@@ -962,6 +967,11 @@ const links = [
     {
       routeName: "Completed PPR",
       routePath: "/completed-ppr",
+    },
+    {
+      routeName: "PPR Qty Requests",
+      routePath: "/ppr-qty-requests",
+      placeholder: "Approve / Reject PPR qty requests",
     },
   ],
   // Material Requisition links
