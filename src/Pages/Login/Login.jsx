@@ -40,6 +40,7 @@ const Login = () => {
   const [otpTimer, setOtpTimer] = useState(600); // 10 minutes in seconds
   const [userCredentials, setUserCredentials] = useState(null);
   const [googleLoginLoading, setGoogleLoginLoading] = useState(false);
+  const [isCreateUser, setIsCreateUser] = useState(false);
   const { executeFun, loading } = useApi();
   const isLoginBusy = loading("submit") || googleLoginLoading;
   const dispatch = useDispatch();
@@ -84,14 +85,15 @@ const Login = () => {
           }),
         "submit",
       );
-
+  
       if (res?.success) {
+      
         const isTwoStep = res?.data?.isTwoStep;
         if (isTwoStep === "Y") {
           // Two-step login, show OTP screen
           setUserCredentials({
             username,
-            token: res?.data?.token,
+            token: res?.data?.tempToken,
             qrCode: res?.data?.qrCode,
             company_branch: inpVal.company_branch, // Store selected branch for OTP flow
           });
@@ -136,10 +138,6 @@ const Login = () => {
   };
 
   const validatecreateNewUser = async () => {
-    if (!isCaptchaValid()) {
-      toast.error("Please enter the captcha correctly");
-      return;
-    }
     const values = await signUp.validateFields();
     askModalConfirm(values);
   };
@@ -159,12 +157,6 @@ const Login = () => {
               Email Id -<Text strong>{values.username}</Text>
             </Text>
           </Row>
-          <Row>
-            <Text>
-              {" "}
-              Number -<Text strong>{values.number}</Text>
-            </Text>
-          </Row>
         </>
       ),
 
@@ -179,35 +171,28 @@ const Login = () => {
     });
   };
   const createNewUser = async (values) => {
-    const response = await imsAxios.post("/auth/singup/new", {
-      username: values.name,
-      email: values.username,
-      mobile: values.number,
-      password: values.password2,
-    });
-    console.log("response", response);
-    let { data } = response;
-    if (data.code == 200) {
-      toast.success(data.message);
-      setSignUpPage("1");
-      signUp.resetFields();
-    } else {
-      toast.error(data.message.msg);
+    setIsCreateUser(true);
+    try {
+      const response = await imsAxios.post("/auth/register-user", {
+        name: values.name,
+        email: values.username,
+      });
+
+      if (response?.success) {
+        toast.success(response.message);
+        // setSignUpPage("1");
+        signUp.resetFields();
+        setIsCreateUser(false);
+      } else {
+        toast.error(data.message.msg);
+        setIsCreateUser(false);
+      }
+    } catch (error) {
+      setIsCreateUser(false);
+      toast.error(error.message);
     }
   };
-  // useEffect(() => {
-  //   if (message?.length > 0) {
-  //     if (user) {
-  //       navigate("/r1");
-  //       // toast.success(message);
-  //     }
-  //   }
-  // }, [message, user]);
-  // useEffect(() => {
-  //   if (user) {
-  //     navigate("/");
-  //   }
-  // }, []);
+
   const setThePassword = async () => {
     const values = await signUp.validateFields();
     // console.log("values", values);
@@ -387,17 +372,28 @@ const Login = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const handleLoginWithGoogle = async (googleResponse) => {
+  const handleLoginWithGoogle = async (googleResponse, isSignUp = false) => {
     setGoogleLoginLoading(true);
+
     const data = {
       credential: googleResponse.credential,
     };
+
     try {
-      const response = await imsAxios.post("/auth/google", data);
+      // conditional API
+      const url = isSignUp ? "/auth/signup-google" : "/auth/google";
+
+      const response = await imsAxios.post(url, data);
+
+      if (response?.success && response?.temp_token ) {
+        localStorage.setItem("tempToken", response?.temp_token);
+        setGoogleLoginLoading(false);
+        navigate("/sign-up/complete-registration");
+        return;
+      }
 
       if (response?.success) {
         const payload = response?.data;
-        console.log(payload, "data");
 
         const obj = {
           email: payload.crn_email,
@@ -410,7 +406,7 @@ const Login = () => {
           mobileConfirmed: payload.other?.m_v,
           emailConfirmed: payload.other?.e_v,
           passwordChanged: payload.other?.c_p ?? "C",
-          company_branch: inpVal.company_branch, // Use selected branch from login form
+          company_branch: inpVal.company_branch,
           currentLink: JSON.parse(localStorage.getItem("otherData"))
             ?.currentLink,
           id: payload.crn_id,
@@ -420,17 +416,22 @@ const Login = () => {
 
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
-        toast.success("Login successful!");
+
+        toast.success(isSignUp ? "Signup successful!" : "Login successful!");
+
         navigate("/");
         window.location.reload();
       } else {
         toast.error(
-          response?.message || "Google login failed. Please try again.",
+          response?.message + " " + response?.email ||
+            `Google ${isSignUp ? "signup" : "login"} failed. Please try again.`,
         );
         setGoogleLoginLoading(false);
       }
     } catch (error) {
-      toast.error("Google login failed. Please try again.");
+      toast.error(
+        `Google ${isSignUp ? "signup" : "login"} failed. Please try again.`,
+      );
       setGoogleLoginLoading(false);
     }
   };
@@ -698,16 +699,22 @@ const Login = () => {
 
                     {forgotPassword === "0" ? (
                       <>
-                        <div style={{display:"flex", justifyContent:"space-between", marginTop: "20px"}}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            marginTop: "20px",
+                          }}
+                        >
                           <div>
                             <ImageCaptcha
-                            value={captchaInput}
-                            onChange={(e) => setCaptchaInput(e.target.value)}
-                            onCodeChange={setCaptchaExpectedCode}
-                            onRefresh={() => setCaptchaInput("")}
-                            key={captchaKey}
-                            disabled={isLoginBusy}
-                          />
+                              value={captchaInput}
+                              onChange={(e) => setCaptchaInput(e.target.value)}
+                              onCodeChange={setCaptchaExpectedCode}
+                              onRefresh={() => setCaptchaInput("")}
+                              key={captchaKey}
+                              disabled={isLoginBusy}
+                            />
                           </div>
                           <div style={{ marginTop: "12px" }}>
                             <Button
@@ -734,7 +741,11 @@ const Login = () => {
 
                         <div
                           className="flex flex-col items-center justify-center w-full"
-                          style={{ marginTop: "0.5rem", textAlign: "center", marginBottom: "0.5rem" }}
+                          style={{
+                            marginTop: "0.5rem",
+                            textAlign: "center",
+                            marginBottom: "0.5rem",
+                          }}
                         >
                           {googleLoginLoading && (
                             <div
@@ -745,16 +756,14 @@ const Login = () => {
                             </div>
                           )}
                           {!loading("submit") && !googleLoginLoading && (
-                            <Typography
-                              style={{
-                                marginBottom: 8,
-                              }}
-                              variant="subtitle2"
+                            <Text
+                              type="secondary"
+                              style={{ display: "block", marginBottom: 8 }}
                             >
                               OR
-                            </Typography>
+                            </Text>
                           )}
-                          <div className="flex justify-center items-center w-full ">
+                          <div className="flex justify-center items-center w-full">
                             {!loading("submit") && !googleLoginLoading && (
                               <GoogleLogin
                                 onSuccess={(credentialResponse) => {
@@ -764,6 +773,7 @@ const Login = () => {
                                   toast.error("Login Failed");
                                 }}
                                 shape="circle"
+                                text="signin_with"
                               />
                             )}
                           </div>
@@ -835,7 +845,7 @@ const Login = () => {
                   </Form>
                 </Card>
               ) : (
-                <Card style={{ height: 490 }}>
+                <Card style={{ height: 400 }}>
                   <Title
                     style={{
                       color: "gray",
@@ -869,22 +879,7 @@ const Login = () => {
                         size="large"
                       />
                     </Form.Item>
-                    <Form.Item
-                      label="Mobile Number"
-                      name="number"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please provide phone number.",
-                        },
-                      ]}
-                    >
-                      <Input
-                        value={inpVal.number}
-                        onChange={(e) => inputHandler("number", e.target.value)}
-                        size="large"
-                      />
-                    </Form.Item>
+
                     <Form.Item
                       label="Email Address"
                       name="username"
@@ -904,54 +899,8 @@ const Login = () => {
                         size="large"
                       />
                     </Form.Item>
-
-                    <Form.Item
-                      label="Password"
-                      name="password"
-                      rules={[
-                        {
-                          required: true,
-                        },
-                      ]}
-                    >
-                      <Input.Password />
-                    </Form.Item>
-
-                    {/* Field */}
-                    <Form.Item
-                      label="Confirm Password"
-                      name="password2"
-                      dependencies={["password"]}
-                      rules={[
-                        {
-                          required: true,
-                        },
-                        ({ getFieldValue }) => ({
-                          validator(_, value) {
-                            if (!value || getFieldValue("password") === value) {
-                              return Promise.resolve();
-                            }
-                            return Promise.reject(
-                              new Error(
-                                "The new password that you entered do not match!",
-                              ),
-                            );
-                          },
-                        }),
-                      ]}
-                    >
-                      <Input.Password />
-                    </Form.Item>
                   </Form>
-                  <div className="flex justify-center">
-                    <ImageCaptcha
-                      value={captchaInput}
-                      onChange={(e) => setCaptchaInput(e.target.value)}
-                      onCodeChange={setCaptchaExpectedCode}
-                      onRefresh={() => setCaptchaInput("")}
-                      key={captchaKey}
-                    />
-                  </div>
+
                   <Button
                     // loading={loading}
                     block
@@ -960,9 +909,54 @@ const Login = () => {
                     htmlType="submit"
                     style={{ marginTop: "2em" }}
                     onClick={() => validatecreateNewUser()}
+                    loading={isCreateUser}
+                    disabled={googleLoginLoading}
                   >
-                    Sign Up
+                    Register
                   </Button>
+
+                  <div
+                    className="flex flex-col items-center justify-center w-full"
+                    style={{
+                      marginTop: "0.75rem",
+                      textAlign: "center",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {googleLoginLoading && (
+                      <div
+                        className="flex justify-center items-center py-2"
+                        style={{ width: "100%" }}
+                      >
+                        <Spin />
+                      </div>
+                    )}
+                    {!isCreateUser && !googleLoginLoading && (
+                      <Text
+                        type="secondary"
+                        style={{ display: "block", marginBottom: 8 }}
+                      >
+                        OR
+                      </Text>
+                    )}
+                    <div className="flex justify-center items-center w-full">
+                      {!isCreateUser && !googleLoginLoading && (
+                        <GoogleLogin
+                          onSuccess={(credentialResponse) => {
+                            handleLoginWithGoogle(credentialResponse, true);
+                          }}
+                          onError={() => {
+                            toast.error("Sign up with Google failed");
+                          }}
+                          shape="circle"
+                          useOneTap
+                          context="signup"
+                          text="signup_with"
+                        />
+                      )}
+                    </div>
+                  </div>
+
                   <Row justify="center" style={{ marginTop: "1em" }}>
                     <Link style={{ marginLeft: "1em" }} onClick={back}>
                       Back to Log In

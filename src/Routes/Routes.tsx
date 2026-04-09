@@ -280,6 +280,7 @@ import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 import SubGroup from "../Pages/Master/SubGroup.jsx";
 import AddCostCenter from "../Pages/Master/AddCostCenter.jsx";
 import ViewFGMIN from "../Pages/Store/PrintFGMIN/ViewFGMIN.jsx";
+import SignUp from "../Pages/Login/SignUp.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -288,6 +289,10 @@ const Routes = [
   {
     path: "/login",
     main: () => <Login />,
+  },
+    {
+    path: "/sign-up/complete-registration",
+    main: () => <SignUp />,
   },
   {
     path: "/ims/login",

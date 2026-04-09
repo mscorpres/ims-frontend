@@ -64,7 +64,6 @@ const theme = {
   },
 };
 const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
-
 const root = ReactDOM.createRoot(document.getElementById("root"));
 // unregisterServiceWorker();
 root.render(

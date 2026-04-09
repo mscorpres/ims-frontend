@@ -73,6 +73,7 @@ const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tokenFromUrl = searchParams.get("token");
   const sessionFromUrl = searchParams.get("session");
+  const { pathname } = useLocation();
   const branchFromUrl = searchParams.get("branch");
   const comFromUrl = searchParams.get("company");
    const type = searchParams.get("type")
@@ -91,6 +92,9 @@ const App = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const publicAuthRoutes = ["/login", "/sign-up/complete-registration", "/ims/login"];
+  const completeRegistrationPath = "/sign-up/complete-registration";
+
   const [showSideBar, setShowSideBar] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMessageDrawer, setShowMessageDrawer] = useState(false);
@@ -98,7 +102,7 @@ const App = () => {
     useState(false);
   const [newNotification, setNewNotification] = useState(null);
   const [favLoading, setFavLoading] = useState(false);
-  const { pathname } = useLocation();
+  
   const [testToggleLoading, setTestToggleLoading] = useState(false);
   const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);
@@ -298,7 +302,14 @@ const App = () => {
         setShowSideBar(false);
       }
     });
-    if (!user) {
+    const tempTokenRaw = localStorage.getItem("tempToken");
+    if (
+      tempTokenRaw?.trim() &&
+      !user?.token &&
+      pathname !== completeRegistrationPath
+    ) {
+      navigate(completeRegistrationPath, { replace: true });
+    } else if (!user && !publicAuthRoutes.includes(pathname)) {
       navigate("/login");
     }
     if (user) {
@@ -466,9 +477,9 @@ const App = () => {
         dispatch(setNotifications(arr));
       });
     }
-  }, []);
+  }, [user, pathname, navigate]);
   useEffect(() => {
-    if (!user) {
+    if (!user && !publicAuthRoutes.includes(pathname)) {
       navigate("/login");
     } else if (user) {
       let branch = JSON.parse(
@@ -482,9 +493,9 @@ const App = () => {
       }
       // handleSelectSession("23-24");
     }
-  }, [user]);
+  }, [user, pathname, navigate]);
   useEffect(() => {
-    if (pathname === "/login" && user) {
+    if (publicAuthRoutes.includes(pathname) && user) {
       const link = JSON.parse(localStorage.getItem("otherData"))?.currentLink;
       if (user.passwordChanged === "P") {
         navigate("/first-login");
