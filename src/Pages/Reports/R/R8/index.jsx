@@ -167,7 +167,7 @@ const columns = [
   {
     headerName: "MFG No.",
     field: "mfg_id",
-    width: 120,
+    width: 160,
   },
   {
     headerName: "Date",
