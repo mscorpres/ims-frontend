@@ -457,15 +457,12 @@ const JwReturnModel = ({ show, close }) => {
                         <SingleDatePicker
                           size="medium"
                           value={challanDate}
-                          setDate={(date) => setChallanDate(date)}
+                          setDate={(date) =>  {form.setFieldsValue({ challanDate: date })
+                        setChallanDate(date);
+                        }}
                           placeholder="Select Challan Date"
                           format={"DD-MM-YYYY"}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Please select Challan Date",
-                            },
-                          ]}
+                       
                         />
                       </Form.Item>
                  
