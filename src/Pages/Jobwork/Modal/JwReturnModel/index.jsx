@@ -181,7 +181,7 @@ const JwReturnModel = ({ show, close }) => {
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
       vendor_location: values?.vendor_location?.value,
-          challan_date: challanDate,
+      challan_date: challanDate,
     };
     // console.log("finalObj", finalObj);
 
@@ -207,7 +207,7 @@ const JwReturnModel = ({ show, close }) => {
         setPreview(false);
         setPreviewRows([]);
         setSelectedRows([]);
-          setChallanDate(null);
+        setChallanDate(null);
         close();
         setTimeout(() => {
           window.location.reload();
@@ -400,7 +400,7 @@ const JwReturnModel = ({ show, close }) => {
   const closeDrawer = () => {
     setPreview(false);
     setOpen(false);
-      setChallanDate(null);
+    setChallanDate(null);
     setSelectedRows(previewRows);
     setRows([]);
   };
@@ -442,30 +442,28 @@ const JwReturnModel = ({ show, close }) => {
                         labelInValue={true}
                         options={vendorLocationOptions}
                       />
-                    </Form.Item> 
-                      <Form.Item
-                        label="Challan Date"
-                        name="challanDate"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please select Challan Date",
-                          },
-                        ]}
-                       
-                      >
-                        <SingleDatePicker
-                          size="medium"
-                          value={challanDate}
-                          setDate={(date) =>  {form.setFieldsValue({ challanDate: date })
-                        setChallanDate(date);
+                    </Form.Item>
+                    <Form.Item
+                      label="Challan Date"
+                      name="challanDate"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select Challan Date",
+                        },
+                      ]}
+                    >
+                      <SingleDatePicker
+                        size="medium"
+                        value={challanDate}
+                        setDate={(date) => {
+                          form.setFieldsValue({ challanDate: date });
+                          setChallanDate(date);
                         }}
-                          placeholder="Select Challan Date"
-                          format={"DD-MM-YYYY"}
-                       
-                        />
-                      </Form.Item>
-                 
+                        placeholder="Select Challan Date"
+                        format={"DD-MM-YYYY"}
+                      />
+                    </Form.Item>
                   </Card>
                 </Col>
 
