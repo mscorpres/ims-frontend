@@ -465,12 +465,14 @@ function MaterialTransfer({ type }) {
                       optionsState={projectAsyncOptions}
                       selectLoading={loading1("select")}
                       value={project}
+                      allowClear={true}
                       onChange={(value) => {
                         setProject(value);
                         const key =
                           value && typeof value === "object"
                             ? value.value
                             : value;
+                        setAllData((prev) => ({ ...prev, pprId: "" }));
                         fetchPPROptions(key);
                       }}
                     />
