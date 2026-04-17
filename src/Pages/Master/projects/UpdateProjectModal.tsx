@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Modal, Input, Button, Form, message } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { getBomOptions, getCostCentresOptions } from "../../../api/general.ts";
+import {
+  getCostCentresOptions,
+  getBomOptions,
+} from "../../../api/general.ts";
 import { convertSelectOptions } from "@/utils/general";
 import useApi from "@/hooks/useApi";
 
@@ -13,21 +16,53 @@ const UpdateProjectModal = ({
 }) => {
   const [form] = Form.useForm();
 
-
-  const [bomOptions, setBomOptions] = useState([]);           
+  const [fgBomOptions, setFgBomOptions] = useState([]);
+  const [sfgBomOptions, setSfgBomOptions] = useState([]);
   const [costCenterOptions, setCostCenterOptions] = useState([]); 
 
 
   const { executeFun } = useApi();
+  const getRecipeType = (row: any) => {
+    const label = String(row?.bom_type_label ?? "")
+      .trim()
+      .toLowerCase();
+    if (label === "sfg") return "semi";
+    if (label === "fg") return "default";
+    return String(
+      row?.bom_recipe_type ??
+        row?.recipe_type ??
+        row?.type ??
+        row?.bom_recipe ??
+        ""
+    )
+      .trim()
+      .toLowerCase();
+  };
+  const isFgType = (type: string) => ["default", "fg", "finished"].includes(type);
+  const isSfgType = (type: string) => ["semi", "sfg", "semi-fg", "semifg"].includes(type);
+  const toSelectOptions = (rows: any[]) =>
+    (rows ?? []).map((row: any) => ({
+      text: row?.text ?? row?.subject_name ?? row?.name ?? "",
+      value: row?.id ?? row?.subject_id ?? row?.value,
+    }));
 
-  // Load BOM options
-  const loadBomOptions = async (search:any) => {
-    const response = await executeFun(() => getBomOptions(search), "select");
+  const loadFgBomOptions = async (search: any) => {
+    const response = await executeFun(() => getBomOptions(search, "default"), "select");
     if (response.success) {
-      const options = convertSelectOptions(response.data);
-      setBomOptions(options);
+      const options = toSelectOptions(response.data ?? []);
+      setFgBomOptions(options);
     } else {
-      setBomOptions([]);
+      setFgBomOptions([]);
+    }
+  };
+
+  const loadSfgBomOptions = async (search: any) => {
+    const response = await executeFun(() => getBomOptions(search, "semi"), "select");
+    if (response.success) {
+      const options = toSelectOptions(response.data ?? []);
+      setSfgBomOptions(options);
+    } else {
+      setSfgBomOptions([]);
     }
   };
 
@@ -42,19 +77,59 @@ const UpdateProjectModal = ({
     }
   };
 
+  const normalizeBomsForPrefill = (projectData: any) => {
+    const raw = projectData?.bomSubject ?? projectData?.bom ?? null;
+    const list = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
+    const parsed = list.map((item: any) => {
+      const recipeType = getRecipeType(item);
+      return {
+        type: recipeType,
+        value: item?.subject_id ?? item?.id ?? item?.value ?? null,
+        label:
+          item?.display_text ??
+          item?.subject_name ??
+          item?.name ??
+          item?.label ??
+          item?.text ??
+          "",
+      };
+    }).filter((row: any) => row.value !== null && row.value !== undefined);
+
+    let fg = parsed.find((row: any) => isFgType(row.type));
+    let sfg = parsed.find((row: any) => isSfgType(row.type));
+
+    if (!fg && !sfg && parsed.length >= 2) {
+      fg = parsed[1];
+      sfg = parsed[0];
+    } else if (!fg && !sfg && parsed.length === 1) {
+      fg = parsed[0];
+    } else {
+      if (!fg && sfg && parsed.length > 1) {
+        fg = parsed.find(
+          (row: any) => String(row.value) !== String(sfg.value)
+        );
+      }
+      if (!sfg && fg && parsed.length > 1) {
+        sfg = parsed.find(
+          (row: any) => String(row.value) !== String(fg.value)
+        );
+      }
+    }
+
+    return { fg, sfg };
+  };
+
   // Populate form when modal opens with selected project data
   useEffect(() => {
     if (data && isModalVisible) {
+      const { fg, sfg } = normalizeBomsForPrefill(data);
       form.setFieldsValue({
         project: data.project,
         description: data.description || "",
         qty: data.qty || 1,
-        bom: data.bomSubject
-          ? {
-              value: data.bomSubject?.subject_id,
-              label: data.bomSubject?.subject_name,
-            }
-          : null,
+        fgBom: fg ? { value: fg.value, label: fg.label } : null,
+        sfgBom: sfg ? { value: sfg.value, label: sfg.label } : null,
         costcenter: data.costcenter
           ? {
               value: data.costcenter?.cost_center_key,
@@ -64,18 +139,18 @@ const UpdateProjectModal = ({
       });
 
     
-      if (data.bomSubject) {
-        setBomOptions([{ id: data.bomSubject?.subject_id, text: data.bomSubject?.subject_name }]);
-      }
+      if (fg) setFgBomOptions([{ value: fg.value, text: fg.label }]);
+      if (sfg) setSfgBomOptions([{ value: sfg.value, text: sfg.label }]);
       if (data.costcenter) {
-        setCostCenterOptions([{ id: data.costcenter?.cost_center_key, text: data.costcenter?.cost_center_name }]);
+        setCostCenterOptions([{ value: data.costcenter?.cost_center_key, text: data.costcenter?.cost_center_name }]);
       }
     }
   }, [data, isModalVisible, form]);
 
   const handleCancel = () => {
     form.resetFields();
-    setBomOptions([]);
+    setFgBomOptions([]);
+    setSfgBomOptions([]);
     setCostCenterOptions([]);
     setIsModalVisible(false);
   };
@@ -84,13 +159,23 @@ const UpdateProjectModal = ({
     form
       .validateFields()
       .then((values) => {
-        console.log("Submitting updated project:", values); 
+        const fgBomId = values?.fgBom?.value ?? values?.fgBom ?? null;
+        const sfgBomId = values?.sfgBom?.value ?? values?.sfgBom ?? null;
+
+        if (
+          fgBomId &&
+          sfgBomId &&
+          String(fgBomId) === String(sfgBomId)
+        ) {
+          message.error("FG and SFG BOM must be different");
+          return;
+        }
+
         const updatedData = {
           project: values.project,
           description: values.description?.trim(),
-          qty: values.qty,
-          // Send only the identifiers, not the full select objects
-          bomSubject: values.bom?.value ?? null,
+          qty: values.qty ? Number(values.qty) : 0,
+          bomSubject: [fgBomId ?? null, sfgBomId ?? null],
           costcenter: values.costcenter?.value ?? null, 
         };
 
@@ -137,15 +222,23 @@ const UpdateProjectModal = ({
           <Input type="number" min={1} />
         </Form.Item>
 
-        {/* BOM Field - Uses its own options */}
-        <Form.Item name="bom" label="BOM">
+        <Form.Item name="fgBom" label="FG BOM">
           <MyAsyncSelect
-            placeholder="Search and select BOM..."
-            loadOptions={loadBomOptions}
-            optionsState={bomOptions}           
-            onBlur={() => setBomOptions([])}  
+            placeholder="Search and select FG BOM..."
+            loadOptions={loadFgBomOptions}
+            optionsState={fgBomOptions}
+            onBlur={() => setFgBomOptions([])}
             labelInValue={true}
-            
+          />
+        </Form.Item>
+
+        <Form.Item name="sfgBom" label="SFG BOM">
+          <MyAsyncSelect
+            placeholder="Search and select SFG BOM..."
+            loadOptions={loadSfgBomOptions}
+            optionsState={sfgBomOptions}
+            onBlur={() => setSfgBomOptions([])}
+            labelInValue={true}
           />
         </Form.Item>
 

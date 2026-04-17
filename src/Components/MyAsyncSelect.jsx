@@ -25,6 +25,7 @@ export default function MyAsyncSelect({
   onMouseEnter,
   optionsList,
   ref,
+  allowClear,
 }) {
   const [searchValue, setSearchValue] = useState("");
   const updatedValue = useDebounce(searchValue);
@@ -46,7 +47,7 @@ export default function MyAsyncSelect({
       placeholder={placeholder}
       onFocus={onFocus}
       // suffixIcon={<SearchOutlined />}
-      // allowClear
+      allowClear={allowClear}
       defaultValue={defaultValue}
       mode={mode}
       showArrow={hideArrow ? false : true}
