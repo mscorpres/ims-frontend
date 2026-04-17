@@ -16,10 +16,6 @@ const generateUniqueId = () => {
   return uuidv4();
 };
 
-// Example usage
-const newId = generateUniqueId();
-
-
 const formatTimestamp = () => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
@@ -31,7 +27,6 @@ const formatTimestamp = () => {
 
   return `${day}${month}${year}${hours}${minutes}${seconds}`;
 };
-const timestamp = formatTimestamp();
 // Get token - prioritize newToken from localStorage, otherwise use loggedInUser token
 const getToken = () => {
   const newToken = localStorage.getItem("newToken");

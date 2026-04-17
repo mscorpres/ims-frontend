@@ -68,6 +68,12 @@ import {
   getDefaultFinancialYearValue,
   getFinancialYearOptions,
 } from "./utils/financialYear";
+import {
+  buildRelativePathFromLocation,
+  consumePostLoginRedirect,
+  getPostLoginRedirect,
+  savePostLoginRedirect,
+} from "./utils/authRedirect";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -98,7 +104,8 @@ const App = () => {
     useState(false);
   const [newNotification, setNewNotification] = useState(null);
   const [favLoading, setFavLoading] = useState(false);
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const [testToggleLoading, setTestToggleLoading] = useState(false);
   const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);
@@ -123,6 +130,13 @@ const App = () => {
 
   const logoutHandler = () => {
     dispatch(logoutUser());
+  };
+  const redirectToLogin = () => {
+    const redirectPath = buildRelativePathFromLocation(location);
+    if (pathname !== "/login") {
+      savePostLoginRedirect(redirectPath);
+    }
+    navigate("/login", { replace: true });
   };
   const deleteNotification = (id) => {
     let arr = notifications;
@@ -217,24 +231,34 @@ const App = () => {
       setModulesOptions(showHisList);
     }
   }, [modulesOptions]);
-  // notifications recieve handlers
-  socket.on("connect", () => {
-    console.log("WebSocket connected!!!!");
-    setIsConnected(true);
-    setIsLoading(false);
-  });
+  // Prevent duplicate listeners on re-render.
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("WebSocket connected!!!!");
+      setIsConnected(true);
+      setIsLoading(false);
+    };
+    const handleConnectError = (error) => {
+      console.error("Connection error:", error);
+      setIsConnected(false);
+      setIsLoading(false);
+    };
+    const handleDisconnect = (reason) => {
+      console.log("WebSocket disconnected:", reason);
+      setIsConnected(false);
+      setIsLoading(false);
+    };
 
-  socket.on("connect_error", (error) => {
-    console.error("Connection error:", error);
-    setIsConnected(false);
-    setIsLoading(false);
-  });
+    socket.on("connect", handleConnect);
+    socket.on("connect_error", handleConnectError);
+    socket.on("disconnect", handleDisconnect);
 
-  socket.on("disconnect", (reason) => {
-    console.log("WebSocket disconnected:", reason);
-    setIsConnected(false);
-    setIsLoading(false);
-  });
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("connect_error", handleConnectError);
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, []);
   const fetchUserDeatils = async (token, session, com, branch, type) => {
     setLoadingSwitch(true);
       localStorage.setItem("switchInProgress", "1");
@@ -299,7 +323,7 @@ const App = () => {
       }
     });
     if (!user) {
-      navigate("/login");
+      redirectToLogin();
     }
     if (user) {
       if (user.company_branch) {
@@ -469,7 +493,7 @@ const App = () => {
   }, []);
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      redirectToLogin();
     } else if (user) {
       let branch = JSON.parse(
         localStorage.getItem("otherData")
@@ -485,11 +509,16 @@ const App = () => {
   }, [user]);
   useEffect(() => {
     if (pathname === "/login" && user) {
+      const fallbackLink =
+        JSON.parse(localStorage.getItem("otherData"))?.currentLink ?? "/";
+      const pendingRedirect = getPostLoginRedirect(fallbackLink);
       const link = JSON.parse(localStorage.getItem("otherData"))?.currentLink;
       if (user.passwordChanged === "P") {
+        consumePostLoginRedirect("/first-login");
         navigate("/first-login");
       } else {
-        navigate(link ?? "/");
+        consumePostLoginRedirect(link ?? "/");
+        navigate(pendingRedirect, { replace: true });
       }
     }
     if (user && user.token) {
@@ -654,7 +683,7 @@ const App = () => {
           setEnabledModules([]);
           if (error.response?.status === 403) {
             dispatch(logoutUser());
-            navigate("/login");
+            redirectToLogin();
           }
         }
       };

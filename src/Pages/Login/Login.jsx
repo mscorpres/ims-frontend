@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import ForgotPassword from "./ForgotPassword.tsx";
 import {
@@ -8,7 +7,6 @@ import {
   Card,
   Col,
   Divider,
-  Flex,
   Form,
   Input,
   Modal,
@@ -25,6 +23,10 @@ import ImageCaptcha from "../../Components/ImageCaptcha/ImageCaptcha";
 import { ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
 import { getDefaultFinancialYearValue } from "../../utils/financialYear";
+import {
+  consumePostLoginRedirect,
+  getPostLoginRedirect,
+} from "../../utils/authRedirect";
 
 const Login = () => {
   document.title = "IMS Login";
@@ -43,7 +45,6 @@ const Login = () => {
   const { executeFun, loading } = useApi();
   const isLoginBusy = loading("submit") || googleLoginLoading;
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [inpVal, setInpVal] = useState({
     username: "",
     password: "",
@@ -58,6 +59,16 @@ const Login = () => {
         [name]: value,
       };
     });
+  };
+  const resolvePostLoginPath = () => {
+    const fallbackPath =
+      JSON.parse(localStorage.getItem("otherData"))?.currentLink ?? "/";
+    const pendingRedirect = getPostLoginRedirect(fallbackPath);
+    return consumePostLoginRedirect(pendingRedirect);
+  };
+  const redirectAfterSuccessfulLogin = () => {
+    const targetPath = resolvePostLoginPath();
+    window.location.replace(targetPath);
   };
 
   const isCaptchaValid = () => captchaInput?.trim() === captchaExpectedCode;
@@ -124,8 +135,7 @@ const Login = () => {
           dispatch(setUser(obj));
           if (payload.settings) dispatch(setSettings(payload.settings));
           toast.success("Login successful!");
-          navigate("/");
-          window.location.reload();
+          redirectAfterSuccessfulLogin();
         }
       } else {
         setCaptchaInput("");
@@ -360,8 +370,7 @@ const Login = () => {
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
         toast.success("Login successful!");
-        navigate("/");
-        window.location.reload();
+        redirectAfterSuccessfulLogin();
       } else {
         toast.error(res?.message || "Invalid OTP. Please try again.");
         setOtpCode(["", "", "", "", "", ""]);
@@ -421,8 +430,7 @@ const Login = () => {
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
         toast.success("Login successful!");
-        navigate("/");
-        window.location.reload();
+        redirectAfterSuccessfulLogin();
       } else {
         toast.error(
           response?.message || "Google login failed. Please try again.",
