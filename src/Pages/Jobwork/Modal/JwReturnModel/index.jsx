@@ -44,10 +44,11 @@ const JwReturnModel = ({ show, close }) => {
   const [preview, setPreview] = useState(false);
   const [previewRows, setPreviewRows] = useState([]);
   const [vendor, setVendor] = useState("");
-  const [challanDate, setChallanDate] = useState(null);
+  
 
   const { executeFun, loading: loading1 } = useApi();
   const [form] = Form.useForm();
+  
   const [uplaodForm] = Form.useForm();
   const sampleData = [
     {
@@ -181,7 +182,7 @@ const JwReturnModel = ({ show, close }) => {
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
       vendor_location: values?.vendor_location?.value,
-      challan_date: challanDate,
+      challan_date: values?.challanDate,
     };
     // console.log("finalObj", finalObj);
 
@@ -207,7 +208,7 @@ const JwReturnModel = ({ show, close }) => {
         setPreview(false);
         setPreviewRows([]);
         setSelectedRows([]);
-        setChallanDate(null);
+      
         close();
         setTimeout(() => {
           window.location.reload();
@@ -400,7 +401,7 @@ const JwReturnModel = ({ show, close }) => {
   const closeDrawer = () => {
     setPreview(false);
     setOpen(false);
-    setChallanDate(null);
+   
     setSelectedRows(previewRows);
     setRows([]);
   };
@@ -455,10 +456,10 @@ const JwReturnModel = ({ show, close }) => {
                     >
                       <SingleDatePicker
                         size="medium"
-                        value={challanDate}
+                        value={form.getFieldValue("challanDate")}
                         setDate={(date) => {
                           form.setFieldsValue({ challanDate: date });
-                          setChallanDate(date);
+                      
                         }}
                         placeholder="Select Challan Date"
                         format={"DD-MM-YYYY"}
