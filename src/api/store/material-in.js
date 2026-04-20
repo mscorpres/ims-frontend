@@ -89,7 +89,13 @@ export const materialInWithoutPo = async (values, fileName, vendorType) => {
     igst: values.components.map((row) => row.igst),
     remark: values.components.map((row) => row.remarks),
     location: values.components.map((row) => row.location.value),
-    out_location: values.components.map((row) => row.autoConsumption),
+    out_location: values.components.map((row) =>
+      row.autoConsumption == "No"
+        ? 0
+        : row.autoConsumption == "Yes"
+          ? 1
+          : row.autoConsumption,
+    ),
   };
   // console.log("payload",payload)
   // return
