@@ -18,9 +18,11 @@ import { imsAxios } from "../../../../axiosInterceptor";
 export default function UpdateService({ editService, setEditService, units }) {
   const [pageLoading, setPageLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [plHeadOptions, setPlHeadOptions] = useState([]);
   const [serviceDetails, setServiceDetails] = useState({
     serviceName: "",
     uom: "",
+    pl_head: "",
     isEnabled: "",
     description: "",
     taxType: "",
@@ -51,6 +53,7 @@ export default function UpdateService({ editService, setEditService, units }) {
       setServiceDetails({
         serviceName: res.name,
         uom: res.uomid,
+        pl_head: res.pl_head ?? res.gl_head ?? res.gl_code ?? "",
         isEnabled: "Y",
         description: res.description,
         taxType: "L",
@@ -76,6 +79,7 @@ export default function UpdateService({ editService, setEditService, units }) {
       sac: serviceDetails.sac,
       description: serviceDetails.description,
       uom: serviceDetails.uom,
+      pl_head: serviceDetails.pl_head,
       gstrate: serviceDetails.taxRate,
       taxtype: serviceDetails.taxType,
       enable_status: serviceDetails.isEnabled,
@@ -95,6 +99,22 @@ export default function UpdateService({ editService, setEditService, units }) {
       toast.error(toast.message.msg);
     }
   };
+  const getPlHeadOptions = async () => {
+    const { data } = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
+    if (Array.isArray(data)) {
+      const options = data.map((row) => ({
+        text: row.text,
+        value: row.id,
+      }));
+      setPlHeadOptions(options);
+    } else {
+      setPlHeadOptions([]);
+    }
+  };
+  useEffect(() => {
+    getPlHeadOptions();
+  }, []);
+
   useEffect(() => {
     if (editService) {
       getDetails();
@@ -167,6 +187,28 @@ export default function UpdateService({ editService, setEditService, units }) {
                     options={enabledOption}
                     value={serviceDetails.isEnabled}
                     onChange={(value) => inputHandler("isEnabled", value)}
+                  />
+                </Form.Item>
+              </Form>
+            </Col>
+            <Col span={12}>
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      P&L Heads Selection
+                    </span>
+                  }
+                >
+                  <MySelect
+                    size="default"
+                    options={plHeadOptions}
+                    value={serviceDetails.pl_head}
+                    onChange={(value) => inputHandler("pl_head", value)}
                   />
                 </Form.Item>
               </Form>

@@ -17,12 +17,14 @@ function Services() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [rows, setRows] = useState([]);
   const [units, setUnits] = useState([]);
+  const [plHeadOptions, setPlHeadOptions] = useState([]);
   const [editService, setEditService] = useState(null);
   const [newService, setNewService] = useState({
     part: "",
     uom: "",
     component: "",
     notes: "",
+    pl_head: "",
   });
 
   const { executeFun, loading: loading1 } = useApi();
@@ -53,6 +55,19 @@ function Services() {
     setUnits(u);
   };
 
+  const getPlHeadOptions = async () => {
+    const { data } = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
+    if (Array.isArray(data)) {
+      const options = data.map((row) => ({
+        text: row.text,
+        value: row.id,
+      }));
+      setPlHeadOptions(options);
+    } else {
+      setPlHeadOptions([]);
+    }
+  };
+
   const addService = async (e) => {
     e.preventDefault();
     if (!newService.part) {
@@ -63,6 +78,8 @@ function Services() {
       return toast.error("Please enter a component name");
     } else if (!newService.notes) {
       return toast.error("Please enter a note");
+    } else if (!newService.pl_head) {
+      return toast.error("Please select P&L Heads Selection");
     }
     setSubmitLoading(true);
     const { data } = await imsAxios.post("/component/addServices", {
@@ -84,6 +101,7 @@ function Services() {
       uom: "",
       component: "",
       notes: "",
+      pl_head: "",
     });
   };
   const inputHandler = (name, value) => {
@@ -121,6 +139,7 @@ function Services() {
   };
   useEffect(() => {
     getUnits();
+    getPlHeadOptions();
     getServices();
   }, []);
   return (
@@ -204,6 +223,16 @@ function Services() {
                       />
                     </Form.Item>
                   </Form>
+                </Col>
+                <Col span={24}>
+                  <Form.Item label="P&L Heads Selection">
+                    <MySelect
+                      size="default"
+                      options={plHeadOptions}
+                      value={newService.pl_head}
+                      onChange={(value) => inputHandler("pl_head", value)}
+                    />
+                  </Form.Item>
                 </Col>
                 <Col span={24}>
                   <Row justify="end">

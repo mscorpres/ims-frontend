@@ -32,6 +32,7 @@ export default function UpdateComponent() {
   const [uomOptions, setuomOptions] = useState([]);
   const [groupOptions, setgroupOptions] = useState([]);
   const [subGroupOptions, setSubGroupOptions] = useState([]);
+  const [plHeadOptions, setPlHeadOptions] = useState([]);
   const [attr_raw, setUniqueIdData] = useState("");
   const [tooldata, setTooldata] = useState({});
   const [categoryData, setCategoryData] = useState(null);
@@ -99,6 +100,7 @@ export default function UpdateComponent() {
             mrp: value.mrp,
             group: value.groupid,
             subgroup: value.subgroupid,
+            plHead: value.pl_head ?? undefined,
             isEnabled: value.enable_status,
             jobWork: value.jobwork_rate,
             qcStatus: value.qc_status,
@@ -309,6 +311,26 @@ export default function UpdateComponent() {
       setLoading(false);
     }
   };
+
+  const getPlHeadOptions = async () => {
+    try {
+      setLoading("fetch");
+      const { data } = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
+      if (Array.isArray(data)) {
+        const arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
+        setPlHeadOptions(arr);
+      } else {
+        setPlHeadOptions([]);
+      }
+    } catch (error) {
+      setPlHeadOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   const modalConfirmMaterial = async () => {
     const values = await componentForm.validateFields();
     // console.log("attr_raw", attr_raw);
@@ -338,6 +360,7 @@ export default function UpdateComponent() {
       mrn: values.mrp,
       group: values.group,
       subgroup: values.subgroup,
+      pl_head: values.plHead,
       new_partno: values.newPartCode,
       enable_status: values.isEnabled,
       jobwork_rate: values.jobWork,
@@ -495,6 +518,7 @@ export default function UpdateComponent() {
     getDetails();
     getUomOptions();
     getGroupOptions();
+    getPlHeadOptions();
   }, []);
 
   return (
@@ -600,6 +624,11 @@ export default function UpdateComponent() {
                   <Col span={8}>
                     <Form.Item name="subgroup" label="Sub Group">
                       <MySelect options={subGroupOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="plHead" label="P&L Heads Selection">
+                      <MySelect options={plHeadOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={8}>
