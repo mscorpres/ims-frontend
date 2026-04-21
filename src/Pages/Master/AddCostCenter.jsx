@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Card, Drawer, Form, Input, Row } from "antd";
+import { Button, Card, Form, Input, Row } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import MyDataTable from "../../Components/MyDataTable";
-import { render } from "react-dom";
 
 export default function AddCostCenter({
   setShowAddCostModal,
-  showAddCostModal,
 }) {
   const [centerData, setCenterData] = useState([]);
   const [newCostCenter, setNewCostCenter] = useState({
-    cost_center_name: "",
-    cost_center_id: "",
+    code: "",
+    name: "",
   });
   const [submitLoading, setSubmitLoading] = useState(false);
   const inputHandler = (name, value) => {
@@ -21,26 +19,36 @@ export default function AddCostCenter({
     setNewCostCenter(obj);
   };
   const submitCostCenter = async () => {
-    if (
-      newCostCenter.cost_center_id.length > 0 &&
-      newCostCenter.cost_center_name.length > 0
-    ) {
-      setSubmitLoading(true);
-
-      const { data } = await imsAxios.post("/purchaseOrder/createCostCenter", {
-        cost_center_id: newCostCenter.cost_center_id,
-        cost_center_name: newCostCenter.cost_center_name,
-      });
-      setSubmitLoading(false);
-      if (data.code == 200) {
-        toast.success(data.message);
-        setShowAddCostModal(false);
-        setNewCostCenter({
-          cost_center_name: "",
-          cost_center_id: "",
+    if (newCostCenter.name.length > 0 && newCostCenter.code.length > 0) {
+      try {
+        setSubmitLoading(true);
+        const response = await imsAxios.post("/purchaseOrder/createCostCenter", {
+          code: newCostCenter.code,
+          name: newCostCenter.name,
         });
-      } else {
-        toast.error(data.message.msg);
+
+        const isSuccess =
+          response?.success === true ||
+          response?.code === 200 ||
+          response?.status === "success";
+
+        if (isSuccess) {
+          toast.success(response?.message || "Cost center created successfully");
+          setNewCostCenter({
+            code: "",
+            name: "",
+          });
+          if (typeof setShowAddCostModal === "function") {
+            setShowAddCostModal(false);
+          }
+          handleFetchUOMList();
+        } else {
+          toast.error(response?.message || "Failed to create cost center");
+        }
+      } catch (error) {
+        toast.error(error?.message || "Failed to create cost center");
+      } finally {
+        setSubmitLoading(false);
       }
     } else {
       toast.error("Cost Center should have a Name and ID");
@@ -49,27 +57,36 @@ export default function AddCostCenter({
 
   const handleFetchUOMList = async () => {
     try {
-      const response = await imsAxios.get("backend/getAllCostCenters");
-   
-      setCenterData(response?.data?.data ?? []);
-    } catch (error) {}
+      const response = await imsAxios.get("backend/costCenter");
+
+      if (response?.success) {
+        const formattedRows = (response?.data ?? []).map((item, index) => ({
+          ...item,
+          id: item?.uID || `${item?.name || ""}-${item?.code || ""}-${index}`,
+        }));
+        setCenterData(formattedRows);
+      } else {
+        toast.error(response?.message || "Failed to fetch cost centers");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch cost centers");
+    }
   };
 
   const columns = [
     // { field: "id", headerName: "#", minWidth: 170, flex: 1},
-   
-    { field: "cost_center_short_name", headerName: "Cost Center Name", minWidth: 170, flex: 1, renderCell: (params) => `${params.row.cost_center_short_name} (${params.row.cost_center_name})` },
-    { field: "cost_center_indt", headerName: "Date", minWidth: 170, flex: 1 },
+
+    { field: "code", headerName: "Cost Center ID", minWidth: 170, flex: 1 },
+    { field: "name", headerName: "Cost Center Name", minWidth: 220, flex: 1 },
+    { field: "timestamp", headerName: "Date", minWidth: 170, flex: 1 },
   ];
 
   useEffect(() => {
-    if (centerData.length === 0) {
+    // if (centerData.length === 0) {
       handleFetchUOMList();
-    } 
+    // } 
    
-  }, [centerData]);
-
-   
+  }, []);
 
   return (
     <div
@@ -85,18 +102,20 @@ export default function AddCostCenter({
           <Form layout="vertical" style={{ height: "95%" }}>
             <Form.Item label="Cost Center Id">
               <Input
-                value={newCostCenter.cost_center_name}
+                inputMode="numeric"
+                value={newCostCenter.code}
                 onChange={(e) => {
-                  inputHandler("cost_center_name", e.target.value);
+                  const digitsOnly = e.target.value.replace(/\D/g, "");
+                  inputHandler("code", digitsOnly);
                 }}
                 placeholder="Enter Cost Center ID"
               />
             </Form.Item>
             <Form.Item label="Cost Center Name">
               <Input
-                value={newCostCenter.cost_center_id}
+                value={newCostCenter.name}
                 onChange={(e) => {
-                  inputHandler("cost_center_id", e.target.value);
+                  inputHandler("name", e.target.value);
                 }}
                 placeholder="Enter Cost Center Name"
               />
