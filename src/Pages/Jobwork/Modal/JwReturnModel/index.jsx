@@ -58,7 +58,7 @@ const JwReturnModel = ({ show, close }) => {
       HSN: "123456",
       INVOICE: "1",
       LOCATION: "RM021",
-      AUTO_CONSUMP: "N",
+      AUTO_CONSUMP: "0",
       REMARK: "test",
     },
   ];
