@@ -138,13 +138,13 @@ export default function MaterialUpdate({
     //   description: "",
     // });
     setLoading("fetch");
-    const { data } = await imsAxios.post("/component/fetchUpdateComponent", {
+    const response = await imsAxios.post("/component/fetchUpdateComponent", {
       componentKey: materialModal,
     });
     setLoading(false);
 
     // console.log(data);
-    data.data.map((an) => setAllUpdataData(an));
+    response.data.data.map((an) => setAllUpdataData(an));
   };
 
   // console.log(allUpdateData);

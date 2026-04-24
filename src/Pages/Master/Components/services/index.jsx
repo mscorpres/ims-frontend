@@ -24,7 +24,7 @@ function Services() {
     uom: "",
     component: "",
     notes: "",
-    pl_head: [],
+    plHeads: [],
   });
 
   const { executeFun, loading: loading1 } = useApi();
@@ -78,7 +78,7 @@ function Services() {
       return toast.error("Please enter a component name");
     } else if (!newService.notes) {
       return toast.error("Please enter a note");
-    } else if (!newService.pl_head?.length) {
+    } else if (!newService.plHeads?.length) {
       return toast.error("Please select at least one P&L head");
     }
     setSubmitLoading(true);
@@ -101,7 +101,7 @@ function Services() {
       uom: "",
       component: "",
       notes: "",
-      pl_head: [],
+      plHeads: [],
     });
   };
   const inputHandler = (name, value) => {
@@ -230,8 +230,8 @@ function Services() {
                       mode="multiple"
                       size="default"
                       options={plHeadOptions}
-                      value={newService.pl_head}
-                      onChange={(value) => inputHandler("pl_head", value)}
+                      value={newService.plHeads}
+                      onChange={(value) => inputHandler("plHeads", value)}
                     />
                   </Form.Item>
                 </Col>
