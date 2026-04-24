@@ -31,7 +31,7 @@ export default function UpdateService({ editService, setEditService, units }) {
   const [serviceDetails, setServiceDetails] = useState({
     serviceName: "",
     uom: "",
-    pl_head: [],
+    plHeads: [],
     isEnabled: "",
     description: "",
     taxType: "",
@@ -62,8 +62,8 @@ export default function UpdateService({ editService, setEditService, units }) {
       setServiceDetails({
         serviceName: res.name,
         uom: res.uomid,
-        pl_head: toPlHeadArray(
-          res.pl_head ?? res.gl_head ?? res.gl_code ?? []
+        plHeads: toPlHeadArray(
+          res.plHeads ?? res.gl_head ?? res.gl_code ?? []
         ),
         isEnabled: "Y",
         description: res.description,
@@ -86,14 +86,14 @@ export default function UpdateService({ editService, setEditService, units }) {
     setServiceDetails(obj);
   };
   const submitFunction = async () => {
-    if (!serviceDetails.pl_head?.length) {
+    if (!serviceDetails.plHeads?.length) {
       return toast.error("Please select at least one P&L head");
     }
     const newObj = {
       sac: serviceDetails.sac,
       description: serviceDetails.description,
       uom: serviceDetails.uom,
-      pl_head: serviceDetails.pl_head,
+      plHeads: serviceDetails.plHeads,
       gstrate: serviceDetails.taxRate,
       taxtype: serviceDetails.taxType,
       enable_status: serviceDetails.isEnabled,
@@ -222,8 +222,8 @@ export default function UpdateService({ editService, setEditService, units }) {
                     mode="multiple"
                     size="default"
                     options={plHeadOptions}
-                    value={serviceDetails.pl_head}
-                    onChange={(value) => inputHandler("pl_head", value)}
+                    value={serviceDetails.plHeads}
+                    onChange={(value) => inputHandler("plHeads", value)}
                   />
                 </Form.Item>
               </Form>

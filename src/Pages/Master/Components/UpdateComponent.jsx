@@ -43,10 +43,8 @@ export default function UpdateComponent() {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
         componentKey,
       });
-      const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          const value = data.data[0];
+      if (response.success) {
+        const value = response.data[0];
           const finalObj = {
             partCode: value.partcode,
             component: value.name,
@@ -79,10 +77,10 @@ export default function UpdateComponent() {
           };
           componentForm.setFieldsValue(finalObj);
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message);
         }
-      }
     } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

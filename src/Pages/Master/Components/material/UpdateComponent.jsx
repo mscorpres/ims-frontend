@@ -36,12 +36,21 @@ const toPlHeadArray = (value) => {
   return [value];
 };
 
+const toSelectedKeys = (value, keyName) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((row) => Number(row?.selected) === 1)
+    .map((row) => row?.[keyName])
+    .filter(Boolean);
+};
+
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
   const [uomOptions, setuomOptions] = useState([]);
   const [groupOptions, setgroupOptions] = useState([]);
   const [subGroupOptions, setSubGroupOptions] = useState([]);
   const [plHeadOptions, setPlHeadOptions] = useState([]);
+  const [natureOfTdsOptions, setNatureOfTdsOptions] = useState([]);
   const [attr_raw, setUniqueIdData] = useState("");
   const [tooldata, setTooldata] = useState({});
   const [categoryData, setCategoryData] = useState(null);
@@ -77,10 +86,8 @@ export default function UpdateComponent() {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
         componentKey,
       });
-      const { data } = response;
-      if (data) {
-        if (data.code === 200) {
-          const value = data.data[0];
+        if (response.success) {
+          const value = response.data[0];
           // console.log("data...............", value);
           let catType = value.attr_category;
           // console.log("data...............", catType);
@@ -109,7 +116,16 @@ export default function UpdateComponent() {
             mrp: value.mrp,
             group: value.groupid,
             subgroup: value.subgroupid,
-            plHead: toPlHeadArray(value.pl_head),
+            plHead:
+              toSelectedKeys(value.plHeads, "ledgerKey").length > 0
+                ? toSelectedKeys(value.plHeads, "ledgerKey")
+                : toPlHeadArray(value.pl_head),
+            natureOfTds:
+              toSelectedKeys(value.tdsHeads, "tdsKey").length > 0
+                ? toSelectedKeys(value.tdsHeads, "tdsKey")
+                : toPlHeadArray(
+                    value.nature_of_tds ?? value.tds_nature ?? value.tds
+                  ),
             isEnabled: value.enable_status,
             jobWork: value.jobwork_rate,
             qcStatus: value.qc_status,
@@ -165,10 +181,10 @@ export default function UpdateComponent() {
           }));
           altPartCodeForm.setFieldValue("alternatePart", objects);
         } else {
-          toast.error(data.message.msg);
+          toast.error(response.message);
         }
-      }
     } catch (error) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -340,6 +356,28 @@ export default function UpdateComponent() {
       setLoading(false);
     }
   };
+
+  const getNatureOfTdsOptions = async () => {
+    try {
+      setLoading("fetch");
+      const response = await imsAxios.get("/tally/tds/nature_of_tds");
+      const { data } = response;
+
+      if (data?.code === 200 && Array.isArray(data.data)) {
+        const arr = data.data.map((row) => ({
+          text: row.tds_name ?? row.tdsName ?? row.text ?? row.name,
+          value: row.tds_key ?? row.tdsKey ?? row.id ?? row.value,
+        }));
+        setNatureOfTdsOptions(arr);
+      } else {
+        setNatureOfTdsOptions([]);
+      }
+    } catch (error) {
+      setNatureOfTdsOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   const modalConfirmMaterial = async () => {
     const values = await componentForm.validateFields();
     // console.log("attr_raw", attr_raw);
@@ -369,7 +407,8 @@ export default function UpdateComponent() {
       mrn: values.mrp,
       group: values.group,
       subgroup: values.subgroup,
-      pl_head: values.plHead,
+      plHeads: values.plHead,
+      tdsHeads: values.natureOfTds ?? [],
       new_partno: values.newPartCode,
       enable_status: values.isEnabled,
       jobwork_rate: values.jobWork,
@@ -403,18 +442,18 @@ export default function UpdateComponent() {
       "/component/updateComponent/verify",
       payload
     );
-    const { data } = response;
-    if (data.code === 200) {
+   
+    if (response.success) {
       Modal.confirm({
         title: "Are you sure you want to submit this Updated Component?",
-        content: `${data.message}`,
+        content: `${response.message}`,
         onOk() {
           submitHandler(payload);
         },
         onCancel() {},
       });
     } else {
-      toast.error(data.message.msg);
+      toast.error(response.message);
     }
   };
   const validateHandler = async () => {
@@ -528,6 +567,7 @@ export default function UpdateComponent() {
     getUomOptions();
     getGroupOptions();
     getPlHeadOptions();
+    getNatureOfTdsOptions();
   }, []);
 
   return (
@@ -649,6 +689,14 @@ export default function UpdateComponent() {
                       ]}
                     >
                       <MySelect mode="multiple" options={plHeadOptions} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item name="natureOfTds" label="Nature of TDS">
+                      <MySelect
+                        mode="multiple"
+                        options={natureOfTdsOptions}
+                      />
                     </Form.Item>
                   </Col>
                   <Col span={8}>
