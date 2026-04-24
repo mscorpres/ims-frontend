@@ -78,11 +78,11 @@ function Services() {
       return toast.error("Please enter a component name");
     } else if (!newService.notes) {
       return toast.error("Please enter a note");
-<<<<<<< HEAD
-    } else if (!newService.pl_head?.length) {
-=======
     } else if (!newService.plHeads?.length) {
+      return toast.error("Please select at least one P&L head");
+    }
     setSubmitLoading(true);
+    const { data } = await imsAxios.post("/component/addServices", {
       ...newService,
       uom: newService.uom,
     });
@@ -101,11 +101,7 @@ function Services() {
       uom: "",
       component: "",
       notes: "",
-<<<<<<< HEAD
-      pl_head: [],
-=======
       plHeads: [],
->>>>>>> efd4f985655657e0d357d0ff62b9b31071a289ea
     });
   };
   const inputHandler = (name, value) => {
@@ -234,13 +230,8 @@ function Services() {
                       mode="multiple"
                       size="default"
                       options={plHeadOptions}
-<<<<<<< HEAD
-                      value={newService.pl_head}
-                      onChange={(value) => inputHandler("pl_head", value)}
-=======
                       value={newService.plHeads}
                       onChange={(value) => inputHandler("plHeads", value)}
->>>>>>> efd4f985655657e0d357d0ff62b9b31071a289ea
                     />
                   </Form.Item>
                 </Col>
