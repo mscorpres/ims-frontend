@@ -24,7 +24,7 @@ function Services() {
     uom: "",
     component: "",
     notes: "",
-    pl_head: "",
+    pl_head: [],
   });
 
   const { executeFun, loading: loading1 } = useApi();
@@ -78,8 +78,8 @@ function Services() {
       return toast.error("Please enter a component name");
     } else if (!newService.notes) {
       return toast.error("Please enter a note");
-    } else if (!newService.pl_head) {
-      return toast.error("Please select P&L Heads Selection");
+    } else if (!newService.pl_head?.length) {
+      return toast.error("Please select at least one P&L head");
     }
     setSubmitLoading(true);
     const { data } = await imsAxios.post("/component/addServices", {
@@ -101,7 +101,7 @@ function Services() {
       uom: "",
       component: "",
       notes: "",
-      pl_head: "",
+      pl_head: [],
     });
   };
   const inputHandler = (name, value) => {
@@ -227,6 +227,7 @@ function Services() {
                 <Col span={24}>
                   <Form.Item label="P&L Heads Selection">
                     <MySelect
+                      mode="multiple"
                       size="default"
                       options={plHeadOptions}
                       value={newService.pl_head}

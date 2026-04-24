@@ -15,6 +15,15 @@ import {
 import MySelect from "../../../../Components/MySelect";
 import { imsAxios } from "../../../../axiosInterceptor";
 
+const toPlHeadArray = (value) => {
+  if (value == null || value === "") return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string" && value.includes(",")) {
+    return value.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [value];
+};
+
 export default function UpdateService({ editService, setEditService, units }) {
   const [pageLoading, setPageLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -22,7 +31,7 @@ export default function UpdateService({ editService, setEditService, units }) {
   const [serviceDetails, setServiceDetails] = useState({
     serviceName: "",
     uom: "",
-    pl_head: "",
+    pl_head: [],
     isEnabled: "",
     description: "",
     taxType: "",
@@ -53,7 +62,9 @@ export default function UpdateService({ editService, setEditService, units }) {
       setServiceDetails({
         serviceName: res.name,
         uom: res.uomid,
-        pl_head: res.pl_head ?? res.gl_head ?? res.gl_code ?? "",
+        pl_head: toPlHeadArray(
+          res.pl_head ?? res.gl_head ?? res.gl_code ?? []
+        ),
         isEnabled: "Y",
         description: res.description,
         taxType: "L",
@@ -75,6 +86,9 @@ export default function UpdateService({ editService, setEditService, units }) {
     setServiceDetails(obj);
   };
   const submitFunction = async () => {
+    if (!serviceDetails.pl_head?.length) {
+      return toast.error("Please select at least one P&L head");
+    }
     const newObj = {
       sac: serviceDetails.sac,
       description: serviceDetails.description,
@@ -205,6 +219,7 @@ export default function UpdateService({ editService, setEditService, units }) {
                   }
                 >
                   <MySelect
+                    mode="multiple"
                     size="default"
                     options={plHeadOptions}
                     value={serviceDetails.pl_head}

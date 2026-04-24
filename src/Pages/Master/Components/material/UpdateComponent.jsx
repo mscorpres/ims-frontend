@@ -27,6 +27,15 @@ import CategoryDrawer from "./CategoryDrawer";
 
 import AlternatePartCode from "./AlternatePartCode";
 
+const toPlHeadArray = (value) => {
+  if (value == null || value === "") return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string" && value.includes(",")) {
+    return value.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [value];
+};
+
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
   const [uomOptions, setuomOptions] = useState([]);
@@ -100,7 +109,7 @@ export default function UpdateComponent() {
             mrp: value.mrp,
             group: value.groupid,
             subgroup: value.subgroupid,
-            plHead: value.pl_head ?? undefined,
+            plHead: toPlHeadArray(value.pl_head),
             isEnabled: value.enable_status,
             jobWork: value.jobwork_rate,
             qcStatus: value.qc_status,
@@ -627,8 +636,19 @@ export default function UpdateComponent() {
                     </Form.Item>
                   </Col>
                   <Col span={8}>
-                    <Form.Item name="plHead" label="P&L Heads Selection">
-                      <MySelect options={plHeadOptions} />
+                    <Form.Item
+                      name="plHead"
+                      label="P&L Heads Selection"
+                      rules={[
+                        {
+                          required: true,
+                          type: "array",
+                          min: 1,
+                          message: "Please select at least one P&L head",
+                        },
+                      ]}
+                    >
+                      <MySelect mode="multiple" options={plHeadOptions} />
                     </Form.Item>
                   </Col>
                   <Col span={8}>

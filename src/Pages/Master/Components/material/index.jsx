@@ -646,7 +646,7 @@ const Material = () => {
                         name="plHead"
                         rules={headerRules.plHead}
                       >
-                        <MySelect options={plHeadOptions} />
+                        <MySelect mode="multiple" options={plHeadOptions} />
                       </Form.Item>
                     </Col>
 
@@ -897,7 +897,7 @@ const headerInitialValues = {
   code: undefined,
   unit: undefined,
   group: undefined,
-  plHead: undefined,
+  plHead: [],
   category: undefined,
   attrCategory: undefined,
   description: undefined,
@@ -1594,7 +1594,9 @@ const headerRules = {
   plHead: [
     {
       required: true,
-      message: "Please select a P&L head",
+      type: "array",
+      min: 1,
+      message: "Please select at least one P&L head",
     },
   ],
 };
