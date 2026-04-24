@@ -22,6 +22,7 @@ function MaterialTransfer({ type }) {
     locationSel: "",
     dropBranch: "",
     dropLoc: "",
+    pprId: "",
   });
   const { executeFun, loading: loading1 } = useApi();
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -210,8 +211,8 @@ function MaterialTransfer({ type }) {
             qty: qtys,
             type: "SF2REJ",
             dropLocation: allData.dropLoc,
-            project_id: resolveProjectId(),
-            ppr_id: allData.pprId,
+            project_id: resolveProjectId() || null,
+            ppr_id: allData.pprId || null,
           }
         : {
             pickLocation: allData.locationSel,
@@ -231,6 +232,8 @@ function MaterialTransfer({ type }) {
       setAllData({
         locationSel: "",
         dropBranch: "",
+        dropLoc: "",
+        pprId: "",
       });
       setRows([
         {
@@ -255,6 +258,8 @@ function MaterialTransfer({ type }) {
     setAllData({
       locationSel: "",
       dropBranch: "",
+      dropLoc: "",
+      pprId: "",
     });
     setProject(null);
     setPprOptions([]);
@@ -467,12 +472,14 @@ function MaterialTransfer({ type }) {
                       optionsState={projectAsyncOptions}
                       selectLoading={loading1("select")}
                       value={project}
+                      allowClear={true}
                       onChange={(value) => {
                         setProject(value);
                         const key =
                           value && typeof value === "object"
                             ? value.value
                             : value;
+                        setAllData((prev) => ({ ...prev, pprId: "" }));
                         fetchPPROptions(key);
                       }}
                     />

@@ -132,9 +132,22 @@ function VBT01Report({
     } else {
       link = `/tally/${apiUrl}/fetch_multi_min_data${typeQuery}`;
     }
-    const response = await imsAxios.post(link, {
-      mins: minIdArr.map((row) => row?.transaction ?? row.min_transaction),
-    });
+    const payload =
+      apiUrl === "vbt01"
+        ? {
+            data: minIdArr.map((row) => {
+              return {
+                minTxn: row?.transaction ?? row.min_transaction,
+                type: row.type,
+              };
+            }),
+          }
+        : {
+            mins: minIdArr.map(
+              (row) => row?.transaction ?? row.min_transaction,
+            ),
+          };
+    const response = await imsAxios.post(link, payload);
 
     const { data } = response;
     if (data.code === 200) {

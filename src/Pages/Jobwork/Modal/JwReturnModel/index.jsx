@@ -29,6 +29,7 @@ import { uplaodFileInJWReturn } from "../../../../api/general";
 import MyDataTable from "../../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import axios from "axios";
+import SingleDatePicker from "../../../../Components/SingleDatePicker";
 
 const JwReturnModel = ({ show, close }) => {
   const [headerDetails, setHeaderDetails] = useState([]);
@@ -43,9 +44,11 @@ const JwReturnModel = ({ show, close }) => {
   const [preview, setPreview] = useState(false);
   const [previewRows, setPreviewRows] = useState([]);
   const [vendor, setVendor] = useState("");
+  
 
   const { executeFun, loading: loading1 } = useApi();
   const [form] = Form.useForm();
+  
   const [uplaodForm] = Form.useForm();
   const sampleData = [
     {
@@ -59,9 +62,11 @@ const JwReturnModel = ({ show, close }) => {
       REMARK: "test",
     },
   ];
-  const getLocationOptions = async (vendor,transaction) => {
+  const getLocationOptions = async (vendor, transaction) => {
     try {
-      const { data } = await imsAxios.get(`/jobwork/jw_rm_return_location?vendor=${vendor}&jw=${transaction}`);
+      const { data } = await imsAxios.get(
+        `/jobwork/jw_rm_return_location?vendor=${vendor}&jw=${transaction}`,
+      );
       setLoading("fetch", true);
       if (data) {
         const arr = data.data.map((row) => ({
@@ -81,7 +86,7 @@ const JwReturnModel = ({ show, close }) => {
     if (vendor) {
       try {
         const response = await imsAxios.get(
-          `/backend/fetchVendorJWLocation?vendor=${vendor}`
+          `/backend/fetchVendorJWLocation?vendor=${vendor}`,
         );
         if (response.success) {
           let arr = [];
@@ -122,7 +127,7 @@ const JwReturnModel = ({ show, close }) => {
         transaction: transaction,
       });
       const headerValues = data.header;
-      setVendor(headerValues?.vendor?.code)
+      setVendor(headerValues?.vendor?.code);
       let headerArr = [];
       const headerObj = {
         "Created By": headerValues.created_by,
@@ -176,7 +181,8 @@ const JwReturnModel = ({ show, close }) => {
       remark: selectedRows.map((row) => row.remark ?? "--"),
       hsncode: selectedRows.map((row) => row.hsn),
       ewaybill: values.ewayBill ?? "--",
-      vendor_location:values?.vendor_location?.value
+      vendor_location: values?.vendor_location?.value,
+      challan_date: values?.challanDate,
     };
     // console.log("finalObj", finalObj);
 
@@ -202,12 +208,12 @@ const JwReturnModel = ({ show, close }) => {
         setPreview(false);
         setPreviewRows([]);
         setSelectedRows([]);
+      
         close();
         setTimeout(() => {
           window.location.reload();
         }, 1500); // 1500 milliseconds  = 1.5 seconds
-      }
-      else{
+      } else {
         toast.error(response.message);
       }
     } catch (error) {
@@ -223,19 +229,19 @@ const JwReturnModel = ({ show, close }) => {
       setTotalValue(+Number(total).toFixed(3));
     }
   }, [selectedRows]);
-  
+
   useEffect(() => {
     if (show) {
       getData(show.sku, show.transaction);
       getAutoComnsumptionOptions();
-      getLocationOptions(vendor,show.transaction);
+      getLocationOptions(vendor, show.transaction);
     }
-  }, [show,vendor]);
+  }, [show, vendor]);
 
-  useEffect(()=>{
+  useEffect(() => {
     getVendorLocationOptions(vendor);
-  },[vendor])
-  
+  }, [vendor]);
+
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;
@@ -261,7 +267,7 @@ const JwReturnModel = ({ show, close }) => {
     formData.append("file", file);
     const response = await executeFun(
       () => uplaodFileInJWReturn(formData),
-      "fetch"
+      "fetch",
     );
     if (response?.data?.status == "success") {
       let { data } = response;
@@ -270,9 +276,9 @@ const JwReturnModel = ({ show, close }) => {
       const formattedHeaders = data.data.headers.map((header) =>
         header
           .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
-            index === 0 ? match.toUpperCase() : match.toLowerCase()
+            index === 0 ? match.toUpperCase() : match.toLowerCase(),
           )
-          .replace(/\s+/g, "")
+          .replace(/\s+/g, ""),
       );
 
       // Map the row values to headers
@@ -395,6 +401,7 @@ const JwReturnModel = ({ show, close }) => {
   const closeDrawer = () => {
     setPreview(false);
     setOpen(false);
+   
     setSelectedRows(previewRows);
     setRows([]);
   };
@@ -430,10 +437,34 @@ const JwReturnModel = ({ show, close }) => {
                   <Card size="small" title="Header Details">
                     <Form.Item name="ewayBill" label="E-Way Bill No.">
                       <Input />
-            </Form.Item>
+                    </Form.Item>
                     <Form.Item label="Vendor Location" name="vendor_location">
-          <MySelect labelInValue={true} options={vendorLocationOptions} />
-        </Form.Item>
+                      <MySelect
+                        labelInValue={true}
+                        options={vendorLocationOptions}
+                      />
+                    </Form.Item>
+                    <Form.Item
+                      label="Challan Date"
+                      name="challanDate"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please select Challan Date",
+                        },
+                      ]}
+                    >
+                      <SingleDatePicker
+                        size="medium"
+                        value={form.getFieldValue("challanDate")}
+                        setDate={(date) => {
+                          form.setFieldsValue({ challanDate: date });
+                      
+                        }}
+                        placeholder="Select Challan Date"
+                        format={"DD-MM-YYYY"}
+                      />
+                    </Form.Item>
                   </Card>
                 </Col>
 

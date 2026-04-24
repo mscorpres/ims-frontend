@@ -1,8 +1,6 @@
-import axios from "axios";
 import { imsAxios } from "../axiosInterceptor";
 
 export const verifyToken = async (token) => {
-  console.log("setting header auth otken", token);
   const response = await imsAxios.get(
     "/auth/isValid",
 
@@ -19,7 +17,6 @@ export const verifyToken = async (token) => {
 
 export const getDetails = async () => {
   const response = await imsAxios.get("/profile/userDetails");
-  console.log("getDetails response", response);
   if (response.data.code === 200) {
     const values = response.data.data;
     response.data = {
@@ -44,13 +41,16 @@ export const getDetails = async () => {
 };
 
 export const sendOtp = async (email) => {
-  const response = await imsAxios.get(`/auth/sendOtp?email=${email}`);
+  const encodedEmail = encodeURIComponent(String(email ?? "").trim());
+  const response = await imsAxios.get(`/auth/sendOtp?email=${encodedEmail}`);
   return response;
 };
 
 export const verifyOtp = async (email, otp) => {
+  const encodedEmail = encodeURIComponent(String(email ?? "").trim());
+  const encodedOtp = encodeURIComponent(String(otp ?? "").trim());
   const response = await imsAxios.get(
-    `/auth/verifyOtp?email=${email}&otp=${otp}`
+    `/auth/verifyOtp?email=${encodedEmail}&otp=${encodedOtp}`
   );
   return response;
 };

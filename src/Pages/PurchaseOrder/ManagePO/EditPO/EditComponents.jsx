@@ -2,6 +2,15 @@ import React, { useState, useEffect } from "react";
 import { v4 } from "uuid";
 import { toast } from "react-toastify";
 import NavFooter from "../../../../Components/NavFooter";
+
+function formatTaxDetailRowTotal(rawSum) {
+  const n = Number(rawSum);
+  if (Number.isNaN(n)) return "0.00";
+  return n.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 import {
   CGSTCell,
   componenetSelect,
@@ -910,11 +919,11 @@ export default function EditComponent({
                                   totalTaxValue.length - 1 && 600,
                             }}
                           >
-                            {Number(
+                            {formatTaxDetailRowTotal(
                               row.values?.reduce((partialSum, a) => {
                                 return partialSum + Number(a);
-                              }, 0)
-                            ).toFixed(2)}
+                              }, 0),
+                            )}
                           </span>
                         </Col>
                       </Row>

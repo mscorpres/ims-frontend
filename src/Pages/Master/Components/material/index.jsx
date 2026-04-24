@@ -44,6 +44,7 @@ const Material = () => {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [groupOptions, setGroupOptions] = useState([]);
   const [subGroupOptions, setSubGroupOptions] = useState([]);
+  const [plHeadOptions, setPlHeadOptions] = useState([]);
   const [showAttributesModal, setShowAttributesModal] = useState(false);
   const [hsnRows, setHsnRows] = useState([]);
   const [attributeValues, setAttributeValues] = useState(null);
@@ -162,6 +163,28 @@ const Material = () => {
     }
   };
 
+  const getPlHeadOptions = async () => {
+    try {
+      setLoading("fetch");
+      const response = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
+      const { data } = response;
+
+      if (Array.isArray(data) && data.length > 0) {
+        const arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
+        setPlHeadOptions(arr);
+      } else {
+        setPlHeadOptions([]);
+      }
+    } catch (error) {
+      setPlHeadOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getUomOptions = async () => {
     console.log("here");
     try {
@@ -258,6 +281,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
+        pl_head: headerValues.plHead,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "R",
         attr_code: uniqueId,
@@ -280,6 +304,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
+        pl_head: headerValues.plHead,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "C",
         attr_code: uniqueId,
@@ -302,6 +327,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
+        pl_head: headerValues.plHead,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "I",
         attr_code: "--",
@@ -324,6 +350,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
+        pl_head: headerValues.plHead,
         // attr_category: headerValues.attrCategory.value,
         attr_category: "O",
         attr_code: "--",
@@ -469,6 +496,7 @@ const Material = () => {
     getAttrCategoryOptions();
     getUomOptions();
     getGroupOptions();
+    getPlHeadOptions();
   }, []);
   useEffect(() => {
     if (selectedGroup) {
@@ -610,6 +638,15 @@ const Material = () => {
                         rules={headerRules.subgroup}
                       >
                         <MySelect options={subGroupOptions} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={10}>
+                      <Form.Item
+                        label="P&L Heads Selection"
+                        name="plHead"
+                        rules={headerRules.plHead}
+                      >
+                        <MySelect mode="multiple" options={plHeadOptions} />
                       </Form.Item>
                     </Col>
 
@@ -860,6 +897,7 @@ const headerInitialValues = {
   code: undefined,
   unit: undefined,
   group: undefined,
+  plHead: [],
   category: undefined,
   attrCategory: undefined,
   description: undefined,
@@ -1551,6 +1589,14 @@ const headerRules = {
     {
       required: true,
       message: "Please select a sub group",
+    },
+  ],
+  plHead: [
+    {
+      required: true,
+      type: "array",
+      min: 1,
+      message: "Please select at least one P&L head",
     },
   ],
 };

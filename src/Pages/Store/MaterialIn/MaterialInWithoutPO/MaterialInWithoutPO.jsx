@@ -128,7 +128,7 @@ export default function MaterialInWithoutPO() {
       RATE: "--",
       HSN: "123456",
       LOCATION: "RM021",
-      AUTO_CONSUMP: "N",
+      AUTO_CONSUMP: "0",
       REMARK: "test",
       GST_TYPE: "LOCAL",
       GST_RATE: "18",
@@ -869,7 +869,7 @@ export default function MaterialInWithoutPO() {
         ...r,
         mfgCode: r.Manualmfgcode,
         hsnCode: r.hsn,
-        autoConsumption: r.Autoconsump == "Y" ? "Yes" : "No",
+        autoConsumption: r.Autoconsump == "1" ? "Yes" : "No",
       };
     });
 

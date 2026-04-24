@@ -70,7 +70,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
     );
 
     if (response.success) {
-      getLocation(response.data.header.vendor.code,response.data.header.jobworkID,response.data.header.costCenter);
+      getLocation(
+        response.data.header.vendor.code,
+        response.data.header.jobworkID,
+      );
       let arr = response.data.body.map((row, index) => {
         return {
           ...row,
@@ -109,8 +112,10 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       setAsyncOptions(arr);
     }
   };
-  const getLocation = async (vendor,jw,cc) => {
-    const { data } = await imsAxios.get(`/backend/jw/warehouse/location?vendor=${vendor}&jw=${jw}&cc=${cc}`);
+  const getLocation = async (vendor, jw) => {
+    const { data } = await imsAxios.get(
+      `/backend/jw/warehouse/location?vendor=${vendor}&jw=${jw}`,
+    );
     let arr = [];
     arr = data.data.map((d) => {
       return { label: d.name, value: d.key };
