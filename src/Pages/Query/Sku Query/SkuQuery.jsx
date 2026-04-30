@@ -7,6 +7,7 @@ import {
   Typography,
   Divider,
   Skeleton,
+  Tooltip,
 } from "antd";
 import { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
@@ -264,6 +265,16 @@ const Q3 = () => {
   );
 };
 
+const getStatusConfig = (type) => {
+  if (type === '<span class="d-inline-block radius-round p-2 bgc-red"></span>') {
+    return { label: "OUTWARD", backgroundColor: "#FF0032" };
+  }
+  if (type === '<span class="d-inline-block radius-round p-2 bgc-grey"></span>') {
+    return { label: "CANCELLED", backgroundColor: "grey" };
+  }
+  return { label: "INWARD", backgroundColor: "#227C70" };
+};
+
 const columns = [
   {
     headerName: "#",
@@ -279,32 +290,48 @@ const columns = [
     headerName: "Type",
     field: "transaction_type",
     width: 150,
-    renderCell: (a) =>
-      a.row.type ==
-      '<span class="d-inline-block radius-round p-2 bgc-red"></span>' ? (
-        <div
-          style={{
-            height: "15px",
-            width: "15px",
-            borderRadius: "50px",
-            backgroundColor: "#FF0032",
-          }}
-        ></div>
-      ) : (
-        <div
-          style={{
-            height: "15px",
-            width: "15px",
-            borderRadius: "50px",
-            backgroundColor: "#227C70",
-          }}
-        ></div>
-      ),
+    renderCell: ({ row }) => {
+      const status = getStatusConfig(row.type);
+      return (
+        <Tooltip title={status.label}>
+          <div
+            style={{
+              height: "15px",
+              width: "15px",
+              borderRadius: "50px",
+              backgroundColor: status.backgroundColor,
+              cursor: "pointer",
+            }}
+          ></div>
+        </Tooltip>
+      );
+    },
   },
   {
     headerName: "Transaction",
     field: "txn",
-    renderCell: ({ row }) => <ToolTipEllipses text={row.txn} />,
+    renderCell: ({ row }) => {
+      const isCancelled =
+        row.type === '<span class="d-inline-block radius-round p-2 bgc-grey"></span>';
+      return (
+        <div
+          style={{
+            textDecoration: isCancelled ? "line-through" : "none",
+            opacity: isCancelled ? 0.7 : 1,
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <ToolTipEllipses text={row.txn} />
+          {isCancelled ? (
+            <span style={{ color: "#d32f2f", fontSize: "0.75rem", fontWeight: 600 }}>
+              CANCELLED
+            </span>
+          ) : null}
+        </div>
+      );
+    },
     width: 250,
   },
   {
