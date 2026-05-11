@@ -33,6 +33,7 @@ import {
   downloadComponentMaster,
   downloadElectronicReport,
 } from "../../../../api/master/component.ts";
+import { getPlHeadListOptions } from "../../../../api/general.ts";
 
 const Material = () => {
   const [showImages, setShowImages] = useState();
@@ -45,6 +46,7 @@ const Material = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [subGroupOptions, setSubGroupOptions] = useState([]);
   const [plHeadOptions, setPlHeadOptions] = useState([]);
+  const [plHeadSelectLoading, setPlHeadSelectLoading] = useState(false);
   const [showAttributesModal, setShowAttributesModal] = useState(false);
   const [hsnRows, setHsnRows] = useState([]);
   const [attributeValues, setAttributeValues] = useState(null);
@@ -163,25 +165,15 @@ const Material = () => {
     }
   };
 
-  const getPlHeadOptions = async () => {
+  const getPlHeadOptions = async (search) => {
     try {
-      setLoading("fetch");
-      const response = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
-      const { data } = response;
-
-      if (Array.isArray(data) && data.length > 0) {
-        const arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
-        setPlHeadOptions(arr);
-      } else {
-        setPlHeadOptions([]);
-      }
+      setPlHeadSelectLoading(true);
+      const options = await getPlHeadListOptions(search);
+      setPlHeadOptions(options);
     } catch (error) {
       setPlHeadOptions([]);
     } finally {
-      setLoading(false);
+      setPlHeadSelectLoading(false);
     }
   };
 
@@ -496,7 +488,6 @@ const Material = () => {
     getAttrCategoryOptions();
     getUomOptions();
     getGroupOptions();
-    getPlHeadOptions();
   }, []);
   useEffect(() => {
     if (selectedGroup) {
@@ -645,7 +636,13 @@ const Material = () => {
                         label="P&L Heads Selection"
                         name="plHead"
                       >
-                        <MySelect mode="multiple" options={plHeadOptions} />
+                        <MyAsyncSelect
+                          mode="multiple"
+                          onBlur={() => setPlHeadOptions([])}
+                          loadOptions={getPlHeadOptions}
+                          optionsState={plHeadOptions}
+                          selectLoading={plHeadSelectLoading}
+                        />
                       </Form.Item>
                     </Col>
 

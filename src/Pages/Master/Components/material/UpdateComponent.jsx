@@ -20,6 +20,8 @@ import { useParams } from "react-router";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import MySelect from "../../../../Components/MySelect";
+import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
+import { getPlHeadListOptions } from "../../../../api/general.ts";
 import MyButton from "../../../../Components/MyButton";
 
 import Loading from "../../../../Components/Loading";
@@ -50,6 +52,7 @@ export default function UpdateComponent() {
   const [groupOptions, setgroupOptions] = useState([]);
   const [subGroupOptions, setSubGroupOptions] = useState([]);
   const [plHeadOptions, setPlHeadOptions] = useState([]);
+  const [plHeadSelectLoading, setPlHeadSelectLoading] = useState(false);
   const [natureOfTdsOptions, setNatureOfTdsOptions] = useState([]);
   const [attr_raw, setUniqueIdData] = useState("");
   const [tooldata, setTooldata] = useState({});
@@ -337,23 +340,15 @@ export default function UpdateComponent() {
     }
   };
 
-  const getPlHeadOptions = async () => {
+  const getPlHeadOptions = async (search) => {
     try {
-      setLoading("fetch");
-      const { data } = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
-      if (Array.isArray(data)) {
-        const arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
-        setPlHeadOptions(arr);
-      } else {
-        setPlHeadOptions([]);
-      }
+      setPlHeadSelectLoading(true);
+      const options = await getPlHeadListOptions(search);
+      setPlHeadOptions(options);
     } catch (error) {
       setPlHeadOptions([]);
     } finally {
-      setLoading(false);
+      setPlHeadSelectLoading(false);
     }
   };
 
@@ -566,7 +561,6 @@ export default function UpdateComponent() {
     getDetails();
     getUomOptions();
     getGroupOptions();
-    getPlHeadOptions();
     getNatureOfTdsOptions();
   }, []);
 
@@ -680,7 +674,13 @@ export default function UpdateComponent() {
                       name="plHead"
                       label="P&L Heads Selection"
                     >
-                      <MySelect mode="multiple" options={plHeadOptions} />
+                      <MyAsyncSelect
+                        mode="multiple"
+                        onBlur={() => setPlHeadOptions([])}
+                        loadOptions={getPlHeadOptions}
+                        optionsState={plHeadOptions}
+                        selectLoading={plHeadSelectLoading}
+                      />
                     </Form.Item>
                   </Col>
                   <Col span={8}>

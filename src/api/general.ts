@@ -141,7 +141,7 @@ export const getVendorBranchDetails = async (vendorCode, branchCode) => {
   return response;
 };
 export const getCostCentresOptions = async (search) => {
-  const response = await imsAxios.post("/backend/costCenter", {
+  const response = await imsAxios.post("/backend/costcenter", {
     search,
   });
   return response;
@@ -421,4 +421,30 @@ export const getComponenentAndProduct = async (search: string) => {
   response.data = arr;
 
   return response;
+};
+
+export const getPlHeadListOptions = async (
+  search: string,
+  limit = 25
+): Promise<SelectOptionType[]> => {
+  try {
+    const response: ResponseType = await imsAxios.get("/tally/backend/pl/list", {
+      params: { search, limit },
+    });
+
+    const rows = response?.success ? response.data : response?.data;
+    if (!Array.isArray(rows)) {
+      return [];
+    }
+
+    return rows
+      .map((row: { text: string; id: string | number }) => ({
+        text: row.text,
+        value: row.id,
+      }))
+      .filter((row) => row.text && row.value);
+  } catch (error) {
+    console.log("something happened wrong", error);
+    return [];
+  }
 };
