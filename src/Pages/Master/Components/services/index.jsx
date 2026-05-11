@@ -6,6 +6,8 @@ import { v4 } from "uuid";
 import MyDataTable from "../../../../Components/MyDataTable";
 import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import MySelect from "../../../../Components/MySelect";
+import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
+import { getPlHeadListOptions } from "../../../../api/general.ts";
 import TableActions from "../../../../Components/TableActions.jsx/TableActions";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyButton from "../../../../Components/MyButton";
@@ -18,6 +20,7 @@ function Services() {
   const [rows, setRows] = useState([]);
   const [units, setUnits] = useState([]);
   const [plHeadOptions, setPlHeadOptions] = useState([]);
+  const [plHeadSelectLoading, setPlHeadSelectLoading] = useState(false);
   const [editService, setEditService] = useState(null);
   const [newService, setNewService] = useState({
     part: "",
@@ -55,16 +58,15 @@ function Services() {
     setUnits(u);
   };
 
-  const getPlHeadOptions = async () => {
-    const { data } = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
-    if (Array.isArray(data)) {
-      const options = data.map((row) => ({
-        text: row.text,
-        value: row.id,
-      }));
+  const getPlHeadOptions = async (search) => {
+    try {
+      setPlHeadSelectLoading(true);
+      const options = await getPlHeadListOptions(search);
       setPlHeadOptions(options);
-    } else {
+    } catch (error) {
       setPlHeadOptions([]);
+    } finally {
+      setPlHeadSelectLoading(false);
     }
   };
 
@@ -139,7 +141,6 @@ function Services() {
   };
   useEffect(() => {
     getUnits();
-    getPlHeadOptions();
     getServices();
   }, []);
   return (
@@ -226,10 +227,13 @@ function Services() {
                 </Col>
                 <Col span={24}>
                   <Form.Item label="P&L Heads Selection">
-                    <MySelect
+                    <MyAsyncSelect
                       mode="multiple"
                       size="default"
-                      options={plHeadOptions}
+                      onBlur={() => setPlHeadOptions([])}
+                      loadOptions={getPlHeadOptions}
+                      optionsState={plHeadOptions}
+                      selectLoading={plHeadSelectLoading}
                       value={newService.plHeads}
                       onChange={(value) => inputHandler("plHeads", value)}
                     />

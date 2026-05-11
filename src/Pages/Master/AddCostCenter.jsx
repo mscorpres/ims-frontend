@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Card, Form, Input, Row } from "antd";
+import { Button, Card, Form, Input, Modal, Row, Switch } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import MyDataTable from "../../Components/MyDataTable";
 
@@ -14,6 +14,7 @@ export default function AddCostCenter({
     alias_name: "",
   });
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
   const inputHandler = (name, value) => {
     let obj = newCostCenter;
     obj = { ...obj, [name]: value };
@@ -60,11 +61,13 @@ export default function AddCostCenter({
 
   const handleFetchUOMList = async () => {
     try {
-      const response = await imsAxios.get("backend/costCenter");
+      const response = await imsAxios.get("backend/costcenter");
 
       if (response?.success) {
         const formattedRows = (response?.data ?? []).map((item, index) => ({
           ...item,
+          uID: item?.uID,
+          status: Number(item?.status ?? 1),
           id: item?.uID || `${item?.name || ""}-${item?.code || ""}-${index}`,
         }));
         setCenterData(formattedRows);
@@ -76,12 +79,71 @@ export default function AddCostCenter({
     }
   };
 
+  const updateCostCenterStatus = async (uID, enabled) => {
+    try {
+      setStatusUpdatingId(uID);
+      const status = enabled ? 1 : 0;
+      const response = await imsAxios.put(`/backend/costcenter/${status}/${uID}`);
+
+      const isSuccess =
+        response?.success === true ||
+        response?.code === 200 ||
+        response?.status === "success";
+
+      if (isSuccess) {
+        toast.success(response?.message || "Cost center status updated");
+        setCenterData((current) =>
+          current.map((row) =>
+            row.uID === uID ? { ...row, status } : row
+          )
+        );
+      } else {
+        toast.error(response?.message || "Failed to update cost center status");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Failed to update cost center status");
+    } finally {
+      setStatusUpdatingId(null);
+    }
+  };
+
+  const handleStatusChange = (row, enabled) => {
+    if (!row?.uID) {
+      toast.error("Cost center identifier is missing");
+      return;
+    }
+
+    const actionLabel = enabled ? "enable" : "disable";
+
+    Modal.confirm({
+      title: "Update Cost Center Status",
+      content: `Are you sure you want to ${actionLabel} ${row.name}?`,
+      okText: "Continue",
+      cancelText: "Back",
+      onOk: () => updateCostCenterStatus(row.uID, enabled),
+    });
+  };
+
   const columns = [
     // { field: "id", headerName: "#", minWidth: 170, flex: 1},
 
     { field: "code", headerName: "Cost Center ID", minWidth: 170, flex: 1 },
     { field: "name", headerName: "Cost Center Name", minWidth: 220, flex: 1 },
     { field: "timestamp", headerName: "Date", minWidth: 170, flex: 1 },
+    {
+      headerName: "Status",
+      field: "status",
+      minWidth: 120,
+      type: "actions",
+      renderCell: ({ row }) => (
+        <Switch
+          size="small"
+          checked={Number(row.status) === 1}
+          loading={statusUpdatingId === row.uID}
+          onChange={(checked) => handleStatusChange(row, checked)}
+        />
+      ),
+    },
   ];
 
   useEffect(() => {
