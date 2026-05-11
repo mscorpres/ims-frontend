@@ -403,7 +403,7 @@ export default function UpdateComponent() {
       group: values.group,
       subgroup: values.subgroup,
       plHeads: values.plHead,
-      tdsHeads: values.natureOfTds ?? [],
+      tdsHeads: [values.natureOfTds],
       new_partno: values.newPartCode,
       enable_status: values.isEnabled,
       jobwork_rate: values.jobWork,
@@ -686,7 +686,6 @@ export default function UpdateComponent() {
                   <Col span={8}>
                     <Form.Item name="natureOfTds" label="Nature of TDS">
                       <MySelect
-                        mode="multiple"
                         options={natureOfTdsOptions}
                       />
                     </Form.Item>
