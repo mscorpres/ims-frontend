@@ -644,7 +644,6 @@ const Material = () => {
                       <Form.Item
                         label="P&L Heads Selection"
                         name="plHead"
-                        rules={headerRules.plHead}
                       >
                         <MySelect mode="multiple" options={plHeadOptions} />
                       </Form.Item>
@@ -1589,14 +1588,6 @@ const headerRules = {
     {
       required: true,
       message: "Please select a sub group",
-    },
-  ],
-  plHead: [
-    {
-      required: true,
-      type: "array",
-      min: 1,
-      message: "Please select at least one P&L head",
     },
   ],
 };
