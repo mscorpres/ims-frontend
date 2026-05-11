@@ -679,14 +679,6 @@ export default function UpdateComponent() {
                     <Form.Item
                       name="plHead"
                       label="P&L Heads Selection"
-                      rules={[
-                        {
-                          required: true,
-                          type: "array",
-                          min: 1,
-                          message: "Please select at least one P&L head",
-                        },
-                      ]}
                     >
                       <MySelect mode="multiple" options={plHeadOptions} />
                     </Form.Item>

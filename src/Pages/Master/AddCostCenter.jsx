@@ -26,7 +26,7 @@ export default function AddCostCenter({
         const response = await imsAxios.post("/purchaseOrder/createCostCenter", {
           code: newCostCenter.code,
           name: newCostCenter.name,
-          alias_name: newCostCenter.alias_name,
+          alias: newCostCenter.alias_name,
         });
 
         const isSuccess =
