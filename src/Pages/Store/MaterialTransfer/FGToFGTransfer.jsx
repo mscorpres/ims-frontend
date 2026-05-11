@@ -172,11 +172,11 @@ function FGToFGTransfer() {
     });
 
     try {
-      const response = await imsAxios.post("/ppr/fetchProductData", {
+      const response = await imsAxios.post("/ppr/fetchProductDataByKey", {
         search: sku,
       });
       const { data } = response;
-      const rawBom = data?.bom;
+      const rawBom = data?.data;
       const bomArr = Array.isArray(rawBom)
         ? rawBom.map((r) => ({ text: r.text, value: r.id }))
         : [];
