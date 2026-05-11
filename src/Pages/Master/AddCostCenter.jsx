@@ -11,6 +11,7 @@ export default function AddCostCenter({
   const [newCostCenter, setNewCostCenter] = useState({
     code: "",
     name: "",
+    alias_name: "",
   });
   const [submitLoading, setSubmitLoading] = useState(false);
   const inputHandler = (name, value) => {
@@ -25,6 +26,7 @@ export default function AddCostCenter({
         const response = await imsAxios.post("/purchaseOrder/createCostCenter", {
           code: newCostCenter.code,
           name: newCostCenter.name,
+          alias_name: newCostCenter.alias_name,
         });
 
         const isSuccess =
@@ -37,6 +39,7 @@ export default function AddCostCenter({
           setNewCostCenter({
             code: "",
             name: "",
+            alias_name: "",
           });
           if (typeof setShowAddCostModal === "function") {
             setShowAddCostModal(false);
@@ -118,6 +121,15 @@ export default function AddCostCenter({
                   inputHandler("name", e.target.value);
                 }}
                 placeholder="Enter Cost Center Name"
+              />
+            </Form.Item>
+            <Form.Item label="Alias Name">
+              <Input
+                value={newCostCenter.alias_name}
+                onChange={(e) => {
+                  inputHandler("alias_name", e.target.value);
+                }}
+                placeholder="Enter Alias Name"
               />
             </Form.Item>
           </Form>
