@@ -2137,6 +2137,7 @@ export default function CreatePo() {
                           <Form.Item
                             name="pocostcenter"
                             rules={rules.pocostcenter}
+                            
                             label={
                               <div
                                 style={{
@@ -2148,15 +2149,7 @@ export default function CreatePo() {
                                 }}
                               >
                                 Cost Center
-                                {/* <span
-                                  onClick={() => setShowAddCostModal(true)}
-                                  style={{
-                                    color: "#1890FF",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  Add Cost Center
-                                </span> */}
+                           
                               </div>
                             }
                           >
@@ -2165,6 +2158,7 @@ export default function CreatePo() {
                               onBlur={() => setAsyncOptions([])}
                               loadOptions={handleFetchCostCenterOptions}
                               optionsState={asyncOptions}
+                              disabled={true}
                             />
                           </Form.Item>
                         </Col>
