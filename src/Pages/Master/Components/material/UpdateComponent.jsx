@@ -96,8 +96,18 @@ export default function UpdateComponent() {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
         componentKey,
       });
-        if (response.success) {
-          const value = response.data[0];
+      if (response.success) {
+        const value = Array.isArray(response.data)
+          ? response.data[0]
+          : response.data;
+        if (!value) {
+          toast.error(
+            response.message?.msg ??
+              response.message ??
+              "Component details not found."
+          );
+          return;
+        }
           // console.log("data...............", value);
           let catType = value.attr_category;
           // console.log("data...............", catType);
@@ -187,11 +197,11 @@ export default function UpdateComponent() {
             label: code,
           }));
           altPartCodeForm.setFieldValue("alternatePart", objects);
-        } else {
-          toast.error(response.message);
-        }
+      } else {
+        toast.error(response.message?.msg ?? response.message);
+      }
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
