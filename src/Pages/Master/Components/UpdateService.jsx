@@ -44,25 +44,38 @@ export default function UpdateService({ editService, setEditService, units }) {
   ];
   const getDetails = async () => {
     setPageLoading(true);
-    const { data } = await imsAxios.post("component/fetchUpdateComponent", {
-      componentKey: editService.componentKey,
-    });
-    if (data.code == 200) {
-      const res = data.data[0];
-      setServiceDetails({
-        serviceName: res.name,
-        uom: res.uomid,
-        isEnabled: "Y",
-        description: res.description,
-        taxType: "L",
-        taxRate: "05",
-        sac: res.sac,
+    try {
+      const response = await imsAxios.post("/component/fetchUpdateComponent", {
+        componentKey: editService.componentKey,
       });
-    } else {
-      toast.error(data.message.msg);
+      if (response.success) {
+        const res = Array.isArray(response.data)
+          ? response.data[0]
+          : response.data;
+        if (!res) {
+          toast.error("Service details not found.");
+          setEditService(null);
+          return;
+        }
+        setServiceDetails({
+          serviceName: res.name,
+          uom: res.uomid,
+          isEnabled: res.enable_status || "Y",
+          description: res.description,
+          taxType: res.tax_type || "L",
+          taxRate: res.gst_rate || "05",
+          sac: res.sac,
+        });
+      } else {
+        toast.error(response.message?.msg ?? response.message);
+        setEditService(null);
+      }
+    } catch (error) {
+      toast.error(error.message);
       setEditService(null);
+    } finally {
+      setPageLoading(false);
     }
-    setPageLoading(false);
   };
   const inputHandler = (name, value) => {
     let obj = serviceDetails;
@@ -84,16 +97,21 @@ export default function UpdateService({ editService, setEditService, units }) {
       componentname: serviceDetails.serviceName
     };
     setSubmitLoading(true);
-    const { data } = await imsAxios.post(
-      "/component/updateServiceComponent",
-      newObj
-    );
-    setSubmitLoading(false);
-    if (data.code == 200) {
-      toast.success(data.message);
-      setEditService(null);
-    } else {
-      toast.error(toast.message.msg);
+    try {
+      const response = await imsAxios.post(
+        "/component/updateServiceComponent",
+        newObj
+      );
+      if (response.success) {
+        toast.success(response.message);
+        setEditService(null);
+      } else {
+        toast.error(response.message?.msg ?? response.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setSubmitLoading(false);
     }
   };
   useEffect(() => {
@@ -108,7 +126,7 @@ export default function UpdateService({ editService, setEditService, units }) {
       onClose={() => {
         setEditService(null);
       }}
-      open={editService}
+      open={!!editService}
     >
       <Skeleton active loading={pageLoading} />
       <Skeleton active loading={pageLoading} />

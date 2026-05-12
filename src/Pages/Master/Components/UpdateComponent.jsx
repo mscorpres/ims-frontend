@@ -43,8 +43,9 @@ export default function UpdateComponent() {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
         componentKey,
       });
-      if (response.success) {
-        const value = response.data[0];
+    
+        if (response.success) {
+          const value = response.data;
           const finalObj = {
             partCode: value.partcode,
             component: value.name,
@@ -79,8 +80,9 @@ export default function UpdateComponent() {
         } else {
           toast.error(response.message);
         }
+      
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

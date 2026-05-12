@@ -26,15 +26,25 @@ const toPlHeadArray = (value) => {
   return [value];
 };
 
+const toSelectedKeys = (value, keyName) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((row) => Number(row?.selected) === 1)
+    .map((row) => row?.[keyName])
+    .filter(Boolean);
+};
+
 export default function UpdateService({ editService, setEditService, units }) {
   const [pageLoading, setPageLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [plHeadOptions, setPlHeadOptions] = useState([]);
   const [plHeadSelectLoading, setPlHeadSelectLoading] = useState(false);
+  const [natureOfTdsOptions, setNatureOfTdsOptions] = useState([]);
   const [serviceDetails, setServiceDetails] = useState({
     serviceName: "",
     uom: "",
     plHeads: [],
+    natureOfTds: [],
     isEnabled: "",
     description: "",
     taxType: "",
@@ -57,28 +67,47 @@ export default function UpdateService({ editService, setEditService, units }) {
   ];
   const getDetails = async () => {
     setPageLoading(true);
-    const { data } = await imsAxios.post("component/fetchUpdateComponent", {
-      componentKey: editService.componentKey,
-    });
-    if (data.code == 200) {
-      const res = data.data[0];
-      setServiceDetails({
-        serviceName: res.name,
-        uom: res.uomid,
-        plHeads: toPlHeadArray(
-          res.plHeads ?? res.gl_head ?? res.gl_code ?? []
-        ).slice(0, 1),
-        isEnabled: "Y",
-        description: res.description,
-        taxType: "L",
-        taxRate: "05",
-        sac: res.sac,
+    try {
+      const response = await imsAxios.post("/component/fetchUpdateComponent", {
+        componentKey: editService.componentKey,
       });
-    } else {
-      toast.error(data.message.msg);
+      if (response.success) {
+        const res = Array.isArray(response.data)
+          ? response.data[0]
+          : response.data;
+        if (!res) {
+          toast.error("Service details not found.");
+          setEditService(null);
+          return;
+        }
+        setServiceDetails({
+          serviceName: res.name,
+          uom: res.uomid,
+          plHeads: toPlHeadArray(
+            res.plHeads ?? res.gl_head ?? res.gl_code ?? []
+          ).slice(0, 1),
+          natureOfTds:
+            toSelectedKeys(res.tdsHeads, "tdsKey").length > 0
+              ? toSelectedKeys(res.tdsHeads, "tdsKey")
+              : toPlHeadArray(
+                  res.nature_of_tds ?? res.tds_nature ?? res.tds
+                ),
+          isEnabled: res.enable_status || "Y",
+          description: res.description,
+          taxType: res.tax_type || "L",
+          taxRate: res.gst_rate || "05",
+          sac: res.sac,
+        });
+      } else {
+        toast.error(response.message?.msg ?? response.message);
+        setEditService(null);
+      }
+    } catch (error) {
+      toast.error(error.message);
       setEditService(null);
+    } finally {
+      setPageLoading(false);
     }
-    setPageLoading(false);
   };
   const inputHandler = (name, value) => {
     let obj = serviceDetails;
@@ -97,6 +126,7 @@ export default function UpdateService({ editService, setEditService, units }) {
       description: serviceDetails.description,
       uom: serviceDetails.uom,
       plHeads: serviceDetails.plHeads,
+      tdsHeads: serviceDetails.natureOfTds ?? [],
       gstrate: serviceDetails.taxRate,
       taxtype: serviceDetails.taxType,
       enable_status: serviceDetails.isEnabled,
@@ -104,16 +134,21 @@ export default function UpdateService({ editService, setEditService, units }) {
       componentname: serviceDetails.serviceName,
     };
     setSubmitLoading(true);
-    const { data } = await imsAxios.post(
-      "/component/updateServiceComponent",
-      newObj
-    );
-    setSubmitLoading(false);
-    if (data.code == 200) {
-      toast.success(data.message);
-      setEditService(null);
-    } else {
-      toast.error(toast.message.msg);
+    try {
+      const response = await imsAxios.post(
+        "/component/updateServiceComponent",
+        newObj
+      );
+      if (response.success) {
+        toast.success(response.message);
+        setEditService(null);
+      } else {
+        toast.error(response.message?.msg ?? response.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setSubmitLoading(false);
     }
   };
   const getPlHeadOptions = async (search) => {
@@ -128,9 +163,29 @@ export default function UpdateService({ editService, setEditService, units }) {
     }
   };
 
+  const getNatureOfTdsOptions = async () => {
+    try {
+      const response = await imsAxios.get("/tally/tds/nature_of_tds");
+      const { data } = response;
+
+      if (data?.code === 200 && Array.isArray(data.data)) {
+        const arr = data.data.map((row) => ({
+          text: row.tds_name ?? row.tdsName ?? row.text ?? row.name,
+          value: row.tds_key ?? row.tdsKey ?? row.id ?? row.value,
+        }));
+        setNatureOfTdsOptions(arr);
+      } else {
+        setNatureOfTdsOptions([]);
+      }
+    } catch (error) {
+      setNatureOfTdsOptions([]);
+    }
+  };
+
   useEffect(() => {
     if (editService) {
       getDetails();
+      getNatureOfTdsOptions();
     }
   }, [editService]);
   return (
@@ -140,7 +195,7 @@ export default function UpdateService({ editService, setEditService, units }) {
       onClose={() => {
         setEditService(null);
       }}
-      open={editService}
+      open={!!editService}
     >
       <Skeleton active loading={pageLoading} />
       <Skeleton active loading={pageLoading} />
@@ -230,6 +285,29 @@ export default function UpdateService({ editService, setEditService, units }) {
                         value != null && value !== "" ? [value] : []
                       )
                     }
+                  />
+                </Form.Item>
+              </Form>
+            </Col>
+            <Col span={12}>
+              <Form size="small" layout="vertical">
+                <Form.Item
+                  label={
+                    <span
+                      style={{
+                        fontSize: window.innerWidth < 1600 && "0.7rem",
+                      }}
+                    >
+                      Nature of TDS
+                    </span>
+                  }
+                >
+                  <MySelect
+                    mode="multiple"
+                    size="default"
+                    options={natureOfTdsOptions}
+                    value={serviceDetails.natureOfTds}
+                    onChange={(value) => inputHandler("natureOfTds", value)}
                   />
                 </Form.Item>
               </Form>

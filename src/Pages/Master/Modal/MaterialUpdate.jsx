@@ -142,9 +142,12 @@ export default function MaterialUpdate({
       componentKey: materialModal,
     });
     setLoading(false);
-
-    // console.log(data);
-    response.data.data.map((an) => setAllUpdataData(an));
+    if (response.success) {
+      const value = response.data;
+      setAllUpdataData(value);
+    } else {
+      toast.error(response.message);
+    }
   };
 
   // console.log(allUpdateData);
