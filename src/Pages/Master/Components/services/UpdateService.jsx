@@ -67,7 +67,7 @@ export default function UpdateService({ editService, setEditService, units }) {
         uom: res.uomid,
         plHeads: toPlHeadArray(
           res.plHeads ?? res.gl_head ?? res.gl_code ?? []
-        ),
+        ).slice(0, 1),
         isEnabled: "Y",
         description: res.description,
         taxType: "L",
@@ -218,14 +218,18 @@ export default function UpdateService({ editService, setEditService, units }) {
                   }
                 >
                   <MyAsyncSelect
-                    mode="multiple"
                     size="default"
                     onBlur={() => setPlHeadOptions([])}
                     loadOptions={getPlHeadOptions}
                     optionsState={plHeadOptions}
                     selectLoading={plHeadSelectLoading}
-                    value={serviceDetails.plHeads}
-                    onChange={(value) => inputHandler("plHeads", value)}
+                    value={serviceDetails.plHeads?.[0]}
+                    onChange={(value) =>
+                      inputHandler(
+                        "plHeads",
+                        value != null && value !== "" ? [value] : []
+                      )
+                    }
                   />
                 </Form.Item>
               </Form>

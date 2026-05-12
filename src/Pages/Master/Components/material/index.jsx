@@ -35,6 +35,9 @@ import {
 } from "../../../../api/master/component.ts";
 import { getPlHeadListOptions } from "../../../../api/general.ts";
 
+const toPlHeadPayload = (value) =>
+  value != null && value !== "" ? [value] : [];
+
 const Material = () => {
   const [showImages, setShowImages] = useState();
   const [uomOptions, setUomOptions] = useState([]);
@@ -273,7 +276,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
-        plHeads: headerValues.plHead,
+        plHeads: toPlHeadPayload(headerValues.plHead),
         // attr_category: headerValues.attrCategory.value,
         attr_category: "R",
         attr_code: uniqueId,
@@ -296,7 +299,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
-        plHeads: headerValues.plHead,
+        plHeads: toPlHeadPayload(headerValues.plHead),
         // attr_category: headerValues.attrCategory.value,
         attr_category: "C",
         attr_code: uniqueId,
@@ -319,7 +322,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
-        plHeads: headerValues.plHead,
+        plHeads: toPlHeadPayload(headerValues.plHead),
         // attr_category: headerValues.attrCategory.value,
         attr_category: "I",
         attr_code: "--",
@@ -342,7 +345,7 @@ const Material = () => {
         notes: headerValues.description,
         group: headerValues.group,
         subgroup: headerValues.subgroup,
-        plHeads: headerValues.plHead,
+        plHeads: toPlHeadPayload(headerValues.plHead),
         // attr_category: headerValues.attrCategory.value,
         attr_category: "O",
         attr_code: "--",
@@ -637,7 +640,6 @@ const Material = () => {
                         name="plHead"
                       >
                         <MyAsyncSelect
-                          mode="multiple"
                           onBlur={() => setPlHeadOptions([])}
                           loadOptions={getPlHeadOptions}
                           optionsState={plHeadOptions}
@@ -893,7 +895,7 @@ const headerInitialValues = {
   code: undefined,
   unit: undefined,
   group: undefined,
-  plHead: [],
+  plHead: undefined,
   category: undefined,
   attrCategory: undefined,
   description: undefined,

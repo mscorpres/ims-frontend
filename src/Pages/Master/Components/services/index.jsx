@@ -228,14 +228,18 @@ function Services() {
                 <Col span={24}>
                   <Form.Item label="P&L Heads Selection">
                     <MyAsyncSelect
-                      mode="multiple"
                       size="default"
                       onBlur={() => setPlHeadOptions([])}
                       loadOptions={getPlHeadOptions}
                       optionsState={plHeadOptions}
                       selectLoading={plHeadSelectLoading}
-                      value={newService.plHeads}
-                      onChange={(value) => inputHandler("plHeads", value)}
+                      value={newService.plHeads?.[0]}
+                      onChange={(value) =>
+                        inputHandler(
+                          "plHeads",
+                          value != null && value !== "" ? [value] : []
+                        )
+                      }
                     />
                   </Form.Item>
                 </Col>
