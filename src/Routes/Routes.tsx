@@ -76,6 +76,7 @@ import {
   PaytmQCReport,
   MaterialRequisitionRequest,
   JWSupplementary,
+  WoUpdateSupplementary,
   CPMMaster,
   SFGMIN,
   R19Master,
@@ -965,6 +966,10 @@ const Routes = [
   {
     path: "/jw-completed",
     main: () => <JwCompleted />,
+  },
+  {
+    path: "/workorder/update/supplementary",
+    main: () => <WoUpdateSupplementary />,
   },
   {
     path: "/jobwork/update/supplementary",
