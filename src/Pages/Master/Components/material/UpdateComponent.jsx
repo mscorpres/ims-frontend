@@ -46,6 +46,13 @@ const toSelectedKeys = (value, keyName) => {
     .filter(Boolean);
 };
 
+const toSinglePlHead = (plHeadRows, fallbackValue) => {
+  const selectedKeys = toSelectedKeys(plHeadRows, "ledgerKey");
+  const keys =
+    selectedKeys.length > 0 ? selectedKeys : toPlHeadArray(fallbackValue);
+  return keys[0];
+};
+
 export default function UpdateComponent() {
   const [loading, setLoading] = useState(false);
   const [uomOptions, setuomOptions] = useState([]);
@@ -119,10 +126,7 @@ export default function UpdateComponent() {
             mrp: value.mrp,
             group: value.groupid,
             subgroup: value.subgroupid,
-            plHead:
-              toSelectedKeys(value.plHeads, "ledgerKey").length > 0
-                ? toSelectedKeys(value.plHeads, "ledgerKey")
-                : toPlHeadArray(value.pl_head),
+            plHead: toSinglePlHead(value.plHeads, value.pl_head),
             natureOfTds:
               toSelectedKeys(value.tdsHeads, "tdsKey").length > 0
                 ? toSelectedKeys(value.tdsHeads, "tdsKey")
@@ -402,7 +406,10 @@ export default function UpdateComponent() {
       mrn: values.mrp,
       group: values.group,
       subgroup: values.subgroup,
-      plHeads: values.plHead,
+      plHeads:
+        values.plHead != null && values.plHead !== ""
+          ? [values.plHead]
+          : [],
       tdsHeads: values.natureOfTds ?? [],
       new_partno: values.newPartCode,
       enable_status: values.isEnabled,
@@ -675,7 +682,6 @@ export default function UpdateComponent() {
                       label="P&L Heads Selection"
                     >
                       <MyAsyncSelect
-                        mode="multiple"
                         onBlur={() => setPlHeadOptions([])}
                         loadOptions={getPlHeadOptions}
                         optionsState={plHeadOptions}
