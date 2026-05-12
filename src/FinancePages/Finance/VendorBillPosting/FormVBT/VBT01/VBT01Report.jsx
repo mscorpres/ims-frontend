@@ -8,6 +8,51 @@ import validateResponse from "../../../../../Components/validateResponse";
 import Loading from "../../../../../Components/Loading";
 import SingleComponent from "./SingleProduct";
 
+const getPurchaseGlCodeValue = (purchaseGLCode, apiUrl) => {
+  const glEntry = Array.isArray(purchaseGLCode)
+    ? purchaseGLCode[0]
+    : purchaseGLCode;
+  if (glEntry?.key != null && String(glEntry.key).trim() !== "") {
+    return glEntry.key;
+  }
+  if (apiUrl === "vbt01") return "TP821753548513";
+  if (apiUrl === "vbt06") return "TP672531876660";
+  return "";
+};
+
+const getPurchaseGlOptions = (rows = []) =>
+  Array.from(
+    new Map(
+      rows
+        .flatMap((row) => {
+          if (Array.isArray(row.purchaseGLCode)) {
+            return row.purchaseGLCode;
+          }
+          if (row.purchase_gl) {
+            return [
+              {
+                key: row.purchase_gl.value ?? row.purchase_gl.key,
+                name:
+                  row.purchase_gl.label ??
+                  row.purchase_gl.text ??
+                  row.purchase_gl.name,
+              },
+            ];
+          }
+          return [];
+        })
+        .filter((gl) => gl?.key != null && String(gl.key).trim() !== "")
+        .map((gl) => [gl.key, { text: gl.name ?? gl.key, value: gl.key }])
+    ).values()
+  );
+
+const resolveGlOptionsList = (response) => {
+  const payload = response?.data ?? response;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
+
 function VBT01Report({
   editingVBT,
   setEditingVBT,
@@ -82,7 +127,6 @@ function VBT01Report({
     const response = await imsAxios.get(`/tally/vbt/getData?vbtKey=${vbtCode}`);
     if (response.status == 200) {
       const { data } = response;
-      getGl();
 
       const arr = data.map((row) => ({
         ...row,
@@ -110,6 +154,7 @@ function VBT01Report({
         billAmm: row?.taxableValue,
         // billAmount: row?.billAmount,
       }));
+      await getGl(getPurchaseGlOptions(arr));
       setEditVBTCode(arr);
       setVbtComponent(arr);
       Vbt01.setFieldValue("components", arr);
@@ -184,17 +229,12 @@ function VBT01Report({
         sgst: "TP385675494002",
         igst: "TP486973272469",
 
-        glCodeValue:
-          apiUrl === "vbt01"
-            ? "TP821753548513"
-            : apiUrl === "vbt06"
-              ? "TP672531876660"
-              : "",
+        glCodeValue: getPurchaseGlCodeValue(row.purchaseGLCode, apiUrl),
         glCode: glCodes,
         freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
-      getGl();
+      await getGl(getPurchaseGlOptions(data.data));
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
       venTds.push({
         ladger_name: "--",
@@ -258,27 +298,32 @@ function VBT01Report({
     }
   };
 
-  const getGl = async () => {
-    let link;
-    if (editVbtDrawer) {
-      let apiLink = getApiUrl(editVbtDrawer);
-      setEditApiUrl(apiLink);
-      link = `/tally/${apiLink}/${apiLink}_gl_options`;
-    } else {
-      link = `/tally/${apiUrl}/${apiUrl}_gl_options`;
-    }
-    const { data } = await imsAxios.get(link);
-    let arr = [];
-    if (data.length > 0) {
-      arr = data.map((d) => {
-        return {
-          text: d.text,
-          value: d.id,
-        };
-      });
+  const getGl = async (extraOptions = []) => {
+    const glApiUrl = editVbtDrawer ? getApiUrl(editVbtDrawer) : apiUrl;
+    const options = Array.isArray(extraOptions) ? extraOptions : [];
 
-      setGlCodes(arr);
+    if (editVbtDrawer) {
+      setEditApiUrl(glApiUrl);
     }
+
+    if (glApiUrl === "vbt01") {
+      setGlCodes(options);
+      return;
+    }
+
+    const link = `/tally/${glApiUrl}/${glApiUrl}_gl_options`;
+    const response = await imsAxios.get(link);
+    const optionRows = resolveGlOptionsList(response);
+    let arr = optionRows.map((d) => ({
+      text: d.text,
+      value: d.id,
+    }));
+    options.forEach((option) => {
+      if (!arr.some((item) => item.value === option.value)) {
+        arr.push(option);
+      }
+    });
+    setGlCodes(arr);
   };
 
   const showCofirmModal = () => {
