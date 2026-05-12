@@ -236,15 +236,15 @@ function VBT01Report({
       }));
       await getGl(getPurchaseGlOptions(data.data));
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
-      venTds.push({
-        ladger_name: "--",
-        ledger_key: "--",
-        tds_code: "--",
-        tds_key: "--",
-        tds_name: "--",
-        tds_gl_code: "--",
-        tds_percent: "0",
-      });
+      // venTds.push({
+      //   ladger_name: "--",
+      //   ledger_key: "--",
+      //   tds_code: "--",
+      //   tds_key: "--",
+      //   tds_name: "--",
+      //   tds_gl_code: "--",
+      //   tds_percent: "0",
+      // });
       setAllTdsOptions(venTds);
       setTdsArray(
         venTds.map((r) => ({
