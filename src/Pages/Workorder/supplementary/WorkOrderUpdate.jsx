@@ -8,8 +8,8 @@ import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
 import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { imsAxios } from "../../../axiosInterceptor.js";
 import { getComponentOptions } from "../../../api/general.ts";
-
 import useApi from "../../../hooks/useApi.ts";
+import ViewWorkOrderModal from "./ViewWorkOrderModal.jsx";
 
 function UpdateJW() {
   const [updateData, setUpdateData] = useState({
@@ -23,7 +23,7 @@ function UpdateJW() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchInput1, setSearchInput1] = useState("");
-  const [header, setHeader] = useState([]);
+  const [header, setHeader] = useState({});
   const [component, setComponent] = useState([]);
   const [viewModal, setViewModal] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
@@ -82,9 +82,8 @@ function UpdateJW() {
         woid: updateData?.poType,
       },
     );
-    console.log(data);
     if (data.code == 200) {
-      setHeader({});
+      setHeader(data?.headers);
       let arr = data?.data?.map((row, index) => {
         // Map backend status to frontend status values
         let status = "active"; // default
@@ -694,7 +693,7 @@ function UpdateJW() {
           </Skeleton>
         )}
       </div>
-      <UpdateViewModal
+      <ViewWorkOrderModal
         viewModal={viewModal}
         setViewModal={setViewModal}
         header={header}
