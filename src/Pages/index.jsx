@@ -122,6 +122,7 @@ export { default as JwrmReturn } from "./Jobwork/JwrmReturn";
 export { default as JwRmConsumption } from "./Jobwork/JwRmConsumption";
 export { default as JwCompleted } from "./Jobwork/JwCompleted";
 export { default as JWSupplementary } from "./Jobwork/update/supplementary";
+export { default as WoUpdateSupplementary } from "./Workorder/supplementary/WorkOrderUpdate.jsx";
 export { default as JWUpdateRate } from "./Jobwork/update/rate";
 export { default as SFGMIN } from "./Jobwork/VendorSFGMIN/SFGMIN";
 export { default as JWVendorPricingUpload } from "./Jobwork/VendorPricingUpload";
