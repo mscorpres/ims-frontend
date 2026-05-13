@@ -41,7 +41,7 @@ function UpdateJW() {
 
   const getComponent = async (e) => {
     if (e?.length > 2) {
-      const { data } = await imsAxios.post("/JWSupplementary/fetchJwOption", {
+      const { data } = await imsAxios.post("/woSupplementary/fetchWoOption", {
         searchTerm: e,
       });
       let arr = [];
@@ -77,14 +77,15 @@ function UpdateJW() {
   const getAllHeaderData = async () => {
     setLoadingUpdate(true);
     const { data } = await imsAxios.post(
-      "/JWSupplementary/fetchSupplementaryData",
+      "/woSupplementary/fetchWoSupplementaryData",
       {
-        sup_jobwork_id: updateData?.poType,
+        woid: updateData?.poType,
       },
     );
+    console.log(data);
     if (data.code == 200) {
-      setHeader(data?.data?.headers);
-      let arr = data?.data?.components.map((row, index) => {
+      setHeader({});
+      let arr = data?.data?.map((row, index) => {
         // Map backend status to frontend status values
         let status = "active"; // default
         if (row.part_status === "ALT") {
@@ -520,7 +521,7 @@ function UpdateJW() {
         });
 
       const { data } = await imsAxios.post(
-        "/JWSupplementary/updateJobworkRecipe",
+        "/woSupplementary/updateWORecipe",
         {
           original_po: updateData?.poType,
           supp_po_id: updateData?.PoID,
