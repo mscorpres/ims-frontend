@@ -552,15 +552,9 @@ const Material = () => {
                           options={attrCategoryOptions}
                         />
                       </Form.Item>
-                      {typeIs?.label === "Other" && (
-                        <Button
-                          type="link"
-                          style={{ paddingLeft: 0, height: "auto" }}
-                          onClick={() => setBulkDrawerOpen(true)}
-                        >
-                          Bulk add component
-                        </Button>
-                      )}
+                    
+                     
+                  
                     </Col>
                     <Col span={12}>
                       <Form.Item
@@ -672,6 +666,13 @@ const Material = () => {
                     <Col span={24}>
                       <Row justify="end">
                         <Flex wrap="wrap" gap={10}>
+                             <Button
+                          type="link"
+                          style={{ paddingLeft: 0, height: "auto" }}
+                          onClick={() => setBulkDrawerOpen(true)}
+                        >
+                          Bulk Add
+                        </Button>
                           <MyButton
                             loading={loading1("download")}
                             text="Electronic Report"
