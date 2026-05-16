@@ -20,6 +20,7 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import ComponentImages from "./ComponentImages";
 import { imsAxios } from "../../../../axiosInterceptor";
 import AddPhoto from "./AddPhoto";
+import BulkAddComponentDrawer from "./BulkAddComponentDrawer";
 import ComponentsTable from "./ComponentsTable";
 import MyButton from "../../../../Components/MyButton";
 import { CloseOutlined } from "@ant-design/icons";
@@ -60,6 +61,7 @@ const Material = () => {
   const selectedCategory = Form.useWatch("attrCategory", headerForm);
   const selectedGroup = Form.useWatch("group", headerForm);
   const [components, setComponents] = useState([]);
+  const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false);
 
   const getRows = async () => {
     setLoading("fetch");
@@ -550,6 +552,15 @@ const Material = () => {
                           options={attrCategoryOptions}
                         />
                       </Form.Item>
+                      {typeIs?.label === "Other" && (
+                        <Button
+                          type="link"
+                          style={{ paddingLeft: 0, height: "auto" }}
+                          onClick={() => setBulkDrawerOpen(true)}
+                        >
+                          Bulk add component
+                        </Button>
+                      )}
                     </Col>
                     <Col span={12}>
                       <Form.Item
@@ -821,6 +832,11 @@ const Material = () => {
         materialModal={materialModal}
         setMaterialModal={setMaterialModal}
         // allComponent={allComponent}
+      />
+      <BulkAddComponentDrawer
+        open={bulkDrawerOpen}
+        onClose={() => setBulkDrawerOpen(false)}
+        onSaved={getRows}
       />
       <CategoryModal
         show={showAttributesModal}
