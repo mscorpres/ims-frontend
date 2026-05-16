@@ -11,6 +11,33 @@ import {
 import { InboxOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../../axiosInterceptor";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
+import MyButton from "../../../../Components/MyButton";
+
+const BULK_COMPONENT_SAMPLE = [
+  {
+    TYPE: "Other",
+    "COMPONENT NAME": "Sample Component 1",
+    "CAT PART CODE": "CAT-PART-001",
+    "PART CODE": "PART-001",
+    UOM: "NOS",
+    GROUP: "PackingMaterial",
+    "SUB GROUP": "Packing Material",
+    DESCRIPTION: "Sample description",
+    "PIA STATUS": "YES",
+  },
+  {
+    TYPE: "Other",
+    "COMPONENT NAME": "Sample Component 2",
+    "CAT PART CODE": "CAT-PART-002",
+    "PART CODE": "PART-002",
+    UOM: "KG",
+    GROUP: "PackingMaterial",
+    "SUB GROUP": "Packing Material",
+    DESCRIPTION: "Sample description",
+    "PIA STATUS": "NO",
+  },
+];
 
 const EXCEL_COLUMN_ORDER = [
   "TYPE",
@@ -32,6 +59,7 @@ const FIELD_ALIASES = {
     "component",
     "COMPONENT",
     "componentName",
+    "name",
     "c_name",
     "C_NAME",
   ],
@@ -74,11 +102,22 @@ const normKey = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 function formatValue(v) {
   if (v === null || v === undefined) return "";
   if (typeof v === "object") {
+    if (v.name !== undefined) return String(v.name).trim();
     if (v.label !== undefined) return String(v.label).trim();
     if (v.text !== undefined) return String(v.text).trim();
     if (v.value !== undefined) return String(v.value).trim();
   }
   return String(v).trim();
+}
+
+function refId(v) {
+  if (v && typeof v === "object" && v.id != null && v.id !== "") {
+    return String(v.id).trim();
+  }
+  if (typeof v === "string" || typeof v === "number") {
+    return String(v).trim();
+  }
+  return "";
 }
 
 /** Maps API header labels (spaces) to table field keys */
@@ -96,8 +135,54 @@ const HEADER_TO_FIELD = {
 };
 
 function emptyRow() {
-  return Object.fromEntries(
-    Object.keys(FIELD_ALIASES).map((k) => [k, ""])
+  return {
+    ...Object.fromEntries(Object.keys(FIELD_ALIASES).map((k) => [k, ""])),
+    uomId: "",
+    groupId: "",
+    subGroupId: "",
+  };
+}
+
+/** API row: { type, name, catPartCode, partCode, uom, group, subGroup, ... } */
+function parseApiObjectRow(row) {
+  const uom = row.uom ?? row.UOM;
+  const group = row.group ?? row.GROUP;
+  const subGroup = row.subGroup ?? row.subgroup ?? row.SUB_GROUP;
+
+  return {
+    TYPE: formatValue(row.type ?? row.TYPE),
+    COMPONENT_NAME: formatValue(
+      row.name ?? row.component ?? row.componentName ?? row.COMPONENT_NAME
+    ),
+    CAT_PART_COD: formatValue(
+      row.catPartCode ?? row.cat_part_code ?? row.CAT_PART_COD
+    ),
+    PART_CODE: formatValue(row.partCode ?? row.part_code ?? row.PART_CODE),
+    UOM: formatValue(uom),
+    GROUP: formatValue(group),
+    SUB_GROUP: formatValue(subGroup),
+    DESCRIPTION: formatValue(row.description ?? row.DESCRIPTION ?? row.notes),
+    PIA_STATUS: formatValue(row.piaStatus ?? row.pia_status ?? row.PIA_STATUS),
+    uomId: refId(uom) || refId(row.uomId),
+    groupId: refId(group) || refId(row.groupId),
+    subGroupId: refId(subGroup) || refId(row.subGroupId ?? row.subgroupId),
+  };
+}
+
+function parseBulkData(payload) {
+  const rows = payload?.rows;
+  if (!Array.isArray(rows) || !rows.length) return [];
+
+  if (rows[0] && typeof rows[0] === "object" && !Array.isArray(rows[0])) {
+    return rows.map(parseApiObjectRow);
+  }
+
+  if (Array.isArray(payload?.headers)) {
+    return parseHeadersAndRows(payload);
+  }
+
+  return rows.map((row) =>
+    Array.isArray(row) ? { ...arrayRowToObject(row), uomId: "", groupId: "", subGroupId: "" } : parseApiObjectRow(row)
   );
 }
 
@@ -120,6 +205,13 @@ function parseHeadersAndRows(payload) {
     });
     return out;
   });
+}
+
+function toPiaStatus(value) {
+  const s = String(value ?? "").trim().toUpperCase();
+  if (s === "YES" || s === "Y") return "Y";
+  if (s === "NO" || s === "N") return "N";
+  return "N";
 }
 
 function getApiBody(response) {
@@ -212,9 +304,9 @@ function objectMapToRows(obj) {
 function extractRowsFromPayload(body) {
   if (!body) return [];
 
-  // Primary: { code, data: { headers, rows } }
-  if (body.data?.headers && Array.isArray(body.data?.rows)) {
-    const parsed = parseHeadersAndRows(body.data);
+  // Primary: { code, data: { headers?, rows: object[] | array[] } }
+  if (Array.isArray(body.data?.rows)) {
+    const parsed = parseBulkData(body.data);
     if (parsed.length) return parsed;
   }
 
@@ -257,12 +349,20 @@ function extractRowsFromPayload(body) {
 
 function normalizeRow(r) {
   if (!r || typeof r !== "object" || Array.isArray(r)) {
-    return Object.fromEntries(
-      Object.keys(FIELD_ALIASES).map((k) => [k, ""])
-    );
+    return emptyRow();
   }
 
-  const out = {};
+  if (r.TYPE !== undefined || r.uomId !== undefined || r.name !== undefined) {
+    return {
+      ...emptyRow(),
+      ...parseApiObjectRow(r),
+      uomId: r.uomId ?? refId(r.uom) ?? "",
+      groupId: r.groupId ?? refId(r.group) ?? "",
+      subGroupId: r.subGroupId ?? refId(r.subGroup ?? r.subgroup) ?? "",
+    };
+  }
+
+  const out = { ...emptyRow() };
   for (const [field, aliases] of Object.entries(FIELD_ALIASES)) {
     out[field] = cell(r, field, ...aliases);
   }
@@ -319,6 +419,10 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
     onClose?.();
   };
 
+  const handleDownloadSample = () => {
+    downloadCSVCustomColumns(BULK_COMPONENT_SAMPLE, "Bulk Component Sample");
+  };
+
   const beforeUpload = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -341,11 +445,10 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
         return Upload.LIST_IGNORE;
       }
 
-      const normalized = raw.map((r, i) => ({
-        id: i + 1,
-        ...emptyRow(),
-        ...normalizeRow(r),
-      }));
+      const normalized = raw.map((r, i) => {
+        const row = normalizeRow(r);
+        return { id: i + 1, ...row };
+      });
 
       const hasData = normalized.some((r) =>
         EXCEL_COLUMN_ORDER.some((col) => String(r[col] ?? "").trim())
@@ -380,15 +483,15 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
       (r) =>
         !String(r.COMPONENT_NAME ?? "").trim() ||
         !String(r.PART_CODE ?? "").trim() ||
-        !String(r.UOM ?? "").trim() ||
-        !String(r.GROUP ?? "").trim() ||
-        !String(r.SUB_GROUP ?? "").trim() ||
+        !String(r.uomId ?? "").trim() ||
+        !String(r.groupId ?? "").trim() ||
+        !String(r.subGroupId ?? "").trim() ||
         !String(r.DESCRIPTION ?? "").trim() ||
         !String(r.CAT_PART_COD ?? "").trim()
     );
     if (missing) {
       toast.error(
-        "Each row must include name, part, UoM, group, sub group, description, and cat part code."
+        "Each row must have component name, part code, UoM, group, sub group, description, and cat part code (with valid IDs from upload)."
       );
       return;
     }
@@ -396,13 +499,14 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
     const payload = {
       component: rows.map((r) => String(r.COMPONENT_NAME).trim()),
       part: rows.map((r) => String(r.PART_CODE).trim()),
-      uom: rows.map((r) => String(r.UOM).trim()),
+      uom: rows.map((r) => String(r.uomId).trim()),
       comp_type: rows.map((r) => toCompType(r.TYPE)),
-      group: rows.map((r) => String(r.GROUP).trim()),
-      subgroup: rows.map((r) => String(r.SUB_GROUP).trim()),
+      group: rows.map((r) => String(r.groupId).trim()),
+      subgroup: rows.map((r) => String(r.subGroupId).trim()),
       notes: rows.map((r) => String(r.DESCRIPTION).trim()),
       attr_category: rows.map((r) => toCompType(r.TYPE)),
       new_partno: rows.map((r) => String(r.CAT_PART_COD).trim()),
+      pia_status: rows.map((r) => toPiaStatus(r.PIA_STATUS)),
     };
 
     setLoading("save");
@@ -442,6 +546,11 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
       destroyOnClose
       extra={
         <Space>
+          <MyButton
+            variant="downloadSample"
+            text="Sample File"
+            onClick={handleDownloadSample}
+          />
           {rows.length > 0 && (
             <Button onClick={reset} disabled={!!loading}>
               Upload another file
@@ -463,9 +572,9 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
       {rows.length === 0 ? (
         <>
           <Typography.Paragraph type="secondary">
-            Upload the bulk template (Excel/CSV) with columns: TYPE,
-            COMPONENT_NAME, CAT_PART_COD, PART_CODE, UOM, GROUP, SUB_GROUP,
-            DESCRIPTION, PIA_STATUS.
+            Upload the bulk template (Excel/CSV) with columns: TYPE, COMPONENT
+            NAME, CAT PART CODE, PART CODE, UOM, GROUP, SUB GROUP, DESCRIPTION,
+            PIA STATUS. Download the sample file for the correct format.
           </Typography.Paragraph>
           <Spin spinning={loading === "upload"}>
             <Upload.Dragger
@@ -485,6 +594,13 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
               </p>
             </Upload.Dragger>
           </Spin>
+          <div style={{ marginTop: 12, textAlign: "right" }}>
+            <MyButton
+              variant="downloadSample"
+              text="Sample File"
+              onClick={handleDownloadSample}
+            />
+          </div>
         </>
       ) : (
         <Table
