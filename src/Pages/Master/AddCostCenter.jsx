@@ -4,6 +4,15 @@ import { Button, Card, Form, Input, Modal, Row, Switch } from "antd";
 import { imsAxios } from "../../axiosInterceptor";
 import MyDataTable from "../../Components/MyDataTable";
 
+function parseCostCenterText(text = "") {
+  const trimmed = String(text).trim();
+  const match = trimmed.match(/^(.+?)\s*\((.+)\)\s*$/);
+  if (match) {
+    return { code: match[1].trim(), name: match[2].trim() };
+  }
+  return { code: trimmed, name: trimmed };
+}
+
 export default function AddCostCenter({
   setShowAddCostModal,
 }) {
@@ -61,15 +70,24 @@ export default function AddCostCenter({
 
   const handleFetchUOMList = async () => {
     try {
-      const response = await imsAxios.get("backend/costcenter");
+      const response = await imsAxios.get("backend/costcenter?search=all");
 
-      if (response?.success) {
-        const formattedRows = (response?.data ?? []).map((item, index) => ({
-          ...item,
-          uID: item?.uID,
-          status: Number(item?.status ?? 1),
-          id: item?.uID || `${item?.name || ""}-${item?.code || ""}-${index}`,
-        }));
+      const isSuccess =
+        response?.success === true ||
+        response?.status === "success" ||
+        response?.code === 200;
+
+      if (isSuccess) {
+        const formattedRows = (response?.data ?? []).map((item, index) => {
+          const { code, name } = parseCostCenterText(item?.text);
+          return {
+            ...item,
+            id: item?.id ?? item?.uID ?? `cost-center-${index}`,
+            code: item?.code ?? code,
+            name: item?.name ?? name,
+            timestamp: item?.timeStamp ?? "-",
+          };
+        });
         setCenterData(formattedRows);
       } else {
         toast.error(response?.message || "Failed to fetch cost centers");
