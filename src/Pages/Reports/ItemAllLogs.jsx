@@ -339,7 +339,8 @@ import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../Components/exportToCSV";
+import socket from "../../Components/socket";
+import { toast } from "react-toastify";
 // CHANGE: Removed MyDatePicker import as date range is no longer needed
 // import MyDatePicker from "../../Components/MyDatePicker";
 import { FileImageOutlined } from "@ant-design/icons";
@@ -359,6 +360,7 @@ export default function ItemAllLogs() {
     { title: "Last Rate", description: "" },
   ]);
   const [showImages, setShowImages] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   
   // CHANGE: Added pagination state variables
@@ -466,6 +468,25 @@ export default function ItemAllLogs() {
   const handleFormSubmit = (values) => {
     setCurrentPage(1); // Reset to first page on new search
     getRows(values, 1, pageSize);
+  };
+
+  const handleDownloadReport = async () => {
+    try {
+      const values = await searchForm.validateFields(["component"]);
+      setDownloadLoading(true);
+      socket.emit("q1Report", {
+        partcode: values.component,
+        searchBy: "C",
+      });
+      toast.success(
+        "Item Location Log report generation started. You will be notified when it is ready."
+      );
+    } catch (error) {
+      if (error?.errorFields) return;
+      toast.error("Error initiating report generation");
+    } finally {
+      setDownloadLoading(false);
+    }
   };
 
   // columns
@@ -640,10 +661,8 @@ export default function ItemAllLogs() {
                         </MyButton>
 
                         <CommonIcons
-                          disabled={rows.length === 0}
-                          onClick={() =>
-                            downloadCSV(rows, columns, "Item Location Log")
-                          }
+                          disabled={!selectedComonents || downloadLoading}
+                          onClick={handleDownloadReport}
                           action="downloadButton"
                         />
                         <Button
