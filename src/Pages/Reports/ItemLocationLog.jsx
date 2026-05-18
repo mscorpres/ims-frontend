@@ -16,7 +16,7 @@ import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../Components/exportToCSV";
+import socket from "../../Components/socket";
 import { getComponentOptions } from "../../api/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
@@ -47,9 +47,12 @@ export default function ItemLocationLog() {
   const [altDetails, setAltDetails] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [summaryData, setSummaryData] = useState(initialSummaryData);
+  const [downloadLoading, setDownloadLoading] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   // initializing searh form
   const [searchForm] = Form.useForm();
+  const selectedComponent = Form.useWatch("component", searchForm);
+  const selectedLocation = Form.useWatch("location", searchForm);
 
   //getting components options
   const getComponentOption = async (search) => {
@@ -190,6 +193,25 @@ export default function ItemLocationLog() {
     } catch (error) {
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    try {
+      const values = await searchForm.validateFields(["component", "location"]);
+      setDownloadLoading(true);
+      socket.emit("q2Report", {
+        location: values.location,
+        component: values.component,
+      });
+      toast.success(
+        "Item Location Log report generation started. You will be notified when it is ready."
+      );
+    } catch (error) {
+      if (error?.errorFields) return;
+      toast.error("Error initiating report generation");
+    } finally {
+      setDownloadLoading(false);
     }
   };
 
@@ -383,10 +405,12 @@ export default function ItemLocationLog() {
                       </Col>
                       <Col span={4}>
                         <CommonIcons
-                          disabled={rows.length === 0}
-                          onClick={() =>
-                            downloadCSV(rows, columns, "Item Location Log")
+                          disabled={
+                            !selectedComponent ||
+                            !selectedLocation ||
+                            downloadLoading
                           }
+                          onClick={handleDownloadReport}
                           action="downloadButton"
                         />
                       </Col>
