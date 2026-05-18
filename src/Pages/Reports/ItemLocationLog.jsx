@@ -10,7 +10,7 @@ import {
   Typography,
 } from "antd";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import { imsAxios } from "../../axiosInterceptor";
+import { imsAxios, getSessionFromStorage } from "../../axiosInterceptor";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
@@ -203,6 +203,7 @@ export default function ItemLocationLog() {
       socket.emit("q2Report", {
         location: values.location,
         component: values.component,
+        session: getSessionFromStorage(),
       });
       toast.success(
         "Item Location Log report generation started. You will be notified when it is ready."
