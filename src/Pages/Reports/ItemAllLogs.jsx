@@ -670,7 +670,7 @@ export default function ItemAllLogs() {
                         </MyButton>
 
                         <CommonIcons
-                          disabled={!selectedComonents || downloadLoading}
+                          disabled={!selectedComonents || downloadLoading || rows.length === 0}
                           onClick={handleDownloadReport}
                           action="downloadButton"
                         />

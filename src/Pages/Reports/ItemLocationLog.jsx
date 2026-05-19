@@ -418,7 +418,7 @@ export default function ItemLocationLog() {
                           disabled={
                             !selectedComponent ||
                             !selectedLocation ||
-                            downloadLoading
+                            downloadLoading || rows.length === 0
                           }
                           onClick={handleDownloadReport}
                           action="downloadButton"
