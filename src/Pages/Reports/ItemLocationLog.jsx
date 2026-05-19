@@ -21,6 +21,8 @@ import { getComponentOptions } from "../../api/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { setNotifications } from "../../Features/loginSlice/loginSlice";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
@@ -48,6 +50,8 @@ export default function ItemLocationLog() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [summaryData, setSummaryData] = useState(initialSummaryData);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { notifications } = useSelector((state) => state.login);
   const { executeFun, loading: loading1 } = useApi();
   // initializing searh form
   const [searchForm] = Form.useForm();
@@ -63,7 +67,7 @@ export default function ItemLocationLog() {
     // setLoading(false);
     const response = await executeFun(
       () => getComponentOptions(search),
-      "select"
+      "select",
     );
     const { data } = response;
     getData(response);
@@ -117,10 +121,10 @@ export default function ItemLocationLog() {
         part_code: values.component,
       });
       getDetails(values);
-      if(response?.data?.status === "error"){
+      if (response?.data?.status === "error") {
         toast.error(response?.data?.message?.msg);
         setLoading(false);
-        return
+        return;
       }
       const { data } = response;
       const {
@@ -140,7 +144,8 @@ export default function ItemLocationLog() {
             id: v4(),
             qty_in_rate: row.qty_in_rate ?? "-",
             weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
-            weightedPurchaseRateCurrency: row.weightedPurchaseRateCurrency ?? "-",
+            weightedPurchaseRateCurrency:
+              row.weightedPurchaseRateCurrency ?? "-",
             ...row,
           }));
           let bomDetailsArr = [];
@@ -199,14 +204,20 @@ export default function ItemLocationLog() {
   const handleDownloadReport = async () => {
     try {
       const values = await searchForm.validateFields(["component", "location"]);
+      const newId = v4();
+      let arr = notifications;
+      arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
+      dispatch(setNotifications(arr));
+
       setDownloadLoading(true);
       socket.emit("q2Report", {
         location: values.location,
         component: values.component,
         session: getSessionFromStorage(),
+        notificationId: newId,
       });
       toast.success(
-        "Item Location Log report generation started. You will be notified when it is ready."
+        "Item Location Log report generation started. You will be notified when it is ready.",
       );
     } catch (error) {
       if (error?.errorFields) return;
@@ -243,16 +254,16 @@ export default function ItemLocationLog() {
               row.transaction_type === "CONSUMPTION"
                 ? "#678983"
                 : row.transaction_type === "INWARD"
-                ? "#59CE8F"
-                : row.transaction_type === "TRANSFER"
-                ? "#FFB100"
-                : row.transaction_type === "ISSUE"
-                ? "#DD5353"
-                : row.transaction_type === "JOBWORK"
-                ? "#DD5353"
-                : row.transaction_type === "CONVERSION"
-                ? "#ff9bb9"
-                : row.transaction_type === "CANCELLED" && "#36454F",
+                  ? "#59CE8F"
+                  : row.transaction_type === "TRANSFER"
+                    ? "#FFB100"
+                    : row.transaction_type === "ISSUE"
+                      ? "#DD5353"
+                      : row.transaction_type === "JOBWORK"
+                        ? "#DD5353"
+                        : row.transaction_type === "CONVERSION"
+                          ? "#ff9bb9"
+                          : row.transaction_type === "CANCELLED" && "#36454F",
           }}
         />
       ),
@@ -295,9 +306,7 @@ export default function ItemLocationLog() {
       field: "weightedPurchaseRate",
       width: 120,
       renderCell: ({ row }) => (
-        <Tooltip
-          title={row.weightedPurchaseRateCurrency}
-        >
+        <Tooltip title={row.weightedPurchaseRateCurrency}>
           {row.weightedPurchaseRate}
         </Tooltip>
       ),
