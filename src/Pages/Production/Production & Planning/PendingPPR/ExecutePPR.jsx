@@ -245,6 +245,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       part: arr.map((row) => row.partno),
       reject: arr.map((row) => row.rej),
       remark: arr.map((row) => row.rem),
+      rate: arr.map((row) => row.avgRate),
     };
     Modal.confirm({
       title: "Execute PPR",
