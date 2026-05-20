@@ -92,7 +92,7 @@ function BulkSfToRejTransferDrawer({
     setLoading("upload");
     try {
       const response = await imsAxios.post(
-        `/godown/validate/csv?type=sf-rej&pickLocation=${pickLocation}`,
+        `/godown/validate/csv?type=sf-sf&pickLocation=${pickLocation}`,
         formData
       );
 
