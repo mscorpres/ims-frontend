@@ -9,6 +9,7 @@ import { getComponentOptions, getProjectOptions } from "../../../api/general.ts"
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { UploadOutlined } from "@ant-design/icons";
+import BulkSfToRejTransferDrawer from "./BulkSfToRejTransferDrawer";
 const { paragraph } = Typography;
 
 const { TextArea } = Input;
@@ -50,6 +51,7 @@ function MaterialTransfer({ type }) {
 
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const getLocation = async () => {
@@ -531,22 +533,39 @@ function MaterialTransfer({ type }) {
               >
                 Download Sample File
               </Button>
-              <Button
-                type="default"
-                icon={<UploadOutlined />}
-                onClick={handleUploadClick}
-                loading={uploadLoading}
-              >
-                Upload Excel
-              </Button>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".csv,.xlsx,.xls"
-                style={{ display: "none" }}
-              />
+              {type === "sftorej" ? (
+                <Button
+                  type="link"
+                  style={{ paddingLeft: 0, height: "auto" }}
+                  onClick={() => {
+                    if (!allData.locationSel) {
+                      toast.error("Please select a Pick Location first");
+                      return;
+                    }
+                    setBulkDrawerOpen(true);
+                  }}
+                >
+                  Bulk Upload
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="default"
+                    icon={<UploadOutlined />}
+                    onClick={handleUploadClick}
+                    loading={uploadLoading}
+                  >
+                    Upload Excel
+                  </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept=".csv,.xlsx,.xls"
+                    style={{ display: "none" }}
+                  />
+                </>
+              )}
               <Button type="primary" onClick={addRow}>
                 Add Row
               </Button>
@@ -677,6 +696,39 @@ function MaterialTransfer({ type }) {
         loading={loading}
         resetFunction={reset}
       />
+      {type === "sftorej" && (
+        <BulkSfToRejTransferDrawer
+          open={bulkDrawerOpen}
+          onClose={() => setBulkDrawerOpen(false)}
+          pickLocation={allData.locationSel}
+          dropLocation={allData.dropLoc}
+          projectId={resolveProjectId() || null}
+          pprId={allData.pprId || null}
+          onTransferSuccess={() => {
+            setAllData({
+              locationSel: "",
+              dropBranch: "",
+              dropLoc: "",
+              pprId: "",
+            });
+            setRows([
+              {
+                componentName: "",
+                qty: "",
+                rejLoc: "",
+                restDetail: {},
+                address: "",
+                comment: "",
+                project: "",
+              },
+            ]);
+            setLocDetail("");
+            setLocDetailTo("");
+            setProject(null);
+            setPprOptions([]);
+          }}
+        />
+      )}
     </div>
   );
 }
