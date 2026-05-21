@@ -13,7 +13,6 @@ import {
 import React from "react";
 import {
   createMIN,
-  getLocationOptions,
   getWorkOrderDetails,
 } from "../api";
 import { useEffect, useState } from "react";
@@ -28,10 +27,11 @@ import UploadDocs from "../../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import NavFooter from "../../../../Components/NavFooter";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
+import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 
 const MINModal = ({ showView, setShowView, getRows }) => {
   // ////////////////
-  const [locationOptions, setLocationOptions] = useState([]);
+  const [asyncOptions, setAsyncOptions] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
   const [minForm] = Form.useForm();
@@ -56,13 +56,26 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       setLoading(false);
     }
   };
-  const handleGetLocations = async () => {
-    try {
-      const arr = await getLocationOptions();
-      setLocationOptions(arr ?? []);
-    } catch (error) {
-      console.log("some error occured while fetching locations", error);
+  const getLocatonOptions = async (search) => {
+    setLoading("select");
+    const response = await imsAxios.post("/backend/fetchLocation", {
+      searchTerm: search,
+    });
+    getData(response);
+  };
+  const getData = (response) => {
+    const { data } = response;
+    if (data) {
+      if (data.length) {
+        const arr = data.map((row) => ({
+          text: row.text,
+          value: row.id,
+        }));
+
+        setAsyncOptions(arr);
+      }
     }
+    setLoading(false);
   };
   const validateHandler = async () => {
     const values = await minForm.validateFields();
@@ -121,14 +134,20 @@ const MINModal = ({ showView, setShowView, getRows }) => {
   useEffect(() => {
     if (showView) {
       getDetails(showView.subjectId, showView.woId, showView.sku);
-      handleGetLocations();
     }
   }, [showView]);
   const locationColumn = {
     headerName: "Location",
     name: "location",
     width: 150,
-    field: () => <MySelect options={locationOptions} />,
+    field: () => (
+      <MyAsyncSelect
+        onBlur={() => setAsyncOptions([])}
+        loadOptions={getLocatonOptions}
+        optionsState={asyncOptions}
+        selectLoading={loading === "select"}
+      />
+    ),
   };
 
   const calculation = (fieldName, watchValues) => {
