@@ -11,6 +11,7 @@ import {
   Card,
   Radio,
   Divider,
+  Skeleton,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
@@ -66,6 +67,7 @@ const CreateChallanModal = ({
   const [modal2Open, setModal2Open] = useState(false);
   const [minqty, setMinQty] = useState("");
   const [componentList, setComponentList] = useState([]);
+  const [componentsLoading, setComponentsLoading] = useState(false);
   const [totalsum, setTotalSum] = useState("");
   const [dataProductdetails, setDataProductdetails] = useState({
     text: "",
@@ -777,6 +779,7 @@ const CreateChallanModal = ({
   const getbomcomponents = async (sku, woid) => {
     try {
       setLoading("fetch");
+      setComponentsLoading(true);
       const response = await imsAxios.post(
         "/createwo/fetchComponentListforWO",
         {
@@ -802,6 +805,7 @@ const CreateChallanModal = ({
       toast.error(error);
     } finally {
       setLoading(false);
+      setComponentsLoading(false);
     }
   };
   const removeRow = (id) => {
@@ -1437,6 +1441,7 @@ const CreateChallanModal = ({
                         minRows={minRows}
                         removeRow={removeRow}
                         editShipment={editShipment}
+                        componentsLoading={componentsLoading}
                       />
                     )
                   ) : show.label === "Create shipment" ||
@@ -1471,6 +1476,7 @@ const CreateChallanModal = ({
                       minRows={minRows}
                       removeRow={removeRow}
                       editShipment={editShipment}
+                      componentsLoading={componentsLoading}
                     />
                   )}
                 </Col>
@@ -1551,7 +1557,31 @@ const Component = ({
   inputHandler,
   rows,
   editShipment,
+  componentsLoading,
 }) => {
+  const componentsTable = (
+    <FormTable2
+      removableRows={true}
+      nonRemovableColumns={1}
+      columns={[
+        ...componentsItems(
+          location,
+          gsttype,
+          setlocationlist,
+          getLocationList,
+          locationlist
+        ),
+      ]}
+      listName="components"
+      watchKeys={["rate", "qty", "gstRate"]}
+      nonListWatchKeys={["gstType"]}
+      componentRequiredRef={["rate", "qty"]}
+      form={form}
+      calculation={calculation}
+      rules={listRules}
+    />
+  );
+
   return (
     <>
       <Col span={29} style={{ height: "100%", overflow: "hidden" }}>
@@ -1566,26 +1596,11 @@ const Component = ({
                 marginTop: "20px",
               }}
             >
-              <FormTable2
-                removableRows={true}
-                nonRemovableColumns={1}
-                columns={[
-                  ...componentsItems(
-                    location,
-                    gsttype,
-                    setlocationlist,
-                    getLocationList,
-                    locationlist
-                  ),
-                ]}
-                listName="components"
-                watchKeys={["rate", "qty", "gstRate"]}
-                nonListWatchKeys={["gstType"]}
-                componentRequiredRef={["rate", "qty"]}
-                form={form}
-                calculation={calculation}
-                rules={listRules}
-              />
+              {componentsLoading ? (
+                <Skeleton active paragraph={{ rows: 5 }} />
+              ) : (
+                componentsTable
+              )}
             </Card>
             {/* </Card> */}
             <Card
@@ -1623,26 +1638,11 @@ const Component = ({
                 marginTop: "20px",
               }}
             >
-              <FormTable2
-                removableRows={true}
-                nonRemovableColumns={1}
-                columns={[
-                  ...componentsItems(
-                    location,
-                    gsttype,
-                    setlocationlist,
-                    getLocationList,
-                    locationlist
-                  ),
-                ]}
-                listName="components"
-                watchKeys={["rate", "qty", "gstRate"]}
-                nonListWatchKeys={["gstType"]}
-                componentRequiredRef={["rate", "qty"]}
-                form={form}
-                calculation={calculation}
-                rules={listRules}
-              />
+              {componentsLoading ? (
+                <Skeleton active paragraph={{ rows: 5 }} />
+              ) : (
+                componentsTable
+              )}
             </Card>
             {/* </Card> */}
             <Card
