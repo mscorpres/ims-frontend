@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const { Paragraph } = Typography;
 
 const UAT_MESSAGE =
-  "We have not done UAT of average rate on this module.";
+"Effective 21-05-2026, this module is no longer available for use as average Rate implementation"
 
 function ModuleUatGate() {
   const navigate = useNavigate();
