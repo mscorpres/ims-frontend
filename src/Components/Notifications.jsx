@@ -6,11 +6,10 @@ import {
   Skeleton,
   Typography,
 } from "antd";
-import React, { useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { CommonIcons } from "./TableActions.jsx/TableActions";
 import { socketLink as axiosLink } from "../axiosInterceptor";
-import socket from "./socket.js";
 
 const parseNotificationOtherData = (raw) => {
   try {
@@ -27,14 +26,6 @@ export default function Notifications({
   showNotifications,
   onRefresh,
 }) {
-  useEffect(() => {
-    if (!showNotifications) return;
-    if (onRefresh) {
-      onRefresh();
-    } else {
-      socket.emit("fetch_notifications", { source: "react" });
-    }
-  }, [showNotifications, onRefresh]);
   const EmptyList = () => (
     <Empty
       image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"

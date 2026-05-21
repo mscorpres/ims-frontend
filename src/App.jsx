@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Route,
   Routes,
@@ -147,6 +147,9 @@ const App = () => {
   const [showHisList, setShowHisList] = useState([]);
   const notificationsRef = useRef([]);
   const testPagesRef = useRef(testPages);
+  const pathnameRef = useRef(pathname);
+  const lastAllNotificationsKeyRef = useRef("");
+  const lastFetchNotificationsAtRef = useRef(0);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSetting, setShowSetting] = useState(false);
@@ -389,6 +392,18 @@ const App = () => {
   }, [pathname, user, navigate]);
 
   useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
+
+  const fetchNotifications = useCallback(() => {
+    if (!user?.token) return;
+    const now = Date.now();
+    if (now - lastFetchNotificationsAtRef.current < 2000) return;
+    lastFetchNotificationsAtRef.current = now;
+    socket.emit("fetch_notifications", { source: "react" });
+  }, [user?.token]);
+
+  useEffect(() => {
     if (!user?.token) return;
 
     const tokenToUse = localStorage.getItem("newToken") || user.token;
@@ -406,9 +421,16 @@ const App = () => {
 
     const handleAllNotifications = (data) => {
       const arr = normalizeAllNotificationsPayload(data);
-      if (arr.length) {
-        dispatch(setNotifications(arr));
+      if (!arr.length) return;
+
+      const payloadKey = arr
+        .map((n) => n.notificationId ?? n.ID ?? n.id)
+        .join("|");
+      if (payloadKey && payloadKey === lastAllNotificationsKeyRef.current) {
+        return;
       }
+      lastAllNotificationsKeyRef.current = payloadKey;
+      dispatch(setNotifications(arr));
     };
 
     const handleSocketReceiveNotification = (data) => {
@@ -467,7 +489,9 @@ const App = () => {
         }
       }
       dispatch(setTestPages(arr));
-      setTestPage(Boolean(arr.find((page) => page.url === pathname)));
+      setTestPage(
+        Boolean(arr.find((page) => page.url === pathnameRef.current)),
+      );
     };
 
     const handleFileGenerateError = (data) => {
@@ -506,7 +530,7 @@ const App = () => {
     socket.on("file-generate-error", handleFileGenerateError);
     socket.on("getting-loading-percentage", handleLoadingPercentage);
 
-    socket.emit("fetch_notifications", { source: "react" });
+    fetchNotifications();
 
     return () => {
       socket.off("all-notifications", handleAllNotifications);
@@ -523,8 +547,8 @@ const App = () => {
     user?.token,
     user?.company_branch,
     user?.session,
-    pathname,
     dispatch,
+    fetchNotifications,
   ]);
   // Added useEffect to fetch enabled modules
   useEffect(() => {
@@ -743,9 +767,11 @@ const App = () => {
 
   const path = window.location.hostname;
 
-  const refreshNotifications = () => {
-    socket.emit("fetch_notifications", { source: "react" });
-  };
+  const refreshNotifications = useCallback(() => {
+    lastFetchNotificationsAtRef.current = 0;
+    lastAllNotificationsKeyRef.current = "";
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const refreshConnection = () => {
     if (user?.token) {
