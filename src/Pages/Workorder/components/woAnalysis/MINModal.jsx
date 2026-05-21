@@ -15,7 +15,6 @@ import {
   createMIN,
   getLocationOptions,
   getWorkOrderDetails,
-  getWorkOrderForMIN,
 } from "../api";
 import { useEffect, useState } from "react";
 import MySelect from "../../../../Components/MySelect";
@@ -29,7 +28,6 @@ import UploadDocs from "../../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import NavFooter from "../../../../Components/NavFooter";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 
 const MINModal = ({ showView, setShowView, getRows }) => {
   // ////////////////
@@ -40,30 +38,30 @@ const MINModal = ({ showView, setShowView, getRows }) => {
   const gstType = Form.useWatch("gstType", minForm);
   const components = Form.useWatch("components", minForm);
   const [files, setFiles] = useState([]);
-  const [asyncOptions, setAsyncOptions] = useState([]);
   //
   //
   const getDetails = async (id, woId, sku) => {
     try {
       setLoading("fetch");
       minForm.setFieldValue("components", []);
-      const { details } = await getWorkOrderForMIN(id, woId, false);
-      const { components } = await getWorkOrderDetails(id, woId, sku);
-      setLoading(false);
-      setDetails(details);
-      minForm.setFieldValue("components", components);
-      minForm.setFieldValue("gstType", "L");
-    } catch (error) {}
-  };
-  const handleGetLocations = async (search) => {
-    try {
-      const arr = await getLocationOptions(search);
-      // console.log("sr", arr);
-      setLocationOptions(arr);
+      const result = await getWorkOrderDetails(id, woId, sku);
+      if (result) {
+        setDetails(result.details);
+        minForm.setFieldValue("components", result.components);
+        minForm.setFieldValue("gstType", "L");
+      }
     } catch (error) {
-      console.log("some error occured while fetching locations", error);
+      console.log("error while fetching MIN details", error);
     } finally {
       setLoading(false);
+    }
+  };
+  const handleGetLocations = async () => {
+    try {
+      const arr = await getLocationOptions();
+      setLocationOptions(arr ?? []);
+    } catch (error) {
+      console.log("some error occured while fetching locations", error);
     }
   };
   const validateHandler = async () => {
@@ -71,8 +69,8 @@ const MINModal = ({ showView, setShowView, getRows }) => {
     Modal.confirm({
       title: "Submit MIN",
       content: "Are you sure you want to submit this MIN",
-      onOk: () => submitHandler(values, showView, gstType),
       okText: "Submit",
+      onOk: () => submitHandler(values, showView),
     });
   };
   const validForSubmit = () => {
@@ -86,58 +84,38 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       return true;
     }
   };
-  const submitHandler = async (values, showView, gstType) => {
+  const submitHandler = async (values, showView) => {
     setLoading("submit");
-    const formData = new FormData();
-    formData.append("files", files[0]);
-    console.log("files[0]", files[0]);
-    formData.append("woid", showView.woId);
-    formData.append("doc_name", "--");
-    formData.append("doc_date", values.docDate);
-    const data = await createMIN(values, showView, gstType);
-    if (formData && files[0]) {
-      const uploadwodoc = await imsAxios.post(
-        "/createwo/uploadAttachment",
-        formData
-      );
-      setFiles([]);
-      if (uploadwodoc.data.code === 200) {
-        toast.success(uploadwodoc.data.message);
+    try {
+      const data = await createMIN(values, showView);
+      if (!data || data.code !== 200){
+        toast.error(data.message.msg);
+        return;
+      }
 
-        setLoading(false);
-        if (data.code === 200) {
-          setShowView(false);
-          getRows();
-          minForm.resetFields();
+      if (files[0]) {
+        const formData = new FormData();
+        formData.append("files", files[0]);
+        formData.append("woid", showView.woId);
+        formData.append("doc_name", "--");
+        formData.append("doc_date", values.docDate);
+        const uploadwodoc = await imsAxios.post(
+          "/createwo/uploadAttachment",
+          formData
+        );
+        if (uploadwodoc.data.code !== 200) {
+          toast.error(uploadwodoc.data.message?.msg ?? uploadwodoc.data.message);
+          return;
         }
-      } else if (uploadwodoc.data.code === 500) {
-        toast.error(uploadwodoc.data.message.msg);
-        setLoading(false);
+        toast.success(uploadwodoc.data.message);
+        setFiles([]);
       }
-    }
-    setLoading(false);
-    setShowView(false);
-    getRows();
-    minForm.resetFields();
-  };
-  const getLocatonOptions = async (search) => {
-    setLoading("select");
-    const response = await imsAxios.post("/backend/fetchLocation", {
-      searchTerm: search,
-    });
-    getData(response);
-  };
-  const getData = (response) => {
-    const { data } = response;
-    if (data) {
-      if (data.length) {
-        const arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
 
-        setAsyncOptions(arr);
-      }
+      setShowView(false);
+      getRows();
+      minForm.resetFields();
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -150,15 +128,7 @@ const MINModal = ({ showView, setShowView, getRows }) => {
     headerName: "Location",
     name: "location",
     width: 150,
-    field: ({ row }) => (
-      //  <MySelect options={locationOptions} />,
-      <MyAsyncSelect
-        onBlur={() => setAsyncOptions([])}
-        loadOptions={getLocatonOptions}
-        optionsState={asyncOptions}
-        selectLoading={loading === "select"}
-      />
-    ),
+    field: () => <MySelect options={locationOptions} />,
   };
 
   const calculation = (fieldName, watchValues) => {
