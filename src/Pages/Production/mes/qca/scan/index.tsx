@@ -312,7 +312,7 @@ const QcScan = (props: Props) => {
     <Row style={{ padding: 10, height: "95%" }} justify={"center"} gutter={6}>
       <TransferModal
         show={showTransferModal}
-        hide={() => setShowInsertModal(false)}
+        hide={() => setShowTransferModal(false)}
         submitHandler={handleLotTransfer}
         loading={loading}
       />
