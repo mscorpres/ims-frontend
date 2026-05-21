@@ -584,7 +584,6 @@ function MaterialTransfer({ type }) {
                 <thead style={{ backgroundColor: "grey", color: "white" }}>
                   <tr>
                     <th style={{ width: "20vw" }}>Component/Part</th>
-                  {type === "sftorej" && <th style={{ width: "14vw" }}>Project</th>}
                     <th style={{ width: "14vw" }}>In Stock Qty</th>
                     <th style={{ width: "14vw" }}>Transfer Qty</th>
                     <th style={{ width: "14vw" }}>Weighted Average Rate</th>
@@ -615,13 +614,7 @@ function MaterialTransfer({ type }) {
                           }}
                         />
                       </td>
-                      {type === "sftorej" && (
-                        <td style={{ textAlign: "center", width: "14vw" }}>
-                          <paragraph>
-                            {r?.restDetail?.project ?? r?.project ?? "-"}
-                          </paragraph>
-                        </td>
-                      )}
+                    
                       <td style={{ textAlign: "center", width: "14vw" }}>
                         <paragraph>
                           {r?.restDetail?.available_qty
