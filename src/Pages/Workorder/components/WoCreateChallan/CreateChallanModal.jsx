@@ -192,15 +192,20 @@ const CreateChallanModal = ({
   };
 
   const getLocationList = async (search) => {
-    const response = await imsAxios.post("backend/fetchLocation", {
-      searchTerm: search,
-    });
-    const { data } = response;
-    let arr = data.map((row) => ({
-      text: row.text,
-      value: row.id,
-    }));
-    setlocationlist(arr);
+    setLoading("select");
+    try {
+      const response = await imsAxios.post("/backend/fetchLocation", {
+        searchTerm: search,
+      });
+      const { data } = response;
+      const arr = data.map((row) => ({
+        text: row.text,
+        value: row.id,
+      }));
+      setlocationlist(arr);
+    } finally {
+      setLoading(false);
+    }
   };
   const showSubmitConfirmationModal = (f) => {
     // submit confirm modal
@@ -1421,6 +1426,7 @@ const CreateChallanModal = ({
                         setlocationlist={setlocationlist}
                         locationlist={locationlist}
                         getLocationList={getLocationList}
+                        loading={loading}
                         getComponentOptions={getComponentOptions}
                         asyncOptions={asyncOptions}
                         setAsyncOptions={setAsyncOptions}
@@ -1437,6 +1443,9 @@ const CreateChallanModal = ({
                         calculation={calculation}
                         gsttype={gstType}
                         setlocationlist={setlocationlist}
+                        getLocationList={getLocationList}
+                        locationlist={locationlist}
+                        loading={loading}
                         inputHandler={inputHandler}
                         minRows={minRows}
                         removeRow={removeRow}
@@ -1454,6 +1463,7 @@ const CreateChallanModal = ({
                       setlocationlist={setlocationlist}
                       getLocationList={getLocationList}
                       locationlist={locationlist}
+                      loading={loading}
                       getComponentOptions={getComponentOptions}
                       asyncOptions={asyncOptions}
                       setAsyncOptions={setAsyncOptions}
@@ -1472,6 +1482,9 @@ const CreateChallanModal = ({
                       calculation={calculation}
                       gsttype={gstType}
                       setlocationlist={setlocationlist}
+                      getLocationList={getLocationList}
+                      locationlist={locationlist}
+                      loading={loading}
                       inputHandler={inputHandler}
                       minRows={minRows}
                       removeRow={removeRow}
@@ -1552,6 +1565,7 @@ const Component = ({
   setlocationlist,
   getLocationList,
   locationlist,
+  loading,
   minRows,
   removeRow,
   inputHandler,
@@ -1565,11 +1579,11 @@ const Component = ({
       nonRemovableColumns={1}
       columns={[
         ...componentsItems(
-          location,
-          gsttype,
-          setlocationlist,
           getLocationList,
-          locationlist
+          setlocationlist,
+          locationlist,
+          gsttype,
+          loading
         ),
       ]}
       listName="components"
@@ -1688,6 +1702,7 @@ const Product = ({
   setlocationlist,
   getLocationList,
   locationlist,
+  loading,
   getComponentOptions,
   asyncOptions,
   setAsyncOptions,
@@ -1713,13 +1728,14 @@ const Product = ({
                   ...shipmentproductItemsEdit(
                     location,
                     gsttype,
-                    setlocationlist,
                     getLocationList,
+                    setlocationlist,
                     locationlist,
                     getComponentOptions,
                     asyncOptions,
                     setAsyncOptions,
-                    getComponentDetails
+                    getComponentDetails,
+                    loading
                   ),
                 ]}
                 listName="components"
@@ -1763,13 +1779,14 @@ const Product = ({
                   ...shipmentproductItems(
                     location,
                     gsttype,
-                    setlocationlist,
                     getLocationList,
+                    setlocationlist,
                     locationlist,
                     getComponentOptions,
                     asyncOptions,
                     setAsyncOptions,
-                    getComponentDetails
+                    getComponentDetails,
+                    loading
                   ),
                 ]}
                 listName="components"
@@ -1819,7 +1836,8 @@ const shipmentproductItems = (
   getComponentOptions,
   asyncOptions,
   setAsyncOptions,
-  getComponentDetails
+  getComponentDetails,
+  loading
 ) => [
   {
     headerName: "#",
@@ -1911,14 +1929,13 @@ const shipmentproductItems = (
     name: "pickuplocation",
     width: 150,
     field: (row) => (
-      <MySelect
-        // onBlur={() => setlocationlist([])}
-        options={locationlist}
-        // optionsState={locationlist}
-        // selectLoading={loading === "select"}
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
+        selectLoading={loading === "select"}
       />
     ),
-    // <MySelect options={location} />,
   },
   // {
   //   headerName: "Remark",
@@ -2624,7 +2641,7 @@ const shipmentproductItemsEdit = (
   getComponentOptions,
   asyncOptions,
   setAsyncOptions,
-  getComponentDetails
+  loading
 ) => [
   {
     headerName: "#",
@@ -2701,14 +2718,13 @@ const shipmentproductItemsEdit = (
     name: "pickuplocation",
     width: 150,
     field: (row) => (
-      <MySelect
-        // onBlur={() => setlocationlist([])}
-        options={locationlist}
-        // optionsState={locationlist}
-        // selectLoading={loading === "select"}
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
+        selectLoading={loading === "select"}
       />
     ),
-    // <MySelect options={location} />,
   },
 
   {
@@ -2725,7 +2741,13 @@ const shipmentproductItemsEdit = (
   },
 ];
 
-const componentsItems = (location, gstType) => [
+const componentsItems = (
+  getLocationList,
+  setlocationlist,
+  locationlist,
+  gstType,
+  loading
+) => [
   {
     headerName: "#",
     name: "",
@@ -2805,7 +2827,14 @@ const componentsItems = (location, gstType) => [
     headerName: "Pick Up Location",
     name: "pickuplocation",
     width: 150,
-    field: (row) => <MySelect options={location} />,
+    field: (row) => (
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
+        selectLoading={loading === "select"}
+      />
+    ),
   },
   {
     headerName: "Remark",
