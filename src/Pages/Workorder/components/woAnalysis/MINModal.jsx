@@ -81,11 +81,19 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       const values = await minForm.validateFields(
         getMinValidateFieldNames(activeRowIndexes)
       );
+      const allRows = minForm.getFieldValue("components") ?? [];
+      const valuesWithMeta = {
+        ...values,
+        components: allRows.map((row, index) => ({
+          ...row,
+          ...(values.components?.[index] ?? {}),
+        })),
+      };
       Modal.confirm({
         title: "Submit MIN",
         content: "Are you sure you want to submit this MIN",
         okText: "Submit",
-        onOk: () => submitHandler(values, showView),
+        onOk: () => submitHandler(valuesWithMeta, showView),
       });
     } catch (error) {
       if (error?.errorFields?.length) {

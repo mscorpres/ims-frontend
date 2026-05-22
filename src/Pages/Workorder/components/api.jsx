@@ -7,10 +7,14 @@ import { v4 } from "uuid";
 
 ////////
 const getValueInArray = (arr, name) => {
-  const updatedArr = arr.map((row) =>
-    row[name]?.value ?? row[name] === "" ? 0 : row[name] ?? "--"
-  );
-  return updatedArr;
+  return arr.map((row) => {
+    const val = row[name];
+    if (val === "" || val == null) return "--";
+    if (typeof val === "object" && val !== null && "value" in val) {
+      return val.value;
+    }
+    return val;
+  });
 };
 const getFinalizeComponents = async (id, woId, getComponents) => {
   const { data } = await imsAxios.post("/createwo/allbomcomponents", {
@@ -412,10 +416,12 @@ const getLocationOptions = async () => {
 };
 
 const createMIN = async (values, showView) => {
-  const arr = values.components.filter((r) => r.qty > 0);
+  const arr = values.components.filter((r) => Number(r.qty) > 0);
   const finalObj = {
     woid: showView.woId,
-    component: getValueInArray(arr, "componentKey"),
+    component: arr.map(
+      (row) => row.componentKey ?? row.component_key ?? "--"
+    ),
     qty: getValueInArray(arr, "qty"),
     rate: getValueInArray(arr, "rate"),
     gstrate: getValueInArray(arr, "gstRate"),

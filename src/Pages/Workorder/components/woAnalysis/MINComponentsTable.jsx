@@ -115,6 +115,15 @@ const MINTableRow = memo(function MINTableRow({
 
   return (
     <tr style={tableColumnStyle}>
+      <Form.Item name={[field.name, "componentKey"]} hidden>
+        <input type="hidden" />
+      </Form.Item>
+      <Form.Item name={[field.name, "partCode"]} hidden>
+        <input type="hidden" />
+      </Form.Item>
+      <Form.Item name={[field.name, "newPartCode"]} hidden>
+        <input type="hidden" />
+      </Form.Item>
       {removableRows && (
         <td style={{ whiteSpace: "nowrap", width: 30, flexShrink: 0 }}>
           {fieldsLength > nonRemovableColumns && (
