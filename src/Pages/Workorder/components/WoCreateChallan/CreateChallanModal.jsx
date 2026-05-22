@@ -1718,8 +1718,8 @@ const Product = ({
                   ...shipmentproductItemsEdit(
                     location,
                     gsttype,
-                    setlocationlist,
                     getLocationList,
+                    setlocationlist,
                     locationlist,
                     getComponentOptions,
                     asyncOptions,
@@ -1768,8 +1768,8 @@ const Product = ({
                   ...shipmentproductItems(
                     location,
                     gsttype,
-                    setlocationlist,
                     getLocationList,
+                    setlocationlist,
                     locationlist,
                     getComponentOptions,
                     asyncOptions,
@@ -1916,14 +1916,12 @@ const shipmentproductItems = (
     name: "pickuplocation",
     width: 150,
     field: (row) => (
-      <MySelect
-        // onBlur={() => setlocationlist([])}
-        options={locationlist}
-        // optionsState={locationlist}
-        // selectLoading={loading === "select"}
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
       />
     ),
-    // <MySelect options={location} />,
   },
   // {
   //   headerName: "Remark",
@@ -2706,14 +2704,12 @@ const shipmentproductItemsEdit = (
     name: "pickuplocation",
     width: 150,
     field: (row) => (
-      <MySelect
-        // onBlur={() => setlocationlist([])}
-        options={locationlist}
-        // optionsState={locationlist}
-        // selectLoading={loading === "select"}
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
       />
     ),
-    // <MySelect options={location} />,
   },
 
   {
