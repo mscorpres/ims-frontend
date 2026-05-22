@@ -28,7 +28,6 @@ import useApi from "../../../../hooks/useApi";
 import { uplaodFileInJWReturn } from "../../../../api/general";
 import MyDataTable from "../../../../Components/MyDataTable";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
-import axios from "axios";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
 
 const JwReturnModel = ({ show, close }) => {
@@ -48,8 +47,28 @@ const JwReturnModel = ({ show, close }) => {
 
   const { executeFun, loading: loading1 } = useApi();
   const [form] = Form.useForm();
-  
+
   const [uplaodForm] = Form.useForm();
+
+  const resetModalState = () => {
+    setHeaderDetails([]);
+    setRows([]);
+    setSelectedRows([]);
+    setTotalValue(0);
+    setLocationOptions([]);
+    setVendorLocationOptions([]);
+    setVendor("");
+    setPreview(false);
+    setPreviewRows([]);
+    setOpen(false);
+    form.resetFields();
+    uplaodForm.resetFields();
+  };
+
+  const handleClose = () => {
+    resetModalState();
+    close();
+  };
   const sampleData = [
     {
       PART_CODE: "p0001",
@@ -162,6 +181,13 @@ const JwReturnModel = ({ show, close }) => {
 
       setRows(componentArr);
       setHeaderDetails(headerArr);
+
+      const vendorCode = headerValues?.vendor?.code;
+      if (vendorCode) {
+        getLocationOptions(vendorCode, transaction);
+      } else {
+        setLocationOptions([]);
+      }
     } catch (error) {
       console.log("Error while fetching data", error);
     } finally {
@@ -208,8 +234,8 @@ const JwReturnModel = ({ show, close }) => {
         setPreview(false);
         setPreviewRows([]);
         setSelectedRows([]);
-      
-        close();
+
+        handleClose();
         setTimeout(() => {
           window.location.reload();
         }, 1500); // 1500 milliseconds  = 1.5 seconds
@@ -231,12 +257,14 @@ const JwReturnModel = ({ show, close }) => {
   }, [selectedRows]);
 
   useEffect(() => {
-    if (show) {
-      getData(show.sku, show.transaction);
-      getAutoComnsumptionOptions();
-      getLocationOptions(vendor, show.transaction);
+    if (!show) {
+      resetModalState();
+      return;
     }
-  }, [show, vendor]);
+    resetModalState();
+    getData(show.sku, show.transaction);
+    getAutoComnsumptionOptions();
+  }, [show]);
 
   useEffect(() => {
     getVendorLocationOptions(vendor);
@@ -405,21 +433,15 @@ const JwReturnModel = ({ show, close }) => {
     setSelectedRows(previewRows);
     setRows([]);
   };
-  useEffect(() => {
-    if (show == false && selectedRows.length > 0) {
-      setSelectedRows([]);
-    }
-  }, [show]);
-
   return (
     <>
       <Drawer
         width="100%"
         title="Vendor Name"
         placement="right"
-        onClose={close}
+        onClose={handleClose}
         destroyOnClose={true}
-        open={show}
+        open={!!show}
         bodyStyle={{
           padding: 5,
         }}
@@ -509,7 +531,7 @@ const JwReturnModel = ({ show, close }) => {
           backLabel="Back"
           nextDisabled={selectedRows?.length === 0}
           loading={loading("submit")}
-          backFunction={close}
+          backFunction={handleClose}
         />
       </Drawer>
       <Drawer

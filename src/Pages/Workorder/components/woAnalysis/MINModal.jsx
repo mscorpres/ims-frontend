@@ -7,20 +7,28 @@ import {
   Input,
   Modal,
   Row,
+  Select,
   Space,
   Typography,
 } from "antd";
-import React from "react";
 import {
   createMIN,
   getWorkOrderDetails,
 } from "../api";
-import { useEffect, useState } from "react";
+import {
+  memo,
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import MySelect from "../../../../Components/MySelect";
 import Loading from "../../../../Components/Loading";
 import WODetailsCard from "./WODetailsCard";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
-import FormTable2 from "../../../../Components/FormTable2";
+import MINComponentsTable from "./MINComponentsTable";
 import TaxDetails from "./TaxDetails";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import UploadDocs from "../../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
@@ -31,72 +39,92 @@ import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 
 const MINModal = ({ showView, setShowView, getRows }) => {
   // ////////////////
-  const [asyncOptions, setAsyncOptions] = useState([]);
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(false);
   const [minForm] = Form.useForm();
-  const gstType = Form.useWatch("gstType", minForm);
-  const components = Form.useWatch("components", minForm);
+  const [gstType, setGstType] = useState("L");
   const [files, setFiles] = useState([]);
-  //
-  //
-  const getDetails = async (id, woId, sku) => {
-    try {
-      setLoading("fetch");
-      minForm.setFieldValue("components", []);
-      const result = await getWorkOrderDetails(id, woId, sku);
-      if (result) {
-        setDetails(result.details);
-        minForm.setFieldValue("components", result.components);
-        minForm.setFieldValue("gstType", "L");
-      }
-    } catch (error) {
-      console.log("error while fetching MIN details", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const getLocatonOptions = async (search) => {
-    setLoading("select");
-    const response = await imsAxios.post("/backend/fetchLocation", {
-      searchTerm: search,
-    });
-    getData(response);
-  };
-  const getData = (response) => {
-    const { data } = response;
-    if (data) {
-      if (data.length) {
-        const arr = data.map((row) => ({
-          text: row.text,
-          value: row.id,
-        }));
+  const sidebarTimerRef = useRef(null);
+  const [taxTotals, setTaxTotals] = useState({
+    valueTotal: 0,
+    cgstTotal: 0,
+    sgstTotal: 0,
+    igstTotal: 0,
+  });
+  const [submitEnabled, setSubmitEnabled] = useState(false);
+  const [displayLabels, setDisplayLabels] = useState([]);
+  const [tableReady, setTableReady] = useState(false);
+  const prevGstTypeRef = useRef(undefined);
+  const calculateRowRef = useRef(() => {});
 
-        setAsyncOptions(arr);
+  const validateHandler = async () => {
+    recalculateAllRows(true);
+    const rows = minForm.getFieldValue("components") ?? [];
+    const activeRowIndexes = rows
+      .map((row, index) => (Number(row?.qty) > 0 ? index : -1))
+      .filter((index) => index >= 0);
+
+    if (!activeRowIndexes.length) {
+      toast.error("Enter MIN qty on at least one component.");
+      return;
+    }
+
+    const missingRate = activeRowIndexes.some(
+      (index) => !rows[index]?.rate && rows[index]?.rate !== 0
+    );
+    if (missingRate) {
+      toast.error("Enter rate for every row that has MIN qty.");
+      return;
+    }
+
+    try {
+      const values = await minForm.validateFields(
+        getMinValidateFieldNames(activeRowIndexes)
+      );
+      Modal.confirm({
+        title: "Submit MIN",
+        content: "Are you sure you want to submit this MIN",
+        okText: "Submit",
+        onOk: () => submitHandler(values, showView),
+      });
+    } catch (error) {
+      if (error?.errorFields?.length) {
+        minForm.scrollToField(error.errorFields[0].name, {
+          behavior: "smooth",
+          block: "center",
+        });
+        toast.error(formatMinValidationErrors(error.errorFields));
       }
     }
-    setLoading(false);
   };
-  const validateHandler = async () => {
-    const values = await minForm.validateFields();
-    Modal.confirm({
-      title: "Submit MIN",
-      content: "Are you sure you want to submit this MIN",
-      okText: "Submit",
-      onOk: () => submitHandler(values, showView),
+  const refreshSidebarTotalsFromRows = useCallback((rows) => {
+    setTaxTotals({
+      valueTotal: getArrSum(rows, "value"),
+      cgstTotal: getArrSum(rows, "cgst"),
+      sgstTotal: getArrSum(rows, "sgst"),
+      igstTotal: getArrSum(rows, "igst"),
     });
-  };
-  const validForSubmit = () => {
-    const arr =
-      components?.map((comp) => {
-        if (comp.rate && comp.qty) {
-          return true;
-        }
-      }) ?? [];
-    if (arr.filter((row) => row !== undefined)[0]) {
-      return true;
+    setSubmitEnabled(rows.some((row) => row?.rate && row?.qty));
+  }, []);
+
+  const scheduleSidebarRefresh = useCallback(() => {
+    if (sidebarTimerRef.current) {
+      clearTimeout(sidebarTimerRef.current);
     }
-  };
+    sidebarTimerRef.current = setTimeout(() => {
+      refreshSidebarTotalsFromRows(minForm.getFieldValue("components") ?? []);
+    }, 150);
+  }, [minForm, refreshSidebarTotalsFromRows]);
+
+  useEffect(
+    () => () => {
+      if (sidebarTimerRef.current) {
+        clearTimeout(sidebarTimerRef.current);
+      }
+    },
+    []
+  );
+
   const submitHandler = async (values, showView) => {
     setLoading("submit");
     try {
@@ -131,97 +159,207 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    if (showView) {
-      getDetails(showView.subjectId, showView.woId, showView.sku);
-    }
-  }, [showView]);
-  const locationColumn = {
-    headerName: "Location",
-    name: "location",
-    width: 150,
-    field: () => (
-      <MyAsyncSelect
-        onBlur={() => setAsyncOptions([])}
-        loadOptions={getLocatonOptions}
-        optionsState={asyncOptions}
-        selectLoading={loading === "select"}
-      />
-    ),
-  };
+  const computeRowTaxFields = useCallback((row, gstTypeVal) => {
+    const value = +Number(row?.qty ?? 0) * +Number(row?.rate ?? 0);
+    const gstAmount = (value * +Number(row?.gstRate || 0)) / 100;
+    let cgst;
+    let igst;
+    let sgst;
 
-  const calculation = (fieldName, watchValues) => {
-    const { qty, rate, gstRate } = watchValues;
-    const value = +Number(qty ?? 0) * +Number(rate ?? 0).toFixed(3);
-    const gstAmount = (+Number(value).toFixed(3) * +Number(gstRate)) / 100;
-    let cgst = 0,
-      igst = 0,
-      sgst = 0;
-
-    if (gstType === "L" && gstRate) {
+    if (gstTypeVal === "L" && row?.gstRate) {
       cgst = gstAmount / 2;
       sgst = gstAmount / 2;
       igst = undefined;
-    } else if (gstType === "I" && gstRate) {
+    } else if (gstTypeVal === "I" && row?.gstRate) {
       igst = gstAmount;
       cgst = undefined;
       sgst = undefined;
     }
-    minForm.setFieldValue(
-      ["components", fieldName, "value"],
-      +Number(value).toFixed(3)
-    );
-    minForm.setFieldValue(
-      ["components", fieldName, "cgst"],
-      +Number(cgst).toFixed(3)
-    );
-    minForm.setFieldValue(
-      ["components", fieldName, "sgst"],
-      +Number(sgst).toFixed(3)
-    );
-    minForm.setFieldValue(
-      ["components", fieldName, "igst"],
-      +Number(igst).toFixed(3)
-    );
-  };
-  const cgstTotal = isNaN(getArrSum(components, "cgst"))
-    ? 0
-    : getArrSum(components, "cgst");
-  const sgstTotal = isNaN(getArrSum(components, "sgst"))
-    ? 0
-    : getArrSum(components, "sgst");
-  const igstTotal = isNaN(getArrSum(components, "igst"))
-    ? 0
-    : getArrSum(components, "igst");
-  const valueTotal = isNaN(getArrSum(components, "value"))
-    ? 0
-    : getArrSum(components, "value");
 
-  const taxSummary = [
-    {
-      title: "Value Before Tax",
-      description: valueTotal,
+    return {
+      value: +Number(value).toFixed(3),
+      cgst: cgst != null ? +Number(cgst).toFixed(3) : undefined,
+      sgst: sgst != null ? +Number(sgst).toFixed(3) : undefined,
+      igst: igst != null ? +Number(igst).toFixed(3) : undefined,
+    };
+  }, []);
+
+  const calculateRow = useCallback(
+    (fieldName) => {
+      const row = minForm.getFieldValue(["components", fieldName]);
+      if (!row) return;
+      const derived = computeRowTaxFields(row, gstType);
+      minForm.setFields([
+        { name: ["components", fieldName, "value"], value: derived.value },
+        { name: ["components", fieldName, "cgst"], value: derived.cgst },
+        { name: ["components", fieldName, "sgst"], value: derived.sgst },
+        { name: ["components", fieldName, "igst"], value: derived.igst },
+      ]);
+      scheduleSidebarRefresh();
     },
-    {
-      title: "CGST",
-      description: cgstTotal,
-      hidden: gstType === "I",
+    [computeRowTaxFields, gstType, minForm, scheduleSidebarRefresh]
+  );
+
+  calculateRowRef.current = calculateRow;
+
+  const onRowCalculate = useCallback((fieldName) => {
+    calculateRowRef.current(fieldName);
+  }, []);
+
+  const recalculateAllRows = useCallback((sync = false) => {
+    const rows = minForm.getFieldValue("components") ?? [];
+    if (!rows.length) {
+      refreshSidebarTotalsFromRows([]);
+      return;
+    }
+    const fieldUpdates = rows.flatMap((row, index) => {
+      const derived = computeRowTaxFields(row, gstType);
+      return [
+        { name: ["components", index, "value"], value: derived.value },
+        { name: ["components", index, "cgst"], value: derived.cgst },
+        { name: ["components", index, "sgst"], value: derived.sgst },
+        { name: ["components", index, "igst"], value: derived.igst },
+      ];
+    });
+    const apply = () => {
+      minForm.setFields(fieldUpdates);
+      refreshSidebarTotalsFromRows(minForm.getFieldValue("components") ?? []);
+    };
+    if (sync) {
+      apply();
+    } else {
+      startTransition(apply);
+    }
+  }, [
+    computeRowTaxFields,
+    gstType,
+    minForm,
+    refreshSidebarTotalsFromRows,
+  ]);
+
+  const getDetails = useCallback(
+    async (id, woId, sku) => {
+      try {
+        setLoading("fetch");
+        setTableReady(false);
+        setDisplayLabels([]);
+        setGstType("L");
+        refreshSidebarTotalsFromRows([]);
+        prevGstTypeRef.current = undefined;
+        minForm.setFieldValue("components", []);
+        const result = await getWorkOrderDetails(id, woId, sku);
+        if (result) {
+          setDetails(result.details);
+          const labels = result.components.map((row) => ({
+            component: row.component,
+            partCode: row.partCode,
+            newPartCode: row.newPartCode,
+          }));
+          setDisplayLabels(labels);
+          prevGstTypeRef.current = "L";
+          startTransition(() => {
+            minForm.setFieldsValue({
+              components: result.components,
+              gstType: "L",
+            });
+            refreshSidebarTotalsFromRows(result.components);
+            setTableReady(true);
+          });
+        }
+      } catch (error) {
+        console.log("error while fetching MIN details", error);
+      } finally {
+        setLoading(false);
+      }
     },
-    {
-      title: "SGST",
-      description: sgstTotal,
-      hidden: gstType === "I",
-    },
-    {
-      title: "IGST",
-      description: igstTotal,
-      hidden: gstType === "L",
-    },
-    {
-      title: "Value After Tax",
-      description: valueTotal + cgstTotal + sgstTotal + igstTotal,
-    },
-  ];
+    [minForm, refreshSidebarTotalsFromRows]
+  );
+
+  useEffect(() => {
+    if (showView) {
+      getDetails(showView.subjectId, showView.woId, showView.sku);
+    } else {
+      setTableReady(false);
+      setDisplayLabels([]);
+      setGstType("L");
+      prevGstTypeRef.current = undefined;
+    }
+  }, [showView, getDetails]);
+
+  useEffect(() => {
+    if (!showView) return;
+    const rows = minForm.getFieldValue("components") ?? [];
+    if (!rows.length) return;
+    if (prevGstTypeRef.current === undefined) {
+      prevGstTypeRef.current = gstType;
+      return;
+    }
+    if (prevGstTypeRef.current === gstType) return;
+    prevGstTypeRef.current = gstType;
+    recalculateAllRows();
+  }, [gstType, minForm, recalculateAllRows, showView]);
+
+  const locationColumn = useMemo(
+    () => ({
+      headerName: "Location",
+      name: "location",
+      width: 180,
+      field: () => <LocationField />,
+    }),
+    []
+  );
+
+  const tableColumns = useMemo(
+    () => [
+      ...componentsItems(gstType, onRowCalculate, displayLabels),
+      locationColumn,
+    ],
+    [gstType, locationColumn, onRowCalculate, displayLabels]
+  );
+
+  const tablePane = useMemo(
+    () =>
+      tableReady ? (
+        <MINComponentsTable
+          removableRows
+          nonRemovableColumns={1}
+          columns={tableColumns}
+          listName="components"
+          displayLabels={displayLabels}
+        />
+      ) : null,
+    [tableReady, tableColumns, displayLabels]
+  );
+
+  const taxSummary = useMemo(() => {
+    const { valueTotal, cgstTotal, sgstTotal, igstTotal } = taxTotals;
+    const afterTax = valueTotal + cgstTotal + sgstTotal + igstTotal;
+    return [
+      {
+        title: "Value Before Tax",
+        description: +valueTotal.toFixed(2),
+      },
+      {
+        title: "CGST",
+        description: +cgstTotal.toFixed(2),
+        hidden: gstType === "I",
+      },
+      {
+        title: "SGST",
+        description: +sgstTotal.toFixed(2),
+        hidden: gstType === "I",
+      },
+      {
+        title: "IGST",
+        description: +igstTotal.toFixed(2),
+        hidden: gstType === "L",
+      },
+      {
+        title: "Value After Tax",
+        description: +afterTax.toFixed(2),
+      },
+    ];
+  }, [gstType, taxTotals]);
 
   return (
     <Drawer
@@ -233,16 +371,24 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       }}
       open={showView}
       width="100%"
+      destroyOnClose
     >
       {loading === "fetch" && <Loading />}
-      <Form layout="vertical" form={minForm} style={{ height: "100%" }}>
-        <Row gutter={6} style={{ height: "95%", overflow: "hidden" }}>
+      <Form
+        layout="vertical"
+        form={minForm}
+        style={{ height: "calc(100% - 52px)", minHeight: 0 }}
+      >
+        <Row gutter={6} style={{ height: "100%", overflow: "hidden" }}>
           <Col span={4} style={{ height: "100%", overflowY: "scroll" }}>
             <Row gutter={[0, 6]}>
               <Col span={24}>
                 <Card size="small">
                   <Form.Item name="gstType" label="GST Type">
-                    <MySelect options={gstTypeOptions} />
+                    <GstTypeSelect
+                      options={gstTypeOptions}
+                      onGstTypeChange={setGstType}
+                    />
                   </Form.Item>
                   <Form.Item
                     name="invoiceId"
@@ -298,24 +444,12 @@ const MINModal = ({ showView, setShowView, getRows }) => {
             </Row>
           </Col>
           <Col span={20} style={{ height: "100%", overflow: "hidden" }}>
-            <FormTable2
-              removableRows={true}
-              nonRemovableColumns={1}
-              columns={[...componentsItems(gstType), locationColumn]}
-              listName="components"
-              watchKeys={["rate", "qty", "gstRate"]}
-              nonListWatchKeys={["gstType"]}
-              componentRequiredRef={["rate", "qty"]}
-              form={minForm}
-              calculation={calculation}
-              rules={listRules}
-            />
-            {/* </Card> */}
+            {tablePane}
           </Col>
         </Row>
       </Form>
       <NavFooter
-        disabled={!validForSubmit()}
+        disabled={!submitEnabled}
         loading={loading === "submit"}
         type="primary"
         resetFunction={() => {
@@ -331,11 +465,87 @@ const MINModal = ({ showView, setShowView, getRows }) => {
 
 export default MINModal;
 
-const componentsItems = (gstType) => [
+const GstTypeSelect = memo(function GstTypeSelect({
+  value,
+  onChange,
+  options,
+  onGstTypeChange,
+}) {
+  return (
+    <MySelect
+      value={value}
+      options={options}
+      onChange={(val) => {
+        onChange?.(val);
+        onGstTypeChange(val);
+      }}
+    />
+  );
+});
+
+const LocationField = memo(function LocationField({ value, onChange }) {
+  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [selectLoading, setSelectLoading] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const getLocatonOptions = async (search) => {
+    setSelectLoading(true);
+    try {
+      const response = await imsAxios.post("/backend/fetchLocation", {
+        searchTerm: search,
+      });
+      const { data } = response;
+      if (data?.length) {
+        setAsyncOptions(
+          data.map((row) => ({
+            text: row.text,
+            value: row.id,
+          }))
+        );
+      }
+    } finally {
+      setSelectLoading(false);
+    }
+  };
+
+  const optionsForSelect = useMemo(() => {
+    if (
+      selectedOption &&
+      !asyncOptions.some((opt) => opt.value === selectedOption.value)
+    ) {
+      return [selectedOption, ...asyncOptions];
+    }
+    return asyncOptions;
+  }, [asyncOptions, selectedOption]);
+
+  const handleChange = (locationId) => {
+    onChange?.(locationId);
+    const match = asyncOptions.find(
+      (opt) => String(opt.value) === String(locationId)
+    );
+    if (match) {
+      setSelectedOption(match);
+    }
+  };
+
+  return (
+    <MyAsyncSelect
+      value={value}
+      onChange={handleChange}
+      onBlur={() => setAsyncOptions([])}
+      loadOptions={getLocatonOptions}
+      optionsState={optionsForSelect}
+      selectLoading={selectLoading}
+    />
+  );
+});
+
+const componentsItems = (gstType, onCalculateRow, displayLabels) => [
   {
     headerName: "#",
     name: "",
     width: 30,
+    skipFormItem: true,
     field: (_, index) => (
       <Typography.Text type="secondary">{index + 1}.</Typography.Text>
     ),
@@ -343,36 +553,54 @@ const componentsItems = (gstType) => [
   {
     headerName: "Component",
     name: "component",
-    width: 250,
-    flex: true,
+    width: 220,
     flexStart: true,
-    field: (row) => <ToolTipEllipses text={row.component} />,
+    skipFormItem: true,
+    field: ({ fieldName, labels }) => (
+      <ToolTipEllipses
+        text={labels?.component ?? displayLabels[fieldName]?.component}
+      />
+    ),
   },
   {
     headerName: "Part Code",
     name: "partCode",
     width: 150,
     flexStart: true,
-    field: (row) => <ToolTipEllipses text={row.partCode} />,
+    skipFormItem: true,
+    field: ({ fieldName, labels }) => (
+      <ToolTipEllipses
+        text={labels?.partCode ?? displayLabels[fieldName]?.partCode}
+      />
+    ),
   },
   {
     headerName: "Secondary Part Code",
-    name: "partCode",
+    name: "newPartCode",
     width: 150,
     flexStart: true,
-    field: (row) => <ToolTipEllipses text={row.newPartCode} />,
+    skipFormItem: true,
+    field: ({ fieldName, labels }) => (
+      <ToolTipEllipses
+        text={labels?.newPartCode ?? displayLabels[fieldName]?.newPartCode}
+      />
+    ),
   },
   {
     headerName: "Qty",
     name: "qty",
     width: 100,
-    field: () => <Input />,
+    field: ({ fieldName }) => (
+      <Input onBlur={() => onCalculateRow(fieldName)} />
+    ),
   },
   {
     headerName: "Rate",
     name: "rate",
     width: 100,
-    field: () => <Input />,
+    field: ({ fieldName }) => (
+      <Input onBlur={() => onCalculateRow(fieldName)} />
+    ),
   },
   {
     headerName: "Value",
@@ -384,7 +612,16 @@ const componentsItems = (gstType) => [
     headerName: "GST %",
     name: "gstRate",
     width: 100,
-    field: () => <MySelect options={gstRateOptions} />,
+    field: ({ fieldName }) => (
+      <Select
+        style={{ width: "100%" }}
+        options={gstRateOptions.map((opt) => ({
+          label: opt.text,
+          value: opt.value,
+        }))}
+        onBlur={() => onCalculateRow(fieldName)}
+      />
+    ),
   },
   {
     headerName: "CGST",
@@ -421,7 +658,7 @@ const componentsItems = (gstType) => [
     headerName: "Remark",
     name: "remark",
     width: 150,
-    field: (row) => <Input.TextArea />,
+    field: () => <Input />,
   },
 ];
 const gstTypeOptions = [
@@ -454,11 +691,46 @@ const gstRateOptions = [
   },
 ];
 
-const getArrSum = (list, key) => {
-  const arr = list?.map((row) => row[key]);
-  // console.log(arr);
-  return arr?.reduce((a, b) => a + +Number(b).toFixed(2) ?? 0, 0);
+const getArrSum = (list, key) =>
+  (list ?? []).reduce((sum, row) => sum + (Number(row?.[key]) || 0), 0);
+
+const MIN_FIELD_LABELS = {
+  invoiceId: "Doc ID",
+  docDate: "Doc Date",
+  gstType: "GST Type",
+  qty: "Qty",
+  rate: "Rate",
+  gstRate: "GST %",
+  hsn: "HSN Code",
+  location: "Location",
 };
+
+const getMinValidateFieldNames = (activeRowIndexes) => {
+  const names = ["invoiceId", "docDate", "gstType"];
+  activeRowIndexes.forEach((index) => {
+    names.push(
+      ["components", index, "qty"],
+      ["components", index, "rate"],
+      ["components", index, "gstRate"],
+      ["components", index, "hsn"],
+      ["components", index, "location"]
+    );
+  });
+  return names;
+};
+
+const formatMinValidationErrors = (errorFields) =>
+  errorFields
+    .map(({ name, errors }) => {
+      const fieldKey = Array.isArray(name) ? name[name.length - 1] : name;
+      const rowNo =
+        Array.isArray(name) && name[0] === "components"
+          ? ` (row ${Number(name[1]) + 1})`
+          : "";
+      const label = MIN_FIELD_LABELS[fieldKey] ?? fieldKey;
+      return `${label}${rowNo}: ${errors?.[0] ?? "Required"}`;
+    })
+    .join(" · ");
 
 const rules = {
   docId: [

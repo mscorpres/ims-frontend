@@ -436,7 +436,7 @@ const createMIN = async (values, showView) => {
     toast.success(data.message);
     return data;
   } else {
-    toast.error(data.message.msg);
+    toast.error(data.message.msg||data.message);
   }
 };
 
