@@ -192,11 +192,12 @@ const CreateChallanModal = ({
   };
 
   const getLocationList = async (search) => {
-    const response = await imsAxios.post("backend/fetchLocation", {
+    const response = await imsAxios.post("/backend/fetchLocation", {
       searchTerm: search,
     });
     const { data } = response;
-    let arr = data.map((row) => ({
+    const rows = data?.data ?? data;
+    const arr = (rows || []).map((row) => ({
       text: row.text,
       value: row.id,
     }));
@@ -1437,6 +1438,8 @@ const CreateChallanModal = ({
                         calculation={calculation}
                         gsttype={gstType}
                         setlocationlist={setlocationlist}
+                        getLocationList={getLocationList}
+                        locationlist={locationlist}
                         inputHandler={inputHandler}
                         minRows={minRows}
                         removeRow={removeRow}
@@ -1472,6 +1475,8 @@ const CreateChallanModal = ({
                       calculation={calculation}
                       gsttype={gstType}
                       setlocationlist={setlocationlist}
+                      getLocationList={getLocationList}
+                      locationlist={locationlist}
                       inputHandler={inputHandler}
                       minRows={minRows}
                       removeRow={removeRow}
@@ -1567,8 +1572,8 @@ const Component = ({
         ...componentsItems(
           location,
           gsttype,
-          setlocationlist,
           getLocationList,
+          setlocationlist,
           locationlist
         ),
       ]}
@@ -2725,7 +2730,13 @@ const shipmentproductItemsEdit = (
   },
 ];
 
-const componentsItems = (location, gstType) => [
+const componentsItems = (
+  location,
+  gstType,
+  getLocationList,
+  setlocationlist,
+  locationlist
+) => [
   {
     headerName: "#",
     name: "",
@@ -2805,7 +2816,13 @@ const componentsItems = (location, gstType) => [
     headerName: "Pick Up Location",
     name: "pickuplocation",
     width: 150,
-    field: (row) => <MySelect options={location} />,
+    field: (row) => (
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
+      />
+    ),
   },
   {
     headerName: "Remark",
