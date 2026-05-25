@@ -1,4 +1,5 @@
 import React from "react";
+import ModuleUatGate from "../Components/ModuleUatGate";
 import {
   Services,
   Material,
@@ -76,6 +77,7 @@ import {
   PaytmQCReport,
   MaterialRequisitionRequest,
   JWSupplementary,
+  WoUpdateSupplementary,
   CPMMaster,
   SFGMIN,
   R19Master,
@@ -464,12 +466,16 @@ const Routes = [
     exact: true,
     main: () => <FGToFGViewTransaction />,
   },
-   {
+  {
     path: "/warehouse/material-transfer/jw-to-jw",
     exact: true,
-    main: () => <JwToJw />,
+    main: () => (
+      <ModuleUatGate>
+        <JwToJw />
+      </ModuleUatGate>
+    ),
   },
-    {
+  {
     path: "/warehouse/material-transfer/jw-to-jw/view",
     exact: true,
     main: () => <JwToJwViewTransaction />,
@@ -482,12 +488,20 @@ const Routes = [
   {
     path: "/re-to-rej",
     exact: true,
-    main: () => <ReToRej />,
+    main: () => (
+      <ModuleUatGate>
+        <ReToRej />
+      </ModuleUatGate>
+    ),
   },
   {
     path: "/trans-rej",
     exact: true,
-    main: () => <TransactionRej />,
+    main: () => (
+      <ModuleUatGate>
+        <TransactionRej />
+      </ModuleUatGate>
+    ),
   },
   {
     path: "/pending-transfer",
@@ -540,7 +554,11 @@ const Routes = [
   // production MIS
   {
     path: "/production/prodMis",
-    main: () => <ProductionMIS />,
+    main: () => (
+      <ModuleUatGate>
+        <ProductionMIS />
+      </ModuleUatGate>
+    ),
   },
 
   //production physical stock
@@ -586,7 +604,7 @@ const Routes = [
     exact: true,
     main: () => <PendingQC />,
   },
-    {
+  {
     path: "/masters/cost-center",
     exact: true,
     main: () => <AddCostCenter />,
@@ -814,7 +832,7 @@ const Routes = [
 
     main: () => <R37 />,
   },
-    {
+  {
     path: "/fg-register-report",
 
     main: () => <R38 />,
@@ -852,7 +870,7 @@ const Routes = [
     path: "/create-po",
     main: () => <CreatePo />,
   },
-   {
+  {
     path: "/request-po",
     main: () => <POrequest />,
   },
@@ -861,7 +879,7 @@ const Routes = [
     path: "/manage-po",
     main: () => <ManagePO />,
   },
-  
+
   {
     path: "/completed-po",
     main: () => <CompletedPo />,
@@ -934,7 +952,7 @@ const Routes = [
     path: "/create-jw",
     main: () => <CreateJW />,
   },
-    {
+  {
     path: "/approval-jw",
     main: () => <JobworkApproval />,
   },
@@ -965,6 +983,10 @@ const Routes = [
   {
     path: "/jw-completed",
     main: () => <JwCompleted />,
+  },
+  {
+    path: "/workorder/update/supplementary",
+    main: () => <WoUpdateSupplementary />,
   },
   {
     path: "/jobwork/update/supplementary",

@@ -139,4 +139,4 @@ const session = getSessionFromStorage();
 imsAxios.defaults.headers["Company-Branch"] = branch ?? "BRMSC012";
 imsAxios.defaults.headers["Session"] = session;
 
-export { imsAxios, socketLink };
+export { imsAxios, socketLink, getSessionFromStorage };
