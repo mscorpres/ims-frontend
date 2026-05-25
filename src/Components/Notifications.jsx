@@ -10,12 +10,21 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CommonIcons } from "./TableActions.jsx/TableActions";
 import { socketLink as axiosLink } from "../axiosInterceptor";
-import { useEffect } from "react";
+
+const parseNotificationOtherData = (raw) => {
+  try {
+    return typeof raw === "string" ? JSON.parse(raw) : raw ?? {};
+  } catch {
+    return {};
+  }
+};
 
 export default function Notifications({
   notifications,
   deleteNotification,
   source,
+  showNotifications,
+  onRefresh,
 }) {
   const EmptyList = () => (
     <Empty
@@ -68,7 +77,10 @@ export default function Notifications({
                         </a>
                       ))}
                     {item.type == "msg" && (
-                      <span>{JSON.parse(item?.other_data)?.message}</span>
+                      <span>
+                        {item.message ??
+                          parseNotificationOtherData(item?.other_data)?.message}
+                      </span>
                     )}
                   </span>,
                   // <CommonIcons
