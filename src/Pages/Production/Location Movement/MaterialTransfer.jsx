@@ -9,6 +9,7 @@ import { getComponentOptions, getProjectOptions } from "../../../api/general.ts"
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import { UploadOutlined } from "@ant-design/icons";
+import BulkSfToRejTransferDrawer from "./BulkSfToRejTransferDrawer";
 const { paragraph } = Typography;
 
 const { TextArea } = Input;
@@ -44,16 +45,17 @@ function MaterialTransfer({ type }) {
       restDetail: {},
       address: "",
       comment: "",
+      project: "",
     },
   ]);
 
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   const getLocation = async () => {
     let link = "";
-    console.log("nothing");
     if (type == "sftorej") {
       console.log("rejection goes on here");
       link = "/godown/fetchLocationForSF2REJ_from";
@@ -84,9 +86,7 @@ function MaterialTransfer({ type }) {
 
   const getComponent = async (e) => {
     if (e?.length > 2) {
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: e,
-      // });
+ 
       const response = await executeFun(() => getComponentOptions(e), "select");
       const { data } = response;
       let arr = [];
@@ -141,7 +141,11 @@ function MaterialTransfer({ type }) {
     });
     setRows((prev) => {
       const updated = [...prev];
-      updated[rowIndex] = { ...updated[rowIndex], restDetail: data.data };
+      updated[rowIndex] = {
+        ...updated[rowIndex],
+        restDetail: data.data,
+        project: data.data?.project ?? "",
+      };
       return updated;
     });
   };
@@ -193,6 +197,9 @@ function MaterialTransfer({ type }) {
     const components = rows.map((r) => r.componentName);
     const qtys = rows.map((r) => r.qty);
     const comments = rows.map((r) => r.comment || "");
+    const projectsIds = rows.map(
+      (r) => r.restDetail?.project ?? r.project ?? ""
+    );
 
     setLoading(true);
     const payload =
@@ -206,6 +213,8 @@ function MaterialTransfer({ type }) {
             dropLocation: allData.dropLoc,
             project_id: resolveProjectId() || null,
             ppr_id: allData.pprId || null,
+            projectsIds,
+
           }
         : {
             pickLocation: allData.locationSel,
@@ -236,9 +245,13 @@ function MaterialTransfer({ type }) {
           restDetail: {},
           address: "",
           comment: "",
+          project: "",
         },
       ]);
       setLocDetail("");
+      setLocDetailTo("");
+      setProject(null);
+      setPprOptions([]);
       setLoading(false);
       toast.success(response.message);
     } else {
@@ -264,6 +277,7 @@ function MaterialTransfer({ type }) {
         restDetail: {},
         address: "",
         comment: "",
+        project: "",
       },
     ]);
   };
@@ -278,6 +292,7 @@ function MaterialTransfer({ type }) {
         restDetail: {},
         address: "",
         comment: "",
+        project: "",
       },
     ]);
   };
@@ -354,6 +369,7 @@ function MaterialTransfer({ type }) {
             },
             address: "",
             comment: item.remark || "",
+            project: item.project || "",
           }));
           setRows(uploadedRows);
 
@@ -517,22 +533,39 @@ function MaterialTransfer({ type }) {
               >
                 Download Sample File
               </Button>
-              <Button
-                type="default"
-                icon={<UploadOutlined />}
-                onClick={handleUploadClick}
-                loading={uploadLoading}
-              >
-                Upload Excel
-              </Button>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".csv,.xlsx,.xls"
-                style={{ display: "none" }}
-              />
+              {type === "sftorej" ? (
+                <Button
+                  type="link"
+                  style={{ paddingLeft: 0, height: "auto" }}
+                  onClick={() => {
+                    if (!allData.locationSel) {
+                      toast.error("Please select a Pick Location first");
+                      return;
+                    }
+                    setBulkDrawerOpen(true);
+                  }}
+                >
+                  Bulk Upload
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    type="default"
+                    icon={<UploadOutlined />}
+                    onClick={handleUploadClick}
+                    loading={uploadLoading}
+                  >
+                    Upload Excel
+                  </Button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    accept=".csv,.xlsx,.xls"
+                    style={{ display: "none" }}
+                  />
+                </>
+              )}
               <Button type="primary" onClick={addRow}>
                 Add Row
               </Button>
@@ -581,6 +614,7 @@ function MaterialTransfer({ type }) {
                           }}
                         />
                       </td>
+                    
                       <td style={{ textAlign: "center", width: "14vw" }}>
                         <paragraph>
                           {r?.restDetail?.available_qty
@@ -655,6 +689,39 @@ function MaterialTransfer({ type }) {
         loading={loading}
         resetFunction={reset}
       />
+      {type === "sftorej" && (
+        <BulkSfToRejTransferDrawer
+          open={bulkDrawerOpen}
+          onClose={() => setBulkDrawerOpen(false)}
+          pickLocation={allData.locationSel}
+          dropLocation={allData.dropLoc}
+          projectId={resolveProjectId() || null}
+          pprId={allData.pprId || null}
+          onTransferSuccess={() => {
+            setAllData({
+              locationSel: "",
+              dropBranch: "",
+              dropLoc: "",
+              pprId: "",
+            });
+            setRows([
+              {
+                componentName: "",
+                qty: "",
+                rejLoc: "",
+                restDetail: {},
+                address: "",
+                comment: "",
+                project: "",
+              },
+            ]);
+            setLocDetail("");
+            setLocDetailTo("");
+            setProject(null);
+            setPprOptions([]);
+          }}
+        />
+      )}
     </div>
   );
 }
