@@ -67,8 +67,10 @@ export default function UpdateComponent() {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
         componentKey,
       });
-        if (response.success) {
-          const value = response.data[0];
+      const { data } = response;
+      if (data) {
+        if (data.code === 200) {
+          const value = data.data[0];
           // console.log("data...............", value);
           let catType = value.attr_category;
           // console.log("data...............", catType);
@@ -152,7 +154,8 @@ export default function UpdateComponent() {
           }));
           altPartCodeForm.setFieldValue("alternatePart", objects);
         } else {
-        toast.error(response.message);
+          toast.error(data.message.msg);
+        }
       }
     } catch (error) {
     } finally {
