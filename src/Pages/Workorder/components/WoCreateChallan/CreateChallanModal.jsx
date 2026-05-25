@@ -192,27 +192,24 @@ const CreateChallanModal = ({
   };
 
   const getLocationList = async (search) => {
-    const response = await imsAxios.post("backend/fetchLocation", {
+    const response = await imsAxios.post("/backend/fetchLocation", {
       searchTerm: search,
     });
     const { data } = response;
-    let arr = data.map((row) => ({
+    const rows = data?.data ?? data;
+    const arr = (rows || []).map((row) => ({
       text: row.text,
       value: row.id,
     }));
     setlocationlist(arr);
   };
-  const showSubmitConfirmationModal = (f) => {
-    // submit confirm modal
+  const showSubmitConfirmationModal = () => {
     Modal.confirm({
       title: "Do you Want to Create this Shipment?",
       icon: <ExclamationCircleOutlined />,
-
       okText: "Yes",
       cancelText: "No",
-      onOk: async () => {
-        await createDeliveryChallan();
-      },
+      onOk: () => createDeliveryChallan(),
     });
   };
   const showReturnSubmitConfirmationModal = (f) => {
@@ -671,7 +668,7 @@ const CreateChallanModal = ({
         partCode: "row.c_part_no",
         id: v4(),
       };
-      setRows(obj);
+      setRows([]);
       challanForm.setFieldValue("components", [obj]);
       getMinDetails(data);
     }
@@ -1021,18 +1018,14 @@ const CreateChallanModal = ({
         updateWoShipment(newpayload);
       } else {
         try {
-          let a = rows.filter((b) => b.out_qty > 0);
-          // let as = challanForm.getFieldsValue("challanForm");
-          // console.log("as----------", as);
-          console.log("minRows----------", a);
           const values = await challanForm.validateFields();
-          // console.log("values", values);
-          // console.log("add----------", addOptions);
-          // setRows(a);
-          console.log(billid);
-          // return;
-          // return;
-          console.log(addid);
+          const minOutRows = (Array.isArray(minRows) ? minRows : []).filter(
+            (b) => Number(b.out_qty) > 0
+          );
+          if (!minOutRows.length) {
+            toast.error("Please enter Out Qty for at least one MIN row");
+            throw new Error("MIN out qty required");
+          }
           {
             addid ? (bid = values.billingid) : (bid = billid);
           }
@@ -1073,12 +1066,11 @@ const CreateChallanModal = ({
               insert_dt: values.insertDate,
               // insert_dt
             },
-            // component: ["1670578341262"],
-            component: a.map((r) => r.component_key),
-            doc_id: a.map((r) => r.min_id),
-            doc_date: a.map((r) => r.min_date),
-            out_qty: a.map((r) => r.out_qty),
-            out_rate: a.map((r) => r.min_rate),
+            component: minOutRows.map((r) => r.component_key),
+            doc_id: minOutRows.map((r) => r.min_id),
+            doc_date: minOutRows.map((r) => r.min_date),
+            out_qty: minOutRows.map((r) => r.out_qty),
+            out_rate: minOutRows.map((r) => r.min_rate),
             // doc_id: ["1234"],
             // doc_date: ["12-09-2023"],
             // out_qty: ["100"],
@@ -1101,7 +1093,18 @@ const CreateChallanModal = ({
             setLoading(false);
           }
         } catch (error) {
-          toast.error(error);
+          if (error?.errorFields?.length) {
+            toast.error(
+              error.errorFields[0]?.errors?.[0] || "Please fill required fields"
+            );
+          } else {
+            toast.error(
+              error?.response?.data?.message?.msg ||
+                error?.message ||
+                "Failed to create shipment"
+            );
+          }
+          throw error;
         } finally {
           setLoading(false);
         }
@@ -1136,7 +1139,13 @@ const CreateChallanModal = ({
       {
         addid ? (did = values.dispatchid) : (did = dispatchid);
       }
-      let a = rows.filter((b) => b.out_qty > 0);
+      const minOutRows = (Array.isArray(minRows) ? minRows : []).filter(
+        (b) => Number(b.out_qty) > 0
+      );
+      if (!minOutRows.length) {
+        toast.error("Please enter Out Qty for at least one MIN row");
+        throw new Error("MIN out qty required");
+      }
 
       const cddata = {
         product_id: data.productId,
@@ -1165,11 +1174,11 @@ const CreateChallanModal = ({
           hsncode: values.components.map((r) => r.hsn),
           remark: values.components.map((r) => r.description),
         },
-        component: a.map((r) => r.component_key),
-        doc_id: a.map((r) => r.min_id),
-        doc_date: a.map((r) => r.min_date),
-        out_qty: a.map((r) => r.out_qty),
-        out_rate: a.map((r) => r.min_rate),
+        component: minOutRows.map((r) => r.component_key),
+        doc_id: minOutRows.map((r) => r.min_id),
+        doc_date: minOutRows.map((r) => r.min_date),
+        out_qty: minOutRows.map((r) => r.out_qty),
+        out_rate: minOutRows.map((r) => r.min_rate),
       };
       // setLoading("fetch");
       // console.log("cddata", cddata);
@@ -1437,6 +1446,8 @@ const CreateChallanModal = ({
                         calculation={calculation}
                         gsttype={gstType}
                         setlocationlist={setlocationlist}
+                        getLocationList={getLocationList}
+                        locationlist={locationlist}
                         inputHandler={inputHandler}
                         minRows={minRows}
                         removeRow={removeRow}
@@ -1472,6 +1483,8 @@ const CreateChallanModal = ({
                       calculation={calculation}
                       gsttype={gstType}
                       setlocationlist={setlocationlist}
+                      getLocationList={getLocationList}
+                      locationlist={locationlist}
                       inputHandler={inputHandler}
                       minRows={minRows}
                       removeRow={removeRow}
@@ -1567,8 +1580,8 @@ const Component = ({
         ...componentsItems(
           location,
           gsttype,
-          setlocationlist,
           getLocationList,
+          setlocationlist,
           locationlist
         ),
       ]}
@@ -1713,8 +1726,8 @@ const Product = ({
                   ...shipmentproductItemsEdit(
                     location,
                     gsttype,
-                    setlocationlist,
                     getLocationList,
+                    setlocationlist,
                     locationlist,
                     getComponentOptions,
                     asyncOptions,
@@ -1763,8 +1776,8 @@ const Product = ({
                   ...shipmentproductItems(
                     location,
                     gsttype,
-                    setlocationlist,
                     getLocationList,
+                    setlocationlist,
                     locationlist,
                     getComponentOptions,
                     asyncOptions,
@@ -1911,14 +1924,12 @@ const shipmentproductItems = (
     name: "pickuplocation",
     width: 150,
     field: (row) => (
-      <MySelect
-        // onBlur={() => setlocationlist([])}
-        options={locationlist}
-        // optionsState={locationlist}
-        // selectLoading={loading === "select"}
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
       />
     ),
-    // <MySelect options={location} />,
   },
   // {
   //   headerName: "Remark",
@@ -2701,14 +2712,12 @@ const shipmentproductItemsEdit = (
     name: "pickuplocation",
     width: 150,
     field: (row) => (
-      <MySelect
-        // onBlur={() => setlocationlist([])}
-        options={locationlist}
-        // optionsState={locationlist}
-        // selectLoading={loading === "select"}
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
       />
     ),
-    // <MySelect options={location} />,
   },
 
   {
@@ -2725,7 +2734,13 @@ const shipmentproductItemsEdit = (
   },
 ];
 
-const componentsItems = (location, gstType) => [
+const componentsItems = (
+  location,
+  gstType,
+  getLocationList,
+  setlocationlist,
+  locationlist
+) => [
   {
     headerName: "#",
     name: "",
@@ -2805,7 +2820,13 @@ const componentsItems = (location, gstType) => [
     headerName: "Pick Up Location",
     name: "pickuplocation",
     width: 150,
-    field: (row) => <MySelect options={location} />,
+    field: (row) => (
+      <MyAsyncSelect
+        onBlur={() => setlocationlist([])}
+        loadOptions={getLocationList}
+        optionsState={locationlist}
+      />
+    ),
   },
   {
     headerName: "Remark",
