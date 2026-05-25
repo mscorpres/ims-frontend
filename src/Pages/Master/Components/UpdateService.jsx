@@ -44,11 +44,11 @@ export default function UpdateService({ editService, setEditService, units }) {
   ];
   const getDetails = async () => {
     setPageLoading(true);
-    const { data } = await imsAxios.post("component/fetchUpdateComponent", {
+    const response = await imsAxios.post("component/fetchUpdateComponent", {
       componentKey: editService.componentKey,
     });
-    if (data.code == 200) {
-      const res = data.data[0];
+    if (response.success) {
+      const res = response.data[0];
       setServiceDetails({
         serviceName: res.name,
         uom: res.uomid,
@@ -59,7 +59,7 @@ export default function UpdateService({ editService, setEditService, units }) {
         sac: res.sac,
       });
     } else {
-      toast.error(data.message.msg);
+      toast.error(response.message);
       setEditService(null);
     }
     setPageLoading(false);
