@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 
 const SAMPLE_URL =
-  "https://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
+  " https://oakter.prod.mscorpres.com/uploads/samples/Sample-GodownTransfer.csv";
 
 function mapUploadItem(item, index) {
   const label =

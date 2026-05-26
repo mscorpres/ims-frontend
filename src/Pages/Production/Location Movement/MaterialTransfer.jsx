@@ -523,7 +523,7 @@ function MaterialTransfer({ type }) {
                 onClick={(e) => {
                   e.preventDefault();
                   const link = document.createElement("a");
-                  link.href = "https://oakter.msc-route.info/uploads/samples/Sample-GodownTransfer.csv";
+                  link.href = " https://oakter.prod.mscorpres.com/uploads/samples/Sample-GodownTransfer.csv";
                   link.download = "Sample-GodownTransfer.csv";
                   document.body.appendChild(link);
                   link.click();
