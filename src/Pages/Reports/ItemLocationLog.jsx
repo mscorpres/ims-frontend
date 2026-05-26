@@ -6,6 +6,7 @@ import {
   Collapse,
   Divider,
   Form,
+  Pagination,
   Row,
   Typography,
 } from "antd";
@@ -77,6 +78,9 @@ export default function ItemLocationLog() {
   const [searchForm] = Form.useForm();
   const selectedComponent = Form.useWatch("component", searchForm);
   const selectedLocation = Form.useWatch("location", searchForm);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   //getting components options
   const getComponentOption = async (search) => {
@@ -89,7 +93,6 @@ export default function ItemLocationLog() {
       () => getComponentOptions(search),
       "select",
     );
-    const { data } = response;
     getData(response);
   };
 
@@ -130,39 +133,42 @@ export default function ItemLocationLog() {
     setLoading(false);
   };
   // getting rows
-  const getRows = async (values) => {
+  const getRows = async (values, page = 1, limit = pageSize) => {
     try {
       setLoading("fetch");
       setSummaryData(initialSummaryData);
       setRows([]);
 
-      const response = await imsAxios.post("/itemQueryL", {
-        location: values.location,
-        part_code: values.component,
+      const response = await imsAxios.get("/q2/view", {
+        params: {
+          location: values.location,
+          key: values.component,
+          page,
+          limit,
+        },
       });
       getDetails(values);
-      if (response?.data?.status === "error") {
-        toast.error(response?.data?.message?.msg);
+      const payload =
+        response?.data?.header || response?.data?.body
+          ? response
+          : response?.data;
+
+      if (payload?.status === "error") {
+        toast.error(payload?.message?.msg || payload?.message);
         setLoading(false);
         return;
       }
-      const { data } = response;
-      const {
-        header,
-        bom_details,
-        body,
-        last_physical_entry_by,
-        last_physical_entry_dt,
-        last_remark,
-      } = data.data;
-      console.log("this is the header", header);
-      if (data) {
-        if (data.code === 200) {
-          const bomDetails = bom_details;
-          const arr = body.map((row, index) => ({
-            index: index + 1,
+
+      const header = payload?.data?.header;
+      const body = payload?.data?.body ?? [];
+      const bomDetails = header?.bomDetails ?? payload?.data?.bom_details ?? {};
+
+      if (payload) {
+        if (payload?.success || payload?.status === "success" || payload?.code === 200) {
+          const arr = body.map((row) => ({
+            index: row.serialNo,
             id: v4(),
-            qty_in_rate: row.qty_in_rate ?? "-",
+            qtyInRate: row.qtyInRate ?? "-",
             weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
             weightedPurchaseRateCurrency:
               row.weightedPurchaseRateCurrency ?? "-",
@@ -186,10 +192,15 @@ export default function ItemLocationLog() {
           // console.log("bomDetailsArr", bomDetailsArr);
           setBomDetails(bomDetailsArr);
           setRows(arr);
+          if (payload?.pagination) {
+            setCurrentPage(payload.pagination.currentPage);
+            setPageSize(payload.pagination.limit);
+            setTotalRecords(payload.pagination.totalRecords);
+          }
           setSummaryData([
-            { title: "Component", description: header.component },
-            { title: "Part Code", description: header?.partno },
-            { title: "Attribute Code", description: header?.unique_id },
+            { title: "Component", description: header?.partName ?? "--" },
+            { title: "Part Code", description: header?.partNo ?? "--" },
+            { title: "Attribute Code", description: header?.uniqueID ?? "--" },
             { title: "MFG Code", description: header?.mfgCode },
             // {
             //   title: "Opening",
@@ -197,28 +208,48 @@ export default function ItemLocationLog() {
             // },
             {
               title: "Closing",
-              description: header.closingqty + " " + header.uom,
+              description: `${header?.closingqty ?? "--"} ${header?.uom ?? ""}`,
             },
             {
               title: "Last In (Date)",
-              description: header.last_date ?? "--",
+              description: header?.lastInDate ?? "--",
             },
-            { title: "Last Rate", description: header.lastRate },
-            { title: "Last Vendor", description: header.lastVendor },
-            { title: "Last Entry By", description: last_physical_entry_by },
-            { title: "Last Entry Date", description: last_physical_entry_dt },
-            { title: "Last Remark", description: last_remark },
+            { title: "Last Rate", description: header?.lastRate ?? "--" },
+            { title: "Last Vendor", description: header?.lastVendor ?? "--" },
+            { title: "Last Entry By", description: header?.lastEntryBy ?? "--" },
+            {
+              title: "Last Entry Date",
+              description: header?.lastEntryDate ?? "--",
+            },
+            { title: "Last Remark", description: header?.lastRemark ?? "--" },
           ]);
         } else {
           setBomDetails([]);
           setRows([]);
           setSummaryData(initialSummaryData);
+          setTotalRecords(0);
         }
       }
     } catch (error) {
+      toast.error(
+        error?.response?.data?.message?.msg ||
+          error?.message ||
+          "Error fetching item location log",
+      );
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page, limit) => {
+    setCurrentPage(page);
+    setPageSize(limit);
+    getRows(searchForm.getFieldsValue(), page, limit);
+  };
+
+  const handleFormSubmit = (values) => {
+    setCurrentPage(1);
+    getRows(values, 1, pageSize);
   };
 
   const handleDownloadReport = async () => {
@@ -256,13 +287,13 @@ export default function ItemLocationLog() {
     },
     {
       headerName: "Date",
-      field: "date",
+      field: "transactionDate",
       width: 150,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.transactionDate} />,
     },
     {
       headerName: "Type",
-      field: "transaction_type",
+      field: "transactionType",
       width: 30,
       renderCell: ({ row }) => (
         <div
@@ -271,49 +302,49 @@ export default function ItemLocationLog() {
             width: "15px",
             borderRadius: "50px",
             backgroundColor:
-              row.transaction_type === "CONSUMPTION"
+              row.transactionType === "CONSUMPTION"
                 ? "#678983"
-                : row.transaction_type === "INWARD"
+                : row.transactionType === "INWARD"
                   ? "#59CE8F"
-                  : row.transaction_type === "TRANSFER"
+                  : row.transactionType === "TRANSFER"
                     ? "#FFB100"
-                    : row.transaction_type === "ISSUE"
+                    : row.transactionType === "ISSUE"
                       ? "#DD5353"
-                      : row.transaction_type === "JOBWORK"
+                      : row.transactionType === "JOBWORK"
                         ? "#DD5353"
-                        : row.transaction_type === "CONVERSION"
+                        : row.transactionType === "CONVERSION"
                           ? "#ff9bb9"
-                          : row.transaction_type === "CANCELLED" && "#36454F",
+                          : row.transactionType === "CANCELLED" && "#36454F",
           }}
         />
       ),
     },
     {
       headerName: "Transaction",
-      field: "transaction",
+      field: "transactionID",
       width: 200,
       renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.transaction} copy={true} />
+        <ToolTipEllipses text={row.transactionID} copy={true} />
       ),
     },
     {
       headerName: "Qty In",
-      field: "qty_in",
+      field: "qtyIn",
       width: 120,
     },
     {
       headerName: "Qty Out",
-      field: "qty_out",
+      field: "qtyOut",
       width: 120,
     },
     {
       headerName: "Qty In Rate",
-      field: "qty_in_rate",
+      field: "qtyInRate",
       width: 120,
     },
     {
       headerName: "Out Rate",
-      field: "out_rate",
+      field: "outRate",
       width: 120,
     },
     // {
@@ -346,44 +377,44 @@ export default function ItemLocationLog() {
     },
     {
       headerName: "Method",
-      field: "mode",
+      field: "transactionMode",
       width: 120,
     },
     {
       headerName: "Loc In",
-      field: "location_in",
+      field: "locationIn",
       width: 120,
     },
     {
       headerName: "Loc Out",
-      field: "location_out",
+      field: "locationOut",
       width: 120,
     },
     {
       headerName: "Doc Type",
-      field: "vendortype",
+      field: "vendorType",
       width: 120,
     },
     {
       headerName: "Vendor",
-      field: "vendorname",
+      field: "vendorName",
       minWidth: 150,
       flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vendorname} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.vendorName} />,
     },
     {
       headerName: "Vendor Code",
-      field: "vendorcode",
+      field: "vendorCode",
       minWidth: 120,
       renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.vendorcode} copy={true} />
+        <ToolTipEllipses text={row.vendorCode} copy={true} />
       ),
     },
     {
       headerName: "Created/Approved By",
-      field: "doneby",
+      field: "transactionBy",
       minWidth: 150,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.transactionBy} />,
     },
     {
       headerName: "Remark",
@@ -399,7 +430,7 @@ export default function ItemLocationLog() {
           <Col span={24}>
             <Card size="small">
               <Form
-                onFinish={getRows}
+                onFinish={handleFormSubmit}
                 form={searchForm}
                 initialValues={initialValues}
                 layout="vertical"
@@ -564,11 +595,40 @@ export default function ItemLocationLog() {
         </Row>
       </Col>
       <Col span={20}>
-        <MyDataTable
-          loading={loading === "fetch"}
-          data={rows}
-          columns={columns}
-        />
+        <div
+          style={{ height: "100%", display: "flex", flexDirection: "column" }}
+        >
+          <div style={{ flex: 1, overflow: "auto" }}>
+            <MyDataTable
+              loading={loading === "fetch"}
+              data={rows}
+              columns={columns}
+            />
+          </div>
+          {rows.length > 0 && (
+            <div
+              style={{
+                padding: "16px",
+                textAlign: "right",
+                borderTop: "1px solid #f0f0f0",
+              }}
+            >
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={totalRecords}
+                onChange={handlePageChange}
+                onShowSizeChange={handlePageChange}
+                showSizeChanger
+                showTotal={(total, range) =>
+                  `${range[0]}-${range[1]} of ${total} items`
+                }
+                pageSizeOptions={[10, 25, 50, 100, 200]}
+                disabled={loading === "fetch"}
+              />
+            </div>
+          )}
+        </div>
       </Col>
     </Row>
   );
