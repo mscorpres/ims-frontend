@@ -123,6 +123,12 @@ const PartCodeConversionReport = () => {
         key: "uom",
         width: "44.5%",
       },
+      {
+        title: "Avg. Rate",
+        dataIndex: "avr_rate",
+        key: "avr_rate",
+        width: "44.5%",
+      },
 
       {
         title: "Pick Location",
@@ -137,6 +143,7 @@ const PartCodeConversionReport = () => {
       consump_part_code: consumptionItem.consump_part_code,
       uom: consumptionItem.uom,
       pick_location: consumptionItem.pick_location,
+      avr_rate: consumptionItem.avr_rate,
     }));
 
     return (
@@ -278,6 +285,7 @@ const PartCodeConversionReport = () => {
           rowData[`consump_uom${consumptionKeyPrefix}`] = consumptionItem.uom;
           rowData[`pick_location${consumptionKeyPrefix}`] =
             consumptionItem.pick_location;
+          rowData[`avr_rate${consumptionKeyPrefix}`] = consumptionItem.avr_rate;
         });
       }
 
