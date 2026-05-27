@@ -328,18 +328,20 @@
 //   date: [{ required: true, message: "Please select a date range" }],
 // };
 
-
-//updated code 
+//updated code
 import { useState } from "react";
 import { Button, Card, Col, Form, Row, Space, Pagination } from "antd"; // CHANGE: Added Pagination
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import { imsAxios } from "../../axiosInterceptor";
+import { imsAxios, getSessionFromStorage } from "../../axiosInterceptor";
+import { useDispatch, useSelector } from "react-redux";
+import { setNotifications } from "../../Features/loginSlice/loginSlice";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../Components/exportToCSV";
+import socket from "../../Components/socket";
+import { toast } from "react-toastify";
 // CHANGE: Removed MyDatePicker import as date range is no longer needed
 // import MyDatePicker from "../../Components/MyDatePicker";
 import { FileImageOutlined } from "@ant-design/icons";
@@ -359,8 +361,11 @@ export default function ItemAllLogs() {
     { title: "Last Rate", description: "" },
   ]);
   const [showImages, setShowImages] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { notifications } = useSelector((state) => state.login);
   const { executeFun, loading: loading1 } = useApi();
-  
+
   // CHANGE: Added pagination state variables
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -375,7 +380,7 @@ export default function ItemAllLogs() {
   const getComponentOption = async (search) => {
     const response = await executeFun(
       () => getComponentOptions(search),
-      "select"
+      "select",
     );
     const { data } = response;
     getData(response);
@@ -406,7 +411,7 @@ export default function ItemAllLogs() {
       { title: "Last Rate", description: "" },
     ]);
     setRows([]);
-    
+
     // CHANGE: Removed date range from API call, added page and limit
     const response = await imsAxios.post("/itemQueryA/fetchRM_logs", {
       // range: values.date, // REMOVED
@@ -415,7 +420,7 @@ export default function ItemAllLogs() {
       page: page, // ADDED
       limit: limit, // ADDED
     });
-    
+
     setLoading(false);
     const { data } = response;
     if (data) {
@@ -427,14 +432,14 @@ export default function ItemAllLogs() {
           ...row,
         }));
         setRows(arr);
-        
+
         // CHANGE: Updated pagination state from response
         if (data.response.pagination) {
           setCurrentPage(data.response.pagination.currentPage);
           setTotalRecords(data.response.pagination.totalRecords);
           setTotalPages(data.response.pagination.totalPages);
         }
-        
+
         setSummaryData([
           { title: "Component", description: data.response.data1.component },
           { title: "Part Code", description: data.response.data1.partno },
@@ -468,6 +473,31 @@ export default function ItemAllLogs() {
     getRows(values, 1, pageSize);
   };
 
+  const handleDownloadReport = async () => {
+    try {
+      const values = await searchForm.validateFields(["component"]);
+      const newId = v4();
+      let arr = notifications;
+      arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
+      dispatch(setNotifications(arr));
+
+      setDownloadLoading(true);
+      socket.emit("q1Report", {
+        partcode: values.component,
+        searchBy: "C",
+        notificationId: newId,
+      });
+      toast.success(
+        "Item Location Log report generation started. You will be notified when it is ready.",
+      );
+    } catch (error) {
+      if (error?.errorFields) return;
+      toast.error("Error initiating report generation");
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
+
   // columns
   let columns = [
     {
@@ -495,16 +525,16 @@ export default function ItemAllLogs() {
               row.transaction_type === "CONSUMPTION"
                 ? "#678983"
                 : row.transaction_type === "INWARD"
-                ? "#59CE8F"
-                : row.transaction_type === "TRANSFER"
-                ? "#FFB100"
-                : row.transaction_type === "ISSUE"
-                ? "#DD5353"
-                : row.transaction_type === "JOBWORK"
-                ? "#DD5353"
-                : row.transaction_type === "CONVERSION"
-                ? "#ff9bb9"
-                : row.transaction_type === "CANCELLED" && "#36454F",
+                  ? "#59CE8F"
+                  : row.transaction_type === "TRANSFER"
+                    ? "#FFB100"
+                    : row.transaction_type === "ISSUE"
+                      ? "#DD5353"
+                      : row.transaction_type === "JOBWORK"
+                        ? "#DD5353"
+                        : row.transaction_type === "CONVERSION"
+                          ? "#ff9bb9"
+                          : row.transaction_type === "CANCELLED" && "#36454F",
           }}
         />
       ),
@@ -609,7 +639,7 @@ export default function ItemAllLogs() {
                       />
                     </Form.Item>
                   </Col>
-                  
+
                   {/* CHANGE: Removed Date Range Field */}
                   {/* <Col span={24}>
                     <Form.Item
@@ -625,7 +655,7 @@ export default function ItemAllLogs() {
                       />
                     </Form.Item>
                   </Col> */}
-                  
+
                   <Col span={24}>
                     <Row gutter={6}>
                       <Space>
@@ -640,10 +670,8 @@ export default function ItemAllLogs() {
                         </MyButton>
 
                         <CommonIcons
-                          disabled={rows.length === 0}
-                          onClick={() =>
-                            downloadCSV(rows, columns, "Item Location Log")
-                          }
+                          disabled={!selectedComonents || downloadLoading || rows.length === 0}
+                          onClick={handleDownloadReport}
                           action="downloadButton"
                         />
                         <Button
@@ -675,7 +703,9 @@ export default function ItemAllLogs() {
       </Col>
       <Col span={20}>
         {/* CHANGE: Wrapped MyDataTable with pagination */}
-        <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <div
+          style={{ height: "100%", display: "flex", flexDirection: "column" }}
+        >
           <div style={{ flex: 1, overflow: "auto" }}>
             <MyDataTable
               loading={loading === "fetch"}
@@ -683,10 +713,16 @@ export default function ItemAllLogs() {
               columns={columns}
             />
           </div>
-          
+
           {/* CHANGE: Added Pagination Component */}
           {rows.length > 0 && (
-            <div style={{ padding: "16px", textAlign: "right", borderTop: "1px solid #f0f0f0" }}>
+            <div
+              style={{
+                padding: "16px",
+                textAlign: "right",
+                borderTop: "1px solid #f0f0f0",
+              }}
+            >
               <Pagination
                 current={currentPage}
                 pageSize={pageSize}
@@ -694,7 +730,7 @@ export default function ItemAllLogs() {
                 onChange={handlePageChange}
                 onShowSizeChange={handlePageChange}
                 showSizeChanger
-                showTotal={(total, range) => 
+                showTotal={(total, range) =>
                   `${range[0]}-${range[1]} of ${total} items`
                 }
                 pageSizeOptions={[10, 25, 50, 100, 200]}
