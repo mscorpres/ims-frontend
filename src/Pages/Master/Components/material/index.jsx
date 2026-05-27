@@ -75,7 +75,7 @@ const Material = () => {
             id: index + 1,
             componentName: row.c_name,
             partCode: row.c_part_no,
-              subGroup: row.sub_group_name,
+            subGroup: row.sub_group_name,
             key: row.component_key,
             unit: row.units_name,
             status: row.is_enabled === "YES" ? "Active" : "Inactive",
@@ -109,7 +109,6 @@ const Material = () => {
 
         setGroupOptions(arr);
       } else {
-      
         toast.error(data.message.msg);
       }
     } catch (error) {
@@ -120,7 +119,6 @@ const Material = () => {
   };
 
   const getSubGroupOptions = async (groupId) => {
-  
     if (!groupId) {
       setSubGroupOptions([]);
       return;
@@ -136,7 +134,7 @@ const Material = () => {
 
         setSubGroupOptions(arr);
       } else {
-            setSubGroupOptions([]);
+        setSubGroupOptions([]);
         toast.error(response.message);
       }
     } catch (error) {
@@ -223,148 +221,102 @@ const Material = () => {
     setHsnRows((curr) => curr.filter((row) => row.id !== id));
   };
 
-  const modalConfirmMaterial = async () => {
-    const headerValues = await headerForm.validateFields();
-    // console.log("headerValues", headerValues);
-    console.log("attributeValues", attributeValues);
-    console.log("manfCode", manfCode);
-    // return;
-    let atrrRes = {
-      multipler: attributeValues?.multiplier,
-      tolerance: attributeValues?.tolerance?.key,
-      mountingStyle: attributeValues?.mounting_style?.key,
-      packageSize: attributeValues?.package_size?.key,
-      powerRating: attributeValues?.power_rating?.key,
-      value: attributeValues?.value,
-    };
-    let atrrCAP = {
-      // multipler: attributeValues.multiplier,
-      tolerance: attributeValues?.tolerance?.key,
-      mountingStyle: attributeValues?.mounting_style?.key,
-      packageSize: attributeValues?.package_size?.key,
-      voltage: attributeValues?.voltage?.key,
-      value: attributeValues?.value,
-      typeofCapacitor: attributeValues?.type_Of_capacitor,
-      siUnit: attributeValues?.si_unit?.key,
-    };
-    let payload;
-    if (selectedCategory?.label === "Resistor") {
-      // setAttributeValues({atrrRes});
-      payload = {
-        part: headerValues.code,
-        uom: headerValues.unit,
-        component: headerValues.componentname,
-        new_partno: headerValues.newPart,
-        comp_type: "R",
-        c_category: headerValues.category,
-        notes: headerValues.description,
-        group: headerValues.group,
-        subgroup: headerValues.subgroup,
-        // attr_category: headerValues.attrCategory.value,
-        attr_category: "R",
-        attr_code: uniqueId,
-        // attr_code
-        hsns: hsnRows.map((row) => row.code.value),
-        taxs: hsnRows.map((row) => row.percentage),
-        attr_raw: atrrRes,
-        //manufacturing code
-        manufacturing_code: manfCode,
-        pia_status: isEnabled == true ? "Y" : "N",
-      };
-    } else if (selectedCategory?.label === "Capacitor") {
-      payload = {
-        part: headerValues.code,
-        uom: headerValues.unit,
-        component: headerValues.componentname,
-        new_partno: headerValues.newPart,
-        comp_type: "C",
-        c_category: headerValues.category,
-        notes: headerValues.description,
-        group: headerValues.group,
-        subgroup: headerValues.subgroup,
-        // attr_category: headerValues.attrCategory.value,
-        attr_category: "C",
-        attr_code: uniqueId,
-        // attr_code
-        hsns: hsnRows.map((row) => row.code.value),
-        taxs: hsnRows.map((row) => row.percentage),
-        attr_raw: atrrCAP,
-        //manufacturing code
-        manufacturing_code: manfCode,
-        pia_status: isEnabled == true ? "Y" : "N",
-      };
-    } else if (selectedCategory?.label === "Inductor") {
-      payload = {
-        part: headerValues.code,
-        uom: headerValues.unit,
-        component: headerValues.componentname,
-        new_partno: headerValues.newPart,
-        comp_type: "I",
-        c_category: headerValues.category,
-        notes: headerValues.description,
-        group: headerValues.group,
-        subgroup: headerValues.subgroup,
-        // attr_category: headerValues.attrCategory.value,
-        attr_category: "I",
-        attr_code: "--",
-        // attr_code
-        hsns: hsnRows.map((row) => row.code.value),
-        taxs: hsnRows.map((row) => row.percentage),
-        attr_raw: "",
-        //manufacturing code
-        manufacturing_code: manfCode,
-        pia_status: isEnabled == true ? "Y" : "N",
-      };
-    } else {
-      payload = {
-        part: headerValues.code,
-        uom: headerValues.unit,
-        component: headerValues.componentname,
-        new_partno: headerValues.newPart,
-        comp_type: "O",
-        c_category: headerValues.category,
-        notes: headerValues.description,
-        group: headerValues.group,
-        subgroup: headerValues.subgroup,
-        // attr_category: headerValues.attrCategory.value,
-        attr_category: "O",
-        attr_code: "--",
-        // attr_code
-        hsns: hsnRows.map((row) => row.code.value),
-        taxs: hsnRows.map((row) => row.percentage),
-        attr_raw: "",
-        //manufacturing code
-        manufacturing_code: manfCode,
-        pia_status: isEnabled == true ? "Y" : "N",
-      };
-    }
-    // return;
+  const CATEGORY_CONFIG = {
+    Resistor: {
+      comp_type: "R",
+      attr_category: "R",
+      getAttrRaw: (attr) => ({
+        multipler: [attr?.multiplier],
+        tolerance: [attr?.tolerance?.key],
+        mountingStyle: [attr?.mounting_style?.key],
+        packageSize: [attr?.package_size?.key],
+        powerRating: [attr?.power_rating?.key],
+        value: [attr?.value],
+      }),
+      getAttrCode: () => uniqueId,
+    },
 
-    const response = await imsAxios.post(
-      "/component/addComponent/verify",
-      payload
-    );
-    console.log("response", response);
-    const { data } = response;
-    if (data.code === 200) {
-      Modal.confirm({
-        title: "Are you sure you want to submit this Component?",
-        content: `${data.message}`,
-        onOk() {
-          submitHandler(payload);
-        },
-        onCancel() {},
-      });
-    } else {
-      toast.error(data.message.msg);
-      // Modal.confirm({
-      //   title: "Are you sure you want to submit this Material?",
-      //   content: `${data.message.msg}`,
-      //   // onOk() {
-      //   //   submitHandler(payload);
-      //   // },
-      //   onCancel() {},
-      // });
+    Capacitor: {
+      comp_type: "C",
+      attr_category: "C",
+      getAttrRaw: (attr) => ({
+        tolerance: [attr?.tolerance?.key],
+        mountingStyle: [attr?.mounting_style?.key],
+        packageSize: [attr?.package_size?.key],
+        voltage: [attr?.voltage?.key],
+        value: [attr?.value],
+        typeofCapacitor: [attr?.type_Of_capacitor],
+        siUnit: [attr?.si_unit?.key],
+      }),
+      getAttrCode: () => uniqueId,
+    },
+
+    Inductor: {
+      comp_type: "I",
+      attr_category: "I",
+      getAttrRaw: () => [],
+      getAttrCode: () => "--",
+    },
+
+    Default: {
+      comp_type: "O",
+      attr_category: "O",
+      getAttrRaw: () => [],
+      getAttrCode: () => "--",
+    },
+  };
+
+  const modalConfirmMaterial = async () => {
+    try {
+      const headerValues = await headerForm.validateFields();
+
+      const category =
+        CATEGORY_CONFIG[selectedCategory?.label] || CATEGORY_CONFIG.Default;
+
+      const payload = {
+        part: [headerValues.code],
+        uom: [headerValues.unit],
+        component: [headerValues.componentname],
+        new_partno: [headerValues.newPart],
+        c_category: [headerValues.category],
+        notes: [headerValues.description],
+        group: [headerValues.group],
+        subgroup: [headerValues.subgroup],
+
+        comp_type: [category.comp_type],
+        attr_category: [category.attr_category],
+        attr_code: [category.getAttrCode()],
+        attr_raw: [category.getAttrRaw(attributeValues)],
+
+        hsns: hsnRows.map((row) => row.code?.value),
+        taxs: hsnRows.map((row) => row.percentage),
+
+        manufacturing_code: [manfCode],
+        pia_status: [isEnabled ? "Y" : "N"],
+      };
+
+      const { data } = await imsAxios.post(
+        "/component/addComponent/verify",
+        payload,
+      );
+
+      if (data.code === 200) {
+        Modal.confirm({
+          title: "Are you sure you want to submit this Component?",
+          content: data.message,
+          onOk: () => submitHandler(payload),
+        });
+
+        return;
+      }
+
+      toast.error(data?.message?.msg || "Something went wrong");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to submit component",
+      );
     }
   };
 
@@ -374,7 +326,7 @@ const Material = () => {
 
       const response = await imsAxios.post(
         "/component/addComponent/save",
-        payload
+        payload,
       );
       const { data } = response;
       if (data) {
@@ -461,7 +413,7 @@ const Material = () => {
   const handleDownloadElectronicReport = async () => {
     const response = await executeFun(
       () => downloadElectronicReport(),
-      "download"
+      "download",
     );
     if (response.success) {
       window.open(response.data, "_blank", "noreferrer");
@@ -482,7 +434,7 @@ const Material = () => {
       headerForm.setFieldValue("subgroup", undefined);
     }
   }, [selectedGroup]);
-  
+
   useEffect(() => {
     if (selectedCategory && selectedCategory?.value !== "348423984423") {
       setShowAttributesModal({
@@ -552,9 +504,6 @@ const Material = () => {
                           options={attrCategoryOptions}
                         />
                       </Form.Item>
-                    
-                     
-                  
                     </Col>
                     <Col span={12}>
                       <Form.Item
@@ -666,13 +615,13 @@ const Material = () => {
                     <Col span={24}>
                       <Row justify="end">
                         <Flex wrap="wrap" gap={10}>
-                             <Button
-                          type="link"
-                          style={{ paddingLeft: 0, height: "auto" }}
-                          onClick={() => setBulkDrawerOpen(true)}
-                        >
-                          Bulk Add
-                        </Button>
+                          <Button
+                            type="link"
+                            style={{ paddingLeft: 0, height: "auto" }}
+                            onClick={() => setBulkDrawerOpen(true)}
+                          >
+                            Bulk Add
+                          </Button>
                           <MyButton
                             loading={loading1("download")}
                             text="Electronic Report"
@@ -936,7 +885,7 @@ const CategoryModal = ({
         "/mfgcategory/getAttributeListByCategory",
         {
           category: categoryKey.value,
-        }
+        },
       );
       const { data } = response;
 
@@ -1199,7 +1148,7 @@ const CategoryModal = ({
     };
 
     const result = Object.entries(mapping).find(
-      ([key, value]) => parseInt(key) === number
+      ([key, value]) => parseInt(key) === number,
     );
     console.log("resultresult", result);
     form.setFieldValue("multiplier", result[1]);
@@ -1240,7 +1189,7 @@ const CategoryModal = ({
     // Remove trailing zeros
     const stringWithoutTrailingZeros = numString.slice(
       0,
-      numString.length - count
+      numString.length - count,
     );
 
     return {
@@ -1422,7 +1371,7 @@ const CategoryModal = ({
                         // disabled={row.label === "multiplier"}
                         options={
                           fieldSelectOptions.find(
-                            (field) => field.name === row.name
+                            (field) => field.name === row.name,
                           )?.options || []
                         }
                       />
@@ -1451,7 +1400,8 @@ const CategoryModal = ({
                   type="secondary"
                 >
                   There are <strong>{existingComponents.length}</strong>{" "}
-                  components which are already assigned with the same unique ID{" "}
+                  components which are already assigned with the same unique
+                  ID{" "}
                 </Typography.Text>
               </Flex>
             )}
