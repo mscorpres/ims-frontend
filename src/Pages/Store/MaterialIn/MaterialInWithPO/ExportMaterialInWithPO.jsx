@@ -332,13 +332,13 @@ export default function ExportMaterialInWithPO({}) {
     },
     {
       headerName: "Foreign Value",
-      field: "foreignValue",
+      field: "foreign_value",
       flex: 1,
       minWidth: 100,
     },
     {
       headerName: "Freight Value",
-      field: "freightValue",
+      field: "freight_value",
       minWidth: 150,
       flex: 1,
     },
