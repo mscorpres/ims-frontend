@@ -190,7 +190,7 @@ export default function ExportMaterialInWithPO({}) {
       return {
         ...r,
         mfgCode: r.Manualmfgcode,
-        hsnCode: r.hsn,
+        hsnCode: r.hsn ?? r.hsncode,
         autoConsumption: r.Autoconsump == "Y" ? "Yes" : "No",
       };
     });
