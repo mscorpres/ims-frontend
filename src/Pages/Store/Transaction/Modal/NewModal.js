@@ -117,6 +117,7 @@ export default function NewModal({
         remark: materialData?.remark,
         authKey: materialData?.authIdentity,
         subject: headerData?.bomKey,
+        rate: materialData?.weightedRate,
       }
     );
     if (data.code == 200) {
