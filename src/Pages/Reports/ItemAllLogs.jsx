@@ -252,20 +252,25 @@ console.log(response);
       field: "qtyOut",
       width: 120,
     },
+    // {
+    //   headerName: "In Rate",
+    //   field: "inRate",
+    //   width: 120,
+    // },
+    // {
+    //   headerName: "Out Rate",
+    //   field: "outRate",
+    //   width: 120,
+    // },
+    // {
+    //   field: "weightedPurchaseRate",
+    //   headerName: "Weighted Average Rate",
+    //   width: 180,
+    // },
     {
-      headerName: "In Rate",
-      field: "inRate",
+      headerName: "Rate",
+      field: "rate",
       width: 120,
-    },
-    {
-      headerName: "Out Rate",
-      field: "outRate",
-      width: 120,
-    },
-    {
-      field: "weightedPurchaseRate",
-      headerName: "Weighted Average Rate",
-      width: 180,
     },
     {
       headerName: "Table Weighted Rate",
