@@ -332,13 +332,13 @@ export default function ExportMaterialInWithPO({}) {
     },
     {
       headerName: "Foreign Value",
-      field: "foreign_value",
+      field: "foreignValue",
       flex: 1,
       minWidth: 100,
     },
     {
       headerName: "Freight Value",
-      field: "freight_value",
+      field: "freightValue",
       minWidth: 150,
       flex: 1,
     },
@@ -1149,16 +1149,12 @@ export default function ExportMaterialInWithPO({}) {
           Number(item.insurance_amt ?? item.insuranceAmt) || 0;
 
         const taxableValue =
-          Number(item.taxable_value) || orderQty * importRate || 0;
+          Number(item.taxable_value)  ?? 0;
         const foreignValue =
-          Number(item.foreign_value) || taxableValue * exchangeRate || 0;
+          Number(item.foreign_value) ?? 0;
         const total =
-          taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
-        const finalRate =
-          orderQty > 0
-            ? importRate +
-              (customDuty + freightValue + misAmount + insuranceAmt) / orderQty
-            : importRate;
+          Number(item.total) ?? 0;
+        const finalRate = final_rate;
 
         return {
           partCode: part.part_code,
@@ -1167,12 +1163,12 @@ export default function ExportMaterialInWithPO({}) {
           manualMfgCode: part.manual_mfg_code,
           hsn: item.hsn,
           uom: item.uom,
-          orderQty: orderQty,
-          importRate: importRate,
-          exchangeRate: exchangeRate,
-          taxableValue: taxableValue,
-          foreignValue: foreignValue,
-          freightValue: freightValue,
+          orderQty,
+          importRate,
+          exchangeRate,
+          taxableValue,
+           foreignValue,
+          freightValue,
           customDuty: customDuty,
           misAmount: misAmount,
           insuranceAmt: insuranceAmt,
