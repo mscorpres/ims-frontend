@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Button,
   Drawer,
+  Modal,
   Space,
   Spin,
   Table,
@@ -511,24 +512,50 @@ function BulkAddComponentDrawer({ open, onClose, onSaved }) {
 
     setLoading("save");
     try {
-      const response = await imsAxios.post(
-        "/component/addComponent/save",
-        payload
+      const verifyResponse = await imsAxios.post(
+        "/component/addComponent/verify",
+        payload,
       );
-      const body = getApiBody(response);
-      if (isSuccess(body)) {
-        toast.success(
-          typeof body?.message === "string"
-            ? body.message
-            : "Saved successfully"
+      const verifyBody = getApiBody(verifyResponse);
+
+      if (!isSuccess(verifyBody)) {
+        toast.error(
+          verifyBody?.message?.msg ?? verifyBody?.message ?? "Verification failed",
         );
-        onSaved?.();
-        handleClose();
-      } else {
-        toast.error(body?.message?.msg ?? body?.message ?? "Save failed");
+        return;
       }
+
+      Modal.confirm({
+        title: "Are you sure you want to save these components?",
+        content:
+          typeof verifyBody?.message === "string"
+            ? verifyBody.message
+            : verifyBody?.message?.msg ?? "Please confirm to continue.",
+        onOk: async () => {
+          try {
+            const response = await imsAxios.post(
+              "/component/addComponent/save",
+              payload,
+            );
+            const body = getApiBody(response);
+            if (isSuccess(body)) {
+              toast.success(
+                typeof body?.message === "string"
+                  ? body.message
+                  : "Saved successfully",
+              );
+              onSaved?.();
+              handleClose();
+            } else {
+              toast.error(body?.message?.msg ?? body?.message ?? "Save failed");
+            }
+          } catch (e) {
+            toast.error("Save failed");
+          }
+        },
+      });
     } catch (e) {
-      toast.error("Save failed");
+      toast.error("Verification failed");
     } finally {
       setLoading(false);
     }
