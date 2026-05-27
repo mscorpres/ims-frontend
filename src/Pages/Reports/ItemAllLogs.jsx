@@ -212,13 +212,18 @@ console.log(response);
       ),
     },
     {
-      headerName: "Qty In",
+      headerName: "In Qty",
       field: "qtyIn",
       width: 120,
     },
     {
-      headerName: "Qty Out",
+      headerName: "Out Qty",
       field: "qtyOut",
+      width: 120,
+    },
+    {
+      headerName: "In Rate",
+      field: "inRate",
       width: 120,
     },
     {
