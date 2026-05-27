@@ -1152,10 +1152,17 @@ export default function ExportMaterialInWithPO({}) {
         const insuranceAmt =
           Number(item.insurance_amt ?? item.insuranceAmt) || 0;
 
-        const taxableValue = Number(item.taxable_value) ?? 0;
-        const foreignValue = Number(item.foreign_value) ?? 0;
-        const total = Number(item.total) ?? 0;
-        const finalRate = final_rate;
+             const taxableValue =
+          Number(item.taxable_value) || orderQty * importRate || 0;
+        const foreignValue =
+          Number(item.foreign_value) || taxableValue * exchangeRate || 0;
+        const total =
+          taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+        const finalRate =
+          orderQty > 0
+            ? importRate +
+              (customDuty + freightValue + misAmount + insuranceAmt) / orderQty
+            : importRate;
 
         return {
           partCode: part.part_code,
