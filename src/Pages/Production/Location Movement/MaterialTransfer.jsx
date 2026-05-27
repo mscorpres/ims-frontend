@@ -57,10 +57,8 @@ function MaterialTransfer({ type }) {
   const getLocation = async () => {
     let link = "";
     if (type == "sftorej") {
-      console.log("rejection goes on here");
       link = "/godown/fetchLocationForSF2REJ_from";
     } else {
-      console.log("rejection does not goes on here");
       link = "/godown/fetchLocationForSF2SF_from";
     }
     const { data } = await imsAxios.post(link);
@@ -540,6 +538,10 @@ function MaterialTransfer({ type }) {
                   onClick={() => {
                     if (!allData.locationSel) {
                       toast.error("Please select a Pick Location first");
+                      return;
+                    }
+                    if (!allData.dropLoc) {
+                      toast.error("Please select a Drop Location first");
                       return;
                     }
                     setBulkDrawerOpen(true);
