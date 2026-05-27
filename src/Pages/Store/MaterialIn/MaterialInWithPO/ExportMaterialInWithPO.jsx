@@ -780,7 +780,7 @@ export default function ExportMaterialInWithPO({}) {
             ...mat,
             id: v4(),
             // Map field names to match column expectations
-            partCode: mat.c_partno ||mat.partcode || "",
+            partCode: mat.c_partno || mat.partcode || "",
             manualMfgCode: mat.mfgCode || "--",
             mfgCode: mat.mfgCode || "--", // Also add for manualMFGCode cell component
             orderQty: orderQty,
@@ -917,7 +917,9 @@ export default function ExportMaterialInWithPO({}) {
       renderCell: (params) => (
         <Input
           value={params.row.misAmount}
-          onChange={(e) => inputHandler("misAmount", e.target.value, params.row.id)}
+          onChange={(e) =>
+            inputHandler("misAmount", e.target.value, params.row.id)
+          }
           type="number"
         />
       ),
@@ -930,7 +932,9 @@ export default function ExportMaterialInWithPO({}) {
       renderCell: (params) => (
         <Input
           value={params.row.insuranceAmt}
-          onChange={(e) => inputHandler("insuranceAmt", e.target.value, params.row.id)}
+          onChange={(e) =>
+            inputHandler("insuranceAmt", e.target.value, params.row.id)
+          }
           type="number"
         />
       ),
@@ -1148,12 +1152,9 @@ export default function ExportMaterialInWithPO({}) {
         const insuranceAmt =
           Number(item.insurance_amt ?? item.insuranceAmt) || 0;
 
-        const taxableValue =
-          Number(item.taxable_value)  ?? 0;
-        const foreignValue =
-          Number(item.foreign_value) ?? 0;
-        const total =
-          Number(item.total) ?? 0;
+        const taxableValue = Number(item.taxable_value) ?? 0;
+        const foreignValue = Number(item.foreign_value) ?? 0;
+        const total = Number(item.total) ?? 0;
         const finalRate = final_rate;
 
         return {
@@ -1163,12 +1164,12 @@ export default function ExportMaterialInWithPO({}) {
           manualMfgCode: part.manual_mfg_code,
           hsn: item.hsn,
           uom: item.uom,
-          orderQty,
-          importRate,
-          exchangeRate,
-          taxableValue,
-           foreignValue,
-          freightValue,
+          orderQty: orderQty,
+          importRate: importRate,
+          exchangeRate: exchangeRate,
+          taxableValue: taxableValue,
+          foreignValue: foreignValue,
+          freightValue: freightValue,
           customDuty: customDuty,
           misAmount: misAmount,
           insuranceAmt: insuranceAmt,
