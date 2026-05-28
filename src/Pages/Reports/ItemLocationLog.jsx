@@ -6,7 +6,6 @@ import {
   Collapse,
   Divider,
   Form,
-  Pagination,
   Row,
   Typography,
 } from "antd";
@@ -43,26 +42,6 @@ const initialSummaryData = [
   { title: "Last Remark", description: "--" },
 ];
 
-function weightedRatesMismatch(row) {
-  const a = row.weightedPurchaseRate;
-  const b = row.tbl_weighted_rate;
-  const norm = (v) => {
-    if (v === null || v === undefined) return null;
-    const s = String(v).trim();
-    if (s === "" || s === "-") return null;
-    const n = Number(String(s).replace(/,/g, ""));
-    return Number.isFinite(n) ? n : s;
-  };
-  const na = norm(a);
-  const nb = norm(b);
-  if (na === null && nb === null) return false;
-  if (na === null || nb === null) return true;
-  if (typeof na === "number" && typeof nb === "number") {
-    return Math.round(na * 1e6) !== Math.round(nb * 1e6);
-  }
-  return String(na).trim() !== String(nb).trim();
-}
-
 export default function ItemLocationLog() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
@@ -78,9 +57,6 @@ export default function ItemLocationLog() {
   const [searchForm] = Form.useForm();
   const selectedComponent = Form.useWatch("component", searchForm);
   const selectedLocation = Form.useWatch("location", searchForm);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(50);
-  const [totalRecords, setTotalRecords] = useState(0);
 
   //getting components options
   const getComponentOption = async (search) => {
@@ -93,6 +69,7 @@ export default function ItemLocationLog() {
       () => getComponentOptions(search),
       "select",
     );
+    const { data } = response;
     getData(response);
   };
 
@@ -133,42 +110,39 @@ export default function ItemLocationLog() {
     setLoading(false);
   };
   // getting rows
-  const getRows = async (values, page = 1, limit = pageSize) => {
+  const getRows = async (values) => {
     try {
       setLoading("fetch");
       setSummaryData(initialSummaryData);
       setRows([]);
 
-      const response = await imsAxios.get("/q2/view", {
-        params: {
-          location: values.location,
-          key: values.component,
-          page,
-          limit,
-        },
+      const response = await imsAxios.post("/itemQueryL", {
+        location: values.location,
+        part_code: values.component,
       });
       getDetails(values);
-      const payload =
-        response?.data?.header || response?.data?.body
-          ? response
-          : response?.data;
-
-      if (payload?.status === "error") {
-        toast.error(payload?.message?.msg || payload?.message);
+      if (response?.data?.status === "error") {
+        toast.error(response?.data?.message?.msg);
         setLoading(false);
         return;
       }
-
-      const header = payload?.data?.header;
-      const body = payload?.data?.body ?? [];
-      const bomDetails = header?.bomDetails ?? payload?.data?.bom_details ?? {};
-
-      if (payload) {
-        if (payload?.success || payload?.status === "success" || payload?.code === 200) {
-          const arr = body.map((row) => ({
-            index: row.serialNo,
+      const { data } = response;
+      const {
+        header,
+        bom_details,
+        body,
+        last_physical_entry_by,
+        last_physical_entry_dt,
+        last_remark,
+      } = data.data;
+      console.log("this is the header", header);
+      if (data) {
+        if (data.code === 200) {
+          const bomDetails = bom_details;
+          const arr = body.map((row, index) => ({
+            index: index + 1,
             id: v4(),
-            qtyInRate: row.qtyInRate ?? "-",
+            qty_in_rate: row.qty_in_rate ?? "-",
             weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
             weightedPurchaseRateCurrency:
               row.weightedPurchaseRateCurrency ?? "-",
@@ -192,15 +166,10 @@ export default function ItemLocationLog() {
           // console.log("bomDetailsArr", bomDetailsArr);
           setBomDetails(bomDetailsArr);
           setRows(arr);
-          if (payload?.pagination) {
-            setCurrentPage(payload.pagination.currentPage);
-            setPageSize(payload.pagination.limit);
-            setTotalRecords(payload.pagination.totalRecords);
-          }
           setSummaryData([
-            { title: "Component", description: header?.partName ?? "--" },
-            { title: "Part Code", description: header?.partNo ?? "--" },
-            { title: "Attribute Code", description: header?.uniqueID ?? "--" },
+            { title: "Component", description: header.component },
+            { title: "Part Code", description: header?.partno },
+            { title: "Attribute Code", description: header?.unique_id },
             { title: "MFG Code", description: header?.mfgCode },
             // {
             //   title: "Opening",
@@ -208,48 +177,28 @@ export default function ItemLocationLog() {
             // },
             {
               title: "Closing",
-              description: `${header?.closingqty ?? "--"} ${header?.uom ?? ""}`,
+              description: header.closingqty + " " + header.uom,
             },
             {
               title: "Last In (Date)",
-              description: header?.lastInDate ?? "--",
+              description: header.last_date ?? "--",
             },
-            { title: "Last Rate", description: header?.lastRate ?? "--" },
-            { title: "Last Vendor", description: header?.lastVendor ?? "--" },
-            { title: "Last Entry By", description: header?.lastEntryBy ?? "--" },
-            {
-              title: "Last Entry Date",
-              description: header?.lastEntryDate ?? "--",
-            },
-            { title: "Last Remark", description: header?.lastRemark ?? "--" },
+            { title: "Last Rate", description: header.lastRate },
+            { title: "Last Vendor", description: header.lastVendor },
+            { title: "Last Entry By", description: last_physical_entry_by },
+            { title: "Last Entry Date", description: last_physical_entry_dt },
+            { title: "Last Remark", description: last_remark },
           ]);
         } else {
           setBomDetails([]);
           setRows([]);
           setSummaryData(initialSummaryData);
-          setTotalRecords(0);
         }
       }
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message?.msg ||
-          error?.message ||
-          "Error fetching item location log",
-      );
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePageChange = (page, limit) => {
-    setCurrentPage(page);
-    setPageSize(limit);
-    getRows(searchForm.getFieldsValue(), page, limit);
-  };
-
-  const handleFormSubmit = (values) => {
-    setCurrentPage(1);
-    getRows(values, 1, pageSize);
   };
 
   const handleDownloadReport = async () => {
@@ -287,13 +236,13 @@ export default function ItemLocationLog() {
     },
     {
       headerName: "Date",
-      field: "transactionDate",
+      field: "date",
       width: 150,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.transactionDate} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.date} />,
     },
     {
       headerName: "Type",
-      field: "transactionType",
+      field: "transaction_type",
       width: 30,
       renderCell: ({ row }) => (
         <div
@@ -302,49 +251,49 @@ export default function ItemLocationLog() {
             width: "15px",
             borderRadius: "50px",
             backgroundColor:
-              row.transactionType === "CONSUMPTION"
+              row.transaction_type === "CONSUMPTION"
                 ? "#678983"
-                : row.transactionType === "INWARD"
+                : row.transaction_type === "INWARD"
                   ? "#59CE8F"
-                  : row.transactionType === "TRANSFER"
+                  : row.transaction_type === "TRANSFER"
                     ? "#FFB100"
-                    : row.transactionType === "ISSUE"
+                    : row.transaction_type === "ISSUE"
                       ? "#DD5353"
-                      : row.transactionType === "JOBWORK"
+                      : row.transaction_type === "JOBWORK"
                         ? "#DD5353"
-                        : row.transactionType === "CONVERSION"
+                        : row.transaction_type === "CONVERSION"
                           ? "#ff9bb9"
-                          : row.transactionType === "CANCELLED" && "#36454F",
+                          : row.transaction_type === "CANCELLED" && "#36454F",
           }}
         />
       ),
     },
     {
       headerName: "Transaction",
-      field: "transactionID",
+      field: "transaction",
       width: 200,
       renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.transactionID} copy={true} />
+        <ToolTipEllipses text={row.transaction} copy={true} />
       ),
     },
     {
       headerName: "Qty In",
-      field: "qtyIn",
+      field: "qty_in",
       width: 120,
     },
     {
       headerName: "Qty Out",
-      field: "qtyOut",
+      field: "qty_out",
       width: 120,
     },
     {
       headerName: "Qty In Rate",
-      field: "qtyInRate",
+      field: "qty_in_rate",
       width: 120,
     },
     {
       headerName: "Out Rate",
-      field: "outRate",
+      field: "out_rate",
       width: 120,
     },
     // {
@@ -363,58 +312,45 @@ export default function ItemLocationLog() {
       ),
     },
     {
-      headerName: "Table Weighted Rate",
-      field: "tbl_weighted_rate",
-      width: 120,
-      renderCell: ({ row }) => {
-        const warn = weightedRatesMismatch(row);
-        return (
-          <span style={warn ? { color: "#c62828", fontWeight: 600 } : undefined}>
-            {row.tbl_weighted_rate}
-          </span>
-        );
-      },
-    },
-    {
       headerName: "Method",
-      field: "transactionMode",
+      field: "mode",
       width: 120,
     },
     {
       headerName: "Loc In",
-      field: "locationIn",
+      field: "location_in",
       width: 120,
     },
     {
       headerName: "Loc Out",
-      field: "locationOut",
+      field: "location_out",
       width: 120,
     },
     {
       headerName: "Doc Type",
-      field: "vendorType",
+      field: "vendortype",
       width: 120,
     },
     {
       headerName: "Vendor",
-      field: "vendorName",
+      field: "vendorname",
       minWidth: 150,
       flex: 1,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.vendorName} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.vendorname} />,
     },
     {
       headerName: "Vendor Code",
-      field: "vendorCode",
+      field: "vendorcode",
       minWidth: 120,
       renderCell: ({ row }) => (
-        <ToolTipEllipses text={row.vendorCode} copy={true} />
+        <ToolTipEllipses text={row.vendorcode} copy={true} />
       ),
     },
     {
       headerName: "Created/Approved By",
-      field: "transactionBy",
+      field: "doneby",
       minWidth: 150,
-      renderCell: ({ row }) => <ToolTipEllipses text={row.transactionBy} />,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.doneby} />,
     },
     {
       headerName: "Remark",
@@ -430,7 +366,7 @@ export default function ItemLocationLog() {
           <Col span={24}>
             <Card size="small">
               <Form
-                onFinish={handleFormSubmit}
+                onFinish={getRows}
                 form={searchForm}
                 initialValues={initialValues}
                 layout="vertical"
@@ -595,40 +531,11 @@ export default function ItemLocationLog() {
         </Row>
       </Col>
       <Col span={20}>
-        <div
-          style={{ height: "100%", display: "flex", flexDirection: "column" }}
-        >
-          <div style={{ flex: 1, overflow: "auto" }}>
-            <MyDataTable
-              loading={loading === "fetch"}
-              data={rows}
-              columns={columns}
-            />
-          </div>
-          {rows.length > 0 && (
-            <div
-              style={{
-                padding: "16px",
-                textAlign: "right",
-                borderTop: "1px solid #f0f0f0",
-              }}
-            >
-              <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={totalRecords}
-                onChange={handlePageChange}
-                onShowSizeChange={handlePageChange}
-                showSizeChanger
-                showTotal={(total, range) =>
-                  `${range[0]}-${range[1]} of ${total} items`
-                }
-                pageSizeOptions={[10, 25, 50, 100, 200]}
-                disabled={loading === "fetch"}
-              />
-            </div>
-          )}
-        </div>
+        <MyDataTable
+          loading={loading === "fetch"}
+          data={rows}
+          columns={columns}
+        />
       </Col>
     </Row>
   );

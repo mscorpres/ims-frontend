@@ -46,24 +46,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   const [createJobWorkChallanForm] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
 
-  const resetModalState = () => {
-    createJobWorkChallanForm.resetFields();
-    setRows([]);
-    setRestCom({
-      nature: "",
-      duration: "",
-      otherRef: "",
-    });
-    setLocationOptions([]);
-    setDropLocationOptions([]);
-    setAsyncOptions([]);
-  };
-
-  const handleClose = () => {
-    resetModalState();
-    setEditJWAll(false);
-  };
-
   const getDetails = async () => {
     setLoading("fetchDetails", true);
     const response = await imsAxios.post("/jobwork/createJwChallan", {
@@ -239,7 +221,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     setLoading("submit", false);
     if (response.data.code === 200) {
       toast.success(response.data.message);
-      handleClose();
+      setEditJWAll(false);
       getRows();
     } else {
       if (response.data.message.msg) {
@@ -564,7 +546,6 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
   };
   useEffect(() => {
     if (editiJWAll) {
-      resetModalState();
       getDetails();
       getBillingBranchOptions();
       getDispatchBranchOptions();
@@ -583,9 +564,8 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
     <Drawer
       title={`Creating Jobwork Challan`}
       width="100vw"
-      open={!!editiJWAll}
-      destroyOnClose
-      onClose={handleClose}
+      open={editiJWAll}
+      onClose={() => setEditJWAll(false)}
     >
       <Row style={{ height: "100%" }}>
         <Col span={9} style={{ height: "95%", overflowY: "scroll" }}>
@@ -769,7 +749,7 @@ function JWRMChallanEditAll({ setEditJWAll, editiJWAll, getRows }) {
           />
         </Col>
         <NavFooter
-          backFunction={handleClose}
+          backFunction={() => setEditJWAll(false)}
           submitFunction={submitHandler}
           nextLabel="Submit"
           loading={loading("submit")}

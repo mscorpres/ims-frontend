@@ -164,8 +164,7 @@ function RmtoRm() {
     const tolocations = rows.map((row) => row.locationTo);
     const qtys = rows.map((row) => row.qty1);
     const comments = rows.map((row) => row.comment || "");
-    const rates = rows.map((row) => row.avrRate);
-    
+
     const { data } = await imsAxios.post("/godown/transferRM2RM", {
       comment: comments,
       fromlocation: allData.locationFrom,
@@ -174,7 +173,6 @@ function RmtoRm() {
       qty: qtys,
       type: "RM2RM",
       tobranch: allData.dropBranch,
-      rate: rates,
     });
 
     if (data.code == 200) {

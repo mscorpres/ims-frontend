@@ -34,5 +34,4 @@ export interface R34ComponentType {
   bomQty: string;
   executedDate: string;
   executedBy: string;
-  avgRate: string;
 }

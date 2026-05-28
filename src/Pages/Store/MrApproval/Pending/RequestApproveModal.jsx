@@ -138,7 +138,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         authKey: authKey,
         subject: headers.bomKey,
         requestedQty: requestedQty,
-        rate: weightedRate,
+
         pickLocation: values.pickLocation,
         component: values.component,
         issueQty: values.issueQty,

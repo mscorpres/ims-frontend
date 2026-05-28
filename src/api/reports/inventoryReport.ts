@@ -89,7 +89,6 @@ interface GetR34DetailsType {
   bomQty: "1";
   insert_dt: "03-05-2024 12:54:34";
   create_by: "Somendra Yadav";
-  avg_rate: "100";
 }
 export const getR34Details = async (
   transactionId: string,
@@ -112,7 +111,6 @@ export const getR34Details = async (
         name: row.components_name,
         partCode: row.components_part_no,
         qty: row.qty,
-        avgRate: row.avgRate,
       })
     );
   }

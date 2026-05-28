@@ -710,7 +710,24 @@ export default function ProductMIN() {
     setVendorBranchOptions(arr);
     return arr;
   };
-
+  // const getCostCenteres = async (searchInput) => {
+  //   if (searchInput.length > 2) {
+  //     setSelectLoading(true);
+  //     const { data } = await imsAxios.post("/backend/costCenter", {
+  //       search: searchInput,
+  //     });
+  //     setSelectLoading(false);
+  //     let arr = [];
+  //     if (!data.msg) {
+  //       arr = data.map((d) => {
+  //         return { text: d.text, value: d.id };
+  //       });
+  //       setAsyncOptions(arr);
+  //     } else {
+  //       setAsyncOptions([]);
+  //     }
+  //   }
+  // };
   const handleFetchCostCenterOptions = async (search) => {
     const response = await executeFun(
       () => getCostCentresOptions(search),
