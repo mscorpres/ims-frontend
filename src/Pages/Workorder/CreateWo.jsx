@@ -10,7 +10,7 @@ import {
   Row,
   Typography,
 } from "antd";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState} from "react";
 import MySelect from "../../Components/MySelect";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import NavFooter from "../../Components/NavFooter";
@@ -1040,8 +1040,29 @@ export default function CreateWO({}) {
                 </Form.Item>
               </Col>
               <Col span={4}>
-                <Form.Item name="insertDate" label="Insert Date">
-                  <Input size="default" type="date" />
+                <Form.Item
+                  name="insertDate"
+                  label="Insert Date"
+                  rules={[
+                    {
+                      validator: (_, value) => {
+                        if (!value) return Promise.resolve();
+                        const today = new Date().toLocaleDateString("en-CA");
+                        if (value > today) {
+                          return Promise.reject(
+                            new Error("Insert date cannot be a future date")
+                          );
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                >
+                  <Input
+                    size="default"
+                    type="date"
+                    max={new Date().toLocaleDateString("en-CA")}
+                  />
                 </Form.Item>
               </Col>
             </Row>

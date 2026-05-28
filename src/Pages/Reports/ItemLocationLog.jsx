@@ -11,17 +11,19 @@ import {
   Typography,
 } from "antd";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import { imsAxios } from "../../axiosInterceptor";
+import { imsAxios, getSessionFromStorage } from "../../axiosInterceptor";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
 import SummaryCard from "../../Components/SummaryCard";
 import { CommonIcons } from "../../Components/TableActions.jsx/TableActions";
-import { downloadCSV } from "../../Components/exportToCSV";
+import socket from "../../Components/socket";
 import { getComponentOptions } from "../../api/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { setNotifications } from "../../Features/loginSlice/loginSlice";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
@@ -68,6 +70,9 @@ export default function ItemLocationLog() {
   const [altDetails, setAltDetails] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [summaryData, setSummaryData] = useState(initialSummaryData);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { notifications } = useSelector((state) => state.login);
   const { executeFun, loading: loading1 } = useApi();
   // initializing searh form
   const [searchForm] = Form.useForm();
@@ -86,7 +91,7 @@ export default function ItemLocationLog() {
     // setLoading(false);
     const response = await executeFun(
       () => getComponentOptions(search),
-      "select"
+      "select",
     );
     getData(response);
   };
@@ -151,7 +156,7 @@ export default function ItemLocationLog() {
       if (payload?.status === "error") {
         toast.error(payload?.message?.msg || payload?.message);
         setLoading(false);
-        return
+        return;
       }
 
       const header = payload?.data?.header;
@@ -165,7 +170,8 @@ export default function ItemLocationLog() {
             id: v4(),
             qtyInRate: row.qtyInRate ?? "-",
             weightedPurchaseRate: row.weightedPurchaseRate ?? "-",
-            weightedPurchaseRateCurrency: row.weightedPurchaseRateCurrency ?? "-",
+            weightedPurchaseRateCurrency:
+              row.weightedPurchaseRateCurrency ?? "-",
             ...row,
           }));
           let bomDetailsArr = [];
@@ -351,9 +357,7 @@ export default function ItemLocationLog() {
       field: "weightedPurchaseRate",
       width: 120,
       renderCell: ({ row }) => (
-        <Tooltip
-          title={row.weightedPurchaseRateCurrency}
-        >
+        <Tooltip title={row.weightedPurchaseRateCurrency}>
           {row.weightedPurchaseRate}
         </Tooltip>
       ),
@@ -475,10 +479,12 @@ export default function ItemLocationLog() {
                       </Col>
                       <Col span={4}>
                         <CommonIcons
-                          disabled={rows.length === 0}
-                          onClick={() =>
-                            downloadCSV(rows, columns, "Item Location Log")
+                          disabled={
+                            !selectedComponent ||
+                            !selectedLocation ||
+                            downloadLoading || rows.length === 0
                           }
+                          onClick={handleDownloadReport}
                           action="downloadButton"
                         />
                       </Col>
