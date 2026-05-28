@@ -957,13 +957,13 @@ export default function MaterialInWithoutPO() {
     },
     {
       headerName: "MIS Amount",
-      field: "MIS_AMOUNT",
+      field: "misAmount",
       flex: 1,
       minWidth: 100,
     },
     {
       headerName: "Insurance Amount",
-      field: "INSURANCE_AMOUNT",
+      field: "insuranceAmount",
       flex: 1,
       minWidth: 100,
     },
