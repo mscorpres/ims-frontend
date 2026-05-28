@@ -515,8 +515,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
@@ -543,8 +542,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
@@ -571,8 +569,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
@@ -598,8 +595,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
@@ -624,8 +620,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
@@ -650,8 +645,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
@@ -677,8 +671,7 @@ export default function ExportMaterialInWithPO({}) {
             taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           const finalRate =
             qty > 0
-              ? rate +
-                (customDuty + freightValue + misAmount + insuranceAmt) / qty
+              ? total / qty
               : rate;
 
           obj = {
