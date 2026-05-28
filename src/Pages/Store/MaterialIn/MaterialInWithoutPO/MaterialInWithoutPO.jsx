@@ -1041,6 +1041,7 @@ export default function MaterialInWithoutPO() {
         });
         return rowObject;
       });
+      const globalCurrency = showCurrency?.currency || form.getFieldValue("currency");
 
       let arr = formattedRows.map((r, index) => ({
         id: index + 1,
@@ -1053,6 +1054,7 @@ export default function MaterialInWithoutPO() {
         rate: r.Rate,
         misAmount: r.Misamount,
         insuranceAmount: r.Insuranceamount,
+        currency: globalCurrency || defaultValues.currency,
         hsn: r.Hsn,
         autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
         autoCons: {
