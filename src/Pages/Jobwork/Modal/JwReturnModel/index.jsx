@@ -177,6 +177,7 @@ const JwReturnModel = ({ show, close }) => {
         partCode: row.partcode,
         uom: row.unitsname,
         pendingQty: row.pendingWithJw,
+        rate: row.avg_rate ?? "",
       }));
 
       setRows(componentArr);
