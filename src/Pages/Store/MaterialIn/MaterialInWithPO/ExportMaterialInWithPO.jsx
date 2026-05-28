@@ -1142,49 +1142,28 @@ export default function ExportMaterialInWithPO({}) {
 
       // Flatten the new data structure to extract part details and other fields
       const formattedRows = data?.data?.map((item) => {
-        const part = item.part;
-        const orderQty = Number(item.order_qty) || 0;
-        const importRate = Number(item.import_rate) || 0;
-        const exchangeRate = Number(item.exchange_rate) || 0;
-        const customDuty = Number(item.custom_duty) || 0;
-        const freightValue = Number(item.freight_value) || 0;
-        const misAmount = Number(item.mis_amount ?? item.misAmount) || 0;
-        const insuranceAmt =
-          Number(item.insurance_amt ?? item.insuranceAmt) || 0;
-
-             const taxableValue =
-          Number(item.taxable_value) || orderQty * importRate || 0;
-        const foreignValue =
-          Number(item.foreign_value) || taxableValue * exchangeRate || 0;
-        const total =
-          taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
-        const finalRate =
-          orderQty > 0
-            ? importRate +
-              (customDuty + freightValue + misAmount + insuranceAmt) / orderQty
-            : importRate;
-
+      
         return {
-          partCode: part.part_code,
-          partName: part.part_name,
-          componentKey: part.component_key,
-          manualMfgCode: part.manual_mfg_code,
+          partCode: item.part_code,
+          partName: item.part_name,
+          componentKey: item.component_key,
+          manualMfgCode: item.manual_mfg_code,
           hsn: item.hsn,
           uom: item.uom,
-          orderQty: orderQty,
-          importRate: importRate,
-          exchangeRate: exchangeRate,
-          taxableValue: taxableValue,
-          foreignValue: foreignValue,
-          freightValue: freightValue,
-          customDuty: customDuty,
-          misAmount: misAmount,
-          insuranceAmt: insuranceAmt,
-          total: total,
-          finalRate: finalRate,
+          orderQty: item.order_qty,
+          importRate: item.import_rate,
+          exchangeRate: item.exchange_rate,
+          taxableValue: item.taxable_value,
+          foreignValue: item.foreign_value,
+          freightValue: item.freight_value,
+          customDuty: item.custom_duty,
+          misAmount: item.mis_amount ?? item.misAmount,
+          insuranceAmt: item.insurance_amt ?? item.insuranceAmt,
+          total: item.total,
+          finalRate: item.final_rate,
           pendingQty: item.pending_qty,
           poOrderQty: item.po_order_qty,
-          value: (orderQty * importRate).toFixed(3), // You may want to adjust the calculation for the value
+          value: (item.order_qty * item.import_rate).toFixed(3), 
         };
       });
       // Optional: map formatted rows to final structure
