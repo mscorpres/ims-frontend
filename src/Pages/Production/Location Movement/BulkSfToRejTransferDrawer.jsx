@@ -267,9 +267,6 @@ function BulkSfToRejTransferDrawer({
       destroyOnClose
       extra={
         <Space>
-          <Button type="link" onClick={handleDownloadSample}>
-            Sample File
-          </Button>
           {rows.length > 0 && (
             <Button onClick={reset} disabled={!!loading}>
               Upload another file
