@@ -363,7 +363,7 @@ export default function ItemLocationLog() {
       ),
     },
     {
-      headerName: "New Avg. Rate",
+      headerName: "Table Weighted Rate",
       field: "tbl_weighted_rate",
       width: 120,
       renderCell: ({ row }) => {
