@@ -16,6 +16,12 @@ const generateUniqueId = () => {
   return uuidv4();
 };
 
+const generateTriggerUidHeader = () => {
+  const uid = generateUniqueId().replaceAll("-", "");
+  const timestamp = formatTimestamp();
+  return `${uid}:${timestamp}`;
+};
+
 const formatTimestamp = () => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
@@ -62,12 +68,14 @@ imsAxios.interceptors.request.use(
       return Promise.reject(new axios.Cancel("Switch in progress please wait...."));
     }
 
-    const newId = uuidv4();
+    const newId = generateUniqueId();
     const timestamp = formatTimestamp();
+    const triggerUid = generateTriggerUidHeader();
 
     // Add headers
     config.headers["timeStamp"] = timestamp;
     config.headers["newId"] = newId;
+    config.headers["x-trigger-uid"] = triggerUid;
 
     // Use newToken if available, otherwise use loggedInUser token
     const token = getToken();
