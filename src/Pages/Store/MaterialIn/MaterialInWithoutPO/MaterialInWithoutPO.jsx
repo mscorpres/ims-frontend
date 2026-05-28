@@ -1051,8 +1051,8 @@ export default function MaterialInWithoutPO() {
         component: { label: r.Partcode.name, value: r.Partcode.key },
         qty: r.Qty,
         rate: r.Rate,
-        misAmount: r.MIS_AMOUNT,
-        insuranceAmount: r.INSURANCE_AMOUNT,
+        misAmount: r.Misamount,
+        insuranceAmount: r.Insuranceamount,
         hsn: r.Hsn,
         autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
         autoCons: {
