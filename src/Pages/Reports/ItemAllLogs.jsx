@@ -273,7 +273,7 @@ console.log(response);
       width: 120,
     },
     {
-      headerName: "Table Weighted Rate",
+      headerName: "New Avg. Rate",
       field: "tbl_weighted_rate",
       width: 180,
       renderCell: ({ row }) => {
