@@ -1144,10 +1144,10 @@ export default function ExportMaterialInWithPO({}) {
       const formattedRows = data?.data?.map((item) => {
       
         return {
-          partCode: item.part_code,
-          partName: item.part_name,
-          componentKey: item.component_key,
-          manualMfgCode: item.manual_mfg_code,
+          partCode: item.part?.part_code,
+          partName: item.part?.part_name,
+          componentKey: item.part?.component_key,
+          manualMfgCode: item.part?.manual_mfg_code,
           hsn: item.hsn,
           uom: item.uom,
           orderQty: item.order_qty,
