@@ -126,6 +126,8 @@ export default function MaterialInWithoutPO() {
       MANUAL_MFG_CODE: "1",
       QTY: 12,
       RATE: "--",
+      MIS_AMOUNT: "--",
+      INSURANCE_AMOUNT: "--",
       HSN: "123456",
       LOCATION: "RM021",
       AUTO_CONSUMP: "0",
@@ -189,18 +191,15 @@ export default function MaterialInWithoutPO() {
         "submit"
       );
     }
-    console.log("fileResponse-------", fileResponse);
 
     if (fileResponse?.success || vendorType == "p01") {
       fileName = fileResponse?.data?.data;
-
-
 
       const response = await executeFun(
         () => materialInWithoutPo(values, fileName, vendorType),
         "submit"
       );
-      console.log("response-------", response);
+  
       if (response.success) {
         // const { data } = response.data;
         if (response.data.code == 200) {
@@ -766,6 +765,18 @@ export default function MaterialInWithoutPO() {
       },
       width: 200,
     },
+    {
+      headerName: "MIS Amount",
+      name: "misAmount",
+      field: () => <Input />,
+      width: 120,
+    },
+    {
+      headerName: "Insurance Amount",
+      name: "insuranceAmount",
+      field: () => <Input />,
+      width: 120,
+    },
 
     {
       headerName: "Taxable Value",
@@ -945,6 +956,19 @@ export default function MaterialInWithoutPO() {
       minWidth: 100,
     },
     {
+      headerName: "MIS Amount",
+      field: "MIS_AMOUNT",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Insurance Amount",
+      field: "INSURANCE_AMOUNT",
+      flex: 1,
+      minWidth: 100,
+    },
+   
+    {
       headerName: "Qty ",
       field: "qty",
       flex: 1,
@@ -1027,6 +1051,8 @@ export default function MaterialInWithoutPO() {
         component: { label: r.Partcode.name, value: r.Partcode.key },
         qty: r.Qty,
         rate: r.Rate,
+        misAmount: r.MIS_AMOUNT,
+        insuranceAmount: r.INSURANCE_AMOUNT,
         hsn: r.Hsn,
         autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
         autoCons: {
