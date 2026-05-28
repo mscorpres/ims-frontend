@@ -71,7 +71,8 @@ export const materialInWithoutPo = async (values, fileName, vendorType) => {
     project_id: values.projectID,
     irn: values.irn,
     qrScan: values.QR == true ? "Y" : "N",
-
+    misAmount: values.misAmount,
+    insuranceAmount: values.insuranceAmount,
     documentName: values.fileComponents?.map((r) => r.documentName),
     component: values?.components.map((row) => row.component?.value),
     qty: values.components.map((row) => row.qty),
