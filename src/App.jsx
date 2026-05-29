@@ -1065,7 +1065,7 @@ const App = () => {
                       />
                     </IconButton>
                   </Tooltip>
-                  <span style={{ color: "white" }}>hi</span>
+                
                   {/* {favLoading ? (
                     <LoadingOutlined
                       style={{
