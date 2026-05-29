@@ -15,7 +15,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { Box, LinearProgress } from "@mui/material";
 import "buffer";
 import {
-
   setNotifications,
   setFavourites,
   setTestPages,
@@ -74,10 +73,12 @@ import {
   getPostLoginRedirect,
   savePostLoginRedirect,
 } from "./utils/authRedirect";
+import useVersionCheck from "./hooks/useVersionCheck.js";
+import UpdateVersionPopup from "./Components/UpdateVersionPopup.jsx";
 
 const parseNotificationOtherData = (raw) => {
   try {
-    return typeof raw === "string" ? JSON.parse(raw) : raw ?? {};
+    return typeof raw === "string" ? JSON.parse(raw) : (raw ?? {});
   } catch {
     return {};
   }
@@ -111,13 +112,13 @@ const App = () => {
   const sessionFromUrl = searchParams.get("session");
   const branchFromUrl = searchParams.get("branch");
   const comFromUrl = searchParams.get("company");
-   const type = searchParams.get("type")
-   const isSwitchFlow = Boolean(
+  const type = searchParams.get("type");
+  const isSwitchFlow = Boolean(
     tokenFromUrl && sessionFromUrl && comFromUrl && branchFromUrl && type,
   );
   const [loadingSwitch, setLoadingSwitch] = useState(isSwitchFlow);
   const { user, notifications, testPages } = useSelector(
-    (state) => state.login
+    (state) => state.login,
   );
 
   const filteredRoutes = Rout.filter((route) => {
@@ -160,7 +161,14 @@ const App = () => {
   const [switchBranch, setSwitchBranch] = useState(null);
   const [switchSession, setSwitchSession] = useState(null);
   const [switchSuccess, setSwitchSuccess] = useState(false);
-    
+  const { updateAvailable } = useVersionCheck();
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+
+  useEffect(() => {
+    if (updateAvailable) {
+      setShowUpdatePopup(true);
+    }
+  }, [updateAvailable]);
 
   const logoutHandler = () => {
     dispatch(logoutUser());
@@ -295,7 +303,7 @@ const App = () => {
   }, []);
   const fetchUserDeatils = async (token, session, com, branch, type) => {
     setLoadingSwitch(true);
-      localStorage.setItem("switchInProgress", "1");
+    localStorage.setItem("switchInProgress", "1");
 
     try {
       const response = await imsAxios.get(
@@ -324,18 +332,16 @@ const App = () => {
         localStorage.setItem("loggedInUser", JSON.stringify(obj));
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
-    
+
         setSearchParams({}, { replace: true });
       } else {
-
         toast.error(response?.message);
         window.location.replace("https://alwar.mscorpres.com/");
       }
     } catch (error) {
-
       toast.error(error?.message);
       window.location.replace("https://alwar.mscorpres.com/");
-    }finally{
+    } finally {
       localStorage.removeItem("switchInProgress");
       setLoadingSwitch(false);
     }
@@ -343,9 +349,15 @@ const App = () => {
 
   useEffect(() => {
     if (tokenFromUrl && sessionFromUrl && comFromUrl && branchFromUrl && type) {
-      fetchUserDeatils(tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl , type);
+      fetchUserDeatils(
+        tokenFromUrl,
+        sessionFromUrl,
+        comFromUrl,
+        branchFromUrl,
+        type,
+      );
     }
-  }, [tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl , type]);
+  }, [tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl, type]);
 
   useEffect(() => {
     if (Notification.permission === "default") {
@@ -364,7 +376,7 @@ const App = () => {
       redirectToLogin();
     } else if (user) {
       let branch = JSON.parse(
-        localStorage.getItem("otherData")
+        localStorage.getItem("otherData"),
       )?.company_branch;
       if (branch) {
         setBranchSelected(true);
@@ -559,7 +571,7 @@ const App = () => {
           const tokenToUse = localStorage.getItem("newToken") || user.token;
           const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
             headers: {
-               "Authorization": `${tokenToUse}`,
+              Authorization: `${tokenToUse}`,
               // Prefer current user selection, but fall back to localStorage and defaults.
               "Company-Branch":
                 user.company_branch ??
@@ -578,8 +590,8 @@ const App = () => {
             setEnabledModules([]);
           }
         } catch (error) {
-          console.error("Error fetching enabled modules:", error?.message );
-          toast.error( error?.message || "Error fetching module permissions");
+          console.error("Error fetching enabled modules:", error?.message);
+          toast.error(error?.message || "Error fetching module permissions");
           setEnabledModules([]);
           if (error.response?.status === 403) {
             dispatch(logoutUser());
@@ -678,12 +690,12 @@ const App = () => {
     window.addEventListener("offline", (e) => {
       console.log("offline", e);
       toast(
-        "You are no longer connected to the Internet, please check your connection and try again."
+        "You are no longer connected to the Internet, please check your connection and try again.",
       );
     });
     window.addEventListener("online", (e) => {
       toast(
-        "The internet has been restored. Kindly review your progress to ensure there is no duplication of data."
+        "The internet has been restored. Kindly review your progress to ensure there is no duplication of data.",
       );
       window.location.reload();
     });
@@ -699,7 +711,7 @@ const App = () => {
       let a = hisList.push(...hisList, ...searching);
       const ids = hisList.map(({ text }) => text);
       const filtered = hisList.filter(
-        ({ text }, index) => !ids.includes(text, index + 1)
+        ({ text }, index) => !ids.includes(text, index + 1),
       );
       // console.log("Search module Array after filtering in here", a);
       // console.log("Search module Array after filtering in here", filtered);
@@ -719,7 +731,7 @@ const App = () => {
       text: row.text,
       value: row.value,
     }));
-  
+
     setShowHisList(arr);
   };
 
@@ -758,7 +770,7 @@ const App = () => {
       urlParams.append("company", company);
       urlParams.append("branch", branch);
       urlParams.append("session", session);
-      urlParams.append("type","switch")
+      urlParams.append("type", "switch");
     }
 
     const redirectUrl = `${targetUrl}?${urlParams.toString()}`;
@@ -792,12 +804,12 @@ const App = () => {
       const isItemEnabled = enabledModules.some(
         (mod) =>
           String(mod.module_key) === String(item.module_key) &&
-          mod.enabled === 1
+          mod.enabled === 1,
       );
       const isParentEnabled = enabledModules.some(
         (mod) =>
           String(mod.parent_module_key) === String(item.module_key) &&
-          mod.enabled === 1
+          mod.enabled === 1,
       );
 
       if (item.module_key) {
@@ -807,28 +819,25 @@ const App = () => {
               ? enabledModules.some(
                   (mod) =>
                     String(mod.module_key) === String(child.module_key) &&
-                    mod.enabled === 1
+                    mod.enabled === 1,
                 )
               : isItemEnabled || isParentEnabled;
-       
+
             return isChildEnabled;
           });
           if (isItemEnabled || isParentEnabled || enabledChildren.length > 0) {
-           
             return { ...item, children: enabledChildren };
           }
- 
+
           return null;
         }
         if (isItemEnabled || isParentEnabled) {
-       
           return item;
         }
-     
+
         return null;
       }
 
-    
       return null;
     })
     .filter((item) => item !== null);
@@ -841,9 +850,9 @@ const App = () => {
       const isEnabled = enabledModules.some(
         (mod) =>
           String(mod.module_key) === String(item.module_key) &&
-          mod.enabled === 1
+          mod.enabled === 1,
       );
-      
+
       return isEnabled ? item : null;
     })
     .filter((item) => item !== null);
@@ -855,7 +864,6 @@ const App = () => {
           sx={{
             position: "sticky",
             top: 0,
-            
           }}
         />
         <Box
@@ -877,7 +885,6 @@ const App = () => {
     );
   }
   return (
- 
     <div style={{ height: "100vh" }}>
       <ToastContainer
         position="bottom-center"
@@ -1058,6 +1065,7 @@ const App = () => {
                       />
                     </IconButton>
                   </Tooltip>
+                  <span style={{ color: "white" }}>hi</span>
                   {/* {favLoading ? (
                     <LoadingOutlined
                       style={{
@@ -1093,7 +1101,7 @@ const App = () => {
                       size="small"
                       style={{
                         background: notifications.filter(
-                          (not) => not?.loading || not?.status == "pending"
+                          (not) => not?.loading || not?.status == "pending",
                         )[0]
                           ? "#EAAE0F"
                           : "green",
@@ -1117,7 +1125,7 @@ const App = () => {
                         source={"notifications"}
                         showNotifications={showNotifications}
                         notifications={notifications.filter(
-                          (not) => not?.type != "message"
+                          (not) => not?.type != "message",
                         )}
                         deleteNotification={deleteNotification}
                         onRefresh={refreshNotifications}
@@ -1335,7 +1343,7 @@ const App = () => {
                                 switchLocation.charAt(0).toUpperCase() +
                                   switchLocation.slice(1),
                                 switchBranch,
-                                switchSession || user?.session
+                                switchSession || user?.session,
                               );
                             }}
                           >
@@ -1413,6 +1421,10 @@ const App = () => {
           </Layout>
         </Layout>
       </Layout>
+      <UpdateVersionPopup
+        open={showUpdatePopup}
+        onRefresh={() => window.location.reload()}
+      />
     </div>
   );
 };
