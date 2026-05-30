@@ -18,17 +18,16 @@ const OpenR1Modal = ({
   viewModal,
   setViewModal,
   setAllResponseData,
-  // loading,
   setLoading,
+  filterData,
   setFilterData,
 }) => {
-  const [seacrh, setSearch] = useState(null);
   const [selectLoading, setSelectLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(filterData?.date ?? "");
   const [dataa, setData] = useState({
-    selectProduct: "",
-    bom: "",
+    selectProduct: filterData?.selectProduct ?? "",
+    bom: filterData?.bom ?? "",
   });
 
   const { executeFun, loading1 } = useApi();
@@ -66,6 +65,23 @@ const OpenR1Modal = ({
     }
   }, [dataa.selectProduct]);
 
+  useEffect(() => {
+    if (!viewModal) return;
+    setData({
+      selectProduct: filterData?.selectProduct ?? "",
+      bom: filterData?.bom ?? "",
+    });
+    setDate(filterData?.date ?? "");
+    if (filterData?.selectProduct && filterData?.productLabel) {
+      setAsyncOptions([
+        {
+          value: filterData.selectProduct,
+          text: filterData.productLabel,
+        },
+      ]);
+    }
+  }, [viewModal]);
+
   const generateFun = async () => {
     setLoading(true);
     setAllResponseData([]);
@@ -76,9 +92,11 @@ const OpenR1Modal = ({
       action: "search_r1",
     });
     if (data.code == 200) {
-      setData({
-        selectProduct: "",
-        bom: "",
+      setFilterData({
+        selectProduct: dataa.selectProduct,
+        bom: dataa.bom,
+        date,
+        productLabel: filterData?.productLabel ?? "",
       });
       let arr = data.response.data.map((row) => {
         return {
@@ -121,15 +139,19 @@ const OpenR1Modal = ({
               style={{ width: "100%" }}
               loadOptions={getProductNameFecth}
               onBlur={() => setAsyncOptions([])}
-              onInputChange={(e) => setSearch(e)}
-              value={dataa.selectProduct.value}
+              value={dataa.selectProduct?.value ?? dataa.selectProduct}
               placeholder="Product Name / SKU"
               optionsState={asyncOptions}
-              onChange={(e) =>
-                setData((dataa) => {
-                  return { ...dataa, selectProduct: e };
-                })
-              }
+              onChange={(e) => {
+                const option = asyncOptions.find((row) => row.value === e);
+                setData((prev) => ({ ...prev, selectProduct: e, bom: "" }));
+                setFilterData((prev) => ({
+                  ...prev,
+                  selectProduct: e,
+                  bom: "",
+                  productLabel: option?.text ?? "",
+                }));
+              }}
             />
           </Col>
           <Col span={12}>
@@ -137,12 +159,11 @@ const OpenR1Modal = ({
               style={{ width: "100%" }}
               placeholder="Select Bom"
               options={bomName}
-              value={dataa.bom.value}
-              onChange={(e) =>
-                setData((dataa) => {
-                  return { ...dataa, bom: e };
-                })
-              }
+              value={dataa.bom?.value ?? dataa.bom}
+              onChange={(e) => {
+                setData((prev) => ({ ...prev, bom: e }));
+                setFilterData((prev) => ({ ...prev, bom: e }));
+              }}
             />
           </Col>
           <Col span={12} style={{ marginTop: "5px" }}>
@@ -153,7 +174,14 @@ const OpenR1Modal = ({
             />
           </Col>
           <Col span={12} style={{ marginTop: "5px" }}>
-            <MyDatePicker setDateRange={setDate} size="default" />
+            <MyDatePicker
+              value={date}
+              setDateRange={(range) => {
+                setDate(range);
+                setFilterData((prev) => ({ ...prev, date: range }));
+              }}
+              size="default"
+            />
           </Col>
         </Row>
       </Modal>

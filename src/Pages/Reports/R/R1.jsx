@@ -18,6 +18,12 @@ const R1 = () => {
   const [viewModal, setViewModal] = useState(false);
   const [allResponseData, setAllResponseData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filterData, setFilterData] = useState({
+    selectProduct: "",
+    bom: "",
+    date: "",
+    productLabel: "",
+  });
   // console.log(allResponseData);
 
   const columns = [
@@ -243,6 +249,8 @@ const R1 = () => {
         setViewModal={setViewModal}
         viewModal={viewModal}
         setLoading={setLoading}
+        filterData={filterData}
+        setFilterData={setFilterData}
       />
     </div>
   );
