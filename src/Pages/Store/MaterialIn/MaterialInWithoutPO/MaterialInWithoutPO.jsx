@@ -445,20 +445,20 @@ export default function MaterialInWithoutPO() {
       Number(form.getFieldValue(["components", rowId, "freightAmount"])) || 0;
 
     const taxableValue = getInt(
-      qtyNum * rateNum * latestExchangeRate
+      qtyNum * rateNum * latestExchangeRate,2
     );
-    const foreignValue = getInt(qtyNum * rateNum);
-    const totalAmount = getInt(taxableValue + customDuty + freightAmount + misAmount + insuranceAmount);
+    const foreignValue = getInt(qtyNum * rateNum,2);
+    const totalAmount = getInt(taxableValue + customDuty + freightAmount + misAmount + insuranceAmount,2);
     const finalRate =
       qtyNum > 0
         ? getInt(
-            totalAmount / qtyNum
+            totalAmount / qtyNum,2
           )
         : rateNum;
 
-    const inrValue = getInt(qtyNum * rateNum * Number(latestExchangeRate));
-    let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
-    let gst = getInt((inrValue * finalGstRate) / 100);
+    const inrValue = getInt(qtyNum * rateNum * Number(latestExchangeRate),2);
+    let finalGstRate = gstType === "L" ? getInt(gstRate,2) / 2 : getInt(gstRate,2);
+    let gst = getInt((inrValue * finalGstRate) / 100,2);
     form.setFieldValue(["components", rowId, "value"], inrValue);
     form.setFieldValue(
       ["components", rowId, "cgst"],
