@@ -50,6 +50,7 @@ import {
 import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 import MyDataTable from "../../../../Components/MyDataTable.jsx";
+import { head } from "lodash";
 
 const defaultValues = {
   vendorType: "v01",
@@ -128,6 +129,11 @@ export default function MaterialInWithoutPO() {
       RATE: "--",
       MIS_AMOUNT: "--",
       INSURANCE_AMOUNT: "--",
+      TAXABLE_AMOUNT: "--",
+      FRIEGHT_AMOUNT: "--",
+      CUSTOM_DUTY: "--",
+      TOTAL_AMOUNT: "--",
+      FINAL_RATE: "--",
       HSN: "123456",
       LOCATION: "RM021",
       AUTO_CONSUMP: "0",
@@ -153,7 +159,6 @@ export default function MaterialInWithoutPO() {
     const values = await form.validateFields();
 
     const response = await executeFun(() => validateInvoice(values), "submit");
-    console.log("success from validate invoice");
     if (response.success) {
       const { data } = response;
       if (data.invoicesFound) {
@@ -428,10 +433,30 @@ export default function MaterialInWithoutPO() {
       exchangeRate ??
       1;
 
-    const inrValue = getInt(
-      Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate)
+    const qtyNum = Number(qty ?? 0);
+    const rateNum = Number(rate ?? 0);
+    const misAmount =
+      Number(form.getFieldValue(["components", rowId, "misAmount"])) || 0;
+    const insuranceAmount =
+      Number(form.getFieldValue(["components", rowId, "insuranceAmount"])) || 0;
+    const customDuty =
+      Number(form.getFieldValue(["components", rowId, "customDuty"])) || 0;
+    const freightAmount =
+      Number(form.getFieldValue(["components", rowId, "freightAmount"])) || 0;
+
+    const taxableValue = getInt(
+      qtyNum * rateNum * latestExchangeRate
     );
-    const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
+    const foreignValue = getInt(qtyNum * rateNum);
+    const totalAmount = getInt(taxableValue + customDuty + freightAmount + misAmount + insuranceAmount);
+    const finalRate =
+      qtyNum > 0
+        ? getInt(
+            totalAmount / qtyNum
+          )
+        : rateNum;
+
+    const inrValue = getInt(qtyNum * rateNum * Number(latestExchangeRate));
     let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
     let gst = getInt((inrValue * finalGstRate) / 100);
     form.setFieldValue(["components", rowId, "value"], inrValue);
@@ -447,12 +472,15 @@ export default function MaterialInWithoutPO() {
       ["components", rowId, "igst"],
       gstType === "L" ? 0 : gst
     );
+    form.setFieldValue(["components", rowId, "taxableValue"], taxableValue);
     form.setFieldValue(
       ["components", rowId, "foreignValue"],
       currency === "364907247" ? 0 : foreignValue
     );
+    form.setFieldValue(["components", rowId, "totalAmount"], totalAmount);
+    form.setFieldValue(["components", rowId, "finalRate"], finalRate);
   };
-  // const columns = [
+  
   //   {
   //     headerName: <CommonIcons action="addRow" onClick={addRow} />,
   //     width: 40,
@@ -780,7 +808,7 @@ export default function MaterialInWithoutPO() {
 
     {
       headerName: "Taxable Value",
-      name: "value",
+      name: "taxableValue",
 
       field: () => <Input disabled />,
       width: 120,
@@ -789,6 +817,18 @@ export default function MaterialInWithoutPO() {
       headerName: "Foreign Value",
       name: "foreignValue",
       field: () => <Input disabled />,
+      width: 120,
+    },
+    {
+      headerName: "Frieght Amount",
+      name: "freightAmount",
+      field: () => <Input  />,
+      width: 120,
+    },
+    {
+      headerName: "Custom Duty",
+      name: "customDuty",
+      field: () => <Input  />,
       width: 120,
     },
     {
@@ -832,6 +872,18 @@ export default function MaterialInWithoutPO() {
       field: (row) => <Input disabled />,
       name: "igst",
 
+      width: 120,
+    },
+    {
+      headerName: "Total Amount",
+      name: "totalAmount",
+      field: () => <Input disabled />,
+      width: 120,
+    },
+    {
+      headerName: "Final Rate",
+      name: "finalRate",
+      field: () => <Input disabled />,
       width: 120,
     },
     {
@@ -967,7 +1019,21 @@ export default function MaterialInWithoutPO() {
       flex: 1,
       minWidth: 100,
     },
-   
+    {
+      headerName: "Taxable Value",
+      field: "taxableValue",
+      flex: 1,
+      minWidth: 100,
+    },
+    // {
+    //   headerName: "Foreign Value",
+    //   field: "foreignValue",
+    //   flex: 1,
+    //   minWidth: 100,
+    // },
+    {headerName: "Frieght Amount", field: "freightAmount", flex: 1, minWidth: 100},
+      {headerName: "Custom Duty", field: "customDuty", flex: 1, minWidth: 100},
+
     {
       headerName: "Qty ",
       field: "qty",
@@ -1003,6 +1069,19 @@ export default function MaterialInWithoutPO() {
         <ToolTipEllipses text={row.gstType} copy={true} />
       ),
     },
+    {
+      headerName: "Final Amount",
+      field: "finalAmount",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Final Rate",
+      field: "finalRate",
+      flex: 1,
+      minWidth: 100,
+    }
+
   ];
   const callFileUpalod = async () => {
     setPreview(true);
@@ -1054,6 +1133,11 @@ export default function MaterialInWithoutPO() {
         rate: r.Rate,
         misAmount: r.Misamount,
         insuranceAmount: r.Insuranceamount,
+        totalAmount: r.Totalamount,
+        finalRate: r.Finalrate,
+        freightAmount: r.Frieghtvalue,
+        customDuty: r.Customduty,
+        taxableValue: r.Taxablevalue,
         currency: globalCurrency || defaultValues.currency,
         hsn: r.Hsn,
         autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
@@ -1487,6 +1571,10 @@ export default function MaterialInWithoutPO() {
                     "exchangeRate",
                     "currency",
                     "mfg",
+                    "misAmount",
+                    "insuranceAmount",
+                    "freightAmount",
+                    "customDuty",
                   ]}
                   calculation={calculation}
                   columns={columns({
@@ -1618,7 +1706,6 @@ export default function MaterialInWithoutPO() {
                 padding: 5,
               }}
             >
-              {loading("fetch") && <Loading />}
               <Row
                 style={{
                   height: "95%",
