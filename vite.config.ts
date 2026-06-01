@@ -10,7 +10,7 @@ export default defineConfig({
     sentryVitePlugin({
       org: "mscorpres-automation-pvt-ltd",
       project: "oakter",
-      authToken: process.env.SENTRY_AUTH_TOKEN,
+      authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
     }),],
   resolve: {
     alias: [

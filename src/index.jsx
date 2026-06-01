@@ -65,13 +65,13 @@ const theme = {
 };
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
-  environment: import.meta.env.MODE, // "development" or "production"
+  environment: import.meta.env.VITE_MODE, // "development" or "production"
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
   ],
   // Performance monitoring: capture 10% of transactions in production
-  tracesSampleRate: import.meta.env.MODE === "production" ? 0.1 : 1.0,
+  tracesSampleRate: import.meta.env.VITE_MODE === "production" ? 0.1 : 1.0,
   // Session Replay: capture 10% of sessions, 100% on errors
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
