@@ -99,6 +99,12 @@ export default function MaterialInWithoutPO() {
     { label: "cigst", sign: "+", values: [] },
     { label: "Sub-Total value before Taxes", sign: "", values: [] },
   ]);
+  const [taxDetailsValues, setTaxDetailsValues] = useState([
+    { label: "Total Taxable Value", sign: "+", values: [] },
+    { label: "Total Custom Duty", sign: "+", values: [] },
+    { label: "Total Freight Charges", sign: "+", values: [] },
+    { label: "Total Sum", sign: "", values: [] },
+  ]);
   const [currencies, setCurrencies] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -481,152 +487,7 @@ export default function MaterialInWithoutPO() {
     form.setFieldValue(["components", rowId, "finalRate"], finalRate);
   };
   
-  //   {
-  //     headerName: <CommonIcons action="addRow" onClick={addRow} />,
-  //     width: 40,
-  //     field: "add",
-  //     sortable: false,
-  //     renderCell: ({ row }) =>
-  //       materialInward.indexOf(row) >= 1 && (
-  //         <CommonIcons action="removeRow" onClick={() => removeRow(row?.id)} />
-  //       ),
-  //     sortable: false,
-  //   },
-  //   {
-  //     headerName: "Part Component",
-  //     field: "c_partno",
-  //     sortable: false,
-  //     renderCell: (params) =>
-  //       componentCell(
-  //         params,
-  //         inputHandler,
-  //         setAsyncOptions,
-  //         getComponentDetail,
-  //         asyncOptions,
-  //         loading("select")
-  //       ),
-  //     width: 300,
-  //   },
-  //   {
-  //     headerName: "QTY",
-  //     field: "gstqty",
-  //     sortable: false,
-  //     renderCell: (params) => QuantityCell(params, inputHandler),
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Rate",
-  //     field: "orderrate",
-  //     sortable: false,
-  //     renderCell: (params) => rateCell(params, inputHandler, currencies),
-  //     width: 180,
-  //   },
-  //   // {
-  //   //   headerName: "Currency",
-  //   //   field: "currency",
-  //   //   sortable: false,
-  //   //   renderCell: (params) => currencyCell(params, inputHandler, currencies),
-  //   //   width: 80,
-  //   // },
-  //   {
-  //     headerName: "Taxable Value",
-  //     field: "inrValue",
-  //     sortable: false,
-  //     renderCell: taxableCell,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Foreign Value",
-  //     field: "usdValue",
-  //     sortable: false,
-  //     renderCell: foreignCell,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Invoice ID",
-  //     field: "invoiceId",
-  //     sortable: false,
-  //     renderCell: (params) => invoiceIdCell(params, inputHandler),
-  //     width: 200,
-  //   },
-  //   {
-  //     headerName: "Invoice Date",
-  //     field: "invoiceDate",
-  //     sortable: false,
-  //     renderCell: (params) => invoiceDateCell(params, inputHandler),
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "HSN Code",
-  //     field: "hsncode",
-  //     sortable: false,
-  //     renderCell: (params) => HSNCell(params, inputHandler),
-  //     width: 150,
-  //   },
-  //   {
-  //     headerName: "GST Type",
-  //     field: "gsttype",
-  //     sortable: false,
-  //     renderCell: (params) => gstTypeCell(params, inputHandler),
-  //     // flex: 1,
-  //     width: 200,
-  //   },
-  //   {
-  //     headerName: "GST Rate",
-  //     field: "gstrate",
-  //     sortable: false,
-  //     renderCell: (params) => gstRate(params, inputHandler),
-  //     // flex: 1,
-  //     width: 100,
-  //   },
-  //   {
-  //     headerName: "CGST",
-  //     renderCell: (params) => CGSTCell(params, inputHandler),
-  //     // flex: 1,
-  //     field: "cgst",
-  //     sortable: false,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "SGST",
-  //     renderCell: (params) => SGSTCell(params, inputHandler),
-  //     // flex: 1,
-  //     field: "sgst",
-  //     sortable: false,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "IGST",
-  //     renderCell: (params) => IGSTCell(params, inputHandler),
-  //     // flex: 1,
-  //     field: "igst",
-  //     sortable: false,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Location",
-  //     field: "location",
-  //     sortable: false,
-  //     renderCell: (params) =>
-  //       locationCell(params, inputHandler, locationOptions),
-  //     width: 150,
-  //   },
-  //   {
-  //     headerName: "Auto Consump",
-  //     field: "autoConsumption",
-  //     sortable: false,
-  //     renderCell: (params) =>
-  //       autoConsumptionCell(params, inputHandler, autoConsumptionOptions),
-  //     width: 150,
-  //   },
-  //   {
-  //     headerName: "Remarks",
-  //     field: "orderremark",
-  //     sortable: false,
-  //     renderCell: (params) => remarkCell(params, inputHandler),
-  //     width: 250,
-  //   },
-  // ];
+ 
   const successColumns = [
     {
       headerName: "Component",
@@ -671,6 +532,22 @@ export default function MaterialInWithoutPO() {
       { label: "Sub-Total values after Taxes", sign: "", values: grandTotal },
     ];
     setTotalValues(obj);
+  }, [components]);
+  useEffect(() => {
+    const grandTotal = components?.map((row) => getInt(row?.totalAmount, 2));
+    const totalTaxableValue = components?.map((row) =>
+      getInt(row?.taxableValue, 2)
+    );
+    const customTotal = components?.map((row) => getInt(row?.customDuty, 2));
+    const freightTotal = components?.map((row) =>
+      getInt(row?.freightAmount, 2)
+    );
+    setTaxDetailsValues([
+      { label: "Total Taxable Value", sign: "+", values: totalTaxableValue },
+      { label: "Total Custom Duty", sign: "+", values: customTotal },
+      { label: "Total Freight Charges", sign: "+", values: freightTotal },
+      { label: "Total Sum", sign: "", values: grandTotal },
+    ]);
   }, [components]);
   useEffect(() => {
     if (vendor) {
@@ -1200,7 +1077,7 @@ export default function MaterialInWithoutPO() {
           <Row
             gutter={8}
             style={{
-              height: "90%",
+              height: "calc(100% - 82px)",
 
               overflowY: "auto",
               overflowX: "hidden",
@@ -1542,6 +1419,63 @@ export default function MaterialInWithoutPO() {
                                   }, 0)
                                 ).toFixed(2)}
                               </Typography.Text>
+                            </span>
+                          </Col>
+                        </Row>
+                      </Col>
+                    ))}
+                  </Row>
+                </Card>
+                <Card
+                  size="small"
+                  title="Tax Details"
+                  bodyStyle={{ overflowY: "auto", maxHeight: "100%" }}
+                >
+                  <Row gutter={[0, 4]}>
+                    {taxDetailsValues?.map((row) => (
+                      <Col span={24} key={row.label}>
+                        <Row>
+                          <Col
+                            span={18}
+                            style={{
+                              fontSize: "0.8rem",
+                              fontWeight:
+                                taxDetailsValues?.indexOf(row) ==
+                                  taxDetailsValues.length - 1 && 600,
+                            }}
+                          >
+                            {row.label}
+                          </Col>
+                          <Col span={6} className="right">
+                            {row.sign.toString() == "" ? (
+                              ""
+                            ) : (
+                              <span
+                                style={{
+                                  fontSize: "0.7rem",
+                                  fontWeight:
+                                    taxDetailsValues?.indexOf(row) ==
+                                      taxDetailsValues.length - 1 && 600,
+                                }}
+                              >
+                                ({row.sign.toString()}){" "}
+                              </span>
+                            )}
+                            <span
+                              style={{
+                                fontSize: "0.8rem",
+                                fontWeight:
+                                  taxDetailsValues?.indexOf(row) ==
+                                    taxDetailsValues.length - 1 && 600,
+                              }}
+                            >
+                              {getInt(
+                                row.values?.reduce(
+                                  (partialSum, a) => partialSum + getInt(a, 2),
+                                  0
+                                ),
+                                2
+                              ).toFixed(2)}
                             </span>
                           </Col>
                         </Row>
