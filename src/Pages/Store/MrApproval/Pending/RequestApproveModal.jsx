@@ -177,7 +177,13 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         if (data.code === 200) {
           toast.success(data.message);
           getRows();
-          // hide();
+          if (componentOptions.length <= 1) {
+            hide();
+          } else {
+            getDetails(show.requestId);
+            form.resetFields();
+            setAction(null);
+          }
         } else {
           toast.error(data.message.msg);
         }
