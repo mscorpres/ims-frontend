@@ -7,6 +7,7 @@ import { Store } from "./Features/Store";
 import "./index.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ConfigProvider } from "antd";
+import * as Sentry from "@sentry/react";
 
 const theme = {
   token: {
@@ -62,6 +63,20 @@ const theme = {
     },
   },
 };
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE, // "development" or "production"
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  // Performance monitoring: capture 10% of transactions in production
+  tracesSampleRate: import.meta.env.MODE === "production" ? 0.1 : 1.0,
+  // Session Replay: capture 10% of sessions, 100% on errors
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
+
 const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
