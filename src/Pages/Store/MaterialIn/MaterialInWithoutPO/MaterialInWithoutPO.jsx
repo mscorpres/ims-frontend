@@ -217,7 +217,6 @@ export default function MaterialInWithoutPO() {
           });
           form.resetFields();
           vendorResetFunction();
-          materialResetFunction();
           setPreviewRows([]);
           setPreview(false);
         } else {
