@@ -22,7 +22,6 @@ import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { setNotifications } from "../../Features/loginSlice/loginSlice";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
@@ -207,7 +206,6 @@ export default function ItemLocationLog() {
       const newId = v4();
       let arr = notifications;
       arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
-      dispatch(setNotifications(arr));
 
       setDownloadLoading(true);
       socket.emit("q2Report", {

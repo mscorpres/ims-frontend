@@ -334,7 +334,6 @@ import { Button, Card, Col, Form, Row, Space, Pagination } from "antd"; // CHANG
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import { imsAxios, getSessionFromStorage } from "../../axiosInterceptor";
 import { useDispatch, useSelector } from "react-redux";
-import { setNotifications } from "../../Features/loginSlice/loginSlice";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
@@ -479,7 +478,7 @@ export default function ItemAllLogs() {
       const newId = v4();
       let arr = notifications;
       arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
-      dispatch(setNotifications(arr));
+     
 
       setDownloadLoading(true);
       socket.emit("q1Report", {
