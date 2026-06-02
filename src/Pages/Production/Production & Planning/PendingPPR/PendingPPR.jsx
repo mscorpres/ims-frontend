@@ -50,27 +50,33 @@ const PendingPPR = () => {
   const getProducts = async (e) => {
     if (e?.length > 2) {
       setSelectLoading(true);
-      const { data } = await imsAxios.post("/backend/fetchAllProduct", {
-        searchTerm: e,
-      });
-      setSelectLoading(true);
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      setAsyncOptions(arr);
+      try {
+        const { data } = await imsAxios.post("/backend/fetchAllProduct", {
+          searchTerm: e,
+        });
+        let arr = [];
+        arr = data.map((d) => {
+          return { text: d.text, value: d.id };
+        });
+        setAsyncOptions(arr);
+      } catch (error) {
+        toast.error(error?.message || "Failed to fetch products");
+      } finally {
+        setSelectLoading(false);
+      }
     }
   };
 
   const getRows = async () => {
+    if (searchInput == "") return;
+
     setSearchLoading(true);
-    if (searchInput != "") {
+    try {
       const { data } = await imsAxios.post("/ppr/fetchPendingPpr", {
         searchBy: wise,
         searchValue: searchInput.value ?? searchInput,
       });
 
-      setSearchLoading(false);
       if (data.code == 200) {
         const arr = data.data.map((row, index) => {
           return {
@@ -84,6 +90,11 @@ const PendingPPR = () => {
         toast.error(data.message.msg);
         setRows([]);
       }
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch pending PPR");
+      setRows([]);
+    } finally {
+      setSearchLoading(false);
     }
   };
 

@@ -121,7 +121,7 @@ const App = () => {
     (state) => state.login,
   );
 
-  const filteredRoutes = Rout.filter((route) => {
+  const filteredRoutes = Rout?.filter((route) => {
     // Include the route if it doesn't have a "dept" property or if showlegal is true
     return !route.dept || user?.showlegal;
   });

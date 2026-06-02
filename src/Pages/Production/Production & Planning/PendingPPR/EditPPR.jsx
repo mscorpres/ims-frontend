@@ -257,7 +257,6 @@ const EditPPR = ({ editPPR, setEditPPR }) => {
       setReqdKeys(false);
     }
   }, [editPPR]);
-  console.log("this is ther qd details,", rqdDetails);
   useEffect(() => {
     sku && editPPR && getExistingDetails(sku.value);
   }, [sku, editPPR]);

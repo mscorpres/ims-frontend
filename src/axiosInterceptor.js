@@ -123,16 +123,7 @@ imsAxios.interceptors.response.use(
       return error.response.data;
     }
 
-    // if (error.response.status === 404) {
-    //   toast.error("Some Internal error occured");
-    // } else {
-
-    // if (error.response.data?.message) {
-    //   toast.error(
-    //     error.response.data?.message?.msg ??
-    //       "Error while connecting to backend."
-    //   );
-    // }
+ 
     if (!error.response.data?.message) {
       toast.error(error.response?.data);
     }

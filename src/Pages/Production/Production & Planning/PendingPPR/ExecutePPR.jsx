@@ -522,7 +522,6 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
           activeKey={activeKey}
           onEdit={onEdit}
           items={tabsExist.map((tab) => {
-            console.log(activeKey);
             return {
               disabled: activeKey === "1",
               ...tabItems.filter((item) => tab == item.key)[0],
