@@ -583,14 +583,13 @@ const App = () => {
                 getDefaultFinancialYearValue(),
             },
           });
-          if (data.code === 200) {
-            setEnabledModules(data.data || []); // Ensure empty array if undefined
+          if (data?.code === 200) {
+            setEnabledModules(data?.data || []); // Ensure empty array if undefined
           } else {
-            toast.error(data.message?.msg || "Failed to fetch enabled modules");
+            toast.error(data?.message?.msg || "Failed to fetch enabled modules");
             setEnabledModules([]);
           }
         } catch (error) {
-          console.error("Error fetching enabled modules:", error?.message);
           toast.error(error?.message || "Error fetching module permissions");
           setEnabledModules([]);
           if (error.response?.status === 403) {
