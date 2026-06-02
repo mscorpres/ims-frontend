@@ -1015,7 +1015,6 @@ export default function CreatePo() {
     { text: "Supplementary", value: "S" },
   ];
   const vendorDetailsOptions = [
-    { text: "JWI (Job Work In)", value: "j01" },
     { text: "Vendor", value: "v01" },
   ];
   //getting users list
