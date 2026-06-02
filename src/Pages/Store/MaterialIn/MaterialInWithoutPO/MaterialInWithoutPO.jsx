@@ -151,7 +151,6 @@ export default function MaterialInWithoutPO() {
     const values = await form.validateFields();
 
     const response = await executeFun(() => validateInvoice(values), "submit");
-    console.log("success from validate invoice");
     if (response.success) {
       const { data } = response;
       if (data.invoicesFound) {
@@ -189,7 +188,6 @@ export default function MaterialInWithoutPO() {
         "submit"
       );
     }
-    console.log("fileResponse-------", fileResponse);
 
     if (fileResponse?.success || vendorType == "p01") {
       fileName = fileResponse?.data?.data;
@@ -200,7 +198,6 @@ export default function MaterialInWithoutPO() {
         () => materialInWithoutPo(values, fileName, vendorType),
         "submit"
       );
-      console.log("response-------", response);
       if (response.success) {
         // const { data } = response.data;
         if (response.data.code == 200) {
@@ -310,7 +307,6 @@ export default function MaterialInWithoutPO() {
     );
     if (response.success) {
       const { data } = response;
-      console.log("data,", data, rowId);
       form.setFieldValue(["components", rowId, "gstRate"], data.data.gstrate);
       form.setFieldValue(["components", rowId, "hsn"], data.data.hsn);
       form.setFieldValue(["components", rowId, "rate"], data.data.rate);
@@ -371,11 +367,11 @@ export default function MaterialInWithoutPO() {
       "fetch"
     );
 
-    if (response.success) {
+    if (response?.success) {
       // console.log("response =>", response?.data?.data.einvoice_status);
       setIsApplicable(response.data?.data?.einvoice_status);
       form.setFieldValue("gstin", response?.data?.data?.gstid);
-      form.setFieldValue("vendorAddress", response?.data?.data.address);
+      form.setFieldValue("vendorAddress", response?.data?.data?.address);
     }
   };
   const handleFetchCostCenterOptions = async (search) => {
@@ -392,7 +388,7 @@ export default function MaterialInWithoutPO() {
       () => getProjectOptions(search),
       "select"
     );
-    setAsyncOptions(response.data);
+    setAsyncOptions(response?.data);
   };
 
   const handleProjectChange = async (value) => {
