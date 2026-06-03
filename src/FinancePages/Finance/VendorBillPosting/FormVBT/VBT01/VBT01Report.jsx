@@ -7,6 +7,13 @@ import NavFooter from "../../../../../Components/NavFooter";
 import validateResponse from "../../../../../Components/validateResponse";
 import Loading from "../../../../../Components/Loading";
 import SingleComponent from "./SingleProduct";
+import {
+  getTallyApiPrefix,
+  getVbtApiFromCode,
+  getVbtScreenType,
+  isVbt01StyleModule,
+  VBT01_API_PREFIX,
+} from "../vbtModuleUtils";
 
 const getPurchaseGlCodeValue = (purchaseGLCode, apiUrl) => {
   const glEntry = Array.isArray(purchaseGLCode)
@@ -15,7 +22,7 @@ const getPurchaseGlCodeValue = (purchaseGLCode, apiUrl) => {
   if (glEntry?.key != null && String(glEntry.key).trim() !== "") {
     return glEntry.key;
   }
-  if (apiUrl === "vbt01") return "TP821753548513";
+  if (isVbt01StyleModule(apiUrl)) return "TP821753548513";
   if (apiUrl === "vbt06") return "TP672531876660";
   return "";
 };
@@ -72,7 +79,15 @@ function VBT01Report({
   apiUrl,
   editVbtDrawer,
   setEditVbtDrawer,
+  pageRoute,
+  vbtScreenType: vbtScreenTypeProp,
 }) {
+  const resolveVbtScreenType = () => {
+    if (vbtScreenTypeProp) return vbtScreenTypeProp;
+    if (editVbtDrawer) return getVbtScreenType(getVbtApiFromCode(editVbtDrawer));
+    if (pageRoute) return getVbtScreenType(pageRoute);
+    return "VBT01";
+  };
   const [Vbt01] = Form.useForm();
   const [vbtComponent, setVbtComponent] = useState([]);
   const [taxDetails, setTaxDetails] = useState([]);
@@ -183,16 +198,13 @@ function VBT01Report({
       type != null && String(type).trim() !== ""
         ? `?type=${encodeURIComponent(type)}`
         : "";
-    if (editVbtDrawer) {
-      let apiLink = getApiUrl(editVbtDrawer);
-
-      link = `/tally/${apiLink}/fetch_multi_min_data${typeQuery}`;
-    } else {
-      link = `/tally/${apiUrl}/fetch_multi_min_data${typeQuery}`;
-    }
-    const payload =
-      apiUrl === "vbt01"
+    const tallyPrefix = getTallyApiPrefix(
+      editVbtDrawer ? getVbtApiFromCode(editVbtDrawer) : apiUrl
+    );
+    link = `/tally/${tallyPrefix}/fetch_multi_min_data${typeQuery}`;
+    const payload = isVbt01StyleModule(tallyPrefix)
         ? {
+            vbt_type: resolveVbtScreenType(),
             data: minIdArr.map((row) => {
               return {
                 minTxn: row?.transaction ?? row.min_transaction,
@@ -312,7 +324,9 @@ function VBT01Report({
   };
 
   const getGl = async (extraOptions = [], vbtType = "") => {
-    const glApiUrl = editVbtDrawer ? getApiUrl(editVbtDrawer) : apiUrl;
+    const glApiUrl = getTallyApiPrefix(
+      editVbtDrawer ? getVbtApiFromCode(editVbtDrawer) : apiUrl
+    );
     const options = Array.isArray(extraOptions) ? extraOptions : [];
     const isFgType = String(vbtType || "").trim().toUpperCase() === "FG";
 
@@ -320,7 +334,7 @@ function VBT01Report({
       setEditApiUrl(glApiUrl);
     }
 
-    if (glApiUrl === "vbt01") {
+    if (glApiUrl === VBT01_API_PREFIX) {
       if (isFgType) {
         try {
           const response = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
@@ -456,6 +470,7 @@ function VBT01Report({
       };
       const finalData = {
         ...finalObj,
+        vbt_type: resolveVbtScreenType(),
         round_type: roundOffSign.toString(),
         round_value: roundOffValue.toString(),
       };
@@ -577,6 +592,7 @@ function VBT01Report({
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
         acknowledgeIRN: values.ackNum,
+        vbt_type: resolveVbtScreenType(),
       };
       updateVbt(finalObj);
     }
@@ -584,8 +600,7 @@ function VBT01Report({
 
   const updateVbt = async (finalData) => {
     setLoading(true);
-    let vbtCodeForEdit = getApiUrl(editVbtDrawer);
-    let link = `/tally/${vbtCodeForEdit}/update`;
+    let link = `/tally/${VBT01_API_PREFIX}/update`;
     const response = await imsAxios.put(link, finalData);
     if (response.status === 200) {
       toast.success(response.data);
@@ -599,7 +614,7 @@ function VBT01Report({
   const addVbt = async (finalData, type) => {
     setLoading(true);
     const response = await imsAxios.post(
-      `/tally/${apiUrl}/add_${apiUrl}?type=${type}`,
+      `/tally/${VBT01_API_PREFIX}/add_${VBT01_API_PREFIX}?type=${type}`,
       finalData,
     );
     const { data } = response;

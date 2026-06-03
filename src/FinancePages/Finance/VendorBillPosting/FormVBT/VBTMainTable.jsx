@@ -51,6 +51,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const { executeFun, loading: loading1 } = useApi();
   const [url, setUrl] = useState("");
   const [apiUrl, setApiUrl] = useState("");
+  const [vbtScreenType, setVbtScreenType] = useState("VBT01");
   const [ModalForm] = Form.useForm();
   const [extracted, setExtracted] = useState([]);
   const [combinedData, setCombinedDate] = useState([]);
@@ -71,6 +72,10 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     // console.log("url", url);
     if (url === "VB1") {
       setApiUrl("vbt01");
+      setVbtScreenType("VBT01");
+    } else if (url === "VB8") {
+      setApiUrl("vbt01");
+      setVbtScreenType("VBT08");
     } else if (url === "VB2") {
       setApiUrl("vbt02");
     } else if (url === "VB3") {
@@ -302,10 +307,14 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
         data: d,
       });
     } else {
-      response = await imsAxios.post(`/tally/${apiUrl}/fetch_${apiUrl}`, {
+      const fetchBody = {
         wise: wise,
         data: d,
-      });
+      };
+      if (apiUrl === "vbt01") {
+        fetchBody.vbt_type = vbtScreenType;
+      }
+      response = await imsAxios.post(`/tally/${apiUrl}/fetch_${apiUrl}`, fetchBody);
     }
     const { data } = response;
     if (data.code === 200) {
@@ -469,6 +478,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
             setEditingVBT={setEditingVBT}
             setApiUrl={setApiUrl}
             apiUrl={apiUrl}
+            pageRoute={url}
+            vbtScreenType={vbtScreenType}
           />
         ) : (
           <VBT01Report
@@ -477,6 +488,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
             setEditingVBT={setEditingVBT}
             setApiUrl={setApiUrl}
             apiUrl={apiUrl}
+            pageRoute={url}
+            vbtScreenType={vbtScreenType}
           />
         )}
         <Row

@@ -147,6 +147,7 @@ const links = [
       routeName: "VBT8",
       routePath: "/tally/vendorbillposting/VB8",
       key: 8,
+      placeholder: "Sales - Return",
     },
   ],
   // JV links
