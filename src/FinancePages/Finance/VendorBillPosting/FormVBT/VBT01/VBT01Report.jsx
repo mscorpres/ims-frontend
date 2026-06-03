@@ -53,6 +53,19 @@ const resolveGlOptionsList = (response) => {
   return [];
 };
 
+const mergeGlSelectOptions = (apiRows = [], extraOptions = []) => {
+  let arr = apiRows.map((d) => ({
+    text: d.text,
+    value: d.id,
+  }));
+  extraOptions.forEach((option) => {
+    if (!arr.some((item) => item.value === option.value)) {
+      arr.push(option);
+    }
+  });
+  return arr;
+};
+
 function VBT01Report({
   editingVBT,
   setEditingVBT,
@@ -154,7 +167,7 @@ function VBT01Report({
         billAmm: row?.taxableValue,
         // billAmount: row?.billAmount,
       }));
-      await getGl(getPurchaseGlOptions(arr));
+      await getGl(getPurchaseGlOptions(arr), arr[0]?.type);
       setEditVBTCode(arr);
       setVbtComponent(arr);
       Vbt01.setFieldValue("components", arr);
@@ -234,7 +247,7 @@ function VBT01Report({
         freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
-      await getGl(getPurchaseGlOptions(data.data));
+      await getGl(getPurchaseGlOptions(data.data), type);
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
       // venTds.push({
       //   ladger_name: "--",
@@ -298,32 +311,35 @@ function VBT01Report({
     }
   };
 
-  const getGl = async (extraOptions = []) => {
+  const getGl = async (extraOptions = [], vbtType = "") => {
     const glApiUrl = editVbtDrawer ? getApiUrl(editVbtDrawer) : apiUrl;
     const options = Array.isArray(extraOptions) ? extraOptions : [];
+    const isFgType = String(vbtType || "").trim().toUpperCase() === "FG";
 
     if (editVbtDrawer) {
       setEditApiUrl(glApiUrl);
     }
 
     if (glApiUrl === "vbt01") {
-      setGlCodes(options);
+      if (isFgType) {
+        try {
+          const response = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
+          const optionRows = resolveGlOptionsList(response);
+          setGlCodes(mergeGlSelectOptions(optionRows, options));
+        } catch (error) {
+          console.log("Error fetching vbt01 GL options", error);
+          setGlCodes(options);
+        }
+      } else {
+        setGlCodes(options);
+      }
       return;
     }
 
     const link = `/tally/${glApiUrl}/${glApiUrl}_gl_options`;
     const response = await imsAxios.get(link);
     const optionRows = resolveGlOptionsList(response);
-    let arr = optionRows.map((d) => ({
-      text: d.text,
-      value: d.id,
-    }));
-    options.forEach((option) => {
-      if (!arr.some((item) => item.value === option.value)) {
-        arr.push(option);
-      }
-    });
-    setGlCodes(arr);
+    setGlCodes(mergeGlSelectOptions(optionRows, options));
   };
 
   const showCofirmModal = () => {
