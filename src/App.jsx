@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Route,
   Routes,
@@ -15,7 +15,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { Box, LinearProgress } from "@mui/material";
 import "buffer";
 import {
-
   setNotifications,
   setFavourites,
   setTestPages,
@@ -74,6 +73,38 @@ import {
   getPostLoginRedirect,
   savePostLoginRedirect,
 } from "./utils/authRedirect";
+import useVersionCheck from "./hooks/useVersionCheck.js";
+import UpdateVersionPopup from "./Components/UpdateVersionPopup.jsx";
+
+const parseNotificationOtherData = (raw) => {
+  try {
+    return typeof raw === "string" ? JSON.parse(raw) : (raw ?? {});
+  } catch {
+    return {};
+  }
+};
+
+const mapNotificationRow = (row) => {
+  const other = parseNotificationOtherData(row.other_data);
+  return {
+    ...row,
+    type: row.msg_type ?? row.type,
+    title: row.request_txt_label ?? row.title,
+    details: row.req_date ?? row.details ?? row.status,
+    file: other.fileUrl,
+    message: other?.message,
+  };
+};
+
+const normalizeAllNotificationsPayload = (data) => {
+  const source = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
+  if (!source.length) return [];
+  return source.map(mapNotificationRow);
+};
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,16 +112,16 @@ const App = () => {
   const sessionFromUrl = searchParams.get("session");
   const branchFromUrl = searchParams.get("branch");
   const comFromUrl = searchParams.get("company");
-   const type = searchParams.get("type")
-   const isSwitchFlow = Boolean(
+  const type = searchParams.get("type");
+  const isSwitchFlow = Boolean(
     tokenFromUrl && sessionFromUrl && comFromUrl && branchFromUrl && type,
   );
   const [loadingSwitch, setLoadingSwitch] = useState(isSwitchFlow);
   const { user, notifications, testPages } = useSelector(
-    (state) => state.login
+    (state) => state.login,
   );
 
-  const filteredRoutes = Rout.filter((route) => {
+  const filteredRoutes = Rout?.filter((route) => {
     // Include the route if it doesn't have a "dept" property or if showlegal is true
     return !route.dept || user?.showlegal;
   });
@@ -115,7 +146,11 @@ const App = () => {
   const [searchHis, setSearchHis] = useState("");
   const [hisList, setHisList] = useState([]);
   const [showHisList, setShowHisList] = useState([]);
-  const notificationsRef = useRef();
+  const notificationsRef = useRef([]);
+  const testPagesRef = useRef(testPages);
+  const pathnameRef = useRef(pathname);
+  const lastAllNotificationsKeyRef = useRef("");
+  const lastFetchNotificationsAtRef = useRef(0);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSetting, setShowSetting] = useState(false);
@@ -126,7 +161,14 @@ const App = () => {
   const [switchBranch, setSwitchBranch] = useState(null);
   const [switchSession, setSwitchSession] = useState(null);
   const [switchSuccess, setSwitchSuccess] = useState(false);
-    
+  const { updateAvailable } = useVersionCheck();
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+
+  useEffect(() => {
+    if (updateAvailable) {
+      setShowUpdatePopup(true);
+    }
+  }, [updateAvailable]);
 
   const logoutHandler = () => {
     dispatch(logoutUser());
@@ -261,7 +303,7 @@ const App = () => {
   }, []);
   const fetchUserDeatils = async (token, session, com, branch, type) => {
     setLoadingSwitch(true);
-      localStorage.setItem("switchInProgress", "1");
+    localStorage.setItem("switchInProgress", "1");
 
     try {
       const response = await imsAxios.get(
@@ -290,18 +332,16 @@ const App = () => {
         localStorage.setItem("loggedInUser", JSON.stringify(obj));
         dispatch(setUser(obj));
         if (payload.settings) dispatch(setSettings(payload.settings));
-    
+
         setSearchParams({}, { replace: true });
       } else {
-
         toast.error(response?.message);
         window.location.replace("https://alwar.mscorpres.com/");
       }
     } catch (error) {
-
       toast.error(error?.message);
       window.location.replace("https://alwar.mscorpres.com/");
-    }finally{
+    } finally {
       localStorage.removeItem("switchInProgress");
       setLoadingSwitch(false);
     }
@@ -309,194 +349,34 @@ const App = () => {
 
   useEffect(() => {
     if (tokenFromUrl && sessionFromUrl && comFromUrl && branchFromUrl && type) {
-      fetchUserDeatils(tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl , type);
+      fetchUserDeatils(
+        tokenFromUrl,
+        sessionFromUrl,
+        comFromUrl,
+        branchFromUrl,
+        type,
+      );
     }
-  }, [tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl , type]);
+  }, [tokenFromUrl, sessionFromUrl, comFromUrl, branchFromUrl, type]);
 
   useEffect(() => {
-    if (Notification.permission == "default") {
+    if (Notification.permission === "default") {
       Notification.requestPermission();
     }
-    document.addEventListener("keyup", (e) => {
+    const handleKeyup = (e) => {
       if (e.key === "Escape") {
         setShowSideBar(false);
       }
-    });
-    if (!user) {
-      redirectToLogin();
-    }
-    if (user) {
-      if (user.company_branch) {
-        setBranchSelected(true);
-      }
-    }
-    if (user) {
-      if (!user.company_branch) {
-      }
-      if (user.company_branch) {
-        setBranchSelected(true);
-      }
-      socket.emit("fetch_notifications", {
-        source: "react",
-      });
-    }
-
-    if (user && user.token) {
-      // getting all notifications
-      socket.on("all-notifications", (data) => {
-        let arr = data.data;
-        arr = arr.map((row) => {
-          console.log(
-            "this one in norification",
-            JSON.parse(row.other_data)?.message
-          );
-          return {
-            ...row,
-            type: row.msg_type,
-            title: row.request_txt_label,
-            details: row.req_date,
-            file: JSON.parse(row.other_data).fileUrl,
-            message: JSON.parse(row.other_data)?.message,
-          };
-        });
-        dispatch(setNotifications(arr));
-      });
-      socket.emit("fetch_notifications", {
-        source: "react",
-      });
-      // getting new notification
-      socket.on("socket_receive_notification", (data) => {
-        if (data.type == "message") {
-          let arr = notificationsRef.current.filter(
-            (not) => not.conversationId != data.conversationId
-          );
-          arr = [data, ...arr];
-          if (arr) {
-            dispatch(setNotifications(arr));
-          }
-          setNewNotification(data);
-        } else if (data[0].msg_type == "file" || data[0].msg_type == "msg") {
-          data = data[0];
-          let arr = notificationsRef.current;
-          arr = arr.map((not) => {
-            if (not.notificationId == data.notificationId) {
-              return {
-                ...data,
-                type: data.msg_type,
-                title: data.request_txt_label,
-                details: data.req_date,
-                file: JSON.parse(data.other_data).fileUrl,
-                message: JSON.parse(data.other_data)?.message,
-              };
-            } else {
-              return not;
-            }
-          });
-          if (arr) {
-            dispatch(setNotifications(arr));
-          }
-          setNewNotification(data);
-        }
-      });
-
-      // event for starting detail
-      socket.on("download_start_detail", (data) => {
-        console.log("start details arrived");
-        toast.success("Your report has been started generating");
-        if (data.title || data.details) {
-          let arr = notificationsRef.current;
-          arr = [data, ...arr];
-          dispatch(setNotifications(arr));
-        }
-      });
-
-      socket.on("getPageStatus", (data) => {
-        setTestToggleLoading(false);
-        let pages;
-        if (testPages) {
-          pages = testPages;
-        } else {
-          pages = [];
-        }
-
-        let arr = [];
-        for (const property in data) {
-          let obj = {
-            url: property,
-            status: data[property],
-          };
-          if (property.includes("/")) {
-            if (data[property] == "TEST") {
-              let obj = {
-                url: property,
-                status: data[property],
-              };
-              arr = [obj, ...arr];
-            }
-            if (data[property] == "LIVE" && property.includes("/")) {
-              pages = pages.filter((page) => page.url == property);
-            }
-          }
-        }
-        dispatch(setTestPages(arr));
-        let pageIsTest;
-        if (arr.filter((page) => page.url == pathname)[0]) {
-          pageIsTest = true;
-        } else {
-          pageIsTest = false;
-        }
-
-        setTestPage(pageIsTest);
-      });
-      socket.on("file-generate-error", (data) => {
-        toast.error(data.message);
-        let arr = notificationsRef.current;
-        if (arr.filter((row) => row.notificationId == data.notificationId)[0]) {
-          arr = arr.map((row) => {
-            if (row.notificationId == data.notificationId) {
-              let obj = row;
-              obj = {
-                ...row,
-                error: true,
-              };
-              return obj;
-            } else {
-              return row;
-            }
-          });
-        } else {
-          arr = [data, ...arr];
-        }
-        dispatch(setNotifications(arr));
-      });
-      socket.on("getting-loading-percentage", (data) => {
-        let arr = notificationsRef.current;
-        if (arr.filter((row) => row.notificationId == data.notificationId)[0]) {
-          arr = arr.map((row) => {
-            if (row.notificationId == data.notificationId) {
-              let obj = row;
-              obj = {
-                ...row,
-                total: data.total,
-              };
-              return obj;
-            } else {
-              return row;
-            }
-          });
-        } else {
-          arr = [data, ...arr];
-        }
-        dispatch(setNotifications(arr));
-      });
-    }
+    };
+    document.addEventListener("keyup", handleKeyup);
+    return () => document.removeEventListener("keyup", handleKeyup);
   }, []);
   useEffect(() => {
     if (!user) {
       redirectToLogin();
     } else if (user) {
       let branch = JSON.parse(
-        localStorage.getItem("otherData")
+        localStorage.getItem("otherData"),
       )?.company_branch;
       if (branch) {
         setBranchSelected(true);
@@ -521,135 +401,167 @@ const App = () => {
         navigate(pendingRedirect, { replace: true });
       }
     }
-    if (user && user.token) {
-      // Use newToken from localStorage if available, otherwise use user.token
-      const tokenToUse = localStorage.getItem("newToken") || user.token;
-      imsAxios.defaults.headers["Authorization"] = `${tokenToUse}`;
-      imsAxios.defaults.headers["Company-Branch"] =
-        user.company_branch || "BRMSC012";
-      imsAxios.defaults.headers["Session"] =
-        user.session || getDefaultFinancialYearValue();
-      socket.emit("fetch_notifications", {
-        source: "react",
-      });
-      // getting new notification
-      socket.on("socket_receive_notification", (data) => {
-        if (data.type == "message") {
-          let arr = notificationsRef.current.filter(
-            (not) => not.conversationId != data.conversationId
-          );
-          arr = [data, ...arr];
-          if (arr) {
-            dispatch(setNotifications(arr));
-          }
-          setNewNotification(data);
-        } else if (data[0].msg_type == "file") {
-          data = data[0];
-          let arr = notificationsRef.current;
-          arr = arr.map((not) => {
-            if (not.notificationId == data.notificationId) {
-              return {
-                ...data,
-                type: data.msg_type,
-                title: data.request_txt_label,
-                details: data.status,
-                file: JSON.parse(data.other_data).fileUrl,
-              };
-            } else {
-              return not;
-            }
-          });
-          if (arr) {
-            dispatch(setNotifications(arr));
-          }
-          setNewNotification(data);
-        }
-      });
-      // getting all notifications
-      socket.on("all-notifications", (data) => {
-        let arr = data.data;
-        // console.log("allnotifications", arr);
-        arr = arr.map((row) => {
-          return {
-            ...row,
-            type: row.msg_type,
-            title: row.request_txt_label,
-            details: row.req_date,
-            file: JSON.parse(row.other_data).fileUrl,
-          };
-        });
-        dispatch(setNotifications(arr));
-      });
-      // event for starting detail
-      socket.on("download_start_detail", (data) => {
-        if (data.title && data.details) {
-          let arr = notificationsRef.current;
-          arr = [data, ...arr];
-          dispatch(setNotifications(arr));
-        }
-      });
+  }, [pathname, user, navigate]);
 
-      socket.on("getPageStatus", (data) => {
-        setTestToggleLoading(false);
-        let pages;
-        if (testPages) {
-          pages = testPages;
-        } else {
-          pages = [];
-        }
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
-        let arr = [];
-        for (const property in data) {
-          let obj = {
-            url: property,
-            status: data[property],
-          };
-          if (property.includes("/")) {
-            if (data[property] == "TEST") {
-              let obj = {
-                url: property,
-                status: data[property],
-              };
-              arr = [obj, ...arr];
-            }
-            if (data[property] == "LIVE" && property.includes("/")) {
-              pages = pages.filter((page) => page.url == property);
-            }
-          }
-        }
-        dispatch(setTestPages(arr));
-        let pageIsTest;
-        if (arr.filter((page) => page.url == pathname)[0]) {
-          pageIsTest = true;
-        } else {
-          pageIsTest = false;
-        }
-
-        setTestPage(pageIsTest);
-      });
-      socket.on("file-generate-error", (data) => {
-        toast.error(data.message);
-        let arr = notificationsRef.current;
-        if (arr.filter((row) => row.notificationId == data.notificationId)[0]) {
-          arr = arr.map((row) => {
-            if (row.notificationId == data.notificationId) {
-              let obj = row;
-              obj = {
-                ...row,
-                error: true,
-              };
-              return obj;
-            } else {
-              return row;
-            }
-          });
-        } else {
-          arr = [data, ...arr];
-        }
-        dispatch(setNotifications(arr));
-      });
-    }
+  const fetchNotifications = useCallback(() => {
+    if (!user?.token) return;
+    const now = Date.now();
+    if (now - lastFetchNotificationsAtRef.current < 2000) return;
+    lastFetchNotificationsAtRef.current = now;
+    socket.emit("fetch_notifications", { source: "react" });
   }, [user?.token]);
+
+  useEffect(() => {
+    if (!user?.token) return;
+
+    const tokenToUse = localStorage.getItem("newToken") || user.token;
+    const companyBranch = user.company_branch || "BRMSC012";
+    const session = user.session || getDefaultFinancialYearValue();
+
+    imsAxios.defaults.headers["Authorization"] = `${tokenToUse}`;
+    imsAxios.defaults.headers["Company-Branch"] = companyBranch;
+    imsAxios.defaults.headers["Session"] = session;
+
+    socket.auth = {
+      token: tokenToUse,
+      companyBranch,
+    };
+
+    const handleAllNotifications = (data) => {
+      const arr = normalizeAllNotificationsPayload(data);
+      if (!arr.length) return;
+
+      const payloadKey = arr
+        .map((n) => n.notificationId ?? n.ID ?? n.id)
+        .join("|");
+      if (payloadKey && payloadKey === lastAllNotificationsKeyRef.current) {
+        return;
+      }
+      lastAllNotificationsKeyRef.current = payloadKey;
+      dispatch(setNotifications(arr));
+    };
+
+    const handleSocketReceiveNotification = (data) => {
+      if (data?.type === "message") {
+        const arr = [
+          data,
+          ...notificationsRef.current.filter(
+            (not) => not.conversationId !== data.conversationId,
+          ),
+        ];
+        dispatch(setNotifications(arr));
+        setNewNotification(data);
+        return;
+      }
+
+      const payload = Array.isArray(data) ? data[0] : data;
+      if (
+        !payload ||
+        (payload.msg_type !== "file" && payload.msg_type !== "msg")
+      ) {
+        return;
+      }
+
+      const mapped = mapNotificationRow(payload);
+      const exists = notificationsRef.current.some(
+        (not) => not.notificationId === mapped.notificationId,
+      );
+      const arr = exists
+        ? notificationsRef.current.map((not) =>
+            not.notificationId === mapped.notificationId ? mapped : not,
+          )
+        : [mapped, ...notificationsRef.current];
+      dispatch(setNotifications(arr));
+      setNewNotification(mapped);
+    };
+
+    const handleDownloadStartDetail = (data) => {
+      if (data?.title || data?.details) {
+        toast.success("Your report has been started generating");
+        dispatch(setNotifications([data, ...notificationsRef.current]));
+      }
+    };
+
+    const handleGetPageStatus = (data) => {
+      setTestToggleLoading(false);
+      let pages = testPagesRef.current ?? [];
+
+      let arr = [];
+      for (const property in data) {
+        if (!property.includes("/")) continue;
+        if (data[property] === "TEST") {
+          arr = [{ url: property, status: data[property] }, ...arr];
+        }
+        if (data[property] === "LIVE") {
+          pages = pages.filter((page) => page.url !== property);
+        }
+      }
+      dispatch(setTestPages(arr));
+      setTestPage(
+        Boolean(arr.find((page) => page.url === pathnameRef.current)),
+      );
+    };
+
+    const handleFileGenerateError = (data) => {
+      toast.error(data?.message);
+      const exists = notificationsRef.current.some(
+        (row) => row.notificationId === data.notificationId,
+      );
+      const arr = exists
+        ? notificationsRef.current.map((row) =>
+            row.notificationId === data.notificationId
+              ? { ...row, error: true }
+              : row,
+          )
+        : [data, ...notificationsRef.current];
+      dispatch(setNotifications(arr));
+    };
+
+    const handleLoadingPercentage = (data) => {
+      const exists = notificationsRef.current.some(
+        (row) => row.notificationId === data.notificationId,
+      );
+      const arr = exists
+        ? notificationsRef.current.map((row) =>
+            row.notificationId === data.notificationId
+              ? { ...row, total: data.total }
+              : row,
+          )
+        : [data, ...notificationsRef.current];
+      dispatch(setNotifications(arr));
+    };
+
+    socket.on("all-notifications", handleAllNotifications);
+    socket.on("socket_receive_notification", handleSocketReceiveNotification);
+    socket.on("download_start_detail", handleDownloadStartDetail);
+    socket.on("getPageStatus", handleGetPageStatus);
+    socket.on("file-generate-error", handleFileGenerateError);
+    socket.on("getting-loading-percentage", handleLoadingPercentage);
+
+    fetchNotifications();
+
+    return () => {
+      socket.off("all-notifications", handleAllNotifications);
+      socket.off(
+        "socket_receive_notification",
+        handleSocketReceiveNotification,
+      );
+      socket.off("download_start_detail", handleDownloadStartDetail);
+      socket.off("getPageStatus", handleGetPageStatus);
+      socket.off("file-generate-error", handleFileGenerateError);
+      socket.off("getting-loading-percentage", handleLoadingPercentage);
+    };
+  }, [
+    user?.token,
+    user?.company_branch,
+    user?.session,
+    dispatch,
+    fetchNotifications,
+  ]);
   // Added useEffect to fetch enabled modules
   useEffect(() => {
     if (user && user.token) {
@@ -659,7 +571,7 @@ const App = () => {
           const tokenToUse = localStorage.getItem("newToken") || user.token;
           const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
             headers: {
-               "Authorization": `${tokenToUse}`,
+              Authorization: `${tokenToUse}`,
               // Prefer current user selection, but fall back to localStorage and defaults.
               "Company-Branch":
                 user.company_branch ??
@@ -671,15 +583,14 @@ const App = () => {
                 getDefaultFinancialYearValue(),
             },
           });
-          if (data.code === 200) {
-            setEnabledModules(data.data || []); // Ensure empty array if undefined
+          if (data?.code === 200) {
+            setEnabledModules(data?.data || []); // Ensure empty array if undefined
           } else {
-            toast.error(data.message?.msg || "Failed to fetch enabled modules");
+            toast.error(data?.message?.msg || "Failed to fetch enabled modules");
             setEnabledModules([]);
           }
         } catch (error) {
-          console.error("Error fetching enabled modules:", error?.message );
-          toast.error( error?.message || "Error fetching module permissions");
+          toast.error(error?.message || "Error fetching module permissions");
           setEnabledModules([]);
           if (error.response?.status === 403) {
             dispatch(logoutUser());
@@ -722,6 +633,9 @@ const App = () => {
   useEffect(() => {
     notificationsRef.current = notifications;
   }, [notifications]);
+  useEffect(() => {
+    testPagesRef.current = testPages;
+  }, [testPages]);
   useEffect(() => {
     if (newNotification?.type) {
       if (Notification.permission == "default") {
@@ -775,12 +689,12 @@ const App = () => {
     window.addEventListener("offline", (e) => {
       console.log("offline", e);
       toast(
-        "You are no longer connected to the Internet, please check your connection and try again."
+        "You are no longer connected to the Internet, please check your connection and try again.",
       );
     });
     window.addEventListener("online", (e) => {
       toast(
-        "The internet has been restored. Kindly review your progress to ensure there is no duplication of data."
+        "The internet has been restored. Kindly review your progress to ensure there is no duplication of data.",
       );
       window.location.reload();
     });
@@ -796,7 +710,7 @@ const App = () => {
       let a = hisList.push(...hisList, ...searching);
       const ids = hisList.map(({ text }) => text);
       const filtered = hisList.filter(
-        ({ text }, index) => !ids.includes(text, index + 1)
+        ({ text }, index) => !ids.includes(text, index + 1),
       );
       // console.log("Search module Array after filtering in here", a);
       // console.log("Search module Array after filtering in here", filtered);
@@ -816,7 +730,7 @@ const App = () => {
       text: row.text,
       value: row.value,
     }));
-  
+
     setShowHisList(arr);
   };
 
@@ -855,7 +769,7 @@ const App = () => {
       urlParams.append("company", company);
       urlParams.append("branch", branch);
       urlParams.append("session", session);
-      urlParams.append("type","switch")
+      urlParams.append("type", "switch");
     }
 
     const redirectUrl = `${targetUrl}?${urlParams.toString()}`;
@@ -864,10 +778,24 @@ const App = () => {
 
   const path = window.location.hostname;
 
+  const refreshNotifications = useCallback(() => {
+    lastFetchNotificationsAtRef.current = 0;
+    lastAllNotificationsKeyRef.current = "";
+    fetchNotifications();
+  }, [fetchNotifications]);
+
   const refreshConnection = () => {
+    if (user?.token) {
+      const tokenToUse = localStorage.getItem("newToken") || user.token;
+      socket.auth = {
+        token: tokenToUse,
+        companyBranch: user.company_branch || "BRMSC012",
+      };
+    }
     setIsLoading(true);
-    socket.close();
-    socket.open();
+    socket.disconnect();
+    socket.connect();
+    refreshNotifications();
   };
 
   const filteredItems = items(user)
@@ -875,12 +803,12 @@ const App = () => {
       const isItemEnabled = enabledModules.some(
         (mod) =>
           String(mod.module_key) === String(item.module_key) &&
-          mod.enabled === 1
+          mod.enabled === 1,
       );
       const isParentEnabled = enabledModules.some(
         (mod) =>
           String(mod.parent_module_key) === String(item.module_key) &&
-          mod.enabled === 1
+          mod.enabled === 1,
       );
 
       if (item.module_key) {
@@ -890,28 +818,25 @@ const App = () => {
               ? enabledModules.some(
                   (mod) =>
                     String(mod.module_key) === String(child.module_key) &&
-                    mod.enabled === 1
+                    mod.enabled === 1,
                 )
               : isItemEnabled || isParentEnabled;
-       
+
             return isChildEnabled;
           });
           if (isItemEnabled || isParentEnabled || enabledChildren.length > 0) {
-           
             return { ...item, children: enabledChildren };
           }
- 
+
           return null;
         }
         if (isItemEnabled || isParentEnabled) {
-       
           return item;
         }
-     
+
         return null;
       }
 
-    
       return null;
     })
     .filter((item) => item !== null);
@@ -924,9 +849,9 @@ const App = () => {
       const isEnabled = enabledModules.some(
         (mod) =>
           String(mod.module_key) === String(item.module_key) &&
-          mod.enabled === 1
+          mod.enabled === 1,
       );
-      
+
       return isEnabled ? item : null;
     })
     .filter((item) => item !== null);
@@ -938,7 +863,6 @@ const App = () => {
           sx={{
             position: "sticky",
             top: 0,
-            
           }}
         />
         <Box
@@ -960,7 +884,6 @@ const App = () => {
     );
   }
   return (
- 
     <div style={{ height: "100vh" }}>
       <ToastContainer
         position="bottom-center"
@@ -1141,6 +1064,7 @@ const App = () => {
                       />
                     </IconButton>
                   </Tooltip>
+                
                   {/* {favLoading ? (
                     <LoadingOutlined
                       style={{
@@ -1176,7 +1100,7 @@ const App = () => {
                       size="small"
                       style={{
                         background: notifications.filter(
-                          (not) => not?.loading || not?.status == "pending"
+                          (not) => not?.loading || not?.status == "pending",
                         )[0]
                           ? "#EAAE0F"
                           : "green",
@@ -1200,9 +1124,10 @@ const App = () => {
                         source={"notifications"}
                         showNotifications={showNotifications}
                         notifications={notifications.filter(
-                          (not) => not?.type != "message"
+                          (not) => not?.type != "message",
                         )}
                         deleteNotification={deleteNotification}
+                        onRefresh={refreshNotifications}
                       />
                     )}
                   </div>
@@ -1417,7 +1342,7 @@ const App = () => {
                                 switchLocation.charAt(0).toUpperCase() +
                                   switchLocation.slice(1),
                                 switchBranch,
-                                switchSession || user?.session
+                                switchSession || user?.session,
                               );
                             }}
                           >
@@ -1495,6 +1420,10 @@ const App = () => {
           </Layout>
         </Layout>
       </Layout>
+      <UpdateVersionPopup
+        open={showUpdatePopup}
+        onRefresh={() => window.location.reload()}
+      />
     </div>
   );
 };

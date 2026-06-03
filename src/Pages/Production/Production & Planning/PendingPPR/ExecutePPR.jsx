@@ -55,7 +55,8 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
     remove(targetKey);
   };
   const getPPRData = async () => {
-    setPageLoading(true);
+ try {
+     setPageLoading(true);
     const { data } = await imsAxios.post("/ppr/fetchPprComponentDetails", {
       accesstoken: editPPR.prod_randomcode,
       pprrequest: editPPR.prod_transaction,
@@ -85,6 +86,9 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
       toast.error(data.message.msg);
       setEditPPR(null);
     }
+ } catch (error) {
+  setPageLoading(false);
+ }
   };
   const columns = [
     {
@@ -518,7 +522,6 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
           activeKey={activeKey}
           onEdit={onEdit}
           items={tabsExist.map((tab) => {
-            console.log(activeKey);
             return {
               disabled: activeKey === "1",
               ...tabItems.filter((item) => tab == item.key)[0],

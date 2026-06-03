@@ -212,17 +212,19 @@ const QcScan = (props: Props) => {
     }
   };
 
-  //runs when genrate code is clicked
+  //runs when generate code / lot transfer is clicked
   const handleLotTransfer = async (status: "PASS" | "FAIL") => {
-    const values = await form.validateFields();
-    if (!pprDetails || !values) return;
+    const response = await executeFun(async () => {
+      const values = await form.validateFields();
+      if (!pprDetails || !values) {
+        return { success: false };
+      }
+      return transferLot(pprDetails, values, rows, status);
+    }, `transfer-${status}`);
 
-    const response = await executeFun(
-      () => transferLot(pprDetails, values, rows, status),
-      "transfer"
-    );
-    if (response.success) {
+    if (response?.success) {
       setShowTransferModal(false);
+      const values = form.getFieldsValue();
       handleFetchPreviousRows(
         values.ppr.value as string,
         values.process.value as string
@@ -312,7 +314,7 @@ const QcScan = (props: Props) => {
     <Row style={{ padding: 10, height: "95%" }} justify={"center"} gutter={6}>
       <TransferModal
         show={showTransferModal}
-        hide={() => setShowInsertModal(false)}
+        hide={() => setShowTransferModal(false)}
         submitHandler={handleLotTransfer}
         loading={loading}
       />
@@ -452,7 +454,9 @@ const QcScan = (props: Props) => {
               disabled={!selectedPpr || !selectedProcess}
               text="Generate Code"
               block
-              loading={loading("transfer")}
+              loading={
+                loading("transfer-PASS") || loading("transfer-FAIL")
+              }
             />
           </div>
         </Flex>

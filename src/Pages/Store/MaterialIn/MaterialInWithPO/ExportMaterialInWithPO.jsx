@@ -44,6 +44,14 @@ import FormTable from "../../../../Components/FormTable.jsx";
 import MySelect from "../../../../Components/MySelect.jsx";
 import { v4 } from "uuid";
 
+const getDollarCurrency = (currencyList = []) =>
+  currencyList.find(
+    (item) =>
+      item.text === "$" ||
+      String(item.text || "").toUpperCase() === "USD" ||
+      /dollar|usd/i.test(String(item.notes || ""))
+  );
+
 export default function ExportMaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
   const [resetPoData, setResetPoData] = useState({ materials: [] });
@@ -421,15 +429,16 @@ export default function ExportMaterialInWithPO({}) {
   const getCurrencies = async () => {
     const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
 
-    let arr = [];
-    arr = data.data.map((d) => {
-      return {
-        text: d.currency_symbol,
-        value: d.currency_id,
-        notes: d.currency_notes,
-      };
-    });
+    const arr = (data?.data || []).map((d) => ({
+      text: d.currency_symbol,
+      value: d.currency_id,
+      notes: d.currency_notes,
+    }));
     setCurrencies(arr);
+    const dollar = getDollarCurrency(arr);
+    if (dollar) {
+      setCurrency(dollar.value);
+    }
   };
 
   const getLocation = async (costCode) => {
@@ -1463,9 +1472,13 @@ export default function ExportMaterialInWithPO({}) {
                         Currency
                       </Typography.Title>
                       <MySelect
-                        onChange={(value) => setCurrency(value)}
+                        disabled
                         value={currency}
-                        options={currencies}
+                        options={
+                          currency
+                            ? currencies.filter((c) => c.value === currency)
+                            : currencies.filter((c) => getDollarCurrency([c]))
+                        }
                         label="Currency"
                       />
                     </Col>
@@ -1670,7 +1683,7 @@ export default function ExportMaterialInWithPO({}) {
 
                     <Row justify="end" style={{ marginTop: 5 }}>
                       <a
-                        href="http://imsv2.mscapi.live/files/sample/Import%20PO%20Sample%20File%20Format.xlsx"
+                        href="https://oakter.prod.mscorpres.com/files/sample/Import%20PO%20Sample%20File%20Format.xlsx"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
