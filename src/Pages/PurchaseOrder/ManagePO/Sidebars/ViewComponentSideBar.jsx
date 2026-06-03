@@ -15,8 +15,7 @@ export default function ViewComponentSideBar({
   setnewPoLogs,
   newPoLogs,
 }) {
-  // console.log("po lgs", getPoLogs);
-  console.log("po newPoLogs", newPoLogs);
+  
   const [loading, setLoading] = useState(null);
   const printFun = async () => {
     setLoading("print");
@@ -76,7 +75,6 @@ export default function ViewComponentSideBar({
     }
 
   ];
-  console.log(componentData);
   return (
     <Drawer
       bodyStyle={{ padding: 5 }}

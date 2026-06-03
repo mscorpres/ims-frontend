@@ -177,7 +177,26 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         if (data.code === 200) {
           toast.success(data.message);
           getRows();
-          // hide();
+          if (componentOptions.length <= 1) {
+            hide();
+          } else {
+            const preservedTransfer = {
+              pickLocation: form.getFieldValue("pickLocation"),
+              issueQty: form.getFieldValue("issueQty"),
+              remarks: form.getFieldValue("remarks"),
+            };
+            await getDetails(show.requestId);
+            form.setFieldsValue({
+              ...preservedTransfer,
+              component: undefined,
+              requestedQty: undefined,
+              unit: undefined,
+              authKey: undefined,
+              reason: undefined,
+              availableQty: undefined,
+              weightedRate: undefined,
+            });
+          }
         } else {
           toast.error(data.message.msg);
         }

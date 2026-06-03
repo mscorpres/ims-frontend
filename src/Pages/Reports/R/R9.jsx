@@ -80,7 +80,7 @@ function R9() {
     if (searchInput?.length > 2) {
       const response = await executeFun(
         () => getProductsOptions(searchInput, true),
-        "select"
+        "select",
       );
       setAsyncOptions(response.data);
     }
@@ -98,25 +98,39 @@ function R9() {
   };
 
   const getDataByLocation = async (e) => {
-    const { data } = await imsAxios.post("/backend/fetchLocation");
-    let v = [];
-    data?.map((ad) => v.push({ text: ad.text, value: ad.id }));
-    setloctionDataTo(v);
+    try {
+      const { data } = await imsAxios.post("/backend/fetchLocation");
 
-    if (e.length > 3) {
-      const { data } = await imsAxios.post("/backend/fetchLocation", {
-        searchTerm: e,
-      });
+      const v =
+        data?.map((ad) => ({
+          text: ad.text,
+          value: ad.id,
+        })) || [];
 
-      if (data.code == 500) {
-        toast.error(data.massage);
-      } else {
-        let arr = [];
-        arr = data.map((d) => {
-          return { text: d.text, value: d.id };
+      setloctionDataTo(v);
+
+      if (e?.length > 3) {
+        const { data } = await imsAxios.post("/backend/fetchLocation", {
+          searchTerm: e,
         });
-        setloctionDataTo(arr);
+
+        if (data.code === 500) {
+          toast.error(data.message || data.massage);
+        } else {
+          const arr = data.map((d) => ({
+            text: d.text,
+            value: d.id,
+          }));
+
+          setloctionDataTo(arr);
+        }
       }
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to fetch locations",
+      );
     }
   };
 
@@ -159,10 +173,10 @@ function R9() {
             status: row.status?.includes("INACTIVE")
               ? "INACTIVE"
               : row.status.includes("ALTERNATIVE")
-              ? "ALTERNATIVE"
-              : row.status.includes("ACTIVE")
-              ? "ACTIVE"
-              : "",
+                ? "ALTERNATIVE"
+                : row.status.includes("ACTIVE")
+                  ? "ACTIVE"
+                  : "",
           };
         });
         setResData(arr);
@@ -212,7 +226,14 @@ function R9() {
         <span dangerouslySetInnerHTML={{ __html: row.statusHtml }} />
       ),
     },
-    { field: "bomalt_part", headerName: "Alt Of", width: 120, renderCell:({row})=> (<Tooltip title={row.bomalt_name}>{row.bomalt_part}</Tooltip>) },
+    {
+      field: "bomalt_part",
+      headerName: "Alt Of",
+      width: 120,
+      renderCell: ({ row }) => (
+        <Tooltip title={row.bomalt_name}>{row.bomalt_part}</Tooltip>
+      ),
+    },
     { field: "bomqty", headerName: "Bom Qty", width: 120 },
     { field: "uom", headerName: "UoM", width: 100 },
     { field: "openBal", headerName: "Op Qty", width: 100 },
@@ -315,10 +336,16 @@ function R9() {
             </Col>
             {allData?.selectBom?.length > 1 && (
               <Col span={24} style={{ marginTop: "5px" }}>
-                <div style={{ display: "flex", justifyContent: "end", gap: "10px" }}>
-                <MyButton
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "end",
+                    gap: "10px",
+                  }}
+                >
+                  <MyButton
                     variant="download"
-                    onClick={()=>emitDownloadEvent()}
+                    onClick={() => emitDownloadEvent()}
                     type="primary"
                     // disabled={selectDate?.length === 0}
                   >
