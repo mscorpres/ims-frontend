@@ -180,9 +180,22 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
           if (componentOptions.length <= 1) {
             hide();
           } else {
-            getDetails(show.requestId);
-            form.resetFields();
-            setAction(null);
+            const preservedTransfer = {
+              pickLocation: form.getFieldValue("pickLocation"),
+              issueQty: form.getFieldValue("issueQty"),
+              remarks: form.getFieldValue("remarks"),
+            };
+            await getDetails(show.requestId);
+            form.setFieldsValue({
+              ...preservedTransfer,
+              component: undefined,
+              requestedQty: undefined,
+              unit: undefined,
+              authKey: undefined,
+              reason: undefined,
+              availableQty: undefined,
+              weightedRate: undefined,
+            });
           }
         } else {
           toast.error(data.message.msg);

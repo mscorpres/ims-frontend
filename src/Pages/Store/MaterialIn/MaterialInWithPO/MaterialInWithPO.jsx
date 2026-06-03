@@ -488,10 +488,8 @@ export default function MaterialInWithPO({}) {
     // if (search?.length > 2) {
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
-    console.log("this is the vendor options", response.data);
-    if (response.success) {
-      arr = convertSelectOptions(response.data);
-      console.log("this is the arr options", arr);
+    if (response?.success) {
+      arr = convertSelectOptions(response?.data);
     }
     setAsyncOptions(arr);
     // }
