@@ -455,7 +455,7 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
     },
     {
       field: "lastRate",
-      headerName: "Rate",
+      headerName: "JW Last Rate",
       width: 180,
       renderCell: ({ row }) => <Input disabled value={row.lastRate} />,
     },
