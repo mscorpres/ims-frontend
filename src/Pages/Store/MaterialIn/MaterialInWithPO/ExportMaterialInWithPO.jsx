@@ -113,8 +113,6 @@ export default function ExportMaterialInWithPO({}) {
     let componentData = {
       qty: [],
       rate: [],
-      misAmount: [],
-      insuranceAmt: [],
       currency: [],
       exchange: [],
       invoice: [],
@@ -154,8 +152,6 @@ export default function ExportMaterialInWithPO({}) {
             customDuty: [...componentData.customDuty, row.customDuty],
             freight: [...componentData.freight, row.freightValue],
             qty: [...componentData.qty, row.orderQty],
-            misAmount: [...componentData.misAmount, row.misAmount],
-            insuranceAmt: [...componentData.insuranceAmt, row.insuranceAmt],
             rate: [...componentData.rate, row.rate],
             exchange: [...componentData?.exchange, row.exchangeRate],
             invoice: [invoice],
@@ -198,7 +194,7 @@ export default function ExportMaterialInWithPO({}) {
       return {
         ...r,
         mfgCode: r.Manualmfgcode,
-        hsnCode: r.hsn ?? r.hsncode,
+        hsnCode: r.hsn,
         autoConsumption: r.Autoconsump == "Y" ? "Yes" : "No",
       };
     });
@@ -357,18 +353,6 @@ export default function ExportMaterialInWithPO({}) {
       minWidth: 100,
     },
     {
-      headerName: "Mis Amount",
-      field: "misAmount",
-      flex: 1,
-      minWidth: 120,
-    },
-    {
-      headerName: "Insurance Amt",
-      field: "insuranceAmt",
-      flex: 1,
-      minWidth: 120,
-    },
-    {
       headerName: "Total",
       field: "total",
       flex: 1,
@@ -515,17 +499,12 @@ export default function ExportMaterialInWithPO({}) {
           const exchangeRate = Number(row.exchangeRate) || 0;
           const customDuty = Number(row.customDuty) || 0;
           const freightValue = Number(row.freightValue) || 0;
-          const misAmount = Number(row.misAmount) || 0;
-          const insuranceAmt = Number(row.insuranceAmt) || 0;
 
           const taxableValue = qty * rate;
           const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+          const total = taxableValue + customDuty + freightValue;
           const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
 
           obj = {
             ...obj,
@@ -542,17 +521,12 @@ export default function ExportMaterialInWithPO({}) {
           const exchangeRate = Number(row.exchangeRate) || 0;
           const customDuty = Number(row.customDuty) || 0;
           const freightValue = Number(row.freightValue) || 0;
-          const misAmount = Number(row.misAmount) || 0;
-          const insuranceAmt = Number(row.insuranceAmt) || 0;
 
           const taxableValue = qty * rate;
           const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+          const total = taxableValue + customDuty + freightValue;
           const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
 
           obj = {
             ...obj,
@@ -569,17 +543,12 @@ export default function ExportMaterialInWithPO({}) {
           const exchangeRate = Number(value) || 0;
           const customDuty = Number(row.customDuty) || 0;
           const freightValue = Number(row.freightValue) || 0;
-          const misAmount = Number(row.misAmount) || 0;
-          const insuranceAmt = Number(row.insuranceAmt) || 0;
 
           const taxableValue = qty * rate;
           const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+          const total = taxableValue + customDuty + freightValue;
           const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
 
           obj = {
             ...obj,
@@ -595,17 +564,12 @@ export default function ExportMaterialInWithPO({}) {
           const exchangeRate = Number(row.exchangeRate) || 0;
           const customDuty = Number(value) || 0;
           const freightValue = Number(row.freightValue) || 0;
-          const misAmount = Number(row.misAmount) || 0;
-          const insuranceAmt = Number(row.insuranceAmt) || 0;
 
           const taxableValue = qty * rate;
           const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+          const total = taxableValue + customDuty + freightValue;
           const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
 
           obj = {
             ...obj,
@@ -620,73 +584,16 @@ export default function ExportMaterialInWithPO({}) {
           const exchangeRate = Number(row.exchangeRate) || 0;
           const customDuty = Number(row.customDuty) || 0;
           const freightValue = Number(value) || 0;
-          const misAmount = Number(row.misAmount) || 0;
-          const insuranceAmt = Number(row.insuranceAmt) || 0;
 
           const taxableValue = qty * rate;
           const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+          const total = taxableValue + customDuty + freightValue;
           const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
+            qty > 0 ? rate + customDuty / qty + freightValue / qty : rate;
 
           obj = {
             ...obj,
             freightValue: freightValue,
-            total: total,
-            finalRate: finalRate,
-          };
-          return obj;
-        } else if (name == "misAmount") {
-          const qty = Number(row.orderQty) || 0;
-          const rate = Number(row.rate) || 0;
-          const exchangeRate = Number(row.exchangeRate) || 0;
-          const customDuty = Number(row.customDuty) || 0;
-          const freightValue = Number(row.freightValue) || 0;
-          const misAmount = Number(value) || 0;
-          const insuranceAmt = Number(row.insuranceAmt) || 0;
-
-          const taxableValue = qty * rate;
-          const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
-          const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
-
-          obj = {
-            ...obj,
-            misAmount: misAmount,
-            foreignValue: foreignValue,
-            total: total,
-            finalRate: finalRate,
-          };
-          return obj;
-        } else if (name == "insuranceAmt") {
-          const qty = Number(row.orderQty) || 0;
-          const rate = Number(row.rate) || 0;
-          const exchangeRate = Number(row.exchangeRate) || 0;
-          const customDuty = Number(row.customDuty) || 0;
-          const freightValue = Number(row.freightValue) || 0;
-          const misAmount = Number(row.misAmount) || 0;
-          const insuranceAmt = Number(value) || 0;
-
-          const taxableValue = qty * rate;
-          const foreignValue = taxableValue * exchangeRate;
-          const total =
-            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
-          const finalRate =
-            qty > 0
-              ? total / qty
-              : rate;
-
-          obj = {
-            ...obj,
-            insuranceAmt: insuranceAmt,
-            foreignValue: foreignValue,
             total: total,
             finalRate: finalRate,
           };
@@ -782,7 +689,7 @@ export default function ExportMaterialInWithPO({}) {
             ...mat,
             id: v4(),
             // Map field names to match column expectations
-            partCode: mat.c_partno || mat.partcode || "",
+            partCode: mat.c_partno ||mat.partcode || "",
             manualMfgCode: mat.mfgCode || "--",
             mfgCode: mat.mfgCode || "--", // Also add for manualMFGCode cell component
             orderQty: orderQty,
@@ -911,36 +818,6 @@ export default function ExportMaterialInWithPO({}) {
         />
       ),
       width: 100,
-    },
-    {
-      headerName: "Mis Amount",
-      field: "misAmount",
-      sortable: false,
-      renderCell: (params) => (
-        <Input
-          value={params.row.misAmount}
-          onChange={(e) =>
-            inputHandler("misAmount", e.target.value, params.row.id)
-          }
-          type="number"
-        />
-      ),
-      width: 100,
-    },
-    {
-      headerName: "Insurance Amt",
-      field: "insuranceAmt",
-      sortable: false,
-      renderCell: (params) => (
-        <Input
-          value={params.row.insuranceAmt}
-          onChange={(e) =>
-            inputHandler("insuranceAmt", e.target.value, params.row.id)
-          }
-          type="number"
-        />
-      ),
-      width: 120,
     },
     {
       headerName: "Custom Duty",
@@ -1144,12 +1021,12 @@ export default function ExportMaterialInWithPO({}) {
 
       // Flatten the new data structure to extract part details and other fields
       const formattedRows = data?.data?.map((item) => {
-      
+        const part = item.part;
         return {
-          partCode: item.part?.part_code,
-          partName: item.part?.part_name,
-          componentKey: item.part?.component_key,
-          manualMfgCode: item.part?.manual_mfg_code,
+          partCode: part.part_code,
+          partName: part.part_name,
+          componentKey: part.component_key,
+          manualMfgCode: part.manual_mfg_code,
           hsn: item.hsn,
           uom: item.uom,
           orderQty: item.order_qty,
@@ -1159,13 +1036,11 @@ export default function ExportMaterialInWithPO({}) {
           foreignValue: item.foreign_value,
           freightValue: item.freight_value,
           customDuty: item.custom_duty,
-          misAmount: item.mis_amount ?? item.misAmount,
-          insuranceAmt: item.insurance_amt ?? item.insuranceAmt,
           total: item.total,
           finalRate: item.final_rate,
           pendingQty: item.pending_qty,
           poOrderQty: item.po_order_qty,
-          value: (item.order_qty * item.import_rate).toFixed(3), 
+          value: (item.order_qty * item.import_rate).toFixed(3), // You may want to adjust the calculation for the value
         };
       });
       // Optional: map formatted rows to final structure
