@@ -32,10 +32,18 @@ const Q3 = () => {
   const [date, setDate] = useState("");
 
   const getLocations = async () => {
-    const { data } = await imsAxios.get("/skuQueryA/q3Location");
-    const arr = [];
-    data.data.map((a) => arr.push({ text: a.text, value: a.id }));
-    setLocationOptions(arr);
+    try {
+      const { data } = await imsAxios.get("/skuQueryA/q3Location");
+      if (data.code == 200) {
+        const arr = [];
+        data.data.map((a) => arr.push({ text: a.text, value: a.id }));
+        setLocationOptions(arr);
+      } else {
+        toast.error(data.message || "Error fetching locations");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching locations");
+    }
   };
 
   useEffect(() => {
@@ -69,7 +77,7 @@ const Q3 = () => {
       const { data } = await imsAxios.post("/skuQueryA/fetchSKU_logs", {
         sku_code: searchInput,
         location: location,
-        date
+        date,
       });
 
       // Check if response has error status
@@ -131,8 +139,6 @@ const Q3 = () => {
             {/* Filters */}
             <Card size="small" title="Filters">
               <Space direction="vertical" size={12} style={{ width: "100%" }}>
-             
-
                 <div>
                   <Typography.Text type="secondary">
                     Product Name
@@ -147,7 +153,7 @@ const Q3 = () => {
                     value={searchInput}
                   />
                 </div>
-                   <div>
+                <div>
                   <Typography.Text type="secondary">
                     Select Date Range
                   </Typography.Text>
@@ -266,10 +272,14 @@ const Q3 = () => {
 };
 
 const getStatusConfig = (type) => {
-  if (type === '<span class="d-inline-block radius-round p-2 bgc-red"></span>') {
+  if (
+    type === '<span class="d-inline-block radius-round p-2 bgc-red"></span>'
+  ) {
     return { label: "OUTWARD", backgroundColor: "#FF0032" };
   }
-  if (type === '<span class="d-inline-block radius-round p-2 bgc-grey"></span>') {
+  if (
+    type === '<span class="d-inline-block radius-round p-2 bgc-grey"></span>'
+  ) {
     return { label: "CANCELLED", backgroundColor: "grey" };
   }
   return { label: "INWARD", backgroundColor: "#227C70" };
@@ -312,7 +322,8 @@ const columns = [
     field: "txn",
     renderCell: ({ row }) => {
       const isCancelled =
-        row.type === '<span class="d-inline-block radius-round p-2 bgc-grey"></span>';
+        row.type ===
+        '<span class="d-inline-block radius-round p-2 bgc-grey"></span>';
       return (
         <div
           style={{
@@ -325,7 +336,9 @@ const columns = [
         >
           <ToolTipEllipses text={row.txn} />
           {isCancelled ? (
-            <span style={{ color: "#d32f2f", fontSize: "0.75rem", fontWeight: 600 }}>
+            <span
+              style={{ color: "#d32f2f", fontSize: "0.75rem", fontWeight: 600 }}
+            >
               CANCELLED
             </span>
           ) : null}

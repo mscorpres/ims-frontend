@@ -121,7 +121,7 @@ const App = () => {
     (state) => state.login,
   );
 
-  const filteredRoutes = Rout.filter((route) => {
+  const filteredRoutes = Rout?.filter((route) => {
     // Include the route if it doesn't have a "dept" property or if showlegal is true
     return !route.dept || user?.showlegal;
   });
@@ -583,14 +583,13 @@ const App = () => {
                 getDefaultFinancialYearValue(),
             },
           });
-          if (data.code === 200) {
-            setEnabledModules(data.data || []); // Ensure empty array if undefined
+          if (data?.code === 200) {
+            setEnabledModules(data?.data || []); // Ensure empty array if undefined
           } else {
-            toast.error(data.message?.msg || "Failed to fetch enabled modules");
+            toast.error(data?.message?.msg || "Failed to fetch enabled modules");
             setEnabledModules([]);
           }
         } catch (error) {
-          console.error("Error fetching enabled modules:", error?.message);
           toast.error(error?.message || "Error fetching module permissions");
           setEnabledModules([]);
           if (error.response?.status === 403) {
