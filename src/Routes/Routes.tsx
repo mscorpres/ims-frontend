@@ -269,6 +269,8 @@ import R37 from "@/Pages/Reports/R/R37.jsx";
 import R38 from "@/Pages/Reports/R/R38.jsx";
 //@ts-ignore
 import R39 from "@/Pages/Reports/R/R39.jsx";
+//@ts-ignore
+import ReportExportConfig from "@/Pages/Reports/ReportExportConfig.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
@@ -840,6 +842,10 @@ const Routes = [
   {
     path: "/r39",
     main: () => <R39 />,
+  },
+  {
+    path: "/report-export",
+    main: () => <ReportExportConfig />,
   },
   {
     path: "/reqWithBom",

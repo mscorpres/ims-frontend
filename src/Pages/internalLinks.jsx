@@ -883,6 +883,11 @@ const links = [
       routePath: "/r39",
       placeholder: "Production PPR Report (by project / BOM)",
     },
+    {
+      routeName: "Export Config",
+      routePath: "/report-export",
+      placeholder: "Dynamic Report Export Configuration",
+    },
   ],
   // MIN label links
 
