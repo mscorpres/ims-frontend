@@ -50,6 +50,7 @@ import {
 import SingleProduct from "../../../Master/Vendor/SingleProduct";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 import MyDataTable from "../../../../Components/MyDataTable.jsx";
+import { head } from "lodash";
 
 const defaultValues = {
   vendorType: "v01",
@@ -97,6 +98,12 @@ export default function MaterialInWithoutPO() {
     { label: "cigst", sign: "+", values: [] },
     { label: "Sub-Total value before Taxes", sign: "", values: [] },
   ]);
+  const [taxDetailsValues, setTaxDetailsValues] = useState([
+    { label: "Total Taxable Value", sign: "+", values: [] },
+    { label: "Total Custom Duty", sign: "+", values: [] },
+    { label: "Total Freight Charges", sign: "+", values: [] },
+    { label: "Total Sum", sign: "", values: [] },
+  ]);
   const [currencies, setCurrencies] = useState([]);
   const [locationOptions, setLocationOptions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -125,6 +132,13 @@ export default function MaterialInWithoutPO() {
       MANUAL_MFG_CODE: "1",
       QTY: 12,
       RATE: "--",
+      MIS_AMOUNT: "--",
+      INSURANCE_AMOUNT: "--",
+      TAXABLE_AMOUNT: "--",
+      FRIEGHT_AMOUNT: "--",
+      CUSTOM_DUTY: "--",
+      TOTAL_AMOUNT: "--",
+      FINAL_RATE: "--",
       HSN: "123456",
       LOCATION: "RM021",
       AUTO_CONSUMP: "0",
@@ -501,12 +515,29 @@ export default function MaterialInWithoutPO() {
       exchangeRate ??
       1;
 
-    const inrValue = getInt(
-      Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate),
+    const qtyNum = Number(qty ?? 0);
+    const rateNum = Number(rate ?? 0);
+    const misAmount =
+      Number(form.getFieldValue(["components", rowId, "misAmount"])) || 0;
+    const insuranceAmount =
+      Number(form.getFieldValue(["components", rowId, "insuranceAmount"])) || 0;
+    const customDuty =
+      Number(form.getFieldValue(["components", rowId, "customDuty"])) || 0;
+    const freightAmount =
+      Number(form.getFieldValue(["components", rowId, "freightAmount"])) || 0;
+
+    const taxableValue = getInt(qtyNum * rateNum * latestExchangeRate, 2);
+    const foreignValue = getInt(qtyNum * rateNum, 2);
+    const totalAmount = getInt(
+      taxableValue + customDuty + freightAmount + misAmount + insuranceAmount,
+      2,
     );
-    const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
-    let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
-    let gst = getInt((inrValue * finalGstRate) / 100);
+    const finalRate = qtyNum > 0 ? getInt(totalAmount / qtyNum, 2) : rateNum;
+
+    const inrValue = getInt(qtyNum * rateNum * Number(latestExchangeRate), 2);
+    let finalGstRate =
+      gstType === "L" ? getInt(gstRate, 2) / 2 : getInt(gstRate, 2);
+    let gst = getInt((inrValue * finalGstRate) / 100, 2);
     form.setFieldValue(["components", rowId, "value"], inrValue);
     form.setFieldValue(
       ["components", rowId, "cgst"],
@@ -520,158 +551,15 @@ export default function MaterialInWithoutPO() {
       ["components", rowId, "igst"],
       gstType === "L" ? 0 : gst,
     );
+    form.setFieldValue(["components", rowId, "taxableValue"], taxableValue);
     form.setFieldValue(
       ["components", rowId, "foreignValue"],
       currency === "364907247" ? 0 : foreignValue,
     );
+    form.setFieldValue(["components", rowId, "totalAmount"], totalAmount);
+    form.setFieldValue(["components", rowId, "finalRate"], finalRate);
   };
-  // const columns = [
-  //   {
-  //     headerName: <CommonIcons action="addRow" onClick={addRow} />,
-  //     width: 40,
-  //     field: "add",
-  //     sortable: false,
-  //     renderCell: ({ row }) =>
-  //       materialInward.indexOf(row) >= 1 && (
-  //         <CommonIcons action="removeRow" onClick={() => removeRow(row?.id)} />
-  //       ),
-  //     sortable: false,
-  //   },
-  //   {
-  //     headerName: "Part Component",
-  //     field: "c_partno",
-  //     sortable: false,
-  //     renderCell: (params) =>
-  //       componentCell(
-  //         params,
-  //         inputHandler,
-  //         setAsyncOptions,
-  //         getComponentDetail,
-  //         asyncOptions,
-  //         loading("select")
-  //       ),
-  //     width: 300,
-  //   },
-  //   {
-  //     headerName: "QTY",
-  //     field: "gstqty",
-  //     sortable: false,
-  //     renderCell: (params) => QuantityCell(params, inputHandler),
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Rate",
-  //     field: "orderrate",
-  //     sortable: false,
-  //     renderCell: (params) => rateCell(params, inputHandler, currencies),
-  //     width: 180,
-  //   },
-  //   // {
-  //   //   headerName: "Currency",
-  //   //   field: "currency",
-  //   //   sortable: false,
-  //   //   renderCell: (params) => currencyCell(params, inputHandler, currencies),
-  //   //   width: 80,
-  //   // },
-  //   {
-  //     headerName: "Taxable Value",
-  //     field: "inrValue",
-  //     sortable: false,
-  //     renderCell: taxableCell,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Foreign Value",
-  //     field: "usdValue",
-  //     sortable: false,
-  //     renderCell: foreignCell,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Invoice ID",
-  //     field: "invoiceId",
-  //     sortable: false,
-  //     renderCell: (params) => invoiceIdCell(params, inputHandler),
-  //     width: 200,
-  //   },
-  //   {
-  //     headerName: "Invoice Date",
-  //     field: "invoiceDate",
-  //     sortable: false,
-  //     renderCell: (params) => invoiceDateCell(params, inputHandler),
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "HSN Code",
-  //     field: "hsncode",
-  //     sortable: false,
-  //     renderCell: (params) => HSNCell(params, inputHandler),
-  //     width: 150,
-  //   },
-  //   {
-  //     headerName: "GST Type",
-  //     field: "gsttype",
-  //     sortable: false,
-  //     renderCell: (params) => gstTypeCell(params, inputHandler),
-  //     // flex: 1,
-  //     width: 200,
-  //   },
-  //   {
-  //     headerName: "GST Rate",
-  //     field: "gstrate",
-  //     sortable: false,
-  //     renderCell: (params) => gstRate(params, inputHandler),
-  //     // flex: 1,
-  //     width: 100,
-  //   },
-  //   {
-  //     headerName: "CGST",
-  //     renderCell: (params) => CGSTCell(params, inputHandler),
-  //     // flex: 1,
-  //     field: "cgst",
-  //     sortable: false,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "SGST",
-  //     renderCell: (params) => SGSTCell(params, inputHandler),
-  //     // flex: 1,
-  //     field: "sgst",
-  //     sortable: false,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "IGST",
-  //     renderCell: (params) => IGSTCell(params, inputHandler),
-  //     // flex: 1,
-  //     field: "igst",
-  //     sortable: false,
-  //     width: 120,
-  //   },
-  //   {
-  //     headerName: "Location",
-  //     field: "location",
-  //     sortable: false,
-  //     renderCell: (params) =>
-  //       locationCell(params, inputHandler, locationOptions),
-  //     width: 150,
-  //   },
-  //   {
-  //     headerName: "Auto Consump",
-  //     field: "autoConsumption",
-  //     sortable: false,
-  //     renderCell: (params) =>
-  //       autoConsumptionCell(params, inputHandler, autoConsumptionOptions),
-  //     width: 150,
-  //   },
-  //   {
-  //     headerName: "Remarks",
-  //     field: "orderremark",
-  //     sortable: false,
-  //     renderCell: (params) => remarkCell(params, inputHandler),
-  //     width: 250,
-  //   },
-  // ];
+
   const successColumns = [
     {
       headerName: "Component",
@@ -716,6 +604,22 @@ export default function MaterialInWithoutPO() {
       { label: "Sub-Total values after Taxes", sign: "", values: grandTotal },
     ];
     setTotalValues(obj);
+  }, [components]);
+  useEffect(() => {
+    const grandTotal = components?.map((row) => getInt(row?.totalAmount, 2));
+    const totalTaxableValue = components?.map((row) =>
+      getInt(row?.taxableValue, 2),
+    );
+    const customTotal = components?.map((row) => getInt(row?.customDuty, 2));
+    const freightTotal = components?.map((row) =>
+      getInt(row?.freightAmount, 2),
+    );
+    setTaxDetailsValues([
+      { label: "Total Taxable Value", sign: "+", values: totalTaxableValue },
+      { label: "Total Custom Duty", sign: "+", values: customTotal },
+      { label: "Total Freight Charges", sign: "+", values: freightTotal },
+      { label: "Total Sum", sign: "", values: grandTotal },
+    ]);
   }, [components]);
   useEffect(() => {
     if (vendor) {
@@ -838,10 +742,22 @@ export default function MaterialInWithoutPO() {
       },
       width: 200,
     },
+    {
+      headerName: "MIS Amount",
+      name: "misAmount",
+      field: () => <Input />,
+      width: 120,
+    },
+    {
+      headerName: "Insurance Amount",
+      name: "insuranceAmount",
+      field: () => <Input />,
+      width: 120,
+    },
 
     {
       headerName: "Taxable Value",
-      name: "value",
+      name: "taxableValue",
 
       field: () => <Input disabled />,
       width: 120,
@@ -850,6 +766,18 @@ export default function MaterialInWithoutPO() {
       headerName: "Foreign Value",
       name: "foreignValue",
       field: () => <Input disabled />,
+      width: 120,
+    },
+    {
+      headerName: "Frieght Amount",
+      name: "freightAmount",
+      field: () => <Input />,
+      width: 120,
+    },
+    {
+      headerName: "Custom Duty",
+      name: "customDuty",
+      field: () => <Input />,
       width: 120,
     },
     {
@@ -893,6 +821,18 @@ export default function MaterialInWithoutPO() {
       field: (row) => <Input disabled />,
       name: "igst",
 
+      width: 120,
+    },
+    {
+      headerName: "Total Amount",
+      name: "totalAmount",
+      field: () => <Input disabled />,
+      width: 120,
+    },
+    {
+      headerName: "Final Rate",
+      name: "finalRate",
+      field: () => <Input disabled />,
       width: 120,
     },
     {
@@ -1017,6 +957,38 @@ export default function MaterialInWithoutPO() {
       minWidth: 100,
     },
     {
+      headerName: "MIS Amount",
+      field: "misAmount",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Insurance Amount",
+      field: "insuranceAmount",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Taxable Value",
+      field: "taxableValue",
+      flex: 1,
+      minWidth: 100,
+    },
+    // {
+    //   headerName: "Foreign Value",
+    //   field: "foreignValue",
+    //   flex: 1,
+    //   minWidth: 100,
+    // },
+    {
+      headerName: "Frieght Amount",
+      field: "freightAmount",
+      flex: 1,
+      minWidth: 100,
+    },
+    { headerName: "Custom Duty", field: "customDuty", flex: 1, minWidth: 100 },
+
+    {
       headerName: "Qty ",
       field: "qty",
       flex: 1,
@@ -1051,6 +1023,18 @@ export default function MaterialInWithoutPO() {
         <ToolTipEllipses text={row.gstType} copy={true} />
       ),
     },
+    {
+      headerName: "Final Amount",
+      field: "finalAmount",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      headerName: "Final Rate",
+      field: "finalRate",
+      flex: 1,
+      minWidth: 100,
+    },
   ];
   const callFileUpalod = async () => {
     try {
@@ -1083,6 +1067,9 @@ export default function MaterialInWithoutPO() {
           return rowObject;
         });
 
+        const globalCurrency =
+          showCurrency?.currency || form.getFieldValue("currency");
+
         let arr = formattedRows.map((r, index) => ({
           id: index + 1,
           partCode: r.Partcode.partNo,
@@ -1092,6 +1079,14 @@ export default function MaterialInWithoutPO() {
           component: { label: r.Partcode.name, value: r.Partcode.key },
           qty: r.Qty,
           rate: r.Rate,
+          misAmount: r.Misamount,
+          insuranceAmount: r.Insuranceamount,
+          totalAmount: r.Totalamount,
+          finalRate: r.Finalrate,
+          freightAmount: r.Frieghtvalue,
+          customDuty: r.Customduty,
+          taxableValue: r.Taxablevalue,
+          currency: globalCurrency || defaultValues.currency,
           hsn: r.Hsn,
           autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
           autoCons: {
@@ -1110,7 +1105,6 @@ export default function MaterialInWithoutPO() {
       }
     } catch (error) {
       toast.error(error?.message || "Error uploading and parsing file");
-      setPreview(false);
     }
   };
   return (
@@ -1157,7 +1151,7 @@ export default function MaterialInWithoutPO() {
           <Row
             gutter={8}
             style={{
-              height: "90%",
+              height: "calc(100% - 82px)",
 
               overflowY: "auto",
               overflowX: "hidden",
@@ -1506,6 +1500,63 @@ export default function MaterialInWithoutPO() {
                     ))}
                   </Row>
                 </Card>
+                <Card
+                  size="small"
+                  title="Tax Details"
+                  bodyStyle={{ overflowY: "auto", maxHeight: "100%" }}
+                >
+                  <Row gutter={[0, 4]}>
+                    {taxDetailsValues?.map((row) => (
+                      <Col span={24} key={row.label}>
+                        <Row>
+                          <Col
+                            span={18}
+                            style={{
+                              fontSize: "0.8rem",
+                              fontWeight:
+                                taxDetailsValues?.indexOf(row) ==
+                                  taxDetailsValues.length - 1 && 600,
+                            }}
+                          >
+                            {row.label}
+                          </Col>
+                          <Col span={6} className="right">
+                            {row.sign.toString() == "" ? (
+                              ""
+                            ) : (
+                              <span
+                                style={{
+                                  fontSize: "0.7rem",
+                                  fontWeight:
+                                    taxDetailsValues?.indexOf(row) ==
+                                      taxDetailsValues.length - 1 && 600,
+                                }}
+                              >
+                                ({row.sign.toString()}){" "}
+                              </span>
+                            )}
+                            <span
+                              style={{
+                                fontSize: "0.8rem",
+                                fontWeight:
+                                  taxDetailsValues?.indexOf(row) ==
+                                    taxDetailsValues.length - 1 && 600,
+                              }}
+                            >
+                              {getInt(
+                                row.values?.reduce(
+                                  (partialSum, a) => partialSum + getInt(a, 2),
+                                  0,
+                                ),
+                                2,
+                              ).toFixed(2)}
+                            </span>
+                          </Col>
+                        </Row>
+                      </Col>
+                    ))}
+                  </Row>
+                </Card>
               </Flex>
             </Col>
             <Col style={{ height: "100%" }} span={18}>
@@ -1528,6 +1579,10 @@ export default function MaterialInWithoutPO() {
                     "exchangeRate",
                     "currency",
                     "mfg",
+                    "misAmount",
+                    "insuranceAmount",
+                    "freightAmount",
+                    "customDuty",
                   ]}
                   calculation={calculation}
                   columns={columns({
@@ -1659,7 +1714,6 @@ export default function MaterialInWithoutPO() {
                 padding: 5,
               }}
             >
-              {loading("fetch") && <Loading />}
               <Row
                 style={{
                   height: "95%",
