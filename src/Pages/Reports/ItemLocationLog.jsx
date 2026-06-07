@@ -352,18 +352,18 @@ export default function ItemLocationLog() {
       field: "rate",
       width: 120,
     },
+    // {
+    //   headerName: "Weighted Average Rate",
+    //   field: "weightedPurchaseRate",
+    //   width: 120,
+    //   renderCell: ({ row }) => (
+    //     <Tooltip title={row.weightedPurchaseRateCurrency}>
+    //       {row.weightedPurchaseRate}
+    //     </Tooltip>
+    //   ),
+    // },
     {
       headerName: "Weighted Average Rate",
-      field: "weightedPurchaseRate",
-      width: 120,
-      renderCell: ({ row }) => (
-        <Tooltip title={row.weightedPurchaseRateCurrency}>
-          {row.weightedPurchaseRate}
-        </Tooltip>
-      ),
-    },
-    {
-      headerName: "Table Weighted Rate",
       field: "tbl_weighted_rate",
       width: 120,
       renderCell: ({ row }) => {
