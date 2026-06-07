@@ -464,6 +464,12 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       ),
     },
     {
+      field: "last_rate",
+      headerName: "Rate",
+      width: 180,
+      renderCell: ({ row }) => <Input disabled value={row.last_rate} />,
+    },
+    {
       field: "pendingStock",
       headerName: "JW Pending Stock",
       width: 180,
@@ -505,6 +511,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       qrScan: isScan == true ? "Y" : "N",
       pick_location: pickLocation,
       challan_date: challanDate,
+      consRate: bomList.map((r) => r.last_rate),
     };
     setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
@@ -581,6 +588,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
           key: r.key,
+          last_rate: r.last_rate,
         };
       });
       setBomList(arr);
