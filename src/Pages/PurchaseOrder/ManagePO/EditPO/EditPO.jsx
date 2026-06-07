@@ -182,7 +182,6 @@ export default function EditPO({ updatePoId, setUpdatePoId, getRows }) {
     }
   };
   const vendorDetailsOptions = [
-    { text: "JWI (Job Work In)", value: "j01" },
     { text: "Vendor", value: "v01" },
   ];
 

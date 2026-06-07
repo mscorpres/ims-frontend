@@ -480,10 +480,11 @@ export default function JwRmConsumptionModal({ editModal, setEditModal }) {
       ),
     },
   ];
-  const prev = async () => {
-    getFetchData();
-    // getLocation();
-    setEWayBill("");
+  const prev = () => {
+    if (editModal.bomData) {
+      closeModal();
+      return;
+    }
     setShowBomList(false);
     setBomList([]);
   };

@@ -95,7 +95,7 @@ export default function ProductMIN() {
     projectID: "",
     projectName: "",
     costCenter: "",
-    currency: "364907247",
+    currency: "",
     invoiceDate: "",
     invoiceId: "",
   });

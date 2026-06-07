@@ -61,7 +61,11 @@ function resolveProjectIdForComponentApi(form, newPurchaseOrder) {
     fromForm !== undefined && fromForm !== null && fromForm !== "";
   const raw = formHasProject ? fromForm : newPurchaseOrder?.project_name;
   if (raw === undefined || raw === null || raw === "") return "";
-  if (typeof raw === "object" && raw.value !== undefined && raw.value !== null) {
+  if (
+    typeof raw === "object" &&
+    raw.value !== undefined &&
+    raw.value !== null
+  ) {
     return raw.value;
   }
   return raw;
@@ -139,7 +143,6 @@ export default function AddComponents({
     setOpen(false);
 
     const arr = previewRows.map((r, index) => {
-
       const qty = Number(r.qty) || 0;
       const rate = Number(r.rate) || 0;
       const inrValue = qty * rate;
@@ -235,7 +238,7 @@ export default function AddComponents({
         tol_price,
         approval,
         project_req_qty: r.projectReqQty ?? "--",
-        po_exec_qty : r.poExecQty ?? "--",
+        po_exec_qty: r.poExecQty ?? "--",
         qtyApproval,
         diffPercentage: r.diffPercentage ?? "--",
         closing_stock: Number(r.closingStock) || 0,
@@ -289,7 +292,7 @@ export default function AddComponents({
       minWidth: 100,
       renderCell: ({ row }) => <ToolTipEllipses text={row.qty} copy={true} />,
     },
-  {
+    {
       headerName: "GST RATE",
       field: "Gstrate",
       flex: 1,
@@ -670,21 +673,26 @@ export default function AddComponents({
     }
   };
   const getComponents = async (searchInput) => {
-    if (searchInput.length > 2) {
-      const response = await executeFun(
-        () => getComponentOptions(searchInput),
-        "select",
-      );
-      const { data } = response;
-      let arr = [];
-      if (!data.msg) {
-        arr = data.map((d) => {
-          return { text: d.text, value: d.id };
-        });
-        setAsyncOptions(arr);
-      } else {
-        setAsyncOptions([]);
+    try {
+      if (searchInput.length > 2) {
+        const response = await executeFun(
+          () => getComponentOptions(searchInput),
+          "select",
+        );
+        const { data } = response;
+        let arr = [];
+        if (data?.length) {
+          arr = data?.map((d) => {
+            return { text: d.text, value: d.id };
+          });
+          setAsyncOptions(arr);
+        } else {
+          setAsyncOptions([]);
+          toast.error(data?.message ?? "Component is not found!");
+        }
       }
+    } catch (error) {
+      setAsyncOptions([]);
     }
   };
   const resetFunction = () => {
@@ -863,28 +871,23 @@ export default function AddComponents({
       renderCell: (params) =>
         disabledCell(params, params.row.po_exec_qty, inputHandler),
     },
-       {
+    {
       headerName: "Plan PPR QTY",
       width: 100,
       field: "ppr_plan_qty",
       sortable: false,
-      renderCell: (params) =>
-         <Input
-            disabled
-            value={params.row.ppr_plan_qty}
-           
-          />
-    },   {
+      renderCell: (params) => (
+        <Input disabled value={params.row.ppr_plan_qty} />
+      ),
+    },
+    {
       headerName: "Exec. PPR QTY",
       width: 100,
       field: "ppr_executed_qty",
       sortable: false,
-      renderCell: (params) =>
-         <Input
-    disabled
-    value={params.row.ppr_executed_qty}
-  />
-   
+      renderCell: (params) => (
+        <Input disabled value={params.row.ppr_executed_qty} />
+      ),
     },
     // CHANGED: Added Closing Stock column from previous update
     {
