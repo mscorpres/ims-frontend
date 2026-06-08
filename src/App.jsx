@@ -161,14 +161,14 @@ const App = () => {
   const [switchBranch, setSwitchBranch] = useState(null);
   const [switchSession, setSwitchSession] = useState(null);
   const [switchSuccess, setSwitchSuccess] = useState(false);
-  const { updateAvailable } = useVersionCheck();
-  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
+  // const { updateAvailable } = useVersionCheck();
+  // const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
-  useEffect(() => {
-    if (updateAvailable) {
-      setShowUpdatePopup(true);
-    }
-  }, [updateAvailable]);
+  // useEffect(() => {
+  //   if (updateAvailable) {
+  //     setShowUpdatePopup(true);
+  //   }
+  // }, [updateAvailable]);
 
   const logoutHandler = () => {
     dispatch(logoutUser());
@@ -1420,10 +1420,10 @@ const App = () => {
           </Layout>
         </Layout>
       </Layout>
-      <UpdateVersionPopup
+      {/* <UpdateVersionPopup
         open={showUpdatePopup}
         onRefresh={() => window.location.reload()}
-      />
+      /> */}
     </div>
   );
 };
