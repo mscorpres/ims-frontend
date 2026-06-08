@@ -7,71 +7,6 @@ import NavFooter from "../../../../../Components/NavFooter";
 import validateResponse from "../../../../../Components/validateResponse";
 import Loading from "../../../../../Components/Loading";
 import SingleComponent from "./SingleProduct";
-import {
-  getTallyApiPrefix,
-  getVbtApiFromCode,
-  getVbtScreenType,
-  isVbt01StyleModule,
-  VBT01_API_PREFIX,
-} from "../vbtModuleUtils";
-
-const getPurchaseGlCodeValue = (purchaseGLCode, apiUrl) => {
-  const glEntry = Array.isArray(purchaseGLCode)
-    ? purchaseGLCode[0]
-    : purchaseGLCode;
-  if (glEntry?.key != null && String(glEntry.key).trim() !== "") {
-    return glEntry.key;
-  }
-  if (isVbt01StyleModule(apiUrl)) return "TP821753548513";
-  if (apiUrl === "vbt06") return "TP672531876660";
-  return "";
-};
-
-const getPurchaseGlOptions = (rows = []) =>
-  Array.from(
-    new Map(
-      rows
-        .flatMap((row) => {
-          if (Array.isArray(row.purchaseGLCode)) {
-            return row.purchaseGLCode;
-          }
-          if (row.purchase_gl) {
-            return [
-              {
-                key: row.purchase_gl.value ?? row.purchase_gl.key,
-                name:
-                  row.purchase_gl.label ??
-                  row.purchase_gl.text ??
-                  row.purchase_gl.name,
-              },
-            ];
-          }
-          return [];
-        })
-        .filter((gl) => gl?.key != null && String(gl.key).trim() !== "")
-        .map((gl) => [gl.key, { text: gl.name ?? gl.key, value: gl.key }])
-    ).values()
-  );
-
-const resolveGlOptionsList = (response) => {
-  const payload = response?.data ?? response;
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  return [];
-};
-
-const mergeGlSelectOptions = (apiRows = [], extraOptions = []) => {
-  let arr = apiRows.map((d) => ({
-    text: d.text,
-    value: d.id,
-  }));
-  extraOptions.forEach((option) => {
-    if (!arr.some((item) => item.value === option.value)) {
-      arr.push(option);
-    }
-  });
-  return arr;
-};
 
 function VBT01Report({
   editingVBT,
@@ -79,15 +14,7 @@ function VBT01Report({
   apiUrl,
   editVbtDrawer,
   setEditVbtDrawer,
-  pageRoute,
-  vbtScreenType: vbtScreenTypeProp,
 }) {
-  const resolveVbtScreenType = () => {
-    if (vbtScreenTypeProp) return vbtScreenTypeProp;
-    if (editVbtDrawer) return getVbtScreenType(getVbtApiFromCode(editVbtDrawer));
-    if (pageRoute) return getVbtScreenType(pageRoute);
-    return "VBT01";
-  };
   const [Vbt01] = Form.useForm();
   const [vbtComponent, setVbtComponent] = useState([]);
   const [taxDetails, setTaxDetails] = useState([]);
@@ -155,6 +82,7 @@ function VBT01Report({
     const response = await imsAxios.get(`/tally/vbt/getData?vbtKey=${vbtCode}`);
     if (response.status == 200) {
       const { data } = response;
+      getGl();
 
       const arr = data.map((row) => ({
         ...row,
@@ -182,7 +110,6 @@ function VBT01Report({
         billAmm: row?.taxableValue,
         // billAmount: row?.billAmount,
       }));
-      await getGl(getPurchaseGlOptions(arr), arr[0]?.type);
       setEditVBTCode(arr);
       setVbtComponent(arr);
       Vbt01.setFieldValue("components", arr);
@@ -198,13 +125,16 @@ function VBT01Report({
       type != null && String(type).trim() !== ""
         ? `?type=${encodeURIComponent(type)}`
         : "";
-    const tallyPrefix = getTallyApiPrefix(
-      editVbtDrawer ? getVbtApiFromCode(editVbtDrawer) : apiUrl
-    );
-    link = `/tally/${tallyPrefix}/fetch_multi_min_data${typeQuery}`;
-    const payload = isVbt01StyleModule(tallyPrefix)
+    if (editVbtDrawer) {
+      let apiLink = getApiUrl(editVbtDrawer);
+
+      link = `/tally/${apiLink}/fetch_multi_min_data${typeQuery}`;
+    } else {
+      link = `/tally/${apiUrl}/fetch_multi_min_data${typeQuery}`;
+    }
+    const payload =
+      apiUrl === "vbt01"
         ? {
-            vbt_type: resolveVbtScreenType(),
             data: minIdArr.map((row) => {
               return {
                 minTxn: row?.transaction ?? row.min_transaction,
@@ -254,22 +184,27 @@ function VBT01Report({
         sgst: "TP385675494002",
         igst: "TP486973272469",
 
-        glCodeValue: getPurchaseGlCodeValue(row.purchaseGLCode, apiUrl),
+        glCodeValue:
+          apiUrl === "vbt01"
+            ? "TP821753548513"
+            : apiUrl === "vbt06"
+              ? "TP672531876660"
+              : "",
         glCode: glCodes,
         freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
-      await getGl(getPurchaseGlOptions(data.data), type);
+      getGl();
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
-      // venTds.push({
-      //   ladger_name: "--",
-      //   ledger_key: "--",
-      //   tds_code: "--",
-      //   tds_key: "--",
-      //   tds_name: "--",
-      //   tds_gl_code: "--",
-      //   tds_percent: "0",
-      // });
+      venTds.push({
+        ladger_name: "--",
+        ledger_key: "--",
+        tds_code: "--",
+        tds_key: "--",
+        tds_name: "--",
+        tds_gl_code: "--",
+        tds_percent: "0",
+      });
       setAllTdsOptions(venTds);
       setTdsArray(
         venTds.map((r) => ({
@@ -323,37 +258,27 @@ function VBT01Report({
     }
   };
 
-  const getGl = async (extraOptions = [], vbtType = "") => {
-    const glApiUrl = getTallyApiPrefix(
-      editVbtDrawer ? getVbtApiFromCode(editVbtDrawer) : apiUrl
-    );
-    const options = Array.isArray(extraOptions) ? extraOptions : [];
-    const isFgType = String(vbtType || "").trim().toUpperCase() === "FG";
-
+  const getGl = async () => {
+    let link;
     if (editVbtDrawer) {
-      setEditApiUrl(glApiUrl);
+      let apiLink = getApiUrl(editVbtDrawer);
+      setEditApiUrl(apiLink);
+      link = `/tally/${apiLink}/${apiLink}_gl_options`;
+    } else {
+      link = `/tally/${apiUrl}/${apiUrl}_gl_options`;
     }
+    const { data } = await imsAxios.get(link);
+    let arr = [];
+    if (data.length > 0) {
+      arr = data.map((d) => {
+        return {
+          text: d.text,
+          value: d.id,
+        };
+      });
 
-    if (glApiUrl === VBT01_API_PREFIX) {
-      if (isFgType) {
-        try {
-          const response = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
-          const optionRows = resolveGlOptionsList(response);
-          setGlCodes(mergeGlSelectOptions(optionRows, options));
-        } catch (error) {
-          console.log("Error fetching vbt01 GL options", error);
-          setGlCodes(options);
-        }
-      } else {
-        setGlCodes(options);
-      }
-      return;
+      setGlCodes(arr);
     }
-
-    const link = `/tally/${glApiUrl}/${glApiUrl}_gl_options`;
-    const response = await imsAxios.get(link);
-    const optionRows = resolveGlOptionsList(response);
-    setGlCodes(mergeGlSelectOptions(optionRows, options));
   };
 
   const showCofirmModal = () => {
@@ -470,7 +395,6 @@ function VBT01Report({
       };
       const finalData = {
         ...finalObj,
-        vbt_type: resolveVbtScreenType(),
         round_type: roundOffSign.toString(),
         round_value: roundOffValue.toString(),
       };
@@ -592,7 +516,6 @@ function VBT01Report({
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
         acknowledgeIRN: values.ackNum,
-        vbt_type: resolveVbtScreenType(),
       };
       updateVbt(finalObj);
     }
@@ -600,7 +523,8 @@ function VBT01Report({
 
   const updateVbt = async (finalData) => {
     setLoading(true);
-    let link = `/tally/${VBT01_API_PREFIX}/update`;
+    let vbtCodeForEdit = getApiUrl(editVbtDrawer);
+    let link = `/tally/${vbtCodeForEdit}/update`;
     const response = await imsAxios.put(link, finalData);
     if (response.status === 200) {
       toast.success(response.data);
@@ -614,7 +538,7 @@ function VBT01Report({
   const addVbt = async (finalData, type) => {
     setLoading(true);
     const response = await imsAxios.post(
-      `/tally/${VBT01_API_PREFIX}/add_${VBT01_API_PREFIX}?type=${type}`,
+      `/tally/${apiUrl}/add_${apiUrl}?type=${type}`,
       finalData,
     );
     const { data } = response;
