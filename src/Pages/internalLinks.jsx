@@ -141,13 +141,7 @@ const links = [
       routeName: "VBT7",
       placeholder: "RCM",
       routePath: "/tally/vendorbillposting/VB7",
-      key: 7,
-    },
-    {
-      routeName: "VBT8",
-      routePath: "/tally/vendorbillposting/VB8",
-      key: 8,
-      placeholder: "Sales - Return",
+      key: 6,
     },
   ],
   // JV links

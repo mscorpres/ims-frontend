@@ -12,7 +12,11 @@ import {
   Tooltip,
 } from "antd";
 import Loading from "../../../../../Components/Loading";
+import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../../Components/MySelect";
+import { imsAxios } from "../../../../../axiosInterceptor";
+import { toast } from "react-toastify";
+import { CodeSandboxCircleFilled } from "@ant-design/icons";
 
 export default function SingleComponent({
   index,
@@ -309,24 +313,6 @@ export default function SingleComponent({
   useEffect(() => {
     // getFreightGlOptions(editApiUrl);
   }, [editApiUrl]);
-
-  useEffect(() => {
-    if (!Array.isArray(tdsArray) || tdsArray.length !== 1) return;
-    const only = tdsArray[0];
-    if (only?.value == null && only?.text == null) return;
-    const current = form.getFieldValue(["components", field.name, "tdsName"]);
-    if (
-      current &&
-      current !== 0 &&
-      String(current.value) === String(only.value)
-    ) {
-      return;
-    }
-    form.setFieldValue(["components", field.name, "tdsName"], {
-      label: only.text,
-      value: only.value,
-    });
-  }, [tdsArray, field.name, form]);
 
   const showRateWarning = () => {
     const partCode = form.getFieldValue(["components", field.name, "partCode"]);

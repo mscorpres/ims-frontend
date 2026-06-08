@@ -23,11 +23,6 @@ import { CheckOutlined } from "@ant-design/icons";
 import DeleteVbt from "./DeleteVbt";
 import CreateDebitNote from "../DebitNote/Create";
 import VBT01Report from "./FormVBT/VBT01/VBT01Report";
-import {
-  getTallyApiPrefix,
-  getVbtApiFromCode,
-  getVbtScreenType,
-} from "./FormVBT/vbtModuleUtils";
 import VBT02Report from "./FormVBT/VBTtype2/VBT02Report";
 import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general.ts";
@@ -993,12 +988,17 @@ export default function VBTReport() {
   return (
     <div style={{ height: "90%" }}>
       {editVbtDrawer ? (
-        <VBT01Report
-          setEditVbtDrawer={setEditVbtDrawer}
-          editVbtDrawer={editVbtDrawer}
-          apiUrl={getTallyApiPrefix(getVbtApiFromCode(editVbtDrawer))}
-          vbtScreenType={getVbtScreenType(getVbtApiFromCode(editVbtDrawer))}
-        />
+        editvbturl === "vbt03" ? (
+          <VBT01Report
+            setEditVbtDrawer={setEditVbtDrawer}
+            editVbtDrawer={editVbtDrawer}
+          />
+        ) : (
+          <VBT01Report
+            setEditVbtDrawer={setEditVbtDrawer}
+            editVbtDrawer={editVbtDrawer}
+          />
+        )
       ) : (
         ""
       )}
