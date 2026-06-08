@@ -55,6 +55,7 @@ const TransactionOut = () => {
     { field: "FROMLOCATION", headerName: "From Location", width: 160 },
     { field: "TOLOCATION", headerName: "To Location", width: 160 },
     { field: "OUTQTY", headerName: "Out Qty", width: 140 },
+    { field: "OUTRATE", headerName: "Out Rate", width: 140 },
     { field: "UNIT", headerName: "UoM", width: 140 },
     {
       field: "VENDORCODE",
