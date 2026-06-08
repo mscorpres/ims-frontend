@@ -61,13 +61,13 @@ const defaultValues = {
   companybranch: "BRMSC012",
   projectID: "",
   costCenter: "",
-  currency: "",
+  currency: "364907247",
   components: [
     {
       gstType: "L",
       location: "",
       autoConsumption: 0,
-      currency: "",
+      currency: "364907247",
       exchangeRate: 1,
     },
   ],
