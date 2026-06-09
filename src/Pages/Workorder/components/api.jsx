@@ -16,6 +16,17 @@ const getValueInArray = (arr, name) => {
     return val;
   });
 };
+
+const getValueInGSTArray = (arr, name) => {
+  return arr.map((row) => {
+    const val = row[name];
+    if (val === "" || val == null) return "0";
+    if (typeof val === "object" && val !== null && "value" in val) {
+      return val.value;
+    }
+    return val;
+  });
+};
 const getFinalizeComponents = async (id, woId, getComponents) => {
   const { data } = await imsAxios.post("/createwo/allbomcomponents", {
     subject_id: id,
@@ -424,7 +435,7 @@ const createMIN = async (values, showView) => {
     ),
     qty: getValueInArray(arr, "qty"),
     rate: getValueInArray(arr, "rate"),
-    gstrate: getValueInArray(arr, "gstRate"),
+    gstrate: getValueInGSTArray(arr, "gstRate"),
     remark: getValueInArray(arr, "remark"),
     gsttype: arr.map(() => values.gstType),
     hsncode: getValueInArray(arr, "hsn"),
