@@ -195,7 +195,7 @@ function MaterialTransfer({ type }) {
     const components = rows.map((r) => r.componentName);
     const qtys = rows.map((r) => r.qty);
     const comments = rows.map((r) => r.comment || "");
-    const rates = rows.map((r) => r.restDetail?.avr_rate || "");
+    const rates = rows.map((r) => r.restDetail.avr_rate || 0);
     const projectsIds = rows.map(
       (r) => r.restDetail?.project ?? r.project ?? ""
     );
