@@ -12,7 +12,7 @@ import Rout from "./Routes/Routes";
 import { useSelector, useDispatch } from "react-redux/es/exports";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Box, LinearProgress } from "@mui/material";
+import { Box, LinearProgress, MenuItem, Select } from "@mui/material";
 import "buffer";
 import {
   setNotifications,
@@ -31,16 +31,7 @@ import Notifications from "./Components/Notifications";
 import MessageModal from "./Components/MessageModal/MessageModal";
 // antd imports
 import Layout, { Content, Header } from "antd/lib/layout/layout";
-import {
-  Badge,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Typography,
-  Modal,
-  Button,
-} from "antd";
+import { Badge, Row, Space, Switch, Typography, Modal, Button } from "antd";
 // icons import
 import {
   CustomerServiceOutlined,
@@ -75,6 +66,7 @@ import {
 } from "./utils/authRedirect";
 import useVersionCheck from "./hooks/useVersionCheck.js";
 import UpdateVersionPopup from "./Components/UpdateVersionPopup.jsx";
+import ModuleSearch from "./Components/searchModule/ModuleSearch.jsx";
 
 const parseNotificationOtherData = (raw) => {
   try {
@@ -273,6 +265,11 @@ const App = () => {
       setModulesOptions(showHisList);
     }
   }, [modulesOptions]);
+  const getOffsetLeft = () => {
+    if (isTestServer) return 60;
+    return 40;
+    // }
+  };
   // Prevent duplicate listeners on re-render.
   useEffect(() => {
     const handleConnect = () => {
@@ -586,7 +583,9 @@ const App = () => {
           if (data?.code === 200) {
             setEnabledModules(data?.data || []); // Ensure empty array if undefined
           } else {
-            toast.error(data?.message?.msg || "Failed to fetch enabled modules");
+            toast.error(
+              data?.message?.msg || "Failed to fetch enabled modules",
+            );
             setEnabledModules([]);
           }
         } catch (error) {
@@ -777,6 +776,8 @@ const App = () => {
   };
 
   const path = window.location.hostname;
+  const isTestServer =
+    path.includes("dev.mscorpres") || path.includes("localhost");
 
   const refreshNotifications = useCallback(() => {
     lastFetchNotificationsAtRef.current = 0;
@@ -904,7 +905,7 @@ const App = () => {
       >
         {/* header start */}
 
-        {(path.includes("dev.mscorpres") || path.includes("localhost")) && (
+        {isTestServer && (
           <div
             style={{
               backgroundColor: "yellow",
@@ -922,13 +923,20 @@ const App = () => {
             <Header
               style={{
                 zIndex: 4,
-                height: 45,
+                height: 46,
                 width: "100%",
                 display: "flex",
                 alignItems: "center",
+                flexWrap: "nowrap",
               }}
             >
-              <Row style={{ width: "100%" }} justify="space-between">
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Space size="large">
                   <MenuOutlined
                     onClick={() => {
@@ -955,55 +963,50 @@ const App = () => {
                   <div className="location-select">
                     <Select
                       style={{ width: 200, color: "white" }}
-                      options={options}
-                      bordered={false}
-                      placeholder="Select Company Branch"
-                      onChange={(value) => handleSelectCompanyBranch(value)}
                       value={user.company_branch}
-                      disabled
-                    />
+                      onChange={(value) => handleSelectCompanyBranch(value)}
+                      displayEmpty
+                      sx={{
+                        color: "#fff",
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
+                        "& .MuiSvgIcon-root": { color: "#fff" },
+                      }}
+                    >
+                      {options.map((opt) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </div>
                   <div className="location-select">
                     <Select
                       style={{ width: 200, color: "white" }}
-                      options={sessionOptions}
-                      bordered={false}
-                      placeholder="Select Session"
-                      onChange={(value) => handleSelectSession(value)}
                       value={user.session}
-                    />
+                      onChange={(value) => handleSelectSession(value)}
+                      displayEmpty
+                      sx={{
+                        color: "#fff",
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
+                        "& .MuiSvgIcon-root": { color: "#fff" },
+                      }}
+                    >
+                      {sessionOptions.map((opt) => (
+                        <MenuItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </div>
                 </Space>
                 <Space>
-                  <div className="location-select">
-                    <Space>
-                      <Typography.Text style={{ color: "white" }}>
-                        <SearchOutlined />
-                      </Typography.Text>
-                      <div style={{ width: 250, color: "white" }}>
-                        <MyAsyncSelect
-                          style={{ color: "black" }}
-                          // placeholder={
-                          //   <span style={{ color: "#000000" }}>
-                          //     Search here...
-                          //   </span>
-                          // }
-                          placeholder="Select users"
-                          onBlur={() => setModulesOptions([])}
-                          noBorder={true}
-                          hideArrow={true}
-                          searchIcon={false}
-                          color="white"
-                          optionsState={modulesOptions}
-                          loadOptions={getModuleSearchOptions}
-                          value={searchModule}
-                          onChange={setSearchModule}
-                          onMouseEnter={showRecentSearch}
-                          options={showHisList}
-                        />
-                      </div>
-                    </Space>
-                  </div>
+                  <Space>
+                    <ModuleSearch />
+                  </Space>
                 </Space>
                 <Space
                   size="large"
@@ -1011,38 +1014,6 @@ const App = () => {
                     position: "relative",
                   }}
                 >
-                  {user?.type && user?.type.toLowerCase() == "developer" && (
-                    <>
-                      <Switch
-                        loading={testToggleLoading}
-                        checked={testPage}
-                        onChange={(value) => handleChangePageStatus(value)}
-                        checkedChildren="Test"
-                        unCheckedChildren="Live"
-                      />
-
-                      <ControlOutlined
-                        style={{
-                          fontSize: 18,
-                          color: "white",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => navToControl()}
-                      />
-                    </>
-                  )}
-                  <Tooltip title="Switch Module" placement="bottom">
-                    <SwapOutlined
-                      style={{
-                        fontSize: 18,
-
-                        color: "white",
-
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setShowSwitchModule(true)}
-                    />
-                  </Tooltip>
                   <Tooltip
                     title={`Socket ${
                       isConnected ? "Connected" : "Disconnected"
@@ -1064,7 +1035,19 @@ const App = () => {
                       />
                     </IconButton>
                   </Tooltip>
-                
+                  <Tooltip title="Switch Module" placement="bottom">
+                    <SwapOutlined
+                      style={{
+                        fontSize: 18,
+
+                        color: "white",
+
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setShowSwitchModule(true)}
+                    />
+                  </Tooltip>
+
                   {/* {favLoading ? (
                     <LoadingOutlined
                       style={{
@@ -1353,7 +1336,7 @@ const App = () => {
                     )}
                   </Modal>
                 </Space>
-              </Row>
+              </div>
             </Header>
           </Layout>
         )}
@@ -1366,58 +1349,86 @@ const App = () => {
             pointerEvents: user && !branchSelected ? "none" : "all",
           }}
         >
-          <TicketsModal
-            open={showTickets}
-            handleClose={() => setShowTickets(false)}
-          />
-          {user && user.passwordChanged === "C" && (
-            <Sidebar
-              items={filteredItems}
-              items1={filteredItems1}
-              className="site-layout-background"
-              key={1}
-              setShowSideBar={setShowSideBar}
-              showSideBar={showSideBar}
-            />
-          )}
-          {/* sidebar ends */}
-          <Layout
-            onClick={() => {
-              setShowNotifications(false);
-              setShowMessageNotifications(false);
+          <div
+            style={{
+              display: "flex",
+              height: "100%",
+              paddingTop: user && user.passwordChanged !== "P" ? 0 : 0,
             }}
-            style={{ height: "100%" }}
           >
-            <Content style={{ height: "100%" }}>
-              <InternalNav links={internalLinks} />
-
-              <div
-                style={{
-                  height: "calc(100vh - 50px)",
-                  width: "100%",
-                  opacity: testPage ? 0.5 : 1,
-                  pointerEvents:
-                    testPage && user?.type != "developer" ? "none" : "all",
-
-                  overflowX: "hidden",
+            <TicketsModal
+              open={showTickets}
+              handleClose={() => setShowTickets(false)}
+            />
+            {user && user.passwordChanged !== "P" && (
+              <Sidebar
+                className="site-layout-background"
+                key={1}
+                setShowSideBar={setShowSideBar}
+                showSideBar={showSideBar}
+                useJsonConfig={true}
+                topOffset={getOffsetLeft()}
+                onWidthChange={(w) => {
+                  const layout = document.querySelector(
+                    "#app-content-left-margin",
+                  );
+                  if (layout) layout.style.marginLeft = `${w}px`;
                 }}
-              >
-                <MessageModal
-                  showMessageDrawer={showMessageDrawer}
-                  setShowMessageDrawer={setShowMessageDrawer}
-                />
-                <Routes>
-                  {filteredRoutes.map((route, index) => (
-                    <Route
-                      key={index}
-                      path={route.path}
-                      element={<route.main />}
-                    />
-                  ))}
-                </Routes>
-              </div>
-            </Content>
-          </Layout>
+              />
+            )}
+            {/* sidebar ends */}
+            <Layout
+              id="app-content-left-margin"
+              style={{
+                height: "100%",
+
+                marginLeft:
+                  user && user.passwordChanged !== "P"
+                    ? showSideBar
+                      ? 230
+                      : 60
+                    : 0,
+
+                minWidth: 0,
+              }}
+            >
+              <Content style={{ height: "100%" }}>
+                <InternalNav links={internalLinks} />
+
+                <div
+                  style={{
+                    height: (() => {
+                      const headerHeight = 50;
+                      const testServerHeight = isTestServer ? 15 : 0;
+                      const byDefaultHeight =
+                        pathname === "/auth/profile" ? 1 : 50;
+                      return `calc(100vh - ${headerHeight}px - ${byDefaultHeight}px)- ${testServerHeight}px`;
+                    })(),
+                    width: "100%",
+                    opacity: testPage ? 0.5 : 1,
+                    pointerEvents:
+                      testPage && user?.type != "developer" ? "none" : "all",
+
+                    overflowX: "hidden",
+                  }}
+                >
+                  <MessageModal
+                    showMessageDrawer={showMessageDrawer}
+                    setShowMessageDrawer={setShowMessageDrawer}
+                  />
+                  <Routes>
+                    {filteredRoutes.map((route, index) => (
+                      <Route
+                        key={index}
+                        path={route.path}
+                        element={<route.main />}
+                      />
+                    ))}
+                  </Routes>
+                </div>
+              </Content>
+            </Layout>
+          </div>
         </Layout>
       </Layout>
       <UpdateVersionPopup

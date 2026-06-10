@@ -1,0 +1,2182 @@
+{
+  "sidebar1": {
+    "title": "Main Navigation",
+    "items": [
+      {
+        "key": "A",
+        "label": "Dashboard",
+        "icon": "MdDashboard",
+        "path": "/"
+      },
+      {
+        "key": "D",
+        "label": "Finance",
+        "icon": "BiMoney",
+
+        "children": [
+          {
+            "key": "account-internal-links",
+            "label": "Accounts master",
+            "icon": "MdAccountBox",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "D31",
+                "label": "Create Master",
+                "icon": "MdAccountBox",
+                "path": "/tally/create-master",
+                "isShown": true
+              },
+              {
+                "key": "D41",
+                "label": "Create Ledger",
+                "icon": "MdAccountBox",
+                "path": "/tally/ledger",
+                "isShown": true
+              },
+              {
+                "key": "D11",
+                "label": "Chart of Accounts",
+                "icon": "MdAccountBox",
+                "path": "/tally/chart-accounts",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "D2",
+            "label": "Taxation",
+            "icon": "IoBookSharp",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "D21",
+                "label": "TDS Config",
+                "icon": "SettingsIcon",
+                "path": "/tally/nature-tds",
+                "isShown": true
+              },
+              {
+                "key": "tcs-links",
+                "label": "TCS",
+                "icon": "IoBookSharp",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D22",
+                    "label": "TCS Config",
+                    "icon": "SettingsIcon",
+                    "path": "/tally/nature-tcs",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D221",
+                    "label": "Block TCS",
+                    "icon": "SettingsIcon",
+                    "path": "/tally/block-tcs",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "D3",
+            "label": "Vendor Bills",
+            "icon": "RiBillFill",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "D317",
+                "label": "Purchase Register",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/report",
+                "isShown": true
+              },
+              {
+                "key": "D31",
+                "label": "Vendor Bill Posting",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-1",
+                "isShown": true
+              },
+              {
+                "key": "D311",
+                "label": "VBT2",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-2",
+                "isShown": true
+              },
+              {
+                "key": "D312",
+                "label": "VBT3",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-3",
+                "isShown": true
+              },
+              {
+                "key": "D313",
+                "label": "VBT4",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-4",
+                "isShown": true
+              },
+              {
+                "key": "D314",
+                "label": "VBT5",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-5",
+                "isShown": true
+              },
+              {
+                "key": "D315",
+                "label": "VBT6",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-6",
+                "isShown": true
+              },
+              {
+                "key": "D316",
+                "label": "VBT7",
+                "icon": "ReceiptIcon",
+                "path": "/tally/vendor-bill-posting/vb-7",
+                "isShown": true
+              },
+              {
+                "key": "D32",
+                "label": "VBT Records",
+                "icon": "ListAltIcon",
+                "path": "/tally/vendor-bill-posting/vendor-bill-records",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "D4",
+            "label": "Accounting Voucher",
+            "icon": "IoJournalSharp",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "jv-internal-links",
+                "label": "Journal voucher",
+                "icon": "BookIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D411",
+                    "label": "Journal Register",
+                    "icon": "BookIcon",
+                    "path": "/tally/journal-posting/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D41",
+                    "label": "Journal",
+                    "icon": "BookIcon",
+                    "path": "/tally/journal-posting",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D412",
+                    "label": "Journal JV01",
+                    "icon": "BookIcon",
+                    "path": "/tally/journal-posting/jv01",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "contra-internal-links",
+                "label": "Contra",
+                "icon": "SwapHorizIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D421",
+                    "label": "Contra Register",
+                    "icon": "SwapHorizIcon",
+                    "path": "/tally/contra/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D42",
+                    "label": "Contra Transactions",
+                    "icon": "SwapHorizIcon",
+                    "path": "/tally/contra/1",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D422",
+                    "label": "Contra Transactions 2",
+                    "icon": "SwapHorizIcon",
+                    "path": "/tally/contra/2",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D423",
+                    "label": "Contra Transactions 3",
+                    "icon": "SwapHorizIcon",
+                    "path": "/tally/contra/3",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D424",
+                    "label": "Contra 4",
+                    "icon": "SwapHorizIcon",
+                    "path": "/tally/contra/4",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "bank-pay-internal-links",
+                "label": "Bank payments",
+                "icon": "PaymentIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D431",
+                    "label": "Bank Payments report",
+                    "icon": "PaymentIcon",
+                    "path": "/tally/vouchers/bank-payment/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D43",
+                    "label": "Bank Payments",
+                    "icon": "PaymentIcon",
+                    "path": "/tally/vouchers/bank-payment",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "bank-rec-internal-links",
+                "label": "Bank receipts",
+                "icon": "AccountBalanceIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D441",
+                    "label": "Bank Receipts Report",
+                    "icon": "AccountBalanceIcon",
+                    "path": "/tally/vouchers/bank-receipts/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D44",
+                    "label": "Bank Receipts",
+                    "icon": "AccountBalanceIcon",
+                    "path": "/tally/vouchers/bank-receipts",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "cash-pay-internal-links",
+                "label": "Cash payments",
+                "icon": "AttachMoneyIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D451",
+                    "label": "Cash Payments Report",
+                    "icon": "AttachMoneyIcon",
+                    "path": "/tally/vouchers/cash-payment/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D45",
+                    "label": "Cash Payments",
+                    "icon": "AttachMoneyIcon",
+                    "path": "/tally/vouchers/cash-payment",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "cash-rec-internal-links",
+                "label": "Cash receipts",
+                "icon": "MonetizationOnIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D461",
+                    "label": "Cash Receipts Registor",
+                    "icon": "MonetizationOnIcon",
+                    "path": "/tally/vouchers/cash-receipts/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D46",
+                    "label": "Cash Receipts",
+                    "icon": "MonetizationOnIcon",
+                    "path": "/tally/vouchers/cash-receipt",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "app-ref-internal-links",
+                "label": "App reference",
+                "icon": "SettingsIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D47",
+                    "label": "App Reference Setup",
+                    "icon": "SettingsIcon",
+                    "path": "/tally/vouchers/reference/setup",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D471",
+                    "label": "App Payment",
+                    "icon": "SettingsIcon",
+                    "path": "/tally/vouchers/reference/payment",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D472",
+                    "label": "App report",
+                    "icon": "SettingsIcon",
+                    "path": "/tally/vouchers/reference/report",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "report",
+            "label": "Report",
+            "icon": "AlignRightOutlined",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "reports/trial-balance",
+                "label": "Trial Balance Report",
+                "icon": "BalanceIcon",
+                "path": "/tally/reports/trial-balance-report",
+                "isShown": true
+              },
+              {
+                "key": "reports/balance-sheet",
+                "label": "Balance Sheet",
+                "icon": "TableChartIcon",
+                "path": "/tally/reports/balance-sheet",
+                "isShown": true
+              },
+              {
+                "key": "reports/profitloss-report",
+                "label": "P & L Report",
+                "icon": "TrendingUpIcon",
+                "path": "/tally/reports/profitloss-report",
+                "isShown": true
+              },
+              {
+                "key": "reports/day-book",
+                "label": "Day Book",
+                "icon": "TodayIcon",
+                "path": "/tally/reports/day-book",
+                "isShown": true
+              },
+              {
+                "key": "reports/ageing",
+                "label": "Ageing Report",
+                "icon": "ScheduleIcon",
+                "path": "/tally/vouchers/reference/payable-report",
+                "isShown": true
+              },
+              {
+                "key": "reports/tdsReport",
+                "label": "TDS Report",
+                "icon": "DescriptionIcon",
+                "path": "/tally/vouchers/reference/tds-report",
+                "isShown": true
+              },
+              {
+                "key": "/gst/gstReport1",
+                "label": "GSTR1",
+                "icon": "ReceiptLongIcon",
+                "path": "/tally/vouchers/reference/gst/report",
+                "isShown": true
+              },
+              {
+                "key": "reports/misReport",
+                "label": "MIS Report",
+                "icon": "AnalyticsIcon",
+                "path": "/tally/vouchers/reference/mis-report",
+                "isShown": true
+              },
+              {
+                "key": "D12",
+                "label": "Ledger Report",
+                "icon": "AssessmentIcon",
+                "path": "/tally/ledger-report",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "D9",
+            "label": "Others",
+            "icon": "MoreHorizIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "vendor-reco",
+                "label": "Vendor Reconciliation",
+                "icon": "CompareArrowsIcon",
+                "path": "/finance/vendor/reco/create",
+                "isShown": true
+              },
+              {
+                "key": "debit-internal-links",
+                "label": "Debit note",
+                "icon": "NoteIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "/tally/debit-note/create",
+                    "label": "Debit Note",
+                    "icon": "NoteIcon",
+                    "path": "/tally/debit-note/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "vendor-reco-dr",
+                    "label": "Debit register",
+                    "icon": "NoteIcon",
+                    "path": "/tally/debit-note/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "vendor-reco-VBT",
+                    "label": "Debit Register Without VBT",
+                    "icon": "NoteIcon",
+                    "path": "/tally/debit-journal/report",
+                    "isShown": true
+                  },
+                  {
+                    "key": "vendor-reco-dc",
+                    "label": "Debit Centralized Register",
+                    "icon": "NoteIcon",
+                    "path": "/tally/debit-journal/general-report",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "gst-reco-internal-links",
+                "label": "GST reconciliation",
+                "icon": "GavelIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "D811",
+                    "label": "GST RECO",
+                    "icon": "GavelIcon",
+                    "path": "/add-gst-details",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D911",
+                    "label": "Add Book Data",
+                    "icon": "GavelIcon",
+                    "path": "/add-book-details",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D1011",
+                    "label": "Reco Details",
+                    "icon": "GavelIcon",
+                    "path": "/view-reconciled",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D1111",
+                    "label": "Summary",
+                    "icon": "GavelIcon",
+                    "path": "/view-summary",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D811122",
+                    "label": "View Book Data",
+                    "icon": "GavelIcon",
+                    "path": "/view-book-data",
+                    "isShown": true
+                  },
+                  {
+                    "key": "D8111",
+                    "label": "View GST Data",
+                    "icon": "GavelIcon",
+                    "path": "/view-gst-data",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        "key": "B",
+        "label": "Material Management",
+        "icon": "BiTransfer",
+        "children": [
+          {
+            "key": "B1",
+            "label": "Master",
+            "icon": "BsFillHddStackFill",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "B11",
+                "label": "UoM",
+                "icon": "StraightenIcon",
+                "path": "/uom",
+                "isShown": true
+              },
+              {
+                "key": "component",
+                "label": "Component",
+                "icon": "BsFillHddStackFill",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B12",
+                    "label": "Material",
+                    "icon": "ExtensionIcon",
+                    "path": "/material",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B121",
+                    "label": "Services",
+                    "icon": "ExtensionIcon",
+                    "path": "/services",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B122",
+                    "label": "Component Category",
+                    "icon": "ExtensionIcon",
+                    "path": "/master/component/category",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B123123",
+                "label": "Cost Center",
+                "icon": "ExtensionIcon",
+                "path": "/masters/cost-center",
+                "isShown": true
+              },
+              {
+                "key": "B123",
+                "label": "Stock Control",
+                "icon": "ExtensionIcon",
+                "path": "/stockControl",
+                "isShown": true
+              },
+              {
+                "key": "products",
+                "label": "Products",
+                "icon": "CategoryIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B13",
+                    "label": "Products",
+                    "icon": "CategoryIcon",
+                    "path": "/masters/products/fg",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B1441",
+                    "label": "SFG Products",
+                    "icon": "CategoryIcon",
+                    "path": "/masters/products/sfg",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B1442",
+                    "label": "Add SKU Opening Rate",
+                    "icon": "CategoryIcon",
+                    "path": "/masters/sku-opening-rate",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B14",
+                "label": "HSN Map",
+                "icon": "MapIcon",
+                "path": "/hsn-map",
+                "isShown": true
+              },
+              {
+                "key": "B114",
+                "label": "Location",
+                "icon": "LocationOnIcon",
+                "path": "/location",
+                "isShown": true
+              },
+              {
+                "key": "groups",
+                "label": "Groups",
+                "icon": "GroupIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B15",
+                    "label": "Groups",
+                    "icon": "GroupIcon",
+                    "path": "/group",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B151",
+                    "label": "Sub-Groups",
+                    "icon": "GroupIcon",
+                    "path": "/sub-group",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "billing-address-internal-links",
+                "label": "Billing & shipping",
+                "icon": "HomeIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B16",
+                    "label": "Billing Address",
+                    "icon": "HomeIcon",
+                    "path": "/billing-address",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B17",
+                    "label": "Shipping Address",
+                    "icon": "LocalShippingIcon",
+                    "path": "/shipping-address",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "bom-internal-links",
+                "label": "Bill of material",
+                "icon": "ListIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B18",
+                    "label": "Bill Of Material",
+                    "icon": "ListIcon",
+                    "path": "/master/bom/create-bom",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B181",
+                    "label": "FG BOM",
+                    "icon": "ListIcon",
+                    "path": "/master/bom/manage-fg-bom",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B182",
+                    "label": "SFG BOM",
+                    "icon": "ListIcon",
+                    "path": "/master/bom/manage-sfg-bom",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B183",
+                    "label": "Disabled",
+                    "icon": "ListIcon",
+                    "path": "/master/bom/bom-disable-list",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "vendor-internal-links",
+                "label": "Vendor",
+                "icon": "BusinessIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B19",
+                    "label": "Vendor / Supplier",
+                    "icon": "BusinessIcon",
+                    "path": "/vendor",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B191",
+                    "label": "Add Vendor",
+                    "icon": "BusinessIcon",
+                    "path": "/create-vendor",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "clients/add",
+                "label": "Clients",
+                "icon": "PeopleIcon",
+                "path": "/tally/clients/add",
+                "isShown": true
+              },
+              {
+                "key": "/master/reports/projects/B20",
+                "label": "Projects",
+                "icon": "WorkIcon",
+                "path": "/master/reports/projects",
+                "isShown": true
+              },
+              {
+                "key": "B21",
+                "label": "Reports",
+                "icon": "AssessmentIcon",
+                "path": "/master/reports/r19",
+                "isShown": true
+              }
+            ]
+          },
+
+          {
+            "key": "B2",
+            "label": "Procurement",
+            "icon": "ImCart",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "B21",
+                "label": "Create PR",
+                "icon": "AddShoppingCartIcon",
+                "path": "/procurement/create",
+                "isShown": true
+              },
+              {
+                "key": "B22",
+                "label": "Requested PR",
+                "icon": "ManageAccountsIcon",
+                "path": "/procurement/request",
+                "isShown": true
+              },
+              {
+                "key": "B22",
+                "label": "Manage",
+                "icon": "ManageAccountsIcon",
+                "path": "/procurement/manage",
+                "isShown": true
+              },
+
+              {
+                "key": "B23",
+                "label": "Completed",
+                "icon": "CheckCircleIcon",
+                "path": "/procurement/completed",
+                "isShown": true
+              },
+
+              {
+                "key": "B25",
+                "label": "Approval",
+                "icon": "ApprovalIcon",
+                "path": "/procurement/approval",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "B3",
+            "label": "Warehouse",
+            "icon": "FaWarehouse",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "mr-approval-internal-links",
+                "label": "Material requisition",
+                "icon": "ApprovalIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B31",
+                    "label": "MR Approval",
+                    "icon": "ApprovalIcon",
+                    "path": "/transaction/approved-transaction",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B311",
+                    "label": "MR Request",
+                    "icon": "ApprovalIcon",
+                    "path": "/material-requisition-request",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "min-internal-links",
+                "label": "Material in (MIN)",
+                "icon": "InputIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B32",
+                    "label": "RM MATLS IN",
+                    "icon": "InputIcon",
+                    "path": "/warehouse/material-in",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B321",
+                    "label": "MIN PO",
+                    "icon": "InputIcon",
+                    "path": "/warehouse/material-in-po",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B322",
+                    "label": "MIN FG/SFG",
+                    "icon": "InputIcon",
+                    "path": "/warehouse/material-in-product",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B323",
+                    "label": "Import MATLS IN",
+                    "icon": "InputIcon",
+                    "path": "/warehouse/export-material-in-po",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B33",
+                "label": "Prod. Return MIN",
+                "icon": "UndoIcon",
+                "path": "/warehouse/prod-return-MIN",
+                "isShown": true
+              },
+              {
+                "key": "fg-inward-internal-links",
+                "label": "FG inwarding",
+                "icon": "InventoryIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B43",
+                    "label": "FG (s) Inwarding",
+                    "icon": "InventoryIcon",
+                    "path": "/warehouse/fg/complete",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B431",
+                    "label": "FG (s) Pending",
+                    "icon": "InventoryIcon",
+                    "path": "/warehouse/fg/pending",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "fg-out-internal-links",
+                "label": "FG out",
+                "icon": "OutputIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B35",
+                    "label": "FG(s) Out",
+                    "icon": "OutputIcon",
+                    "path": "/warehouse/fg-out/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B351",
+                    "label": "View FG(s) Out",
+                    "icon": "OutputIcon",
+                    "path": "/warehouse/fg-out/view",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "fg-return-internal-links",
+                "label": "FG return",
+                "icon": "ReturnIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B38",
+                    "label": "FG(s) Return",
+                    "icon": "ReturnIcon",
+                    "path": "/warehouse/fg-return/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B381",
+                    "label": "FG(s) Pending",
+                    "icon": "ReturnIcon",
+                    "path": "/warehouse/fg-return/pending",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B382",
+                    "label": "FG(s) Completed",
+                    "icon": "ReturnIcon",
+                    "path": "/warehouse/fg-return/completed",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B37",
+                "label": "Rejection Out",
+                "icon": "BlockIcon",
+                "path": "/warehouse/rejection",
+                "isShown": true
+              },
+              {
+                "key": "dc-internal-links",
+                "label": "Delivery challan (DC)",
+                "icon": "DescriptionIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B34",
+                    "label": "RGP - DC",
+                    "icon": "DescriptionIcon",
+                    "path": "/warehouse/dc/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B341",
+                    "label": "Manage DC",
+                    "icon": "DescriptionIcon",
+                    "path": "/warehouse/dc/manage",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "branch-transfer-internal-links",
+                "label": "Branch transfer",
+                "icon": "SwapHorizIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B36",
+                    "label": "Branch Transfer Challan",
+                    "icon": "SwapHorizIcon",
+                    "path": "/warehouse/branch-transfer/challan",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B361",
+                    "label": "Branch Transfer View",
+                    "icon": "SwapHorizIcon",
+                    "path": "/warehouse/branch-transfer/view",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "physical-internal-links",
+                "label": "Stock (Store)",
+                "icon": "InventoryIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "stock-Bryur361",
+                    "label": "Create Physical Stock",
+                    "icon": "InventoryIcon",
+                    "path": "/warehouse/physical/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "stock-B3sdf61",
+                    "label": "Pending Physical Stock",
+                    "icon": "InventoryIcon",
+                    "path": "/warehouse/physical/pending",
+                    "isShown": true
+                  },
+                  {
+                    "key": "STOCK-B361124",
+                    "label": "Rejected Physical Stock",
+                    "icon": "InventoryIcon",
+                    "path": "/warehouse/physical/rejected",
+                    "isShown": true
+                  },
+                  {
+                    "key": "stock-B3618e7e",
+                    "label": "View Physical Stock",
+                    "icon": "InventoryIcon",
+                    "path": "/warehouse/physical/view",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "part-code-internal-links",
+                "label": "Part code conversion",
+                "icon": "TransformIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B41",
+                    "label": "Part Code Conversion",
+                    "icon": "TransformIcon",
+                    "path": "/warehouse/part-code-conversion",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B41ah",
+                    "label": "RM Part Code Conversion",
+                    "icon": "TransformIcon",
+                    "path": "/warehouse/rm-part-code-conversion",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B411",
+                    "label": "Part Code Conversion Report",
+                    "icon": "TransformIcon",
+                    "path": "/warehouse/part-code-conversion/report",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "gatepass-internal-links",
+                "label": "Gatepass",
+                "icon": "SecurityIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B39",
+                    "label": "Gatepass (RGP / NRGP)",
+                    "icon": "SecurityIcon",
+                    "path": "/warehouse/gp/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B391",
+                    "label": "Manage GP",
+                    "icon": "SecurityIcon",
+                    "path": "/warehouse/gp/manage",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "B6",
+            "label": "Jobwork",
+            "icon": "MdQueryStats",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "B61",
+                "label": "Create",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/create",
+                "isShown": true
+              },
+              {
+                "key": "B611",
+                "label": "Approval",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/approval",
+                "isShown": true
+              },
+              {
+                "key": "B612",
+                "label": "Analysis",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/analysis",
+                "isShown": true
+              },
+              {
+                "key": "B613",
+                "label": "RM Issue",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/issue",
+                "isShown": true
+              },
+              {
+                "key": "B614",
+                "label": "Issue Challan",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/issue-challan",
+                "isShown": true
+              },
+              {
+                "key": "B615",
+                "label": "RM Challan",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/challan-list",
+                "isShown": true
+              },
+              {
+                "key": "B616",
+                "label": "SF Inward",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/inward",
+                "isShown": true
+              },
+              {
+                "key": "B617",
+                "label": "RM Return",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/return",
+                "isShown": true
+              },
+              {
+                "key": "B619",
+                "label": "RM Consumption",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/rm-consumption",
+                "isShown": true
+              },
+              {
+                "key": "B618",
+                "label": "Completed",
+                "icon": "AnalyticsIcon",
+                "path": "/warehouse/job-work/completed",
+                "isShown": true
+              },
+              {
+                "key": "jw-update-internal-links",
+                "label": "Jobwork update",
+                "icon": "UpdateIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B63",
+                    "label": "Jobwork Update",
+                    "icon": "UpdateIcon",
+                    "path": "/jobwork/update/supplementary",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B631",
+                    "label": "Jobwork Update (Rate)",
+                    "icon": "UpdateIcon",
+                    "path": "/jobwork/update/rate",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B62",
+                "label": "Vendor SFG MIN",
+                "icon": "BusinessIcon",
+                "path": "/job-work/vendor/sfg/min",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "B7",
+            "label": "Work Order",
+            "icon": "WorkIcon",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "B71",
+                "label": "Create",
+                "icon": "AddIcon",
+                "path": "/wo/create",
+                "isShown": true
+              },
+              {
+                "key": "B72",
+                "label": "Analysis",
+                "icon": "AnalyticsIcon",
+                "path": "/wo/analysis",
+                "isShown": true
+              },
+              {
+                "key": "B73",
+                "label": "Create Challan",
+                "icon": "ReceiptIcon",
+                "path": "/wo/create-challan",
+                "isShown": true
+              },
+              {
+                "key": "B74",
+                "label": "SCRAPE Challan",
+                "icon": "DeleteIcon",
+                "path": "/wo/create-scrape-challan",
+                "isShown": true
+              },
+              {
+                "key": "B75",
+                "label": "Shipment",
+                "icon": "LocalShippingIcon",
+                "path": "/wo/shipment",
+                "isShown": true
+              },
+              {
+                "key": "B76",
+                "label": "View Challan",
+                "icon": "VisibilityIcon",
+                "path": "/wo/view-challan",
+                "isShown": true
+              },
+              {
+                "key": "B77",
+                "label": "Completed",
+                "icon": "CheckCircleIcon",
+                "path": "/wocompleted",
+                "isShown": true
+              },
+              {
+                "key": "B78",
+                "label": "Report",
+                "icon": "AssessmentIcon",
+                "path": "/woreport",
+                "isShown": true
+              },
+              {
+                "key": "B79",
+                "label": "Update Supplementary",
+                "icon": "UpdateIcon",
+                "path": "/wo/update/supplementary",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "B36",
+            "label": "Material Transfer",
+            "icon": "SwapHorizIcon",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "mt-rm-rm-internal-links",
+                "label": "RM to RM",
+                "icon": "SwapHorizIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B361",
+                    "label": "RM To RM",
+                    "icon": "SwapHorizIcon",
+                    "path": "/material-transfer/rm-to-rm",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B3611",
+                    "label": "View Transaction",
+                    "icon": "SwapHorizIcon",
+                    "path": "/material-transfer/rm-to-rm/view-transaction",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "mt-fg-fg-internal-links",
+                "label": "FG to FG",
+                "icon": "SwapHorizIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B362",
+                    "label": "FG to FG",
+                    "icon": "SwapHorizIcon",
+                    "path": "/warehouse/material-transfer/fg-to-fg",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B3621",
+                    "label": "View Transaction",
+                    "icon": "SwapHorizIcon",
+                    "path": "/warehouse/material-transfer/fg-to-fg/view-transaction",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "mt-rm-rej-internal-links",
+                "label": "RM to REJ",
+                "icon": "BlockIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B363",
+                    "label": "RM To REJ",
+                    "icon": "BlockIcon",
+                    "path": "/material-transfer/rm-to-rej",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B3631",
+                    "label": "View Transaction",
+                    "icon": "BlockIcon",
+                    "path": "/material-transfer/rm-to-rej/view-transation",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B364",
+                "label": "Pending Transfer(s)",
+                "icon": "PendingIcon",
+                "path": "/material-transfer/pending-transfer",
+                "isShown": true
+              },
+              {
+                "key": "mt-jw-jw-internal-links",
+                "label": "JW to JW",
+                "icon": "BlockIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B3636",
+                    "label": "JW To JW",
+                    "icon": "BlockIcon",
+                    "path": "/material-transfer/jw-to-jw",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B3637",
+                    "label": "View Transaction",
+                    "icon": "BlockIcon",
+                    "path": "/material-transfer/jw-to-jw/view",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "C5",
+            "label": "Sales Order",
+            "icon": "TbReportAnalytics",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "C52",
+                "label": "Create order",
+                "icon": "AddIcon",
+                "path": "/sales-order/create",
+                "isShown": true
+              },
+              {
+                "key": "E51",
+                "label": "Register",
+                "icon": "ListIcon",
+                "path": "/sales-order/register",
+                "isShown": true
+              },
+              {
+                "key": "C54",
+                "label": "Shipment",
+                "icon": "LocalShippingIcon",
+                "path": "/sales-order/shipments",
+                "isShown": true
+              },
+              {
+                "key": "C53",
+                "label": "Challan",
+                "icon": "ReceiptIcon",
+                "path": "/sales-order/challan",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "B4",
+            "label": "Print",
+            "icon": "TbReportAnalytics",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "min-label-print-internal-links",
+                "label": "MIN labels",
+                "icon": "PrintIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B42",
+                    "label": "Print and View MIN Label",
+                    "icon": "PrintIcon",
+                    "path": "/warehouse/print-view-min",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B42fg",
+                    "label": "Print and View FG MIN",
+                    "icon": "PrintIcon",
+                    "path": "/warehouse/print-view-fg-min",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B43",
+                "label": "E-Way Bill Report",
+                "icon": "DescriptionIcon",
+                "path": "/warehouse/eway-bill/report",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "B59",
+            "label": "Reports",
+            "icon": "MdQueryStats",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "min-register-internal-links",
+                "label": "MIN & issue registers",
+                "icon": "ListIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B411",
+                    "label": "MIN Register",
+                    "icon": "ListIcon",
+                    "path": "/reports/transaction-in",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B412",
+                    "label": "RM Issue Register",
+                    "icon": "OutputIcon",
+                    "path": "/reports/transaction-out",
+                    "isShown": true
+                  },
+                     {
+                    "key": "B412432",
+                    "label": "View Document",
+                    "icon": "OutputIcon",
+                    "path": "/reports/upload-document/view",
+                    "isShown": true
+                  }, {
+                    "key": "B412433",
+                    "label": "Consumption Report",
+                    "icon": "OutputIcon",
+                    "path": "/jw-rm-consumption-report",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "B414",
+                "label": "Weekly Audit",
+                "icon": "AuditIcon",
+                "path": "/weeklyAudit",
+                "isShown": true
+              },
+              {
+                "key": "B413",
+                "label": "Reports R1 - R38",
+                "icon": "DescriptionIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "B413-r1",
+                    "label": "R1",
+                    "icon": "DescriptionIcon",
+                    "path": "/r1",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r2",
+                    "label": "R2",
+                    "icon": "DescriptionIcon",
+                    "path": "/r2",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r3",
+                    "label": "R3",
+                    "icon": "DescriptionIcon",
+                    "path": "/r3",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r4",
+                    "label": "R4",
+                    "icon": "DescriptionIcon",
+                    "path": "/r4",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r5",
+                    "label": "R5",
+                    "icon": "DescriptionIcon",
+                    "path": "/r5",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r6",
+                    "label": "R6",
+                    "icon": "DescriptionIcon",
+                    "path": "/r6",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r7",
+                    "label": "R7",
+                    "icon": "DescriptionIcon",
+                    "path": "/r7",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r8",
+                    "label": "R8",
+                    "icon": "DescriptionIcon",
+                    "path": "/r8",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r9",
+                    "label": "R9",
+                    "icon": "DescriptionIcon",
+                    "path": "/r9",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r10",
+                    "label": "R10",
+                    "icon": "DescriptionIcon",
+                    "path": "/r10",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r11",
+                    "label": "R11",
+                    "icon": "DescriptionIcon",
+                    "path": "/r11",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r12",
+                    "label": "R12",
+                    "icon": "DescriptionIcon",
+                    "path": "/r12",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r13",
+                    "label": "R13",
+                    "icon": "DescriptionIcon",
+                    "path": "/r13",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r14",
+                    "label": "R14",
+                    "icon": "DescriptionIcon",
+                    "path": "/r14",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r15",
+                    "label": "R15",
+                    "icon": "DescriptionIcon",
+                    "path": "/r15",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r16",
+                    "label": "R16",
+                    "icon": "DescriptionIcon",
+                    "path": "/r16",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r17",
+                    "label": "R17",
+                    "icon": "DescriptionIcon",
+                    "path": "/r17",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r18",
+                    "label": "R18",
+                    "icon": "DescriptionIcon",
+                    "path": "/r18",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r19",
+                    "label": "R19",
+                    "icon": "DescriptionIcon",
+                    "path": "/r19",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r20",
+                    "label": "R20",
+                    "icon": "DescriptionIcon",
+                    "path": "/r20",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r21",
+                    "label": "R21",
+                    "icon": "DescriptionIcon",
+                    "path": "/r21",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r22",
+                    "label": "R22",
+                    "icon": "DescriptionIcon",
+                    "path": "/r22",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r24",
+                    "label": "R24",
+                    "icon": "DescriptionIcon",
+                    "path": "/r24",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r25",
+                    "label": "R25",
+                    "icon": "DescriptionIcon",
+                    "path": "/r25",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r26",
+                    "label": "R26",
+                    "icon": "DescriptionIcon",
+                    "path": "/r26",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r27",
+                    "label": "R27",
+                    "icon": "DescriptionIcon",
+                    "path": "/r27",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r28",
+                    "label": "R28",
+                    "icon": "DescriptionIcon",
+                    "path": "/r28",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r29",
+                    "label": "R29",
+                    "icon": "DescriptionIcon",
+                    "path": "/r29",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r30",
+                    "label": "R30",
+                    "icon": "DescriptionIcon",
+                    "path": "/r30",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r31",
+                    "label": "R31",
+                    "icon": "DescriptionIcon",
+                    "path": "/r31",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r32",
+                    "label": "R32",
+                    "icon": "DescriptionIcon",
+                    "path": "/r32",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r33",
+                    "label": "R33",
+                    "icon": "DescriptionIcon",
+                    "path": "/r33",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r34",
+                    "label": "R34",
+                    "icon": "DescriptionIcon",
+                    "path": "/r34",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r35",
+                    "label": "R35",
+                    "icon": "DescriptionIcon",
+                    "path": "/r35",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r37",
+                    "label": "R37",
+                    "icon": "DescriptionIcon",
+                    "path": "/r37",
+                    "isShown": true
+                  },
+                  {
+                    "key": "B413-r38",
+                    "label": "R38",
+                    "icon": "DescriptionIcon",
+                    "path": "/fg-register-report",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "B5",
+            "label": "Query",
+            "icon": "MdQueryStats",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "C51",
+                "label": "Q1",
+                "icon": "HelpIcon",
+                "path": "/query/item-all-logs",
+                "isShown": true
+              },
+              {
+                "key": "C511",
+                "label": "Q2",
+                "icon": "HelpIcon",
+                "path": "/query/item-location-logs",
+                "isShown": true
+              },
+              {
+                "key": "C512",
+                "label": "Q3",
+                "icon": "HelpIcon",
+                "path": "/query/sku-query",
+                "isShown": true
+              },
+              {
+                "key": "C513",
+                "label": "Q4",
+                "icon": "HelpIcon",
+                "path": "/query/ledger",
+                "isShown": true
+              },
+              {
+                "key": "C514",
+                "label": "Q5",
+                "icon": "HelpIcon",
+                "path": "/query/component-wise-stock",
+                "isShown": true
+              },
+              {
+                "key": "C515",
+                "label": "Q6",
+                "icon": "HelpIcon",
+                "path": "/query/closing-stock",
+                "isShown": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "C",
+        "label": "Production",
+        "icon": "IoFileTrayStacked",
+        "children": [
+          {
+            "key": "C1",
+            "label": "PPC",
+            "icon": "MdDashboard",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "mr-requisition-internal-links",
+                "label": "Material requisition",
+                "icon": "RequestQuoteIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "C11",
+                    "label": "Material Requisition",
+                    "icon": "RequestQuoteIcon",
+                    "path": "/material-requisition/with-bom",
+                    "isShown": true
+                  },
+                  {
+                    "key": "C111",
+                    "label": "Material Requisition Without Bom",
+                    "icon": "RequestQuoteIcon",
+                    "path": "/material-requisition/with-out-bom",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "ppr-internal-links",
+                "label": "Production plan (PPR)",
+                "icon": "ScheduleIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "C12",
+                    "label": "Production and Plan (s)",
+                    "icon": "ScheduleIcon",
+                    "path": "/production-and-plan/create",
+                    "isShown": true
+                  },
+                  {
+                    "key": "C121",
+                    "label": "Pending PPR",
+                    "icon": "ScheduleIcon",
+                    "path": "/production-and-plan/pending",
+                    "isShown": true
+                  },
+                  {
+                    "key": "C122",
+                    "label": "Complete PPR",
+                    "icon": "ScheduleIcon",
+                    "path": "/production-and-plan/completed",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "D1",
+                "label": "Production MIS",
+                "icon": "MdAccountBox",
+                "path": "/production-ims",
+                "isShown": true
+              },
+              {
+                "key": "D5",
+                "label": "Physical Stock",
+                "icon": "MdAccountBox",
+                "path": "/production/physical-stock/create",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "C3",
+            "label": "Location Movement",
+            "icon": "SwapHorizIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "loc-sf-sf-internal-links",
+                "label": "SF to SF",
+                "icon": "SwapHorizIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "C141",
+                    "label": "SF To SF",
+                    "icon": "SwapHorizIcon",
+                    "path": "/location-movement/sf-to-sf",
+                    "isShown": true
+                  },
+                  {
+                    "key": "C1411",
+                    "label": "View Transaction",
+                    "icon": "SwapHorizIcon",
+                    "path": "/location-movement/sf-to-sf/view",
+                    "isShown": true
+                  }
+                ]
+              },
+              {
+                "key": "loc-sf-rej-internal-links",
+                "label": "SF to REJ",
+                "icon": "BlockIcon",
+                "isHeading": true,
+                "children": [
+                  {
+                    "key": "C142",
+                    "label": "SF To REJ",
+                    "icon": "BlockIcon",
+                    "path": "/location-movement/sf-to-rej",
+                    "isShown": true
+                  },
+                  {
+                    "key": "C1421",
+                    "label": "View Transaction",
+                    "icon": "BlockIcon",
+                    "path": "/location-movement/sf-to-rej/view",
+                    "isShown": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "C2",
+            "label": "QCA",
+            "icon": "CheckCircleIcon",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "C131",
+                "label": "Create Sample",
+                "icon": "AddIcon",
+                "path": "/qca/sample",
+                "isShown": true
+              },
+              {
+                "key": "C132",
+                "label": "Pending Sample",
+                "icon": "PendingIcon",
+                "path": "/qca/pending",
+                "isShown": true
+              },
+              {
+                "key": "C133",
+                "label": "Completed Sample",
+                "icon": "CheckCircleIcon",
+                "path": "/qca/completed",
+                "isShown": true
+              },
+              {
+                "key": "C134",
+                "label": "QC Report",
+                "icon": "AssessmentIcon",
+                "path": "/qca/report",
+                "isShown": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "Z",
+        "label": "MES",
+        "icon": "DeploymentUnitOutlined",
+
+        "children": [
+          {
+            "key": "mes-qa-process-internal-links",
+            "label": "QA process",
+            "icon": "DeliveredProcedureOutlined",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "Z11",
+                "label": "Create Process",
+                "icon": "AddIcon",
+                "path": "/master/qa-process",
+                "isShown": true
+              },
+              {
+                "key": "Z12",
+                "label": "Create Process Map",
+                "icon": "MapIcon",
+                "path": "/master/qa-process-map",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "Z2",
+            "label": "QCA",
+            "icon": "CheckCircleOutlined",
+            "isHeading": true,
+
+            "children": [
+              {
+                "key": "Z21",
+                "label": "Print QCA Label",
+                "icon": "PrintIcon",
+                "path": "/print-qc-label",
+                "isShown": true
+              },
+              {
+                "key": "Z22",
+                "label": "QC Check",
+                "icon": "CheckCircleIcon",
+                "path": "/qc/check",
+                "isShown": true
+              },
+              {
+                "key": "Z23",
+                "label": "QC Report",
+                "icon": "AssessmentIcon",
+                "path": "/qca/report's",
+                "isShown": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "E",
+        "label": "CPM",
+        "icon": "CalculatorFilled",
+        "children": [
+          {
+            "key": "cpm-internal-links",
+            "label": "CPM",
+            "icon": "CalculatorFilled",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "E11",
+                "label": "CPM Analysis",
+                "icon": "AnalyticsIcon",
+                "path": "/cpm/analysis",
+                "isShown": true
+              },
+              {
+                "key": "reports/cpm",
+                "label": "CPM Finance",
+                "icon": "AccountBalanceIcon",
+                "path": "/cpm/reports",
+                "isShown": true
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        "key": "/invoice/create",
+        "label": "Sales & Distribution",
+        "icon": "UnorderedListOutlined",
+        "children": [
+          {
+            "key": "sales-invoice-internal-links",
+            "label": "Invoicing",
+            "icon": "UnorderedListOutlined",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "D31324",
+                "label": "Sales Register",
+                "icon": "UnorderedListOutlined",
+                "path": "/sales-register",
+                "isShown": true
+              },
+              {
+                "key": "D31323",
+                "label": "Create Invoice",
+                "icon": "UnorderedListOutlined",
+                "path": "/invoice/create",
+                "isShown": true
+              },
+              {
+                "key": "D31325",
+                "label": "Draft Invoices",
+                "icon": "UnorderedListOutlined",
+                "path": "/draft-invoices",
+                "isShown": true
+              },
+              {
+                "key": "D31326",
+                "label": "Final Invoices",
+                "icon": "UnorderedListOutlined",
+                "path": "/final-invoices",
+                "isShown": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "Research and Development",
+        "label": "R&D",
+        "icon": "ExperimentOutlined",
+        "children": [
+          {
+            "key": "RD1",
+            "label": "Products",
+            "icon": "CategoryIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "products/create",
+                "label": "Create Product",
+                "icon": "CategoryIcon",
+                "path": "/research-and-development/products",
+                "isShown": true
+              },
+              {
+                "key": "products/approval",
+                "label": "Product Approval",
+                "icon": "CategoryIcon",
+                "path": "/research-and-development/products/approval",
+                "isShown": true
+              }
+            ]
+          },
+          {
+            "key": "RD2",
+            "label": "Bill of Material",
+            "icon": "ListIcon",
+            "isHeading": true,
+            "children": [
+              {
+                "key": "bom/create",
+                "label": "Create",
+                "icon": "ListIcon",
+                "path": "/research-and-development/bom/create",
+                "isShown": true
+              },
+              {
+                "key": "bom/list",
+                "label": "List",
+                "icon": "ListIcon",
+                "path": "/research-and-development/bom/list",
+                "isShown": true
+              },
+              {
+                "key": "bom/drafts",
+                "label": "Draft List",
+                "icon": "ListIcon",
+                "path": "/research-and-development/bom/drafts",
+                "isShown": true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "sidebar2": {
+    "title": "",
+    "items": [
+      {
+        "key": "changelog",
+        "label": "Changelog",
+        "icon": "AccessTimeIcon",
+        "path": "/changelog/history"
+      }
+    ]
+  }
+}
