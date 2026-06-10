@@ -137,6 +137,9 @@ const App = () => {
   const [favLoading, setFavLoading] = useState(false);
   const location = useLocation();
   const { pathname } = location;
+  // Pages opened in their own browser tab (e.g. PO Analysis Edit) render
+  // without the app sidebar.
+  const hideSidebar = ["/po-analysis/edit"].includes(pathname);
   const [testToggleLoading, setTestToggleLoading] = useState(false);
   const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);
@@ -930,16 +933,18 @@ const App = () => {
             >
               <Row style={{ width: "100%" }} justify="space-between">
                 <Space size="large">
-                  <MenuOutlined
-                    onClick={() => {
-                      setShowSideBar((open) => !open);
-                    }}
-                    style={{
-                      color: "white",
-                      marginLeft: 12,
-                      fontSize: window.innerWidth > 1600 && "1rem",
-                    }}
-                  />
+                  {!hideSidebar && (
+                    <MenuOutlined
+                      onClick={() => {
+                        setShowSideBar((open) => !open);
+                      }}
+                      style={{
+                        color: "white",
+                        marginLeft: 12,
+                        fontSize: window.innerWidth > 1600 && "1rem",
+                      }}
+                    />
+                  )}
 
                   <Link to="/">
                     <Space
@@ -1370,7 +1375,7 @@ const App = () => {
             open={showTickets}
             handleClose={() => setShowTickets(false)}
           />
-          {user && user.passwordChanged === "C" && (
+          {user && user.passwordChanged === "C" && !hideSidebar && (
             <Sidebar
               items={filteredItems}
               items1={filteredItems1}

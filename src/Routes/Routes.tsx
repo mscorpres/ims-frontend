@@ -66,6 +66,7 @@ import {
   CPMAnalysis,
   CreateJW,
   POAnalysis,
+  POAnalysisEdit,
   JwRmChallan,
   JwIssue,
   JwsfInward,
@@ -959,6 +960,10 @@ const Routes = [
   {
     path: "/po-analysis",
     main: () => <POAnalysis />,
+  },
+  {
+    path: "/po-analysis/edit",
+    main: () => <POAnalysisEdit />,
   },
   {
     path: "/jw-rw-issue",
