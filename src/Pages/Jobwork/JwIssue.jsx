@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Col, Row, Select, Button, Input, Popover } from "antd";
 import MyDataTable from "../../Components/MyDataTable";
 import MyDatePicker from "../../Components/MyDatePicker";
@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import { v4 } from "uuid";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import { ArrowRightOutlined } from "@ant-design/icons";
-import JwIssurModel from "./Modal/JwIssurModel";
 import { imsAxios } from "../../axiosInterceptor";
 import useLoading from "../../hooks/useLoading";
 import useApi from "../../hooks/useApi.ts";
@@ -15,7 +14,6 @@ import { convertSelectOptions } from "../../utils/general.ts";
 import MyButton from "../../Components/MyButton";
 
 const JwIssue = () => {
-  const [openModal, setOpenModal] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [datee, setDatee] = useState("");
   const [loading, setLoading] = useLoading();
@@ -175,6 +173,30 @@ const JwIssue = () => {
     }
   };
 
+  // Refresh rows when the JW Issue edit tab completes a save (it sets
+  // "jwIssueUpdated" in localStorage, which fires a storage event here).
+  const refreshRef = useRef(() => {});
+  refreshRef.current = () => {
+    if (allData.setType === "datewise" && dateData.length > 0) {
+      datewiseFetchData();
+    } else if (allData.setType === "jw_transaction_wise" && jwData.length > 0) {
+      JWFecthData();
+    } else if (allData.setType === "jw_sfg_wise" && sfgData.length > 0) {
+      dataFetchSFG();
+    } else if (allData.setType === "vendorwise" && vendorData.length > 0) {
+      vendorFetch();
+    }
+  };
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "jwIssueUpdated") {
+        refreshRef.current();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   const content = (row) => (
     <div>
       <span
@@ -209,7 +231,17 @@ const JwIssue = () => {
       headerName: "Actions",
       width: 150,
       getActions: ({ row }) => [
-        <ArrowRightOutlined onClick={() => setOpenModal(row)} />,
+        <ArrowRightOutlined
+          onClick={() => {
+            const params = new URLSearchParams({
+              jwId: row.jw_transaction_id,
+              skuTransId: row.sku_transaction_id,
+              sku: row.sku,
+              skucode: row.skucode,
+            });
+            window.open(`/jw-rw-issue/edit?${params.toString()}`, "_blank");
+          }}
+        />,
         //   <TableActions action="view" onClick={() => setViewModalOpen(row)} />,
         //   <TableActions action="cancel" onClick={() => setCloseModalOpen(row)} />,
         //   <TableActions action="print" onClick={() => console.log(row)} />,
@@ -379,11 +411,6 @@ const JwIssue = () => {
           )}
         </div>
       </div>
-      <JwIssurModel
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        datewiseFetchData={datewiseFetchData}
-      />
     </>
   );
 };

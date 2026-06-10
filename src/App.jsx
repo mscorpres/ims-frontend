@@ -139,7 +139,9 @@ const App = () => {
   const { pathname } = location;
   // Pages opened in their own browser tab (e.g. PO Analysis Edit) render
   // without the app sidebar.
-  const hideSidebar = ["/po-analysis/edit"].includes(pathname);
+  const hideSidebar = ["/po-analysis/edit", "/jw-rw-issue/edit"].includes(
+    pathname,
+  );
   const [testToggleLoading, setTestToggleLoading] = useState(false);
   const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);

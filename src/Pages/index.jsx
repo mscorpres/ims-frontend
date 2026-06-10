@@ -116,6 +116,7 @@ export { default as CreateJW } from "./Jobwork/CreateJW";
 export { default as POAnalysis } from "./Jobwork/POAnalysis";
 export { default as POAnalysisEdit } from "./Jobwork/POAnalysisEdit";
 export { default as JwIssue } from "./Jobwork/JwIssue";
+export { default as JwIssueEdit } from "./Jobwork/JwIssueEdit";
 export { default as JwRmChallan } from "./Jobwork/JWRMChallan/JwRwChallan";
 export { default as JwsfInward } from "./Jobwork/JwsfInward";
 export { default as JwPendingRequest } from "./Jobwork/JwPendingRequest";
