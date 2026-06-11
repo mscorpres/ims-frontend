@@ -68,6 +68,7 @@ import {
   POAnalysis,
   POAnalysisEdit,
   JwRmChallan,
+  JwChallanEdit,
   JwIssue,
   JwIssueEdit,
   JwsfInward,
@@ -1009,6 +1010,10 @@ const Routes = [
   {
     path: "/jw-issue-challan",
     main: () => <JwPendingRequest />,
+  },
+  {
+    path: "/jw-issue-challan/edit",
+    main: () => <JwChallanEdit />,
   },
   {
     path: "/jw-vendor-pricing",
