@@ -70,7 +70,6 @@ import {
   JwRmChallan,
   JwChallanEdit,
   JwIssue,
-  JwIssueEdit,
   JwsfInward,
   JwrmReturn,
   JwRmConsumption,
@@ -970,10 +969,6 @@ const Routes = [
   {
     path: "/jw-rw-issue",
     main: () => <JwIssue />,
-  },
-  {
-    path: "/jw-rw-issue/edit",
-    main: () => <JwIssueEdit />,
   },
   {
     path: "/jw-rw-challan",

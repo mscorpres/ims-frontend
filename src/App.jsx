@@ -141,7 +141,6 @@ const App = () => {
   // without the app sidebar.
   const hideSidebar = [
     "/po-analysis/edit",
-    "/jw-rw-issue/edit",
     "/jw-issue-challan/edit",
   ].includes(pathname);
   const [testToggleLoading, setTestToggleLoading] = useState(false);
