@@ -189,6 +189,7 @@ function RmtoRm() {
     const tolocations = rows.map((row) => row.locationTo);
     const qtys = rows.map((row) => row.qty1);
     const comments = rows.map((row) => row.comment || "");
+    const rate = rows.map((row) => row.avrRate || 0);
 
     try {
       const { data } = await imsAxios.post(
@@ -199,6 +200,7 @@ function RmtoRm() {
           component: components,
           tolocation: tolocations,
           qty: qtys,
+          rate: rate,
           type: "RM2RM",
           tobranch: allData.dropBranch,
         },
