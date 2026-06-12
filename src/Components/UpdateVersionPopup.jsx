@@ -3,9 +3,6 @@ import { useEffect, useState } from "react";
 export default function UpdateVersionPopup({ open, onRefresh }) {
   const [isRefreshHover, setIsRefreshHover] = useState(false);
 
-
-
-
   if (!open) return null;
 
   return (

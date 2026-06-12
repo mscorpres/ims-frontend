@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Button,
   Card,
@@ -27,7 +27,6 @@ import CloseModal from "./Modal/CloseModal";
 import printFunction, {
   downloadFunction,
 } from "../../Components/printFunction";
-import UpdateModal from "./Modal/UpdateModal";
 import { v4 } from "uuid";
 import socket from "../../Components/socket";
 import { useEffect } from "react";
@@ -47,7 +46,6 @@ const POAnalysis = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [closeModalOpen, setCloseModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [updateModalInfo, setUpdateModalInfo] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState("");
   const [advancedFilter, setAdvancedFilter] = useState(false);
@@ -151,6 +149,24 @@ const POAnalysis = () => {
       filterForm.setFieldValue("value", "");
     }
   }, [wise]);
+  // Refresh rows when the PO Analysis Edit tab completes an update
+  // (it sets "poAnalysisUpdated" in localStorage, which fires a storage
+  // event in this tab).
+  const refreshRef = useRef(() => {});
+  refreshRef.current = () => {
+    if (rows.length > 0) {
+      getRows();
+    }
+  };
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "poAnalysisUpdated") {
+        refreshRef.current();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
   const actionColumn = {
     headerName: "",
     type: "actions",
@@ -166,7 +182,14 @@ const POAnalysis = () => {
         showInMenu
         disabled={row.recipeStatus !== "PENDING"}
         label="Edit"
-        onClick={() => setUpdateModalInfo({ selType: wise.value, row })}
+        onClick={() => {
+          const params = new URLSearchParams({
+            jwId: row.jwId,
+            skuKey: row.skuKey,
+            vendor: row.vendor,
+          });
+          window.open(`/po-analysis/edit?${params.toString()}`, "_blank");
+        }}
       />,
       <GridActionsCellItem
         showInMenu
@@ -277,11 +300,6 @@ const POAnalysis = () => {
       <CloseModal
         closeModalOpen={closeModalOpen}
         setCloseModalOpen={setCloseModalOpen}
-        getRows={getRows}
-      />
-      <UpdateModal
-        setUpdateModalInfo={setUpdateModalInfo}
-        updateModalInfo={updateModalInfo}
         getRows={getRows}
       />
       <Modal

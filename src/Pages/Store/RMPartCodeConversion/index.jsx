@@ -315,16 +315,24 @@ const RMPartCodeConversion = () => {
   const validateHandler = async () => {
     const payload = {
       initial: {
-        component_in: pairs.map((p) => p.in.component.value),
-        qty_in: pairs.map((p) => p.in.qty),
-        loc_in: pairs.map((p) => p.in.location.value),
-        rate: pairs.map((p) => componentRates[p.in.component.value] ?? 0),
+        component_in: addedComponents.in.map((row) => row.component.value),
+        qty_in: addedComponents.in.map((row) => row.qty),
+        loc_in: addedComponents.in.map((row) => row.location.value),
+        rate: addedComponents.in.map((row) =>
+          componentRates[row.component.value]
+            ? componentRates[row.component.value]
+            : 0
+        ),
       },
       final: {
-        component_out: pairs.map((p) => p.out.component.value),
-        qty_out: pairs.map((p) => p.out.qty),
-        loc_out: pairs.map((p) => p.out.location.value),
-        rate: pairs.map((p) => componentRates[p.out.component.value] ?? 0),
+        component_out: addedComponents.out.component.value,
+        qty_out: addedComponents.out.qty,
+        loc_out: addedComponents.out.location.value,
+        rate: addedComponents.out.map((row) =>
+          componentRates[row.component.value]
+            ? componentRates[row.component.value]
+            : 0
+        ),
       },
     };
     Modal.confirm({

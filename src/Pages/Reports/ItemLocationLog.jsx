@@ -347,20 +347,35 @@ export default function ItemLocationLog() {
     //   field: "outRate",
     //   width: 120,
     // },
+    // {
+    //   headerName: "Out Rate",
+    //   field: "outRate",
+    //   width: 120,
+    // },
     {
       headerName: "Rate",
       field: "rate",
       width: 120,
     },
     {
-      headerName: "Weighted Average Rate",
-      field: "weightedPurchaseRate",
+      headerName: "Rate",
+      field: "rate",
       width: 120,
-      renderCell: ({ row }) => (
-        <Tooltip title={row.weightedPurchaseRateCurrency}>
-          {row.weightedPurchaseRate}
-        </Tooltip>
-      ),
+    },
+    // {
+    //   headerName: "Weighted Average Rate",
+    //   field: "weightedPurchaseRate",
+    //   width: 120,
+    //   renderCell: ({ row }) => (
+    //     <Tooltip title={row.weightedPurchaseRateCurrency}>
+    //       {row.weightedPurchaseRate}
+    //     </Tooltip>
+    //   ),
+    // },
+    {
+      headerName: "Weighted Average Rate",
+      field: "tbl_weighted_rate",
+      width: 120,
     },
     {
       headerName: "Table Weighted Rate",

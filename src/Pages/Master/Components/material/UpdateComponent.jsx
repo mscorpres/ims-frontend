@@ -96,18 +96,11 @@ export default function UpdateComponent() {
       const response = await imsAxios.post("/component/fetchUpdateComponent", {
         componentKey,
       });
-      if (response.success) {
-        const value = Array.isArray(response.data)
-          ? response.data[0]
-          : response.data;
-        if (!value) {
-          toast.error(
-            response.message?.msg ??
-              response.message ??
-              "Component details not found."
-          );
-          return;
-        }
+
+   
+        if (response?.success) {
+                const { data } = response;
+          const value = data?.[0];
           // console.log("data...............", value);
           let catType = value.attr_category;
           // console.log("data...............", catType);
@@ -197,9 +190,10 @@ export default function UpdateComponent() {
             label: code,
           }));
           altPartCodeForm.setFieldValue("alternatePart", objects);
-      } else {
-        toast.error(response.message?.msg ?? response.message);
-      }
+        } else {
+          toast.error(data.message.msg);
+        }
+
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -388,84 +382,75 @@ export default function UpdateComponent() {
     }
   };
   const modalConfirmMaterial = async () => {
-    const values = await componentForm.validateFields();
-    // console.log("attr_raw", attr_raw);
-    // console.log("catType", componentForm.getFieldValue("catType"));
-    let catTypeCategory = componentForm.getFieldValue("catType");
-    let attrCat;
-    if (catTypeCategory === "Resistor") {
-      attrCat = "R";
-    } else if (catTypeCategory === "Capacitor") {
-      attrCat = "C";
-    } else {
-      attrCat = "O";
-    }
-    // if (attr_raw?.attribute_category === "Resistor") {
-    //   attrCat = "R";
-    // } else if (attr_raw.attribute_category === "Capacitor") {
-    //   attrCat = "C";
-    // } else {
-    //   attrCat = "O";
-    // }
-    // console.log("values", values);
-    const payload = {
-      componentKey: componentKey,
-      componentname: values.component,
-      uom: values.uom.value,
-      category: "--",
-      mrn: values.mrp,
-      group: values.group,
-      subgroup: values.subgroup,
-      plHeads:
-        values.plHead != null && values.plHead !== ""
-          ? [values.plHead]
-          : [],
-      tdsHeads: values.natureOfTds ?? [],
-      new_partno: values.newPartCode,
-      enable_status: values.isEnabled,
-      jobwork_rate: values.jobWork,
-      qc_status: values.qcStatus,
-      description: values.description,
-      taxtype: values.taxType,
-      taxrate: values.taxRate,
-      brand: values.brand,
-      ean: values.ean,
-      weightgms: values.weight,
-      vweightgms: values.volumetricWeight,
-      height: values.height,
-      width: values.width,
-      minqty: values.minStock,
-      maxqty: values.maxStock,
-      minorder: values.minOrder,
-      leadtime: values.leadTime,
-      alert: values.enableAlert,
-      pocost: values.purchaseCost,
-      othercost: values.otherCost,
-      attr_code: attr_raw?.attributeCode ?? "--",
-      attr_raw: attr_raw?.attr_raw ? attr_raw?.attr_raw : tooldata ?? "",
-      attr_category: attrCat,
-      componentcategory: "--",
-      manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
-      pia_status: isEnabled == true ? "Y" : "N",
-    };
-    // console.log("payload", payload);
+    if (loading) return;
+    try {
+      const values = await componentForm.validateFields();
+      let catTypeCategory = componentForm.getFieldValue("catType");
+      let attrCat;
+      if (catTypeCategory === "Resistor") {
+        attrCat = "R";
+      } else if (catTypeCategory === "Capacitor") {
+        attrCat = "C";
+      } else {
+        attrCat = "O";
+      }
+      const payload = {
+        componentKey: componentKey,
+        componentname: values.component,
+        uom: values.uom.value,
+        category: "--",
+        mrn: values.mrp,
+        group: values.group,
+        subgroup: values.subgroup,
+        new_partno: values.newPartCode,
+        enable_status: values.isEnabled,
+        jobwork_rate: values.jobWork,
+        qc_status: values.qcStatus,
+        description: values.description,
+        taxtype: values.taxType,
+        taxrate: values.taxRate,
+        brand: values.brand,
+        ean: values.ean,
+        weightgms: values.weight,
+        vweightgms: values.volumetricWeight,
+        height: values.height,
+        width: values.width,
+        minqty: values.minStock,
+        maxqty: values.maxStock,
+        minorder: values.minOrder,
+        leadtime: values.leadTime,
+        alert: values.enableAlert,
+        pocost: values.purchaseCost,
+        othercost: values.otherCost,
+        attr_code: attr_raw?.attributeCode ?? "--",
+        attr_raw: attr_raw?.attr_raw ? attr_raw?.attr_raw : tooldata ?? "",
+        attr_category: attrCat,
+        componentcategory: "--",
+        manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
+        pia_status: isEnabled == true ? "Y" : "N",
+      };
 
-    const response = await imsAxios.post(
-      "/component/updateComponent/verify",
-      payload
-    );
-   
-    if (response.success) {
-      Modal.confirm({
-        title: "Are you sure you want to submit this Updated Component?",
-        content: `${response.message}`,
-        onOk() {
-          submitHandler(payload);
-        },
-        onCancel() {},
-      });
-    } else {
-      toast.error(response.message);
+      setLoading("verify");
+      const response = await imsAxios.post(
+        "/component/updateComponent/verify",
+        payload
+      );
+      setLoading(false);
+
+      if (response?.success) {
+        Modal.confirm({
+          title: "Are you sure you want to submit this Updated Component?",
+          content: `${response.message}`,
+          okText: "Update",
+          onOk: () => submitHandler(payload),
+          onCancel() {},
+        });
+      } else {
+        toast.error(response?.message);
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error(error?.message || "Error verifying component");
     }
   };
   const validateHandler = async () => {
@@ -554,16 +539,12 @@ export default function UpdateComponent() {
         "/component/updateComponent/save",
         payload
       );
-
-      const { data } = response;
-      if (data) {
-        if (data.code === "200") {
-          toast.success(data.message);
+        if (response?.success) {
+          toast.success(response?.message);
           getDetails();
         } else {
-          toast.error(data.message.msg);
+          toast.error(response?.message);
         }
-      }
     } catch (error) {
     } finally {
       setLoading(false);
@@ -615,6 +596,8 @@ export default function UpdateComponent() {
                       <MyButton
                         onClick={modalConfirmMaterial}
                         variant="submit"
+                        loading={loading === "verify"}
+                        disabled={!!loading}
                       />
                     </Space>
                   </Col>

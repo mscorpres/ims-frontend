@@ -66,7 +66,9 @@ import {
   CPMAnalysis,
   CreateJW,
   POAnalysis,
+  POAnalysisEdit,
   JwRmChallan,
+  JwChallanEdit,
   JwIssue,
   JwsfInward,
   JwrmReturn,
@@ -961,6 +963,10 @@ const Routes = [
     main: () => <POAnalysis />,
   },
   {
+    path: "/po-analysis/edit",
+    main: () => <POAnalysisEdit />,
+  },
+  {
     path: "/jw-rw-issue",
     main: () => <JwIssue />,
   },
@@ -999,6 +1005,10 @@ const Routes = [
   {
     path: "/jw-issue-challan",
     main: () => <JwPendingRequest />,
+  },
+  {
+    path: "/jw-issue-challan/edit",
+    main: () => <JwChallanEdit />,
   },
   {
     path: "/jw-vendor-pricing",
