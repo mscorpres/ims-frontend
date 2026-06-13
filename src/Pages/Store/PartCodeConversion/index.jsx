@@ -301,7 +301,7 @@ const PartCodeConversion = () => {
         component_out: addedComponents.out.component.value,
         qty_out: addedComponents.out.qty,
         loc_out: addedComponents.out.location.value,
-        rate: addedComponents.out.map((row) => componentRates[addedComponents.out.component.value] ?? 0),
+        rate: [componentRates[addedComponents.out.component.value] ?? 0],
       },
     };
     Modal.confirm({
