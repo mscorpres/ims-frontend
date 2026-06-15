@@ -73,8 +73,6 @@ import {
   getPostLoginRedirect,
   savePostLoginRedirect,
 } from "./utils/authRedirect";
-import useVersionCheck from "./hooks/useVersionCheck.js";
-import UpdateVersionPopup from "./Components/UpdateVersionPopup.jsx";
 
 const parseNotificationOtherData = (raw) => {
   try {
@@ -167,14 +165,6 @@ const App = () => {
   const [switchBranch, setSwitchBranch] = useState(null);
   const [switchSession, setSwitchSession] = useState(null);
   const [switchSuccess, setSwitchSuccess] = useState(false);
-  // const { updateAvailable } = useVersionCheck();
-  // const [showUpdatePopup, setShowUpdatePopup] = useState(false);
-
-  // useEffect(() => {
-  //   if (updateAvailable) {
-  //     setShowUpdatePopup(true);
-  //   }
-  // }, [updateAvailable]);
 
   const logoutHandler = () => {
     dispatch(logoutUser());
@@ -1428,10 +1418,6 @@ const App = () => {
           </Layout>
         </Layout>
       </Layout>
-      {/* <UpdateVersionPopup
-        open={showUpdatePopup}
-        onRefresh={() => window.location.reload()}
-      /> */}
     </div>
   );
 };
