@@ -33,13 +33,13 @@ const Q3 = () => {
 
   const getLocations = async () => {
     try {
-      const response = await imsAxios.get("q3/location");
-      if (response.success) {
+      const { data } = await imsAxios.get("/skuQueryA/q3Location");
+      if (data.code == 200) {
         const arr = [];
-        response.data.map((a) => arr.push({ text: a.text, value: a.id }));
+        data.data.map((a) => arr.push({ text: a.text, value: a.id }));
         setLocationOptions(arr);
       } else {
-        toast.error(response.message || "Error fetching locations");
+        toast.error(data.message || "Error fetching locations");
       }
     } catch (error) {
       toast.error(error?.message || "Error fetching locations");
@@ -74,26 +74,27 @@ const Q3 = () => {
       setLoading("fetch");
       setDetails({});
       setRows([]);
-      const params = new URLSearchParams({ sku: searchInput });
-      if (date) params.append("date", date);
-      if (location) params.append("location", location);
-      const response = await imsAxios.get(`/q3?${params.toString()}`);
+      const { data } = await imsAxios.post("/skuQueryA/fetchSKU_logs", {
+        sku_code: searchInput,
+        location: location,
+        date,
+      });
 
       // Check if response has error status
-      if ( response.status === "error") {
+      if (data && data.status === "error") {
         const errorMessage =
-          response.message ||
+          data.message?.msg ||
+          data.message ||
           "An error occurred while fetching data";
         toast.error(errorMessage);
         setLoading(false);
         return;
       }
 
-      if ( response.response) {
-        const { data1, data2 } = response.response;
+      if (data && data.response) {
+        const { data1, data2 } = data.response;
         const detailsObj = {
           stock: data1.closingqty,
-          opening: data1.openingqty,
           product: data1.product,
           pending: data1.pendingfgReturnQty,
           sku: data1.sku,
@@ -101,9 +102,10 @@ const Q3 = () => {
           rate: data1.lastRate,
         };
 
-        const arr = data2.map((row) => ({
+        const arr = data2.map((row, index) => ({
           ...row,
-          id: row.serial_no,
+          id: index + 1,
+          txn: removeHtml(row.txn),
         }));
         setRows(arr);
 
@@ -237,13 +239,9 @@ const Q3 = () => {
                     Opening Stock:
                   </Typography.Text>
                   <br />
-                  {loading !== "fetch" ? (
-                    <Typography.Text style={{ fontSize: "0.8rem" }}>
-                      {details.opening ?? "--"} {details.uom ?? ""}
-                    </Typography.Text>
-                  ) : (
-                    <Skeleton.Input size="small" block active />
-                  )}
+                  <Typography.Text style={{ fontSize: "0.8rem" }}>
+                    --
+                  </Typography.Text>
                 </Col>
 
                 <Col span={24}>
@@ -274,9 +272,16 @@ const Q3 = () => {
 };
 
 const getStatusConfig = (type) => {
-  if (type === "OUT") return { label: "OUTWARD", backgroundColor: "#FF0032" };
-  if (type === "NEUTRAL") return { label: "NEUTRAL", backgroundColor: "#FFC107" };
-  if (type === "CANCELLEND") return { label: "CANCELLED", backgroundColor: "grey" };
+  if (
+    type === '<span class="d-inline-block radius-round p-2 bgc-red"></span>'
+  ) {
+    return { label: "OUTWARD", backgroundColor: "#FF0032" };
+  }
+  if (
+    type === '<span class="d-inline-block radius-round p-2 bgc-grey"></span>'
+  ) {
+    return { label: "CANCELLED", backgroundColor: "grey" };
+  }
   return { label: "INWARD", backgroundColor: "#227C70" };
 };
 
@@ -314,9 +319,11 @@ const columns = [
   },
   {
     headerName: "Transaction",
-    field: "transaction_id",
+    field: "txn",
     renderCell: ({ row }) => {
-      const isCancelled = row.type === "CANCELLEND";
+      const isCancelled =
+        row.type ===
+        '<span class="d-inline-block radius-round p-2 bgc-grey"></span>';
       return (
         <div
           style={{
@@ -327,26 +334,7 @@ const columns = [
             gap: "6px",
           }}
         >
-          <Tooltip
-            placement="topLeft"
-            color="#047780"
-            overlayStyle={{ fontSize: "0.7rem" }}
-            title={
-              <span style={{ whiteSpace: "pre-line" }}>
-                {row.transaction_id}
-              </span>
-            }
-          >
-            <Typography.Text
-              style={{
-                fontSize: window.innerWidth < 1600 ? "0.7rem" : "0.8rem",
-                width: "100%",
-              }}
-              ellipsis
-            >
-              {row.transaction_id}
-            </Typography.Text>
-          </Tooltip>
+          <ToolTipEllipses text={row.txn} />
           {isCancelled ? (
             <span
               style={{ color: "#d32f2f", fontSize: "0.75rem", fontWeight: 600 }}
