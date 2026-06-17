@@ -36,6 +36,18 @@ const formatTimer = (scheduleEnabled, scheduleTime) => {
   return `${dayjs().format("DD-MM-YY")} ${scheduleTime.format("HH:mm")}`;
 };
 
+const sanitizeReportColumns = (cols = [], reportLabel = "") => {
+  const blocked = new Set(
+    ["MIN REGISTER", String(reportLabel || "").trim().toUpperCase()].filter(Boolean),
+  );
+
+  return cols.filter((col) => {
+    const value = String(col || "").trim();
+    if (!value) return false;
+    return !blocked.has(value.toUpperCase());
+  });
+};
+
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 const Section = ({ title, children }) => (
   <div style={{ borderTop: "1px solid #e8e8e8" }}>
@@ -112,7 +124,13 @@ const ReportExportConfig = () => {
           toast.error(response.message);
           return;
         }
-        const cols = response.data?.report_cols ?? [];
+        const reportLabel = (reportOptions ?? []).find(
+          (item) => item.report_key === reportType,
+        )?.report_name;
+        const cols = sanitizeReportColumns(
+          response.data?.report_cols ?? [],
+          reportLabel,
+        );
         const wise = (response.data?.wise ?? []).map((item) => ({
           label: item.label,
           value: item.value,
@@ -138,7 +156,7 @@ const ReportExportConfig = () => {
     return () => {
       cancelled = true;
     };
-  }, [reportType]);
+  }, [reportType, reportOptions]);
 
   const handleReportChange = (val) => {
     setReportType(val);
@@ -263,30 +281,55 @@ const ReportExportConfig = () => {
       }
     }
 
+    const selectedReportLabel = REPORT_OPTIONS.find(
+      (item) => item.value === reportType,
+    )?.label;
+    const cleanColumns = sanitizeReportColumns(
+      selectedColumns,
+      selectedReportLabel,
+    );
+
+    if (cleanColumns.length === 0) {
+      toast.error("Please select at least one valid export column");
+      return;
+    }
+
     const notificationId = v4();
     const otherdata = {
       date: dateValue,
       branch: user?.company_branch,
       wise: activeFilter.value,
-      columns: selectedColumns,
+      columns: cleanColumns,
       sendEmail: emailConfirmation === "yes",
       isSchedule: scheduleEnabled,
+      scheduleFreq: scheduleEnabled ? scheduleFreq : "once",
       timer: formatTimer(scheduleEnabled, scheduleTime),
     };
 
-    // dispatch(
-    //   setNotifications([
-    //     { notificationId, loading: true, type: "file" },
-    //     ...notifications,
-    //   ]),
-    // );
+    dispatch(
+      setNotifications([
+        {
+          notificationId,
+          loading: true,
+          type: "file",
+          title: selectedReportLabel || "Custom Report",
+          details: dateValue,
+          status: scheduleEnabled ? "scheduled" : "pending",
+        },
+        ...notifications,
+      ]),
+    );
 
     socket.emit("custom_trans_in", {
       otherdata,
       notificationId,
     });
 
-    toast.success("Export job created successfully");
+    toast.success(
+      scheduleEnabled
+        ? "Export scheduled successfully"
+        : "Export job created successfully",
+    );
 
     setReportType(null);
     setSelectedColumns([]);
