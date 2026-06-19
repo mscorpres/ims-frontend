@@ -81,6 +81,7 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
       onOk={async () => {
         await submitData();
       }}
+      okButtonProps={{ loading: loadingModal, disabled: loadingModal }}
       onCancel={() => setFGModal(false)}
       width={900}
     >

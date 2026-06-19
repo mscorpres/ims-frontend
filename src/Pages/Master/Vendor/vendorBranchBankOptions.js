@@ -28,7 +28,8 @@ export const VENDOR_BRANCH_BANK_NAMES = [
   "Jammu & Kashmir Bank",
 ];
 
-const NA_OPTION = { text: "N/A", value: "N/A" };
+const NA_OPTION = { text: "N/A", value: "N/A",  };
+const OTHER_OPTION = { text: "Other", value: "other",  };
 
 /**
  * Options for MySelect: N/A first, then listed banks.
@@ -36,6 +37,7 @@ const NA_OPTION = { text: "N/A", value: "N/A" };
  */
 export function getVendorBranchBankOptions(currentBankName) {
   const base = [
+    OTHER_OPTION,
     NA_OPTION,
     ...VENDOR_BRANCH_BANK_NAMES.map((name) => ({ text: name, value: name })),
   ];

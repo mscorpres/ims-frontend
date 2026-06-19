@@ -256,9 +256,9 @@ export default function ItemLocationLog() {
     try {
       const values = await searchForm.validateFields(["component", "location"]);
       const newId = v4();
-      let arr = notifications;
-      arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
-      dispatch(setNotifications(arr));
+      // let arr = notifications;
+      // arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
+      // dispatch(setNotifications(arr));
 
       setDownloadLoading(true);
       socket.emit("q2Report", {
