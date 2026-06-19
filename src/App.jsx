@@ -36,6 +36,7 @@ import {
   Row,
   Select,
   Space,
+  Switch,
   Typography,
   Modal,
   Button,
@@ -72,7 +73,6 @@ import {
   getPostLoginRedirect,
   savePostLoginRedirect,
 } from "./utils/authRedirect";
-import ModuleSearch from "./Components/ModuleSearch/ModuleSearch.jsx";
 
 const parseNotificationOtherData = (raw) => {
   try {
@@ -141,8 +141,8 @@ const App = () => {
     "/po-analysis/edit",
     "/jw-issue-challan/edit",
   ].includes(pathname);
- 
-
+  const [testToggleLoading, setTestToggleLoading] = useState(false);
+  const [testPage, setTestPage] = useState(false);
   const [branchSelected, setBranchSelected] = useState(true);
   const [modulesOptions, setModulesOptions] = useState([]);
   const [searchModule, setSearchModule] = useState("");
@@ -226,7 +226,15 @@ const App = () => {
       navigate("/controlPanel/registeredUsers");
     }
   };
-
+  const handleChangePageStatus = (value) => {
+    let status = value ? "TEST" : "LIVE";
+    socket.emit("setPageStatus", {
+      page: pathname,
+      status: status,
+    });
+    setTestToggleLoading(true);
+    setTestPage(value);
+  };
   const handleSelectCompanyBranch = (value) => {
     dispatch(setCompanyBranch(value));
     setBranchSelected(true);
@@ -967,7 +975,31 @@ const App = () => {
                 <Space>
                   <div className="location-select">
                     <Space>
-                  <ModuleSearch />
+                      <Typography.Text style={{ color: "white" }}>
+                        <SearchOutlined />
+                      </Typography.Text>
+                      <div style={{ width: 250, color: "white" }}>
+                        <MyAsyncSelect
+                          style={{ color: "black" }}
+                          // placeholder={
+                          //   <span style={{ color: "#000000" }}>
+                          //     Search here...
+                          //   </span>
+                          // }
+                          placeholder="Select users"
+                          onBlur={() => setModulesOptions([])}
+                          noBorder={true}
+                          hideArrow={true}
+                          searchIcon={false}
+                          color="white"
+                          optionsState={modulesOptions}
+                          loadOptions={getModuleSearchOptions}
+                          value={searchModule}
+                          onChange={setSearchModule}
+                          onMouseEnter={showRecentSearch}
+                          options={showHisList}
+                        />
+                      </div>
                     </Space>
                   </div>
                 </Space>
@@ -979,6 +1011,14 @@ const App = () => {
                 >
                   {user?.type && user?.type.toLowerCase() == "developer" && (
                     <>
+                      <Switch
+                        loading={testToggleLoading}
+                        checked={testPage}
+                        onChange={(value) => handleChangePageStatus(value)}
+                        checkedChildren="Test"
+                        unCheckedChildren="Live"
+                      />
+
                       <ControlOutlined
                         style={{
                           fontSize: 18,
@@ -1023,7 +1063,35 @@ const App = () => {
                     </IconButton>
                   </Tooltip>
                 
-         
+                  {/* {favLoading ? (
+                    <LoadingOutlined
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ) : user?.favPages?.filter(
+                      (fav) => fav.url == pathname
+                    )[0] ? (
+                    <StarFilled
+                      onClick={() => handleFavPages(true)}
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        cursor: "pointer",
+                      }}
+                    />
+                  ) : (
+                    <StarOutlined
+                      onClick={() => handleFavPages(false)}
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        cursor: "pointer",
+                      }}
+                    />
+                  )} */}
 
                   <div>
                     <Badge
@@ -1325,9 +1393,9 @@ const App = () => {
                 style={{
                   height: "calc(100vh - 50px)",
                   width: "100%",
-                  opacity:1,
+                  opacity: testPage ? 0.5 : 1,
                   pointerEvents:
-                   user?.type != "developer" ? "none" : "all",
+                    testPage && user?.type != "developer" ? "none" : "all",
 
                   overflowX: "hidden",
                 }}
