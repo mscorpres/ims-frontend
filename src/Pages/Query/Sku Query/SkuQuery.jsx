@@ -20,6 +20,7 @@ import MyButton from "../../../Components/MyButton";
 import MySelect from "../../../Components/MySelect";
 import { toast } from "react-toastify";
 import MyDatePicker from "../../../Components/MyDatePicker";
+import dayjs from "dayjs";
 
 const Q3 = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -70,6 +71,15 @@ const Q3 = () => {
     return value.replace(/<[^>]*>/g, " ");
   };
   const getRows = async () => {
+    if (date) {
+      const [startStr, endStr] = [date.substring(0, 10), date.substring(11, 21)];
+      const start = dayjs(startStr, "DD-MM-YYYY");
+      const end = dayjs(endStr, "DD-MM-YYYY");
+      if (end.diff(start, "day") > 31) {
+        toast.error("Date range cannot exceed 1 month. Please select a shorter range.");
+        return;
+      }
+    }
     try {
       setLoading("fetch");
       setDetails({});
