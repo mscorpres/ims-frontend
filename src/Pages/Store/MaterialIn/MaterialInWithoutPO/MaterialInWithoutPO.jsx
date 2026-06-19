@@ -61,13 +61,13 @@ const defaultValues = {
   companybranch: "BRMSC012",
   projectID: "",
   costCenter: "",
-  currency: "",
+  currency: "364907247",
   components: [
     {
       gstType: "L",
       location: "",
       autoConsumption: 0,
-      currency: "",
+      currency: "364907247",
       exchangeRate: 1,
     },
   ],
@@ -135,8 +135,10 @@ export default function MaterialInWithoutPO() {
   ];
   // console.log("fileComponents", fileComponents);
   const handleSubmit = async () => {
+    if (submitLoading) return;
     try {
       const values = await form.validateFields();
+      setSubmitLoading(true);
       Modal.confirm({
         title: "Create MIN",
         content: "Are you sure you want to create this MIN?",
@@ -145,8 +147,10 @@ export default function MaterialInWithoutPO() {
         cancelText: "Back",
         onOk:
           values.vendorType === "p01" ? submitMIN : handleValidatingInvoices,
+        onCancel: () => setSubmitLoading(false),
       });
     } catch (error) {
+      setSubmitLoading(false);
       toast.error(error?.message || "Please check the form fields");
     }
   };
@@ -172,6 +176,7 @@ export default function MaterialInWithoutPO() {
             okText: "Continue",
             confirmLoading: loading("submit"),
             cancelText: "Cancel",
+            onCancel: () => setSubmitLoading(false),
           });
         } else {
           submitMIN(values);
@@ -180,6 +185,7 @@ export default function MaterialInWithoutPO() {
         submitMIN(values);
       }
     } catch (error) {
+      setSubmitLoading(false);
       toast.error(error?.message || "Error validating invoices");
     }
   };

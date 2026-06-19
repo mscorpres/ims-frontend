@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./r.css";
 import "../../Store/MaterialTransfer/Modal/viewModal.css";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV";
@@ -24,6 +24,7 @@ const R1 = () => {
   });
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [bomOptions, setBomOptions] = useState([]);
+  const abortControllerRef = useRef(null);
   const { executeFun } = useApi();
 
   const getProductNameFetch = async (searchInput) => {
@@ -57,30 +58,61 @@ const R1 = () => {
   }, [filterData.selectProduct]);
 
   const handleSearch = async () => {
+    if (!filterData.selectProduct) {
+      toast.error("Please select a SKU / Product");
+      return;
+    }
+    if (!filterData.bom) {
+      toast.error("Please select a BOM");
+      return;
+    }
+    if (!filterData.date) {
+      toast.error("Please select a Date");
+      return;
+    }
+
+    // Create a fresh AbortController for this request.
+    // Storing it in a ref means Cancel can reach it without a re-render.
+    abortControllerRef.current = new AbortController();
+
     try {
       setLoading(true);
       setAllResponseData([]);
-      const { data } = await imsAxios.post("/report1", {
-        product: filterData.selectProduct,
-        subject: filterData.bom,
-        date: filterData.date,
-        action: "search_r1",
-      });
+
+      const { data } = await imsAxios.post(
+        "/report1",
+        {
+          product: filterData.selectProduct,
+          subject: filterData.bom,
+          date: filterData.date,
+          action: "search_r1",
+        },
+        { signal: abortControllerRef.current.signal }
+      );
+
       if (data.code == 200) {
         const rows = data?.response?.data || [];
-        const arr = rows.map((row) => ({
-          ...row,
-          id: v4(),
-        }));
+        const arr = rows.map((row) => ({ ...row, id: v4() }));
         setAllResponseData(arr);
       } else {
         toast.error(data.message?.msg || data.message);
       }
     } catch (error) {
-      toast.error("Failed to fetch report");
+      // Axios throws CanceledError when .abort() is called — swallow it silently.
+      // Any other error (network, server) still shows the toast.
+      if (error?.name !== "CanceledError" && error?.code !== "ERR_CANCELED") {
+        toast.error("Failed to fetch report");
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    // Signal the in-flight axios request to stop immediately.
+    abortControllerRef.current?.abort();
+    setLoading(false);
+    setAllResponseData([]);
   };
 
   const columns = [
@@ -102,7 +134,6 @@ const R1 = () => {
       headerName: "Status",
       width: 150,
       type: "actions",
-      // getActions: ({ row }) => [<DownloadOutlined />],
       renderCell: (a) =>
         a.row.bom_status ==
         '<span style="color: #2db71c; font-weight: 600;">ACTIVE</span>' ? (
@@ -113,14 +144,7 @@ const R1 = () => {
               backgroundColor: "#03C988",
             }}
           >
-            <span
-              style={{
-                color: "white",
-                fontWeight: "bolder",
-              }}
-            >
-              ACTIVE
-            </span>
+            <span style={{ color: "white", fontWeight: "bolder" }}>ACTIVE</span>
           </div>
         ) : a.row.bom_status ==
           '<span style="color: #e53935; font-weight: 600;">INACTIVE</span>' ? (
@@ -131,12 +155,7 @@ const R1 = () => {
               backgroundColor: "#FF1E00",
             }}
           >
-            <span
-              style={{
-                color: "white",
-                fontWeight: "bolder",
-              }}
-            >
+            <span style={{ color: "white", fontWeight: "bolder" }}>
               INACTIVE
             </span>
           </div>
@@ -223,9 +242,6 @@ const R1 = () => {
     });
     downloadCSVCustomColumns(csvData, "Bom Wise Report");
   };
-  const reset = () => {
-    setAllResponseData([]);
-  };
 
   return (
     <div style={{ height: "97%" }}>
@@ -299,19 +315,13 @@ const R1 = () => {
             <div
               style={{
                 display: "flex",
-                // border: "1px solid red",
                 width: "10%",
                 justifyContent: "space-around",
               }}
             >
               <Spin size="large" />
-              <div
-                style={{
-                  borderLeft: "2px solid grey",
-                  height: "40px",
-                }}
-              ></div>
-              <Button onClick={reset}>Reset</Button>
+              <div style={{ borderLeft: "2px solid grey", height: "40px" }} />
+              <Button onClick={handleCancel}>Cancel</Button>
             </div>
           </div>
         ) : (
@@ -319,7 +329,6 @@ const R1 = () => {
             checkboxSelection={true}
             data={allResponseData}
             columns={columns}
-            // loading={loading}
           />
         )}
       </div>

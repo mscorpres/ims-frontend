@@ -26,26 +26,6 @@ import useApi from "../../hooks/useApi.ts";
 import { getComponentOptions } from "../../api/general.ts";
 import MyButton from "../../Components/MyButton";
 
-function weightedRatesMismatch(row) {
-  const a = row.weightedPurchaseRate;
-  const b = row.tbl_weighted_rate;
-  const norm = (v) => {
-    if (v === null || v === undefined) return null;
-    const s = String(v).trim();
-    if (s === "" || s === "-") return null;
-    const n = Number(String(s).replace(/,/g, ""));
-    return Number.isFinite(n) ? n : s;
-  };
-  const na = norm(a);
-  const nb = norm(b);
-  if (na === null && nb === null) return false;
-  if (na === null || nb === null) return true;
-  if (typeof na === "number" && typeof nb === "number") {
-    return Math.round(na * 1e6) !== Math.round(nb * 1e6);
-  }
-  return String(na).trim() !== String(nb).trim();
-}
-
 export default function ItemAllLogs() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
@@ -172,9 +152,9 @@ console.log(response);
     try {
       const values = await searchForm.validateFields(["component"]);
       const newId = v4();
-      let arr = notifications;
-      arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
-      dispatch(setNotifications(arr));
+      // let arr = notifications;
+      // arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
+      // dispatch(setNotifications(arr));
 
       setDownloadLoading(true);
       socket.emit("q1Report", {
@@ -273,17 +253,9 @@ console.log(response);
       width: 120,
     },
     {
-      headerName: "Table Weighted Rate",
+      headerName: "Weighted Average Rate",
       field: "tbl_weighted_rate",
       width: 180,
-      renderCell: ({ row }) => {
-        const warn = weightedRatesMismatch(row);
-        return (
-          <span style={warn ? { color: "#c62828", fontWeight: 600 } : undefined}>
-            {row.tbl_weighted_rate}
-          </span>
-        );
-      },
     },
     {
       headerName: "Method",

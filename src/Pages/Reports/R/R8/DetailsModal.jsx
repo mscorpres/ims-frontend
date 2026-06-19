@@ -6,7 +6,7 @@ import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import { downloadCSV } from "../../../../Components/exportToCSV";
 
-const DetailsModal = ({ show, close }) => {
+const DetailsModal = ({ show, close, end_date }) => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +18,7 @@ const DetailsModal = ({ show, close }) => {
         "/report8/getMfgConsumptionComponent",
         {
           mfg_no: mfgId,
+          end_date: end_date,
         }
       );
 
