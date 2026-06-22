@@ -357,6 +357,10 @@ export default function UpdateComponent() {
         componentcategory: "--",
         manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
         pia_status: isEnabled == true ? "Y" : "N",
+        other: {
+          plHead: values.plHead,
+          natureOfTds: values.natureOfTds,
+        },
       };
 
       setLoading("verify");
@@ -417,6 +421,10 @@ export default function UpdateComponent() {
       attr_raw: attr_raw?.attr_raw ?? "",
       attr_category: attr_raw?.C_type ?? "O",
       // c_type: attr_raw?.C_type ?? "O",
+      other:{
+        plHeads: values.plHead,
+        tdsHeads: values.natureOfTds,
+      }
     };
 
     Modal.confirm({
