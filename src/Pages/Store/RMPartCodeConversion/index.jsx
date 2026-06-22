@@ -135,56 +135,36 @@ const RMPartCodeConversion = () => {
       }
     });
   };
-  const formResetHandler = (type) => {
-    if (type === "initial") {
-      addComponentForm.resetFields(["componentIn", "qtyIn", "locationIn"]);
-    } else {
-      addComponentForm.resetFields(["componentOut", "qtyOut", "locationOut"]);
-    }
+  const resetAllFields = () => {
+    addComponentForm.resetFields([
+      "componentIn", "qtyIn", "locationIn",
+      "componentOut", "qtyOut", "locationOut",
+    ]);
   };
-  const addComponent = async (type) => {
-    if (type === "initial") {
-      // Only one initial component allowed at a time
-      if (addedComponents.in.length >= 1) {
-        toast.error("Only one Part Code can be added at a time in RM conversion.");
-        return;
-      }
-      const values = await addComponentForm.validateFields([
-        "componentIn",
-        "qtyIn",
-        "locationIn",
-      ]);
-
-      setAddedComponents((curr) => ({
-        in: [
-          {
-            id: v4(),
-            component: values.componentIn,
-            qty: values.qtyIn,
-            location: values.locationIn,
-          },
-          ...curr.in,
-        ],
-        out: curr.out,
-      }));
-    } else {
-      const values = await addComponentForm.validateFields([
-        "componentOut",
-        "qtyOut",
-        "locationOut",
-      ]);
-
-      setAddedComponents((curr) => ({
-        in: curr.in,
-        out: {
-          id: v4(),
-          component: values.componentOut,
-          qty: values.qtyOut,
-          location: values.locationOut,
-        },
-      }));
+  const addBoth = async () => {
+    if (addedComponents.in.length >= 1) {
+      toast.error("Only one Part Code can be added at a time in RM conversion.");
+      return;
     }
-    formResetHandler(type);
+    const values = await addComponentForm.validateFields([
+      "componentIn", "qtyIn", "locationIn",
+      "componentOut", "qtyOut", "locationOut",
+    ]);
+    setAddedComponents({
+      in: [{
+        id: v4(),
+        component: values.componentIn,
+        qty: values.qtyIn,
+        location: values.locationIn,
+      }],
+      out: {
+        id: v4(),
+        component: values.componentOut,
+        qty: values.qtyOut,
+        location: values.locationOut,
+      },
+    });
+    resetAllFields();
   };
   const editComponentView = (component, type) => {
     if (type === "initial") {
@@ -205,8 +185,11 @@ const RMPartCodeConversion = () => {
   };
   const handleCancelEditing = (type) => {
     setEditingComponent(false);
-
-    formResetHandler(type);
+    if (type === "initial") {
+      addComponentForm.resetFields(["componentIn", "qtyIn", "locationIn"]);
+    } else {
+      addComponentForm.resetFields(["componentOut", "qtyOut", "locationOut"]);
+    }
   };
   const saveEditing = async () => {
     if (editingComponent.type === "initial") {
@@ -253,34 +236,20 @@ const RMPartCodeConversion = () => {
   };
   const stockNum = parseFloat(componentStock);
   const isStockZero = !isNaN(stockNum) && stockNum === 0;
-  const isQtyExceedsStock =
-    !isNaN(stockNum) && parseFloat(qtyIn) > stockNum;
+  const isQtyExceedsStock = !isNaN(stockNum) && parseFloat(qtyIn) > stockNum;
 
-  const extraButtons = (isEditing, type) => {
-    if (type === isEditing.type) {
+  const editingButtons = (type) => {
+    if (editingComponent && editingComponent.type === type) {
       return (
         <Space>
           <Button onClick={() => handleCancelEditing(type)}>Cancel</Button>
-          <Button onClick={() => saveEditing(type)} type="primary">
+          <Button onClick={() => saveEditing()} type="primary">
             Save
           </Button>
         </Space>
       );
-    } else {
-      return (
-        <Space>
-          <MyButton variant="reset" onClick={() => formResetHandler(type)} />
-          <MyButton
-            disabled={
-              (addedComponents.out?.component && type === "final") ||
-              (type === "initial" && (isStockZero || isQtyExceedsStock))
-            }
-            variant="add"
-            onClick={() => addComponent(type)}
-          />
-        </Space>
-      );
     }
+    return null;
   };
   const validateHandler = async () => {
     const payload = {
@@ -413,7 +382,7 @@ const RMPartCodeConversion = () => {
             <Card
               size="small"
               title="Initial Component"
-              extra={extraButtons(editingComponent, "initial")}
+              extra={editingButtons("initial")}
               style={{ position: "relative" }}
             >
               {loading === "page" && <Loading />}
@@ -477,7 +446,7 @@ const RMPartCodeConversion = () => {
             <Card
               size="small"
               title="Final Component"
-              extra={extraButtons(editingComponent, "final")}
+              extra={editingButtons("final")}
             >
               <Row gutter={6}>
                 <Col span={14}>
@@ -534,6 +503,20 @@ const RMPartCodeConversion = () => {
             </Card>
           </Col>
         </Row>
+        {!editingComponent && (
+          <Row justify="end" style={{ marginTop: 8 }} gutter={8}>
+            <Col>
+              <MyButton variant="reset" onClick={resetAllFields} />
+            </Col>
+            <Col>
+              <MyButton
+                variant="add"
+                disabled={isStockZero || isQtyExceedsStock || !!addedComponents.in[0]}
+                onClick={addBoth}
+              />
+            </Col>
+          </Row>
+        )}
       </Form>
 
       <Card
@@ -545,8 +528,6 @@ const RMPartCodeConversion = () => {
             <MyButton
               variant="submit"
               disabled={
-                componentIn ||
-                componentOut ||
                 !addedComponents.in[0] ||
                 !addedComponents.out?.component
               }
