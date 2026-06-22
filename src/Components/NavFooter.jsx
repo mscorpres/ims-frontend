@@ -70,7 +70,7 @@ export default function NavFooter({
             htmlType={submitButton ? "submit" : "button"}
             loading={loading}
             type="primary"
-            disabled={nextDisabled || disabled?.next}
+            disabled={nextDisabled || disabled?.next || loading}
             onClick={submitFunction && submitFunction}
           >
             {nextLabel ? nextLabel : "Next"}

@@ -256,9 +256,9 @@ export default function ItemLocationLog() {
     try {
       const values = await searchForm.validateFields(["component", "location"]);
       const newId = v4();
-      let arr = notifications;
-      arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
-      dispatch(setNotifications(arr));
+      // let arr = notifications;
+      // arr = [{ notificationId: newId, loading: true, type: "file" }, ...arr];
+      // dispatch(setNotifications(arr));
 
       setDownloadLoading(true);
       socket.emit("q2Report", {
@@ -347,20 +347,35 @@ export default function ItemLocationLog() {
     //   field: "outRate",
     //   width: 120,
     // },
+    // {
+    //   headerName: "Out Rate",
+    //   field: "outRate",
+    //   width: 120,
+    // },
     {
       headerName: "Rate",
       field: "rate",
       width: 120,
     },
     {
-      headerName: "Weighted Average Rate",
-      field: "weightedPurchaseRate",
+      headerName: "Rate",
+      field: "rate",
       width: 120,
-      renderCell: ({ row }) => (
-        <Tooltip title={row.weightedPurchaseRateCurrency}>
-          {row.weightedPurchaseRate}
-        </Tooltip>
-      ),
+    },
+    // {
+    //   headerName: "Weighted Average Rate",
+    //   field: "weightedPurchaseRate",
+    //   width: 120,
+    //   renderCell: ({ row }) => (
+    //     <Tooltip title={row.weightedPurchaseRateCurrency}>
+    //       {row.weightedPurchaseRate}
+    //     </Tooltip>
+    //   ),
+    // },
+    {
+      headerName: "Weighted Average Rate",
+      field: "tbl_weighted_rate",
+      width: 120,
     },
     {
       headerName: "Table Weighted Rate",

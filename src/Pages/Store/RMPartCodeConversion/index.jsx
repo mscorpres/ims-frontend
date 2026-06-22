@@ -34,6 +34,9 @@ const RMPartCodeConversion = () => {
   const [remarks, setRemarks] = useState();
   const [editingComponent, setEditingComponent] = useState(false);
   const [componentStock, setComponentStock] = useState("--");
+  // rate per component id, captured from the options API (options get
+  // cleared on blur, so the selected component's rate is kept here)
+  const [componentRates, setComponentRates] = useState({});
 
   const [addComponentForm] = Form.useForm();
   const [remarksForm] = Form.useForm();
@@ -67,6 +70,13 @@ const RMPartCodeConversion = () => {
             return { text: d.text, value: d.id };
           });
           setAsyncOptions(arr);
+          setComponentRates((curr) => {
+            const next = { ...curr };
+            data.forEach((d) => {
+              next[d.id] = d.rate;
+            });
+            return next;
+          });
         } else {
           setAsyncOptions([]);
         }
@@ -283,11 +293,17 @@ const RMPartCodeConversion = () => {
         component_in: addedComponents.in.map((row) => row.component.value),
         qty_in: addedComponents.in.map((row) => row.qty),
         loc_in: addedComponents.in.map((row) => row.location.value),
+        rate: addedComponents.in.map((row) =>
+          componentRates[row.component.value]
+            ? componentRates[row.component.value]
+            : 0
+        ),
       },
       final: {
         component_out: addedComponents.out.component.value,
         qty_out: addedComponents.out.qty,
         loc_out: addedComponents.out.location.value,
+        rate: [componentRates[addedComponents.out.component.value] ?? 0],
       },
     };
     Modal.confirm({
@@ -415,7 +431,11 @@ const RMPartCodeConversion = () => {
                         type="secondary"
                         style={{ fontSize: "0.9rem" }}
                       >
-                        Existing Stock: {componentStock}
+                        Existing Stock: {componentStock} | Rate:{" "}
+                        {componentIn?.value != null &&
+                        componentRates[componentIn.value] != null
+                          ? componentRates[componentIn.value]
+                          : "--"}
                       </Typography.Text>
                     }
                     label="Component"
@@ -468,6 +488,18 @@ const RMPartCodeConversion = () => {
               <Row gutter={6}>
                 <Col span={14}>
                   <Form.Item
+                    extra={
+                      <Typography.Text
+                        type="secondary"
+                        style={{ fontSize: "0.9rem" }}
+                      >
+                        Rate:{" "}
+                        {componentOut?.value != null &&
+                        componentRates[componentOut.value] != null
+                          ? componentRates[componentOut.value]
+                          : "--"}
+                      </Typography.Text>
+                    }
                     label="Component"
                     rules={rules.componentOut}
                     name="componentOut"
