@@ -220,6 +220,7 @@ const JwReturnModel = ({ show, close }) => {
       content:
         "Please make sure that the values are correct, This process is irreversible",
       onOk() {
+        setLoading("submit", true);
         submitHandler(finalObj);
       },
       onCancel() {},
