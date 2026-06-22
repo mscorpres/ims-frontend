@@ -12,9 +12,6 @@ import {
   Space,
   Typography,
 } from "antd";
-import TableActions, {
-  CommonIcons,
-} from "../../../Components/TableActions.jsx/TableActions";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
@@ -31,7 +28,6 @@ const RMPartCodeConversion = () => {
     in: [],
     out: {},
   });
-  const [remarks, setRemarks] = useState();
   const [editingComponent, setEditingComponent] = useState(false);
   const [componentStock, setComponentStock] = useState("--");
   // rate per component id, captured from the options API (options get
@@ -45,19 +41,15 @@ const RMPartCodeConversion = () => {
   const componentIn = Form.useWatch("componentIn", addComponentForm);
   const componentOut = Form.useWatch("componentOut", addComponentForm);
   const locationIn = Form.useWatch("locationIn", addComponentForm);
+  const qtyIn = Form.useWatch("qtyIn", addComponentForm);
 
   // RM: pick and drop location must be the same — drop mirrors pick
   useEffect(() => {
-    if (locationIn) {
-      addComponentForm.setFieldValue("locationOut", locationIn);
-    }
+    addComponentForm.setFieldValue("locationOut", locationIn ?? null);
   }, [locationIn]);
 
   const getComponentOption = async (search) => {
     try {
-      const payload = {
-        search,
-      };
       const response = await executeFun(
         () => getComponentOptions(search),
         "select"
@@ -259,7 +251,11 @@ const RMPartCodeConversion = () => {
     }
     handleCancelEditing(editingComponent.type);
   };
-  let comQtyVal = addComponentForm.getFieldValue("qtyIn");
+  const stockNum = parseFloat(componentStock);
+  const isStockZero = !isNaN(stockNum) && stockNum === 0;
+  const isQtyExceedsStock =
+    !isNaN(stockNum) && parseFloat(qtyIn) > stockNum;
+
   const extraButtons = (isEditing, type) => {
     if (type === isEditing.type) {
       return (
@@ -277,8 +273,7 @@ const RMPartCodeConversion = () => {
           <MyButton
             disabled={
               (addedComponents.out?.component && type === "final") ||
-              componentStock === "0 Pcs" ||
-              comQtyVal > componentStock
+              (type === "initial" && (isStockZero || isQtyExceedsStock))
             }
             variant="add"
             onClick={() => addComponent(type)}
@@ -362,11 +357,9 @@ const RMPartCodeConversion = () => {
           toast.success(data.message);
           setAddedComponents({
             in: [],
-            qty: {},
+            out: {},
           });
           remarksForm.resetFields();
-
-          setRemarks("");
         } else {
           toast.error(data.message.msg);
         }
@@ -393,9 +386,10 @@ const RMPartCodeConversion = () => {
   };
 
   useEffect(() => {
-    if (componentIn && locationIn)
+    if (componentIn && locationIn) {
+      setComponentStock("--");
       getComponentStock(componentIn.value, locationIn.value);
-    else {
+    } else {
       setComponentStock("--");
     }
   }, [componentIn, locationIn]);
@@ -518,6 +512,7 @@ const RMPartCodeConversion = () => {
                   <Form.Item
                     label="Drop Location (same as Pick)"
                     name="locationOut"
+                    rules={[{ required: true, message: "Please select a location on the Initial side first" }]}
                   >
                     <MyAsyncSelect
                       selectLoading={loading === "select"}
@@ -747,12 +742,6 @@ const rules = {
     {
       required: true,
       message: "Please enter a quantity",
-    },
-  ],
-  locationOut: [
-    {
-      required: true,
-      message: "Please select a location",
     },
   ],
 };
