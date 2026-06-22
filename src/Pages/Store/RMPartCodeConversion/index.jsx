@@ -267,7 +267,7 @@ const RMPartCodeConversion = () => {
         component_out: addedComponents.out.component.value,
         qty_out: addedComponents.out.qty,
         loc_out: addedComponents.out.location.value,
-        rate: [componentRates[addedComponents.out.component.value] ?? 0],
+        rate: [componentRates[addedComponents.in[0].component.value] ?? 0],// rate of initial component is used for final component
       },
     };
     Modal.confirm({
