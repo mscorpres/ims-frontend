@@ -358,7 +358,7 @@ export default function UpdateComponent() {
         manufacturing_code: attr_raw?.attr_raw?.manufacturing_code,
         pia_status: isEnabled == true ? "Y" : "N",
         other: {
-          plHead: values.plHead,
+          plHead: values.plHead ? [values.plHead] : [],
           natureOfTds: values.natureOfTds,
         },
       };
