@@ -315,7 +315,7 @@ const RMPartCodeConversion = () => {
       setLoading("submit");
       const remarks = await remarksForm.validateFields(["remarks"]);
 
-      const response = await imsAxios.post("/conversion/saveConversion11", {
+      const response = await imsAxios.post("/conversion/saveConversion", {
         ...payload,
         ...remarks,
         type: "rm",
