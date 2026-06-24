@@ -43,14 +43,34 @@ import MyButton from "../../../../Components/MyButton/index.jsx";
 import FormTable from "../../../../Components/FormTable.jsx";
 import MySelect from "../../../../Components/MySelect.jsx";
 import { v4 } from "uuid";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 
 const getDollarCurrency = (currencyList = []) =>
   currencyList.find(
     (item) =>
       item.text === "$" ||
       String(item.text || "").toUpperCase() === "USD" ||
-      /dollar|usd/i.test(String(item.notes || ""))
+      /dollar|usd/i.test(String(item.notes || "")),
   );
+
+const sampleData = [
+  {
+    Part: "GC00000003",
+    HSN: "1",
+    UoM: 12,
+    "Order Qty": 200,
+    "Import Rate": "--",
+    "Exchange Rate": "--",
+    "Taxable Value": "--",
+    "Foreign Value": "--",
+    "Mis. Amount": "--",
+    "Insurance Amt": "--",
+    "Freight Value": "--",
+    "Custom Duty": "--",
+    Total: "--",
+    "Final Rate": "--",
+  },
+];
 
 export default function ExportMaterialInWithPO({}) {
   const [poData, setPoData] = useState({ materials: [] });
@@ -1807,13 +1827,15 @@ export default function ExportMaterialInWithPO({}) {
                     </Form.Item>
 
                     <Row justify="end" style={{ marginTop: 5 }}>
-                      <a
-                        href="https://oakter.prod.mscorpres.com/files/sample/Import%20PO%20Sample%20File%20Format.xlsx"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <MyButton variant="downloadSample" />
-                      </a>
+                      <MyButton
+                        variant="downloadSample"
+                        onClick={() =>
+                          downloadCSVCustomColumns(
+                            sampleData,
+                            "Import Material",
+                          )
+                        }
+                      />
                     </Row>
                   </Form>
                 </Card>
