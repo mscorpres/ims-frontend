@@ -67,8 +67,6 @@ const sampleData = [
     "Insurance Amt": "--",
     "Freight Value": "--",
     "Custom Duty": "--",
-    Total: "--",
-    "Final Rate": "--",
   },
 ];
 
@@ -388,18 +386,8 @@ export default function ExportMaterialInWithPO({}) {
       flex: 1,
       minWidth: 120,
     },
-    {
-      headerName: "Total",
-      field: "total",
-      flex: 1,
-      minWidth: 100,
-    },
-    {
-      headerName: "Final Rate",
-      field: "finalRate",
-      flex: 1,
-      minWidth: 100,
-    },
+  
+
   ];
 
   const submitMIN = async (values, isScan) => {
@@ -1164,7 +1152,15 @@ export default function ExportMaterialInWithPO({}) {
 
       // Flatten the new data structure to extract part details and other fields
       const formattedRows = data?.data?.map((item) => {
-      
+        const taxableValue = Number(item.taxable_value) || 0;
+        const customDuty = Number(item.custom_duty) || 0;
+        const freightValue = Number(item.freight_value) || 0;
+        const misAmount = Number(item.mis_amount ?? item.misAmount) || 0;
+        const insuranceAmt = Number(item.insurance_amt ?? item.insuranceAmt) || 0;
+        const orderQty = Number(item.order_qty) || 0;
+        const total = taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
+        const finalRate = orderQty > 0 ? total / orderQty : 0;
+
         return {
           partCode: item.part?.part_code,
           partName: item.part?.part_name,
@@ -1172,20 +1168,20 @@ export default function ExportMaterialInWithPO({}) {
           manualMfgCode: item.part?.manual_mfg_code,
           hsn: item.hsn,
           uom: item.uom,
-          orderQty: item.order_qty,
-          importRate: item.import_rate,
-          exchangeRate: item.exchange_rate,
-          taxableValue: item.taxable_value,
-          foreignValue: item.foreign_value,
-          freightValue: item.freight_value,
-          customDuty: item.custom_duty,
-          misAmount: item.mis_amount ?? item.misAmount,
-          insuranceAmt: item.insurance_amt ?? item.insuranceAmt,
-          total: item.total,
-          finalRate: item.final_rate,
+          orderQty,
+          importRate: Number(item.import_rate || 0).toFixed(2),
+          exchangeRate: Number(item.exchange_rate || 0).toFixed(2),
+          taxableValue: taxableValue.toFixed(2),
+          foreignValue: Number(item.foreign_value || 0).toFixed(2),
+          freightValue: freightValue.toFixed(2),
+          customDuty: customDuty.toFixed(2),
+          misAmount: misAmount.toFixed(2),
+          insuranceAmt: insuranceAmt.toFixed(2),
+          total: total.toFixed(2),
+          finalRate: finalRate.toFixed(2),
           pendingQty: item.pending_qty,
           poOrderQty: item.po_order_qty,
-          value: (item.order_qty * item.import_rate).toFixed(3), 
+          value: (orderQty * (Number(item.import_rate) || 0)).toFixed(2),
         };
       });
       // Optional: map formatted rows to final structure
@@ -1731,7 +1727,7 @@ export default function ExportMaterialInWithPO({}) {
               <Col span={24} style={{ width: "100%", height: "75%" }}>
                 <Card
                   size="small"
-                  style={{ width: "100%", height: "50%" }}
+                  style={{ width: "100%", height: "50%", maxHeight: "50%", overflowY: "auto" }}
                   bodyStyle={{ overflowY: "auto", maxHeight: "100%" }}
                   title="Tax Details"
                 >
