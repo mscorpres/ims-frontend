@@ -5,12 +5,15 @@ import {
   Card,
   Col,
   Form,
+  Input,
   Row,
-  Space, Pagination } from "antd"; // CHANGE: Added Pagination
+  Space,
+  Pagination,
+  Modal,
+  Divider,
+} from "antd"; // CHANGE: Added Pagination
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
-import { imsAxios, getSessionFromStorage } from "../../axiosInterceptor";
-import { useDispatch, useSelector } from "react-redux";
-import { setNotifications } from "../../Features/loginSlice/loginSlice";
+import { imsAxios } from "../../axiosInterceptor";
 import MyAsyncSelect from "../../Components/MyAsyncSelect";
 import MyDataTable from "../../Components/MyDataTable";
 import { v4 } from "uuid";
@@ -25,6 +28,8 @@ import ComponentImages from "../Master/Components/material/ComponentImages";
 import useApi from "../../hooks/useApi.ts";
 import { getComponentOptions } from "../../api/general.ts";
 import MyButton from "../../Components/MyButton";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { IconButton, Menu as MuiMenu, MenuItem } from "@mui/material";
 
 export default function ItemAllLogs() {
   const [loading, setLoading] = useState(false);
@@ -38,15 +43,16 @@ export default function ItemAllLogs() {
   ]);
   const [showImages, setShowImages] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
-  const dispatch = useDispatch();
-  const { notifications } = useSelector((state) => state.login);
   const { executeFun, loading: loading1 } = useApi();
 
   // CHANGE: Added pagination state variables
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [contextMenu, setContextMenu] = useState({ anchor: null, row: null });
+  const [cancelReqRow, setCancelReqRow] = useState(null);
+  const [cancelRemark, setCancelRemark] = useState("");
+  const [cancelReqLoading, setCancelReqLoading] = useState(false);
 
   // initializing search form
   const [searchForm] = Form.useForm();
@@ -58,7 +64,6 @@ export default function ItemAllLogs() {
       () => getComponentOptions(search),
       "select",
     );
-    const { data } = response;
     getData(response);
   };
 
@@ -97,41 +102,40 @@ export default function ItemAllLogs() {
         limit: limit,
       },
     });
-console.log(response);
+    console.log(response);
     setLoading(false);
-    
-      if (response.success) {
-        // CHANGE: Updated to use serial_no from backend instead of index
-        const arr = response.data.body.map((row) => ({
-          index: row.serial_no, // CHANGED: Use serial_no from backend
-          id: v4(),
-          ...row,
-        }));
-        setRows(arr);
 
-        // CHANGE: Updated pagination state from response
-        if (response.data.pagination) {
-          setCurrentPage(response.data.pagination.currentPage);
-          setTotalRecords(response.data.pagination.totalRecords);
-          setTotalPages(response.data.pagination.totalPages);
-        }
+    if (response.success) {
+      // CHANGE: Updated to use serial_no from backend instead of index
+      const arr = response.data.body.map((row) => ({
+        index: row.serial_no, // CHANGED: Use serial_no from backend
+        id: v4(),
+        ...row,
+      }));
+      setRows(arr);
 
-        setSummaryData([
-          { title: "Component", description: response.data.header.partName },
-          { title: "Part Code", description: response.data.header.partCode },
-          { title: "Unique Id", description: response.data.header.uniqueID },
-          // {
-          //   title: "Closing",
-          //   description:
-          //     data.response.data1.closingqty + " " + data.response.data1.uom,
-          // },
-          {
-            title: "Last In (Date)",
-            description: response.data.header.lastIN ?? "--",
-          },
-          { title: "Last Rate", description: response.data.header.lastRate },
-        ]);
+      // CHANGE: Updated pagination state from response
+      if (response.data.pagination) {
+        setCurrentPage(response.data.pagination.currentPage);
+        setTotalRecords(response.data.pagination.totalRecords);
       }
+
+      setSummaryData([
+        { title: "Component", description: response.data.header.partName },
+        { title: "Part Code", description: response.data.header.partCode },
+        { title: "Unique Id", description: response.data.header.uniqueID },
+        // {
+        //   title: "Closing",
+        //   description:
+        //     data.response.data1.closingqty + " " + data.response.data1.uom,
+        // },
+        {
+          title: "Last In (Date)",
+          description: response.data.header.lastIN ?? "--",
+        },
+        { title: "Last Rate", description: response.data.header.lastRate },
+      ]);
+    }
   };
 
   // CHANGE: Added pagination change handler
@@ -173,13 +177,57 @@ console.log(response);
     }
   };
 
+
+  const handleCancelRequest = async () => {
+    if (!cancelRemark.trim()) {
+      toast.error("Please enter a remark for the cancellation request");
+      return;
+    }
+    const payload = {
+      transactionNo: cancelReqRow?.transactionID,
+      reason: cancelRemark,
+      transType: cancelReqRow?.transactionType,
+    };
+    setCancelReqLoading(true);
+    try {
+      const response = await imsAxios.post("/cancelRequest/raise", payload);
+
+      if (response.data?.status === "success") {
+        toast.success(response.data?.message?.msg ?? "Cancellation request submitted");
+        setCancelReqRow(null);
+        setCancelRemark("");
+      } else {
+
+        toast.error(response.data?.message?.msg ?? "Error submitting cancellation request");
+      }
+    } catch (error) {
+      toast.error(error.message ?? "Error submitting cancellation request");
+    } finally {
+      setCancelReqLoading(false);
+    }
+  };
+
   // columns
   let columns = [
+    {
+      headerName: "Actions",
+      field: "actions",
+      width: 120,
+      renderCell: ({ row }) => (
+        <IconButton
+          size="small"
+          onClick={(e) => setContextMenu({ anchor: e.currentTarget, row })}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      ),
+    },
     {
       headerName: "#",
       field: "serialNo",
       width: 80,
     },
+
     {
       headerName: "Date",
       field: "transactionDate",
@@ -360,7 +408,11 @@ console.log(response);
                         </MyButton>
 
                         <CommonIcons
-                          disabled={!selectedComonents || downloadLoading || rows.length === 0}
+                          disabled={
+                            !selectedComonents ||
+                            downloadLoading ||
+                            rows.length === 0
+                          }
                           onClick={handleDownloadReport}
                           action="downloadButton"
                         />
@@ -430,6 +482,49 @@ console.log(response);
           )}
         </div>
       </Col>
+
+      <MuiMenu
+        anchorEl={contextMenu.anchor}
+        open={Boolean(contextMenu.anchor)}
+        onClose={() => setContextMenu({ anchor: null, row: null })}
+      >
+        <MenuItem
+          onClick={() => {
+            setCancelReqRow(contextMenu.row);
+            setContextMenu({ anchor: null, row: null });
+          }}
+        >
+          Cancellation Request
+        </MenuItem>
+      </MuiMenu>
+
+      <Modal
+        title={`Cancellation Request - Transaction # ${cancelReqRow?.transactionID}`}
+        open={!!cancelReqRow}
+        onOk={handleCancelRequest}
+        confirmLoading={cancelReqLoading}
+        onCancel={() => {
+          setCancelReqRow(null);
+          setCancelRemark("");
+        }}
+        okText="Submit Request"
+        cancelText="Cancel"
+      >
+        <Divider />
+        <p>
+          Are you sure you want to request cancellation for transaction{" "}
+          <strong>{cancelReqRow?.transactionID}</strong>?
+        </p>
+        <Form.Item label="Remark" required style={{ marginTop: 16 }}>
+          <Input.TextArea
+            rows={3}
+            placeholder="Enter reason for cancellation request..."
+            value={cancelRemark}
+            onChange={(e) => setCancelRemark(e.target.value)}
+          />
+        </Form.Item>
+        <Divider />
+      </Modal>
     </Row>
   );
 }
