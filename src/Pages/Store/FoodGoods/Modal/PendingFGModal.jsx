@@ -23,11 +23,14 @@ import {
 } from "@ant-design/icons";
 import { imsAxios } from "../../../../axiosInterceptor";
 
+
+
 function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
   const [loadingModal, setLoadingModal] = useState(false);
   const [allPendingData, setAllPendingData] = useState({
     qty: "",
   });
+  console.log("fGModal", fGModal);
 
   const submitData = async () => {
     setLoadingModal(true);
@@ -39,6 +42,7 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
         pprsku: fGModal.mfg_sku,
         rate: fGModal.warRate ?? 0,
       });
+      
       //  console.log(data.message)
       if (data.code === 200) {
         getPendingData();
@@ -88,7 +92,8 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
     >
       <Row>
         <Skeleton active loading={loadingModal}>
-          <Col span={24}>
+          <Col span={24} style={{display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <span style={{ fontWeight: "bolder" }}>WAR Rate: {fGModal.warRate ?? 0}</span>
             <div style={{ textAlign: "end", fontWeight: "bolder" }}>
               {fGModal.mfg_ref_id}
               <CaretRightOutlined style={{ color: "red" }} />
