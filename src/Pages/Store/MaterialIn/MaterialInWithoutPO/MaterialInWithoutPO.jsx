@@ -1039,8 +1039,8 @@ export default function MaterialInWithoutPO() {
       ),
     },
     {
-      headerName: "Final Amount",
-      field: "finalAmount",
+      headerName: "Total Amount",
+      field: "totalAmount",
       flex: 1,
       minWidth: 100,
     },
@@ -1085,22 +1085,32 @@ export default function MaterialInWithoutPO() {
         const globalCurrency =
           showCurrency?.currency || form.getFieldValue("currency");
 
-        let arr = formattedRows.map((r, index) => ({
+        let arr = formattedRows.map((r, index) => {
+          const qty = Number(r.Qty) || 0;
+          const rate = Number(r.Rate) || 0;
+          const misAmount = Number(r.Misamount) || 0;
+          const insuranceAmount = Number(r.Insuranceamount) || 0;
+          const freightAmount = Number(r.Frieghtamount) || 0;
+          const customDuty = Number(r.Customduty) || 0;
+          const taxableValue = Number(r.Taxableamount) || getInt(qty * rate, 2);
+          const totalAmount = getInt(taxableValue + customDuty + freightAmount + misAmount + insuranceAmount, 2);
+          const finalRate = qty > 0 ? getInt(totalAmount / qty, 2) : rate;
+          return ({
           id: index + 1,
           partCode: r.Partcode.partNo,
           partName: r.Partcode.name,
           location: { label: r.Location.text, value: r.Location.value },
           locationName: r.Location.text,
           component: { label: r.Partcode.name, value: r.Partcode.key },
-          qty: r.Qty,
-          rate: r.Rate,
-          misAmount: r.Misamount,
-          insuranceAmount: r.Insuranceamount,
-          totalAmount: r.Totalamount,
-          finalRate: r.Finalrate,
-          freightAmount: r.Frieghtamount,
-          customDuty: r.Customduty,
-          taxableValue: r.Taxableamount,
+          qty,
+          rate,
+          misAmount,
+          insuranceAmount,
+          totalAmount,
+          finalRate,
+          freightAmount,
+          customDuty,
+          taxableValue,
           currency: globalCurrency || defaultValues.currency,
           hsn: r.Hsn,
           autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
@@ -1108,11 +1118,12 @@ export default function MaterialInWithoutPO() {
             label: r.Autoconsump == "Y" ? "Yes" : "No",
             value: r.Autoconsump == "Y" ? "Yes" : "No",
           },
-          value: (r.Qty * r.Rate).toFixed(3),
+          value: (qty * rate).toFixed(3),
           gstRate: r.Gstrate,
           gstType: r.Gsttype.text,
           ...r,
-        }));
+        });
+        });
         setPreviewRows(arr);
       } else {
         toast.error(response.message?.msg || "Error uploading file");
