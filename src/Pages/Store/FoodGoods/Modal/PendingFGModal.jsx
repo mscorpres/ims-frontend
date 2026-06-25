@@ -37,6 +37,7 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
         pprrequest1: fGModal.mfg_ref_transid_1,
         pprrequest2: fGModal.mfg_transaction,
         pprsku: fGModal.mfg_sku,
+        rate: fGModal.warRate ?? 0,
       });
       //  console.log(data.message)
       if (data.code === 200) {
