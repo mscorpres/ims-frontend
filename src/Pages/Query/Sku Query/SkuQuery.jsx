@@ -394,6 +394,11 @@ const columns = [
     field: "weightedSKURate",
     width: 200,
   },
+    {
+    headerName: "New WAR",
+    field: "newWar",
+    width: 200,
+  },
   {
     headerName: "Method",
     field: "mode",
