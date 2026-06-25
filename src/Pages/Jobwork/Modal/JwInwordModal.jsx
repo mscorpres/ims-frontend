@@ -464,6 +464,12 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       ),
     },
     {
+      field: "last_rate",
+      headerName: "Rate",
+      width: 180,
+      renderCell: ({ row }) => <Input disabled value={row.last_rate} />,
+    },
+    {
       field: "pendingStock",
       headerName: "JW Pending Stock",
       width: 180,
@@ -505,8 +511,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       qrScan: isScan == true ? "Y" : "N",
       pick_location: pickLocation,
       challan_date: challanDate,
+      consRate: bomList.map((r) => r.last_rate),
     };
-    setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
     const minNum = response?.message;
 
@@ -581,6 +587,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
           pendingWithjobwork: r.pendingWithjobwork,
           uom: r.uom,
           key: r.key,
+          last_rate: r.last_rate,
         };
       });
       setBomList(arr);
@@ -649,6 +656,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   };
   const submitHandler = async () => {
     setUploadClicked(false);
+    setModalUploadLoad(true);
     const formData = new FormData();
     const values = await modalForm.validateFields();
     let fileName;
@@ -664,6 +672,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       let fetchAttachment = data.data;
       setAttachment(fetchAttachment);
       saveFunction(fetchAttachment);
+    } else {
+      setModalUploadLoad(false);
     }
   };
 
@@ -933,9 +943,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
             open={uplaoaClicked}
             width={700}
             title={"Upload Document"}
-            // destroyOnClose={true}
             onOk={() => submitHandler()}
             onCancel={() => setUploadClicked(false)}
+            afterClose={() => modalForm.resetFields()}
             // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
           >
             {" "}

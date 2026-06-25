@@ -301,13 +301,13 @@ export default function AddComponents({
         <ToolTipEllipses text={row.gstRate} copy={true} />
       ),
     },
-    // {
-    //   headerName: "GST TYPE",
-    //   field: "Gsttype",
-    //   flex: 1,
-    //   minWidth: 100,
-    //   renderCell: ({ row }) => <ToolTipEllipses text={row.gstType?.text} />,
-    // },
+    {
+      headerName: "Due Date",
+      field: "dueDate",
+      flex: 1,
+      minWidth: 100,
+      // renderCell: ({ row }) => <ToolTipEllipses text={row.gstType?.text} />,
+    },
     {
       headerName: "BOM Qty",
       field: "po_bom_qty",

@@ -75,19 +75,10 @@ const CreateChallanModal = ({
   });
 
   let sumOfMinAvailableQty;
-  console.log(
-    "show  close,  data,  editShipment,  rtnchallan  setRtnChallan,",
-    // show,
-    // close,
-    data,
-    editShipment
-    // rtnchallan,
-    // setRtnChallan
-  );
-  // console.log("close", close);
+ 
+
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [transaction, setTransactions] = useState("");
-  ////uplaod
   var bid;
   var did;
   const [uplaodType, setUploadType] = useState("table");
@@ -95,9 +86,7 @@ const CreateChallanModal = ({
 
   const [productSelected, setProductSelected] = useState(false);
   const [previewData, setpreviewData] = useState([]);
-  // const [form] = Form.useForm();
   const files = Form.useWatch("files", challanForm);
-  // console.log("data here of deatils data", editShipment);
   useEffect(() => {
     if (files) {
       setStage("preview");
@@ -345,12 +334,10 @@ const CreateChallanModal = ({
       );
       if (response.data.code === 200) {
         toast.success(response.data.message);
-        challanForm.resetFields();
+        resetState();
         close();
-        setLoading(false);
       } else {
         toast.error(response.data.message.msg);
-        setLoading(false);
       }
     } catch (error) {
       toast.error(error);
@@ -414,12 +401,10 @@ const CreateChallanModal = ({
       );
       if (response.data.code === 200) {
         toast.success(response.data.message);
-        challanForm.resetFields();
-        setLoading(false);
+        resetState();
         close();
       } else {
         toast.error(response.data.message.msg);
-        setLoading(false);
       }
     } catch (error) {
       toast.error(error);
@@ -582,10 +567,19 @@ const CreateChallanModal = ({
       // console.log("news", news);
     }
   };
-  const closeDrawer = () => {
+  const resetState = () => {
     challanForm.resetFields();
+    setRows([]);
+    setMinRows([]);
+    setLoading(false);
+    setComponentList([]);
+    setRtnChallan(false);
+    setpreviewData([]);
+  };
+
+  const closeDrawer = () => {
+    resetState();
     close();
-    // console.log("here");
   };
   useEffect(() => {
     if (rows.length > 0) {
@@ -631,9 +625,10 @@ const CreateChallanModal = ({
   }, [rows]);
 
   useEffect(() => {
-    // console.log("dataaaaaaaaa", data);
-    // console.log("edit shipmetn)-> ", editShipment);
-    // console.log("challantype-> ", data);
+    setRows([]);
+    setMinRows([]);
+    setComponentList([]);
+    challanForm.resetFields();
     setDataProductdetails({ text: data.product, value: data.productId });
     setTransactions(data.transactionId);
     if (editShipment == "Shipment" && data) {
@@ -684,7 +679,7 @@ const CreateChallanModal = ({
       // (code, caddress,caid badd, sadd, cid
     }
     // console.log("datain useeffect", data);
-  }, [show]);
+  }, [show, data?.transactionId, data?.challanId]);
 
   useEffect(() => {
     setModal2Open(true);
@@ -817,17 +812,10 @@ const CreateChallanModal = ({
     const { data } = response;
     if (data) {
       if (data.code === 200) {
-        // console.log("data in data fetch product", dataProductdetails);
-        // fetchbomlist(data.data.product_sku);
-        // setUom(data.data?.unit);
-        // challanForm.setFieldValue("qty", data.data?.description);
-        // challanForm.setFieldValue("rate", data.data?.rate);
-        // challanForm.setFieldValue("hsncode", data.data?.hsn);
-        // challanForm.setFieldValue("gstRate", data.data?.gstrate);
+       
         let obj = {
           hsncode: data.data?.hsn,
-          // rate: data.data?.rate,
-          // gstRate: data.data?.gstRate,
+      
           secondary_product: data.data?.product_name,
           secondary_productId: inputValue,
           productname: dataProductdetails.text,
@@ -851,15 +839,9 @@ const CreateChallanModal = ({
         code: code,
       });
       const { data } = response;
-      // console.log("data------", caddress);
+  
       if (cid === undefined) {
-        // console.log("coming here", cid);
-        // data.branchList.map((item) => {
-        //   if (item.address === caddress) {
-        //     challanForm.setFieldValue("clientbranch", item.text);
-        //     setBranchId(item.id);
-        //   }
-        // });
+    
         data.branchList.map((row) => {
           if (row.address === badd) {
             challanForm.setFieldValue("billingid", row.id);
@@ -951,10 +933,6 @@ const CreateChallanModal = ({
     formData.append("dispatchaddrid", values.dispatchid);
     formData.append("transaction_id", transaction);
 
-    // let finalObj = {};
-    // let formDatas = new FormData();
-    // formDatas.append("file", values.files[0].originFileObj);
-    // return;
     let res = await imsAxios.post(
       "/wo_challan/saveShipmentthroughExcel",
       formData
@@ -962,60 +940,63 @@ const CreateChallanModal = ({
     const { data } = res;
     if (data.code === 200) {
       toast.success(data.message);
-      challanForm.resetFields();
-      setRows([]);
+      resetState();
       close();
     } else {
       toast.error(data.message.msg);
     }
   };
   const createDeliveryChallan = async () => {
-    // console.log("here in create delivery challan");
+    setLoading("create");
     if (uplaodType === "file") {
-      createchallanThroughtExcel();
+      try {
+        await createchallanThroughtExcel();
+      } finally {
+        setLoading(false);
+      }
     } else {
       if (editShipment === "Shipment") {
-        // console.log("Min", minRows);
-        const values = await challanForm.validateFields();
-        const newpayload = {
-          shipment_id: values.components[0].shipment_id,
-          wo_id: values.components[0].woId,
-          header: {
-            billingid: values.billingid,
-            billingaddress: values.billingaddress,
-            // transaction_id: data.transactionId,
-            dispatchid: values.dispatchid,
-            dispatchaddress: values.shippingaddress,
-            dispatchfrompincode: "--",
-            dispatchfromgst: "--",
-            vehicle: values.vn,
-            clientbranch: values.components[0].clientbranchid,
-            clientaddress: values.address,
-            eway: values.nature,
-            ship_doc: values.pd,
-            other_ref: values.or,
-            challan_remark: values.components[0].challan_remark,
-          },
-          material: {
-            product: values.components[0].productKey,
-            qty: values.components[0].qty,
-            rate: values.components[0].rate,
-            picklocation: values.components[0].pickuplocation,
-            hsncode: values.components[0].hsncode,
-
-            gst_rate: values.components[0].gstRate,
-            wo_sku_desc: values.components[0].productdescription,
-            // remark: values.components[0].description,
-          },
-          min_out: {
-            id: minRows.map((e) => e.rowId),
-            comp: minRows.map((e) => e.component_key),
-            qty: minRows.map((e) => e.out_qty),
-          },
-        };
-        console.log("newpayload", newpayload);
-        console.log("values", values);
-        updateWoShipment(newpayload);
+        try {
+          const values = await challanForm.validateFields();
+          const newpayload = {
+            shipment_id: values.components[0].shipment_id,
+            wo_id: values.components[0].woId,
+            header: {
+              billingid: values.billingid,
+              billingaddress: values.billingaddress,
+              dispatchid: values.dispatchid,
+              dispatchaddress: values.shippingaddress,
+              dispatchfrompincode: "--",
+              dispatchfromgst: "--",
+              vehicle: values.vn,
+              clientbranch: values.components[0].clientbranchid,
+              clientaddress: values.address,
+              eway: values.nature,
+              ship_doc: values.pd,
+              other_ref: values.or,
+              challan_remark: values.components[0].challan_remark,
+            },
+            material: {
+              product: values.components[0].productKey,
+              qty: values.components[0].qty,
+              rate: values.components[0].rate,
+              picklocation: values.components[0].pickuplocation,
+              hsncode: values.components[0].hsncode,
+              gst_rate: values.components[0].gstRate,
+              wo_sku_desc: values.components[0].productdescription,
+            },
+            min_out: {
+              id: minRows.map((e) => e.rowId),
+              comp: minRows.map((e) => e.component_key),
+              qty: minRows.map((e) => e.out_qty),
+            },
+          };
+          await updateWoShipment(newpayload);
+        } catch (error) {
+          toast.error(error?.message || "Failed to update shipment");
+        } finally {
+          setLoading(false);
+        }
       } else {
         try {
           const values = await challanForm.validateFields();
@@ -1085,12 +1066,10 @@ const CreateChallanModal = ({
           // console.log("response", response);
           if (response.data.status === "success") {
             toast.success(response.data.message);
-            challanForm.resetFields();
+            resetState();
             close();
-            setLoading(false);
           } else {
             toast.error(response.data.message.msg);
-            setLoading(false);
           }
         } catch (error) {
           if (error?.errorFields?.length) {
@@ -1231,12 +1210,9 @@ const CreateChallanModal = ({
       }
 
       if (response.data.code === 200) {
-        // console.log("response", response);
-        close();
         toast.success(response.data.message);
-        challanForm.resetFields();
-        setLoading(false);
-        setRtnChallan(false);
+        resetState();
+        close();
         // hide
         // console.log("showCreateChallanModal-----");
         // setDetailData("");
@@ -1312,9 +1288,7 @@ const CreateChallanModal = ({
       value: "table",
     },
   ];
-  console.log("challantitle", challantitle);
-  console.log("test", test);
-  console.log("edit", editShipment);
+
   return (
     <>
       <Drawer
@@ -1517,6 +1491,7 @@ const CreateChallanModal = ({
                 ? "Update Delivery Challan"
                 : "Update RM Challan"
             }
+            loading={loading === "fetch"}
           />
         ) : (
           <NavFooter
@@ -1526,6 +1501,7 @@ const CreateChallanModal = ({
                 : showReturnSubmitConfirmationModal
             }
             nextLabel={test}
+            loading={loading === "create"}
           />
         )}
       </Drawer>

@@ -36,7 +36,6 @@ import {
   Row,
   Select,
   Space,
-  Switch,
   Typography,
   Modal,
   Button,
@@ -73,8 +72,7 @@ import {
   getPostLoginRedirect,
   savePostLoginRedirect,
 } from "./utils/authRedirect";
-import useVersionCheck from "./hooks/useVersionCheck.js";
-import UpdateVersionPopup from "./Components/UpdateVersionPopup.jsx";
+import ModuleSearch from "./Components/ModuleSearch/ModuleSearch.jsx";
 
 const parseNotificationOtherData = (raw) => {
   try {
@@ -137,8 +135,14 @@ const App = () => {
   const [favLoading, setFavLoading] = useState(false);
   const location = useLocation();
   const { pathname } = location;
-  const [testToggleLoading, setTestToggleLoading] = useState(false);
-  const [testPage, setTestPage] = useState(false);
+  // Pages opened in their own browser tab (e.g. PO Analysis Edit) render
+  // without the app sidebar.
+  const hideSidebar = [
+    "/po-analysis/edit",
+    "/jw-issue-challan/edit",
+  ].includes(pathname);
+ 
+
   const [branchSelected, setBranchSelected] = useState(true);
   const [modulesOptions, setModulesOptions] = useState([]);
   const [searchModule, setSearchModule] = useState("");
@@ -161,14 +165,6 @@ const App = () => {
   const [switchBranch, setSwitchBranch] = useState(null);
   const [switchSession, setSwitchSession] = useState(null);
   const [switchSuccess, setSwitchSuccess] = useState(false);
-  const { updateAvailable } = useVersionCheck();
-  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
-
-  useEffect(() => {
-    if (updateAvailable) {
-      setShowUpdatePopup(true);
-    }
-  }, [updateAvailable]);
 
   const logoutHandler = () => {
     dispatch(logoutUser());
@@ -230,15 +226,7 @@ const App = () => {
       navigate("/controlPanel/registeredUsers");
     }
   };
-  const handleChangePageStatus = (value) => {
-    let status = value ? "TEST" : "LIVE";
-    socket.emit("setPageStatus", {
-      page: pathname,
-      status: status,
-    });
-    setTestToggleLoading(true);
-    setTestPage(value);
-  };
+
   const handleSelectCompanyBranch = (value) => {
     dispatch(setCompanyBranch(value));
     setBranchSelected(true);
@@ -930,16 +918,18 @@ const App = () => {
             >
               <Row style={{ width: "100%" }} justify="space-between">
                 <Space size="large">
-                  <MenuOutlined
-                    onClick={() => {
-                      setShowSideBar((open) => !open);
-                    }}
-                    style={{
-                      color: "white",
-                      marginLeft: 12,
-                      fontSize: window.innerWidth > 1600 && "1rem",
-                    }}
-                  />
+                  {!hideSidebar && (
+                    <MenuOutlined
+                      onClick={() => {
+                        setShowSideBar((open) => !open);
+                      }}
+                      style={{
+                        color: "white",
+                        marginLeft: 12,
+                        fontSize: window.innerWidth > 1600 && "1rem",
+                      }}
+                    />
+                  )}
 
                   <Link to="/">
                     <Space
@@ -977,31 +967,7 @@ const App = () => {
                 <Space>
                   <div className="location-select">
                     <Space>
-                      <Typography.Text style={{ color: "white" }}>
-                        <SearchOutlined />
-                      </Typography.Text>
-                      <div style={{ width: 250, color: "white" }}>
-                        <MyAsyncSelect
-                          style={{ color: "black" }}
-                          // placeholder={
-                          //   <span style={{ color: "#000000" }}>
-                          //     Search here...
-                          //   </span>
-                          // }
-                          placeholder="Select users"
-                          onBlur={() => setModulesOptions([])}
-                          noBorder={true}
-                          hideArrow={true}
-                          searchIcon={false}
-                          color="white"
-                          optionsState={modulesOptions}
-                          loadOptions={getModuleSearchOptions}
-                          value={searchModule}
-                          onChange={setSearchModule}
-                          onMouseEnter={showRecentSearch}
-                          options={showHisList}
-                        />
-                      </div>
+                  <ModuleSearch />
                     </Space>
                   </div>
                 </Space>
@@ -1013,14 +979,6 @@ const App = () => {
                 >
                   {user?.type && user?.type.toLowerCase() == "developer" && (
                     <>
-                      <Switch
-                        loading={testToggleLoading}
-                        checked={testPage}
-                        onChange={(value) => handleChangePageStatus(value)}
-                        checkedChildren="Test"
-                        unCheckedChildren="Live"
-                      />
-
                       <ControlOutlined
                         style={{
                           fontSize: 18,
@@ -1065,35 +1023,7 @@ const App = () => {
                     </IconButton>
                   </Tooltip>
                 
-                  {/* {favLoading ? (
-                    <LoadingOutlined
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  ) : user?.favPages?.filter(
-                      (fav) => fav.url == pathname
-                    )[0] ? (
-                    <StarFilled
-                      onClick={() => handleFavPages(true)}
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  ) : (
-                    <StarOutlined
-                      onClick={() => handleFavPages(false)}
-                      style={{
-                        fontSize: 18,
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    />
-                  )} */}
+         
 
                   <div>
                     <Badge
@@ -1370,7 +1300,7 @@ const App = () => {
             open={showTickets}
             handleClose={() => setShowTickets(false)}
           />
-          {user && user.passwordChanged === "C" && (
+          {user && user.passwordChanged === "C" && !hideSidebar && (
             <Sidebar
               items={filteredItems}
               items1={filteredItems1}
@@ -1395,9 +1325,9 @@ const App = () => {
                 style={{
                   height: "calc(100vh - 50px)",
                   width: "100%",
-                  opacity: testPage ? 0.5 : 1,
+                  opacity:1,
                   pointerEvents:
-                    testPage && user?.type != "developer" ? "none" : "all",
+                   "all",
 
                   overflowX: "hidden",
                 }}
@@ -1420,10 +1350,6 @@ const App = () => {
           </Layout>
         </Layout>
       </Layout>
-      <UpdateVersionPopup
-        open={showUpdatePopup}
-        onRefresh={() => window.location.reload()}
-      />
     </div>
   );
 };

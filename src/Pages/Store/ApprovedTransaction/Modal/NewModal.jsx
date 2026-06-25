@@ -141,7 +141,7 @@ export default function NewModal({
         location: headerData?.locationKey,
         authKey: materialData?.authIdentity,
         subject: headerData?.bomKey,
-
+        rate: materialData?.weightedRate,
         pickLocation: materialData?.loc,
         component: materialData?.compKey,
         issueQty: materialData?.qty1,

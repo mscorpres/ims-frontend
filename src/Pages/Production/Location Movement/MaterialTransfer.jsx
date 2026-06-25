@@ -195,6 +195,7 @@ function MaterialTransfer({ type }) {
     const components = rows.map((r) => r.componentName);
     const qtys = rows.map((r) => r.qty);
     const comments = rows.map((r) => r.comment || "");
+    const rates = rows.map((r) => r.restDetail.avr_rate || 0);
     const projectsIds = rows.map(
       (r) => r.restDetail?.project ?? r.project ?? ""
     );
@@ -211,6 +212,7 @@ function MaterialTransfer({ type }) {
             dropLocation: allData.dropLoc,
             project_id: resolveProjectId() || null,
             ppr_id: allData.pprId || null,
+            rate: rates,
             projectsIds,
 
           }
@@ -221,6 +223,7 @@ function MaterialTransfer({ type }) {
             qty: qtys,
             type: "SF2SF",
             dropLocation: allData.dropLoc,
+            rate: rates,
           };
 
     const response = await imsAxios.post(
