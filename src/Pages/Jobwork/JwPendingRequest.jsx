@@ -1,5 +1,5 @@
 import { Button, Col, Input, Row, Space } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 // import { imsAxios } from "../../../axiosInterceptor";
 import { downloadCSV } from "../../Components/exportToCSV";
@@ -15,20 +15,14 @@ import TableActions, {
 } from "../../Components/TableActions.jsx/TableActions";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
 import { imsAxios } from "../../axiosInterceptor";
-import JWRMChallanEditAll from "./JWRMChallan/JWRMChallanEditAll";
-import JWRMChallanEditMaterials from "./JWRMChallan/JWRMChallanEditMaterials";
 import JWRMChallanCancel from "./JWRMChallan/JWRMChallanCancel";
 import MyButton from "../../Components/MyButton";
-// import JWRMChallanEditAll from "./JWRMChallanEditAll";
-// import JWRMChallanEditMaterials from "./JWRMChallanEditMaterials";
 
 function JwPendingRequest() {
   const [wise, setWise] = useState("issuedtwise");
   const [searchInput, setSearchInput] = useState("");
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [rows, setRows] = useState([]);
-  const [editingJWMaterials, setEditingJWMaterials] = useState(false);
-  const [editiJWAll, setEditJWAll] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
 
@@ -206,15 +200,29 @@ function JwPendingRequest() {
         <TableActions
           action={row.status === "create" ? "add" : "edit"}
           disabled={row.status === "cancel"}
-          onClick={() =>
-            row.status === "create"
-              ? setEditJWAll({
-                  sku: row.sku_code,
-                  fetchTransactionId: row.issue_transaction_id,
-                  saveTransactionId: row.jw_transaction_id,
-                })
-              : row.status === "edit" && setEditingJWMaterials(row.challan_id)
-          }
+          onClick={() => {
+            if (row.status === "create") {
+              const params = new URLSearchParams({
+                mode: "create",
+                sku: row.sku_code,
+                fetchId: row.issue_transaction_id,
+                saveId: row.jw_transaction_id,
+              });
+              window.open(
+                `/jw-issue-challan/edit?${params.toString()}`,
+                "_blank"
+              );
+            } else if (row.status === "edit") {
+              const params = new URLSearchParams({
+                mode: "edit",
+                challanId: row.challan_id,
+              });
+              window.open(
+                `/jw-issue-challan/edit?${params.toString()}`,
+                "_blank"
+              );
+            }
+          }}
         />,
         // cancel Icon
         <TableActions
@@ -234,18 +242,25 @@ function JwPendingRequest() {
   useEffect(() => {
     setSearchInput("");
   }, [wise]);
+  // Refresh rows when the challan edit tab completes a save (it sets
+  // "jwChallanUpdated" in localStorage, which fires a storage event here).
+  const refreshRef = useRef(() => {});
+  refreshRef.current = () => {
+    if (rows.length > 0) {
+      getRows();
+    }
+  };
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "jwChallanUpdated") {
+        refreshRef.current();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
   return (
     <div style={{ height: "90%" }}>
-      <JWRMChallanEditMaterials
-        editingJWMaterials={editingJWMaterials}
-        setEditingJWMaterials={setEditingJWMaterials}
-        getRows={getRows}
-      />
-      <JWRMChallanEditAll
-        getRows={getRows}
-        editiJWAll={editiJWAll}
-        setEditJWAll={setEditJWAll}
-      />
       <JWRMChallanCancel
         showCancel={showCancel}
         setShowCancel={setShowCancel}

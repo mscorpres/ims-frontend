@@ -177,6 +177,7 @@ const JwReturnModel = ({ show, close }) => {
         partCode: row.partcode,
         uom: row.unitsname,
         pendingQty: row.pendingWithJw,
+        rate: row.last_rate ?? "",
       }));
 
       setRows(componentArr);
@@ -219,6 +220,7 @@ const JwReturnModel = ({ show, close }) => {
       content:
         "Please make sure that the values are correct, This process is irreversible",
       onOk() {
+        setLoading("submit", true);
         submitHandler(finalObj);
       },
       onCancel() {},

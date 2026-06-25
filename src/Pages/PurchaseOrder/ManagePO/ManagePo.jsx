@@ -123,7 +123,7 @@ const ManagePO = () => {
           showInMenu
           // disabled={disabled}
           label="Download"
-          disabled={row.approval_status === "P"}
+          disabled={row.approval_status === "PENDING"}
           onClick={() => handleDownload(row.po_transaction)}
         />,
 

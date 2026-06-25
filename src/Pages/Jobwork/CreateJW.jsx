@@ -472,6 +472,7 @@ export default function CreateJW({}) {
   };
   // submit handler
   const submitHandler = async () => {
+       setLoading("submitting", true);
     //validating form values
     const values = await createPoForm.validateFields();
     let finalObj = {
@@ -507,7 +508,7 @@ export default function CreateJW({}) {
       cgst: [values.cgst],
       sgst: [values.sgst],
     };
-    setLoading("submitting", true);
+ 
     const response = await executeFun(
       () => createJobWorkReq(finalObj),
       "select"
