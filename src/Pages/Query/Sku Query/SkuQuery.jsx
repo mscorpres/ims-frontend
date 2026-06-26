@@ -396,7 +396,7 @@ const columns = [
   },
     {
     headerName: "New WAR",
-    field: "newWar",
+    field: "newWAR",
     width: 200,
   },
   {
