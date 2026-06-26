@@ -79,17 +79,17 @@ function FGToFGTransfer() {
 
   // console.log(branchName);
   const getLocationFunction = async () => {
-    const { data } = await imsAxios.get("/skuQueryA/q3Location");
+    const { data } = await imsAxios.get("/q3/location");
 
     let v = [];
-    data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
+    data?.map((ad) => v.push({ label: ad.text, value: ad.id }));
     setloctionData(v);
   };
   const getLocationFunctionTo = async () => {
-    const { data } = await imsAxios.get("/skuQueryA/q3Location");
+    const { data } = await imsAxios.get("/q3/location");
 
     let v = [];
-    data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
+    data?.map((ad) => v.push({ label: ad.text, value: ad.id }));
     setloctionDataTo(v);
   };
 
