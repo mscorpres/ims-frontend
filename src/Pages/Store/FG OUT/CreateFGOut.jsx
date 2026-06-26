@@ -94,14 +94,16 @@ const CreateFGOut = () => {
 
   const compInputHandler = async (name, id, value) => {
     if (name == "product") {
-      const response = await imsAxios.post("/fgOUT/fetchProductData", {
+  try {
+        const response = await imsAxios.post("/fgOUT/fetchProductData", {
         search: value,
       });
+         
       if (response?.success) {
         const totalValue = response?.data?.total;
         const unitValue = response?.data?.unit;
         const war = Number(response?.data?.war);
-        // console.log(totalValue);
+  
         setAddRowData((product) =>
           product.map((h) => {
             if (h.id == id) {
@@ -133,6 +135,10 @@ const CreateFGOut = () => {
         );
         toast.error(response?.message);
       }
+    
+  } catch (error) {
+    toast.error(error?.response?.data?.message ?? "Something went wrong");
+  }
     } else if (name == "quantity") {
       setAddRowData((quantity) =>
         quantity.map((h) => {
@@ -300,15 +306,7 @@ const CreateFGOut = () => {
       headerName: "Rate",
       field: "rate",
       width: 170,
-      renderCell: () => (
-        // <Input
 
-        //   value={addRowData?.quantity}
-
-        //   type="number"
-        // />
-        <span style={{}}>{addRowData?.rate ?? 0}</span>
-      ),
     },
     {
       headerName: "Issue Qty|UoM",
