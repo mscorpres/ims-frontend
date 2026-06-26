@@ -645,6 +645,21 @@ export default function MaterialInWithoutPO() {
     ]);
   }, [components]);
   useEffect(() => {
+    if (currencies?.length > 0) {
+      const currentCurrency = form.getFieldValue("currency");
+      if (currentCurrency === "364907247") {
+        const currentComponents = form.getFieldValue("components") || [];
+        const updatedComponents = currentComponents.map((comp) => ({
+          ...comp,
+          currency: "364907247",
+          exchangeRate: 1,
+        }));
+        form.setFieldValue("components", updatedComponents);
+      }
+    }
+  }, [currencies]);
+
+  useEffect(() => {
     if (vendor) {
       getVendorBracnch(vendor.value);
     }
