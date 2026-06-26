@@ -1122,11 +1122,14 @@ export default function ExportMaterialInWithPO({}) {
     let freightTotal = poData?.materials.map((row) =>
       Number(row?.freightValue),
     );
-    let inrValue = poData?.materials.map((row) => Number(row?.inrValue));
+    const misAmount = poData?.materials.map((row) => Number(row?.misAmount));
+    const insurance = poData?.materials.map((row) => Number(row?.insurance));
     let obj = [
       { label: "Total Taxable Value", sign: "+", values: totalTaxableValue },
       { label: "Total Custom Duty", sign: "+", values: customTotal },
       { label: "Total Freight Charges", sign: "+", values: freightTotal },
+      {label:"Total MIS Amount",sign:"+",values:misAmount},
+      {label: "Total Insurance",sign:"+",values:insurance},
       { label: "Total Sum", sign: "", values: grandTotal },
     ];
     setTotalValues(obj);
@@ -1728,7 +1731,7 @@ export default function ExportMaterialInWithPO({}) {
                 <Card
                   size="small"
                   style={{ width: "100%", height: "50%", maxHeight: "50%", overflowY: "auto" }}
-                  bodyStyle={{ overflowY: "auto", maxHeight: "100%" }}
+                  // bodyStyle={{ overflowY: "auto", maxHeight: "100%" }}
                   title="Tax Details"
                 >
                   <Row gutter={[0, 4]}>

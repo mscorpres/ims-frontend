@@ -102,6 +102,8 @@ export default function MaterialInWithoutPO() {
     { label: "Total Taxable Value", sign: "+", values: [] },
     { label: "Total Custom Duty", sign: "+", values: [] },
     { label: "Total Freight Charges", sign: "+", values: [] },
+    { label: "Total MIS Amount", sign: "+", values: [] },
+    { label: "Total Insurance Amount", sign: "+", values: [] },
     { label: "Total Sum", sign: "", values: [] },
   ]);
   const [currencies, setCurrencies] = useState([]);
@@ -629,10 +631,16 @@ export default function MaterialInWithoutPO() {
     const freightTotal = components?.map((row) =>
       getInt(row?.freightAmount, 2),
     );
+    const misTotal = components?.map((row) => getInt(row?.misAmount, 2));
+    const insuranceTotal = components?.map((row) =>
+      getInt(row?.insuranceAmount, 2) )
+
     setTaxDetailsValues([
       { label: "Total Taxable Value", sign: "+", values: totalTaxableValue },
       { label: "Total Custom Duty", sign: "+", values: customTotal },
       { label: "Total Freight Charges", sign: "+", values: freightTotal },
+      { label: "Total MIS Amount", sign: "+", values: misTotal },
+      { label: "Total Insurance Amount", sign: "+", values: insuranceTotal },
       { label: "Total Sum", sign: "", values: grandTotal },
     ]);
   }, [components]);
