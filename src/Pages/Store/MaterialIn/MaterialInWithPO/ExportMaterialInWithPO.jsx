@@ -1171,7 +1171,7 @@ export default function ExportMaterialInWithPO({}) {
           hsn: item.hsn,
           uom: item.uom,
           orderQty,
-          importRate: Number(item.import_rate || 0).toFixed(2),
+          importRate: Number(item.import_rate || 0),
           exchangeRate: Number(item.exchange_rate || 0).toFixed(2),
           taxableValue: taxableValue.toFixed(2),
           foreignValue: Number(item.foreign_value || 0).toFixed(2),
