@@ -153,7 +153,6 @@ export default function ExportMaterialInWithPO({}) {
     };
     if (validation == true) {
       let formData = new FormData();
-      let values = await form.validateFields();
       let values2 = await form2.validateFields();
       let a = values2?.components;
       // let a = values.components.map((comp) => {
@@ -667,7 +666,7 @@ export default function ExportMaterialInWithPO({}) {
 
           obj = {
             ...obj,
-            misAmount: misAmount,
+            misAmount: misAmount ?? 0,
             foreignValue: foreignValue,
             total: total,
             finalRate: finalRate,
@@ -693,7 +692,7 @@ export default function ExportMaterialInWithPO({}) {
 
           obj = {
             ...obj,
-            insuranceAmt: insuranceAmt,
+            insuranceAmt: insuranceAmt ?? 0,
             foreignValue: foreignValue,
             total: total,
             finalRate: finalRate,
