@@ -14,7 +14,7 @@ const CreateFGOut = () => {
   const [loading, setLoading] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [selLoading, setSelLoading] = useState(false);
-   const [locationOptions, setLocationOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
   const options = [
     { label: "Sale", value: "SL001" },
     { label: "Replacement", value: "REPL" },
@@ -41,9 +41,9 @@ const CreateFGOut = () => {
       location: "",
       remarks: "",
       uom: "",
+      rate: 0,
     },
   ]);
-
 
   const plusRow = () => {
     setAddRowData((addRowData) => [
@@ -65,18 +65,16 @@ const CreateFGOut = () => {
     });
   };
 
-    const getLocations = async () => {
+  const getLocations = async () => {
     const { data } = await imsAxios.get("/ppr/mfg_locations");
     const arr = [];
     data.data.map((a) => arr.push({ text: a.text, value: a.id }));
     setLocationOptions(arr);
   };
 
-
   useEffect(() => {
     getLocations();
-  }, [])
-  
+  }, []);
 
   const getOption = async (productSearchInput) => {
     if (productSearchInput?.length > 2) {
@@ -86,7 +84,7 @@ const CreateFGOut = () => {
       });
       setSelLoading(false);
       let arr = [];
-      arr = data.map((d) => {
+      arr = data?.map((d) => {
         return { text: d.text, value: d.id };
       });
       setAsyncOptions(arr);
@@ -95,30 +93,46 @@ const CreateFGOut = () => {
   };
 
   const compInputHandler = async (name, id, value) => {
-    console.log(name, id, value);
     if (name == "product") {
-      const { data } = await imsAxios.post("/fgOUT/fetchProductData", {
+      const response = await imsAxios.post("/fgOUT/fetchProductData", {
         search: value,
       });
-      const totalValue = data?.data?.total;
-      const unitValue = data?.data?.unit;
-      // console.log(totalValue);
-      setAddRowData((product) =>
-        product.map((h) => {
-          if (h.id == id) {
-            {
-              return {
-                ...h,
-                product: value,
-                total: totalValue,
-                uom: unitValue,
-              };
+      if (response?.success) {
+        const totalValue = response?.data?.total;
+        const unitValue = response?.data?.unit;
+        const war = Number(response?.data?.war);
+        // console.log(totalValue);
+        setAddRowData((product) =>
+          product.map((h) => {
+            if (h.id == id) {
+              {
+                return {
+                  ...h,
+                  product: value,
+                  total: totalValue,
+                  uom: unitValue,
+                  rate: war,
+                };
+              }
+            } else {
+              return h;
             }
-          } else {
-            return h;
-          }
-        })
-      );
+          }),
+        );
+      } else {
+        setAddRowData((product) =>
+          product.map((h) => {
+            if (h.id == id) {
+              {
+                return { ...h, product: value };
+              }
+            } else {
+              return h;
+            }
+          }),
+        );
+        toast.error(response?.message);
+      }
     } else if (name == "quantity") {
       setAddRowData((quantity) =>
         quantity.map((h) => {
@@ -129,7 +143,7 @@ const CreateFGOut = () => {
           } else {
             return h;
           }
-        })
+        }),
       );
     } else if (name == "remarks") {
       setAddRowData((remarks) =>
@@ -141,7 +155,7 @@ const CreateFGOut = () => {
           } else {
             return h;
           }
-        })
+        }),
       );
     } else if (name == "location") {
       setAddRowData((location) =>
@@ -153,7 +167,7 @@ const CreateFGOut = () => {
           } else {
             return h;
           }
-        })
+        }),
       );
     }
   };
@@ -164,33 +178,44 @@ const CreateFGOut = () => {
     let arrQty = [];
     let arrRemark = [];
     let arrLoc = [];
+    let arrRate = [];
     addRowData.map((a) => arrPro.push(a.product));
     addRowData.map((a) => arrQty.push(a.quantity));
     addRowData.map((a) => arrRemark.push(a.remarks));
     addRowData.map((a) => arrLoc.push(a.location));
+    addRowData.map((a) => arrRate.push(a.rate));
     // addRowData.map((a) => console.log(a));
     // console.log(arrQty);
 
     if (!createFgOut.selectType) {
       toast.error("Please Select Option");
     } else {
-      setLoadingUpdate(true);
-      const { data } = await imsAxios.post("/fgout/createFgOut", {
-        fg_out_type: createFgOut.selectType,
-        product: arrPro,
-        qty: arrQty,
-        location: arrLoc,
-        remark: arrRemark,
-        comment: createFgOut.comment,
-      });
-      if (data.code == 200) {
-        resetFunction();
+      try {
+        setLoadingUpdate(true);
+        const response = await imsAxios.post("/fgout/createFgOut", {
+          fg_out_type: createFgOut.selectType,
+          product: arrPro,
+          qty: arrQty,
+          rate: arrRate,
+          location: arrLoc,
+          remark: arrRemark,
+          comment: createFgOut.comment,
+        });
+        if (response?.success) {
+          resetFunction();
 
-        toast.success(data.message);
-        setLoadingUpdate(false);
-      } else if (data.code == 500) {
-        toast.error(data.message.msg);
-        setLoadingUpdate(false);
+          toast.success(response.message);
+          setLoadingUpdate(false);
+        } else {
+          toast.error(
+            response.message ?? "Failed to create FG Out. Please try again.",
+          );
+          setLoadingUpdate(false);
+        }
+      } catch (error) {
+        toast.error(
+          error?.message ?? "Failed to create FG Out. Please try again.",
+        );
       }
     }
   };
@@ -272,6 +297,20 @@ const CreateFGOut = () => {
       ),
     },
     {
+      headerName: "Rate",
+      field: "rate",
+      width: 170,
+      renderCell: () => (
+        // <Input
+
+        //   value={addRowData?.quantity}
+
+        //   type="number"
+        // />
+        <span style={{}}>{addRowData?.rate ?? 0}</span>
+      ),
+    },
+    {
       headerName: "Issue Qty|UoM",
       field: "quantity ",
       width: 170,
@@ -292,9 +331,7 @@ const CreateFGOut = () => {
       renderCell: ({ row }) => (
         <MySelect
           value={row?.location}
-          onChange={(value) => compInputHandler("location", row.id, value)
-          
-          }
+          onChange={(value) => compInputHandler("location", row.id, value)}
           options={locationOptions}
         />
       ),

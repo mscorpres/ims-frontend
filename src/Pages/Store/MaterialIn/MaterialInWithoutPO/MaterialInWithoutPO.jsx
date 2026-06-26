@@ -158,6 +158,13 @@ export default function MaterialInWithoutPO() {
   const handleValidatingInvoices = async () => {
     try {
       const values = await form.validateFields();
+  
+         if (!values.fileComponents  || values.fileComponents.length === 0) {
+         toast.error("Please upload a file");
+           setSubmitLoading(false);
+         return;
+        
+      }
 
       const response = await executeFun(
         () => validateInvoice(values),
@@ -196,9 +203,11 @@ export default function MaterialInWithoutPO() {
       const formData = new FormData();
       const vendorType = form.getFieldValue("vendorType");
       const values = await form.validateFields();
+    
       values?.fileComponents?.forEach((comp) => {
         formData.append("files", comp.file[0]?.originFileObj);
       });
+     
       let fileResponse;
       if (vendorType !== "p01") {
         fileResponse = await executeFun(
