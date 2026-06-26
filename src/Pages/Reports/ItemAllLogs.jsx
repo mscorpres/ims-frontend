@@ -184,9 +184,8 @@ export default function ItemAllLogs() {
       return;
     }
     const payload = {
-      transactionNo: cancelReqRow?.transactionID,
+      rmLocationId: cancelReqRow?.rmLocationId,
       reason: cancelRemark,
-      transType: cancelReqRow?.transactionType,
     };
     setCancelReqLoading(true);
     try {
