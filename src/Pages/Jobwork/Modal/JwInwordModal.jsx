@@ -513,7 +513,6 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       challan_date: challanDate,
       consRate: bomList.map((r) => r.last_rate),
     };
-    setModalUploadLoad(true);
     const response = await executeFun(() => savejwsfinward(payload), "select");
     const minNum = response?.message;
 
@@ -657,6 +656,7 @@ export default function JwInwordModal({ editModal, setEditModal }) {
   };
   const submitHandler = async () => {
     setUploadClicked(false);
+    setModalUploadLoad(true);
     const formData = new FormData();
     const values = await modalForm.validateFields();
     let fileName;
@@ -672,6 +672,8 @@ export default function JwInwordModal({ editModal, setEditModal }) {
       let fetchAttachment = data.data;
       setAttachment(fetchAttachment);
       saveFunction(fetchAttachment);
+    } else {
+      setModalUploadLoad(false);
     }
   };
 
@@ -941,9 +943,9 @@ export default function JwInwordModal({ editModal, setEditModal }) {
             open={uplaoaClicked}
             width={700}
             title={"Upload Document"}
-            // destroyOnClose={true}
             onOk={() => submitHandler()}
             onCancel={() => setUploadClicked(false)}
+            afterClose={() => modalForm.resetFields()}
             // style={{ maxHeight: "50%", height: "50%", overflowY: "scroll" }}
           >
             {" "}
