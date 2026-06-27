@@ -43,8 +43,9 @@ const PendingFG = () => {
   const handleArrowClick = async (row) => {
     setWarLoading(row.id);
     try {
-      const { data } = await imsAxios.get("/fgIN/pending?calculate=war");
-      const warRate = data?.data?.war ?? 0;
+      const { data } = await imsAxios.get("/fgIN/pending?calculate=war" + `&mfg=${row?.mfg_transaction}` + `&qty=${row?.mfg_prod_planing_qty}`);
+     
+      const warRate = data?.war ?? 0;
       setFGModal({ ...row, warRate });
     } catch (err) {
       toast.error("Failed to fetch WAR rate");
