@@ -30,27 +30,30 @@ const transactionTypeOptions = [
   { text: "N/A", value: "na" },
 ];
 
+const initialFieldState = {
+  branchCode: "",
+  label: "",
+  state: "",
+  city: "",
+  gst: "",
+  pcode: "",
+  email: "",
+  mob: "",
+  address: "",
+  fax: "",
+  addresscode: "",
+  transactionType: "",
+  accountNo: "",
+  ifsCode: "",
+  bankName: "",
+  bankBranch: "",
+  ledgerCurrency: "",
+};
+
 const ViewModal = ({ viewVendor, setViewVendor }) => {
-  const [allField, setAllField] = useState({
-    branchCode: "",
-    label: "",
-    state: "",
-    city: "",
-    gst: "",
-    pcode: "",
-    email: "",
-    mob: "",
-    address: "",
-    fax: "",
-    addresscode: "",
-    transactionType: "",
-    accountNo: "",
-    ifsCode: "",
-    bankName: "",
-    bankBranch: "",
-    ledgerCurrency: "",
-  });
+  const [allField, setAllField] = useState(initialFieldState);
   const [resetData, setResetData] = useState({});
+  const [fieldKey, setFieldKey] = useState(0);
   const [skeletonLoading, setSkeletonLoading] = useState(false);
   const [spinLoading, setSpinLoading] = useState(false);
   const [submitLoading, setsubmitLoading] = useState(false);
@@ -73,19 +76,31 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
     }
   };
 
+  const clearFormState = () => {
+    setAllField(initialFieldState);
+    setResetData({});
+    setAllBranchData([]);
+    setAsyncOptions([]);
+  };
+
+  const handleClose = () => {
+    clearFormState();
+    setFieldKey((prev) => prev + 1);
+    setViewVendor(false);
+  };
+
   const fetchAllBranchList = async () => {
     setSkeletonLoading(true);
+    clearFormState();
     const { data } = await imsAxios.post("/vendor/getAllBranchList", {
       vendor_id: viewVendor.vendor_code,
     });
     let a = [];
     data.data.final.map((d) => a.push({ text: d.text, value: d.id }));
-  
+
     setAllBranchData(a);
     if (a.length > 0) {
-      await imsAxios.post("/vendor/getBranchDetails", {
-        addresscode: a[0].value,
-      });
+      await getBranchDetails(a[0].value, "skeletonLoading");
     }
     setSkeletonLoading(false);
   };
@@ -207,21 +222,19 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
     });
     setsubmitLoading(false);
     if (data?.success) {
-      setViewVendor(null);
       toast.success(data.message);
+      handleClose();
     } else {
       toast.error(errorToast(data.message));
     }
   };
 
-  const reset = () => {
+  const resetToLoadedBranch = () => {
     setAllField(resetData);
   };
 
   useEffect(() => {
-    if (viewVendor == false) {
-      reset();
-    } else if (viewVendor) {
+    if (viewVendor) {
       fetchAllBranchList();
       getCurrencies();
     }
@@ -235,7 +248,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
         centered
         confirmLoading={submitLoading}
         open={viewVendor}
-        onClose={() => setViewVendor(false)}
+        onClose={handleClose}
         width="50vw"
       >
         <Skeleton loading={skeletonLoading} active />
@@ -247,14 +260,17 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
               <Col span={24}>
                 <Form.Item label="Select Branch">
                   <MySelect
+                  key={fieldKey}
                     value={allField.branchCode}
                     options={allBranchData}
                     // placeholder="Select Branch"
                     onChange={(e) => {
                       getBranchDetails(e);
-                      setAllField((allField) => {
-                        return { ...allField, addresscode: e };
-                      });
+                      setAllField((allField) => ({
+                        ...allField,
+                        addresscode: e,
+                        branchCode: e,
+                      }));
                     }}
                   />
                 </Form.Item>
@@ -518,7 +534,7 @@ const ViewModal = ({ viewVendor, setViewVendor }) => {
             </Row>
             <Row justify="end">
               <Space>
-                <Button onClick={reset} size="default">
+                <Button onClick={resetToLoadedBranch} size="default">
                   Reset
                 </Button>
                 <Button

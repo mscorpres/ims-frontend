@@ -71,64 +71,89 @@ function RmtoRm() {
 
   // console.log(branchName);
   const getLocationFunction = async () => {
-    const { data } = await imsAxios.post("/godown/fetchLocationForRM2RM_from");
+    try {
+      const { data } = await imsAxios.post(
+        "/godown/fetchLocationForRM2RM_from",
+      );
 
-    let v = [];
-    data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
-    setloctionData(v);
+      let v = [];
+      data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
+      setloctionData(v);
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch pick locations");
+    }
   };
   const getLocationFunctionTo = async () => {
-    const { data } = await imsAxios.post("/godown/fetchLocationForRM2RM_to");
+    try {
+      const { data } = await imsAxios.post("/godown/fetchLocationForRM2RM_to");
 
-    let v = [];
-    data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
-    setloctionDataTo(v);
+      let v = [];
+      data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
+      setloctionDataTo(v);
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch drop locations");
+    }
   };
 
   const branchInfoFunction = async () => {
-    const { data } = await imsAxios.post("/godown/fetchLocationDetail_from", {
-      location_key: allData.locationFrom,
-    });
-    // console.log(data.data);
-    setbBanchName(data.data);
+    try {
+      const { data } = await imsAxios.post("/godown/fetchLocationDetail_from", {
+        location_key: allData.locationFrom,
+      });
+      setbBanchName(data.data);
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch branch details");
+    }
   };
 
   const getComponentList = async (e) => {
-    if (e?.length > 2) {
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: e,
-      // });
-      const response = await executeFun(() => getComponentOptions(e), "select");
-      const { data } = response;
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      // return arr;
-      setAsyncOptions(arr);
+    try {
+      if (e?.length > 2) {
+        const response = await executeFun(
+          () => getComponentOptions(e),
+          "select",
+        );
+        const { data } = response;
+        if (response?.code === 200) {
+          let arr = [];
+          arr = data?.map((d) => {
+            return { text: d.text, value: d.id };
+          });
+          // return arr;
+          setAsyncOptions(arr);
+        } else {
+          toast.error(data?.message || "Failed to fetch components");
+        }
+      }
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch components");
     }
   };
 
   const getQtyFuction = async (rowIndex, componentValue) => {
-    const row = rows[rowIndex];
-    const component = componentValue ?? row?.component;
-    if (!allData.locationFrom || !component) return;
+    try {
+      const row = rows[rowIndex];
+      const component = componentValue ?? row?.component;
+      if (!allData.locationFrom || !component) return;
 
-    const { data } = await imsAxios.post("/godown/godownStocks", {
-      component: component,
-      location: allData.locationFrom,
-    });
+      const { data } = await imsAxios.post("/godown/godownStocks", {
+        component: component,
+        location: allData.locationFrom,
+      });
 
-    setRows((prev) => {
-      const updated = [...prev];
-      updated[rowIndex] = {
-        ...updated[rowIndex],
-        stockQty: data.data?.available_qty || "0",
-        unit: data.data?.unit || "",
-        avrRate: data.data?.avr_rate || "",
-      };
-      return updated;
-    });
+      setRows((prev) => {
+        const updated = [...prev];
+        updated[rowIndex] = {
+          ...updated[rowIndex],
+          stockQty: data.data?.available_qty || "0",
+          unit: data.data?.unit || "",
+          avrRate: data.data?.avr_rate || "",
+        };
+        return updated;
+      });
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch stock quantity");
+    }
   };
 
   const saveRmToRm = async () => {
@@ -164,42 +189,51 @@ function RmtoRm() {
     const tolocations = rows.map((row) => row.locationTo);
     const qtys = rows.map((row) => row.qty1);
     const comments = rows.map((row) => row.comment || "");
+    const rate = rows.map((row) => row.avrRate || 0);
 
-    const { data } = await imsAxios.post("/godown/transferRM2RM", {
-      comment: comments,
-      fromlocation: allData.locationFrom,
-      component: components,
-      tolocation: tolocations,
-      qty: qtys,
-      type: "RM2RM",
-      tobranch: allData.dropBranch,
-    });
-
-    if (data.code == 200) {
-      toast.success(data.message.toString()?.replaceAll("<br/>", ""));
-      // Reset form
-      setAllData({
-        locationFrom: "",
-        companyBranch: "",
-        dropBranch: "",
-      });
-      setRows([
+    try {
+      const { data } = await imsAxios.post(
+        "/godown/transferRM2RM",
         {
-          id: v4(),
-          component: "",
-          qty1: "",
-          locationTo: "",
-          stockQty: "",
-          unit: "",
-          avrRate: "",
-          address: "",
-          comment: "",
+          comment: comments,
+          fromlocation: allData.locationFrom,
+          component: components,
+          tolocation: tolocations,
+          qty: qtys,
+          rate: rate,
+          type: "RM2RM",
+          tobranch: allData.dropBranch,
         },
-      ]);
-      setbBanchName("");
-      setLoading(false);
-    } else if (data.code == 500) {
-      toast.error(data.message.msg);
+      );
+
+      if (data.code == 200) {
+        toast.success(data.message.toString()?.replaceAll("<br/>", ""));
+        // Reset form
+        setAllData({
+          locationFrom: "",
+          companyBranch: "",
+          dropBranch: "",
+        });
+        setRows([
+          {
+            id: v4(),
+            component: "",
+            qty1: "",
+            locationTo: "",
+            stockQty: "",
+            unit: "",
+            avrRate: "",
+            address: "",
+            comment: "",
+          },
+        ]);
+        setbBanchName("");
+      } else if (data.code == 500) {
+        toast.error(data.message.msg);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Failed to transfer RM to RM");
+    } finally {
       setLoading(false);
     }
   };
@@ -221,31 +255,36 @@ function RmtoRm() {
         prev.map((row) => ({
           ...row,
           locationTo: "", // Reset location when branch changes
-        }))
+        })),
       );
     } catch (error) {
-      console.error("Error fetching locations for branch", error);
-      toast.error("Failed to fetch drop locations for selected branch");
+      toast.error(
+        error?.message || "Failed to fetch drop locations for selected branch",
+      );
     }
   };
 
   const getLocationName = async (rowIndex, locationValue) => {
-    const row = rows[rowIndex];
-    const location = locationValue ?? row?.locationTo;
-    if (!location) return;
+    try {
+      const row = rows[rowIndex];
+      const location = locationValue ?? row?.locationTo;
+      if (!location) return;
 
-    const { data } = await imsAxios.post("/godown/fetchLocationDetail_to", {
-      location_key: location,
-    });
+      const { data } = await imsAxios.post("/godown/fetchLocationDetail_to", {
+        location_key: location,
+      });
 
-    setRows((prev) => {
-      const updated = [...prev];
-      updated[rowIndex] = {
-        ...updated[rowIndex],
-        address: data.data,
-      };
-      return updated;
-    });
+      setRows((prev) => {
+        const updated = [...prev];
+        updated[rowIndex] = {
+          ...updated[rowIndex],
+          address: data.data,
+        };
+        return updated;
+      });
+    } catch (error) {
+      toast.error(error?.message || "Failed to fetch location details");
+    }
   };
 
   const reset = async (e) => {

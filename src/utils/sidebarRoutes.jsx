@@ -457,6 +457,7 @@ export const items = (user) => [
         getItem(<Link to="/woviewchallan">WO View Challan</Link>, "B76"),
         getItem(<Link to="/wocompleted">WO Completed</Link>, "B77"),
         getItem(<Link to="/woreport">WO Report</Link>, "B78"),
+        getItem(<Link to="/workorder/update/supplementary">WO Update (Suppl.)</Link>, "B79"),
       ]),
       getItem(
         <Link to="/create-dc">RGP - DC</Link>,

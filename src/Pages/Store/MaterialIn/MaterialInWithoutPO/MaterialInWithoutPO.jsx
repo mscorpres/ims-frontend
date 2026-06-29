@@ -79,7 +79,6 @@ const defaultValues = {
 };
 
 const vendorDetailsOptions = [
-  { text: "JWI (Job Work In)", value: "j01" },
   { text: "Vendor", value: "v01" },
   { text: "Production Return", value: "p01" },
 ];
@@ -136,201 +135,266 @@ export default function MaterialInWithoutPO() {
   ];
   // console.log("fileComponents", fileComponents);
   const handleSubmit = async () => {
-    const values = await form.validateFields();
-    Modal.confirm({
-      title: "Create MIN",
-      content: "Are you sure you want to create this MIN?",
-      okText: "Continue",
-      confirmLoading: loading("submit"),
-      cancelText: "Back",
-      onOk: values.vendorType === "p01" ? submitMIN : handleValidatingInvoices,
-    });
+    if (submitLoading) return;
+    try {
+      const values = await form.validateFields();
+      setSubmitLoading(true);
+      Modal.confirm({
+        title: "Create MIN",
+        content: "Are you sure you want to create this MIN?",
+        okText: "Continue",
+        confirmLoading: loading("submit"),
+        cancelText: "Back",
+        onOk:
+          values.vendorType === "p01" ? submitMIN : handleValidatingInvoices,
+        onCancel: () => setSubmitLoading(false),
+      });
+    } catch (error) {
+      setSubmitLoading(false);
+      toast.error(error?.message || "Please check the form fields");
+    }
   };
 
   const handleValidatingInvoices = async () => {
-    const values = await form.validateFields();
+    try {
+      const values = await form.validateFields();
+  
+         if (!values.fileComponents  || values.fileComponents.length === 0) {
+         toast.error("Please upload a file");
+           setSubmitLoading(false);
+         return;
+        
+      }
 
-    const response = await executeFun(() => validateInvoice(values), "submit");
-    console.log("success from validate invoice");
-    if (response.success) {
-      const { data } = response;
-      if (data.invoicesFound) {
-        return Modal.confirm({
-          title:
-            "Following invoices are already found in our records, Do you still wish to continue?",
-          content: <Row>{data.invoicesFound.map((inv) => `${inv}, `)}</Row>,
-          onOk() {
-            submitMIN(values);
-          },
-          okText: "Continue",
-          confirmLoading: loading("submit"),
-          cancelText: "Cancel",
-        });
+      const response = await executeFun(
+        () => validateInvoice(values),
+        "submit",
+      );
+      if (response?.success) {
+        const { data } = response;
+        if (data.invoicesFound) {
+          return Modal.confirm({
+            title:
+              "Following invoices are already found in our records, Do you still wish to continue?",
+            content: <Row>{data.invoicesFound.map((inv) => `${inv}, `)}</Row>,
+            onOk() {
+              submitMIN(values);
+            },
+            okText: "Continue",
+            confirmLoading: loading("submit"),
+            cancelText: "Cancel",
+            onCancel: () => setSubmitLoading(false),
+          });
+        } else {
+          submitMIN(values);
+        }
       } else {
         submitMIN(values);
       }
-    } else {
-      submitMIN(values);
+    } catch (error) {
+      setSubmitLoading(false);
+      toast.error(error?.message || "Error validating invoices");
     }
   };
   const submitMIN = async () => {
-    let fileName;
-    const formData = new FormData();
-    const vendorType = form.getFieldValue("vendorType");
-    const values = await form.validateFields();
-    // console.log("values", values);
-    values?.fileComponents?.map((comp) => {
-      formData.append("files", comp.file[0]?.originFileObj);
-    });
-    let fileResponse;
-    if (vendorType !== "p01") {
-      fileResponse = await executeFun(
-        () => uploadMinInvoice(formData),
-        "submit"
-      );
-    }
-    console.log("fileResponse-------", fileResponse);
-
-    if (fileResponse?.success || vendorType == "p01") {
-      fileName = fileResponse?.data?.data;
-
-
-
-      const response = await executeFun(
-        () => materialInWithoutPo(values, fileName, vendorType),
-        "submit"
-      );
-      console.log("response-------", response);
-      if (response.success) {
-        // const { data } = response.data;
-        if (response.data.code == 200) {
-          setShowSuccessPage({
-            materialInId: response.data.data.txn,
-            vendor: { vendorname: values.vendorName.label },
-            components: values.components.map((row, index) => {
-              return {
-                id: index,
-                componentName: row.component.label,
-                inQuantity: row.qty,
-                invoiceNumber: row.invoiceId,
-                invoiceDate: row.invoiceDate,
-                location: row.location.label,
-              };
-            }),
-          });
-          form.resetFields();
-          vendorResetFunction();
-          materialResetFunction();
-          setPreviewRows([]);
-          setPreview(false);
-        } else {
-           toast.error(response.data.message || response.data.message?.msg);
-        }
-      } else {
-       toast.error(response.data.message || response.data.message?.msg);
+    try {
+      setSubmitLoading(true);
+      let fileName;
+      const formData = new FormData();
+      const vendorType = form.getFieldValue("vendorType");
+      const values = await form.validateFields();
+    
+      values?.fileComponents?.forEach((comp) => {
+        formData.append("files", comp.file[0]?.originFileObj);
+      });
+     
+      let fileResponse;
+      if (vendorType !== "p01") {
+        fileResponse = await executeFun(
+          () => uploadMinInvoice(formData),
+          "submit",
+        );
       }
+
+      if (fileResponse?.success || vendorType == "p01") {
+        fileName = fileResponse?.data?.data;
+
+        const response = await executeFun(
+          () => materialInWithoutPo(values, fileName, vendorType),
+          "submit",
+        );
+        if (response?.success) {
+          if (response?.data?.code == 200) {
+            setShowSuccessPage({
+              materialInId: response.data.data.txn,
+              vendor: { vendorname: values.vendorName.label },
+              components: values.components.map((row, index) => {
+                return {
+                  id: index,
+                  componentName: row.component.label,
+                  inQuantity: row.qty,
+                  invoiceNumber: row.invoiceId,
+                  invoiceDate: row.invoiceDate,
+                  location: row.location.label,
+                };
+              }),
+            });
+            form.resetFields();
+            vendorResetFunction();
+            setPreviewRows([]);
+            setPreview(false);
+          } else {
+            toast.error(
+              response?.data?.message || response?.data?.message?.msg,
+            );
+          }
+        } else {
+          toast.error(response?.data?.message || response?.data?.message?.msg);
+        }
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error submitting MIN");
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
   const handleFetchComponentOptions = async (search) => {
-    const response = await executeFun(
-      () => getComponentOptions(search),
-      "select"
-    );
-    let arr = [];
-    if (response.success) {
-      // console.log("Respomse", response);
-      if (response.data[0].piaStatus == "Y") {
-        toast.info(
-          `PIA Status is enabled for ${response.data[0].newPart} Part Code.`
-        );
+    try {
+      const response = await executeFun(
+        () => getComponentOptions(search),
+        "select",
+      );
+      let arr = [];
+      if (response?.success) {
+        if (response?.data[0]?.piaStatus == "Y") {
+          toast.info(
+            `PIA Status is enabled for ${response?.data[0]?.newPart} Part Code.`,
+          );
+        }
+        arr = convertSelectOptions(response?.data);
       }
-      arr = convertSelectOptions(response.data);
+      setAsyncOptions(arr);
+    } catch (error) {
+      setAsyncOptions([]);
+      toast.error(error?.message || "Error fetching component options");
     }
-    setAsyncOptions(arr);
   };
   const getCurrencies = async () => {
-    const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+    try {
+      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
 
-    let arr = [];
-    arr = data.data.map((d) => {
-      return {
-        text: d.currency_symbol,
-        value: d.currency_id,
-        notes: d.currency_notes,
-      };
-    });
-    setCurrencies(arr);
+      let arr = [];
+      arr = data?.data?.map((d) => {
+        return {
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        };
+      });
+      setCurrencies(arr);
+    } catch (error) {
+      toast.error(error?.message || "Error fetching currencies");
+    }
   };
 
   const getLocation = async (costCenter) => {
-    setSelectLoading(true);
-    setLocationOptions([]);
-    const { data } = await imsAxios.post("/transaction/getLocationInMin", {
-      search: "",
-      cost_center: costCenter,
-    });
-    setSelectLoading(false);
-    if (data.code == 200) {
-      let arr = data.data.data.map((d) => {
-        return { text: d.text, value: d.id };
+    try {
+      setSelectLoading(true);
+      setLocationOptions([]);
+      const { data } = await imsAxios.post("/transaction/getLocationInMin", {
+        search: "",
+        cost_center: costCenter,
       });
-      setLocationOptions(arr);
-    } else {
-      toast.error(data.message.msg);
+      if (data?.code == 200) {
+        let arr = data?.data?.data.map((d) => {
+          return { text: d.text, value: d.id };
+        });
+        setLocationOptions(arr);
+      } else {
+        toast.error(data?.message?.msg);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching locations");
+    } finally {
+      setSelectLoading(false);
     }
   };
   const getAutoComnsumptionOptions = async () => {
-    setPageLoading(true);
-    let { data } = await imsAxios.get("/transaction/fetchAutoConsumpLocation");
-    setPageLoading(false);
-    if (data.code == 200) {
-      let arr = data.data.map((row) => {
-        return {
-          value: row.id,
-          text: row.text,
-        };
-      });
-      arr = [{ text: "NO", value: 0 }, ...arr];
-      setAutoConsumptionOption(arr);
+    try {
+      setPageLoading(true);
+      let { data } = await imsAxios.get(
+        "/transaction/fetchAutoConsumpLocation",
+      );
+      if (data?.code == 200) {
+        let arr = data?.data?.map((row) => {
+          return {
+            value: row.id,
+            text: row.text,
+          };
+        });
+        arr = [{ text: "NO", value: 0 }, ...arr];
+        setAutoConsumptionOption(arr);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching auto consumption options");
+    } finally {
+      setPageLoading(false);
     }
   };
   const getVendors = async (search) => {
-    const response = await executeFun(() => getVendorOptions(search), "select");
-    let arr = [];
-    if (response.success) {
-      arr = convertSelectOptions(response.data);
+    try {
+      const response = await executeFun(
+        () => getVendorOptions(search),
+        "select",
+      );
+      let arr = [];
+      if (response?.success) {
+        arr = convertSelectOptions(response?.data);
+      }
+      setAsyncOptions(arr);
+    } catch (error) {
+      setAsyncOptions([]);
+      toast.error(error?.message || "Error fetching vendors");
     }
-    setAsyncOptions(arr);
   };
   const handleFetchComponentDetails = async (row, rowId, value) => {
-    const response = await executeFun(
-      () => getComponentDetail(value.value),
-      "fetch"
-    );
-    if (response.success) {
-      const { data } = response;
-      console.log("data,", data, rowId);
-      form.setFieldValue(["components", rowId, "gstRate"], data.data.gstrate);
-      form.setFieldValue(["components", rowId, "hsn"], data.data.hsn);
-      form.setFieldValue(["components", rowId, "rate"], data.data.rate);
-      form.setFieldValue(["components", rowId, "mfg"], data.data.mfgCode);
-      // form.setFieldValue(["components", rowId, "value"], getInt(inrValue));
+    try {
+      const response = await executeFun(
+        () => getComponentDetail(value.value),
+        "fetch",
+      );
+      if (response?.success) {
+        const { data } = response;
+        form.setFieldValue(
+          ["components", rowId, "gstRate"],
+          data?.data?.gstrate,
+        );
+        form.setFieldValue(["components", rowId, "hsn"], data?.data?.hsn);
+        form.setFieldValue(["components", rowId, "rate"], data?.data?.rate);
+        form.setFieldValue(["components", rowId, "mfg"], data?.data?.mfgCode);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching component details");
     }
   };
   const handleFetchPreviousRate = async (component, rowId, vendor) => {
-    const formVendor = vendor ?? form.getFieldValue("vendorName");
-    const vendorType = form.getFieldValue("vendorType");
-    if (formVendor && component && vendorType === "v01") {
-      const response = await executeFun(() =>
-        getComponentDetail(component.value, formVendor.value)
-      );
-      if (response.success) {
-        form.setFieldValue(
-          ["components", rowId, "previousRate"],
-          response.data.rate
+    try {
+      const formVendor = vendor ?? form.getFieldValue("vendorName");
+      const vendorType = form.getFieldValue("vendorType");
+      if (formVendor && component && vendorType === "v01") {
+        const response = await executeFun(() =>
+          getComponentDetail(component.value, formVendor.value),
         );
+        if (response?.success) {
+          form.setFieldValue(
+            ["components", rowId, "previousRate"],
+            response?.data?.rate,
+          );
+        }
       }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching previous rate");
     }
   };
 
@@ -349,65 +413,88 @@ export default function MaterialInWithoutPO() {
   };
 
   const getVendorBracnch = async (vendorCode) => {
-    const response = await executeFun(
-      () => getVendorBranchOptions(vendorCode),
-      "fetch"
-    );
+    try {
+      const response = await executeFun(
+        () => getVendorBranchOptions(vendorCode),
+        "fetch",
+      );
 
-    let arr = [];
-    if (response.success) {
-      arr = convertSelectOptions(response.data.data);
+      let arr = [];
+      if (response?.success) {
+        arr = convertSelectOptions(response?.data?.data);
+      }
+      form.setFieldValue("vendorBranch", arr[0]?.value);
+
+      setVendorBranchOptions(arr);
+      return arr;
+    } catch (error) {
+      toast.error(error?.message || "Error fetching vendor branches");
+      setVendorBranchOptions([]);
+      return [];
     }
-    form.setFieldValue("vendorBranch", arr[0]?.value);
-
-    setVendorBranchOptions(arr);
-    return arr;
   };
 
   const handleFetchVendorBranchDetails = async (branchCode) => {
-    const vendorCode = form.getFieldValue("vendorName");
-    const response = await executeFun(
-      () => getVendorBranchDetails(vendorCode.value, branchCode),
-      "fetch"
-    );
+    try {
+      const vendorCode = form.getFieldValue("vendorName");
+      const response = await executeFun(
+        () => getVendorBranchDetails(vendorCode.value, branchCode),
+        "fetch",
+      );
 
-    if (response.success) {
-      // console.log("response =>", response?.data?.data.einvoice_status);
-      setIsApplicable(response.data?.data?.einvoice_status);
-      form.setFieldValue("gstin", response?.data?.data?.gstid);
-      form.setFieldValue("vendorAddress", response?.data?.data.address);
+      if (response?.success) {
+        setIsApplicable(response?.data?.data?.einvoice_status);
+        form.setFieldValue("gstin", response?.data?.data?.gstid);
+        form.setFieldValue("vendorAddress", response?.data?.data?.address);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching vendor branch details");
     }
   };
   const handleFetchCostCenterOptions = async (search) => {
-    const response = await executeFun(
-      () => getCostCentresOptions(search),
-      "select"
-    );
-    let arr = [];
-    if (response.success) arr = convertSelectOptions(response.data);
-    setAsyncOptions(arr);
+    try {
+      const response = await executeFun(
+        () => getCostCentresOptions(search),
+        "select",
+      );
+      let arr = [];
+      if (response?.success) arr = convertSelectOptions(response?.data);
+      setAsyncOptions(arr);
+    } catch (error) {
+      setAsyncOptions([]);
+      toast.error(error?.message || "Error fetching cost center options");
+    }
   };
   const handleFetchProjectOptions = async (search) => {
-    const response = await executeFun(
-      () => getProjectOptions(search),
-      "select"
-    );
-    setAsyncOptions(response.data);
+    try {
+      const response = await executeFun(
+        () => getProjectOptions(search),
+        "select",
+      );
+      setAsyncOptions(response?.data);
+    } catch (error) {
+      setAsyncOptions([]);
+      toast.error(error?.message || "Error fetching project options");
+    }
   };
 
   const handleProjectChange = async (value) => {
-    setPageLoading(true);
-    const response = await imsAxios.post("/backend/projectDescription", {
-      project_name: value,
-    });
-    setPageLoading(false);
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        form.setFieldValue("projectName", data.data.description);
+    try {
+      setPageLoading(true);
+      const response = await imsAxios.post("/backend/projectDescription", {
+        project_name: value,
+      });
+      const { data } = response;
+
+      if (data?.code === 200) {
+        form.setFieldValue("projectName", data?.data?.description);
       } else {
-        toast.error(data.message.msg);
+        toast.error(data?.message?.msg);
       }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching project description");
+    } finally {
+      setPageLoading(false);
     }
   };
   const vendorResetFunction = () => {
@@ -430,7 +517,7 @@ export default function MaterialInWithoutPO() {
       1;
 
     const inrValue = getInt(
-      Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate)
+      Number(qty ?? 0) * Number(rate ?? 0) * Number(latestExchangeRate),
     );
     const foreignValue = getInt(Number(qty ?? 0) * Number(rate ?? 0));
     let finalGstRate = gstType === "L" ? getInt(gstRate) / 2 : getInt(gstRate);
@@ -438,19 +525,19 @@ export default function MaterialInWithoutPO() {
     form.setFieldValue(["components", rowId, "value"], inrValue);
     form.setFieldValue(
       ["components", rowId, "cgst"],
-      gstType === "L" ? gst : 0
+      gstType === "L" ? gst : 0,
     );
     form.setFieldValue(
       ["components", rowId, "sgst"],
-      gstType === "L" ? gst : 0
+      gstType === "L" ? gst : 0,
     );
     form.setFieldValue(
       ["components", rowId, "igst"],
-      gstType === "L" ? 0 : gst
+      gstType === "L" ? 0 : gst,
     );
     form.setFieldValue(
       ["components", rowId, "foreignValue"],
-      currency === "364907247" ? 0 : foreignValue
+      currency === "364907247" ? 0 : foreignValue,
     );
   };
   // const columns = [
@@ -630,7 +717,7 @@ export default function MaterialInWithoutPO() {
   }, [costCenter]);
   useEffect(() => {
     let grandTotal = components?.map((row) =>
-      Number(row?.cgst + row?.sgst + row?.igst + row?.value)
+      Number(row?.cgst + row?.sgst + row?.igst + row?.value),
     );
     let cgsttotal = components?.map((row) => Number(row?.cgst));
     let sgsttotal = components?.map((row) => Number(row?.sgst));
@@ -981,66 +1068,63 @@ export default function MaterialInWithoutPO() {
     },
   ];
   const callFileUpalod = async () => {
-    setPreview(true);
-    const values = uplaodForm.getFieldsValue();
+    try {
+      setPreview(true);
+      const values = uplaodForm.getFieldsValue();
 
-    const file = values.files[0].originFileObj;
-    const formData = new FormData();
-    formData.append("file", file);
-    const response = await executeFun(
-      () => uplaodFileInMINInward(formData),
-      "fetch"
-    );
-    if (response?.data?.status == "success") {
-      let { data } = response;
-      let rows = data.data;
-      // const formattedRows = data.data.rows.map((row) => {
-      //   let rowObject = {};
-      //   data.data.headers.forEach((header, index) => {
-      //     rowObject[header] = row[index];
-      //   });
-      //   return rowObject;
-      // });
-      const formattedHeaders = data.data.headers.map((header) =>
-        header
-          .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
-            index === 0 ? match.toUpperCase() : match.toLowerCase()
-          )
-          .replace(/\s+/g, "")
+      const file = values.files[0].originFileObj;
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await executeFun(
+        () => uplaodFileInMINInward(formData),
+        "fetch",
       );
+      if (response?.data?.status == "success") {
+        let { data } = response;
+        let rows = data?.data;
+        const formattedHeaders = data.data.headers.map((header) =>
+          header
+            .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+              index === 0 ? match.toUpperCase() : match.toLowerCase(),
+            )
+            .replace(/\s+/g, ""),
+        );
 
-      // Map the row values to headers
-      const formattedRows = data.data.rows.map((row) => {
-        let rowObject = {};
-        formattedHeaders.forEach((header, index) => {
-          rowObject[header] = row[index];
+        const formattedRows = data.data.rows.map((row) => {
+          let rowObject = {};
+          formattedHeaders.forEach((header, index) => {
+            rowObject[header] = row[index];
+          });
+          return rowObject;
         });
-        return rowObject;
-      });
 
-      let arr = formattedRows.map((r, index) => ({
-        id: index + 1,
-        partCode: r.Partcode.partNo,
-        partName: r.Partcode.name,
-        location: { label: r.Location.text, value: r.Location.value },
-        locationName: r.Location.text,
-        component: { label: r.Partcode.name, value: r.Partcode.key },
-        qty: r.Qty,
-        rate: r.Rate,
-        hsn: r.Hsn,
-        autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
-        autoCons: {
-          label: r.Autoconsump == "Y" ? "Yes" : "No",
-          value: r.Autoconsump == "Y" ? "Yes" : "No",
-        },
-        value: (r.Qty * r.Rate).toFixed(3),
-        gstRate: r.Gstrate,
-        gstType: r.Gsttype.text,
-        ...r,
-      }));
-      setPreviewRows(arr);
-    } else {
-      toast.error(response.message.msg);
+        let arr = formattedRows.map((r, index) => ({
+          id: index + 1,
+          partCode: r.Partcode.partNo,
+          partName: r.Partcode.name,
+          location: { label: r.Location.text, value: r.Location.value },
+          locationName: r.Location.text,
+          component: { label: r.Partcode.name, value: r.Partcode.key },
+          qty: r.Qty,
+          rate: r.Rate,
+          hsn: r.Hsn,
+          autoConsName: r.Autoconsump == "Y" ? "Yes" : "No",
+          autoCons: {
+            label: r.Autoconsump == "Y" ? "Yes" : "No",
+            value: r.Autoconsump == "Y" ? "Yes" : "No",
+          },
+          value: (r.Qty * r.Rate).toFixed(3),
+          gstRate: r.Gstrate,
+          gstType: r.Gsttype.text,
+          ...r,
+        }));
+        setPreviewRows(arr);
+      } else {
+        toast.error(response.message?.msg || "Error uploading file");
+        setPreview(false);
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error uploading and parsing file");
       setPreview(false);
     }
   };
@@ -1196,13 +1280,13 @@ export default function MaterialInWithoutPO() {
                         />
                       </Form.Item>
                     </Col>{" "}
-                    {vendorType === "j01" && (
+                    {/* {vendorType === "j01" && (
                       <Col span={24}>
                         <Form.Item name="ewaybill" label="E-Way Bill Number">
                           <Input size="default" />
                         </Form.Item>
                       </Col>
-                    )}
+                    )} */}
                     {isApplicable == "Y" && (
                       <>
                         <Col span={24}>
@@ -1255,22 +1339,22 @@ export default function MaterialInWithoutPO() {
                                   ...comp,
                                   currency: value,
                                   exchangeRate: 1,
-                                })
+                                }),
                               );
                               form.setFieldValue(
                                 "components",
-                                updatedComponents
+                                updatedComponents,
                               );
                             } else {
                               const updatedComponents = currentComponents.map(
                                 (comp) => ({
                                   ...comp,
                                   currency: value,
-                                })
+                                }),
                               );
                               form.setFieldValue(
                                 "components",
-                                updatedComponents
+                                updatedComponents,
                               );
 
                               if (currentComponents.length > 0) {
@@ -1278,11 +1362,11 @@ export default function MaterialInWithoutPO() {
                                   (sum, comp) => {
                                     return sum + (Number(comp.value) || 0);
                                   },
-                                  0
+                                  0,
                                 );
 
                                 const selectedCurrency = currencies.find(
-                                  (cur) => cur.value == value
+                                  (cur) => cur.value == value,
                                 );
 
                                 if (selectedCurrency) {
@@ -1427,7 +1511,7 @@ export default function MaterialInWithoutPO() {
                                 {Number(
                                   row.values?.reduce((partialSum, a) => {
                                     return partialSum + Number(a);
-                                  }, 0)
+                                  }, 0),
                                 ).toFixed(2)}
                               </Typography.Text>
                             </span>

@@ -157,10 +157,7 @@ const AddVendor = () => {
         }
       });
     }
-    // formData.append("file", values.components[0].file[0].originFileObj);
-    // console.log("a-----", uploadedFie[0].file[0].originFileObj);
-    // console.log("values", values);
-    // if
+
     let obj = {
       vendor: {
         vendorname: values.vendorName,
@@ -200,7 +197,7 @@ const AddVendor = () => {
         transaction_type: values.transactionType,
         account_no: values.accountNo,
         ifs_code: values.ifsCode,
-        bank_name: values.bankName,
+        bank_name: values.bankName === "other" ? values.otherBankName : values.bankName,
         bank_branch: values.bankBranch,
         ledger_currency: values.ledgerCurrency,
       },
@@ -220,24 +217,6 @@ const AddVendor = () => {
     addVendorForm.resetFields();
     setFiles([]);
   };
-  // useEffect(() => {
-  //   // console.log("msmsStatus", msmsStatus);
-  //   if (msmsStatus) {
-  //     setMsmeStat(msmsStatus);
-  //   }
-  // }, [msmsStatus]);
-
-  // const changeMSmeStatus = (value) => {
-  //   console.log("value", value);
-  //   setMsmeStat(value);
-  // };
-  // useEffect(() => {
-  //       setMsmeStat(value);
-  // }, [third]);
-
-  useEffect(() => {
-    // getGroupOptions();
-  }, []);
 
   // Load currencies for "Currency of Ledger"
   useEffect(() => {
@@ -636,6 +615,15 @@ const AddVendor = () => {
                       />
                     </Form.Item>
                   </Col>
+                  {
+                    bankNameWatch === "other" && (
+                      <Col span={12}>
+                        <Form.Item label="Other Bank Name" name="otherBankName">
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                    )
+                  }
 
                   <Col span={12}>
                     <Form.Item label="Bank Branch" name="bankBranch">

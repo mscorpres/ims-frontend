@@ -34,7 +34,6 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
 
 
   const vendorDetailsOptions = [
-    { text: "JWI (Job Work In)", value: "j01" },
     { text: "Vendor", value: "v01" },
   ];
 
@@ -240,6 +239,7 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
             sgst: row.sgst == "--" ? 0 : row.sgst,
             igst: row.igst == "--" ? 0 : row.igst,
             remark: row.remark || "--",
+            internal_remark: row.internal_remark || "--",
             inrValue: row.taxablevalue,
             foreginValue: row.exchangetaxablevalue,
             unit: row.unitname,
@@ -636,10 +636,10 @@ export default function ViewPORequest({ poId, setPoId, getRows }) {
     },
    {
       headerName: "Internal Remark",
-      width: 100,
+      width: 200,
       field: "internal_remark",
       sortable: false,
-      renderCell: ({ row }) => <span>{row.internal_remark || "--"}</span>,
+      renderCell: ({ row }) => <ToolTipEllipses text={row.internal_remark || "--"} />,
     },
   ];
 

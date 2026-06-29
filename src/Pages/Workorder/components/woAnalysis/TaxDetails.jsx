@@ -37,7 +37,10 @@ function TaxDetails({ summary, title, type, loading }) {
                         marginTop: 10,
                       }}
                     >
-                      {!loading && row.description}
+                      {!loading &&
+                        (typeof row.description === "number"
+                          ? row.description
+                          : row.description ?? 0)}
                     </Typography.Text>
                   </Col>
                 </Row>

@@ -16,6 +16,12 @@ const generateUniqueId = () => {
   return uuidv4();
 };
 
+const generateTriggerUidHeader = () => {
+  const uid = generateUniqueId().replaceAll("-", "");
+  const timestamp = formatTimestamp();
+  return `${uid}:${timestamp}`;
+};
+
 const formatTimestamp = () => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
@@ -62,12 +68,14 @@ imsAxios.interceptors.request.use(
       return Promise.reject(new axios.Cancel("Switch in progress please wait...."));
     }
 
-    const newId = uuidv4();
+    const newId = generateUniqueId();
     const timestamp = formatTimestamp();
+    const triggerUid = generateTriggerUidHeader();
 
     // Add headers
     config.headers["timeStamp"] = timestamp;
     config.headers["newId"] = newId;
+    config.headers["x-trigger-uid"] = triggerUid;
 
     // Use newToken if available, otherwise use loggedInUser token
     const token = getToken();
@@ -115,16 +123,7 @@ imsAxios.interceptors.response.use(
       return error.response.data;
     }
 
-    // if (error.response.status === 404) {
-    //   toast.error("Some Internal error occured");
-    // } else {
-
-    // if (error.response.data?.message) {
-    //   toast.error(
-    //     error.response.data?.message?.msg ??
-    //       "Error while connecting to backend."
-    //   );
-    // }
+ 
     if (!error.response.data?.message) {
       toast.error(error.response?.data);
     }
@@ -139,4 +138,4 @@ const session = getSessionFromStorage();
 imsAxios.defaults.headers["Company-Branch"] = branch ?? "BRMSC012";
 imsAxios.defaults.headers["Session"] = session;
 
-export { imsAxios, socketLink };
+export { imsAxios, socketLink, getSessionFromStorage };

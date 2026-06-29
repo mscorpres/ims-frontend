@@ -47,38 +47,53 @@ const ManagePO = () => {
     { value: "single_date_wise", text: "Date Wise" },
     { value: "po_wise", text: "PO ID Wise" },
     { value: "vendor_wise", text: "Vendor Wise" },
-    {value: "requestPo", text:"Requested PR"},
+    { value: "requestPo", text: "Requested PR" },
   ];
   const printFun = async (poid) => {
-    setLoading(true);
-    const { data } = await imsAxios.post("/poPrint", {
-      poid: poid,
-    });
-
-    printFunction(data.data.buffer.data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const { data } = await imsAxios.post("/poPrint", {
+        poid: poid,
+      });
+      printFunction(data?.data?.buffer?.data);
+    } catch (error) {
+      toast.error(error?.message || "Error printing PO");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancelPO = async (poid) => {
-    setLoading(true);
-    const { data } = await imsAxios.post("/purchaseOrder/fetchStatus4PO", {
-      purchaseOrder: poid,
-    });
-    setLoading(false);
-    if (data.code == 200) {
-      setShowCancelPO(poid);
-    } else {
-      toast.error("PO is already cancelled");
+    try {
+      setLoading(true);
+      const { data } = await imsAxios.post("/purchaseOrder/fetchStatus4PO", {
+        purchaseOrder: poid,
+      });
+      if (data.code == 200) {
+        setShowCancelPO(poid);
+      } else {
+        toast.error("PO is already cancelled");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching PO status");
+    } finally {
+      setLoading(false);
     }
   };
+
   const handleDownload = async (poid) => {
-    setLoading(true);
-    const { data } = await imsAxios.post("/poPrint", {
-      poid: poid,
-    });
-    setLoading(false);
-    let filename = `PO ${poid}`;
-    downloadFunction(data.data.buffer.data, filename);
+    try {
+      setLoading(true);
+      const { data } = await imsAxios.post("/poPrint", {
+        poid: poid,
+      });
+      const filename = `PO ${poid}`;
+      downloadFunction(data?.data?.buffer?.data, filename);
+    } catch (error) {
+      toast.error(error?.message || "Error downloading PO");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns = [
@@ -108,7 +123,7 @@ const ManagePO = () => {
           showInMenu
           // disabled={disabled}
           label="Download"
-          disabled={row.approval_status === "P"}
+          disabled={row.approval_status === "PENDING"}
           onClick={() => handleDownload(row.po_transaction)}
         />,
 
@@ -160,13 +175,11 @@ const ManagePO = () => {
       minWidth: 150,
     },
     {
-      headerName:"PO ACCEPTANCE",
-      field:"poacceptstatus",
-      renderCell:({row})=>(
-        <ToolTipEllipses text={row.poacceptstatus} />
-      ),
-      flex:1,
-      minWidth:150
+      headerName: "PO ACCEPTANCE",
+      field: "poacceptstatus",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.poacceptstatus} />,
+      flex: 1,
+      minWidth: 150,
     },
 
     {
@@ -203,7 +216,9 @@ const ManagePO = () => {
     {
       headerName: "PPR No",
       field: "ppr_no",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.ppr_no} copy={true} />,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.ppr_no} copy={true} />
+      ),
       minWidth: 130,
       flex: 1,
     },
@@ -262,129 +277,152 @@ const ManagePO = () => {
   ];
   //getting rows from database from all 3 filter po wise, data wise, vendor wise
   const getSearchResults = async () => {
-    setRows([]);
-    let search;
-    if (wise == "single_date_wise") {
-      search = searchDateRange;
-    } else {
-      search = null;
-    }
-    if (searchInput || search) {
-      setSearchLoading(true);
-      const { data } = await imsAxios.post(
-        "/purchaseOrder/fetchPendingData4PO",
-        {
-          data:
-            wise == "vendor_wise"
-              ? searchInput
-              : wise == "po_wise"
-              ? searchInput.trim()
-              : wise == "single_date_wise" && searchDateRange,
-          wise: wise,
-        }
-      );
-      setSearchLoading(false);
-      if (data.code == 200) {
-        let arr = data?.data?.map((row, index) => ({
-          ...row,
-          id: row.po_transaction,
-          index: index + 1,
-        }));
-        setRows(arr);
+    try {
+      setRows([]);
+      let search;
+      if (wise == "single_date_wise") {
+        search = searchDateRange;
       } else {
-        if (data.message.msg) {
-          toast.error(data.message.msg);
+        search = null;
+      }
+      if (searchInput || search) {
+        setSearchLoading(true);
+        const { data } = await imsAxios.post(
+          "/purchaseOrder/fetchPendingData4PO",
+          {
+            data:
+              wise == "vendor_wise"
+                ? searchInput
+                : wise == "po_wise"
+                  ? searchInput.trim()
+                  : wise == "single_date_wise" && searchDateRange,
+            wise: wise,
+          },
+        );
+        if (data.code == 200) {
+          let arr = data?.data?.map((row, index) => ({
+            ...row,
+            id: row.po_transaction,
+            index: index + 1,
+          }));
+          setRows(arr);
         } else {
-          toast.error(data.message);
+          if (data.message.msg) {
+            toast.error(data.message.msg);
+          } else {
+            toast.error(data.message);
+          }
+        }
+      } else {
+        if (wise == "single_date_wise" && searchDateRange == null) {
+          toast.error("Please select start and end dates for the results");
+        } else if (wise == "po_wise") {
+          toast.error("Please enter a PO id");
+        } else if (wise == "vendor_wise") {
+          toast.error("Please select a vendor");
         }
       }
-    } else {
-      if (wise == "single_date_wise" && searchDateRange == null) {
-        toast.error("Please select start and end dates for the results");
-      } else if (wise == "po_wise") {
-        toast.error("Please enter a PO id");
-      } else if (wise == "vendor_wise") {
-        toast.error("Please select a vendor");
-      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching search results");
+    } finally {
+      setSearchLoading(false);
     }
   };
+
   //getting vendors list for filter by vendors
   const getVendors = async (search) => {
-    if (search?.length > 2) {
-      const response = await executeFun(
-        () => getVendorOptions(search),
-        "select"
-      );
-      let arr = [];
-      if (response.success) {
-        arr = convertSelectOptions(response.data);
+    try {
+      if (search?.length > 2) {
+        const response = await executeFun(
+          () => getVendorOptions(search),
+          "select",
+        );
+        let arr = [];
+        if (response.success) {
+          arr = convertSelectOptions(response.data);
+        }
+        setAsyncOptions(arr);
       }
-      setAsyncOptions(arr);
+    } catch (error) {
+      toast.error(error?.message || "Error fetching vendors");
+      setAsyncOptions([]);
     }
   };
+
   //getting component view data
   const getComponentData = async (poid, status) => {
-    setViewLoading(true);
-    const { data } = await imsAxios.post(
-      "/purchaseOrder/fetchComponentList4PO",
-      {
-        poid,
+    try {
+      setViewLoading(true);
+      const { data } = await imsAxios.post(
+        "/purchaseOrder/fetchComponentList4PO",
+        {
+          poid,
+        },
+      );
+      if (data.code == 200) {
+        const arr = data.data.map((row, index) => {
+          return {
+            ...row,
+            id: index,
+          };
+        });
+        setComponentData({ poid: poid, components: arr, status: status });
+        setShowViewSideBar(true);
+        getPoLogs(poid);
+      } else {
+        toast.error(data.message);
       }
-    );
-    setViewLoading(false);
-    if (data.code == 200) {
-      const arr = data.data.map((row, index) => {
-        return {
-          ...row,
-          id: index,
-        };
-      });
-      setComponentData({ poid: poid, components: arr, status: status });
-
-      setShowViewSideBar(true);
-      getPoLogs(poid);
-    } else {
-      toast.error(data.message);
+    } catch (error) {
+      toast.error(error?.message || "Error fetching component data");
+    } finally {
+      setViewLoading(false);
     }
   };
 
   const getPoLogs = async (po_id) => {
-    const { data } = await imsAxios.post("/purchaseOthers/pologs", {
-      po_id,
-    });
-    if (data.code === "200" || data.code == 200) {
-      let arr = data.data;
-      setnewPoLogs(arr.reverse());
-      // console.logg("data for po logs", arr);
-    }
-  };
-  const getPoDetail = async (poid) => {
-    setLoading(true);
-    const { data, message } = await imsAxios
-      .post("/purchaseOrder/fetchData4Update", {
-        pono: poid.replaceAll("_", "/"),
-      })
-      .then((res) => {
-        if (res.code == 500) {
-          toast.error(res.message.msg);
-          setLoading(false);
-        } else {
-          return res;
-        }
+    try {
+      const { data } = await imsAxios.post("/purchaseOthers/pologs", {
+        po_id,
       });
-    setLoading(false);
-    if (data?.code == 200) {
-      setUpdatePoId({
-        ...data.data.bill,
-        materials: data.data.materials,
-        ...data.data.ship,
-        ...data.data.vendor[0],
-      });
-    } else {
-      toast.error(data?.message || message);
+      if (data.code === "200" || data.code == 200) {
+        let arr = data.data;
+        setnewPoLogs(arr.reverse());
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching PO logs");
     }
   };
 
+  const getPoDetail = async (poid) => {
+    try {
+      setLoading(true);
+      const res = await imsAxios.post(
+        "/purchaseOrder/fetchData4Update",
+        {
+          pono: poid.replaceAll("_", "/"),
+        },
+      );
+      const { data } = res;
+      if (data?.code == 500) {
+        toast.error(data?.message?.msg || data?.message);
+        return;
+      }
+      if (data?.code == 200) {
+        setUpdatePoId({
+          ...data?.data.bill,
+          materials: data?.data.materials,
+          ...data?.data.ship,
+          ...data?.data.vendor[0],
+        });
+      } else {
+        toast.error(data?.message || "Failed to fetch PO details");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error fetching PO details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="manage-po" style={{ position: "relative", height: "100%" }}>
@@ -435,8 +473,8 @@ const ManagePO = () => {
                     ? true
                     : false
                   : !searchInput
-                  ? true
-                  : false
+                    ? true
+                    : false
               }
               type="primary"
               loading={searchLoading}

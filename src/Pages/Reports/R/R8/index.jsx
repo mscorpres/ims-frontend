@@ -1,5 +1,6 @@
 import { Button, Col, Row, Space, Select, Input } from "antd";
 import { useState } from "react";
+import dayjs from "dayjs";
 import MyDatePicker from "../../../../Components/MyDatePicker";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../../axiosInterceptor";
@@ -20,8 +21,8 @@ function R8() {
   const [type, setType] = useState("datewise");
   const options = [
     { label: "Date wise", value: "datewise" },
-    { label: "SKU wise", value: "skuwise" },
-    { label: "Both", value: "both" },
+    // { label: "SKU wise", value: "skuwise" },
+    // { label: "Both", value: "both" },
   ];
 
   const getRows = async () => {
@@ -153,7 +154,15 @@ function R8() {
         />
       </div>
 
-      <DetailsModal show={seeDetails} close={() => setSeeDetails(false)} />
+      <DetailsModal
+        show={seeDetails}
+        close={() => setSeeDetails(false)}
+        end_date={
+          searchInput
+            ? dayjs(searchInput.substring(11, 21), "DD-MM-YYYY").format("YYYY-MM-DD")
+            : null
+        }
+      />
     </div>
   );
 }

@@ -12,9 +12,6 @@ import {
   Space,
   Typography,
 } from "antd";
-import TableActions, {
-  CommonIcons,
-} from "../../../Components/TableActions.jsx/TableActions";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
@@ -31,9 +28,11 @@ const RMPartCodeConversion = () => {
     in: [],
     out: {},
   });
-  const [remarks, setRemarks] = useState();
   const [editingComponent, setEditingComponent] = useState(false);
   const [componentStock, setComponentStock] = useState("--");
+  // rate per component id, captured from the options API (options get
+  // cleared on blur, so the selected component's rate is kept here)
+  const [componentRates, setComponentRates] = useState({});
 
   const [addComponentForm] = Form.useForm();
   const [remarksForm] = Form.useForm();
@@ -42,19 +41,15 @@ const RMPartCodeConversion = () => {
   const componentIn = Form.useWatch("componentIn", addComponentForm);
   const componentOut = Form.useWatch("componentOut", addComponentForm);
   const locationIn = Form.useWatch("locationIn", addComponentForm);
+  const qtyIn = Form.useWatch("qtyIn", addComponentForm);
 
   // RM: pick and drop location must be the same — drop mirrors pick
   useEffect(() => {
-    if (locationIn) {
-      addComponentForm.setFieldValue("locationOut", locationIn);
-    }
+    addComponentForm.setFieldValue("locationOut", locationIn ?? null);
   }, [locationIn]);
 
   const getComponentOption = async (search) => {
     try {
-      const payload = {
-        search,
-      };
       const response = await executeFun(
         () => getComponentOptions(search),
         "select"
@@ -67,6 +62,13 @@ const RMPartCodeConversion = () => {
             return { text: d.text, value: d.id };
           });
           setAsyncOptions(arr);
+          setComponentRates((curr) => {
+            const next = { ...curr };
+            data.forEach((d) => {
+              next[d.id] = d.rate;
+            });
+            return next;
+          });
         } else {
           setAsyncOptions([]);
         }
@@ -133,56 +135,36 @@ const RMPartCodeConversion = () => {
       }
     });
   };
-  const formResetHandler = (type) => {
-    if (type === "initial") {
-      addComponentForm.resetFields(["componentIn", "qtyIn", "locationIn"]);
-    } else {
-      addComponentForm.resetFields(["componentOut", "qtyOut", "locationOut"]);
-    }
+  const resetAllFields = () => {
+    addComponentForm.resetFields([
+      "componentIn", "qtyIn", "locationIn",
+      "componentOut", "qtyOut", "locationOut",
+    ]);
   };
-  const addComponent = async (type) => {
-    if (type === "initial") {
-      // Only one initial component allowed at a time
-      if (addedComponents.in.length >= 1) {
-        toast.error("Only one Part Code can be added at a time in RM conversion.");
-        return;
-      }
-      const values = await addComponentForm.validateFields([
-        "componentIn",
-        "qtyIn",
-        "locationIn",
-      ]);
-
-      setAddedComponents((curr) => ({
-        in: [
-          {
-            id: v4(),
-            component: values.componentIn,
-            qty: values.qtyIn,
-            location: values.locationIn,
-          },
-          ...curr.in,
-        ],
-        out: curr.out,
-      }));
-    } else {
-      const values = await addComponentForm.validateFields([
-        "componentOut",
-        "qtyOut",
-        "locationOut",
-      ]);
-
-      setAddedComponents((curr) => ({
-        in: curr.in,
-        out: {
-          id: v4(),
-          component: values.componentOut,
-          qty: values.qtyOut,
-          location: values.locationOut,
-        },
-      }));
+  const addBoth = async () => {
+    if (addedComponents.in.length >= 1) {
+      toast.error("Only one Part Code can be added at a time in RM conversion.");
+      return;
     }
-    formResetHandler(type);
+    const values = await addComponentForm.validateFields([
+      "componentIn", "qtyIn", "locationIn",
+      "componentOut", "qtyOut", "locationOut",
+    ]);
+    setAddedComponents({
+      in: [{
+        id: v4(),
+        component: values.componentIn,
+        qty: values.qtyIn,
+        location: values.locationIn,
+      }],
+      out: {
+        id: v4(),
+        component: values.componentOut,
+        qty: values.qtyOut,
+        location: values.locationOut,
+      },
+    });
+    resetAllFields();
   };
   const editComponentView = (component, type) => {
     if (type === "initial") {
@@ -203,8 +185,11 @@ const RMPartCodeConversion = () => {
   };
   const handleCancelEditing = (type) => {
     setEditingComponent(false);
-
-    formResetHandler(type);
+    if (type === "initial") {
+      addComponentForm.resetFields(["componentIn", "qtyIn", "locationIn"]);
+    } else {
+      addComponentForm.resetFields(["componentOut", "qtyOut", "locationOut"]);
+    }
   };
   const saveEditing = async () => {
     if (editingComponent.type === "initial") {
@@ -249,33 +234,22 @@ const RMPartCodeConversion = () => {
     }
     handleCancelEditing(editingComponent.type);
   };
-  let comQtyVal = addComponentForm.getFieldValue("qtyIn");
-  const extraButtons = (isEditing, type) => {
-    if (type === isEditing.type) {
+  const stockNum = parseFloat(componentStock);
+  const isStockZero = !isNaN(stockNum) && stockNum === 0;
+  const isQtyExceedsStock = !isNaN(stockNum) && parseFloat(qtyIn) > stockNum;
+
+  const editingButtons = (type) => {
+    if (editingComponent && editingComponent.type === type) {
       return (
         <Space>
           <Button onClick={() => handleCancelEditing(type)}>Cancel</Button>
-          <Button onClick={() => saveEditing(type)} type="primary">
+          <Button onClick={() => saveEditing()} type="primary">
             Save
           </Button>
         </Space>
       );
-    } else {
-      return (
-        <Space>
-          <MyButton variant="reset" onClick={() => formResetHandler(type)} />
-          <MyButton
-            disabled={
-              (addedComponents.out?.component && type === "final") ||
-              componentStock === "0 Pcs" ||
-              comQtyVal > componentStock
-            }
-            variant="add"
-            onClick={() => addComponent(type)}
-          />
-        </Space>
-      );
     }
+    return null;
   };
   const validateHandler = async () => {
     const payload = {
@@ -283,11 +257,17 @@ const RMPartCodeConversion = () => {
         component_in: addedComponents.in.map((row) => row.component.value),
         qty_in: addedComponents.in.map((row) => row.qty),
         loc_in: addedComponents.in.map((row) => row.location.value),
+        rate: addedComponents.in.map((row) =>
+          componentRates[row.component.value]
+            ? componentRates[row.component.value]
+            : 0
+        ),
       },
       final: {
         component_out: addedComponents.out.component.value,
         qty_out: addedComponents.out.qty,
         loc_out: addedComponents.out.location.value,
+        rate: [componentRates[addedComponents.in[0].component.value] ?? 0],// rate of initial component is used for final component
       },
     };
     Modal.confirm({
@@ -346,11 +326,9 @@ const RMPartCodeConversion = () => {
           toast.success(data.message);
           setAddedComponents({
             in: [],
-            qty: {},
+            out: {},
           });
           remarksForm.resetFields();
-
-          setRemarks("");
         } else {
           toast.error(data.message.msg);
         }
@@ -377,9 +355,10 @@ const RMPartCodeConversion = () => {
   };
 
   useEffect(() => {
-    if (componentIn && locationIn)
+    if (componentIn && locationIn) {
+      setComponentStock("--");
       getComponentStock(componentIn.value, locationIn.value);
-    else {
+    } else {
       setComponentStock("--");
     }
   }, [componentIn, locationIn]);
@@ -403,7 +382,7 @@ const RMPartCodeConversion = () => {
             <Card
               size="small"
               title="Initial Component"
-              extra={extraButtons(editingComponent, "initial")}
+              extra={editingButtons("initial")}
               style={{ position: "relative" }}
             >
               {loading === "page" && <Loading />}
@@ -415,7 +394,11 @@ const RMPartCodeConversion = () => {
                         type="secondary"
                         style={{ fontSize: "0.9rem" }}
                       >
-                        Existing Stock: {componentStock}
+                        Existing Stock: {componentStock} | Rate:{" "}
+                        {componentIn?.value != null &&
+                        componentRates[componentIn.value] != null
+                          ? componentRates[componentIn.value]
+                          : "--"}
                       </Typography.Text>
                     }
                     label="Component"
@@ -463,11 +446,23 @@ const RMPartCodeConversion = () => {
             <Card
               size="small"
               title="Final Component"
-              extra={extraButtons(editingComponent, "final")}
+              extra={editingButtons("final")}
             >
               <Row gutter={6}>
                 <Col span={14}>
                   <Form.Item
+                    extra={
+                      <Typography.Text
+                        type="secondary"
+                        style={{ fontSize: "0.9rem" }}
+                      >
+                        Rate:{" "}
+                        {componentOut?.value != null &&
+                        componentRates[componentOut.value] != null
+                          ? componentRates[componentOut.value]
+                          : "--"}
+                      </Typography.Text>
+                    }
                     label="Component"
                     rules={rules.componentOut}
                     name="componentOut"
@@ -486,6 +481,7 @@ const RMPartCodeConversion = () => {
                   <Form.Item
                     label="Drop Location (same as Pick)"
                     name="locationOut"
+                    rules={[{ required: true, message: "Please select a location on the Initial side first" }]}
                   >
                     <MyAsyncSelect
                       selectLoading={loading === "select"}
@@ -507,6 +503,20 @@ const RMPartCodeConversion = () => {
             </Card>
           </Col>
         </Row>
+        {!editingComponent && (
+          <Row justify="end" style={{ marginTop: 8 }} gutter={8}>
+            <Col>
+              <MyButton variant="reset" onClick={resetAllFields} />
+            </Col>
+            <Col>
+              <MyButton
+                variant="add"
+                disabled={isStockZero || isQtyExceedsStock || !!addedComponents.in[0]}
+                onClick={addBoth}
+              />
+            </Col>
+          </Row>
+        )}
       </Form>
 
       <Card
@@ -518,8 +528,6 @@ const RMPartCodeConversion = () => {
             <MyButton
               variant="submit"
               disabled={
-                componentIn ||
-                componentOut ||
                 !addedComponents.in[0] ||
                 !addedComponents.out?.component
               }
@@ -637,43 +645,45 @@ const RMPartCodeConversion = () => {
                     <Col span={4}>
                       <Typography.Text strong>Location</Typography.Text>
                     </Col>
-                    {!addedComponents.out?.component && (
-                      <Col style={{ marginTop: 20 }} span={24}>
-                        <Row justify="center">
-                          <Empty description="No Components added" />
-                        </Row>
-                      </Col>
-                    )}
-                    <Col xl={5} xxl={3}>
-                      {addedComponents.out?.component && !editingComponent && (
-                        <Space>
-                          <Button
-                            onClick={() => editComponentView(null, "final")}
-                            icon={<EditFilled />}
-                          />
-                          <Button
-                            onClick={() => deleteAddedComponent(null, "final")}
-                            icon={<DeleteFilled />}
-                          />
-                        </Space>
-                      )}
-                    </Col>
-                    <Col xl={10} xxl={14}>
-                      <Typography.Text>
-                        {addedComponents.out?.component?.label}
-                      </Typography.Text>
-                    </Col>
-                    <Col span={3}>
-                      <Typography.Text>
-                        {addedComponents.out?.qty}
-                      </Typography.Text>
-                    </Col>
-                    <Col span={4}>
-                      <Typography.Text>
-                        {addedComponents.out?.location?.label}
-                      </Typography.Text>
-                    </Col>
                   </Row>
+                  {!addedComponents.out?.component && (
+                    <Row justify="center" style={{ marginTop: 20 }}>
+                      <Empty description="No Components added" />
+                    </Row>
+                  )}
+                  {addedComponents.out?.component && (
+                    <Row align="middle">
+                      <Col xl={5} xxl={3}>
+                        {!editingComponent && (
+                          <Space>
+                            <Button
+                              onClick={() => editComponentView(null, "final")}
+                              icon={<EditFilled />}
+                            />
+                            <Button
+                              onClick={() => deleteAddedComponent(null, "final")}
+                              icon={<DeleteFilled />}
+                            />
+                          </Space>
+                        )}
+                      </Col>
+                      <Col xl={10} xxl={14}>
+                        <Typography.Text>
+                          {addedComponents.out?.component?.label}
+                        </Typography.Text>
+                      </Col>
+                      <Col span={3}>
+                        <Typography.Text>
+                          {addedComponents.out?.qty}
+                        </Typography.Text>
+                      </Col>
+                      <Col span={4}>
+                        <Typography.Text>
+                          {addedComponents.out?.location?.label}
+                        </Typography.Text>
+                      </Col>
+                    </Row>
+                  )}
                 </Card>
               </Col>
             </Row>
@@ -713,12 +723,6 @@ const rules = {
     {
       required: true,
       message: "Please enter a quantity",
-    },
-  ],
-  locationOut: [
-    {
-      required: true,
-      message: "Please select a location",
     },
   ],
 };
