@@ -186,6 +186,7 @@ function FGToFGTransfer() {
           product,
           qty,
           remark,
+          bom: group.map((r) => r.bom),
           rate,
         });
 
