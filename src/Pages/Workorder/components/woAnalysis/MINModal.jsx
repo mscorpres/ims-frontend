@@ -109,15 +109,20 @@ const MINModal = ({ showView, setShowView, getRows }) => {
   };
 
   const handleConfirmUpload = () => {
-    const components = uploadPreviewRows.map((row) => ({
-      component: row.componentKey,
-      hsn: row.hsn,
-      qty: row.qty,
-      rate: row.rate,
-      gstRate: row.gstRate,
-      remark: row.remark,
-      location: row.locationValue,
-    }));
+    const suggestedGst = uploadPreviewRows[0]?.gstTypeSuggested || "L";
+    const components = uploadPreviewRows.map((row) => {
+      const base = {
+        component: row.componentKey,
+        hsn: row.hsn,
+        qty: row.qty,
+        rate: row.rate,
+        gstRate: row.gstRate,
+        remark: row.remark,
+        location: row.locationValue,
+      };
+      const derived = computeRowTaxFields(base, suggestedGst);
+      return { ...base, ...derived };
+    });
     const labels = uploadPreviewRows.map((row) => ({
       component: row.componentName,
       partCode: row.partCode,
@@ -129,7 +134,6 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       if (row.locationValue) labelsMap[row.locationValue] = row.locationName;
     });
     setLocationLabelsMap(labelsMap);
-    const suggestedGst = uploadPreviewRows[0]?.gstTypeSuggested || "L";
     setGstType(suggestedGst);
     minForm.setFieldsValue({ gstType: suggestedGst, components });
     refreshSidebarTotalsFromRows(components);
@@ -751,7 +755,7 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
     name: "qty",
     width: 100,
     field: ({ fieldName }) => (
-      <Input onBlur={() => onCalculateRow(fieldName)} />
+      <Input onChange={() => onCalculateRow(fieldName)} />
     ),
   },
   {
@@ -759,7 +763,7 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
     name: "rate",
     width: 100,
     field: ({ fieldName }) => (
-      <Input onBlur={() => onCalculateRow(fieldName)} />
+      <Input onChange={() => onCalculateRow(fieldName)} />
     ),
   },
   {
@@ -779,7 +783,7 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
           label: opt.text,
           value: opt.value,
         }))}
-        onBlur={() => onCalculateRow(fieldName)}
+        onChange={() => onCalculateRow(fieldName)}
       />
     ),
   },
