@@ -68,10 +68,15 @@ export default function SingleDatePicker({
       value={
         daysAgo
           ? dayjs().subtract(daysAgo, "d")
-          : // : value && dayjs(value, format)
-          value && !pickerType
-          ? value && dayjs(value, format)
-          : value && dayjs(value)
+          : value && !pickerType
+          ? (() => {
+              if (dayjs.isDayjs(value)) return value;
+              const withFormat = dayjs(value, format);
+              if (withFormat.isValid()) return withFormat;
+              const parsed = dayjs(value);
+              return parsed.isValid() ? parsed : null;
+            })()
+          : value && (dayjs.isDayjs(value) ? value : dayjs(value))
       }
       onChange={onChange}
       placeholder={placeholder && placeholder}

@@ -63,7 +63,6 @@ import TicketsModal from "./Components/TicketsModal/TicketsModal";
 import { items, items1 } from "./utils/sidebarRoutes.jsx";
 import TopBanner from "./Components/TopBanner";
 import SettingDrawer from "./Components/SettingDrawer.jsx";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const App = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -260,15 +259,13 @@ const App = () => {
         setSearchParams({}, { replace: true });
       } else {
         setLoadingSwitch(false);
-         toast.error(response?.message);
-         window.location.replace("https://alwar.mscorpres.com/");
-       
+        toast.error(response?.message);
+        window.location.replace("https://alwar.mscorpres.com/");
       }
     } catch (error) {
       setLoadingSwitch(false);
-         toast.error(response?.message);
-        window.location.replace("https://alwar.mscorpres.com/");
-   
+      toast.error(response?.message);
+      window.location.replace("https://alwar.mscorpres.com/");
     }
   };
 
@@ -614,7 +611,6 @@ const App = () => {
     if (user && user.token && user.company_branch) {
       const fetchEnabledModules = async () => {
         try {
-         
           // Use newToken if available, otherwise use user.token
           const tokenToUse = localStorage.getItem("newToken") || user.token;
           const { data } = await imsAxios.get("/branchdata/getEnabledModules", {
@@ -624,7 +620,6 @@ const App = () => {
               Session: user.session,
             },
           });
-        
           if (data.code === 200) {
             setEnabledModules(data.data || []); // Ensure empty array if undefined
           } else {
@@ -763,7 +758,6 @@ const App = () => {
   }, [searchModule]);
 
   const showRecentSearch = () => {
-    console.log("obj in fnc");
     let obj = JSON.parse(localStorage.getItem("searchHistory"));
     // localStorage.setItem("searchHistory", JSON.stringify({ filtered }));
 
@@ -771,7 +765,7 @@ const App = () => {
       text: row.text,
       value: row.value,
     }));
-    // console.log("obj arr", arr);
+  
     setShowHisList(arr);
   };
 
@@ -852,25 +846,25 @@ const App = () => {
                     mod.enabled === 1
                 )
               : isItemEnabled || isParentEnabled;
-          
+       
             return isChildEnabled;
           });
           if (isItemEnabled || isParentEnabled || enabledChildren.length > 0) {
            
             return { ...item, children: enabledChildren };
           }
-        
+ 
           return null;
         }
         if (isItemEnabled || isParentEnabled) {
-         
+       
           return item;
         }
-       
+     
         return null;
       }
 
-      console.log("No module_key, hiding item:", item.label);
+    
       return null;
     })
     .filter((item) => item !== null);
@@ -878,7 +872,6 @@ const App = () => {
   const filteredItems1 = items1(user, setShowTickets)
     .map((item) => {
       if (!item.module_key) {
-       
         return item;
       }
       const isEnabled = enabledModules.some(
@@ -886,7 +879,7 @@ const App = () => {
           String(mod.module_key) === String(item.module_key) &&
           mod.enabled === 1
       );
-    
+      
       return isEnabled ? item : null;
     })
     .filter((item) => item !== null);
@@ -919,9 +912,8 @@ const App = () => {
       </Box>
     );
   }
-const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
   return (
-    <GoogleOAuthProvider clientId={googleId}>
+ 
     <div style={{ height: "100vh" }}>
       <ToastContainer
         position="bottom-center"
@@ -1206,7 +1198,6 @@ const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
                         setSwitchBranch(null);
                         setSwitchSession(null);
                         setIsSwitchingModule(false);
-                        setSwitchingLocation(null);
                         setSwitchSuccess(false);
                       }
                     }}
@@ -1458,7 +1449,6 @@ const googleId = import.meta.env.VITE_REACT_APP_GOOGLE_CLIENT_ID;
         </Layout>
       </Layout>
     </div>
-    </GoogleOAuthProvider>
   );
 };
 

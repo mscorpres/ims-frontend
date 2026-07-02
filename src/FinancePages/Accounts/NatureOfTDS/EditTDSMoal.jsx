@@ -214,6 +214,7 @@ export default function EditTDSMoal({ editingTDS, setEditingTDS, getTDSList }) {
                   inputHandler("percentage", e.target.value);
                 }}
                 placeholder="Enter Percentage..."
+                type="number"
               />
             </Form.Item>
           </Form>

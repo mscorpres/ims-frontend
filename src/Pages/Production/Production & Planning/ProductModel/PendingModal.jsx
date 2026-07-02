@@ -407,7 +407,7 @@ export default function PendingModal({
                 <div className="col-md-3 p-2">
                   <input
                     placeholder="MFG Qty"
-                    type="no"
+                    type="number"
                     className="form-control "
                     value={sendData.reqSend}
                     onChange={(e) =>

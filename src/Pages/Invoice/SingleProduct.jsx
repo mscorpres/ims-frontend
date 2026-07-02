@@ -38,7 +38,7 @@ export default function SingleProduct({
   const gstRate =
     Form.useWatch(["components", field.name, "gstRate"], form)?.replaceAll(
       "%",
-      ""
+      "",
     ) ?? 0;
   const tcsPercentage =
     Form.useWatch(["components", field.name, "tcsPercentage"], form) ?? 0;
@@ -72,14 +72,14 @@ export default function SingleProduct({
         let arr = data.data;
         form.setFieldValue(
           ["components", field.name, "hsnCode"],
-          arr[0].hsncode
+          arr[0].hsncode,
         );
 
         form.setFieldValue(["components", field.name, "remark"], arr[0].remark);
         form.setFieldValue(["components", field.name, "uom"], arr[0].uomname);
         form.setFieldValue(
           ["components", field.name, "gstRate"],
-          arr[0].gstrate_name + "%"
+          arr[0].gstrate_name + "%",
         );
       }
     } catch (error) {
@@ -111,7 +111,7 @@ export default function SingleProduct({
       const tcsGlCode = selectedTcs.tcsGl;
       form.setFieldValue(
         ["components", field.name, "tcsPercentage"],
-        tcsPercentage
+        tcsPercentage,
       );
       form.setFieldValue(["components", field.name, "tcsGlName"], tcsGlName);
       form.setFieldValue(["components", field.name, "tcsGlCode"], tcsGlCode);
@@ -122,11 +122,11 @@ export default function SingleProduct({
     form.setFieldValue(["components", field.name, "tcsAmount"], tcsAmount);
     form.setFieldValue(
       ["components", field.name, "totalAmount"],
-      totalAmount.toFixed(3)
+      totalAmount.toFixed(3),
     );
     form.setFieldValue(
       ["components", field.name, "gstassValue"],
-      gstAssesValue
+      gstAssesValue,
     );
   }, [qty, rate, tcs, freight, gstRate]);
 
@@ -168,7 +168,7 @@ export default function SingleProduct({
         <Form.Item label="Qty">
           <Space.Compact>
             <Form.Item name={[field.name, "qty"]} noStyle>
-              <Input />
+              <Input type="number" />
             </Form.Item>
             <Form.Item name={[field.name, "uom"]} noStyle>
               <Input
@@ -183,7 +183,7 @@ export default function SingleProduct({
       </Col>
       <Col span={2}>
         <Form.Item label="Rate" name={[field.name, "rate"]}>
-          <Input />
+          <Input type="number" />
         </Form.Item>
       </Col>
       <Col span={3}>

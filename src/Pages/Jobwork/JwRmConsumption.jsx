@@ -253,7 +253,6 @@ const JwRmConsumption = () => {
       toast.error(error.message || "Error fetching BOM data");
     }
   };
-
   const columns = [
     { field: "index", headerName: "S No.", width: 80 },
     { field: "date", headerName: "JW Date", width: 120 },
@@ -269,8 +268,14 @@ const JwRmConsumption = () => {
       width: 100,
       getActions: ({ row }) => [
         <ArrowRightOutlined
-          onClick={() => handleActionsClick(row)}
-          style={{ color: "#1890ff", fontSize: "15px", cursor: "pointer" }}
+          key={row.id}
+          onClick={() => !loading("fetch") && handleActionsClick(row)}
+          style={{
+            color: "#1890ff",
+            fontSize: "15px",
+            cursor: loading("fetch") ? "not-allowed" : "pointer",
+            pointerEvents: loading("fetch") ? "none" : "auto",
+          }}
         />,
       ],
     },

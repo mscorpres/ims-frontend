@@ -149,6 +149,7 @@ const PartCodeConversion = () => {
   };
   const addComponent = async (type) => {
     if (type === "initial") {
+     
       const values = await addComponentForm.validateFields([
         "componentIn",
         "qtyIn",
@@ -293,7 +294,7 @@ const PartCodeConversion = () => {
       },
     };
     Modal.confirm({
-      title: "Confirm Part Code Conversion.",
+      title: "Confirm SF Part Code Conversion.",
       content: (
         <Row gutter={[0, 12]}>
           <Col span={24}>

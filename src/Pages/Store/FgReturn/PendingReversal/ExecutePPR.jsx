@@ -156,6 +156,7 @@ export default function ExecutePPR({ editPPR, setEditPPR }) {
           value={row.actQty}
           suffix={row.unit}
           onChange={(e) => compInputHandler("actQty", e.target.value, row.id)}
+          type="number"
         />
       ),
     },

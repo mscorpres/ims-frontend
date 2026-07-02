@@ -106,16 +106,22 @@ function CPMMaster() {
     { field: "project", headerName: "Project Id", width: 180 },
     { field: "description", headerName: "Project Name", flex: 1 },
     {field:"qty",headerName:"Quantity",width:180,flex:1},
-    { field: "costcenter", headerName: "Cost Center", width: 180, flex: 1, renderCell: ({row}) => (
-      <>
-        {row.costcenter ? row.costcenter?.cost_center_name  : "N/A"}
-      </>
-    ), },
-    {field:"bomSubject",headerName:"BOM",width:180,flex:1, renderCell: ({row}) => (
-      <>
-        {row.bomSubject ? row.bomSubject?.subject_name : "N/A"}
-      </>
-    ),},
+    {
+      field: "costCenterName",
+      headerName: "Cost Center",
+      width: 180,
+      flex: 1,
+      valueGetter: (_value, row) =>
+        _value?.row?.costcenter?.cost_center_name  ?? "",
+    },
+    {
+      field: "bomSubjectName",
+      headerName: "BOM",
+      width: 180,
+      flex: 1,
+      valueGetter: (_value, row) =>
+        _value?.row?.bomSubject?.subject_name ?? "",
+    },
     { field: "insert_dt", headerName: "Insert Date", flex: 1 },
     {
       headerName: "Status",
@@ -151,6 +157,7 @@ function CPMMaster() {
       getActions: ({ row }) => [
         // Edit icon
         <TableActions
+          key={`edit-${row?.id ?? row?.project ?? ""}`}
           action="edit"
           onClick={() => {
             setIsModalVisible(true);
@@ -158,6 +165,7 @@ function CPMMaster() {
           }}
         />,
         <TableActions
+          key={`view-${row?.id ?? row?.project ?? ""}`}
           action="view"
           onClick={() => {
             setIsViewModalVisible(true);

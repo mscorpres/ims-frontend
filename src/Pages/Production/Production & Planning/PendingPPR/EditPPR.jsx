@@ -372,7 +372,7 @@ const EditPPR = ({ editPPR, setEditPPR }) => {
                 </Col>
                 <Col span={6}>
                   <Form.Item rules={rules.qty} name="qty" label="Planning Qty">
-                    <Input suffix={uom} />
+                    <Input suffix={uom} type="number" />
                   </Form.Item>
                 </Col>
                 <Col span={6}>

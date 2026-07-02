@@ -5,6 +5,7 @@ export { default as ProductDetail } from "../Pages/Store/ProductDetail";
 export { default as Uom } from "./Master/Uom.tsx";
 export { default as Product } from "./Master/Products/Product";
 export { default as Group } from "./Master/Group";
+export { default as AddSKUOpeningRate } from "./Master/AddSKUOpeningRate";
 export {default as SubGroup} from "./Master/SubGroup";
 export { default as Location } from "./Master/Location";
 export { default as BillingAddress } from "./Master/BillingAddress";
@@ -22,6 +23,8 @@ export { default as AddVendor } from "./Master/Vendor/AddVendor";
 export { default as JwToJw } from "./Store/MaterialTransfer/JwToJw.jsx";
 export { default as JwToJwViewTransaction } from "./Store/MaterialTransfer/JwToJwViewTransaction";
 export { default as RmtoRm } from "./Store/MaterialTransfer/RmtoRm";
+export { default as FGToFGTransfer } from "./Store/MaterialTransfer/FGToFGTransfer";
+export { default as FGToFGViewTransaction } from "./Store/MaterialTransfer/FGToFGViewTransaction";
 export { default as ViewTransaction } from "./Store/MaterialTransfer/ViewTransaction";
 export { default as PendingTransfer } from "./Store/MaterialTransfer/PendingTransfer";
 export { default as ReToRej } from "./Store/MaterialTransfer/RM-REJ/ReToRej";
@@ -158,8 +161,9 @@ export { default as FinalInvoices } from "./Invoice/Final";
 export { default as CreateProcess } from "./MES/Process/Create";
 export { default as MapProcesses } from "./MES/Process/Map";
 
-// Part code conversion
+// Part code conversion (SF + RM)
 export { default as PartCodeConversion } from "../Pages/Store/PartCodeConversion";
+export { default as RMPartCodeConversion } from "../Pages/Store/RMPartCodeConversion";
 
 //challan window Branch Transfer
 export { default as CreateBranchTransferChallan } from "./Store/branchtransfer/CreateDC/CreateBranchTransferChallan.jsx";

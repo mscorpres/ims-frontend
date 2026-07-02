@@ -324,6 +324,7 @@ const Material = () => {
       sortable: false,
       renderCell: ({ row }) => (
         <Input
+        type="number"
           placeholder="percentage"
           onChange={(e) => {
             hsnInputHandler("tax", row.id, e.target.value);

@@ -194,6 +194,8 @@ export default function MaterialInWithoutPO() {
     if (fileResponse?.success || vendorType == "p01") {
       fileName = fileResponse?.data?.data;
 
+
+
       const response = await executeFun(
         () => materialInWithoutPo(values, fileName, vendorType),
         "submit"
@@ -610,7 +612,6 @@ export default function MaterialInWithoutPO() {
     { headerName: "Location", field: "location", flex: 1 },
   ];
   useEffect(() => {
-    console.log("isScan", isScan);
     if (isScan == true) {
       form.setFieldValue("QR", isScan);
     }
@@ -753,6 +754,7 @@ export default function MaterialInWithoutPO() {
         return (
           <Input
             onChange={(e) => compareRates(e.target.value, index)}
+            type="number"
             addonAfter={
               <div style={{ width: 50 }}>
                 <Typography.Text>{currencySymbol}</Typography.Text>

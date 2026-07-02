@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   Row,
@@ -9,36 +9,63 @@ import {
   Divider,
   Modal,
   InputNumber,
-  Button,
   Typography,
 } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import NavFooter from "../../../Components/NavFooter";
 import { imsAxios } from "../../../axiosInterceptor";
-import UploadDocs from "../../Store/MaterialIn/MaterialInWithPO/UploadDocs";
 import MySelect from "../../../Components/MySelect";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import SingleProduct from "./SingleProduct";
+import { validatePAN } from "../../../utils/general";
+import { getVendorBranchBankOptions } from "./vendorBranchBankOptions";
+
+const msmeOptions = [
+  { text: "Yes", value: "Y" },
+  { text: "No", value: "N" },
+];
+const msmeYearOptions = [
+  { text: "2023-2024", value: "2023-2024" },
+  { text: "2024-2025", value: "2024-2025" },
+  { text: "2025-2026", value: "2025-2026" },
+  { text: "2026-2027", value: "2026-2027" },
+];
+const msmeTypeOptions = [
+  { text: "Micro", value: "Micro" },
+  { text: "Small", value: "Small" },
+  { text: "Medium", value: "Medium" },
+];
+const msmeActivityOptions = [
+  { text: "Manufacturing", value: "Manufacturing" },
+  { text: "Service", value: "Service" },
+  { text: "Trading", value: "Trading" },
+];
+
+const transactionTypeOptions = [
+  { text: "Cheque", value: "cheque" },
+  { text: "e-Fund Transfer", value: "transfer" },
+  { text: "UPI", value: "upi" },
+  { text: "Other", value: "other" },
+  { text: "N/A", value: "na" },
+];
 
 const AddVendor = () => {
   const [loading, setLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [files, setFiles] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
   const [addVendorForm] = Form.useForm();
   const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
-  const [effective, setEffective] = useState("");
-  // const [msmeStat, setMsmeStat] = useState("");
   const msmeStat = Form.useWatch("msmeStatus", addVendorForm);
   const einvoice = Form.useWatch("applicability", addVendorForm);
-  console.log("okkk", einvoice);
-  const components = Form.useWatch("components", {
-    form: addVendorForm,
-    preserve: true,
-  });
-  // setMsmeStat(msmsStatus);
-  const [searchTerm, setSearchTerm] = useState("");
+  const transactionType = Form.useWatch("transactionType", addVendorForm);
+  const bankNameWatch = Form.useWatch("bankName", addVendorForm);
+
+
+  // const [groupOptions, setGroupOptions] = useState([]);
+
   const getFetchState = async (e) => {
     if (e.length > 2) {
       setSelectLoading(true);
@@ -57,36 +84,57 @@ const AddVendor = () => {
     }
   };
 
+  const getCurrencies = async () => {
+    try {
+      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+      const arr =
+        data?.data?.map((d) => ({
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        })) || [];
+      setCurrencies([{ text: "N/A", value: "N/A" }, ...arr]);
+    } catch (e) {
+      setCurrencies([{ text: "N/A", value: "N/A" }]);
+    }
+  };
+
+  // const getGroupOptions = async () => {
+  //   try {
+  //     const response = await imsAxios.post("/groups/groupSelect2");
+  //     const { data } = response;
+  //     if (data?.code === 200) {
+  //       const arr = data.data.map((row) => ({
+  //         text: row.text,
+  //         value: row.id,
+  //       }));
+  //       setGroupOptions(arr);
+  //     } else if (data?.message?.msg) {
+  //       toast.error(data.message.msg);
+  //     }
+  //   } catch (error) {
+  //     setGroupOptions([]);
+  //   }
+  // };
+
+
   const submitHandler = async () => {
-    // const formData = new FormData();
-    // formData.append("vendor", JSON.stringify(showSubmitConfirmModal.vendor));
-    // formData.append("branch", JSON.stringify(showSubmitConfirmModal.branch));
-
-    // let uploadedFie = addVendorForm.getFieldValue("components");
-    // console.log("uploadedFie", uploadedFie);
-    // let a = uploadedFie?.map((r) => {
-    //   r.file[0].originFileObj;
-    // });
-    // console.log("a", a);
-    // formData.append("uploadfile", uploadedFie?.file?.originFileObj);
-    // console.log("formData", formData);
-
     setLoading("submit");
     setShowSubmitConfirmModal(false);
     // return;
     const response = await imsAxios.post(
       "/vendor/addVendor",
-      showSubmitConfirmModal
+      showSubmitConfirmModal,
     );
     setLoading(false);
-      if (response.success) {
-        toast.success(response?.message);
-        reset();
-      } else {
-        setShowSubmitConfirmModal(false);
-        // console.log("data.message", data.message);
-        toast.error(response.message);
-      }
+    if (response.success) {
+      toast.success(response?.message);
+      reset();
+    } else {
+      setShowSubmitConfirmModal(false);
+      // console.log("data.message", data.message);
+      toast.error(response.message);
+    }
   };
 
   const validateHandler = async () => {
@@ -120,17 +168,19 @@ const AddVendor = () => {
         cinno: !values.cinno
           ? "--"
           : values.cinno === ""
-          ? "--"
-          : values.cinno.toUpperCase(),
+            ? "--"
+            : values.cinno.toUpperCase(),
         term_days: values.paymentTerms ?? 30,
         msme_status: values.msmeStatus,
         msme_year: values.year,
         msme_id: values.msmeId,
         msme_type: values.type,
         msme_activity: values.activity,
+        msme_effective_from: values.msmeEffectiveFrom || "--",
         eInvoice: values.applicability,
         dateOfApplicability:
           values.applicability === "Y" ? values.dobApplicabilty : "--",
+        group: values.group,
         documentName:
           uploadedFie && Array.isArray(uploadedFie)
             ? uploadedFie.map((r) => r.documentName)
@@ -143,10 +193,16 @@ const AddVendor = () => {
         state: values.state?.value || values.state,
         city: values.city,
         pincode: values.pincode,
-        fax: values.fax == "" && "--",
+        fax: values.fax === "" ? "--" : values.fax,
         mobile: values.mobile,
-        email: values.email == "" && "--",
+        email: values.email === "" ? "--" : values.email,
         gstin: values.gstin.toUpperCase(),
+        transaction_type: values.transactionType,
+        account_no: values.accountNo,
+        ifs_code: values.ifsCode,
+        bank_name: values.bankName,
+        bank_branch: values.bankBranch,
+        ledger_currency: values.ledgerCurrency,
       },
     };
     // console.log("this is the obj", obj);
@@ -171,28 +227,6 @@ const AddVendor = () => {
   //   }
   // }, [msmsStatus]);
 
-  const msmeOptions = [
-    { text: "Yes", value: "Y" },
-    { text: "No", value: "N" },
-  ];
-  const accOptions = [
-    { text: "Yes", value: "Y" },
-    { text: "No", value: "N" },
-  ];
-  const msmeYearOptions = [
-    { text: "2023-2024", value: "2023-2024" },
-    { text: "2024-2025", value: "2024-2025" },
-  ];
-  const msmeTypeOptions = [
-    { text: "Micro", value: "Micro" },
-    { text: "Small", value: "Small" },
-    { text: "Medium", value: "Medium" },
-  ];
-  const msmeActivityOptions = [
-    { text: "Manufacturing", value: "Manufacturing" },
-    { text: "Service", value: "Service" },
-    { text: "Trading", value: "Trading" },
-  ];
   // const changeMSmeStatus = (value) => {
   //   console.log("value", value);
   //   setMsmeStat(value);
@@ -200,6 +234,45 @@ const AddVendor = () => {
   // useEffect(() => {
   //       setMsmeStat(value);
   // }, [third]);
+
+  useEffect(() => {
+    // getGroupOptions();
+  }, []);
+
+  // Load currencies for "Currency of Ledger"
+  useEffect(() => {
+    getCurrencies();
+  }, []);
+
+  // Keep bank fields in sync with Type = N/A
+  useEffect(() => {
+    if (!transactionType) return;
+
+    if (transactionType === "na") {
+      addVendorForm.setFieldValue("accountNo", "N/A");
+      addVendorForm.setFieldValue("ifsCode", "N/A");
+      addVendorForm.setFieldValue("bankName", "N/A");
+      addVendorForm.setFieldValue("bankBranch", "N/A");
+      addVendorForm.setFieldValue("ledgerCurrency", "N/A");
+    } else {
+      // Clear fields when user selects a real payment type.
+      if (addVendorForm.getFieldValue("accountNo") === "N/A") {
+        addVendorForm.setFieldValue("accountNo", "");
+      }
+      if (addVendorForm.getFieldValue("ifsCode") === "N/A") {
+        addVendorForm.setFieldValue("ifsCode", "");
+      }
+      if (addVendorForm.getFieldValue("bankName") === "N/A") {
+        addVendorForm.setFieldValue("bankName", "");
+      }
+      if (addVendorForm.getFieldValue("bankBranch") === "N/A") {
+        addVendorForm.setFieldValue("bankBranch", "");
+      }
+      if (addVendorForm.getFieldValue("ledgerCurrency") === "N/A") {
+        addVendorForm.setFieldValue("ledgerCurrency", "");
+      }
+    }
+  }, [transactionType, addVendorForm]);
 
   return (
     <div style={{ height: "90%" }}>
@@ -213,7 +286,7 @@ const AddVendor = () => {
           title="Submit Confirm"
           open={showSubmitConfirmModal}
           onOk={submitHandler}
-          // confirmLoading={loading === "submit"}
+          confirmLoading={loading === "submit"}
           onCancel={() => setShowSubmitConfirmModal(false)}
         >
           <p>Are you sure you want to create this vendor?</p>
@@ -255,7 +328,17 @@ const AddVendor = () => {
               </Col>
               <Col span={6}>
                 <Form.Item label="Pan Number" name="panno" rules={rules.panno}>
-                  <Input />
+                  <Input
+                    maxLength={10}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
+                      const { valid, formattedPAN } = validatePAN(raw);
+                      addVendorForm.setFieldValue("panno", formattedPAN);
+                      if (!valid && formattedPAN.length === 10) {
+                        toast.error("Invalid Pan Number! Please Enter Valid Pan Number.");
+                      }
+                    }}
+                  />
                 </Form.Item>
               </Col>
               <Col span={6}>
@@ -282,6 +365,11 @@ const AddVendor = () => {
             </Row>
 
             <Row gutter={16}>
+              {/* <Col span={6}>
+                <Form.Item label="Group" name="group">
+                  <MySelect options={groupOptions} />
+                </Form.Item>
+              </Col> */}
               <Col span={6}>
                 <Form.Item label="Email" name="email">
                   <Input />
@@ -350,6 +438,22 @@ const AddVendor = () => {
                           <MySelect options={msmeActivityOptions} />
                         </Form.Item>
                       </Col>
+                      <Col span={5}>
+                        <Form.Item
+                          label="Effective From"
+                          name="msmeEffectiveFrom"
+                        >
+                          <SingleDatePicker
+                            size="default"
+                            setDate={(value) =>
+                              addVendorForm.setFieldValue(
+                                "msmeEffectiveFrom",
+                                value,
+                              )
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
                     </>
                   )}
                 </Row>
@@ -357,6 +461,8 @@ const AddVendor = () => {
             </Row>
           </Col>
         </Row>
+
+        <Divider />
         <Divider />
         <Row gutter={16}>
           <Col span={4}>
@@ -486,6 +592,66 @@ const AddVendor = () => {
                 </Form.Item>
               </Col>
             </Row>
+
+            <Row gutter={16}>
+              <Col span={4}>
+                <Descriptions
+                  size="small"
+                  title={<p style={{ fontSize: "0.8rem" }}>Bank Details</p>}
+                >
+                  <Descriptions.Item
+                    contentStyle={{
+                      fontSize: window.innerWidth < 1600 && "0.7rem",
+                    }}
+                  >
+                    Provide Bank Details
+                  </Descriptions.Item>
+                </Descriptions>
+              </Col>
+              <Col span={20}>
+                <Row gutter={16}>
+                  <Col span={24}>
+                    <Form.Item label="Type" name="transactionType">
+                      <MySelect options={transactionTypeOptions} />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="A/c No" name="accountNo">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="IFS Code" name="ifsCode">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="Bank Name" name="bankName">
+                      <MySelect
+                        placeholder="Select bank"
+                        options={getVendorBranchBankOptions(bankNameWatch)}
+                      />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Form.Item label="Bank Branch" name="bankBranch">
+                      <Input />
+                    </Form.Item>
+                  </Col>
+
+                  <Col span={24}>
+                    <Form.Item label="Currency of Ledger" name="ledgerCurrency">
+                      <MySelect options={currencies} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+
           </Col>
         </Row>
         <Row gutter={16}>
@@ -524,7 +690,7 @@ const AddVendor = () => {
                         <>
                           <Col>
                             {fields.map((field, index) => (
-                              <Form.Item noStyle>
+                              <Form.Item key={field.key} noStyle>
                                 <SingleProduct
                                   fields={fields}
                                   field={field}
@@ -572,10 +738,16 @@ const initialValues = {
   state: "",
   mobile: "",
   city: "",
-  vendorName: "",
   pincode: "",
   address: "",
+  transactionType: undefined,
+  accountNo: "",
+  ifsCode: "",
+  bankName: "",
+  bankBranch: "",
+  ledgerCurrency: "",
   msmeStatus: "N",
+  group: undefined,
   components: [{}],
 };
 

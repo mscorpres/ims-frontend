@@ -255,6 +255,7 @@ function NatureofTCS() {
                         onChange={(e) =>
                           inputHandler("percentage", e.target.value)
                         }
+                        type="number"
                       />
                     </Form.Item>
                   </Col>

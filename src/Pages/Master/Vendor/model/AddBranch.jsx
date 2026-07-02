@@ -1,17 +1,39 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import "../../Modal/modal.css";
-import { Button, Row, Col, Input, Drawer, Skeleton, Form, Space } from "antd";
+import {
+  Button,
+  Row,
+  Col,
+  Input,
+  Drawer,
+  Form,
+  Space,
+  Typography,
+  Divider,
+} from "antd";
 import { toast } from "react-toastify";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
+import MySelect from "../../../../Components/MySelect";
 import errorToast from "../../../../Components/errorToast";
 import { imsAxios } from "../../../../axiosInterceptor";
+import { getVendorBranchBankOptions } from "../vendorBranchBankOptions";
 
 const { TextArea } = Input;
+
+const transactionTypeOptions = [
+  { text: "Cheque", value: "cheque" },
+  { text: "e-Fund Transfer", value: "transfer" },
+  { text: "UPI", value: "upi" },
+  { text: "Other", value: "other" },
+  { text: "N/A", value: "na" },
+];
 
 const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
   const [addBilling, setAddBilling] = useState({
     vendor: {
       vname: openBranch?.vendor_code,
@@ -26,8 +48,29 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
       mobile: "",
       email: "",
       gst: "",
+      transactionType: "",
+      accountNo: "",
+      ifsCode: "",
+      bankName: "",
+      bankBranch: "",
+      ledgerCurrency: "",
     },
   });
+
+  const getCurrencies = async () => {
+    try {
+      const { data } = await imsAxios.get("/backend/fetchAllCurrecy");
+      const arr =
+        data?.data?.map((d) => ({
+          text: d.currency_symbol,
+          value: d.currency_id,
+          notes: d.currency_notes,
+        })) || [];
+      setCurrencies(arr);
+    } catch (error) {
+      setCurrencies([]);
+    }
+  };
 
   const inputHandler = (name, value) => {
     if (name === "vname" || name === "pan" || name === "cin") {
@@ -88,10 +131,16 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
           state: addBilling.branch.state.value,
           city: addBilling.branch.city,
           pincode: addBilling.branch.pin,
-          fax: addBilling.branch.fax == "" && "--",
+          fax: addBilling.branch.fax === "" ? "--" : addBilling.branch.fax,
           mobile: addBilling.branch.mobile,
-          email: addBilling.branch.email == "" && "--",
+          email: addBilling.branch.email === "" ? "--" : addBilling.branch.email,
           gstin: addBilling.branch.gst,
+          transaction_type: addBilling.branch.transactionType,
+          account_no: addBilling.branch.accountNo,
+          ifs_code: addBilling.branch.ifsCode,
+          bank_name: addBilling.branch.bankName,
+          bank_branch: addBilling.branch.bankBranch,
+          ledger_currency: addBilling.branch.ledgerCurrency,
         },
       });
       setSubmitLoading(false);
@@ -119,12 +168,50 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
         mobile: "",
         email: "",
         gst: "",
+        transactionType: "",
+        accountNo: "",
+        ifsCode: "",
+        bankName: "",
+        bankBranch: "",
+        ledgerCurrency: "",
       },
     });
   };
   useEffect(() => {
     reset();
+    getCurrencies();
   }, [openBranch]);
+
+  /** When Type is N/A, fill bank fields with N/A (same as legacy Add Vendor). */
+  useEffect(() => {
+    const t = addBilling.branch.transactionType;
+    if (t === "na") {
+      setAddBilling((prev) => ({
+        ...prev,
+        branch: {
+          ...prev.branch,
+          accountNo: "N/A",
+          ifsCode: "N/A",
+          bankName: "N/A",
+          bankBranch: "N/A",
+          ledgerCurrency: "N/A",
+        },
+      }));
+    } else if (t !== undefined && t !== "") {
+      setAddBilling((prev) => ({
+        ...prev,
+        branch: {
+          ...prev.branch,
+          accountNo: "",
+          ifsCode: "",
+          bankName: "",
+          bankBranch: "",
+          ledgerCurrency: "",
+        },
+      }));
+    }
+  }, [addBilling.branch.transactionType]);
+
   return (
     <Drawer
       title={`Add Branch of Vendor: ${openBranch?.vendor_code}`}
@@ -139,6 +226,9 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
         layout="vertical"
         size="small"
       >
+        <Typography.Title level={5} style={{ marginTop: 0 }}>
+          Branch Details
+        </Typography.Title>
         <Row style={{ width: "100%" }}>
           <>
             <Col span={12} style={{ padding: 3 }}>
@@ -215,7 +305,7 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
                 <Input
                   size="default "
                   value={addBilling.branch.mobile}
-                  onChange={(e) => inputHandler("mobile", e.target.value)}
+                  onChange={(e) => inputHandler("mobile", e.target.value.replace(/\D/g, ""))}
                   // prefix={<UserOutlined />}
                 />
               </Form.Item>
@@ -243,6 +333,67 @@ const AddBranch = ({ openBranch, setOpenBranch, getVendorBracnch }) => {
               </Form.Item>
             </Col>
           </>
+        </Row>
+
+        <Divider />
+        <Typography.Title level={5} style={{ marginTop: 0 }}>
+          Bank Details
+        </Typography.Title>
+        <Row style={{ width: "100%" }}>
+          <Col span={24} style={{ padding: "3px" }}>
+            <Form.Item label="Type">
+              <MySelect
+                options={transactionTypeOptions}
+                value={addBilling.branch.transactionType}
+                onChange={(val) => inputHandler("transactionType", val)}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12} style={{ padding: "3px" }}>
+            <Form.Item label="A/c No">
+              <Input
+                value={addBilling.branch.accountNo}
+                onChange={(e) => inputHandler("accountNo", e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12} style={{ padding: "3px" }}>
+            <Form.Item label="IFS Code">
+              <Input
+                value={addBilling.branch.ifsCode}
+                onChange={(e) => inputHandler("ifsCode", e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12} style={{ padding: "3px" }}>
+            <Form.Item label="Bank Name">
+              <MySelect
+                placeholder="Select bank"
+                options={getVendorBranchBankOptions(
+                  addBilling.branch.bankName,
+                )}
+                value={addBilling.branch.bankName || undefined}
+                onChange={(val) => inputHandler("bankName", val ?? "")}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12} style={{ padding: "3px" }}>
+            <Form.Item label="Bank Branch">
+              <Input
+                value={addBilling.branch.bankBranch}
+                onChange={(e) => inputHandler("bankBranch", e.target.value)}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24} style={{ padding: "3px" }}>
+            <Form.Item label="Currency of Ledger">
+              <MySelect
+                options={currencies}
+                value={addBilling.branch.ledgerCurrency}
+                onChange={(val) => inputHandler("ledgerCurrency", val)}
+              />
+            </Form.Item>
+          </Col>
         </Row>
       </Form>
       <Row justify="end">

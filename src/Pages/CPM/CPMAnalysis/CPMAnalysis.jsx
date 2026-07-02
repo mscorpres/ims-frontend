@@ -365,7 +365,7 @@ export default function CPMAnalysis() {
           } else {
             return row;
           }
-        })
+        }),
       );
       setFilteredRows(arr);
     }
@@ -374,7 +374,7 @@ export default function CPMAnalysis() {
   const handleFetchProjectOptions = async (search) => {
     const response = await executeFun(
       () => getProjectOptions(search),
-      "select"
+      "select",
     );
     setAsyncOptions(response.data);
   };
@@ -481,7 +481,7 @@ export default function CPMAnalysis() {
               downloadCSVAntTable(
                 rows,
                 columns,
-                `CPM Analysis project:${rows[0]?.project}`
+                `CPM Analysis project:${rows[0]?.project}`,
               )
             }
             disabled={rows.length == 0}

@@ -294,6 +294,7 @@ function CreatePhysicalProduction() {
         <Input
           placeholder="Qty"
           onChange={(e) => inputHandler("phyStock", row.id, e.target.value)}
+          type="number"
         />
       ),
     },

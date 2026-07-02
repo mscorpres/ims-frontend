@@ -16,6 +16,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { useNavigate } from "react-router-dom";
 export default function EditVBT1({ editingVBT, setEditingVBT }) {
+  console.log(editingVBT,"data")
   const [glCodes, setGlCodes] = useState([]);
   const [vendorData, setVendorData] = useState({});
   const [vbt, setVBT] = useState(null);

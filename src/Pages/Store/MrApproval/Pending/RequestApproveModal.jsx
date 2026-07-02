@@ -24,6 +24,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
   const weightedRate = Form.useWatch("weightedRate", { form, preserve: true });
   const authKey = Form.useWatch("authKey", { form, preserve: true });
   const unit = Form.useWatch("unit", { form, preserve: true });
+  const reason = Form.useWatch("reason", { form, preserve: true });
   const selectedComponent = Form.useWatch("component", form);
   const pickLocation = Form.useWatch("pickLocation", form);
 
@@ -57,6 +58,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
             requestedQty: row.requiredQty,
             unit: row.unit,
             remarks: row.remark,
+            reason: row.reason,
           }));
 
           const headerData = {
@@ -141,6 +143,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         component: values.component,
         issueQty: values.issueQty,
         remark: values.remarks ?? "--",
+        reason: values.reason ?? "N/A",
       };
       link = "/storeApproval/AllowComponentsApproval";
     } else if (action === "reject") {
@@ -149,6 +152,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         transaction: headers.transactionKey,
         component: values.component,
         remark: values.remarks,
+        reason: values.reason ?? "N/A",
       };
       link = "/storeApproval/AllowComponentsCancellation"; 
     }
@@ -211,6 +215,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
         form.setFieldValue("requestedQty", selected[0].requestedQty);
         form.setFieldValue("unit", selected[0].unit);
         form.setFieldValue("authKey", selected[0].authKey);
+        form.setFieldValue("reason", selected[0].reason);
       }
     }
   }, [selectedComponent]);
@@ -380,7 +385,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                     </Radio.Group>
                   </Flex>
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
                   <Typography.Text style={{ fontSize: 12 }} strong>
                     Available Qty
                   </Typography.Text>
@@ -398,7 +403,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                 </Col>
               
 
-                <Col span={8}>
+                <Col span={6}>
                   <Typography.Text style={{ fontSize: 12 }} strong>
                     Requested Qty
                   </Typography.Text>
@@ -414,7 +419,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                   )}
                   <Divider />
                 </Col>
-                <Col span={8}>
+                <Col span={6}>
                 <Typography.Text style={{ fontSize: 12 }} strong>
                     Weighted Average Rate
                   </Typography.Text>
@@ -426,6 +431,21 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
                     <Typography.Text style={{ fontSize: 12 }}>
                       {weightedRate ?? 0}{" "}
                       
+                    </Typography.Text>
+                  )}
+                  <Divider />
+                </Col>
+                <Col span={6}>
+                  <Typography.Text style={{ fontSize: 12 }} strong>
+                    Reason
+                  </Typography.Text>
+                  <br />
+                  {loading("fetch") && (
+                    <Skeleton.Button size="small" active block />
+                  )}
+                  {!loading("fetch") && (
+                    <Typography.Text style={{ fontSize: 12 }}>
+                      {reason ?? "N/A"}
                     </Typography.Text>
                   )}
                   <Divider />
@@ -474,6 +494,7 @@ const initialValues = {
   requestedQty: undefined,
   unit: undefined,
   authKey: undefined,
+  reason: undefined,
 };
 export default RequestApproveModal;
 

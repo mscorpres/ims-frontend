@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import links from "../links";
 import MyDatePicker from "../../../../Components/MyDatePicker";
-import axios from "axios";
-import "../../../../";
 import { toast } from "react-toastify";
 import { AiFillEdit } from "react-icons/ai";
 import MyDataTable from "../../../../Components/MyDataTable";
@@ -13,9 +10,6 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import { Button, Checkbox, Form, Input, Modal, Row, Space, Switch } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
-import ConfirmModal from "../Shared/ConfirmModal";
-import { useSelector } from "react-redux";
-import { responseImmutable } from "@rc-component/context/lib/Immutable";
 import VBT01Report from "./VBT01/VBT01Report";
 import VBT02Report from "./VBTtype2/VBT02Report";
 import useApi from "../../../../hooks/useApi.ts";
@@ -25,9 +19,10 @@ import MyButton from "../../../../Components/MyButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
+import { min } from "lodash";
 const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
-  const [searchInput, setSearchInput] = useState("MIN/25-26/");
+  const [searchInput, setSearchInput] = useState("");
   const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
@@ -45,7 +40,6 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   const [open, setOpen] = useState(false);
   const [createVBT, setCreateVBT] = useState(false);
   const [selectedVendors, setSelectedVendors] = useState([]);
-  const [editUrl, setEditUrl] = useState("");
   const [editVBTCode, setEditVBTCode] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
   const [url, setUrl] = useState("");
@@ -82,53 +76,63 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       setApiUrl("vbt06");
     } else if (url === "VB7") {
       setApiUrl("vbt07");
-    } else {
-      // console.log("the api is not valid");
-      // if (editVbtDrawer) {
-      //   let editUrl = editVbtDrawer.split("/");
-      //   editUrl = editUrl[0];
-      //   setUrl(editUrl);
-      //   console.log("editUrl------", editUrl);
-      //
-    }
+    } 
   }, [url]);
+
+  const showTypeColumn = vbtData?.some(
+    (r) => r?.type != null && String(r.type).trim() !== ""
+  );
 
   const vbtTableColumnsonesix = [
     {
       headerName: "Sr. No.",
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
-      flex: 1,
       id: "serial-no",
-      width: "8vw",
+      width: "120px",
     },
-    {
+    ...(showTypeColumn
+      ? [
+          {
+            headerName: "Type",
+            field: "type",
+            sortable: true,
+            flex: 1,
+            id: "type",
+          },
+        ]
+      : []),
+       {
       headerName: "Vendor Code",
-      field: "ven_code",
+      field: "venCode",
       sortable: true,
       flex: 1,
       id: "vendor code",
+           renderCell: ({ row }) => <span>{row?.venCode ?? row?.ven_code}</span>,
     },
     {
-      headerName: "MIN ID",
-      field: "min_transaction",
+      headerName: "Transaction",
+      field: "transaction",
       sortable: true,
       flex: 1,
       id: "min id",
+       renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
     },
     {
-      headerName: "PART ID",
-      field: "part_code",
+      headerName: "PART / SKU",
+      field: "itemCode",
       flex: 1,
       sortable: true,
       id: "part id",
+           renderCell: ({ row }) => <span>{row?.itemCode ?? row?.part_code}</span>,
     },
     {
-      headerName: "MIN DATE",
-      field: "min_in_date",
+      headerName: "DATE",
+      field: "minDate",
       flex: 1,
       sortable: true,
       id: "min date",
+           renderCell: ({ row }) => <span>{row?.minDate ?? row?.min_in_date}</span>,
     },
 
     {
@@ -138,8 +142,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       type: "actions",
       flex: 1,
       getActions: ({ row }) =>
-        (apiUrl == "vbt06" && row.vbp_status == "PENDING") ||
-        (apiUrl === "vbt01" && row.vbp_status == "PENDING")
+        (apiUrl == "vbt06" && (row.vbpStatus ?? row.vbp_status) == "PENDING") ||
+        (apiUrl === "vbt01" && (row.vbpStatus ?? row.vbp_status) == "PENDING")
           ? [
               <>
                 <GridActionsCellItem
@@ -152,7 +156,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                 />
                 <GridActionsCellItem
                   icon={<AiFillEdit />}
-                  onClick={() => setEditingVBT([row.min_transaction])}
+                  onClick={() => setEditingVBT([row])}
                   label="Edit"
                 />
               </>,
@@ -167,11 +171,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                     />
                   }
                 />
-                {/* <GridActionsCellItem
-                  icon={<AiFillEdit />}
-                  onClick={() => setEditingVBT([row.min_transaction])}
-                  label="Edit"
-                /> */}
+               
               </>,
             ],
     },
@@ -181,10 +181,20 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       headerName: "Sr. No.",
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
-      flex: 1,
       id: "serial-no",
-      width: "8vw",
+      width: "120px",
     },
+    ...(showTypeColumn
+      ? [
+          {
+            headerName: "Type",
+            field: "type",
+            sortable: true,
+            flex: 1,
+            id: "type",
+          },
+        ]
+      : []),
     {
       headerName: "Vendor Code",
       field: "ven_code",
@@ -193,25 +203,28 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       id: "vendor code",
     },
     {
-      headerName: "MIN ID",
-      field: "min_transaction",
+      headerName: "Transaction",
+      field: "transaction",
       sortable: true,
       flex: 1,
       id: "min id",
+         renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
     },
     {
-      headerName: "PART ID",
+      headerName: "PART / SKU",
       field: "part_code",
       flex: 1,
       sortable: true,
       id: "part id",
+           renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.part_code}</span>,
     },
     {
-      headerName: "MIN DATE",
+      headerName: "DATE",
       field: "min_in_date",
       flex: 1,
       sortable: true,
       id: "min date",
+           renderCell: ({ row }) => <span>{row?.min_in_date?? row?.transaction}</span>,
     },
 
     {
@@ -223,14 +236,13 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       getActions: ({ row }) => [
         <GridActionsCellItem
           icon={<AiFillEdit />}
-          onClick={() => setEditingVBT([row.min_transaction])}
+          onClick={() => setEditingVBT([row])}
           label="Edit"
         />,
       ],
     },
   ];
   const getVendors = async (search) => {
-    console.log("this is the search", search);
     const response = await executeFun(() => getVendorOptions(search), "select");
     let arr = [];
     if (response.success) {
@@ -238,53 +250,15 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     }
     setAsyncOptions(arr);
   };
-  // const getVBTDetail = async (minId) => {
-  //   console.log("there is a single vbt");
-  //   setLoading(true);
-  //   console.log("minid", minId);
-  //   const response = await imsAxios.post(`/tally/${apiUrl}/fetch_minData`, {
-  //     min_id: minId,
-  //   });
-  //   console.log("minid", response);
-  //   console.log("this is using the url");
-  //   const { data } = response;
-  //   if (data.code === 200) {
-  //     setEditingVBT(data.data);
-  //   } else {
-  //     toast.error(data.message.msg);
-  //     setEditingVBT(null);
-  //   }
-  //   setLoading(false);
-  // };
+
 
   const getMultipleVBTDetail = async () => {
     // console.log("there is not single vbt");
     setLoading(true);
 
     let mins = selectedRows.map((row) => vbtData.filter((r) => r.id == row)[0]);
-    setEditingVBT(mins?.map((row) => row.min_transaction));
-    // console.log(mins);
-    // const { data } = await imsAxios.post(
-    //   `/tally/${apiUrl}/fetch_multi_min_data`,
-    //   {
-    //     mins: mins.map((row) => row.min_transaction),
-    //   }
-    // );
-    // setLoading(false);
-    // if (data.code === 200) {
-    //   console.log(data.data);
-    //   let arr = data.data;
-    //   arr = arr.map((row) => ({
-    //     ...row,
-    //     ven_tds: arr[0].ven_tds,
-    //   }));
-    //   console.log("arr--------------", arr);
-    //   setEditingVBT(arr);
-    // } else {
-    //   toast.error(data.message.msg);
-    //   setEditingVBT(null);
-    // }
-    // setLoading(false);
+    setEditingVBT(mins?.map((row) => row));
+ 
   };
   const getRows = async () => {
     setPreviewdisData(false);
@@ -367,8 +341,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
 
   const disableVbt = async (singleRow) => {
     if (singleRow) {
-      ModalForm.setFieldValue("min_transaction", singleRow.min_transaction);
-      ModalForm.setFieldValue("part_code", singleRow.part_code);
+      ModalForm.setFieldValue("min_transaction", singleRow.transaction ?? singleRow.min_transaction);
+      ModalForm.setFieldValue("part_code", singleRow.itemCode ?? singleRow.part_code);
     }
 
     Modal.confirm({
@@ -378,7 +352,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
         <Form form={ModalForm} layout="vertical">
           <Form.Item
             name="min_transaction"
-            label="Min Transaction"
+            label="Transaction"
             rules={[
               {
                 required: true,
@@ -390,7 +364,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           </Form.Item>
           <Form.Item
             name="part_code"
-            label="Part Code"
+            label="Part / SKU"
             // rules={rules.nos_of_boxes}
             rules={[
               {
@@ -419,15 +393,15 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       okText: "Yes",
       cancelText: "No",
       onOk: async () => {
-        await disabletheSelelcted(singleRow);
+        await disabletheSelelcted();
       },
     });
   };
-  const disabletheSelelcted = async (singleRow) => {
+  const disabletheSelelcted = async () => {
     const values = await ModalForm.validateFields();
     const response = await imsAxios.put("/tally/vbt/disable_vbtprocess", {
-      min_transaction: values.min_transaction,
-      part_code: values.part_code,
+      min_transaction: values.min_transaction ,
+      part_code: values.part_code ,
       remark: values.remark,
     });
     if (response.data.code === 200) {
@@ -437,10 +411,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       toast.error(response.data.message);
     }
   };
-  // ----------------------------
   useEffect(() => {
     if (wise == "min_wise") {
-      setSearchInput("MIN/25-26/");
+      setSearchInput("");
     } else {
       setSearchInput(null);
     }
@@ -456,27 +429,17 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
   }, [createVBT, selectedVendors]);
 
   useEffect(() => {
-    // console.log("previewdisData", previewdisData);
+   
     if (previewdisData) {
-      // console.log("combinedData", combinedData);
-      // console.log("extracted", extracted);
+    
       setVBTData(combinedData);
     } else {
       setVBTData(extracted);
     }
   }, [previewdisData]);
-  // useEffect(() => {
-  //   console.log("previewdisData", previewdisData);
-  //   if (previewdisData) {
-  //     console.log("combinedData", combinedData);
-  //     setShowAllData(combinedData);
-  //   } else {
-  //     setShowAllData(vbtData);
-  //   }
-  // }, [previewdisData]);
 
   return (
-    <div style={{ height: "95%" }}>
+    <div style={{ height: "92%", margin:8 }}>
       <MapVBTModal mapVBT={mapVBT} setMapVBT={setMapVBT} />
       <div
         style={{
@@ -485,14 +448,9 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           overflow: "hidden",
         }}
       >
-        {/* search header
-        <CreateVBT1
-          setVBTData={setVBTData}
-          editingVBT={editingVBT}
-          setEditingVBT={setEditingVBT}
-        /> */}
+       
         {apiUrl === "vbt03" ? (
-          <VBT02Report
+          <VBT01Report
             setVBTData={setVBTData}
             editingVBT={editingVBT}
             setEditingVBT={setEditingVBT}
@@ -562,8 +520,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
                       ? true
                       : false
                     : !searchInput
-                    ? true
-                    : false
+                      ? true
+                      : false
                 }
                 loading={searchLoading}
                 type="primary"

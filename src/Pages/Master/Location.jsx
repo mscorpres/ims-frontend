@@ -232,7 +232,7 @@ function Location() {
   };
 
   const disableSubmitHandler = async (values) => {
-    const response = await imsAxios.post(
+    const response = await imsAxios.put(
       "/location/changeLocationStatus",
       values
     );

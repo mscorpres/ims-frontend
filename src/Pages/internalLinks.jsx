@@ -343,6 +343,10 @@ const links = [
       routeName: "SFG Product",
       routePath: "/masters/products/sfg",
     },
+    {
+      routeName: "Add SKU Opening Rate",
+      routePath: "/masters/sku-opening-rate",
+    },
   ],
   // hsn map links
   [{ routeName: "HSN Map", routePath: "/hsn-map" }],
@@ -454,6 +458,17 @@ const links = [
     { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
     { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
   ],
+  // FG to FG transfer links
+  [
+    {
+      routeName: "FG To FG",
+      routePath: "/warehouse/material-transfer/fg-to-fg",
+    },
+    {
+      routeName: "View Transaction",
+      routePath: "/warehouse/material-transfer/fg-to-fg/view",
+    },
+  ],
   // RM to RM transfer links
   [
     { routeName: "RM To RM", routePath: "/rm-to-rm" },
@@ -503,10 +518,10 @@ const links = [
   // jobwork links
   [
     { routeName: "CREATE JW PO", routePath: "/create-jw" },
-    {
-      routeName: "JW Approval",
-      routePath: "/approval-jw"
-    },
+    // {
+    //   routeName: "JW Approval",
+    //   routePath: "/approval-jw"
+    // },
     { routeName: "PO ANALYSIS", routePath: "/po-analysis" },
     { routeName: "JW RM ISSUE", routePath: "/jw-rw-issue" },
     {
@@ -635,15 +650,16 @@ const links = [
       routePath: "/production/physical-stock/view",
     },
   ],
-  // part code conversion
-  //
+  // SF Part Code Conversion
   [
     {
-      routeName: "Part Code Conversion",
+      routeName: "SF Partcode Conversion",
       routePath: "/warehouse/part-code-conversion",
     },
-
-    // to be added
+    {
+      routeName: "RM Part Code Conversion",
+      routePath: "/warehouse/rm-part-code-conversion",
+    },
     {
       routeName: "Part Code Conversion Report",
       routePath: "/warehouse/part-code-conversion-report",
@@ -855,6 +871,12 @@ const links = [
 
       placeholder: "Job Work Inventory Report",
     },
+        {
+      routeName: "R38",
+      routePath: "/fg-register-report",
+
+      placeholder: "FG Register Report",
+    },
   ],
   // MIN label links
 
@@ -862,6 +884,10 @@ const links = [
     {
       routeName: "View and Print MIN Label",
       routePath: "/warehouse/print-view-min",
+    },
+    {
+      routeName: "View and Print FG MIN",
+      routePath: "/warehouse/print-view-fg-min",
     },
   ],
   // query reports

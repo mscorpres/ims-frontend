@@ -34,6 +34,7 @@ import {
   Vendor,
   AddVendor,
   RmtoRm,
+  FGToFGTransfer,
   PendingTransfer,
   ViewTransaction,
   ReToRej,
@@ -103,6 +104,7 @@ import {
   AddClientInfo,
   ViewandEditClient,
   PartCodeConversion,
+  RMPartCodeConversion,
   ProductMIN,
   Dashboard,
   JWUpdateRate,
@@ -130,6 +132,8 @@ import {
   JobworkApproval,
   JwToJw,
   JwToJwViewTransaction,
+  FGToFGViewTransaction,
+  AddSKUOpeningRate,
 } from "../Pages/index.jsx";
 
 import {
@@ -219,7 +223,6 @@ import SalesRegister from "../Pages/Invoice/SalesRegister/SalesRegister.jsx";
 import QaProcess from "../Pages/Master/QAProcess/QaProcess.jsx";
 import QaProcessMap from "../Pages/Master/QAProcess/QaProcessMap.jsx";
 import CreateWO from "../Pages/Workorder/CreateWo.jsx";
-import Qctest from "../Pages/Production/testqca/Qctest.jsx";
 import VBTMainTable from "../FinancePages/Finance/VendorBillPosting/FormVBT/VBTMainTable.jsx";
 import TdsReport from "../FinancePages/Report/TdsReport.jsx";
 import MisReport from "../FinancePages/Report/MisReport.jsx";
@@ -259,6 +262,8 @@ import R34 from "@/Pages/Reports/R/R34/index.js";
 import FARUpload from "@/Pages/far/index.js";
 import R35 from "@/Pages/Reports/R/R35.jsx";
 import R37 from "@/Pages/Reports/R/R37.jsx";
+//@ts-ignore
+import R38 from "@/Pages/Reports/R/R38.jsx";
 import QcScan from "@/Pages/Production/mes/qca/scan/index.js";
 import CreatePhysicalProduction from "@/Pages/Production/PhysicalStock/CreatePhysical.jsx";
 import PendingPhysicalProduction from "@/Pages/Production/PhysicalStock/Pending.jsx";
@@ -271,6 +276,7 @@ import BOMList from "@/Pages/R&D/bom/list/index.js";
 import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 import SubGroup from "../Pages/Master/SubGroup.jsx";
 import AddCostCenter from "../Pages/Master/AddCostCenter.jsx";
+import ViewFGMIN from "../Pages/Store/PrintFGMIN/ViewFGMIN.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -323,6 +329,10 @@ const Routes = [
   {
     path: "/masters/products/sfg",
     main: () => <Product />,
+  },
+  {
+    path: "/masters/sku-opening-rate",
+    main: () => <AddSKUOpeningRate />,
   },
   {
     path: "/group",
@@ -440,6 +450,16 @@ const Routes = [
     path: "/rm-to-rm",
     exact: true,
     main: () => <RmtoRm />,
+  },
+  {
+    path: "/warehouse/material-transfer/fg-to-fg",
+    exact: true,
+    main: () => <FGToFGTransfer />,
+  },
+  {
+    path: "/warehouse/material-transfer/fg-to-fg/view",
+    exact: true,
+    main: () => <FGToFGViewTransaction />,
   },
    {
     path: "/warehouse/material-transfer/jw-to-jw",
@@ -567,6 +587,11 @@ const Routes = [
     path: "/masters/cost-center",
     exact: true,
     main: () => <AddCostCenter />,
+  },
+    {
+    path: "/masters/cost-center/mapping",
+    exact: true,
+    main: () => <CostCenterMapping />,
   },
   {
     path: "/completed-qc",
@@ -791,6 +816,11 @@ const Routes = [
 
     main: () => <R37 />,
   },
+    {
+    path: "/fg-register-report",
+
+    main: () => <R38 />,
+  },
   {
     path: "/reqWithBom",
     main: () => <ReqWithBom />,
@@ -846,6 +876,10 @@ const Routes = [
   {
     path: "/warehouse/print-view-min",
     main: () => <ViewMin />,
+  },
+  {
+    path: "/warehouse/print-view-fg-min",
+    main: () => <ViewFGMIN />,
   },
   {
     path: "/warehouse/material-in",
@@ -1350,11 +1384,15 @@ const Routes = [
     path: "/warehouse/part-code-conversion",
     main: () => <PartCodeConversion />,
   },
-  // to be added
   {
     path: "/warehouse/part-code-conversion-report",
     main: () => <PartCodeConversionReport />,
   },
+  {
+    path: "/warehouse/rm-part-code-conversion",
+    main: () => <RMPartCodeConversion />,
+  },
+
   {
     path: "/warehouse/e-way/:typeId/:jwId",
     main: () => <EWayBill />,

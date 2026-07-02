@@ -146,6 +146,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
           style={{ border: row.borderRed && "1px solid red" }}
           value={row.actQty}
           suffix={row.unit}
+          type="number"
           // disabled
           onChange={(e) => compInputHandler("actQty", e.target.value, row.id)}
         />
@@ -406,6 +407,7 @@ export default function ExecutePPR({ editPPR, setEditPPR, getRows }) {
                               headerInputhandler("mfgQty", +e.target.value)
                             }
                             size="default"
+                            type="number"
                           />
                         </Form.Item>
                       </Form>

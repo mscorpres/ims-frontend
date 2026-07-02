@@ -59,14 +59,14 @@ const JwReturnModel = ({ show, close }) => {
       REMARK: "test",
     },
   ];
-  const getLocationOptions = async () => {
+  const getLocationOptions = async (vendor,transaction) => {
     try {
-      const { data } = await imsAxios.get("/jobwork/jw_rm_return_location");
+      const { data } = await imsAxios.get(`/jobwork/jw_rm_return_location?vendor=${vendor}&jw=${transaction}`);
       setLoading("fetch", true);
       if (data) {
         const arr = data.data.map((row) => ({
-          text: row.text,
-          value: row.id,
+          text: row.name,
+          value: row.key,
         }));
 
         setLocationOptions(arr);
@@ -228,9 +228,9 @@ const JwReturnModel = ({ show, close }) => {
     if (show) {
       getData(show.sku, show.transaction);
       getAutoComnsumptionOptions();
-      getLocationOptions();
+      getLocationOptions(vendor,show.transaction);
     }
-  }, [show]);
+  }, [show,vendor]);
 
   useEffect(()=>{
     getVendorLocationOptions(vendor);

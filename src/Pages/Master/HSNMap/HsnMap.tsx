@@ -152,6 +152,6 @@ const columns = (
         message: `Tax Rate is required.`,
       },
     ],
-    field: () => <Input suffix="%" />,
+    field: () => <Input suffix="%"  type="number"/>,
   },
 ];

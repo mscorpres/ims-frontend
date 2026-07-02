@@ -24,7 +24,7 @@ import { toast } from "react-toastify";
 const initialSummaryData = [
   { title: "Component", description: "--" },
   { title: "Part Code", description: "--" },
-  { title: "Opening", description: "--" },
+  // { title: "Opening", description: "--" },
   {
     title: "Closing",
     description: "--",
@@ -163,10 +163,10 @@ export default function ItemLocationLog() {
             { title: "Part Code", description: header?.partno },
             { title: "Attribute Code", description: header?.unique_id },
             { title: "MFG Code", description: header?.mfgCode },
-            {
-              title: "Opening",
-              description: header.openingBalance + " " + header.uom,
-            },
+            // {
+            //   title: "Opening",
+            //   description: header.openingBalance + " " + header.uom,
+            // },
             {
               title: "Closing",
               description: header.closingqty + " " + header.uom,
@@ -227,6 +227,8 @@ export default function ItemLocationLog() {
                 ? "#DD5353"
                 : row.transaction_type === "JOBWORK"
                 ? "#DD5353"
+                : row.transaction_type === "CONVERSION"
+                ? "#ff9bb9"
                 : row.transaction_type === "CANCELLED" && "#36454F",
           }}
         />

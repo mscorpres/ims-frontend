@@ -340,6 +340,7 @@ function ReToRej() {
                       </td>
                       <td style={{ width: "12vw" }}>
                         <Input
+                          type="number"
                           suffix={r?.restDetail?.unit}
                           value={r.qty1}
                           onChange={(e) =>
