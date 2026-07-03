@@ -886,11 +886,11 @@ const Routes = [
     path: "/completed-po",
     main: () => <CompletedPo />,
   },
-  {
-    path: "/approval-po",
-    main: () => <PoApproval />,
-    text: "Po Approval",
-  },
+  // {
+  //   path: "/approval-po",
+  //   main: () => <PoApproval />,
+  //   text: "Po Approval",
+  // },
   {
     path: "/vendor-pricing",
     main: () => <VendorPricingUpload />,
