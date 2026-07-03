@@ -23,12 +23,11 @@ import {
 } from "@ant-design/icons";
 import { imsAxios } from "../../../../axiosInterceptor";
 
-function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
+function PendingFGModal({ fGModal, setFGModal, getPendingData, warLoading }) {
   const [loadingModal, setLoadingModal] = useState(false);
   const [allPendingData, setAllPendingData] = useState({
     qty: "",
   });
-  console.log("fGModal", fGModal);
 
   const submitData = async () => {
     setLoadingModal(true);
@@ -81,7 +80,7 @@ function PendingFGModal({ fGModal, setFGModal, getPendingData }) {
       onOk={async () => {
         await submitData();
       }}
-      okButtonProps={{ loading: loadingModal, disabled: loadingModal }}
+      okButtonProps={{ loading: loadingModal|| warLoading, disabled: loadingModal }}
       onCancel={() => setFGModal(false)}
       width={900}
     >
