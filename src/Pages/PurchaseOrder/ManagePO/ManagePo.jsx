@@ -175,9 +175,9 @@ const ManagePO = () => {
       minWidth: 150,
     },
     {
-      headerName: "PO ACCEPTANCE",
-      field: "poacceptstatus",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.poacceptstatus} />,
+      headerName: "Approval Status",
+      field: "approval_status",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.approval_status} />,
       flex: 1,
       minWidth: 150,
     },
@@ -251,13 +251,7 @@ const ManagePO = () => {
       flex: 1,
       minWidth: 150,
     },
-    {
-      headerName: "Approval Status",
-      field: "approval_status",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.approval_status} />,
-      flex: 1,
-      minWidth: 150,
-    },
+
     {
       headerName: "Advance Payment",
       field: "advPayment",
