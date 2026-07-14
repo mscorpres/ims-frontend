@@ -389,9 +389,14 @@ const columns = [
     field: "out_rate",
     width: 200,
   },
-  {
-    headerName: "Weighted Average",
-    field: "weightedSKURate",
+  // {
+  //   headerName: "Weighted Average",
+  //   field: "weightedSKURate",
+  //   width: 200,
+  // },
+   {
+    headerName: "New WAR",
+    field: "newWAR",
     width: 200,
   },
   {

@@ -9,12 +9,17 @@ import {
   Row,
   Select,
   Space,
+  Spin,
+  Table,
   Typography,
+  Upload,
 } from "antd";
+import { InboxOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   createMIN,
   getWorkOrderDetails,
 } from "../api";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV";
 import {
   memo,
   startTransition,
@@ -56,6 +61,87 @@ const MINModal = ({ showView, setShowView, getRows }) => {
   const [tableReady, setTableReady] = useState(false);
   const prevGstTypeRef = useRef(undefined);
   const calculateRowRef = useRef(() => {});
+  const [uploadDrawerOpen, setUploadDrawerOpen] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadPreviewRows, setUploadPreviewRows] = useState([]);
+  const [locationLabelsMap, setLocationLabelsMap] = useState({});
+
+  const handleDownloadSample = () => {
+    downloadCSVCustomColumns(MIN_SAMPLE_DATA, "MIN_Sample");
+  };
+
+  const handleExcelUpload = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    setUploadLoading(true);
+    try {
+      const response = await imsAxios.post(
+        "/createwo/woMIN/upload",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      const { data } = response;
+      if (data.code === 200) {
+        const rawRows = Array.isArray(data.data?.rows) ? data.data.rows : [];
+        const mapped = rawRows.map((row) => ({
+          componentKey: row[0]?.key || "",
+          componentName: row[0]?.name || "",
+          partCode: row[0]?.partNo || "",
+          hsn: row[1] || "",
+          qty: row[2] || "",
+          rate: row[3] || "",
+          gstTypeSuggested: row[4] || "L",
+          gstRate: row[5] || "",
+          remark: row[6] || "",
+          locationRaw: row[7],
+          locationName: row[7]?.text || row[7]?.value || (typeof row[7] === "string" ? row[7] : ""),
+          locationValue: row[7]?.value || row[7]?.text || (typeof row[7] === "string" ? row[7] : ""),
+        }));
+        setUploadPreviewRows(mapped);
+      } else {
+        toast.error(data.message?.msg || data.message);
+      }
+    } catch {
+      toast.error("Failed to upload Excel");
+    }
+    setUploadLoading(false);
+    return Upload.LIST_IGNORE;
+  };
+
+  const handleConfirmUpload = () => {
+    const suggestedGst = uploadPreviewRows[0]?.gstTypeSuggested || "L";
+    const components = uploadPreviewRows.map((row) => {
+      const base = {
+        component: row.componentKey,
+        hsn: row.hsn,
+        qty: row.qty,
+        rate: row.rate,
+        gstRate: row.gstRate,
+        remark: row.remark,
+        location: row.locationValue,
+      };
+      const derived = computeRowTaxFields(base, suggestedGst);
+      return { ...base, ...derived };
+    });
+    const labels = uploadPreviewRows.map((row) => ({
+      component: row.componentName,
+      partCode: row.partCode,
+      newPartCode: "",
+    }));
+    setDisplayLabels(labels);
+    const labelsMap = {};
+    uploadPreviewRows.forEach((row) => {
+      if (row.locationValue) labelsMap[row.locationValue] = row.locationName;
+    });
+    setLocationLabelsMap(labelsMap);
+    setGstType(suggestedGst);
+    minForm.setFieldsValue({ gstType: suggestedGst, components });
+    refreshSidebarTotalsFromRows(components);
+    setTableReady(true);
+    setUploadPreviewRows([]);
+    setUploadDrawerOpen(false);
+    toast.success("Data imported successfully");
+  };
 
   const validateHandler = async () => {
     recalculateAllRows(true);
@@ -312,9 +398,14 @@ const MINModal = ({ showView, setShowView, getRows }) => {
       headerName: "Location",
       name: "location",
       width: 180,
-      field: () => <LocationField />,
+      field: ({ fieldName }) => {
+        const locVal = minForm.getFieldValue(["components", fieldName, "location"]);
+        const locText = locationLabelsMap[locVal];
+        const initialOption = locVal && locText ? { value: locVal, text: locText } : null;
+        return <LocationField initialOption={initialOption} />;
+      },
     }),
-    []
+    [locationLabelsMap, minForm]
   );
 
   const tableColumns = useMemo(
@@ -452,6 +543,15 @@ const MINModal = ({ showView, setShowView, getRows }) => {
             </Row>
           </Col>
           <Col span={20} style={{ height: "100%", overflow: "hidden" }}>
+            <Row justify="end" style={{ marginBottom: 6 }}>
+              <Button
+                icon={<UploadOutlined />}
+                size="small"
+                onClick={() => setUploadDrawerOpen(true)}
+              >
+                Upload Excel
+              </Button>
+            </Row>
             {tablePane}
           </Col>
         </Row>
@@ -467,6 +567,54 @@ const MINModal = ({ showView, setShowView, getRows }) => {
         submitFunction={validateHandler}
         nextLabel="Submit"
       />
+
+      {/* Excel Upload Drawer */}
+      <Drawer
+        title={uploadPreviewRows.length > 0 ? "Preview Imported Data" : "Upload Excel"}
+        open={uploadDrawerOpen}
+        onClose={() => { setUploadDrawerOpen(false); setUploadPreviewRows([]); }}
+        destroyOnClose
+        width={uploadPreviewRows.length > 0 ? 900 : 480}
+        footer={
+          uploadPreviewRows.length > 0 ? (
+            <Row justify="space-between">
+              <Button onClick={() => setUploadPreviewRows([])}>Upload Another File</Button>
+              <Button type="primary" onClick={handleConfirmUpload}>Confirm Import</Button>
+            </Row>
+          ) : null
+        }
+      >
+        {uploadPreviewRows.length === 0 ? (
+          <>
+            <Spin spinning={uploadLoading}>
+              <Upload.Dragger
+                name="file"
+                multiple={false}
+                maxCount={1}
+                showUploadList={false}
+                accept=".xlsx,.xls,.csv"
+                beforeUpload={handleExcelUpload}
+              >
+                <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+                <p className="ant-upload-text">Click or drag file to upload</p>
+                <p className="ant-upload-hint">Supports .xlsx, .xls, .csv</p>
+              </Upload.Dragger>
+            </Spin>
+            <div style={{ marginTop: 12, textAlign: "right" }}>
+              <Button type="link" onClick={handleDownloadSample}>Download Sample File</Button>
+            </div>
+          </>
+        ) : (
+          <Table
+            size="small"
+            rowKey={(_, i) => i}
+            dataSource={uploadPreviewRows}
+            pagination={false}
+            scroll={{ y: "calc(100vh - 220px)" }}
+            columns={MIN_PREVIEW_COLUMNS}
+          />
+        )}
+      </Drawer>
     </Drawer>
   );
 };
@@ -491,10 +639,16 @@ const GstTypeSelect = memo(function GstTypeSelect({
   );
 });
 
-const LocationField = memo(function LocationField({ value, onChange }) {
+const LocationField = memo(function LocationField({ value, onChange, initialOption }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [selectLoading, setSelectLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(initialOption ?? null);
+
+  useEffect(() => {
+    if (initialOption) {
+      setSelectedOption((prev) => prev ?? initialOption);
+    }
+  }, [initialOption]);
 
   const getLocatonOptions = async (search) => {
     setSelectLoading(true);
@@ -548,6 +702,8 @@ const LocationField = memo(function LocationField({ value, onChange }) {
   );
 });
 
+
+
 const componentsItems = (gstType, onCalculateRow, displayLabels) => [
   {
     headerName: "#",
@@ -599,7 +755,7 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
     name: "qty",
     width: 100,
     field: ({ fieldName }) => (
-      <Input onBlur={() => onCalculateRow(fieldName)} />
+      <Input onChange={() => onCalculateRow(fieldName)} />
     ),
   },
   {
@@ -607,7 +763,7 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
     name: "rate",
     width: 100,
     field: ({ fieldName }) => (
-      <Input onBlur={() => onCalculateRow(fieldName)} />
+      <Input onChange={() => onCalculateRow(fieldName)} />
     ),
   },
   {
@@ -627,7 +783,7 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
           label: opt.text,
           value: opt.value,
         }))}
-        onBlur={() => onCalculateRow(fieldName)}
+        onChange={() => onCalculateRow(fieldName)}
       />
     ),
   },
@@ -636,31 +792,31 @@ const componentsItems = (gstType, onCalculateRow, displayLabels) => [
     name: "cgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "SGST",
     name: "sgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "IGST",
     name: "igst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "I",
-    field: (row) => <Input disabled />,
+    condition: () => gstType === "I",
+    field: () => <Input disabled />,
   },
 
   {
     headerName: "HSN Code",
     name: "hsn",
     width: 150,
-    field: (row) => <Input />,
+    field: () => <Input />,
   },
   {
     headerName: "Remark",
@@ -740,61 +896,25 @@ const formatMinValidationErrors = (errorFields) =>
     })
     .join(" · ");
 
-const rules = {
-  docId: [
-    {
-      required: true,
-      message: "Please enter a doc ID",
-    },
-  ],
-  // docDate: [
-  //   {
-  //     required: true,
-  //     message: "Please select document date",
-  //   },
-  // ],
-};
-const listRules = {
-  hsn: [
-    {
-      required: true,
-      message: "Please enter a HSN code!",
-    },
-  ],
-  location: [
-    {
-      required: true,
-      message: "Please select a Location!",
-    },
-  ],
-  qty: [
-    {
-      required: true,
-      message: "Please enter MIN Qty!",
-    },
-  ],
-  file: [
-    {
-      required: true,
-      message: "Please select document!",
-    },
-  ],
-  rate: [
-    {
-      required: true,
-      message: "Please component rate!",
-    },
-  ],
-  docDate: [
-    {
-      required: true,
-      message: "Please select doc Date!",
-    },
-  ],
-  invoiceId: [
-    {
-      required: true,
-      message: "Please select doc id!",
-    },
-  ],
-};
+
+
+const MIN_SAMPLE_DATA = [
+  { PART_CODE: "P0005", HSN: 85365090, QTY: 2, RATE: 2, GST_TYPE: "L", GST_RATE: 5, REMARK: "ok", LOCATION: "RM001" },
+];
+
+const MIN_PREVIEW_COLUMNS = [
+  { title: "Part Code", dataIndex: "componentName", key: "componentName", width: 220 },
+  { title: "HSN", dataIndex: "hsn", key: "hsn", width: 120 },
+  { title: "Qty", dataIndex: "qty", key: "qty", width: 80 },
+  { title: "Rate", dataIndex: "rate", key: "rate", width: 80 },
+  { title: "GST Type", dataIndex: "gstTypeSuggested", key: "gstTypeSuggested", width: 90 },
+  { title: "GST Rate", dataIndex: "gstRate", key: "gstRate", width: 90 },
+  { title: "Remark", dataIndex: "remark", key: "remark", width: 120 },
+  {
+    title: "Location",
+    dataIndex: "locationRaw",
+    key: "locationRaw",
+    width: 120,
+    render: (val) => val?.text || val?.value || val || "",
+  },
+];
