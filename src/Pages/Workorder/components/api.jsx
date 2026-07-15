@@ -385,7 +385,6 @@ const getWorkOrderForMIN = async (id, woId, getComponents) => {
       qty: row.qty,
       id: v4(),
       rate: "",
-      qty: "",
       value: "",
       sgst: "",
       igst: "",
@@ -431,7 +430,7 @@ const createMIN = async (values, showView) => {
   const finalObj = {
     woid: showView.woId,
     component: arr.map(
-      (row) => row.componentKey ?? row.component_key ?? "--"
+      (row) => row.componentKey ?? row.component_key ?? row.component ?? "--"
     ),
     qty: getValueInArray(arr, "qty"),
     rate: getValueInArray(arr, "rate"),

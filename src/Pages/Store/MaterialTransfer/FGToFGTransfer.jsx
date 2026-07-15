@@ -70,17 +70,17 @@ function FGToFGTransfer() {
 
   // console.log(branchName);
   const getLocationFunction = async () => {
-    const { data } = await imsAxios.get("/skuQueryA/q3Location");
+    const { data } = await imsAxios.get("/q3/location");
 
     let v = [];
-    data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
+    data?.map((ad) => v.push({ label: ad.text, value: ad.id }));
     setloctionData(v);
   };
   const getLocationFunctionTo = async () => {
-    const { data } = await imsAxios.get("/skuQueryA/q3Location");
+    const { data } = await imsAxios.get("/q3/location");
 
     let v = [];
-    data.data.map((ad) => v.push({ label: ad.text, value: ad.id }));
+    data?.map((ad) => v.push({ label: ad.text, value: ad.id }));
     setloctionDataTo(v);
   };
 
@@ -177,6 +177,8 @@ function FGToFGTransfer() {
         const product = group.map((r) => r.component);
         const qty = group.map((r) => r.qty1);
         const remark = group.map((r) => (r.comment || "").trim() || "--");
+        const rate = group.map((r) => r?.avrRate ?? 0);
+    
 
         const res = await imsAxios.post("/godown/transferFG2FG", {
           pickLocation: allData.locationFrom,
@@ -184,6 +186,7 @@ function FGToFGTransfer() {
           product,
           qty,
           remark,
+          rate,
         });
 
         // Interceptor returns response.data when success is present, so res is already the body
