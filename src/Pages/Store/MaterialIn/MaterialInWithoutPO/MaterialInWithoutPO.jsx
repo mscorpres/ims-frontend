@@ -121,11 +121,15 @@ export default function MaterialInWithoutPO() {
   const [uplaodForm] = Form.useForm();
   const sampleData = [
     {
-      PART_CODE: "p0001",
+      PART_CODE: "PE22017A",
       MANUAL_MFG_CODE: "1",
       QTY: 12,
       RATE: "--",
       HSN: "123456",
+      MIS_AMOUNT: "--",
+      INSURANCE_AMOUNT: "--",
+      TAXABLE_AMOUNT: "--",
+      CUSTOM_DUTY: "--",
       LOCATION: "RM021",
       AUTO_CONSUMP: "0",
       REMARK: "test",
