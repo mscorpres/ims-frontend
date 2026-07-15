@@ -771,14 +771,17 @@ export default function ExportMaterialInWithPO({}) {
         poId: searchData.poNumber,
         materials: obj.materials.map((mat, index) => {
           // Calculate values
-          const orderQty = mat.orderqty || 0;
-          const orderRate = mat.orderrate || 0;
-          const exchangeRate = mat.exchange_rate || 0;
-          const taxableValue = mat.totalValue || orderQty * orderRate;
-          const foreignValue = mat.usdValue || taxableValue * exchangeRate;
-          const customDuty = mat.custom_duty || 0;
-          const freightValue = mat.freight_value || 0;
-          const total = taxableValue + customDuty + freightValue;
+          const orderQty = Number(mat.orderqty) || 0;
+          const orderRate = Number(mat.orderrate) || 0;
+          const exchangeRate = Number(mat.exchange_rate) || 0;
+          const taxableValue = Number(mat.totalValue) || orderQty * orderRate;
+          const foreignValue = Number(mat.usdValue) || taxableValue * exchangeRate;
+          const customDuty = Number(mat.custom_duty) || 0;
+          const freightValue = Number(mat.freight_value) || 0;
+          const misAmount = Number(mat.mis_amount ?? mat.misAmount) || 0;
+          const insuranceAmt = Number(mat.insurance_amt ?? mat.insuranceAmt) || 0;
+          const total =
+            taxableValue + customDuty + freightValue + misAmount + insuranceAmt;
           // Calculate finalRate, handle division by zero
           const finalRate =
             orderQty > 0
@@ -810,6 +813,8 @@ export default function ExportMaterialInWithPO({}) {
             foreignValue: foreignValue,
             customDuty: customDuty,
             freightValue: freightValue,
+            misAmount: misAmount,
+            insuranceAmt: insuranceAmt,
             finalRate: finalRate,
             total: total,
             // Keep original fields for reference
@@ -1122,7 +1127,9 @@ export default function ExportMaterialInWithPO({}) {
       Number(row?.freightValue),
     );
     const misAmount = poData?.materials.map((row) => Number(row?.misAmount));
-    const insurance = poData?.materials.map((row) => Number(row?.insurance));
+    const insurance = poData?.materials.map((row) =>
+      Number(row?.insuranceAmt),
+    );
     let obj = [
       { label: "Total Taxable Value", sign: "+", values: totalTaxableValue },
       { label: "Total Custom Duty", sign: "+", values: customTotal },

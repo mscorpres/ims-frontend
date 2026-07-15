@@ -139,8 +139,6 @@ export default function MaterialInWithoutPO() {
       TAXABLE_AMOUNT: "--",
       FRIEGHT_AMOUNT: "--",
       CUSTOM_DUTY: "--",
-      TOTAL_AMOUNT: "--",
-      FINAL_RATE: "--",
       HSN: "123456",
       LOCATION: "RM021",
       AUTO_CONSUMP: "0",
