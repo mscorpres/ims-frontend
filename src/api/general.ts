@@ -24,6 +24,17 @@ export const createJobWorkReq = async (finalObj) => {
     console.log("something happened wrong", error);
   }
 };
+export const uploadBranchTransferComponents = async (formdata: any) => {
+  try {
+    const response = await imsAxios.post(
+      "/branchTransfer/componentUpload",
+      formdata,
+    );
+    return response;
+  } catch (error) {
+    console.error("something happened wrong", error);
+  }
+};
 export const saveJwMAterialIssue = async (finalObj) => {
   try {
     const response = await imsAxios.post(
