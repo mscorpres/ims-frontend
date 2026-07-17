@@ -393,7 +393,7 @@ const ViewModal = ({
   return (
     <Drawer
       width="50vw"
-      title={`Branch Transfer of ${detaildata[0].trans_id}`}
+      title={`Branch Transfer of ${detaildata[0]?.trans_id}`}
       onClose={() => {
         setshow(false);
       }}
