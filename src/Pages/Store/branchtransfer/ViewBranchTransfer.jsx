@@ -1,22 +1,17 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Row, Space, Tooltip, Popover, Form, Drawer } from "antd";
+import { Button, Row, Space, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
-import { v4 } from "uuid";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { DownloadOutlined, MessageOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import { set } from "lodash";
 import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
@@ -34,9 +29,7 @@ function ViewBranchTransfer() {
   const [qcReportForm] = Form.useForm();
   const ppr = Form.useWatch("ppr", qcReportForm);
   const status = Form.useWatch("status", qcReportForm);
-  const processName = Form.useWatch("process", qcReportForm);
-  const [searchInput, setSearchInput] = useState("");
-  const { executeFun, loading: loading1 } = useApi();
+  const { executeFun } = useApi();
   const getcomoponents = async (trans_id) => {
     setLoading("fetch");
     const { data } = await imsAxios.post(
@@ -45,7 +38,7 @@ function ViewBranchTransfer() {
         trans_id: trans_id,
       }
     );
-    console.log(data);
+   
     let arr = data.data.map((row, index) => ({
       id: index,
       index: index + 1,
@@ -67,12 +60,13 @@ function ViewBranchTransfer() {
     type: "actions",
     getActions: ({ row }) => [
       <GridActionsCellItem
+        key={"view"}
         showInMenu
         // disabled={loading}
         onClick={() => {
           getcomoponents(row.trans_id);
         }}
-        label="View and approve"
+        label="View"
       />,
     ],
   };
@@ -350,10 +344,8 @@ const ViewModal = ({
   show,
   setshow,
   detaildata,
-  status,
   component,
 }) => {
-  console.log(detaildata);
   const viewcolumns = [
     {
       headerName: "#",
@@ -401,7 +393,7 @@ const ViewModal = ({
   return (
     <Drawer
       width="50vw"
-      title={`Branch Transfer of ${detaildata.vendor}`}
+      title={`Branch Transfer of ${detaildata[0].trans_id}`}
       onClose={() => {
         setshow(false);
       }}
