@@ -1,5 +1,5 @@
-import axios from "axios";
-import React, { useState } from "react";
+
+import  { useState } from "react";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   asyncSelectComponent,
@@ -19,7 +19,6 @@ export default function AddDCComponents({
   newGatePass,
   setActiveTab,
   detailsResetFunction,
-  setSuccessPage,
   setPageLoading,
   pickuplocs,
   droplocs,
@@ -29,6 +28,7 @@ export default function AddDCComponents({
       id: v4(),
       component: "",
       qty: 0,
+      rate: 0,
       pickup: "",
       drop: "",
       hsn: "",
@@ -36,7 +36,6 @@ export default function AddDCComponents({
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -202,6 +201,7 @@ export default function AddDCComponents({
         id: v4(),
         component: "",
         qty: 0,
+        rate: 0,
         pickup: "",
         drop: "",
         hsn: "",
@@ -250,9 +250,33 @@ export default function AddDCComponents({
         }),
     },
     {
+      headerName: "Rate",
+      field: "rate",
+      width: 120,
+      renderCell: ({ row }) =>
+        inputComponent({
+          row: row,
+          value: "rate",
+          disabled: true,
+        }),
+    },
+    {
+      headerName: "Value",
+      field: "value",
+      width: 120,
+      renderCell: ({ row }) =>
+        inputComponent({
+          row: row,
+          value: row.rate * row.qty,
+          disabled: true,
+          type: "calculated",
+        }),
+    },
+    {
       headerName: "Pick up Location",
       field: "pickup",
-      flex: 1,
+  
+      width: 200,
       renderCell: ({ row }) => (
         <MySelect
           options={pickuplocs}
@@ -265,7 +289,7 @@ export default function AddDCComponents({
     {
       headerName: "Drop Location",
       field: "drop",
-      flex: 1,
+     width: 200,
       renderCell: ({ row }) => (
         <MySelect
           options={droplocs}

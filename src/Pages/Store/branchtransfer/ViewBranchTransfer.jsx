@@ -6,11 +6,12 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { DownloadOutlined } from "@ant-design/icons";
+import { FileTwoTone , PrinterFilled, DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
 import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
+import printFunction from "../../../Components/printFunction";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
@@ -53,6 +54,29 @@ function ViewBranchTransfer() {
     setLoading(false);
   };
 
+  const printChallan = async (trans_id) => {
+    try {
+      setLoading("print");
+      const { data } = await imsAxios.post(
+        "/branchTransfer/printBranchTransferChallan",
+        {
+          trans_id: trans_id,
+        }
+      );
+
+      if (data.code === 200) {
+     
+        printFunction(data.data.buffer.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const actionColumn = {
     headerName: "",
     field: "actions",
@@ -62,11 +86,22 @@ function ViewBranchTransfer() {
       <GridActionsCellItem
         key={"view"}
         showInMenu
-        // disabled={loading}
+        disabled={!!loading}
+        icon={<FileTwoTone  />}
         onClick={() => {
           getcomoponents(row.trans_id);
         }}
         label="View"
+      />,
+         <GridActionsCellItem
+        key={"print"}
+        showInMenu
+        disabled={!!loading}
+        icon={<PrinterFilled  />}
+        onClick={() => {
+          printChallan(row.trans_id);
+        }}
+        label={loading === "print" ? "Printing..." : "Print"}
       />,
     ],
   };
@@ -195,7 +230,7 @@ function ViewBranchTransfer() {
           justify="space-between"
           style={{ padding: "0px 10px", marginBottom: -15 }}
         >
-          {loading === "fetch" && <Loading />}
+          {(loading === "fetch" || loading === "print") && <Loading />}
           <Form
             form={qcReportForm}
             layout="vertical"
@@ -280,7 +315,7 @@ function ViewBranchTransfer() {
         detaildata={detailData}
         status={status}
         loading={loading}
-        setLoading={setLoading}
+        // setLoading={setLoading}
         component={<Loading />}
       />
     </>
@@ -340,7 +375,7 @@ export default ViewBranchTransfer;
 
 const ViewModal = ({
   loading,
-  setLoading,
+  // setLoading,
   show,
   setshow,
   detaildata,
@@ -373,22 +408,22 @@ const ViewModal = ({
       field: "remark",
     },
   ];
-  const approveTransfer = async () => {
-    setLoading("fetch");
-    const { data } = await imsAxios.post(
-      "/branchTransfer/approveTransferStock",
-      {
-        trans_id: detaildata[0].trans_id,
-      }
-    );
-    if (data.status === "success") {
-      toast.success(data.message);
-    } else if (data.status === "error") {
-      toast.error(data.message.msg);
-    }
-    setLoading(false);
-    setshow(false);
-  };
+  // const approveTransfer = async () => {
+  //   setLoading("fetch");
+  //   const { data } = await imsAxios.post(
+  //     "/branchTransfer/approveTransferStock",
+  //     {
+  //       trans_id: detaildata[0].trans_id,
+  //     }
+  //   );
+  //   if (data.status === "success") {
+  //     toast.success(data.message);
+  //   } else if (data.status === "error") {
+  //     toast.error(data.message.msg);
+  //   }
+  //   setLoading(false);
+  //   setshow(false);
+  // };
 
   return (
     <Drawer
@@ -399,9 +434,7 @@ const ViewModal = ({
       }}
       extra={
         <Space>
-          <Button type="primary" onClick={approveTransfer}>
-            Approve
-          </Button>
+    
           <Button
             type="primary"
             onClick={() =>
