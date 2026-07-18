@@ -1,22 +1,18 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { toast } from "react-toastify";
-import { Button, Row, Space, Tooltip, Popover, Form, Drawer } from "antd";
+import { Button, Row, Space, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
-import { v4 } from "uuid";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { DownloadOutlined, MessageOutlined } from "@ant-design/icons";
+import { FileTwoTone , PrinterFilled, DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import { set } from "lodash";
 import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
+import printFunction from "../../../Components/printFunction";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
@@ -34,9 +30,7 @@ function ViewBranchTransfer() {
   const [qcReportForm] = Form.useForm();
   const ppr = Form.useWatch("ppr", qcReportForm);
   const status = Form.useWatch("status", qcReportForm);
-  const processName = Form.useWatch("process", qcReportForm);
-  const [searchInput, setSearchInput] = useState("");
-  const { executeFun, loading: loading1 } = useApi();
+  const { executeFun } = useApi();
   const getcomoponents = async (trans_id) => {
     setLoading("fetch");
     const { data } = await imsAxios.post(
@@ -45,7 +39,7 @@ function ViewBranchTransfer() {
         trans_id: trans_id,
       }
     );
-    console.log(data);
+   
     let arr = data.data.map((row, index) => ({
       id: index,
       index: index + 1,
@@ -60,6 +54,29 @@ function ViewBranchTransfer() {
     setLoading(false);
   };
 
+  const printChallan = async (trans_id) => {
+    try {
+      setLoading("print");
+      const { data } = await imsAxios.post(
+        "/branchTransfer/printBranchTransferChallan",
+        {
+          trans_id: trans_id,
+        }
+      );
+
+      if (data.code === 200) {
+     
+        printFunction(data.data.buffer.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const actionColumn = {
     headerName: "",
     field: "actions",
@@ -67,12 +84,24 @@ function ViewBranchTransfer() {
     type: "actions",
     getActions: ({ row }) => [
       <GridActionsCellItem
+        key={"view"}
         showInMenu
-        // disabled={loading}
+        disabled={!!loading}
+        icon={<FileTwoTone  />}
         onClick={() => {
           getcomoponents(row.trans_id);
         }}
-        label="View and approve"
+        label="View"
+      />,
+         <GridActionsCellItem
+        key={"print"}
+        showInMenu
+        disabled={!!loading}
+        icon={<PrinterFilled  />}
+        onClick={() => {
+          printChallan(row.trans_id);
+        }}
+        label={loading === "print" ? "Printing..." : "Print"}
       />,
     ],
   };
@@ -201,7 +230,7 @@ function ViewBranchTransfer() {
           justify="space-between"
           style={{ padding: "0px 10px", marginBottom: -15 }}
         >
-          {loading === "fetch" && <Loading />}
+          {(loading === "fetch" || loading === "print") && <Loading />}
           <Form
             form={qcReportForm}
             layout="vertical"
@@ -286,7 +315,7 @@ function ViewBranchTransfer() {
         detaildata={detailData}
         status={status}
         loading={loading}
-        setLoading={setLoading}
+        // setLoading={setLoading}
         component={<Loading />}
       />
     </>
@@ -346,14 +375,12 @@ export default ViewBranchTransfer;
 
 const ViewModal = ({
   loading,
-  setLoading,
+  // setLoading,
   show,
   setshow,
   detaildata,
-  status,
   component,
 }) => {
-  console.log(detaildata);
   const viewcolumns = [
     {
       headerName: "#",
@@ -381,35 +408,33 @@ const ViewModal = ({
       field: "remark",
     },
   ];
-  const approveTransfer = async () => {
-    setLoading("fetch");
-    const { data } = await imsAxios.post(
-      "/branchTransfer/approveTransferStock",
-      {
-        trans_id: detaildata[0].trans_id,
-      }
-    );
-    if (data.status === "success") {
-      toast.success(data.message);
-    } else if (data.status === "error") {
-      toast.error(data.message.msg);
-    }
-    setLoading(false);
-    setshow(false);
-  };
+  // const approveTransfer = async () => {
+  //   setLoading("fetch");
+  //   const { data } = await imsAxios.post(
+  //     "/branchTransfer/approveTransferStock",
+  //     {
+  //       trans_id: detaildata[0].trans_id,
+  //     }
+  //   );
+  //   if (data.status === "success") {
+  //     toast.success(data.message);
+  //   } else if (data.status === "error") {
+  //     toast.error(data.message.msg);
+  //   }
+  //   setLoading(false);
+  //   setshow(false);
+  // };
 
   return (
     <Drawer
       width="50vw"
-      title={`Branch Transfer of ${detaildata.vendor}`}
+      title={`Branch Transfer of ${detaildata[0]?.trans_id}`}
       onClose={() => {
         setshow(false);
       }}
       extra={
         <Space>
-          <Button type="primary" onClick={approveTransfer}>
-            Approve
-          </Button>
+    
           <Button
             type="primary"
             onClick={() =>

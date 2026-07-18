@@ -380,15 +380,15 @@ const columns = [
     width: 200,
   },
   {
-    headerName: "IN Rate",
-    field: "qty_in_rate",
+    headerName: "Rate",
+    field: "rate",
     width: 200,
   },
-  {
-    headerName: "Out Rate",
-    field: "out_rate",
-    width: 200,
-  },
+  // {
+  //   headerName: "Out Rate",
+  //   field: "out_rate",
+  //   width: 200,
+  // },
   // {
   //   headerName: "Weighted Average",
   //   field: "weightedSKURate",
