@@ -9,6 +9,7 @@ import { GridActionsCellItem } from "@mui/x-data-grid";
 import ViewModal from "./ViewModal";
 import { downloadExcel } from "../../../../Components/printFunction";
 import EditModal from "./Edit";
+import MapFgRmModal from "./MapFgRmModal";
 import { downloadCSVnested2 } from "../../../../Components/exportToCSV";
 import{
   CommonIcons,
@@ -20,6 +21,7 @@ const ManageBOM = () => {
   const [loading, setLoading] = useState(false);
   const [viewBom, setViewBom] = useState(false);
   const [editBom, setEditBom] = useState(false);
+  const [mapFgRm, setMapFgRm] = useState(false);
   const { pathname } = useLocation();
   const bomType = pathname.includes("sfg") ? "sfg" : "fg";
 
@@ -112,6 +114,21 @@ const ManageBOM = () => {
           label="Download"
           onClick={() => handleBOMDownload(row.bomId, row.product)}
         />,
+        ...(bomType === "sfg"
+          ? [
+              <GridActionsCellItem
+                showInMenu
+                label="Map FG RM"
+                onClick={() =>
+                  setMapFgRm({
+                    name: row.product,
+                    id: row.bomId,
+                    sku: row.sku,
+                  })
+                }
+              />,
+            ]
+          : []),
       ],
     },
     {
@@ -159,6 +176,11 @@ const ManageBOM = () => {
         bomType={bomType}
         show={editBom}
         close={() => setEditBom(false)}
+      />
+      <MapFgRmModal
+        show={mapFgRm}
+        close={() => setMapFgRm(false)}
+        refresh={getRows}
       />
     </div>
   );
