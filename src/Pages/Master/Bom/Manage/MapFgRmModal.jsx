@@ -3,44 +3,62 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import { getComponentOptions } from "../../../../api/general.ts";
-import useApi from "../../../../hooks/useApi.ts";
 
 const MapFgRmModal = ({ show, close, refresh }) => {
+  const [componentsList, setComponentsList] = useState([]);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [mappedComponent, setMappedComponent] = useState("");
+  const [mappedComponentId, setMappedComponentId] = useState("");
   const [component, setComponent] = useState("");
   const [error, setError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const { executeFun, loading } = useApi();
+  const [fetchingList, setFetchingList] = useState(false);
 
   const getMappedComponent = async () => {
     const response = await imsAxios.get("/bom/fetch_sfgInward_rm", {
       params: { subject_id: show.id, sku: show.sku },
     });
     const { data } = response;
-    if (data && data.code === 200 && data.data?.rm_name) {
-      setMappedComponent(data.data.rm_name);
+    if (
+      data &&
+      data.code === 200 &&
+      data.data?.rm_name?.text &&
+      data.data.rm_name.text !== "--"
+    ) {
+      setMappedComponent(data.data.rm_name.text);
+      setMappedComponentId(data.data.rm_name.id);
     } else {
       setMappedComponent("");
+      setMappedComponentId("");
+    }
+  };
+
+  const getBomComponents = async () => {
+    setFetchingList(true);
+    const response = await imsAxios.post(
+      "/bom/fetchComponentsInBomForUpdate",
+      { subject_id: show.id }
+    );
+    setFetchingList(false);
+    const { data } = response;
+    if (data && data.code === 200 && data.data) {
+      const arr = data.data.map((row) => ({
+        text: `${row.component} (${row.partcode})`,
+        value: row.compKey,
+      }));
+      setComponentsList(arr);
+      setAsyncOptions(arr);
+    } else {
+      setComponentsList([]);
+      setAsyncOptions([]);
     }
   };
 
   const getComponentsOption = async (searchTerm) => {
-    const response = await executeFun(
-      () => getComponentOptions(searchTerm),
-      "select"
+    const arr = componentsList.filter((row) =>
+      row.text?.toLowerCase().includes((searchTerm || "").toLowerCase())
     );
-    const { data } = response;
-    if (data && data[0]) {
-      const arr = data.map((row) => ({
-        text: row.text,
-        value: row.id,
-      }));
-      setAsyncOptions(arr);
-    } else {
-      setAsyncOptions([]);
-    }
+    setAsyncOptions(arr);
   };
 
   const handleSubmit = async () => {
@@ -68,7 +86,9 @@ const MapFgRmModal = ({ show, close, refresh }) => {
   const handleCancel = () => {
     setComponent("");
     setAsyncOptions([]);
+    setComponentsList([]);
     setMappedComponent("");
+    setMappedComponentId("");
     setError(false);
     close();
   };
@@ -76,9 +96,20 @@ const MapFgRmModal = ({ show, close, refresh }) => {
   useEffect(() => {
     if (show) {
       getMappedComponent();
+      getBomComponents();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show]);
+
+  useEffect(() => {
+    if (
+      mappedComponentId &&
+      componentsList.some((row) => row.value === mappedComponentId)
+    ) {
+      setComponent(mappedComponentId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mappedComponentId, componentsList]);
 
   return (
     <Modal
@@ -104,8 +135,7 @@ const MapFgRmModal = ({ show, close, refresh }) => {
         <MyAsyncSelect
           loadOptions={getComponentsOption}
           optionsState={asyncOptions}
-          onBlur={() => setAsyncOptions([])}
-          selectLoading={loading("select")}
+          selectLoading={fetchingList}
           onChange={(value) => {
             setError(false);
             setComponent(value);
