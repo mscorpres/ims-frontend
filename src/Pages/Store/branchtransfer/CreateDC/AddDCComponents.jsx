@@ -183,6 +183,7 @@ export default function AddDCComponents({
         to_location: rows.map((row) => row.drop?.value ?? row.drop ),
         hsn: rows.map((row) => row.hsn),
         item_description: rows.map((row) => row.description ?? ""),
+        rate: rows.map((row) => row.rate),
       },
     };
 
