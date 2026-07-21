@@ -1,19 +1,15 @@
 import {
-  Button,
   Col,
   Drawer,
   Form,
   Input,
   Row,
-  Space,
   Typography,
   Modal,
   Card,
-  Radio,
-  Divider,
   Skeleton,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import ClientDetailsCard from "./ClientDetailsCard";
 import BillingDetailsCard from "./BillingDetailsCard";
@@ -30,7 +26,6 @@ import TextArea from "antd/es/input/TextArea";
 import { postUpdatedWo } from "../api";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
 import MyDataTable from "../../../../Components/MyDataTable";
-import FormTable from "../../../../Components/FormTable";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 const CreateChallanModal = ({
   show,
@@ -39,13 +34,11 @@ const CreateChallanModal = ({
   editShipment,
   rtnchallan,
   setRtnChallan,
-  setDetailData,
   // challanForm,
   //testing
 }) => {
   const [challanForm] = Form.useForm();
   const [locationlist, setlocationlist] = useState([]);
-  const [updatechallan, setupdatechallan] = useState("");
   const [test, settest] = useState("");
   const [challantitle, setchallantitle] = useState(false);
   const [billid, setBillId] = useState("");
@@ -54,37 +47,25 @@ const CreateChallanModal = ({
   const [daddid, setdaddid] = useState(false);
   const [addOptions, setaddoptions] = useState([]);
   const [challanId, setChallanId] = useState("");
-  const [challanData, setChallanData] = useState([]);
   const [rows, setRows] = useState([]);
   const [minRows, setMinRows] = useState([]);
-  const [newminRows, setnewMinRows] = useState([]);
   const [gstType, setgstType] = useState([]);
-  const components = Form.useWatch("components", challanForm);
-  const componentsMIN = Form.useWatch("componentsMIN", challanForm);
   const [loading, setLoading] = useState("fetch");
-  const [productid, setproductid] = useState("fetch");
   const [branchid, setBranchId] = useState("");
-  const [modal2Open, setModal2Open] = useState(false);
   const [minqty, setMinQty] = useState("");
   const [componentList, setComponentList] = useState([]);
   const [componentsLoading, setComponentsLoading] = useState(false);
-  const [totalsum, setTotalSum] = useState("");
   const [dataProductdetails, setDataProductdetails] = useState({
     text: "",
     value: "",
   });
 
-  let sumOfMinAvailableQty;
- 
-
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [transaction, setTransactions] = useState("");
   var bid;
-  var did;
   const [uplaodType, setUploadType] = useState("table");
   const [stage, setStage] = useState("preview");
 
-  const [productSelected, setProductSelected] = useState(false);
   const [previewData, setpreviewData] = useState([]);
   const files = Form.useWatch("files", challanForm);
   useEffect(() => {
@@ -153,10 +134,8 @@ const CreateChallanModal = ({
   ];
   const previewuploaData = async () => {
     const values = await challanForm.validateFields();
-    let finalObj = {};
     let formData = new FormData();
     formData.append("file", values.files[0].originFileObj);
-    let url = "";
     setLoading(true);
     // console.log("values", values);
     // if (uplaodType === "file") {
@@ -201,7 +180,7 @@ const CreateChallanModal = ({
       onOk: () => createDeliveryChallan(),
     });
   };
-  const showReturnSubmitConfirmationModal = (f) => {
+  const showReturnSubmitConfirmationModal = () => {
     // submit confirm modal
     Modal.confirm({
       title: "Do you Want to Create this Return Challan?",
@@ -227,7 +206,6 @@ const CreateChallanModal = ({
           }
         );
         const { data } = response;
-        setChallanData(data);
         challanForm.setFieldValue("clientname", data.header.clientcode.label);
         challanForm.setFieldValue("vn", data.header.vehicle);
         challanForm.setFieldValue("or", data.header.other_ref);
@@ -250,7 +228,6 @@ const CreateChallanModal = ({
           }
         );
         const { data } = response;
-        setChallanData(data);
         challanForm.setFieldValue("clientname", data.header.clientcode.label);
         challanForm.setFieldValue("vn", data.header.vehicle);
         challanForm.setFieldValue("or", data.header.other_ref);
@@ -451,7 +428,6 @@ const CreateChallanModal = ({
       // challanForm.setFieldValue("shipment_id", arrHead.shipmentId);
       // challanForm.setFieldValue("dispatchid", h.dispatchId);
       challanForm.setFieldValue("shippingaddress", arrHead.dispatch_address);
-      let arrMat = data.material;
       // console.log("data is here", data);
       // let newcomp = {
       //   productname: arrMat.product_name,
@@ -522,23 +498,22 @@ const CreateChallanModal = ({
             // description: arrHead.challan_remark,
           };
         });
-        console.log("materialA", materialArr);
-        let a = {
-          materialRowId: data.material.map((a) => a.row_id),
-          component: data.material.map((a) => a.component_name),
-          productKey: data.material.map((a) => a.component_key),
-          partCode: data.material.map((a) => a.part_no),
-          qty: data.material.map((a) => a.part_qty),
-          hsn: data.material.map((a) => a.hsn_code),
-          rate: data.material.map((a) => a.part_rate),
-          description: data.material.map((a) => a.remarks),
-          // description: data.material.remarks,
-          woId: h.woTransaction_Id,
-          shipment_id: arrHead.shipment_id,
-          clientbranchid: arrHead.clientaddress.value,
-          // description: arrHead.challan_remark,
-        };
-        console.log("a", a);
+        // console.log("materialA", materialArr);
+        // let a = {
+        //   materialRowId: data.material.map((a) => a.row_id),
+        //   component: data.material.map((a) => a.component_name),
+        //   productKey: data.material.map((a) => a.component_key),
+        //   partCode: data.material.map((a) => a.part_no),
+        //   qty: data.material.map((a) => a.part_qty),
+        //   hsn: data.material.map((a) => a.hsn_code),
+        //   rate: data.material.map((a) => a.part_rate),
+        //   description: data.material.map((a) => a.remarks),
+        //   // description: data.material.remarks,
+        //   woId: h.woTransaction_Id,
+        //   shipment_id: arrHead.shipment_id,
+        //   clientbranchid: arrHead.clientaddress.value,
+        //   // description: arrHead.challan_remark,
+        // };
         // challanForm.setFieldValue("components", [materialA]);
         const fields = challanForm.getFieldsValue();
         fields.components = materialArr;
@@ -563,7 +538,7 @@ const CreateChallanModal = ({
       setMinRows(arr);
 
       challanForm.setFieldValue("address", arrHead.clientaddress.label);
-      let news = challanForm.getFieldsValue("components");
+    
       // console.log("news", news);
     }
   };
@@ -584,15 +559,12 @@ const CreateChallanModal = ({
   useEffect(() => {
     if (rows.length > 0) {
       if (!rtnchallan) {
-        console.log("rows", rows);
-        sumOfMinAvailableQty = 0;
+        let sumOfMinAvailableQty = 0;
         let getRowsQty = rows.filter((b) => b.out_qty > 0);
-        console.log("getRowsQty", getRowsQty);
         for (const item of getRowsQty) {
           sumOfMinAvailableQty += parseInt(item.out_qty);
         }
 
-        console.log("Sum of min_available_qty:", sumOfMinAvailableQty);
         setMinQty(sumOfMinAvailableQty);
         let a = challanForm.getFieldValue("components");
         a[0].qty = sumOfMinAvailableQty;
@@ -640,22 +612,19 @@ const CreateChallanModal = ({
       settest("Edit Return");
     }
     getLocationList();
-    if (data.hasOwnProperty("challanId")) {
+    if (Object.prototype.hasOwnProperty.call(data, "challanId")) {
       getchallandata(data.challantype, data.challanId);
       setchallantitle(true);
       settest(data.challantype);
-      setupdatechallan(data.challantype);
     }
     if (show.label === "Return Challan") {
       settest(show.label);
-      setupdatechallan(show.label);
       getbomcomponents(data.productId, data.transactionId);
       // console.log("here in return challan", data);
       setRtnChallan(true);
       getMinDetails(data);
     } else if (show.label === "Create shipment") {
       settest(show.label);
-      setupdatechallan(show.label);
       const obj = {
         index: 1,
         productname: data.product,
@@ -681,16 +650,14 @@ const CreateChallanModal = ({
     // console.log("datain useeffect", data);
   }, [show, data?.transactionId, data?.challanId]);
 
-  useEffect(() => {
-    setModal2Open(true);
-  }, []);
-
   const getMinDetails = async (d) => {
+    setLoading("fetch-wo-mins");
     const response = await imsAxios.post("/createwo/fetch_wo_mins", {
       wo_id: d.transactionId,
     });
     // console.log("response mindetails", response);
     const { data } = response;
+    if(data?.code === 200) {
     let arr = data?.data?.map((r) => {
       return {
         min_date: r.min_date,
@@ -705,6 +672,8 @@ const CreateChallanModal = ({
       };
     });
     setMinRows(arr);
+    setLoading(false);
+  }
     // challanForm.setFieldValue("componentsMIN", arr);
   };
 
@@ -914,7 +883,7 @@ const CreateChallanModal = ({
   };
   const updateWoShipment = async (newpayload) => {
     // return;
-    const arr = await postUpdatedWo(newpayload);
+     await postUpdatedWo(newpayload);
     close();
   };
   const createchallanThroughtExcel = async () => {
@@ -923,9 +892,6 @@ const CreateChallanModal = ({
     const values = await challanForm.validateFields();
     {
       addid ? (bid = values.billingid) : (bid = billid);
-    }
-    {
-      addid ? (did = values.dispatchid) : (did = dispatchid);
     }
     let formData = new FormData();
     formData.append("file", values.files[0].originFileObj);
@@ -1009,9 +975,6 @@ const CreateChallanModal = ({
           }
           {
             addid ? (bid = values.billingid) : (bid = billid);
-          }
-          {
-            addid ? (did = values.dispatchid) : (did = dispatchid);
           }
           setLoading("fetch");
           const cddata = {
@@ -1110,14 +1073,6 @@ const CreateChallanModal = ({
   const createRMChallan = async () => {
     try {
       const values = await challanForm.validateFields();
-      var bid;
-      var did;
-      {
-        addid ? (bid = values.billingid) : (bid = billid);
-      }
-      {
-        addid ? (did = values.dispatchid) : (did = dispatchid);
-      }
       const minOutRows = (Array.isArray(minRows) ? minRows : []).filter(
         (b) => Number(b.out_qty) > 0
       );
@@ -1195,7 +1150,7 @@ const CreateChallanModal = ({
       };
       console.log("editPayload", editPayload);
       // return;
-      let link;
+  
       let response;
       if (editShipment === "editReturn") {
         response = await imsAxios.post(
@@ -1301,7 +1256,7 @@ const CreateChallanModal = ({
         open={show}
         width="100%"
       >
-        {loading === "fetch" && <Loading />}
+        {( loading === "fetch" || loading === "fetch-wo-min" ) && <Loading />}
         <Form
           style={{ height: "100%" }}
           layout="vertical"
@@ -1527,17 +1482,10 @@ const defaultValues = {
 export default CreateChallanModal;
 //for return challan
 const Component = ({
-  fields,
-  field,
-  index,
-  add,
   form,
   calculation,
   gsttype,
-  remove,
   location,
-  locationfunction,
-  showSubmitConfirmationModal,
   setlocationlist,
   getLocationList,
   locationlist,
@@ -1595,24 +1543,24 @@ const Component = ({
             <Card
               style={{
                 height: "63%",
-                overflowY: "scroll",
                 maxHeight: "63%",
                 marginTop: "30px",
+                overflow: "hidden",
               }}
+              bodyStyle={{ height: "100%", padding: 4 }}
             >
-              <FormTable
-                columns={[
-                  ...compWithOutMINItems(
+              <div style={{ height: "100%", width: "100%" }}>
+                <MyDataTable
+                  columns={compWithOutMINItems(
                     inputHandler,
                     removeRow,
                     CommonIcons,
                     rows,
                     minRows
-                  ),
-                ]}
-                data={minRows}
-                inputHandle={inputHandler}
-              />
+                  )}
+                  data={minRows}
+                />
+              </div>
             </Card>
           </>
         ) : (
@@ -1637,24 +1585,24 @@ const Component = ({
             <Card
               style={{
                 height: "63%",
-                overflowY: "scroll",
                 maxHeight: "63%",
                 marginTop: "30px",
+                overflow: "hidden",
               }}
+              bodyStyle={{ height: "100%", padding: 4 }}
             >
-              <FormTable
-                columns={[
-                  ...compMinItems(
+              <div style={{ height: "100%", width: "100%" }}>
+                <MyDataTable
+                  columns={compMinItems(
                     inputHandler,
                     removeRow,
                     CommonIcons,
                     rows,
                     minRows
-                  ),
-                ]}
-                data={minRows}
-                inputHandle={inputHandler}
-              />
+                  )}
+                  data={minRows}
+                />
+              </div>
             </Card>
           </>
         )}
@@ -1664,16 +1612,10 @@ const Component = ({
 };
 
 const Product = ({
-  fields,
-  field,
-  index,
-  add,
   form,
-  remove,
   calculation,
   location,
   gsttype,
-  locationfunction,
   setlocationlist,
   getLocationList,
   locationlist,
@@ -1723,24 +1665,24 @@ const Product = ({
             <Card
               style={{
                 height: "80%",
-                overflowY: "scroll",
                 maxHeight: "73%",
                 marginTop: "20px",
+                overflow: "hidden",
               }}
+              bodyStyle={{ height: "100%", padding: 4 }}
             >
-              <FormTable
-                columns={[
-                  ...shipmentproductMinItems(
+              <div style={{ height: "100%", width: "100%" }}>
+                <MyDataTable
+                  columns={shipmentproductMinItems(
                     inputHandler,
                     removeRow,
                     CommonIcons,
                     rows,
                     minRows
-                  ),
-                ]}
-                data={minRows}
-                inputHandle={inputHandler}
-              />
+                  )}
+                  data={minRows}
+                />
+              </div>
             </Card>
           </>
         ) : (
@@ -1773,24 +1715,24 @@ const Product = ({
             <Card
               style={{
                 height: "80%",
-                overflowY: "scroll",
                 maxHeight: "73%",
                 marginTop: "20px",
+                overflow: "hidden",
               }}
+              bodyStyle={{ height: "100%", padding: 4 }}
             >
-              <FormTable
-                columns={[
-                  ...shipmentproductWithOutMinItems(
+              <div style={{ height: "100%", width: "100%" }}>
+                <MyDataTable
+                  columns={shipmentproductWithOutMinItems(
                     inputHandler,
                     removeRow,
                     CommonIcons,
                     rows,
                     minRows
-                  ),
-                ]}
-                data={minRows}
-                inputHandle={inputHandler}
-              />
+                  )}
+                  data={minRows}
+                />
+              </div>
             </Card>
           </>
         )}
@@ -1875,31 +1817,31 @@ const shipmentproductItems = (
     name: "cgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "SGST",
     name: "sgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "IGST",
     name: "igst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "I",
-    field: (row) => <Input disabled />,
+    condition: () => gstType === "I",
+    field: () => <Input disabled />,
   },
 
   {
     headerName: "Pick up location",
     name: "pickuplocation",
     width: 150,
-    field: (row) => (
+    field: () => (
       <MyAsyncSelect
         onBlur={() => setlocationlist([])}
         loadOptions={getLocationList}
@@ -1917,15 +1859,13 @@ const shipmentproductItems = (
     headerName: "Product Description",
     name: "productdescription",
     width: 150,
-    field: (row) => <TextArea row={3} />,
+    field: () => <TextArea row={3} />,
   },
 ];
 const shipmentproductMinItems = (
   inputHandler,
   removeRow,
   CommonIcons,
-  rows,
-  minRows
 ) => [
   // {
   //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
@@ -2088,8 +2028,6 @@ const shipmentproductWithOutMinItems = (
   inputHandler,
   removeRow,
   CommonIcons,
-  rows,
-  minRows
 ) => [
   // {
   //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
@@ -2252,9 +2190,6 @@ const compMinItems = (
   inputHandler,
   removeRow,
   CommonIcons,
-  rows,
-  minRows,
-  editShipment
 ) => [
   // {
   //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
@@ -2414,9 +2349,6 @@ const compWithOutMINItems = (
   inputHandler,
   removeRow,
   CommonIcons,
-  rows,
-  minRows,
-  editShipment
 ) => [
   // {
   //   headerName: <CommonIcons action="addRow" onClick={addRows} />,
@@ -2608,10 +2540,6 @@ const shipmentproductItemsEdit = (
   getLocationList,
   setlocationlist,
   locationlist,
-  getComponentOptions,
-  asyncOptions,
-  setAsyncOptions,
-  getComponentDetails
 ) => [
   {
     headerName: "#",
@@ -2663,31 +2591,31 @@ const shipmentproductItemsEdit = (
     name: "cgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "SGST",
     name: "sgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "IGST",
     name: "igst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "I",
-    field: (row) => <Input disabled />,
+    condition: () => gstType === "I",
+    field: () => <Input disabled />,
   },
 
   {
     headerName: "Pick up location",
     name: "pickuplocation",
     width: 150,
-    field: (row) => (
+    field: () => (
       <MyAsyncSelect
         onBlur={() => setlocationlist([])}
         loadOptions={getLocationList}
@@ -2700,13 +2628,13 @@ const shipmentproductItemsEdit = (
     headerName: "Product Description",
     name: "productdescription",
     width: 150,
-    field: (row) => <TextArea row={3} />,
+    field: () => <TextArea row={3} />,
   },
   {
     headerName: "Remark",
     name: "challan_remark",
     width: 150,
-    field: (row) => <Input />,
+    field: () => <Input />,
   },
 ];
 
@@ -2767,36 +2695,36 @@ const componentsItems = (
     name: "cgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "SGST",
     name: "sgst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "L",
-    field: ({ row }) => <Input disabled />,
+    condition: () => gstType === "L",
+    field: () => <Input disabled />,
   },
   {
     headerName: "IGST",
     name: "igst",
     width: 100,
     conditional: true,
-    condition: (row) => gstType === "I",
-    field: (row) => <Input disabled />,
+    condition: () => gstType === "I",
+    field: () => <Input disabled />,
   },
   {
     headerName: "HSN Code",
     name: "hsn",
     width: 150,
-    field: (row) => <Input />,
+    field: () => <Input />,
   },
   {
     headerName: "Pick Up Location",
     name: "pickuplocation",
     width: 150,
-    field: (row) => (
+    field: () => (
       <MyAsyncSelect
         onBlur={() => setlocationlist([])}
         loadOptions={getLocationList}
@@ -2808,19 +2736,10 @@ const componentsItems = (
     headerName: "Remark",
     name: "description",
     width: 250,
-    field: (row) => <Input.TextArea rows={3} />,
+    field: () => <Input.TextArea rows={3} />,
   },
 ];
-const gstTypeOptions = [
-  {
-    text: "Local",
-    value: "L",
-  },
-  {
-    text: "Interstate",
-    value: "I",
-  },
-];
+
 
 const gstRateOptions = [
   {
