@@ -167,6 +167,7 @@ export default function AddDCComponents({
       materials: {
         component: rows.map((row) => row.component.value),
         qty: rows.map((row) => row.qty),
+        rate: rows.map((row) => row.rate),
         from_location: rows.map((row) => row.pickup),
         to_location: rows.map((row) => row.drop),
         hsn: rows.map((row) => row.hsn),
