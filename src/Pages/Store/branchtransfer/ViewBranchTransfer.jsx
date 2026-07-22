@@ -42,6 +42,7 @@ function ViewBranchTransfer() {
       component: row.component,
       part_no: row.part_no,
       qty: row.qty,
+      rate: row.rate,
       remark: row.comp_remark,
       trans_id: trans_id,
     }));
