@@ -1263,9 +1263,9 @@ const CreateChallanModal = ({
           form={challanForm}
           initialValues={defaultValues}
         >
-          <Row gutter={8} style={{ height: "95%", overflow: "hidden" }}>
+          <Row gutter={8} style={{ height: "calc(100% - 30px)", overflow: "hidden" }}>
             <Col span={6} style={{ height: "100%", overflow: "hidden" }}>
-              <Row gutter={[0, 6]} style={{ overflow: "auto", height: "100%" }}>
+              <Row gutter={[0, 6]} style={{ overflow: "auto", height: "calc(100% - 30px)" }}>
                 <ClientDetailsCard
                   form={challanForm}
                   uploadTypeOptions={uploadTypeOptions}
@@ -1347,7 +1347,7 @@ const CreateChallanModal = ({
             </Col>
             {uplaodType === "table" && (
               <>
-                <Col span={18} style={{ height: "90%", overflow: "auto" }}>
+                <Col span={18} style={{ height: "calc(100% - 30px)", overflow: "auto" }}>
                   {challantitle ? (
                     test === "Create shipment" ||
                     editShipment === "Shipment" ? (
@@ -1714,8 +1714,7 @@ const Product = ({
             </Card>
             <Card
               style={{
-                height: "80%",
-                maxHeight: "73%",
+                height: "calc(100% - 200px)",
                 marginTop: "20px",
                 overflow: "hidden",
               }}
