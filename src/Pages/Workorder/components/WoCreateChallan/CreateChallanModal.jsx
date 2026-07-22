@@ -1542,12 +1542,10 @@ const Component = ({
             {/* </Card> */}
             <Card
               style={{
-                height: "63%",
-                maxHeight: "63%",
-                marginTop: "30px",
+                    height: "calc(100% - 290px)",
+                marginTop: "20px",
                 overflow: "hidden",
               }}
-              bodyStyle={{ height: "100%", padding: 4 }}
             >
               <div style={{ height: "100%", width: "100%" }}>
                 <MyDataTable
@@ -1584,8 +1582,7 @@ const Component = ({
             {/* </Card> */}
             <Card
               style={{
-                height: "63%",
-                maxHeight: "63%",
+                   height: "calc(100% - 290px)",
                 marginTop: "30px",
                 overflow: "hidden",
               }}
