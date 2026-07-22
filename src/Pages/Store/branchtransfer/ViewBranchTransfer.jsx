@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import  { useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { Button, Row, Space, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
@@ -6,9 +6,8 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { FileTwoTone , PrinterFilled, DownloadOutlined } from "@ant-design/icons";
+import {  DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
 import printFunction from "../../../Components/printFunction";
@@ -19,16 +18,13 @@ import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 
 function ViewBranchTransfer() {
-  const [searchLoading, setSearchLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState();
   const [loading, setLoading] = useState(false);
-  const [processOptions, setProcessOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [showViewModel, setShowViewModal] = useState(false);
   const [detailData, setDetailData] = useState([]);
 
   const [qcReportForm] = Form.useForm();
-  const ppr = Form.useWatch("ppr", qcReportForm);
   const status = Form.useWatch("status", qcReportForm);
   const { executeFun } = useApi();
   const getcomoponents = async (trans_id) => {
@@ -87,7 +83,6 @@ function ViewBranchTransfer() {
         key={"view"}
         showInMenu
         disabled={!!loading}
-        icon={<FileTwoTone  />}
         onClick={() => {
           getcomoponents(row.trans_id);
         }}
@@ -97,7 +92,6 @@ function ViewBranchTransfer() {
         key={"print"}
         showInMenu
         disabled={!!loading}
-        icon={<PrinterFilled  />}
         onClick={() => {
           printChallan(row.trans_id);
         }}
@@ -124,41 +118,7 @@ function ViewBranchTransfer() {
       setAsyncOptions(arr);
     }
   };
-  const getPPRDetails = async (ppr) => {
-    try {
-      setLoading("fetch");
-      let sku;
-      // getting sku from ppr
-      const response = await imsAxios.post("/createqca/fetchPprDetails", {
-        ppr_no: ppr,
-      });
-      const { data } = response;
-      if (data) {
-        sku = data.data[0].product_sku;
-      }
 
-      // getting process list from sku
-      const processResponse = await imsAxios.post(
-        "/qaProcessmaster/fetchQAProcess",
-        {
-          sku,
-        }
-      );
-      const { data: processData } = processResponse;
-      if (processData) {
-        const arr = processData.data.map((row) => ({
-          text: row.process.name,
-          value: row.process.key,
-        }));
-
-        setProcessOptions(arr);
-      }
-    } catch (error) {
-      toast.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
   const getRows = async () => {
     try {
       setRows([]);
@@ -200,6 +160,7 @@ function ViewBranchTransfer() {
               vendor_code: row.vendor_code,
               vehicle_no: row.vehicle_no,
               narration: row.narration,
+              date: row.create_dt,
             };
           });
           setRows(arr);
@@ -212,11 +173,6 @@ function ViewBranchTransfer() {
     }
   };
 
-  useEffect(() => {
-    if (ppr) {
-      getPPRDetails(ppr);
-    }
-  }, [ppr]);
   const extraColumn = {
     headerName: "Fail reason",
     width: 350,
@@ -305,7 +261,6 @@ function ViewBranchTransfer() {
           <MyDataTable
             columns={[actionColumn, ...columns]}
             data={rows}
-            loading={searchLoading}
           />
         </div>
       </div>
@@ -359,6 +314,12 @@ const columns = [
     minWidth: 200,
     field: "narration",
   },
+    {
+    headerName: "Created At",
+    flex: 1,
+    minWidth: 200,
+    field: "date",
+  },
 ];
 
 const defaultValues = {
@@ -402,6 +363,18 @@ const ViewModal = ({
       width: 180,
       field: "qty",
     },
+     {
+      headerName: "Rate",
+      width: 180,
+      field: "rate",
+    },
+      {
+      headerName: "Value",
+      width: 180,
+      field: "value",
+      renderCell: ({ row }) =>
+        row.rate ? Number(row.qty * row.rate).toFixed(2) : "-",
+    },
     {
       headerName: "Remark",
       width: 180,
@@ -424,10 +397,22 @@ const ViewModal = ({
   //   setLoading(false);
   //   setshow(false);
   // };
+  const totalAmount = useMemo(
+    () =>
+      detaildata.reduce(
+        (acc, curr) => acc + (Number(curr.qty) || 0) * (Number(curr.rate) || 0),
+        0
+      ),
+    [detaildata]
+  );
+  const totalQty = useMemo(
+    () => detaildata.reduce((acc, curr) => acc + (Number(curr.qty) || 0), 0),
+    [detaildata]
+  );
 
   return (
     <Drawer
-      width="50vw"
+      width="60vw"
       title={`Branch Transfer of ${detaildata[0]?.trans_id}`}
       onClose={() => {
         setshow(false);
@@ -447,10 +432,16 @@ const ViewModal = ({
         </Space>
       }
       open={show}
-      bodyStyle={{ paddingTop: 5 }}
     >
       {loading === "fetch" && component}
-      <MyDataTable columns={[...viewcolumns]} data={detaildata} />
+    
+     <div style={{ height: "calc(100% - 45px)",  }}>
+       <MyDataTable columns={viewcolumns} data={detaildata}  hideFooter />
+     </div>
+       <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px", margin: "10px 0px"  }}>
+        <span style={{color:"red", fontWeight:"bold", minWidth:"150px", fontSize:"18px"}}>Total Sum : {totalAmount ?? 0}</span>
+         <span style={{color:"red", fontWeight:"bold", minWidth:"150px", fontSize:"18px"}}>Total Qty : {totalQty ?? 0}</span>
+      </div>
     </Drawer>
   );
 };
