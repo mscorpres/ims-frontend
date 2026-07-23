@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import {
   Col,
   Descriptions,
@@ -13,7 +13,6 @@ import {
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import NavFooter from "../../../../Components/NavFooter";
-import axios from "axios";
 import AddDCComponents from "./AddDCComponents";
 import SuccessPage from "../SuccessPage";
 import Loading from "../../../../Components/Loading";
@@ -52,20 +51,18 @@ export default function CreateBranchTransferChallan() {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [billToOptions, setBillTopOptions] = useState([]);
   const [vendorBranches, setVendorBranches] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState();
   const [successPage, setSuccessPage] = useState(false);
-  const [branchtransferType, setBranchtransferType] = useState("R");
   const [pickuplocation, setpickuplocation] = useState([]);
   const [droplocation, setdroplocation] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
 
-  const passTypes = [
-    { text: "A21 to B29 Transfer", value: "A" },
-    { text: "B29 to A21 Transfer", value: "B" },
-  ];
+  // const passTypes = [
+  //   { text: "A21 to B29 Transfer", value: "A" },
+  //   { text: "B29 to A21 Transfer", value: "B" },
+  // ];
 
   const getfromtolocations = async (value) => {
     const { data } = await imsAxios.post("/branchTransfer/transferLocations", {
@@ -185,11 +182,10 @@ export default function CreateBranchTransferChallan() {
 
   // gettig billing address
   const getBillTo = async () => {
-    setSelectLoading(true);
     const { data } = await imsAxios.post("/backend/billingAddressList", {
       search: "",
     });
-    setSelectLoading(false);
+
     let arr = [];
     arr = data.map((d) => {
       return { text: d.text, value: d.id };

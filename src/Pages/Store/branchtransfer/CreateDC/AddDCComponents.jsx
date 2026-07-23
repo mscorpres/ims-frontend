@@ -16,6 +16,7 @@ import { imsAxios } from "../../../../axiosInterceptor";
 import MySelect from "../../../../Components/MySelect";
 import {
   getComponentOptions,
+  getProductsOptions,
   uploadBranchTransferComponents,
 } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
@@ -23,6 +24,10 @@ import MyButton from "../../../../Components/MyButton/index.jsx";
 import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
 import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
 import MyDataTable from "../../../../Components/MyDataTable";
+const materialTypeOptions = [
+  { text: "Component", value: "component" },
+  { text: "Product", value: "product" },
+];
 export default function AddDCComponents({
   newGatePass,
   setActiveTab,
@@ -44,6 +49,7 @@ export default function AddDCComponents({
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [materialType, setMaterialType] = useState("component");
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -54,11 +60,14 @@ export default function AddDCComponents({
   const { executeFun, loading: loading1 } = useApi();
   const getComponents = async (searchInput) => {
     if (searchInput.length > 2) {
-      // setSelectLoading(true);
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: searchInput,
-      // });
-      // setSelectLoading(false);
+      if (materialType === "product") {
+        const response = await executeFun(
+          () => getProductsOptions(searchInput),
+          "select"
+        );
+        setAsyncOptions(Array.isArray(response?.data) ? response?.data : []);
+        return;
+      }
       const response = await executeFun(
         () => getComponentOptions(searchInput),
         "select"
@@ -79,13 +88,21 @@ export default function AddDCComponents({
     let arr = rows;
     if (name == "component") {
       setPageLoading(true);
-      const { data } = await imsAxios.post(
-        "/component/getComponentDetailsByCode",
-        {
-          component_code: value.value,
-        }
-      );
-      let validatedData = validateResponse(data);
+      let validatedData;
+      if (materialType === "product") {
+        const { data } = await imsAxios.post("/products/fetchProductData", {
+          product_key: value.value,
+        });
+        validatedData = validateResponse(data);
+      } else {
+        const { data } = await imsAxios.post(
+          "/component/getComponentDetailsByCode",
+          {
+            component_code: value.value,
+          }
+        );
+        validatedData = validateResponse(data);
+      }
       setPageLoading(false);
       arr = arr.map((row) => {
         let obj = row;
@@ -175,6 +192,7 @@ export default function AddDCComponents({
         narration: newGatePass.narration,
         billing_id: newGatePass.billingId,
         billing_address: newGatePass.billinAddress,
+        transferType: materialType,
       },
       materials: {
         component: rows.map((row) => row.component.value),
@@ -184,7 +202,6 @@ export default function AddDCComponents({
         to_location: rows.map((row) => row.drop),
         hsn: rows.map((row) => row.hsn),
         item_description: rows.map((row) => row.description ?? ""),
-        rate: rows.map((row) => row.rate),
       },
     };
 
@@ -366,7 +383,7 @@ export default function AddDCComponents({
       // sortable: false,
     },
     {
-      headerName: "Component",
+      headerName: materialType === "product" ? "Product" : "Component",
       field: "component",
       width: 300,
       renderCell: ({ row }) =>
@@ -515,10 +532,33 @@ export default function AddDCComponents({
         <div
         style={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: 8,
         }}
       >
+        <div style={{ width: 220 }}>
+          <MySelect
+            options={materialTypeOptions}
+            value={materialType}
+            onChange={(value) => {
+              setMaterialType(value);
+              setAsyncOptions([]);
+              setRows([
+                {
+                  id: v4(),
+                  component: "",
+                  qty: 0,
+                  rate: 0,
+                  pickup: "",
+                  drop: "",
+                  hsn: "",
+                  description: "",
+                },
+              ]);
+            }}
+          />
+        </div>
         <MyButton
           variant="upload"
           text="Upload Excel"
