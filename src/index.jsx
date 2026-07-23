@@ -7,6 +7,7 @@ import { Store } from "./Features/Store";
 import "./index.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ConfigProvider } from "antd";
+import { PermissionsProvider } from "./new/permissions/PermissionsContext";
 
 const theme = {
   token: {
@@ -71,7 +72,9 @@ root.render(
     <ConfigProvider theme={theme}>
       <Provider store={Store}>
         <BrowserRouter>
+         <PermissionsProvider>
           <App />
+          </PermissionsProvider>
         </BrowserRouter>
       </Provider>
     </ConfigProvider>
