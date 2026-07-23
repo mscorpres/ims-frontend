@@ -90,10 +90,21 @@ export default function AddDCComponents({
       setPageLoading(true);
       let validatedData;
       if (materialType === "product") {
-        const { data } = await imsAxios.post("/products/fetchProductData", {
-          product_key: value.value,
+        const response = await imsAxios.post("/fgOUT/fetchProductData", {
+          search: value.value,
         });
-        validatedData = validateResponse(data);
+        if (response?.success) {
+          validatedData = {
+            data: {
+              rate: response.data.war,
+              unit: response.data.unit,
+              hsn: response.data.hsn,
+            },
+          };
+        } else {
+          setPageLoading(false);
+          return toast.error(response?.message);
+        }
       } else {
         const { data } = await imsAxios.post(
           "/component/getComponentDetailsByCode",
