@@ -73,6 +73,9 @@ import {
   savePostLoginRedirect,
 } from "./utils/authRedirect";
 import ModuleSearch from "./Components/ModuleSearch/ModuleSearch.jsx";
+import { usePermissions } from "./new/permissions/PermissionsContext";
+import RouteGuard from "./new/permissions/RouteGuard";
+import { filterAntdMenuByPermissions } from "./new/permissions/filterMenu";
 
 const parseNotificationOtherData = (raw) => {
   try {
@@ -118,6 +121,7 @@ const App = () => {
   const { user, notifications, testPages } = useSelector(
     (state) => state.login,
   );
+  const { canViewMenu } = usePermissions();
 
   const filteredRoutes = Rout?.filter((route) => {
     // Include the route if it doesn't have a "dept" property or if showlegal is true
@@ -844,6 +848,9 @@ const App = () => {
     })
     .filter((item) => item !== null);
 
+  const permittedItems = filterAntdMenuByPermissions(filteredItems, canViewMenu);
+  const permittedItems1 = filterAntdMenuByPermissions(filteredItems1, canViewMenu);
+
   if (loadingSwitch) {
     return (
       <Box sx={{ width: "100%", overflow: "hidden" }}>
@@ -1302,8 +1309,8 @@ const App = () => {
           />
           {user && user.passwordChanged === "C" && !hideSidebar && (
             <Sidebar
-              items={filteredItems}
-              items1={filteredItems1}
+              items={permittedItems}
+              items1={permittedItems1}
               className="site-layout-background"
               key={1}
               setShowSideBar={setShowSideBar}
@@ -1341,7 +1348,11 @@ const App = () => {
                     <Route
                       key={index}
                       path={route.path}
-                      element={<route.main />}
+                      element={
+                        <RouteGuard>
+                          <route.main />
+                        </RouteGuard>
+                      }
                     />
                   ))}
                 </Routes>
