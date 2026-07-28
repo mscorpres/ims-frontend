@@ -470,7 +470,7 @@ export default function CreateBranchTransferChallan() {
                                       window.innerWidth < 1600 && "0.7rem",
                                   }}
                                 >
-                                  Bill From Address
+                                  Bill to Address
                                 </span>
                               }
                             >
