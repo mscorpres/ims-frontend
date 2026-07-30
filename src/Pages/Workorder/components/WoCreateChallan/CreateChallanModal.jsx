@@ -580,18 +580,17 @@ const CreateChallanModal = ({
             ({ partCode }) => partCode === item.part_code
           );
         }
-        if (qtyelement) {
-          let samePartCodeArr = getRowsQty.filter(
-            (r) => r.part_code === qtyelement.partCode
-          );
-          samePartCodeArr.map((s) => {
-            totalMinAvailableQty += parseInt(s.out_qty) || 0;
-          });
-          challanForm.setFieldValue(
-            ["components", qtyelement.id - 1, "qty"],
-            totalMinAvailableQty
-          );
-        }
+        let samePartCodeArr = [];
+        samePartCodeArr = getRowsQty.filter(
+          (r) => r.part_code === qtyelement.partCode
+        );
+        samePartCodeArr.map((s) => {
+          totalMinAvailableQty += parseInt(s.out_qty);
+        });
+        challanForm.setFieldValue(
+          ["components", qtyelement.id - 1, "qty"],
+          totalMinAvailableQty
+        );
         setLoading(false);
       }
     }
@@ -734,6 +733,7 @@ const CreateChallanModal = ({
         return obj;
       }
     });
+    console.log("arr->", arr);
     setRows(arr);
     setMinRows(arr);
   };
@@ -2011,10 +2011,11 @@ const shipmentproductMinItems = (
       !row.total && (
         <Input
           onChange={(e) => {
-            inputHandler("out_qty", e.target.value, row?.ID);
+            inputHandler("out_qty", e.target.value, row.id);
           }}
           value={row?.out_qty}
           name="out_qty"
+          id={row.ID}
         />
       ),
   },
