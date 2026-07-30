@@ -54,7 +54,7 @@ export default function TicketsModal({ open, handleClose }) {
       {loading && <Loading />}
       {tickets.map((ticket) => (
         <Card size="small">
-          <Row gutter={(6, 4)}>
+          <Row gutter={[6, 4]}>
             <Col span={8}>
               <Typography.Text strong>Date: </Typography.Text>
               <Typography.Text>{ticket.date}</Typography.Text>
