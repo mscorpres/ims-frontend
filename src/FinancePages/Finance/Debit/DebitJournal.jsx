@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import { v4 } from "uuid";
 import { AiOutlineMinusSquare, AiOutlinePlusSquare } from "react-icons/ai";
-import axios from "axios";
 import { toast } from "react-toastify";
 import NavFooter from "../../../Components/NavFooter";
-import links from "../jounralPosting/links";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import FormTable from "../../../Components/FormTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { Card, Col, Input, Row } from "antd";
+import { Card, Col, Input, Row, Modal, Upload, Drawer, Form, Button } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
+import MyButton from "../../../Components/MyButton";
+import MyDataTable from "../../../Components/MyDataTable.jsx";
+import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
+
+const sampleData = [
+  { GL_CODE: "Cash Account", DEBIT: 1000, CREDIT: 0, COMMENT: "test" },
+];
 
 export default function JournalPosting() {
   const [journalDate, setJournalDate] = useState("");
@@ -37,6 +43,11 @@ export default function JournalPosting() {
 
   const [loading, setLoading] = useState(false);
   const [selectLoading, setSelectLoading] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [preview, setPreview] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
+  const [uploadForm] = Form.useForm();
 
   const addRows = () => {
     let dummy = [];
@@ -177,6 +188,7 @@ export default function JournalPosting() {
       sortable: false,
       renderCell: ({ row }) => [
         <GridActionsCellItem
+        key={"delete"}
           icon={
             <AiOutlineMinusSquare
               style={{
@@ -336,6 +348,103 @@ export default function JournalPosting() {
       }
     }
   };
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+  const uploadProps = {
+    name: "file",
+    multiple: false,
+    maxCount: 1,
+    beforeUpload() {
+      return false;
+    },
+  };
+  const previewedColumns = [
+    { headerName: "#", field: "id", width: 60 },
+    { headerName: "GL Code", field: "glCodeName", flex: 1, minWidth: 200 },
+    { headerName: "Debit", field: "debit", flex: 1, minWidth: 100 },
+    { headerName: "Credit", field: "credit", flex: 1, minWidth: 100 },
+    { headerName: "Comment", field: "comment", flex: 1, minWidth: 150 },
+  ];
+  const uploadHandler = async () => {
+    try {
+      const values = uploadForm.getFieldsValue();
+      if (!values.files || values.files.length === 0) {
+        return toast.error("Please select a file");
+      }
+      setUploadLoading(true);
+      const file = values.files[0].originFileObj;
+      const formData = new FormData();
+      formData.append("file", file);
+      const { data } = await imsAxios.post("/tally/dv/upload/item", formData);
+      if (data?.status == "success" || data?.code == 200) {
+        const headers = data.data.headers;
+        const rows = data.data.rows;
+        const formattedHeaders = headers.map((header) =>
+          header
+            .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+              index === 0 ? match.toUpperCase() : match.toLowerCase()
+            )
+            .replace(/\s+/g, "")
+        );
+        const formattedRows = rows.map((row) => {
+          let rowObject = {};
+          formattedHeaders.forEach((header, index) => {
+            rowObject[header] = row[index];
+          });
+          return rowObject;
+        });
+        const arr = formattedRows.map((r, index) => ({
+          id: index + 1,
+          glCode: { label: r.GlCode?.text, value: r.GlCode?.value },
+          glCodeName: r.GlCode?.text,
+          debit: Number(r.Debit) || 0,
+          credit: Number(r.Credit) || 0,
+          comment: r.Comment || "",
+        }));
+        setPreviewRows(arr);
+        setPreview(true);
+        setUploadModalOpen(false);
+      } else {
+        toast.error(data?.message?.msg || data?.message || "Error uploading file");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Error uploading and parsing file");
+    } finally {
+      setUploadLoading(false);
+    }
+  };
+  const applyPreviewToJournal = () => {
+    Modal.confirm({
+      title: "Are you sure you want to submit?",
+      content: "Please make sure that the values are correct",
+      onOk() {
+        let arr = previewRows.map((r) => ({
+          id: v4(),
+          glCode: r.glCode,
+          debit: r.debit || "",
+          credit: r.credit || "",
+          comment: r.comment,
+        }));
+        const creditArr = arr.map((row) => (row.credit !== "" ? row.credit : 0));
+        const debitArr = arr.map((row) => (row.debit !== "" ? row.debit : 0));
+        setCreditTotal(
+          creditArr.reduce((partialSum, a) => Number(partialSum) + Number(a), 0)
+        );
+        setDebitTotal(
+          debitArr.reduce((partialSum, a) => Number(partialSum) + Number(a), 0)
+        );
+        arr = [...arr, { id: v4(), total: true, debit: 0, credit: 0 }];
+        setJounralRows(arr);
+        setPreview(false);
+        setPreviewRows([]);
+      },
+      onCancel() {},
+    });
+  };
   const resetHandler = () => {
     setJounralRows([
       {
@@ -369,12 +478,19 @@ export default function JournalPosting() {
       >
         <Col span={6}>
           <Card title="Select Date" size="small">
-            <Row>
+            <Row gutter={[4, 4]}>
               <Col span={24}>
                 <SingleDatePicker
                   setDate={setJournalDate}
                   placeholder="Select Effective Date.."
                   selectedDate={journalDate}
+                />
+              </Col>
+              <Col span={24} style={{ textAlign: "right", marginTop: 10 }}>
+                <MyButton
+                  variant="upload"
+                  text="Excel"
+                  onClick={() => setUploadModalOpen(true)}
                 />
               </Col>
             </Row>
@@ -394,6 +510,91 @@ export default function JournalPosting() {
           </Row>
         </Col>
       </Row>
+      <Modal
+        title="Upload File Here"
+        open={uploadModalOpen}
+        width={500}
+        onCancel={() => setUploadModalOpen(false)}
+        footer={[
+          <Button key="back" onClick={() => setUploadModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={uploadLoading}
+            onClick={uploadHandler}
+          >
+            Preview
+          </Button>,
+        ]}
+      >
+        <Card>
+          <Form form={uploadForm} layout="vertical">
+            <Form.Item>
+              <Form.Item
+                name="files"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+                noStyle
+              >
+                <Upload.Dragger name="files" {...uploadProps}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Upload.Dragger>
+              </Form.Item>
+            </Form.Item>
+            <Row justify="end" style={{ marginTop: 5 }}>
+              <MyButton
+                variant="downloadSample"
+                onClick={() =>
+                  downloadCSVCustomColumns(sampleData, "Debit Journal")
+                }
+              />
+            </Row>
+          </Form>
+        </Card>
+      </Modal>
+      <Drawer
+        width="70%"
+        title="Preview Data From Excel"
+        placement="right"
+        onClose={() => setPreview(false)}
+        destroyOnClose={true}
+        open={preview}
+        bodyStyle={{ padding: 5 }}
+      >
+        <Row
+          style={{ height: "95%", display: "flex", justifyContent: "center" }}
+        >
+          <Col style={{ height: "90%" }} span={23}>
+            <MyDataTable
+              columns={previewedColumns}
+              data={previewRows}
+              headText="center"
+            />
+          </Col>
+          <Row
+            span={24}
+            style={{
+              width: "100%",
+              height: "10%",
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <NavFooter
+              submitFunction={applyPreviewToJournal}
+              nextLabel="Submit"
+              resetFunction={() => setPreview(false)}
+            />
+          </Row>
+        </Row>
+      </Drawer>
       <NavFooter
         loading={loading}
         submitFunction={submitHandler}
