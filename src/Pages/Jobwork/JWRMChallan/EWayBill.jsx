@@ -18,10 +18,8 @@ import { toast } from "react-toastify";
 import MyDataTable from "../../../Components/MyDataTable";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
 import MyButton from "../../../Components/MyButton";
-import Loading from "../../../Components/Loading";
 
 const EWayBill = () => {
-  const [loading, setLoading] = useState(false);
   const [stateOptions, setStateOptions] = useState([]);
   const [components, setComponents] = useState([]);
   const [transporterModeOptions, setTransporterModeOptions] = useState([]);
@@ -32,7 +30,7 @@ const EWayBill = () => {
   const getDetails = async () => {
     let response;
     try {
-      setLoading("fetch");
+   
       if (location.href.includes("jw")) {
          response = await imsAxios.post("/ewaybill/fetch_challan_data", {
           challan_no: params.jwId.replaceAll("_", "/"),
@@ -130,9 +128,7 @@ const EWayBill = () => {
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
-    } finally {
-      setLoading("fetch");
-    }
+    } 
   };
   const subSupplyTypeOption = Form.useWatch("subType", form);
 
@@ -151,9 +147,7 @@ const EWayBill = () => {
       }
     } catch (error) {
       setStateOptions([]);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const getTransporterModeOptions = async () => {
@@ -169,9 +163,7 @@ const EWayBill = () => {
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const validateHandler = async () => {
@@ -251,7 +243,6 @@ const EWayBill = () => {
 
   const submitHandler = async (payload) => {
     try {
-      setLoading("submit");
       let response;
       if (location.href.includes("jw")) {
         response = await imsAxios.post(
@@ -265,7 +256,13 @@ const EWayBill = () => {
           "/ewaybill/createEwayforScrapeWo",
           payload
         );
-      } else {
+      } else if(location.href.includes("transafer")){
+        response = await imsAxios.post(
+          "/branchTransfer/createEwayBillBranchTransfer",
+          payload
+        );
+      }
+      else {
         response = await imsAxios.post(
           "/ewaybill/createEwayBillWorkOrder",
           payload
@@ -282,9 +279,7 @@ const EWayBill = () => {
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
   // const getGstinDetails = async (gstin) => {
   //   try {
@@ -312,7 +307,7 @@ const EWayBill = () => {
   // }, [transporterId]);
   return (
     <Form form={form} layout="vertical" style={{ padding: 10 }}>
-      {loading && <Loading />}
+   
       {!successData && (
         <Row gutter={[6, 6]}>
           <Col span={24}>
