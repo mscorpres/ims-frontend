@@ -46,8 +46,8 @@ const EWayBill = () => {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
       } else if(location.href.includes("transafer")){ 
-        response = await imsAxios.post("/wo_challan/transfer_wo_challan", {
-          trans_id: params.jwId.replaceAll("_", "/"),
+        response = await imsAxios.post("/branchTransfer/fetch_branch_transfer_challan", {
+          challan_no: params.jwId.replaceAll("_", "/"),
         });
       }else{
          response = await imsAxios.post(

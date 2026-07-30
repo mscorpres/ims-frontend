@@ -104,7 +104,7 @@ function ViewBranchTransfer() {
         label={
           <Link
             style={{ textDecoration: "none", color: "black" }}
-            to={`/warehouse/e-way/transfer/${row.trans_id.replaceAll("/", "_")}`}
+            to={`/warehouse/e-way/transafer/${row.trans_id.replaceAll("/", "_")}`}
             target="_blank"
           >
             Create E-Way Bill
