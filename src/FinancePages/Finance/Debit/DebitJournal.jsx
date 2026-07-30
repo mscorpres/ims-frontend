@@ -11,11 +11,16 @@ import { Card, Col, Input, Row, Modal, Upload, Drawer, Form, Button } from "antd
 import { InboxOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
-import MyDataTable from "../../../Components/MyDataTable.jsx";
 import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
 
 const sampleData = [
-  { GL_CODE: "Cash Account", DEBIT: 1000, CREDIT: 0, COMMENT: "test" },
+  {
+    VOUCHER_NO: "DN/26-27/0231",
+    GL_CODE: "Cash Account",
+    DEBIT: 1000,
+    CREDIT: 0,
+    COMMENT: "test",
+  },
 ];
 
 export default function JournalPosting() {
@@ -45,8 +50,9 @@ export default function JournalPosting() {
   const [selectLoading, setSelectLoading] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [submitAllLoading, setSubmitAllLoading] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [previewRows, setPreviewRows] = useState([]);
+  const [previewVouchers, setPreviewVouchers] = useState([]);
   const [uploadForm] = Form.useForm();
 
   const addRows = () => {
@@ -362,13 +368,40 @@ export default function JournalPosting() {
       return false;
     },
   };
-  const previewedColumns = [
-    { headerName: "#", field: "id", width: 60 },
-    { headerName: "GL Code", field: "glCodeName", flex: 1, minWidth: 200 },
-    { headerName: "Debit", field: "debit", flex: 1, minWidth: 100 },
-    { headerName: "Credit", field: "credit", flex: 1, minWidth: 100 },
-    { headerName: "Comment", field: "comment", flex: 1, minWidth: 150 },
-  ];
+  const recalcVoucherTotals = (rows) => {
+    const nonTotalRows = rows.filter((r) => !r.total);
+    const totalDebit = nonTotalRows.reduce(
+      (sum, r) => sum + (Number(r.debit) || 0),
+      0
+    );
+    const totalCredit = nonTotalRows.reduce(
+      (sum, r) => sum + (Number(r.credit) || 0),
+      0
+    );
+    const rowsWithTotal = rows.map((r) =>
+      r.total ? { ...r, debit: totalDebit, credit: totalCredit } : r
+    );
+    return { rows: rowsWithTotal, totalDebit, totalCredit };
+  };
+  const updatePreviewRow = (voucherIndex, rowId, name, value) => {
+    setPreviewVouchers((prev) =>
+      prev.map((voucher, vIdx) => {
+        if (vIdx !== voucherIndex) return voucher;
+        const rows = voucher.rows.map((row) =>
+          row.id === rowId
+            ? {
+                ...row,
+                [name]: value,
+                resolved: name === "glCode" ? true : row.resolved,
+              }
+            : row
+        );
+        const { rows: rowsWithTotal, totalDebit, totalCredit } =
+          recalcVoucherTotals(rows);
+        return { ...voucher, rows: rowsWithTotal, totalDebit, totalCredit };
+      })
+    );
+  };
   const uploadHandler = async () => {
     try {
       const values = uploadForm.getFieldsValue();
@@ -379,37 +412,40 @@ export default function JournalPosting() {
       const file = values.files[0].originFileObj;
       const formData = new FormData();
       formData.append("file", file);
-      const { data } = await imsAxios.post("/tally/dv/upload/item", formData);
-      if (data?.status == "success" || data?.code == 200) {
-        const headers = data.data.headers;
-        const rows = data.data.rows;
-        const formattedHeaders = headers.map((header) =>
-          header
-            .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
-              index === 0 ? match.toUpperCase() : match.toLowerCase()
-            )
-            .replace(/\s+/g, "")
-        );
-        const formattedRows = rows.map((row) => {
-          let rowObject = {};
-          formattedHeaders.forEach((header, index) => {
-            rowObject[header] = row[index];
-          });
-          return rowObject;
-        });
-        const arr = formattedRows.map((r, index) => ({
-          id: index + 1,
-          glCode: { label: r.GlCode?.text, value: r.GlCode?.value },
-          glCodeName: r.GlCode?.text,
-          debit: Number(r.Debit) || 0,
-          credit: Number(r.Credit) || 0,
-          comment: r.Comment || "",
+      const { data } = await imsAxios.post("/tally/dv/upload", formData);
+      if (data?.status === "success" && data?.data?.vouchers?.length) {
+        const vouchers = data.data.vouchers.map((v) => ({
+          voucherNo: v.voucherNo,
+          totalDebit: v.totalDebit,
+          totalCredit: v.totalCredit,
+          rows: [
+            ...v.lines.map((line) => ({
+              id: v4(),
+              glCode: {
+                label: line.ledgerName || line.glCode,
+                value: line.ledgerKey,
+              },
+              glCodeText: line.glCode,
+              debit: line.debit || "",
+              credit: line.credit || "",
+              comment: line.comment || "",
+              resolved: Boolean(line.ledgerKey),
+            })),
+            {
+              id: v4(),
+              total: true,
+              debit: v.totalDebit,
+              credit: v.totalCredit,
+            },
+          ],
         }));
-        setPreviewRows(arr);
+        setPreviewVouchers(vouchers);
         setPreview(true);
         setUploadModalOpen(false);
       } else {
-        toast.error(data?.message?.msg || data?.message || "Error uploading file");
+        toast.error(
+          data?.message?.msg || data?.message || "Error uploading file"
+        );
       }
     } catch (error) {
       toast.error(error?.message || "Error uploading and parsing file");
@@ -417,32 +453,142 @@ export default function JournalPosting() {
       setUploadLoading(false);
     }
   };
-  const applyPreviewToJournal = () => {
+  const previewColumnsFor = (voucherIndex, totalDebit, totalCredit) => [
+    {
+      headerName: "GL Code",
+      field: "glCode",
+      width: 320,
+      sortable: false,
+      renderCell: ({ row }) =>
+        row.total ? (
+          <div
+            style={{ width: "100%", textAlign: "center", fontWeight: 600 }}
+          >
+            Total
+          </div>
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              border: row.resolved ? "none" : "1px solid #ff4d4f",
+              borderRadius: 4,
+            }}
+          >
+            <MyAsyncSelect
+              onBlur={() => setAsyncOptions([])}
+              value={row.glCode}
+              onChange={(value) =>
+                updatePreviewRow(voucherIndex, row.id, "glCode", value)
+              }
+              labelInValue
+              selectLoading={selectLoading}
+              optionsState={asyncOptions}
+              loadOptions={getLedger}
+              placeholder="Select G/L..."
+            />
+          </div>
+        ),
+    },
+    {
+      headerName: "Debit",
+      field: "debit",
+      flex: 1,
+      sortable: false,
+      renderCell: ({ row }) => (
+        <Input
+          value={row.total ? Number(totalDebit).toFixed(2) : row.debit}
+          disabled={row.total || Number(row.credit) > 0}
+          onChange={(e) =>
+            updatePreviewRow(voucherIndex, row.id, "debit", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      headerName: "Credit",
+      field: "credit",
+      flex: 1,
+      sortable: false,
+      renderCell: ({ row }) => (
+        <Input
+          value={row.total ? Number(totalCredit).toFixed(2) : row.credit}
+          disabled={row.total || Number(row.debit) > 0}
+          onChange={(e) =>
+            updatePreviewRow(voucherIndex, row.id, "credit", e.target.value)
+          }
+        />
+      ),
+    },
+    {
+      headerName: "Comment",
+      field: "comment",
+      flex: 1,
+      sortable: false,
+      renderCell: ({ row }) =>
+        !row.total && (
+          <Input
+            value={row.comment}
+            onChange={(e) =>
+              updatePreviewRow(voucherIndex, row.id, "comment", e.target.value)
+            }
+          />
+        ),
+    },
+  ];
+  const submitAllVouchers = () => {
+    if (!journalDate) {
+      return toast.error("Please select Effective date");
+    }
+    const unresolved = previewVouchers.find((v) =>
+      v.rows.some((r) => !r.total && !r.glCode?.value)
+    );
+    if (unresolved) {
+      return toast.error(
+        `Please resolve all GL Codes for voucher ${unresolved.voucherNo}`
+      );
+    }
     Modal.confirm({
-      title: "Are you sure you want to submit?",
-      content: "Please make sure that the values are correct",
-      onOk() {
-        let arr = previewRows.map((r) => ({
-          id: v4(),
-          glCode: r.glCode,
-          debit: r.debit || "",
-          credit: r.credit || "",
-          comment: r.comment,
-        }));
-        const creditArr = arr.map((row) => (row.credit !== "" ? row.credit : 0));
-        const debitArr = arr.map((row) => (row.debit !== "" ? row.debit : 0));
-        setCreditTotal(
-          creditArr.reduce((partialSum, a) => Number(partialSum) + Number(a), 0)
-        );
-        setDebitTotal(
-          debitArr.reduce((partialSum, a) => Number(partialSum) + Number(a), 0)
-        );
-        arr = [...arr, { id: v4(), total: true, debit: 0, credit: 0 }];
-        setJounralRows(arr);
-        setPreview(false);
-        setPreviewRows([]);
+      title: "Submit All Vouchers",
+      content: `This will create ${previewVouchers.length} debit voucher(s) from the excel. Continue?`,
+      okText: "Continue",
+      cancelText: "Back",
+      onOk: async () => {
+        setSubmitAllLoading(true);
+        let successCount = 0;
+        let failed = [];
+        for (const voucher of previewVouchers) {
+          const lines = voucher.rows.filter((r) => !r.total);
+          const payload = {
+            effective_date: journalDate,
+            gl_code: lines.map((r) => r.glCode.value),
+            credit: lines.map((r) => (r.credit === "" ? 0 : r.credit)),
+            debit: lines.map((r) => (r.debit === "" ? 0 : r.debit)),
+            comment: lines.map((r) => r.comment || ""),
+          };
+          try {
+            const { data } = await imsAxios.post(
+              "/tally/dv/createDebitVoucher",
+              payload
+            );
+            if (data.code == 200) {
+              successCount += 1;
+            } else {
+              failed.push(voucher.voucherNo);
+            }
+          } catch (error) {
+            failed.push(voucher.voucherNo);
+          }
+        }
+        setSubmitAllLoading(false);
+        if (failed.length === 0) {
+          toast.success(`${successCount} voucher(s) created successfully`);
+          setPreview(false);
+          setPreviewVouchers([]);
+          resetHandler();
+        } else {
+          toast.error(`Failed to create voucher(s): ${failed.join(", ")}`);
+        }
       },
-      onCancel() {},
     });
   };
   const resetHandler = () => {
@@ -560,7 +706,7 @@ export default function JournalPosting() {
         </Card>
       </Modal>
       <Drawer
-        width="70%"
+        width="90%"
         title="Preview Data From Excel"
         placement="right"
         onClose={() => setPreview(false)}
@@ -569,14 +715,31 @@ export default function JournalPosting() {
         bodyStyle={{ padding: 5 }}
       >
         <Row
-          style={{ height: "95%", display: "flex", justifyContent: "center" }}
+          style={{ height: "calc(100% - 80px)", display: "flex", justifyContent: "center" }}
         >
-          <Col style={{ height: "90%" }} span={23}>
-            <MyDataTable
-              columns={previewedColumns}
-              data={previewRows}
-              headText="center"
-            />
+          <Col
+           
+            span={24}
+          >
+            {previewVouchers.map((voucher, vIndex) => (
+              <Card
+                key={voucher.voucherNo}
+                size="small"
+                title={`Voucher No: ${voucher.voucherNo}`}
+                style={{ marginBottom: 12 }}
+              >
+                <div style={{ height: 230 }}>
+                  <FormTable
+                    data={voucher.rows}
+                    columns={previewColumnsFor(
+                      vIndex,
+                      voucher.totalDebit,
+                      voucher.totalCredit
+                    )}
+                  />
+                </div>
+              </Card>
+            ))}
           </Col>
           <Row
             span={24}
@@ -588,8 +751,9 @@ export default function JournalPosting() {
             }}
           >
             <NavFooter
-              submitFunction={applyPreviewToJournal}
-              nextLabel="Submit"
+              loading={submitAllLoading}
+              submitFunction={submitAllVouchers}
+              nextLabel="Submit All"
               resetFunction={() => setPreview(false)}
             />
           </Row>
