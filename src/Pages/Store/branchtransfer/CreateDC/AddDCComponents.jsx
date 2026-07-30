@@ -9,12 +9,25 @@ import { v4 } from "uuid";
 import FormTable from "../../../../Components/FormTable";
 import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
-import { Button, Modal } from "antd";
+import { Button, Modal,Upload, Drawer, Card, Row, Col } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import MySelect from "../../../../Components/MySelect";
-import { getComponentOptions } from "../../../../api/general.ts";
+import {
+  getComponentOptions,
+  getProductsOptions,
+  uploadBranchTransferComponents,
+} from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
+import MyButton from "../../../../Components/MyButton/index.jsx";
+import ToolTipEllipses from "../../../../Components/ToolTipEllipses";
+import { downloadCSVCustomColumns } from "../../../../Components/exportToCSV.jsx";
+import MyDataTable from "../../../../Components/MyDataTable";
+const materialTypeOptions = [
+  { text: "Component", value: "component" },
+  { text: "Product", value: "product" },
+];
 export default function AddDCComponents({
   newGatePass,
   setActiveTab,
@@ -36,17 +49,25 @@ export default function AddDCComponents({
     },
   ]);
   const [asyncOptions, setAsyncOptions] = useState([]);
+  const [materialType, setMaterialType] = useState("component");
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+    const [showUploadModal, setShowUploadModal] = useState(false);
+  const [fileList, setFileList] = useState([]);
+  const [preview, setPreview] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
   const { executeFun, loading: loading1 } = useApi();
   const getComponents = async (searchInput) => {
     if (searchInput.length > 2) {
-      // setSelectLoading(true);
-      // const { data } = await imsAxios.post("/backend/getComponentByNameAndNo", {
-      //   search: searchInput,
-      // });
-      // setSelectLoading(false);
+      if (materialType === "product") {
+        const response = await executeFun(
+          () => getProductsOptions(searchInput),
+          "select"
+        );
+        setAsyncOptions(Array.isArray(response?.data) ? response?.data : []);
+        return;
+      }
       const response = await executeFun(
         () => getComponentOptions(searchInput),
         "select"
@@ -67,13 +88,32 @@ export default function AddDCComponents({
     let arr = rows;
     if (name == "component") {
       setPageLoading(true);
-      const { data } = await imsAxios.post(
-        "/component/getComponentDetailsByCode",
-        {
-          component_code: value.value,
+      let validatedData;
+      if (materialType === "product") {
+        const response = await imsAxios.post("/fgOUT/fetchProductData", {
+          search: value.value,
+        });
+        if (response?.success) {
+          validatedData = {
+            data: {
+              rate: response.data.war,
+              unit: response.data.unit,
+              hsn: response.data.hsn,
+            },
+          };
+        } else {
+          setPageLoading(false);
+          return toast.error(response?.message);
         }
-      );
-      let validatedData = validateResponse(data);
+      } else {
+        const { data } = await imsAxios.post(
+          "/component/getComponentDetailsByCode",
+          {
+            component_code: value.value,
+          }
+        );
+        validatedData = validateResponse(data);
+      }
       setPageLoading(false);
       arr = arr.map((row) => {
         let obj = row;
@@ -163,13 +203,14 @@ export default function AddDCComponents({
         narration: newGatePass.narration,
         billing_id: newGatePass.billingId,
         billing_address: newGatePass.billinAddress,
+        transferType: materialType,
       },
       materials: {
         component: rows.map((row) => row.component.value),
         qty: rows.map((row) => row.qty),
         rate: rows.map((row) => row.rate),
-        from_location: rows.map((row) => row.pickup),
-        to_location: rows.map((row) => row.drop),
+        from_location: rows.map((row) => row.pickup?.value),
+        to_location: rows.map((row) => row.drop?.value),
         hsn: rows.map((row) => row.hsn),
         item_description: rows.map((row) => row.description ?? ""),
       },
@@ -177,6 +218,135 @@ export default function AddDCComponents({
 
     setShowSubmitConfirm(final);
   };
+
+    const sampleData = [
+    {
+      PART_CODE: "P0054",
+      Qty: 21,
+      Pick_Location: "RM001",
+      Drop_Location: "RM002",
+      HSN: 4531234,
+      Item_Description: "this is for testing purpose",
+    },
+  ];
+  const callFileUpload = async () => {
+    if (fileList.length === 0) {
+
+      toast.error("Please select a file to upload");
+        return 
+    }
+    const formData = new FormData();
+    formData.append("file", fileList[0]);
+    const response = await executeFun(
+      () => uploadBranchTransferComponents(formData),
+      "upload"
+    );
+    if (response?.success) {
+      const { headers, rows: dataRows } = response.data;
+      const formattedHeaders = headers.map((header) =>
+        header
+          .replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+            index === 0 ? match.toUpperCase() : match.toLowerCase()
+          )
+          .replace(/\s+/g, "")
+      );
+      const formattedRows = dataRows.map((row) => {
+        let rowObject = {};
+        formattedHeaders.forEach((header, index) => {
+          rowObject[header] = row[index];
+        });
+        return rowObject;
+      });
+      const arr = formattedRows.map((r) => ({
+        id: v4(),
+        component: r.Partcode
+          ? { label: r.Partcode.name, value: r.Partcode.key }
+          : "",
+        partCodeNo: r.Partcode?.partNo,
+        partCodeName: r.Partcode?.name,
+        uom: r.Partcode?.uom,
+        qty: r.Qty ?? 0,
+        pickup: r.Picklocation
+          ? { label: r.Picklocation.name, value: r.Picklocation.key }
+          : "",
+        pickupName: r.Picklocation?.name,
+        drop: r.Droplocation
+          ? { label: r.Droplocation.name, value: r.Droplocation.key }
+          : "",
+        dropName: r.Droplocation?.name,
+        hsn: r.Hsn ?? "",
+        description: r.Itemdescription ?? "",
+      }));
+      setPreviewRows(arr);
+      setPreview(true);
+      setShowUploadModal(false);
+      setFileList([]);
+    } else {
+      toast.error(response?.message, "error");
+    }
+  };
+  const importPreviewRows = () => {
+    Modal.confirm({
+      title: "Are you sure you want to import this data?",
+      content: "Please make sure that the values are correct",
+      onOk() {
+        setRows(previewRows);
+        setPreview(false);
+        setPreviewRows([]);
+      },
+    });
+  };
+  const previewedColumns = [
+    {
+      headerName: "#",
+      field: "id",
+      renderCell: ({ row }) => previewRows.indexOf(row) + 1,
+      width: 60,
+    },
+    {
+      headerName: "Part Code",
+      field: "partCodeNo",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.partCodeNo} />,
+      minWidth: 110,
+    },
+    {
+      headerName: "Part Name",
+      field: "partCodeName",
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.partCodeName} copy={true} />
+      ),
+      minWidth: 250,
+      flex: 1,
+    },
+    {
+      headerName: "Qty",
+      field: "qty",
+      width: 100,
+    },
+    {
+      headerName: "Pick Location",
+      field: "pickupName",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.pickupName} />,
+      minWidth: 160,
+    },
+    {
+      headerName: "Drop Location",
+      field: "dropName",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.dropName} />,
+      minWidth: 160,
+    },
+    {
+      headerName: "HSN",
+      field: "hsn",
+      width: 110,
+    },
+    {
+      headerName: "Description",
+      field: "description",
+      minWidth: 200,
+      flex: 1,
+    },
+  ];
   const submitHandler = async () => {
     if (showSubmitConfirm) {
       setSubmitLoading(true);
@@ -224,7 +394,7 @@ export default function AddDCComponents({
       // sortable: false,
     },
     {
-      headerName: "Component",
+      headerName: materialType === "product" ? "Product" : "Component",
       field: "component",
       width: 300,
       renderCell: ({ row }) =>
@@ -281,6 +451,8 @@ export default function AddDCComponents({
       renderCell: ({ row }) => (
         <MySelect
           options={pickuplocs}
+             labelInValue
+          value={row.pickup}
           onChange={(e) => {
             inputHandler("pickup", e, row.id);
           }}
@@ -294,6 +466,8 @@ export default function AddDCComponents({
       renderCell: ({ row }) => (
         <MySelect
           options={droplocs}
+           labelInValue
+          value={row.drop}
           onChange={(e) => {
             inputHandler("drop", e, row.id);
           }}
@@ -366,6 +540,42 @@ export default function AddDCComponents({
           Challan?
         </p>
       </Modal>
+        <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 8,
+        }}
+      >
+        <div style={{ width: 220 }}>
+          <MySelect
+            options={materialTypeOptions}
+            value={materialType}
+            onChange={(value) => {
+              setMaterialType(value);
+              setAsyncOptions([]);
+              setRows([
+                {
+                  id: v4(),
+                  component: "",
+                  qty: 0,
+                  rate: 0,
+                  pickup: "",
+                  drop: "",
+                  hsn: "",
+                  description: "",
+                },
+              ]);
+            }}
+          />
+        </div>
+        <MyButton
+          variant="upload"
+          text="Upload Excel"
+          onClick={() => setShowUploadModal(true)}
+        />
+      </div>
       <FormTable columns={columns} data={rows} />
       <NavFooter
         nextLabel="Create"
@@ -373,6 +583,111 @@ export default function AddDCComponents({
         backFunction={() => setActiveTab("1")}
         submitFunction={validateData}
       />
+            {/* upload excel modal */}
+      <Modal
+        title="Upload File Here"
+        open={showUploadModal}
+        width={500}
+        onCancel={() => {
+          setShowUploadModal(false);
+          setFileList([]);
+        }}
+        footer={[
+          <Button
+            key="back"
+            onClick={() => {
+              setShowUploadModal(false);
+              setFileList([]);
+            }}
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={loading1("upload")}
+            onClick={callFileUpload}
+          >
+            Preview
+          </Button>,
+        ]}
+      >
+        <Card>
+          <Upload.Dragger
+            name="file"
+            multiple={false}
+            maxCount={1}
+            fileList={fileList}
+            beforeUpload={(file) => {
+              setFileList([file]);
+              return false;
+            }}
+            onRemove={() => setFileList([])}
+          >
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined />
+            </p>
+            <p className="ant-upload-text">
+              Click or drag file to this area to upload
+            </p>
+          </Upload.Dragger>
+          <Row justify="end" style={{ marginTop: 5 }}>
+            <MyButton
+              variant="downloadSample"
+              onClick={() =>
+                downloadCSVCustomColumns(sampleData, "Branch Transfer Components")
+              }
+            />
+          </Row>
+        </Card>
+      </Modal>
+      {/* preview excel data drawer */}
+      <Drawer
+        width="100%"
+        title="Preview Data From Excel"
+        placement="right"
+        onClose={() => setPreview(false)}
+        destroyOnClose={true}
+        open={preview}
+        bodyStyle={{ padding: 5 }}
+      >
+        <Row
+          style={{ height: "95%", display: "flex", justifyContent: "center" }}
+        >
+          <Col
+            style={{
+              height: "90%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+            span={23}
+          >
+            <MyDataTable
+              columns={previewedColumns}
+              data={previewRows}
+              loading={loading1("upload")}
+              headText="center"
+            />
+          </Col>
+          <Row
+            span={24}
+            style={{
+              width: "100%",
+              height: "10%",
+              display: "flex",
+              justifyContent: "end",
+            }}
+          >
+            <NavFooter
+              submitFunction={importPreviewRows}
+              nextLabel="Submit"
+              resetFunction={() => setPreview(false)}
+            />
+          </Row>
+        </Row>
+      </Drawer>
+    
     </div>
   );
 }
