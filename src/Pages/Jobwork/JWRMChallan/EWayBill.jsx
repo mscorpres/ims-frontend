@@ -1,7 +1,6 @@
 import {
   Card,
   Col,
-  Divider,
   Form,
   Input,
   Modal,
@@ -10,7 +9,6 @@ import {
   Space,
   Typography,
 } from "antd";
-import React from "react";
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
 import { useParams } from "react-router";
@@ -19,11 +17,9 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import MyDataTable from "../../../Components/MyDataTable";
 import SingleDatePicker from "../../../Components/SingleDatePicker";
-import dayjs from "dayjs";
 import MyButton from "../../../Components/MyButton";
 
 const EWayBill = () => {
-  const [loading, setLoading] = useState(false);
   const [stateOptions, setStateOptions] = useState([]);
   const [components, setComponents] = useState([]);
   const [transporterModeOptions, setTransporterModeOptions] = useState([]);
@@ -32,22 +28,27 @@ const EWayBill = () => {
   const [form] = Form.useForm();
 
   const getDetails = async () => {
+    let response;
     try {
-      setLoading("fetch");
+   
       if (location.href.includes("jw")) {
-        var response = await imsAxios.post("/ewaybill/fetch_challan_data", {
+         response = await imsAxios.post("/ewaybill/fetch_challan_data", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
       } else if (location.href.includes("dc")) {
-        var response = await imsAxios.post("/gatepass/fetch_dc", {
+         response = await imsAxios.post("/gatepass/fetch_dc", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
       } else if (location.href.includes("scrape-wo")) {
-        var response = await imsAxios.post("/wo_challan/scrape_wo_challan", {
+         response = await imsAxios.post("/wo_challan/scrape_wo_challan", {
           challan_no: params.jwId.replaceAll("_", "/"),
         });
-      } else {
-        var response = await imsAxios.post(
+      } else if(location.href.includes("transafer")){ 
+        response = await imsAxios.post("/branchTransfer/fetch_branch_transfer_challan", {
+          challan_no: params.jwId.replaceAll("_", "/"),
+        });
+      }else{
+         response = await imsAxios.post(
           "/wo_challan/fetch_wo_delivery_challan",
           {
             challan_no: params.jwId.replaceAll("_", "/"),
@@ -126,13 +127,10 @@ const EWayBill = () => {
         }
       }
     } catch (error) {
-    } finally {
-      setLoading("fetch");
-    }
+      toast.error(error?.message || "Something went wrong");
+    } 
   };
-  const transactionType = Form.useWatch("transactionType", form);
   const subSupplyTypeOption = Form.useWatch("subType", form);
-  const dispFromState = Form.useWatch("dispatchFromState", form);
 
   const getStateOptions = async () => {
     try {
@@ -149,9 +147,7 @@ const EWayBill = () => {
       }
     } catch (error) {
       setStateOptions([]);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const getTransporterModeOptions = async () => {
@@ -166,9 +162,8 @@ const EWayBill = () => {
         }
       }
     } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+      toast.error(error?.message || "Something went wrong");
+    } 
   };
 
   const validateHandler = async () => {
@@ -248,7 +243,6 @@ const EWayBill = () => {
 
   const submitHandler = async (payload) => {
     try {
-      setLoading("submit");
       let response;
       if (location.href.includes("jw")) {
         response = await imsAxios.post(
@@ -262,13 +256,19 @@ const EWayBill = () => {
           "/ewaybill/createEwayforScrapeWo",
           payload
         );
-      } else {
+      } else if(location.href.includes("transafer")){
+        response = await imsAxios.post(
+          "/branchTransfer/createEwayBillBranchTransfer",
+          payload
+        );
+      }
+      else {
         response = await imsAxios.post(
           "/ewaybill/createEwayBillWorkOrder",
           payload
         );
       }
-      const { data } = response;
+    
       if (response) {
         if (response?.code === 200) {
           toast.success(response?.message);
@@ -278,21 +278,22 @@ const EWayBill = () => {
         }
       }
     } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+      toast.error(error?.message || "Something went wrong");
+    } 
   };
-  const getGstinDetails = async (gstin) => {
-    try {
-      const response = await imsAxios.get(
-        `/jwEwaybill/getGstinDetails?gstin=${gstin}`
-      );
-      const { data } = response;
-      if (data) {
-        form.setFieldValue("transporterName", data.tradeName);
-      }
-    } catch (error) {}
-  };
+  // const getGstinDetails = async (gstin) => {
+  //   try {
+  //     const response = await imsAxios.get(
+  //       `/jwEwaybill/getGstinDetails?gstin=${gstin}`
+  //     );
+  //     const { data } = response;
+  //     if (data) {
+  //       form.setFieldValue("transporterName", data.tradeName);
+  //     }
+  //   } catch (error) {
+  //     toast.error(error?.message || "Something went wrong");
+  //   }
+  // };
 
   useEffect(() => {
     getDetails();
@@ -306,6 +307,7 @@ const EWayBill = () => {
   // }, [transporterId]);
   return (
     <Form form={form} layout="vertical" style={{ padding: 10 }}>
+   
       {!successData && (
         <Row gutter={[6, 6]}>
           <Col span={24}>
@@ -647,7 +649,7 @@ const EWayBill = () => {
           status="success"
           title="E-Way Bill Generation Successfull"
           extra={[
-            <Row justify="center" gutter={16}>
+            <Row justify="center" gutter={16} key={"bill"}>
               <Col>
                 <Typography.Title level={4}>E-Way Bill No:</Typography.Title>
                 <Typography.Title copyable={true} level={5}>

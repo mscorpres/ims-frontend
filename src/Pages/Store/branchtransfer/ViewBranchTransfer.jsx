@@ -1,4 +1,4 @@
-import  { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { Button, Row, Space, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
@@ -6,7 +6,7 @@ import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import {  DownloadOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
@@ -16,6 +16,7 @@ import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
+import { Link } from "react-router-dom";
 
 function ViewBranchTransfer() {
   const [asyncOptions, setAsyncOptions] = useState();
@@ -33,9 +34,9 @@ function ViewBranchTransfer() {
       "/branchTransfer/branchTransferDetails",
       {
         trans_id: trans_id,
-      }
+      },
     );
-   
+
     let arr = data.data.map((row, index) => ({
       id: index,
       index: index + 1,
@@ -58,11 +59,10 @@ function ViewBranchTransfer() {
         "/branchTransfer/printBranchTransferChallan",
         {
           trans_id: trans_id,
-        }
+        },
       );
 
       if (data.code === 200) {
-     
         printFunction(data.data.buffer.data);
       } else {
         toast.error(data.message);
@@ -89,7 +89,7 @@ function ViewBranchTransfer() {
         }}
         label="View"
       />,
-         <GridActionsCellItem
+      <GridActionsCellItem
         key={"print"}
         showInMenu
         disabled={!!loading}
@@ -97,6 +97,20 @@ function ViewBranchTransfer() {
           printChallan(row.trans_id);
         }}
         label={loading === "print" ? "Printing..." : "Print"}
+      />,
+      <GridActionsCellItem
+        key={"ewaybill"}
+        showInMenu
+        disabled={row.eway_status}
+        label={
+          <Link
+            style={{ textDecoration: "none", color: "black" }}
+            to={`/warehouse/e-way/transafer/${row.trans_id.replaceAll("/", "_")}`}
+            target="_blank"
+          >
+            Create E-Way Bill
+          </Link>
+        }
       />,
     ],
   };
@@ -110,7 +124,7 @@ function ViewBranchTransfer() {
     if (search?.length > 2) {
       const response = await executeFun(
         () => getVendorOptions(search),
-        "select"
+        "select",
       );
       let arr = [];
       if (response.success) {
@@ -140,15 +154,14 @@ function ViewBranchTransfer() {
       setLoading("rows");
       const response = await imsAxios.post(
         "/branchTransfer/getBranchTransfer",
-        fetchdata
+        fetchdata,
       );
       const { data } = response;
       if (data.status === "error") {
         toast.error(data.message);
       } else if (data.status === "success") {
         if (data.code === 200) {
-          console.log("coming here");
-          console.log(data);
+    
           const arr = data.data.map((row, index) => {
             return {
               key: index,
@@ -162,6 +175,9 @@ function ViewBranchTransfer() {
               vehicle_no: row.vehicle_no,
               narration: row.narration,
               date: row.create_dt,
+              eway_bill_no: row.eway_bill_no,
+              eway_status: row.eway_status,
+
             };
           });
           setRows(arr);
@@ -185,7 +201,7 @@ function ViewBranchTransfer() {
       <div style={{ height: "90%", marginTop: 10 }}>
         <Row
           justify="space-between"
-          style={{ padding: "0px 10px", marginBottom: -15 }}
+          style={{ padding: "0px 10px", marginBottom: 0 }}
         >
           {(loading === "fetch" || loading === "print") && <Loading />}
           <Form
@@ -249,7 +265,7 @@ function ViewBranchTransfer() {
                 downloadCSV(
                   rows,
                   status === "R" ? [...columns, extraColumn] : columns,
-                  "Branch Transfer Report"
+                  "Branch Transfer Report",
                 )
               }
               shape="circle"
@@ -258,11 +274,8 @@ function ViewBranchTransfer() {
             />
           </Space>
         </Row>
-        <div style={{ height: "93%", padding: "0px 10px" }}>
-          <MyDataTable
-            columns={[actionColumn, ...columns]}
-            data={rows}
-          />
+        <div style={{ height: "calc(100% - 70px)", padding: "0px 10px" }}>
+          <MyDataTable columns={[actionColumn, ...columns]} data={rows} />
         </div>
       </div>
       <ViewModal
@@ -310,12 +323,18 @@ const columns = [
     field: "vehicle_no",
   },
   {
+    headerName: "Eway Bill No",
+    flex: 1,
+    minWidth: 200,
+    field: "eway_bill_no",
+  },
+  {
     headerName: "Description",
     flex: 1,
     minWidth: 200,
     field: "narration",
   },
-    {
+  {
     headerName: "Created At",
     flex: 1,
     minWidth: 200,
@@ -364,12 +383,12 @@ const ViewModal = ({
       width: 180,
       field: "qty",
     },
-     {
+    {
       headerName: "Rate",
       width: 180,
       field: "rate",
     },
-      {
+    {
       headerName: "Value",
       width: 180,
       field: "value",
@@ -402,13 +421,13 @@ const ViewModal = ({
     () =>
       detaildata.reduce(
         (acc, curr) => acc + (Number(curr.qty) || 0) * (Number(curr.rate) || 0),
-        0
+        0,
       ),
-    [detaildata]
+    [detaildata],
   );
   const totalQty = useMemo(
     () => detaildata.reduce((acc, curr) => acc + (Number(curr.qty) || 0), 0),
-    [detaildata]
+    [detaildata],
   );
 
   return (
@@ -420,7 +439,6 @@ const ViewModal = ({
       }}
       extra={
         <Space>
-    
           <Button
             type="primary"
             onClick={() =>
@@ -435,13 +453,39 @@ const ViewModal = ({
       open={show}
     >
       {loading === "fetch" && component}
-    
-     <div style={{ height: "calc(100% - 45px)",  }}>
-       <MyDataTable columns={viewcolumns} data={detaildata}  hideFooter />
-     </div>
-       <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px", margin: "10px 0px"  }}>
-        <span style={{color:"red", fontWeight:"bold", minWidth:"150px", fontSize:"18px"}}>Total Sum : {totalAmount ?? 0}</span>
-         <span style={{color:"red", fontWeight:"bold", minWidth:"150px", fontSize:"18px"}}>Total Qty : {totalQty ?? 0}</span>
+
+      <div style={{ height: "calc(100% - 45px)" }}>
+        <MyDataTable columns={viewcolumns} data={detaildata} hideFooter />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          gap: "10px",
+          margin: "10px 0px",
+        }}
+      >
+        <span
+          style={{
+            color: "red",
+            fontWeight: "bold",
+            minWidth: "150px",
+            fontSize: "18px",
+          }}
+        >
+          Total Sum : {totalAmount ?? 0}
+        </span>
+        <span
+          style={{
+            color: "red",
+            fontWeight: "bold",
+            minWidth: "150px",
+            fontSize: "18px",
+          }}
+        >
+          Total Qty : {totalQty ?? 0}
+        </span>
       </div>
     </Drawer>
   );
