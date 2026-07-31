@@ -742,7 +742,7 @@ export default function JournalPosting() {
                 title={`Voucher No: ${voucher.voucherNo}`}
                 style={{ marginBottom: 12 }}
               >
-                <div style={{ height: 230 }}>
+                {/* <div style={{ height: 230 }}> */}
                   <FormTable
                     data={voucher.rows}
                     columns={previewColumnsFor(
@@ -751,7 +751,7 @@ export default function JournalPosting() {
                       voucher.totalCredit
                     )}
                   />
-                </div>
+                {/* </div> */}
               </Card>
             ))}
           </Col>
