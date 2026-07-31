@@ -101,6 +101,7 @@ function ViewBranchTransfer() {
       <GridActionsCellItem
         key={"ewaybill"}
         showInMenu
+        disabled={row.eway_status}
         label={
           <Link
             style={{ textDecoration: "none", color: "black" }}
@@ -160,8 +161,7 @@ function ViewBranchTransfer() {
         toast.error(data.message);
       } else if (data.status === "success") {
         if (data.code === 200) {
-          console.log("coming here");
-          console.log(data);
+    
           const arr = data.data.map((row, index) => {
             return {
               key: index,
@@ -175,6 +175,9 @@ function ViewBranchTransfer() {
               vehicle_no: row.vehicle_no,
               narration: row.narration,
               date: row.create_dt,
+              eway_bill_no: row.eway_bill_no,
+              eway_status: row.eway_status,
+
             };
           });
           setRows(arr);
@@ -318,6 +321,12 @@ const columns = [
     flex: 1,
     minWidth: 200,
     field: "vehicle_no",
+  },
+  {
+    headerName: "Eway Bill No",
+    flex: 1,
+    minWidth: 200,
+    field: "eway_bill_no",
   },
   {
     headerName: "Description",
