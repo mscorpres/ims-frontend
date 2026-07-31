@@ -5,7 +5,6 @@ import { RowProps } from "antd";
 import { toast } from "react-toastify";
 
 export const getVendorOptions = async (search:any) => {
-  console.log("here", search);
   try {
     const response = await imsAxios.post("/backend/vendorList", {
       search,
@@ -22,6 +21,17 @@ export const createJobWorkReq = async (finalObj) => {
     return response;
   } catch (error) {
     console.log("something happened wrong", error);
+  }
+};
+export const uploadBranchTransferComponents = async (formdata: any) => {
+  try {
+    const response = await imsAxios.post(
+      "/branchTransfer/componentUpload",
+      formdata,
+    );
+    return response;
+  } catch (error) {
+    console.error("something happened wrong", error);
   }
 };
 export const saveJwMAterialIssue = async (finalObj) => {
