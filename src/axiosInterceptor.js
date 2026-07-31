@@ -117,7 +117,6 @@ imsAxios.interceptors.response.use(
         return error;
       }
       if (error?.response.data.success !== undefined) {
-        console.log("this is the error response", error);
         toast.error(error.response.data.message);
       }
       return error.response.data;

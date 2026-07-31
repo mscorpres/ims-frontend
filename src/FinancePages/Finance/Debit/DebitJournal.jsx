@@ -313,6 +313,9 @@ export default function JournalPosting() {
     if (!journalDate) {
       return toast.error("Please select Effective date");
     }
+    if (Math.abs(debitTotal - creditTotal) > 0.01) {
+      return toast.error("Total Debit and Total Credit must be equal");
+    }
     let finalObj = {
       effective_date: journalDate,
       gl_code: [],
@@ -405,6 +408,9 @@ export default function JournalPosting() {
   const uploadHandler = async () => {
     try {
       const values = uploadForm.getFieldsValue();
+      if(journalDate == null || !journalDate) {
+        return toast.error("Please select Effective date");
+      }
       if (!values.files || values.files.length === 0) {
         return toast.error("Please select a file");
       }
@@ -412,9 +418,9 @@ export default function JournalPosting() {
       const file = values.files[0].originFileObj;
       const formData = new FormData();
       formData.append("file", file);
-      const { data } = await imsAxios.post("/tally/dv/upload", formData);
-      if (data?.status === "success" && data?.data?.vouchers?.length) {
-        const vouchers = data.data.vouchers.map((v) => ({
+      const response = await imsAxios.post("/tally/dv/upload", formData);
+      if (response?.success) {
+        const vouchers = response.data.vouchers.map((v) => ({
           voucherNo: v.voucherNo,
           totalDebit: v.totalDebit,
           totalCredit: v.totalCredit,
@@ -444,7 +450,7 @@ export default function JournalPosting() {
         setUploadModalOpen(false);
       } else {
         toast.error(
-          data?.message?.msg || data?.message || "Error uploading file"
+          response?.message?.msg || response?.message || "Error uploading file"
         );
       }
     } catch (error) {
@@ -545,6 +551,14 @@ export default function JournalPosting() {
     if (unresolved) {
       return toast.error(
         `Please resolve all GL Codes for voucher ${unresolved.voucherNo}`
+      );
+    }
+    const mismatched = previewVouchers.find(
+      (v) => Math.abs((v.totalDebit || 0) - (v.totalCredit || 0)) > 0.01
+    );
+    if (mismatched) {
+      return toast.error(
+        `Total Debit and Total Credit must be equal for voucher ${mismatched.voucherNo}`
       );
     }
     Modal.confirm({
@@ -706,8 +720,8 @@ export default function JournalPosting() {
         </Card>
       </Modal>
       <Drawer
-        width="90%"
-        title="Preview Data From Excel"
+        width="100%"
+        title="Data From Excel"
         placement="right"
         onClose={() => setPreview(false)}
         destroyOnClose={true}
