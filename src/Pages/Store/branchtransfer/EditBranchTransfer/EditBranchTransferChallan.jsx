@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Col,
   Descriptions,
@@ -9,12 +9,13 @@ import {
   Modal,
   Button,
   Tabs,
+  Drawer,
+  Skeleton,
 } from "antd";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import NavFooter from "../../../../Components/NavFooter";
-import AddDCComponents from "./AddDCComponents";
-import SuccessPage from "../SuccessPage";
+import EditBranchTransferComponents from "./EditBranchTransferComponents";
 import Loading from "../../../../Components/Loading";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
@@ -23,51 +24,51 @@ import { getVendorOptions } from "../../../../api/general.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
-export default function CreateBranchTransferChallan() {
-  const [newGatePass, setNewGatePass] = useState({
-    passType: "",
-    pickupbranch: "",
-    dropoffbranch: "",
-    vendorName: "",
-    vendorBranch: "",
-    vendorAddress: "",
-    vendorGSTIN: "",
-    paymentTerms: "",
-    referenceDate: "",
-    otherReferences: "",
-    dispatchDocNumber: "",
-    dipatchThrough: "",
-    destination: "",
-    deliveryTerms: "",
-    vehicleNumber: "",
-    narration: "",
-    billingId: "",
-    billinAddress: "",
-    billingPan: "",
-    billingGSTIN: "",
-  });
+const defaultGatePass = {
+  pickupbranch: "",
+  dropoffbranch: "",
+  vendorName: "",
+  vendorBranch: "",
+  vendorAddress: "",
+  vendorGSTIN: "",
+  paymentTerms: "",
+  referenceDate: "",
+  otherReferences: "",
+  dispatchDocNumber: "",
+  dipatchThrough: "",
+  destination: "",
+  deliveryTerms: "",
+  vehicleNumber: "",
+  narration: "",
+  billingId: "",
+  billinAddress: "",
+  billingPan: "",
+  billingGSTIN: "",
+};
 
+export default function EditBranchTransferChallan({
+  transId,
+  setTransId,
+  onSuccess,
+}) {
+  const [newGatePass, setNewGatePass] = useState(defaultGatePass);
   const { executeFun, loading: loading1 } = useApi();
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [billToOptions, setBillTopOptions] = useState([]);
   const [vendorBranches, setVendorBranches] = useState([]);
   const [pageLoading, setPageLoading] = useState(false);
+  const [skeletonLoading, setSkeletonLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState();
-  const [successPage, setSuccessPage] = useState(false);
+  const [activeTab, setActiveTab] = useState("1");
   const [pickuplocation, setpickuplocation] = useState([]);
   const [droplocation, setdroplocation] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
+  const [resetData, setResetData] = useState(defaultGatePass);
 
-  // const passTypes = [
-  //   { text: "A21 to B29 Transfer", value: "A" },
-  //   { text: "B29 to A21 Transfer", value: "B" },
-  // ];
-
-  const getfromtolocations = async (value) => {
+  const fetchTransferLocations = async (fromBranch, toBranch) => {
     const { data } = await imsAxios.post("/branchTransfer/transferLocations", {
-      from_branch: newGatePass.pickupbranch,
-      to_branch: value,
+      from_branch: fromBranch,
+      to_branch: toBranch,
     });
     if (data.status === "success") {
       const droparr = [];
@@ -83,6 +84,10 @@ export default function CreateBranchTransferChallan() {
     } else {
       toast.error(data.message.msg);
     }
+  };
+
+  const getfromtolocations = (value) => {
+    fetchTransferLocations(newGatePass.pickupbranch, value);
   };
 
   const inputHandler = async (name, value) => {
@@ -172,7 +177,6 @@ export default function CreateBranchTransferChallan() {
   };
 
   // get all branch List
-
   const getallbranchs = async () => {
     const { data } = await imsAxios.get("/branchTransfer/listBranchTransfer");
     const arr = [];
@@ -207,38 +211,94 @@ export default function CreateBranchTransferChallan() {
     };
   };
   const resetFunction = () => {
-    setNewGatePass({
-      passType: "",
-      pickupbranch: "",
-      dropoffbranch: "",
-      vendorName: "",
-      vendorBranch: "",
-      vendorAddress: "",
-      vendorGSTIN: "",
-      paymentTerms: "",
-      referenceDate: "",
-      otherReferences: "",
-      dispatchDocNumber: "",
-      dipatchThrough: "",
-      destination: "",
-      deliveryTerms: "",
-      vehicleNumber: "",
-      narration: "",
-      billingId: "",
-      billinAddress: "",
-      billingPan: "",
-      billingGSTIN: "",
-    });
+    setNewGatePass(resetData);
     setShowResetConfirm(false);
   };
+
+  // fetches the challan details for editing
+  const getEditDetails = async () => {
+    setSkeletonLoading(true);
+    const { data } = await imsAxios.get("/branchTransfer/bt_details4Edit", {
+      params: { transaction_id: transId },
+    });
+    setSkeletonLoading(false);
+    const validatedData = validateResponse(data);
+    if (!validatedData) {
+      setTransId(null);
+      return;
+    }
+    const header = validatedData.data.header;
+
+    // vendor address/gstin aren't in the fetch response, so re-resolve them
+    // the same way the create form does once a vendor + branch is known
+    let vendorAddress = header.vendor_address;
+    let vendorGSTIN = "";
+    if (header.vendor_code) {
+      await getVendorBracnch(header.vendor_code);
+      const vendorDetails = await getVendorAddress({
+        vendorCode: header.vendor_code,
+        vendorBranch: header.vendor_branch_id,
+      });
+      vendorAddress = vendorDetails.address ?? vendorAddress;
+      vendorGSTIN = vendorDetails.gstin;
+    }
+    // billing pan/gstin aren't in the fetch response either
+    let billingDetails = {};
+    if (header.billing_id) {
+      billingDetails = await getBillingAddress(header.billing_id);
+    }
+
+    const obj = {
+      pickupbranch: header.company_branch,
+      dropoffbranch: "",
+      vendorName: { value: header.vendor_code, label: header.vendor_name },
+      vendorBranch: header.vendor_branch_id,
+      vendorAddress: vendorAddress,
+      vendorGSTIN: vendorGSTIN,
+      paymentTerms: header.mode,
+      referenceDate: header.reference_no,
+      otherReferences: header.other_term,
+      dispatchDocNumber: header.dispatch_doc_no,
+      dipatchThrough: header.dispatch_through,
+      destination: header.destination,
+      deliveryTerms: header.term_of_delivery,
+      vehicleNumber: header.vehicle_no,
+      narration: header.narration,
+      billingId: header.billing_id,
+      billinAddress: billingDetails.address ?? header.billing_address,
+      billingPan: billingDetails.pan,
+      billingGSTIN: billingDetails.gstin,
+      transferType: header.transfer_type,
+      components: validatedData.data.materials,
+    };
+    setNewGatePass(obj);
+    setResetData(obj);
+  };
+
   useEffect(() => {
     getBillTo();
     getallbranchs();
   }, []);
+
+  useEffect(() => {
+    if (transId) {
+      setActiveTab("1");
+      getEditDetails();
+    }
+  }, [transId]);
+
   return (
-    <div style={{ height: "95%", overflow: "hidden" }}>
-      {!successPage && (
-        <>
+    <Drawer
+      title={`Edit Branch Transfer: ${transId ?? ""}`}
+      width="100vw"
+      destroyOnClose
+      onClose={() => setTransId(null)}
+      open={!!transId}
+    >
+      {skeletonLoading ? (
+        <Skeleton active paragraph={{ rows: 12 }} />
+      ) : (
+        <div style={{ height: "100%" }}>
           {pageLoading && <Loading />}
           <Tabs
             style={{
@@ -394,7 +454,6 @@ export default function CreateBranchTransferChallan() {
                                 selectLoading={loading1("select")}
                                 size="default"
                                 labelInValue
-                                // onBlur={() => setAsyncOptions([])}
                                 optionsState={asyncOptions}
                                 value={newGatePass.vendorName}
                                 onChange={(value) => {
@@ -418,22 +477,9 @@ export default function CreateBranchTransferChallan() {
                                     display: "flex",
                                     justifyContent: "space-between",
                                     width: 350,
-                                    // background: "red",
                                   }}
                                 >
                                   Vendor Branch
-                                  {/* <span
-                        onClick={() => {
-                          newGatePass.vendorname.value
-                            ? setShowBranchModal({
-                                vendor_code: newGatePass.vendorname.value,
-                              })
-                            : toast.error("Please Select a vendor first");
-                        }}
-                        style={{ color: "#1890FF" }}
-                      >
-                        Add Branch
-                      </span> */}
                                 </div>
                               }
                             >
@@ -508,7 +554,6 @@ export default function CreateBranchTransferChallan() {
                     <Col span={20}>
                       <Row gutter={16}>
                         {/* terms and conditions */}
-
                         <Col span={6}>
                           <Form size="small" layout="vertical">
                             <Form.Item
@@ -552,7 +597,7 @@ export default function CreateBranchTransferChallan() {
                                 size="default"
                                 onChange={(e) =>
                                   inputHandler("referenceDate", e.target.value)
-                                } // onChange={inputHandler}
+                                }
                                 value={newGatePass.referenceDate}
                               />
                             </Form.Item>
@@ -877,6 +922,7 @@ export default function CreateBranchTransferChallan() {
                   <Divider />
                 </div>
                 <NavFooter
+                  backFunction={() => setTransId(null)}
                   resetFunction={() => setShowResetConfirm(true)}
                   submitFunction={() => setActiveTab("2")}
                 />
@@ -890,29 +936,23 @@ export default function CreateBranchTransferChallan() {
               style={{ height: "100%", overflowY: "hidden" }}
             >
               <div style={{ height: "100%" }}>
-                <AddDCComponents
+                <EditBranchTransferComponents
+                  transId={transId}
+                  setTransId={setTransId}
                   setActiveTab={setActiveTab}
                   newGatePass={newGatePass}
+                  resetData={resetData}
                   detailsResetFunction={resetFunction}
-                  setSuccessPage={setSuccessPage}
                   setPageLoading={setPageLoading}
                   pickuplocs={pickuplocation}
                   droplocs={droplocation}
+                  onSuccess={onSuccess}
                 />
               </div>
             </Tabs.TabPane>
           </Tabs>
-        </>
+        </div>
       )}
-      {successPage && (
-        <SuccessPage
-          successInfo={successPage}
-          createNewDC={() => {
-            setSuccessPage(false);
-            setActiveTab("1");
-          }}
-        />
-      )}
-    </div>
+    </Drawer>
   );
 }
