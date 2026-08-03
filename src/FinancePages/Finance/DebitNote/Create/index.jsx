@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Form, Row, Col, Modal, Drawer } from "antd";
+import { Form, Row, Col, Modal, Drawer, Upload } from "antd";
+import { InboxOutlined } from "@ant-design/icons";
 import HeaderDetails from "../HeaderDetails";
 import Components from "../Components";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
 import NavFooter from "../../../../Components/NavFooter";
 import Loading from "../../../../Components/Loading";
+import MyButton from "../../../../Components/MyButton";
+import { downloadExcel } from "../../../../Components/printFunction";
 
 const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
   const [vendorDetails, setVendorDetails] = useState({});
@@ -13,26 +16,38 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
   const [roundOffValue, setRoundOffValue] = useState(0);
   const [freightGlOptions, setFreightGlOptions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [excelUploadOpen, setExcelUploadOpen] = useState(false);
 
   const [debitNoteForm] = Form.useForm();
+  const [excelUploadForm] = Form.useForm();
   const components = Form.useWatch("components", debitNoteForm);
 
-  const getTDSData = async () => {
-    const response = await imsAxios.get("/tally/tds/nature_of_tds");
-    const { data } = response;
-    if (data) {
-      if (data.code === 200) {
-        let arr = data.data;
-
-        return arr;
-      } else {
-        toast.error(data.message.msg);
-      }
-    }
+  const resetFormValues = () => {
+    debitNoteForm.resetFields();
+    excelUploadForm.resetFields();
+    setVendorDetails({});
+    setRoundOffSign("+");
+    setRoundOffValue(0);
+    setFreightGlOptions([]);
+    setExcelUploadOpen(false);
+    setLoading(false);
   };
 
+  // const getTDSData = async () => {
+  //   const response = await imsAxios.get("/tally/tds/nature_of_tds");
+  //   const { data } = response;
+  //   if (data) {
+  //     if (data.code === 200) {
+  //       let arr = data.data;
+
+  //       return arr;
+  //     } else {
+  //       toast.error(data.message.msg);
+  //     }
+  //   }
+  // };
+
   const getDetails = async (vbtCodes) => {
-    const vbtType = vbtCodes[0].split("/")[0].toLowerCase();
     try {
       setLoading("fetch");
       const response = await imsAxios.post("/tally/vbt01/vbt_edit", {
@@ -42,16 +57,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
       const { data } = response;
       if (data) {
         if (data.code === 200) {
-          const tdsOptions = await getTDSData();
-          let tdsPerc = tdsOptions.filter(
-            (tds) => tds.tds_key === data.data[0].tds_code
-          )[0];
-          let tdsPercentage;
-          if (tdsPerc) {
-            tdsPercentage = +Number(tdsPerc.percentage)?.toFixed(2) ?? 0;
-            tdsPercentage = tdsPercentage + "%";
-          }
-
+        
           let arr = data.data.map((row) => {
             const value = +Number(
               +Number(row.inrate).toFixed(3) * +Number(row.vbt_qty).toFixed(3)
@@ -130,6 +136,102 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
     } catch (error) {
       toast.error("Some error occured while fetching freight Gls");
       console.log("Some error occured while fetching freight Gls", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) return e;
+    return e?.fileList;
+  };
+
+  const excelUploadProps = {
+    name: "file",
+    multiple: false,
+    maxCount: 1,
+    beforeUpload: () => false,
+  };
+
+  const downloadSampleFile = async () => {
+    const vbtNo =
+      debitNoteDrawer?.length >= 1
+        ? debitNoteDrawer[0]
+        : debitNoteDrawer?.vbt_code;
+    try {
+      setLoading("sample");
+      const response = await imsAxios.get(
+        "/tally/debitNote/downloadSample",
+        { params: { type: "vbt", vbt_code: vbtNo } }
+      );
+      const { data } = response;
+      if (data && data.code === 200) {
+        downloadExcel(data.data.buffer.data, "Debit Note Sample");
+      } else {
+        toast.error(data?.message?.msg ?? "Unable to download sample file");
+      }
+    } catch (error) {
+      toast.error("Some error occured while downloading the sample file");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExcelUpload = async () => {
+    const values = excelUploadForm.getFieldsValue();
+    const file = values.files?.[0]?.originFileObj;
+    if (!file) {
+      toast.error("Please select a file");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      setLoading("mapping");
+      const response = await imsAxios.post("/tally/dv/upload/item", formData);
+      const { data } = response;
+      if (data && data.code === 200) {
+        const rows = data.data?.rows ?? [];
+        const currentComponents =
+          debitNoteForm.getFieldValue("components") ?? [];
+        let matchedCount = 0;
+        const updatedComponents = currentComponents.map((component) => {
+          const matchedRow = rows.find(
+            (row) => row.partCode === component.partCode
+          );
+          if (!matchedRow) return component;
+          matchedCount += 1;
+          return {
+            ...component,
+            qty: matchedRow.billingQty,
+            rate: matchedRow.inRate,
+            freight: matchedRow.freight,
+            freightGl: matchedRow.freightGl?.key ?? component.freightGl,
+            gstRate: matchedRow.gstRate,
+            tdsName: matchedRow.tdsCode
+              ? { value: matchedRow.tdsCode.key, label: matchedRow.tdsCode.name }
+              : component.tdsName,
+            tdsCode: matchedRow.tdsCode?.key ?? component.tdsCode,
+            tdsglName: matchedRow.tdsCode?.gl_code ?? component.tdsglName,
+            tdsglCode: matchedRow.tdsCode?.gl_key ?? component.tdsglCode,
+          };
+        });
+        debitNoteForm.setFieldValue("components", updatedComponents);
+        if (matchedCount === 0) {
+          toast.error("No matching part codes found for this VBT");
+        } else {
+          toast.success(
+            `Mapped ${matchedCount} of ${rows.length} row(s) from the excel`
+          );
+        }
+        setExcelUploadOpen(false);
+        excelUploadForm.resetFields();
+      } else {
+        toast.error(data?.message?.msg ?? data?.message ?? "Excel validation failed");
+      }
+    } catch (error) {
+      toast.error("Some error occured while uploading the excel");
+      console.log("Some error occured while uploading the excel", error);
     } finally {
       setLoading(false);
     }
@@ -240,8 +342,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
         if (data.code === 200) {
           toast.success(data.message);
           setDebitNoteDrawer(null);
-          setRoundOffValue(0);
-          setRoundOffSign("+");
+          resetFormValues();
         } else {
           setLoading(false);
           toast.error(data.message.msg ?? data);
@@ -272,7 +373,10 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
   }, [debitNoteDrawer]);
   return (
     <Drawer
-      onClose={() => setDebitNoteDrawer(null)}
+      onClose={() => {
+        setDebitNoteDrawer(null);
+        resetFormValues();
+      }}
       open={debitNoteDrawer}
       width="100vw"
       title={
@@ -281,6 +385,13 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
           : `VBT Number: ${debitNoteDrawer?.vbt_code}`
       }
       destroyOnClose={true}
+      extra={
+        <MyButton
+          variant="upload"
+          text="Upload Excel"
+          onClick={() => setExcelUploadOpen(true)}
+        />
+      }
     >
       {/* <div style={{ height: "100%", paddingRight: 5, paddingLeft: 5 }}> */}
       <Form
@@ -289,7 +400,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
         layout="vertical"
         style={{ height: "100%" }}
       >
-        {loading === "fetch" && <Loading />}
+        {(loading === "fetch" || loading === "mapping") && <Loading />}
         <Row gutter={6} style={{ height: "100%", overlfowY: "hidden" }}>
           <Col span={4} style={{ height: "95%", overflowY: "auto" }}>
             <HeaderDetails
@@ -323,10 +434,67 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
       <NavFooter
         submitFunction={validatehandler}
         nextLabel="Submit"
-        backFunction={() => setDebitNoteDrawer(null)}
+        backFunction={() => {
+          setDebitNoteDrawer(null);
+          resetFormValues();
+        }}
         backLabel="Back"
         loading={loading === "submit"}
       />
+
+      <Modal
+        title="Upload Excel"
+        open={excelUploadOpen}
+        onCancel={() => {
+          setExcelUploadOpen(false);
+          excelUploadForm.resetFields();
+        }}
+        footer={[
+          <MyButton
+            key="cancel"
+            onClick={() => {
+              setExcelUploadOpen(false);
+              excelUploadForm.resetFields();
+            }}
+            variant="reset"
+            text="Cancel"
+          />,
+          <MyButton
+            key="upload"
+            type="primary"
+            variant="upload"
+            text="Upload"
+            loading={loading === "mapping"}
+            onClick={handleExcelUpload}
+          />,
+        ]}
+      >
+        {(loading === "mapping" || loading === "sample") && <Loading />}
+        <Form form={excelUploadForm} layout="vertical">
+          <Form.Item
+            name="files"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            noStyle
+          >
+            <Upload.Dragger name="file" {...excelUploadProps}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag excel file to this area to upload
+              </p>
+            </Upload.Dragger>
+          </Form.Item>
+          <Row justify="end" style={{ marginTop: 5 }}>
+            <MyButton
+              variant="downloadSample"
+              loading={loading === "sample"}
+              onClick={downloadSampleFile}
+            />
+          </Row>
+        </Form>
+      </Modal>
       {/* </div> */}
     </Drawer>
   );
