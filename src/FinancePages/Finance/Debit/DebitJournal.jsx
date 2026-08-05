@@ -11,17 +11,9 @@ import { Card, Col, Input, Row, Modal, Upload, Drawer, Form, Button } from "antd
 import { InboxOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
-import { downloadCSVCustomColumns } from "../../../Components/exportToCSV.jsx";
+import { downloadExcel } from "../../../Components/printFunction.js";
 
-const sampleData = [
-  {
-    VOUCHER_NO: "DN/26-27/0231",
-    GL_CODE: "Cash Account",
-    DEBIT: 1000,
-    CREDIT: 0,
-    COMMENT: "test",
-  },
-];
+
 
 export default function JournalPosting() {
   const [journalDate, setJournalDate] = useState("");
@@ -122,6 +114,30 @@ export default function JournalPosting() {
       setAsyncOptions(arr);
     } else {
       setAsyncOptions([]);
+    }
+  };
+
+   const downloadSampleFile = async () => {
+    // const vbtNo =
+    //   debitNoteDrawer?.length >= 1
+    //     ? debitNoteDrawer[0]
+    //     : debitNoteDrawer?.vbt_code;
+    try {
+      setLoading("sample");
+      const response = await imsAxios.get(
+        "/tally/debitNote/downloadSample",
+        { params: { type: "debitnote" } }
+      );
+      const { data } = response;
+      if (data && data.code === 200) {
+        downloadExcel(data.data.buffer.data, "Debit Note Sample");
+      } else {
+        toast.error(data?.message?.msg ?? "Unable to download sample file");
+      }
+    } catch (error) {
+      toast.error("Some error occured while downloading the sample file");
+    } finally {
+      setLoading(false);
     }
   };
   const inputHandler = (name, value, id) => {
@@ -711,9 +727,7 @@ export default function JournalPosting() {
             <Row justify="end" style={{ marginTop: 5 }}>
               <MyButton
                 variant="downloadSample"
-                onClick={() =>
-                  downloadCSVCustomColumns(sampleData, "Debit Journal")
-                }
+                onClick={downloadSampleFile}
               />
             </Row>
           </Form>
