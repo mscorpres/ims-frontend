@@ -188,7 +188,7 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
     formData.append("file", file);
     try {
       setLoading("mapping");
-      const response = await imsAxios.post("/tally/dv/upload/item", formData);
+      const response = await imsAxios.post("/tally/vbt01/upload/item", formData);
       const { data } = response;
       if (data && data.code === 200) {
         const rows = data.data?.rows ?? [];
