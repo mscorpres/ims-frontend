@@ -475,7 +475,76 @@ export default function JournalPosting() {
       setUploadLoading(false);
     }
   };
-  const previewColumnsFor = (voucherIndex, totalDebit, totalCredit) => [
+  const addPreviewRow = (voucherIndex) => {
+    setPreviewVouchers((prev) =>
+      prev.map((voucher, vIdx) => {
+        if (vIdx !== voucherIndex) return voucher;
+        const rows = [
+          {
+            id: v4(),
+            glCode: "",
+            debit: "",
+            credit: "",
+            comment: "",
+            resolved: false,
+          },
+          ...voucher.rows,
+        ];
+        const { rows: rowsWithTotal, totalDebit, totalCredit } =
+          recalcVoucherTotals(rows);
+        return { ...voucher, rows: rowsWithTotal, totalDebit, totalCredit };
+      })
+    );
+  };
+  const removePreviewRow = (voucherIndex, rowId) => {
+    setPreviewVouchers((prev) =>
+      prev.map((voucher, vIdx) => {
+        if (vIdx !== voucherIndex) return voucher;
+        const rows = voucher.rows.filter((row) => row.id !== rowId);
+        const { rows: rowsWithTotal, totalDebit, totalCredit } =
+          recalcVoucherTotals(rows);
+        return { ...voucher, rows: rowsWithTotal, totalDebit, totalCredit };
+      })
+    );
+  };
+  const previewColumnsFor = (voucherIndex, totalDebit, totalCredit, rowsLength) => [
+    {
+      headerName: (
+        <span onClick={() => addPreviewRow(voucherIndex)}>
+          <AiOutlinePlusSquare
+            style={{
+              cursor: "pointer",
+              fontSize: "1.7rem",
+              opacity: "0.7",
+            }}
+          />
+        </span>
+      ),
+      width: 80,
+      type: "actions",
+      field: "add",
+      sortable: false,
+      renderCell: ({ row }) => [
+        <GridActionsCellItem
+          key="delete"
+          icon={
+            <AiOutlineMinusSquare
+              style={{
+                fontSize: "1.7rem",
+                cursor: "pointer",
+                pointerEvents:
+                  rowsLength === 2 || row.total ? "none" : "all",
+                opacity: rowsLength === 2 || row.total ? 0.5 : 1,
+              }}
+            />
+          }
+          onClick={() => {
+            rowsLength > 2 && removePreviewRow(voucherIndex, row.id);
+          }}
+          label="Delete"
+        />,
+      ],
+    },
     {
       headerName: "GL Code",
       field: "glCode",
@@ -728,6 +797,7 @@ export default function JournalPosting() {
               <MyButton
                 variant="downloadSample"
                 onClick={downloadSampleFile}
+                loading={loading === "sample"}
               />
             </Row>
           </Form>
@@ -762,7 +832,8 @@ export default function JournalPosting() {
                     columns={previewColumnsFor(
                       vIndex,
                       voucher.totalDebit,
-                      voucher.totalCredit
+                      voucher.totalCredit,
+                      voucher.rows.length
                     )}
                   />
                 {/* </div> */}
