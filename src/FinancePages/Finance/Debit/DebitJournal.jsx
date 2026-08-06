@@ -44,7 +44,7 @@ export default function JournalPosting() {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [submitAllLoading, setSubmitAllLoading] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [previewVouchers, setPreviewVouchers] = useState([]);
+  const [previewRows, setPreviewRows] = useState([]);
   const [uploadForm] = Form.useForm();
 
   const addRows = () => {
@@ -387,7 +387,7 @@ export default function JournalPosting() {
       return false;
     },
   };
-  const recalcVoucherTotals = (rows) => {
+  const recalcTotals = (rows) => {
     const nonTotalRows = rows.filter((r) => !r.total);
     const totalDebit = nonTotalRows.reduce(
       (sum, r) => sum + (Number(r.debit) || 0),
@@ -402,24 +402,20 @@ export default function JournalPosting() {
     );
     return { rows: rowsWithTotal, totalDebit, totalCredit };
   };
-  const updatePreviewRow = (voucherIndex, rowId, name, value) => {
-    setPreviewVouchers((prev) =>
-      prev.map((voucher, vIdx) => {
-        if (vIdx !== voucherIndex) return voucher;
-        const rows = voucher.rows.map((row) =>
-          row.id === rowId
-            ? {
-                ...row,
-                [name]: value,
-                resolved: name === "glCode" ? true : row.resolved,
-              }
-            : row
-        );
-        const { rows: rowsWithTotal, totalDebit, totalCredit } =
-          recalcVoucherTotals(rows);
-        return { ...voucher, rows: rowsWithTotal, totalDebit, totalCredit };
-      })
-    );
+  const updatePreviewRow = (rowId, name, value) => {
+    setPreviewRows((prev) => {
+      const rows = prev.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              [name]: value,
+              resolved: name === "glCode" ? true : row.resolved,
+            }
+          : row
+      );
+      const { rows: rowsWithTotal } = recalcTotals(rows);
+      return rowsWithTotal;
+    });
   };
   const uploadHandler = async () => {
     try {
@@ -436,32 +432,23 @@ export default function JournalPosting() {
       formData.append("file", file);
       const response = await imsAxios.post("/tally/dv/upload", formData);
       if (response?.success) {
-        const vouchers = response.data.vouchers.map((v) => ({
-          voucherNo: v.voucherNo,
-          totalDebit: v.totalDebit,
-          totalCredit: v.totalCredit,
-          rows: [
-            ...v.lines.map((line) => ({
-              id: v4(),
-              glCode: {
-                label: line.ledgerName || line.glCode,
-                value: line.ledgerKey,
-              },
-              glCodeText: line.glCode,
-              debit: line.debit || "",
-              credit: line.credit || "",
-              comment: line.comment || "",
-              resolved: Boolean(line.ledgerKey),
-            })),
-            {
-              id: v4(),
-              total: true,
-              debit: v.totalDebit,
-              credit: v.totalCredit,
-            },
-          ],
-        }));
-        setPreviewVouchers(vouchers);
+        const lines = response.data?.lines || [];
+        const rows = [
+          ...lines.map((line) => ({
+            id: v4(),
+            glCode: line.ledgerKey
+              ? { label: line.ledgerName || line.glCode, value: line.ledgerKey }
+              : "",
+            glCodeText: line.glCode,
+            debit: line.debit || "",
+            credit: line.credit || "",
+            comment: line.comment || "",
+            resolved: Boolean(line.ledgerKey),
+          })),
+          { id: v4(), total: true, debit: 0, credit: 0 },
+        ];
+        const { rows: rowsWithTotal } = recalcTotals(rows);
+        setPreviewRows(rowsWithTotal);
         setPreview(true);
         setUploadModalOpen(false);
       } else {
@@ -475,42 +462,34 @@ export default function JournalPosting() {
       setUploadLoading(false);
     }
   };
-  const addPreviewRow = (voucherIndex) => {
-    setPreviewVouchers((prev) =>
-      prev.map((voucher, vIdx) => {
-        if (vIdx !== voucherIndex) return voucher;
-        const rows = [
-          {
-            id: v4(),
-            glCode: "",
-            debit: "",
-            credit: "",
-            comment: "",
-            resolved: false,
-          },
-          ...voucher.rows,
-        ];
-        const { rows: rowsWithTotal, totalDebit, totalCredit } =
-          recalcVoucherTotals(rows);
-        return { ...voucher, rows: rowsWithTotal, totalDebit, totalCredit };
-      })
-    );
+  const addPreviewRow = () => {
+    setPreviewRows((prev) => {
+      const rows = [
+        {
+          id: v4(),
+          glCode: "",
+          debit: "",
+          credit: "",
+          comment: "",
+          resolved: false,
+        },
+        ...prev,
+      ];
+      const { rows: rowsWithTotal } = recalcTotals(rows);
+      return rowsWithTotal;
+    });
   };
-  const removePreviewRow = (voucherIndex, rowId) => {
-    setPreviewVouchers((prev) =>
-      prev.map((voucher, vIdx) => {
-        if (vIdx !== voucherIndex) return voucher;
-        const rows = voucher.rows.filter((row) => row.id !== rowId);
-        const { rows: rowsWithTotal, totalDebit, totalCredit } =
-          recalcVoucherTotals(rows);
-        return { ...voucher, rows: rowsWithTotal, totalDebit, totalCredit };
-      })
-    );
+  const removePreviewRow = (rowId) => {
+    setPreviewRows((prev) => {
+      const rows = prev.filter((row) => row.id !== rowId);
+      const { rows: rowsWithTotal } = recalcTotals(rows);
+      return rowsWithTotal;
+    });
   };
-  const previewColumnsFor = (voucherIndex, totalDebit, totalCredit, rowsLength) => [
+  const previewColumns = (totalDebit, totalCredit, rowsLength) => [
     {
       headerName: (
-        <span onClick={() => addPreviewRow(voucherIndex)}>
+        <span onClick={addPreviewRow}>
           <AiOutlinePlusSquare
             style={{
               cursor: "pointer",
@@ -539,7 +518,7 @@ export default function JournalPosting() {
             />
           }
           onClick={() => {
-            rowsLength > 2 && removePreviewRow(voucherIndex, row.id);
+            rowsLength > 2 && removePreviewRow(row.id);
           }}
           label="Delete"
         />,
@@ -569,7 +548,7 @@ export default function JournalPosting() {
               onBlur={() => setAsyncOptions([])}
               value={row.glCode}
               onChange={(value) =>
-                updatePreviewRow(voucherIndex, row.id, "glCode", value)
+                updatePreviewRow(row.id, "glCode", value)
               }
               labelInValue
               selectLoading={selectLoading}
@@ -590,7 +569,7 @@ export default function JournalPosting() {
           value={row.total ? Number(totalDebit).toFixed(2) : row.debit}
           disabled={row.total || Number(row.credit) > 0}
           onChange={(e) =>
-            updatePreviewRow(voucherIndex, row.id, "debit", e.target.value)
+            updatePreviewRow(row.id, "debit", e.target.value)
           }
         />
       ),
@@ -605,7 +584,7 @@ export default function JournalPosting() {
           value={row.total ? Number(totalCredit).toFixed(2) : row.credit}
           disabled={row.total || Number(row.debit) > 0}
           onChange={(e) =>
-            updatePreviewRow(voucherIndex, row.id, "credit", e.target.value)
+            updatePreviewRow(row.id, "credit", e.target.value)
           }
         />
       ),
@@ -620,72 +599,56 @@ export default function JournalPosting() {
           <Input
             value={row.comment}
             onChange={(e) =>
-              updatePreviewRow(voucherIndex, row.id, "comment", e.target.value)
+              updatePreviewRow(row.id, "comment", e.target.value)
             }
           />
         ),
     },
   ];
-  const submitAllVouchers = () => {
+  const submitPreview = () => {
     if (!journalDate) {
       return toast.error("Please select Effective date");
     }
-    const unresolved = previewVouchers.find((v) =>
-      v.rows.some((r) => !r.total && !r.glCode?.value)
-    );
+    const unresolved = previewRows.some((r) => !r.total && !r.glCode?.value);
     if (unresolved) {
-      return toast.error(
-        `Please resolve all GL Codes for voucher ${unresolved.voucherNo}`
-      );
+      return toast.error("Please resolve all GL Codes");
     }
-    const mismatched = previewVouchers.find(
-      (v) => Math.abs((v.totalDebit || 0) - (v.totalCredit || 0)) > 0.01
-    );
-    if (mismatched) {
-      return toast.error(
-        `Total Debit and Total Credit must be equal for voucher ${mismatched.voucherNo}`
-      );
+    const totalRow = previewRows.find((r) => r.total);
+    if (Math.abs((totalRow?.debit || 0) - (totalRow?.credit || 0)) > 0.01) {
+      return toast.error("Total Debit and Total Credit must be equal");
     }
     Modal.confirm({
-      title: "Submit All Vouchers",
-      content: `This will create ${previewVouchers.length} debit voucher(s) from the excel. Continue?`,
+      title: "Submit Debit Voucher",
+      content: "This will create a debit voucher from the excel. Continue?",
       okText: "Continue",
       cancelText: "Back",
       onOk: async () => {
         setSubmitAllLoading(true);
-        let successCount = 0;
-        let failed = [];
-        for (const voucher of previewVouchers) {
-          const lines = voucher.rows.filter((r) => !r.total);
-          const payload = {
-            effective_date: journalDate,
-            gl_code: lines.map((r) => r.glCode.value),
-            credit: lines.map((r) => (r.credit === "" ? 0 : r.credit)),
-            debit: lines.map((r) => (r.debit === "" ? 0 : r.debit)),
-            comment: lines.map((r) => r.comment || ""),
-          };
-          try {
-            const { data } = await imsAxios.post(
-              "/tally/dv/createDebitVoucher",
-              payload
-            );
-            if (data.code == 200) {
-              successCount += 1;
-            } else {
-              failed.push(voucher.voucherNo);
-            }
-          } catch (error) {
-            failed.push(voucher.voucherNo);
+        const lines = previewRows.filter((r) => !r.total);
+        const payload = {
+          effective_date: journalDate,
+          gl_code: lines.map((r) => r.glCode.value),
+          credit: lines.map((r) => (r.credit === "" ? 0 : r.credit)),
+          debit: lines.map((r) => (r.debit === "" ? 0 : r.debit)),
+          comment: lines.map((r) => r.comment || ""),
+        };
+        try {
+          const { data } = await imsAxios.post(
+            "/tally/dv/createDebitVoucher",
+            payload
+          );
+          if (data.code == 200) {
+            toast.success(data.message.msg);
+            setPreview(false);
+            setPreviewRows([]);
+            resetHandler();
+          } else {
+            toast.error(data.message.msg);
           }
-        }
-        setSubmitAllLoading(false);
-        if (failed.length === 0) {
-          toast.success(`${successCount} voucher(s) created successfully`);
-          setPreview(false);
-          setPreviewVouchers([]);
-          resetHandler();
-        } else {
-          toast.error(`Failed to create voucher(s): ${failed.join(", ")}`);
+        } catch (error) {
+          toast.error("Some error occured while creating the voucher");
+        } finally {
+          setSubmitAllLoading(false);
         }
       },
     });
@@ -815,30 +778,17 @@ export default function JournalPosting() {
         <Row
           style={{ height: "calc(100% - 80px)", display: "flex", justifyContent: "center" }}
         >
-          <Col
-           
-            span={24}
-          >
-            {previewVouchers.map((voucher, vIndex) => (
-              <Card
-                key={voucher.voucherNo}
-                size="small"
-                title={`Voucher No: ${voucher.voucherNo}`}
-                style={{ marginBottom: 12 }}
-              >
-                {/* <div style={{ height: 230 }}> */}
-                  <FormTable
-                    data={voucher.rows}
-                    columns={previewColumnsFor(
-                      vIndex,
-                      voucher.totalDebit,
-                      voucher.totalCredit,
-                      voucher.rows.length
-                    )}
-                  />
-                {/* </div> */}
-              </Card>
-            ))}
+          <Col span={24}>
+            <Card size="small" style={{ marginBottom: 12 }}>
+              <FormTable
+                data={previewRows}
+                columns={previewColumns(
+                  previewRows.find((r) => r.total)?.debit || 0,
+                  previewRows.find((r) => r.total)?.credit || 0,
+                  previewRows.length
+                )}
+              />
+            </Card>
           </Col>
           <Row
             span={24}
@@ -851,8 +801,8 @@ export default function JournalPosting() {
           >
             <NavFooter
               loading={submitAllLoading}
-              submitFunction={submitAllVouchers}
-              nextLabel="Submit All"
+              submitFunction={submitPreview}
+              nextLabel="Submit"
               resetFunction={() => setPreview(false)}
             />
           </Row>
