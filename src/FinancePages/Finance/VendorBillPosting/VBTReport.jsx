@@ -5,11 +5,31 @@ import { toast } from "react-toastify";
 import ViewVBTReport from "./ViewVBTReport";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { Button, Col, Input, Row, Space } from "antd";
+import {
+  Button,
+  Col,
+  Input,
+  Row,
+  Space,
+  Modal,
+  Drawer,
+  Upload,
+  Form,
+  Collapse,
+  Table,
+  Descriptions,
+  Tag,
+  Empty,
+  Card,
+  Typography,
+  Divider,
+} from "antd";
+import { InboxOutlined } from "@ant-design/icons";
 import { v4 } from "uuid";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 import printFunction, {
   downloadFunction,
+  downloadExcel,
 } from "../../../Components/printFunction";
 
 import EditVBT1 from "./VBT1/EditVBT1";
@@ -27,6 +47,91 @@ import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import { getDefaultFinancialYearValue } from "../../../utils/financialYear";
 import MyButton from "../../../Components/MyButton";
+import Loading from "../../../Components/Loading";
+
+const { Text } = Typography;
+
+const debitNoteItemColumns = [
+  { title: "Part Code", dataIndex: "partCode", width: 110 },
+  { title: "Part Name", dataIndex: "partName", ellipsis: true },
+  { title: "Narration", dataIndex: "narration", ellipsis: true },
+  { title: "Qty", dataIndex: "quantity", width: 70, align: "right" },
+  { title: "UOM", dataIndex: "uom", width: 70 },
+  { title: "Rate", dataIndex: "rate", width: 80, align: "right" },
+  {
+    title: "Value",
+    dataIndex: "value",
+    width: 100,
+    align: "right",
+    render: (value) => (+Number(value ?? 0)).toLocaleString("en-IN"),
+  },
+  {
+    title: "GL",
+    dataIndex: "glDetails",
+    width: 190,
+    render: (gl) => (gl ? `${gl.name} (${gl.code})` : "-"),
+  },
+  {
+    title: "GL Code",
+    dataIndex: "tdsDetails",
+    width: 200,
+    render: (tds) =>
+      tds?.length ? (
+        <div>
+          {tds.map((t, i) => (
+            <div key={i} style={{ marginBottom: i < tds.length - 1 ? 6 : 0 }}>
+              <div>{t.masterDetails?.gl_code ?? "-"}</div>
+          
+            </div>
+          ))}
+        </div>
+      ) : (
+        "-"
+      ),
+  },
+  {
+    title: "TDS",
+    dataIndex: "tdsDetails",
+    width: 160,
+    render: (tds) =>
+      tds?.length
+        ? tds
+            .map(
+              (t) => `${t.masterDetails?.name ?? t.tdsCode} (${t.tdsPercent}%)`
+            )
+            .join(", ")
+        : "-",
+  },
+];
+
+const getDebitNoteTotals = (dn) => {
+  const items = dn?.items ?? [];
+  const taxableValue = items.reduce((sum, item) => sum + (+item.value || 0), 0);
+  const tdsDetailArr = items.map((item) => item.tdsDetails);
+  const tdsAmount = tdsDetailArr.flat().map((item) => item?.tdsPercent);
+  const taxes = dn?.taxes ?? {};
+  return [
+    { name: "Taxable Value", value: taxableValue },
+    {
+      name: "IGST",
+      value: (+taxes.igstInputReversal || 0),
+    },
+    {
+      name: "CGST",
+      value: (+taxes.cgstInputReversal || 0),
+    },
+    {
+      name: "SGST",
+      value: (+taxes.sgstInputReversal || 0),
+    },
+    { name: "TDS Amount", value: tdsAmount.join(", ") },
+    { name: "Round Off", value: (+taxes.roundOff || 0) },
+    {
+      name: "Total Value",
+      value: `₹${(+dn?.totalValue || 0)}`,
+    },
+  ];
+};
 
 export default function VBTReport() {
   const [searchInput, setSearchInput] = useState(
@@ -49,6 +154,10 @@ export default function VBTReport() {
   const [openModal, setOpenModal] = useState(null);
   const [debitNoteDrawer, setDebitNoteDrawer] = useState(null);
   const [editvbturl, setEditVbtUrl] = useState("");
+  const [excelUploadOpen, setExcelUploadOpen] = useState(false);
+  const [excelUploadLoading, setExcelUploadLoading] = useState(false);
+  const [parsedDebitNotes, setParsedDebitNotes] = useState(null);
+  const [excelUploadForm] = Form.useForm();
   const { executeFun, loading: loading1 } = useApi();
 
   // const navigate = useNavigate();
@@ -134,6 +243,73 @@ export default function VBTReport() {
       }
     });
     setDebitNoteDrawer(arr);
+  };
+
+  const normExcelFile = (e) => {
+    if (Array.isArray(e)) return e;
+    return e?.fileList;
+  };
+
+  const excelUploadProps = {
+    name: "file",
+    multiple: false,
+    maxCount: 1,
+    beforeUpload: () => false,
+  };
+
+  const handleExcelUpload = async () => {
+    const values = excelUploadForm.getFieldsValue();
+    const file = values.files?.[0]?.originFileObj;
+    if (!file) {
+      toast.error("Please select a file");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      setExcelUploadLoading("upload");
+      const response = await imsAxios.post("/tally/vbt01/upload/item", formData);
+      const { data } = response;
+      if (data && data.code === 200) {
+        const debitNotes = data.data?.debitNotes ?? [];
+        if (debitNotes.length === 0) {
+          toast.error("No debit notes found in the uploaded file");
+        } else {
+          setParsedDebitNotes(debitNotes);
+          toast.success(data.message ?? "Excel file processed successfully");
+          setExcelUploadOpen(false);
+          excelUploadForm.resetFields();
+        }
+      } else {
+        toast.error(
+          data?.message?.msg ?? data?.message ?? "Excel validation failed"
+        );
+      }
+    } catch (error) {
+      toast.error("Some error occured while uploading the excel");
+      console.log("Some error occured while uploading the excel", error);
+    } finally {
+      setExcelUploadLoading(false);
+    }
+  };
+
+  const downloadDebitNoteSampleFile = async () => {
+    try {
+      setExcelUploadLoading("sample");
+      const response = await imsAxios.get("/tally/debitNote/downloadSample", {
+        params: { type: "vbt" },
+      });
+      const { data } = response;
+      if (data && data.code === 200) {
+        downloadExcel(data.data.buffer.data, "Debit Note Sample");
+      } else {
+        toast.error(data?.message?.msg ?? "Unable to download sample file");
+      }
+    } catch (error) {
+      toast.error("Some error occured while downloading the sample file");
+    } finally {
+      setExcelUploadLoading(false);
+    }
   };
   // const callModal = (vbtCode) => {
   //   setOpenModal(true);
@@ -1135,6 +1311,11 @@ export default function VBTReport() {
             >
               Create Debit Note
             </Button>
+            <MyButton
+              variant="upload"
+              text="Upload Excel"
+              onClick={() => setExcelUploadOpen(true)}
+            />
           </Space>
         </Col>
         <Col>
@@ -1182,6 +1363,163 @@ export default function VBTReport() {
           setDebitNoteDrawer={setDebitNoteDrawer}
         />
       </div>
+
+      <Modal
+        title="Upload Excel"
+        open={excelUploadOpen}
+        onCancel={() => {
+          setExcelUploadOpen(false);
+          excelUploadForm.resetFields();
+        }}
+        footer={[
+          <MyButton
+            key="cancel"
+            onClick={() => {
+              setExcelUploadOpen(false);
+              excelUploadForm.resetFields();
+            }}
+            variant="reset"
+            text="Cancel"
+          />,
+          <MyButton
+            key="upload"
+            type="primary"
+            variant="upload"
+            text="Upload"
+            loading={excelUploadLoading === "upload"}
+            onClick={handleExcelUpload}
+          />,
+        ]}
+      >
+        {(excelUploadLoading === "upload" || excelUploadLoading === "sample") && (
+          <Loading />
+        )}
+        <Form form={excelUploadForm} layout="vertical">
+          <Form.Item
+            name="files"
+            valuePropName="fileList"
+            getValueFromEvent={normExcelFile}
+            noStyle
+          >
+            <Upload.Dragger name="file" {...excelUploadProps}>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag excel file to this area to upload
+              </p>
+            </Upload.Dragger>
+          </Form.Item>
+          <Row justify="end" style={{ marginTop: 5 }}>
+            <MyButton
+              variant="downloadSample"
+              loading={excelUploadLoading === "sample"}
+              onClick={downloadDebitNoteSampleFile}
+            />
+          </Row>
+        </Form>
+      </Modal>
+
+      <Drawer
+        title={
+          parsedDebitNotes
+            ? `Parsed Debit Notes (${parsedDebitNotes.length})`
+            : "Parsed Debit Notes"
+        }
+        open={!!parsedDebitNotes}
+        onClose={() => setParsedDebitNotes(null)}
+        width="100vw"
+        destroyOnClose
+        extra={
+          <MyButton
+            variant="reset"
+            text="Close"
+            onClick={() => setParsedDebitNotes(null)}
+          />
+        }
+      >
+        <div style={{ paddingRight: 4 }}>
+          {!parsedDebitNotes || parsedDebitNotes.length === 0 ? (
+            <Empty description="No debit notes to preview" />
+          ) : (
+            <>
+          
+              <Collapse
+                defaultActiveKey={parsedDebitNotes.map((_, idx) => idx)}
+              >
+                {parsedDebitNotes.map((dn, idx) => (
+                  <Collapse.Panel
+                    key={idx}
+                    header={
+                      <Space size="middle" wrap>
+                        <Text strong>{dn.voucherNo}</Text>
+                        <Tag color="blue">{dn.date}</Tag>
+                        <Text>
+                          {dn.venName} ({dn.vendorCode})
+                        </Text>
+                        <Text type="secondary">Ref: {dn.voucherRefNo}</Text>
+                        {/* <Tag color="green">
+                          ₹{(+dn.totalValue || 0).toLocaleString("en-IN")}
+                        </Tag> */}
+                      </Space>
+                    }
+                  >
+                    <Descriptions
+                      size="small"
+                      column={3}
+                      bordered
+                      style={{ marginBottom: 12 }}
+                    >
+                      <Descriptions.Item label="Vendor Code">
+                        {dn.venRegisterId}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="GSTIN">
+                        {dn.gstin}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Voucher Ref No.">
+                        {dn.voucherRefNo}
+                      </Descriptions.Item>
+                    </Descriptions>
+                    <Row gutter={12}>
+                      <Col span={18}>
+                        <Table
+                          size="small"
+                          pagination={false}
+                          rowKey={(row, rowIdx) => row.componentKey ?? rowIdx}
+                          dataSource={dn.items}
+                          columns={debitNoteItemColumns}
+                          scroll={{ x: "max-content" }}
+                        />
+                      </Col>
+                      <Col span={6}>
+                        <Card size="small" title="Total Values">
+                          {getDebitNoteTotals(dn).map((row) => (
+                            <Row key={row.name}>
+                              <Col span={12}>
+                                <Text strong style={{ fontSize: "0.8rem" }}>
+                                  {row.name}
+                                </Text>
+                              </Col>
+                              <Col span={12}>
+                                <Row justify="end">
+                                  <Text style={{ fontSize: "0.8rem" }}>
+                                    {row.value}
+                                  </Text>
+                                </Row>
+                              </Col>
+                              <Divider style={{ marginBottom: 5, marginTop: 5 }} />
+                            </Row>
+                          ))}
+                        </Card>
+                      </Col>
+                    </Row>
+                  </Collapse.Panel>
+                ))}
+              </Collapse>
+            </>
+          )}
+        </div>
+      </Drawer>
     </div>
   );
 }
