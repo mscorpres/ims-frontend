@@ -577,7 +577,7 @@ export default function JournalPosting() {
                     setExcelUploadOpen(true);
                   }}
                 />
-                ,
+            
               </Col>
             </Row>
           </Card>
