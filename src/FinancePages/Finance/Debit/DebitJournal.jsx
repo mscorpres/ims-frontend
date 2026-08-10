@@ -7,12 +7,28 @@ import NavFooter from "../../../Components/NavFooter";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import FormTable from "../../../Components/FormTable";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { Card, Col, Collapse, Descriptions, Divider, Drawer, Empty, Form, Input, Modal, Row, Space, Table, Tag, Typography, Upload } from "antd";
+import {
+  Card,
+  Col,
+  Collapse,
+  Descriptions,
+  Divider,
+  Drawer,
+  Empty,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Table,
+  Tag,
+  Typography,
+  Upload,
+} from "antd";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
 import { downloadExcel } from "../../../Components/printFunction";
 import { InboxOutlined } from "@ant-design/icons";
-
 
 const debitNoteItemColumns = [
   { title: "Part Code", dataIndex: "partCode", width: 110 },
@@ -44,7 +60,6 @@ const debitNoteItemColumns = [
           {tds.map((t, i) => (
             <div key={i} style={{ marginBottom: i < tds.length - 1 ? 6 : 0 }}>
               <div>{t.masterDetails?.gl_code ?? "-"}</div>
-          
             </div>
           ))}
         </div>
@@ -60,19 +75,17 @@ const debitNoteItemColumns = [
       tds?.length
         ? tds
             .map(
-              (t) => `${t.masterDetails?.name ?? t.tdsCode} (${t.tdsPercent}%)`
+              (t) => `${t.masterDetails?.name ?? t.tdsCode} (${t.tdsPercent}%)`,
             )
             .join(", ")
         : "-",
   },
-    {
+  {
     title: "Total TDS Amount",
     dataIndex: "tdsAmount",
     width: 160,
-   
   },
-  ];
-
+];
 
 export default function JournalPosting() {
   const [journalDate, setJournalDate] = useState("");
@@ -80,7 +93,7 @@ export default function JournalPosting() {
   const [creditTotal, setCreditTotal] = useState(0);
   const [parsedDebitNotes, setParsedDebitNotes] = useState(null);
   const [excelUploadLoading, setExcelUploadLoading] = useState(false);
-  
+
   const [excelUploadOpen, setExcelUploadOpen] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [excelUploadForm] = Form.useForm();
@@ -176,28 +189,34 @@ export default function JournalPosting() {
   };
   const getDebitNoteTotals = (dn) => {
     const items = dn?.items ?? [];
-    const taxableValue = items.reduce((sum, item) => sum + (+item.value || 0), 0);
+    const taxableValue = items.reduce(
+      (sum, item) => sum + (+item.value || 0),
+      0,
+    );
     const tdsAmount = dn.totalTdsAmount || 0;
     const taxes = dn?.taxes ?? {};
+    const roundOff = dn?.taxes?.roundOffCredit === 0
+      ? +dn?.taxes?.roundOffDebit
+      : +dn?.taxes?.roundOffCredit || 0;
     return [
       { name: "Taxable Value", value: taxableValue },
       {
         name: "IGST",
-        value: (+taxes.igstInputReversal || 0),
+        value: +taxes.igstInputReversal || 0,
       },
       {
         name: "CGST",
-        value: (+taxes.cgstInputReversal || 0),
+        value: +taxes.cgstInputReversal || 0,
       },
       {
         name: "SGST",
-        value: (+taxes.sgstInputReversal || 0),
+        value: +taxes.sgstInputReversal || 0,
       },
       { name: "TDS Amount", value: tdsAmount },
-      { name: "Round Off", value: (+taxes.roundOff || 0) },
+      { name: "Round Off", value: roundOff || 0 },
       {
         name: "Total Value",
-        value: `₹${(+dn?.totalValue || 0)}`,
+        value: `₹${+dn?.totalValue || 0}`,
       },
     ];
   };
@@ -511,7 +530,7 @@ export default function JournalPosting() {
       setExcelUploadLoading(false);
     }
   };
-    const normExcelFile = (e) => {
+  const normExcelFile = (e) => {
     if (Array.isArray(e)) return e;
     return e?.fileList;
   };
@@ -543,18 +562,21 @@ export default function JournalPosting() {
                   selectedDate={journalDate}
                 />
               </Col>
-              <Col span={24} style={{ marginTop: "10px", display:"flex", justifyContent:"flex-end" }}>
-                 <MyButton
-              variant="upload"
-              text="Bulk Upload"
-              onClick={() => {
-                if(!journalDate) {
-                  toast.error("Please select a date");
-                  return
-                }
-                  setExcelUploadOpen(true);}
-              }
-            />
+              <Col
+                span={24}
+                style={{
+                  marginTop: "10px",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <MyButton
+                  variant="upload"
+                  text="Bulk Upload"
+                  onClick={() => {
+                    setExcelUploadOpen(true);
+                  }}
+                />
                 ,
               </Col>
             </Row>
@@ -607,7 +629,6 @@ export default function JournalPosting() {
           />,
         ]}
       >
-       
         <Form form={excelUploadForm} layout="vertical">
           <Form.Item
             name="files"
@@ -633,7 +654,7 @@ export default function JournalPosting() {
           </Row>
         </Form>
       </Modal>
-        <Drawer
+      <Drawer
         title={
           parsedDebitNotes
             ? `Parsed Debit Notes (${parsedDebitNotes.length})`
@@ -656,7 +677,6 @@ export default function JournalPosting() {
             <Empty description="No debit notes to preview" />
           ) : (
             <>
-          
               <Collapse
                 defaultActiveKey={parsedDebitNotes.map((_, idx) => idx)}
               >
@@ -720,7 +740,9 @@ export default function JournalPosting() {
                                   </Text>
                                 </Row>
                               </Col>
-                              <Divider style={{ marginBottom: 5, marginTop: 5 }} />
+                              <Divider
+                                style={{ marginBottom: 5, marginTop: 5 }}
+                              />
                             </Row>
                           ))}
                         </Card>
