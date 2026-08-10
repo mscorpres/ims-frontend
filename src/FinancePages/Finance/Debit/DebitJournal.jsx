@@ -93,6 +93,7 @@ export default function JournalPosting() {
   const [creditTotal, setCreditTotal] = useState(0);
   const [parsedDebitNotes, setParsedDebitNotes] = useState(null);
   const [excelUploadLoading, setExcelUploadLoading] = useState(false);
+  const [bulkDebitNoteSubmitting, setBulkDebitNoteSubmitting] = useState(false);
 
   const [excelUploadOpen, setExcelUploadOpen] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
@@ -530,6 +531,34 @@ export default function JournalPosting() {
       setExcelUploadLoading(false);
     }
   };
+  const submitBulkDebitNotes = async () => {
+    if (!parsedDebitNotes || parsedDebitNotes.length === 0) {
+      toast.error("No debit notes to submit");
+      return;
+    }
+    try {
+      setBulkDebitNoteSubmitting(true);
+      const response = await imsAxios.post("/tally/vbt01/create-bulk-debit-note", {
+        debitNotes: parsedDebitNotes,
+      });
+      const { data } = response;
+      if (data && data.code === 200) {
+        
+        toast.success(data.message ?? "Debit notes saved successfully");
+        setParsedDebitNotes(null);
+      } else {
+        toast.error(
+          data?.message?.msg ?? data?.message ?? "Unable to save debit notes",
+        );
+      }
+    } catch (error) {
+      toast.error("Some error occured while saving the debit notes");
+      console.log("Some error occured while saving the debit notes", error);
+    } finally {
+      setBulkDebitNoteSubmitting(false);
+    }
+  };
+
   const normExcelFile = (e) => {
     if (Array.isArray(e)) return e;
     return e?.fileList;
@@ -665,11 +694,19 @@ export default function JournalPosting() {
         width="100vw"
         destroyOnClose
         extra={
-          <MyButton
-            variant="reset"
-            text="Close"
-            onClick={() => setParsedDebitNotes(null)}
-          />
+          <Space>
+            <MyButton
+              variant="reset"
+              text="Close"
+              onClick={() => setParsedDebitNotes(null)}
+            />
+            <MyButton
+              variant="submit"
+              text="Submit"
+              loading={bulkDebitNoteSubmitting}
+              onClick={submitBulkDebitNotes}
+            />
+          </Space>
         }
       >
         <div style={{ paddingRight: 4 }}>
