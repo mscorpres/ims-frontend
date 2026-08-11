@@ -588,8 +588,12 @@ export default function JournalPosting() {
     }
     try {
       setBulkDebitNoteSubmitting(true);
+      const debitNotesPayload = parsedDebitNotes.map((dn) => {
+        const { debit, credit } = getDebitCreditBalance(dn);
+        return { ...dn, debit, credit };
+      });
       const response = await imsAxios.post("/tally/vbt01/create-bulk-debit-note", {
-        debitNotes: parsedDebitNotes,
+        debitNotes: debitNotesPayload,
       });
       const { data } = response;
       if (data && data.code === 200) {
