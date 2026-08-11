@@ -590,7 +590,31 @@ export default function JournalPosting() {
       setBulkDebitNoteSubmitting(true);
       const debitNotesPayload = parsedDebitNotes.map((dn) => {
         const { debit, credit } = getDebitCreditBalance(dn);
-        return { ...dn, debit, credit };
+        return {
+          voucherNo: dn.voucherNo,
+          date: dn.date,
+          vendorCode: dn.vendorCode,
+          voucherRefNo: dn.voucherRefNo,
+          gstin: dn.gstin,
+          items: (dn.items ?? []).map((item) => ({
+            partCode: item.partCode,
+            narration: item.narration,
+            quantity: item.quantity,
+            uom: item.uom,
+            rate: item.rate,
+            value: item.value,
+            glDetails: { key: item.glDetails?.key },
+            tdsDetails: item.tdsDetails,
+            tdsAmount: item.tdsAmount,
+          })),
+          taxes: dn.taxes,
+          roundOff: dn.roundOff,
+          taxableValue: dn.taxableValue,
+          totalTdsAmount: dn.totalTdsAmount,
+          totalValue: dn.totalValue,
+          debit,
+          credit,
+        };
       });
       const response = await imsAxios.post("/tally/vbt01/create-bulk-debit-note", {
         debitNotes: debitNotesPayload,
