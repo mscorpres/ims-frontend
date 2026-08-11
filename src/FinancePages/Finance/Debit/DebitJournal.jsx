@@ -597,7 +597,7 @@ export default function JournalPosting() {
           voucherRefNo: dn.voucherRefNo,
           gstin: dn.gstin,
           items: (dn.items ?? []).map((item) => ({
-            partCode: item.partCode,
+            partCode: item.componentKey,
             narration: item.narration,
             quantity: item.quantity,
             uom: item.uom,
