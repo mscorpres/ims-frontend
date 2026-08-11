@@ -115,6 +115,11 @@ const columns = [
     width: 150,
     field: "receivedQty",
   },
+    {
+    headerName: "WAR",
+    width: 150,
+    field: "avgRate",
+  },
   {
     headerName: "Short/Access",
     width: 150,

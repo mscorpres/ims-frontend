@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Col, Form, Input, Modal, Row, Space } from "antd";
+import { Col, Form, Input, Modal, Row, Space } from "antd";
 import MySelect from "../../Components/MySelect";
 import MyDatePicker from "../../Components/MyDatePicker";
 import ToolTipEllipses from "../../Components/ToolTipEllipses";
@@ -48,6 +48,7 @@ const WoAnalysis = () => {
       const arr = await getClientOptions(search);
       setAsyncOptions(arr);
     } catch (error) {
+      console.log("some error occured while fetching rows", error);
     } finally {
       setLoading(false);
     }
@@ -58,6 +59,7 @@ const WoAnalysis = () => {
       const arr = await getSKUOptions(search);
       setAsyncOptions(arr);
     } catch (error) {
+      console.log("some error occured while fetching rows", error);
     } finally {
       setLoading(false);
     }
@@ -122,6 +124,7 @@ const WoAnalysis = () => {
     type: "actions",
     getActions: ({ row }) => [
       <GridActionsCellItem
+      key={"view"}
         showInMenu
         // disabled={loading}
         onClick={() => {
@@ -141,6 +144,7 @@ const WoAnalysis = () => {
         label={row.status === "PENDING" ? "Finalize" : "View"}
       />,
       <GridActionsCellItem
+        key={"min"}
         showInMenu
         disabled={row.status === "PENDING"}
         onClick={() =>
@@ -154,6 +158,7 @@ const WoAnalysis = () => {
         label="Material In"
       />,
       <GridActionsCellItem
+        key={"print"}
         showInMenu
         // disabled={loading}
         onClick={() => {
@@ -162,6 +167,7 @@ const WoAnalysis = () => {
         label="Print"
       />,
       <GridActionsCellItem
+        key={"download"}
         showInMenu
         // disabled={loading}
         onClick={() => {
@@ -170,6 +176,7 @@ const WoAnalysis = () => {
         label="Download"
       />,
       <GridActionsCellItem
+        key={"close"}
         showInMenu
         // disabled={loading}
         onClick={() => {
@@ -337,13 +344,13 @@ const columns = [
     width: 150,
   },
 ];
-const cancelRules = {
-  remarks: [
-    {
-      required: true,
-      message: "Please provide a reason to cancel this work order",
-    },
-  ],
-};
+// const cancelRules = {
+//   remarks: [
+//     {
+//       required: true,
+//       message: "Please provide a reason to cancel this work order",
+//     },
+//   ],
+// };
 
 export default WoAnalysis;
