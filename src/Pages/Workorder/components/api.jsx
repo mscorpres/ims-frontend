@@ -519,6 +519,7 @@ const getWorkOrderDetails = async (id, woId, sku) => {
         receivedQty: row.received_qty,
         shortAccessQty: row.pending_qty,
         consumedQty: row.comsump_qty,
+        avgRate: row.avgRate,
         pendingQtyWO: row.p_with_wo,
         outValue: row.out_value,
         inValue: row.in_value,
