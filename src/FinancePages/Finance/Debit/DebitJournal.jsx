@@ -188,37 +188,74 @@ export default function JournalPosting() {
       setAsyncOptions([]);
     }
   };
-  const getDebitNoteTotals = (dn) => {
+  const getDebitCreditBalance = (dn) => {
     const items = dn?.items ?? [];
     const taxableValue = items.reduce(
       (sum, item) => sum + (+item.value || 0),
       0,
     );
-    const tdsAmount = dn.totalTdsAmount || 0;
+    const tdsAmount = +dn?.totalTdsAmount || 0;
     const taxes = dn?.taxes ?? {};
-    const roundOff = dn?.taxes?.roundOffCredit === 0
-      ? +dn?.taxes?.roundOffDebit
-      : +dn?.taxes?.roundOffCredit || 0;
+    const igst = +taxes.igstInputReversal || 0;
+    const cgst = +taxes.cgstInputReversal || 0;
+    const sgst = +taxes.sgstInputReversal || 0;
+    const roundOff = +dn?.roundOff || 0;
+    const totalValue = +dn?.totalValue || 0;
+
+    let debit = totalValue + tdsAmount;
+    let credit = taxableValue + igst + cgst + sgst;
+
+    if (roundOff < 0) {
+      debit += Math.abs(roundOff);
+    } else if (roundOff > 0) {
+      credit += roundOff;
+    }
+
+   
+    return {
+      taxableValue,
+      igst,
+      cgst,
+      sgst,
+      tdsAmount,
+      roundOff,
+      totalValue,
+      debit,
+      credit,
+    };
+  };
+  const getDebitNoteTotals = (dn) => {
+    const {
+      taxableValue,
+      igst,
+      cgst,
+      sgst,
+      tdsAmount,
+      roundOff,
+      totalValue,
+      debit,
+      credit,
+    } = getDebitCreditBalance(dn);
     return [
       { name: "Taxable Value", value: taxableValue },
-      {
-        name: "IGST",
-        value: +taxes.igstInputReversal || 0,
-      },
-      {
-        name: "CGST",
-        value: +taxes.cgstInputReversal || 0,
-      },
-      {
-        name: "SGST",
-        value: +taxes.sgstInputReversal || 0,
-      },
+      { name: "IGST", value: igst },
+      { name: "CGST", value: cgst },
+      { name: "SGST", value: sgst },
       { name: "TDS Amount", value: tdsAmount },
       { name: "Round Off", value: roundOff || 0 },
       {
         name: "Total Value",
-        value: `₹${+dn?.totalValue || 0}`,
+        value: `₹${totalValue}`,
       },
+      {
+        name: "Debit",
+        value: `₹${debit.toFixed(2)}`,
+      },
+      {
+        name: "Credit",
+        value: `₹${credit.toFixed(2)}`,
+      },
+
     ];
   };
   const inputHandler = (name, value, id) => {
@@ -534,6 +571,17 @@ export default function JournalPosting() {
   const submitBulkDebitNotes = async () => {
     if (!parsedDebitNotes || parsedDebitNotes.length === 0) {
       toast.error("No debit notes to submit");
+      return;
+    }
+    const unbalancedNotes = parsedDebitNotes.filter(
+      (dn) => !getDebitCreditBalance(dn).balanced,
+    );
+    if (unbalancedNotes.length > 0) {
+      toast.error(
+        `Debit and Credit value is not equal for: ${unbalancedNotes
+          .map((dn) => dn.voucherNo)
+          .join(", ")}`,
+      );
       return;
     }
     try {
