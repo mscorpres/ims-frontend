@@ -211,7 +211,8 @@ export default function JournalPosting() {
       credit += roundOff;
     }
 
-   
+    const balanced = Math.abs(debit - credit) < 0.01;
+
     return {
       taxableValue,
       igst,
@@ -222,6 +223,7 @@ export default function JournalPosting() {
       totalValue,
       debit,
       credit,
+      balanced,
     };
   };
   const getDebitNoteTotals = (dn) => {
