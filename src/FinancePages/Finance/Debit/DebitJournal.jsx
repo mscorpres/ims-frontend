@@ -525,7 +525,7 @@ export default function JournalPosting() {
     try {
       setExcelUploadLoading("upload");
       const response = await imsAxios.post(
-        "/tally/vbt01/upload/item",
+        "/tally/dv/upload/item",
         formData,
       );
       const { data } = response;
@@ -616,7 +616,7 @@ export default function JournalPosting() {
           credit,
         };
       });
-      const response = await imsAxios.post("/tally/vbt01/create-bulk-debit-note", {
+      const response = await imsAxios.post("/tally/dv/create-bulk-debit-note", {
         debitNotes: debitNotesPayload,
       });
       const { data } = response;
