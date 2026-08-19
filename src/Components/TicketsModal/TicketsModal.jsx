@@ -82,7 +82,7 @@ export default function TicketsModal({ open, handleClose }) {
             </Col>
             <Col span={24}>
               <Typography.Text strong>Status</Typography.Text>
-              <Typography.Text>
+              <Typography.Text> 
                 {ticket.status === "O"
                   ? "Open"
                   : ticket.status === "A"
