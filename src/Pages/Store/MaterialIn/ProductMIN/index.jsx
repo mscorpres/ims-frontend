@@ -141,6 +141,7 @@ export default function ProductMIN() {
   const vendorDetailsOptions = [
     { text: "Vendor", value: "v01" },
     { text: "Sales Return", value: "s01" },
+    { text: "Other", value: "o01" },
   ];
   const getGstTypeValue = (v) => {
     if (v == null || v === "") return "L";
@@ -1187,7 +1188,7 @@ export default function ProductMIN() {
     setTotalValues(obj);
   }, [materialInward]);
   useEffect(() => {
-    if (vendorDetails.vendorType === "p01") {
+    if (vendorDetails.vendorType === "o01") {
       let obj = form.getFieldsValue();
       obj = {
         ...obj,
@@ -1301,7 +1302,7 @@ export default function ProductMIN() {
                       >
                         <MyAsyncSelect
                           selectLoading={loading1("select")}
-                          disabled={form.getFieldValue("vendorType") === "p01"}
+                          disabled={form.getFieldValue("vendorType") === "o01"}
                           labelInValue
                           onBlur={() => setAsyncOptions([])}
                           optionsState={asyncOptions}
@@ -1335,7 +1336,7 @@ export default function ProductMIN() {
                         label="Vendor Branch"
                       >
                         <MySelect
-                          disabled={form.getFieldValue("vendorType") === "p01"}
+                          disabled={form.getFieldValue("vendorType") === "o01"}
                           options={vendorBranchOptions}
                         />
                       </Form.Item>
@@ -1406,7 +1407,7 @@ export default function ProductMIN() {
                       <Form.Item name="vendorAddress" label="Bill From Address">
                         <Input.TextArea
                           rows={3}
-                          disabled={form.getFieldValue("vendorType") === "p01"}
+                          disabled={form.getFieldValue("vendorType") === "o01"}
                           style={{ resize: "none" }}
                         />
                       </Form.Item>
