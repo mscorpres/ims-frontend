@@ -72,26 +72,32 @@ const SingleComponent = ({
   useEffect(() => {
     let updatedTdsPercentage = 0;
     if (allTdsOptions?.length > 0) {
-      let arr = allTdsOptions.filter((r) => r.tds_name === tdsName.label);
+      let arr = allTdsOptions.filter(
+        (r) => r.tds_key === tdsName?.value || r.tds_name === tdsName?.label
+      );
+      const matched = arr[0];
 
-      form.setFieldValue(
-        ["components", field.name, "tdsglName"],
-        arr[0]?.ladger_name
-      );
-      form.setFieldValue(
-        ["components", field.name, "tdsglCode"],
-        arr[0]?.ledger_key
-      );
-      form.setFieldValue(
-        ["components", field.name, "tdsCode"],
-        arr[0]?.tds_key
-      );
-      form.setFieldValue(
-        ["components", field.name, "tdsPercent"],
-        arr[0]?.tds_percent
-      );
-
-      updatedTdsPercentage = arr[0]?.tds_percent;
+      if (matched) {
+        form.setFieldValue(
+          ["components", field.name, "tdsglName"],
+          matched.ladger_name
+        );
+        form.setFieldValue(
+          ["components", field.name, "tdsglCode"],
+          matched.ledger_key
+        );
+        form.setFieldValue(
+          ["components", field.name, "tdsCode"],
+          matched.tds_key
+        );
+        form.setFieldValue(
+          ["components", field.name, "tdsPercent"],
+          matched.tds_percent
+        );
+        updatedTdsPercentage = matched.tds_percent;
+      } else {
+        updatedTdsPercentage = tdsPercent ?? 0;
+      }
     } else {
       updatedTdsPercentage = tdsPercent ?? 0;
     }
