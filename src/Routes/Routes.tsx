@@ -284,6 +284,7 @@ import VersionDownload from "@/Pages/Version/VersionDownload.jsx";
 import SubGroup from "../Pages/Master/SubGroup.jsx";
 import AddCostCenter from "../Pages/Master/AddCostCenter.jsx";
 import ViewFGMIN from "../Pages/Store/PrintFGMIN/ViewFGMIN.jsx";
+import RGPChallanView from "../Pages/RGPChallanTracking/RGPChallanView.jsx";
 // import CreateAsset from "../Pages/fixeassetmodule/CreateAsset/CreateAsset";
 // import ViewAsset from "../Pages/fixeassetmodule/ViewAsset";
 // import Depreciation from "../Pages/fixeassetmodule/Depreciation";
@@ -534,6 +535,11 @@ const Routes = [
     path: "/manage-gp",
     exact: true,
     main: () => <ManageGatePass />,
+  },
+  {
+    path: "/rgp-challan-view",
+    exact: true,
+    main: () => <RGPChallanView />,
   },
   {
     path: "/sku-query",

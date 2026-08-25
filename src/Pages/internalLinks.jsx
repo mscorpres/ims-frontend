@@ -613,6 +613,7 @@ const links = [
   [
     { routeName: "Create GP", routePath: "/create-gp" },
     { routeName: "Manage GP", routePath: "/manage-gp" },
+    { routeName: "RGP Challan View", routePath: "/rgp-challan-view" },
   ],
   // physical stock
   [
