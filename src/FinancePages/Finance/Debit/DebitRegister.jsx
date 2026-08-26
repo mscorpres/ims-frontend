@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Button, Col, Input, Row, Tooltip, Popconfirm, Space } from "antd";
+import  { useState, useEffect } from "react";
+import { Col, Input, Row,Space, Tag } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
@@ -12,12 +12,10 @@ import {
   CloudDownloadOutlined,
   PrinterFilled,
   EyeFilled,
-  DeleteFilled,
   EditFilled,
 } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import JounralPostingView from "../jounralPosting/JounralPostingView";
-import EditJournalVoucher from "../jounralPosting/EditJournalVoucher";
+
 import MySelect from "../../../Components/MySelect";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
@@ -40,11 +38,9 @@ function DebitRegister() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewDebitDetail, setViewDebitDetail] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [editDebit, setEditDebit] = useState(null);
   const [selectLoading, setSelectLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectedLedger, setSelectedLedger] = useState(null);
 
   const getRows = async () => {
     setRows([]);
@@ -71,22 +67,22 @@ function DebitRegister() {
     }
   };
 
-  const deleteFun = async () => {
-    setLoading(true);
-    if (deleteConfirm) {
-      const { data } = await imsAxios.post("/tally/jv/jv_delete", {
-        jv_code: deleteConfirm,
-      });
-      setLoading(false);
-      if (data.code == 200) {
-        setDeleteConfirm(null);
-        toast.success(data.message);
-        getRows();
-      } else {
-        toast.error(data.message.msg);
-      }
-    }
-  };
+  // const deleteFun = async () => {
+  //   setLoading(true);
+  //   if (deleteConfirm) {
+  //     const { data } = await imsAxios.post("/tally/jv/jv_delete", {
+  //       jv_code: deleteConfirm,
+  //     });
+  //     setLoading(false);
+  //     if (data.code == 200) {
+  //       setDeleteConfirm(null);
+  //       toast.success(data.message);
+  //       getRows();
+  //     } else {
+  //       toast.error(data.message.msg);
+  //     }
+  //   }
+  // };
 
   const columns = [
     {
@@ -134,7 +130,16 @@ function DebitRegister() {
       field: "comment",
       flex: 1,
     },
-
+   {
+      headerName: "DN Status",
+      field: "dnStatus",
+      renderCell: ({ row }) => (
+        <Tag color={row.dnStatus === "ACTIVE" ? "green" : "red"}>
+                          {row.dnStatus}
+                        </Tag>
+      ),
+      width: 120,
+    },
     {
       headerName: "Status",
       field: "status",
@@ -158,6 +163,7 @@ function DebitRegister() {
       getActions: ({ row }) => [
         // view voucher
         <GridActionsCellItem
+        key={row.module_used}
           disabled={loading}
           icon={<EyeFilled className="view-icon" />}
           onClick={() => {
@@ -167,6 +173,7 @@ function DebitRegister() {
           label="view"
         />,
         <GridActionsCellItem
+          key={row.module_used}
           // print voucher
           disabled={loading}
           icon={<PrinterFilled className="view-icon" />}
@@ -176,6 +183,7 @@ function DebitRegister() {
           label="print"
         />,
         <GridActionsCellItem
+          key={row.module_used}
           // download voucher
           disabled={loading}
           icon={<CloudDownloadOutlined className="view-icon" />}
@@ -185,6 +193,7 @@ function DebitRegister() {
           label="download"
         />,
         <GridActionsCellItem
+          key={row.module_used}
           // edit voucher
           disabled={loading}
           icon={<EditFilled className="view-icon" />}
