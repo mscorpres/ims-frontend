@@ -140,20 +140,20 @@ function DebitRegister() {
       ),
       width: 120,
     },
-    {
-      headerName: "Status",
-      field: "status",
-      renderCell: ({ row }) => (
-        <span
-          style={{
-            color: row.status == "Deleted" && "brown",
-          }}
-        >
-          {row.status}
-        </span>
-      ),
-      width: 120,
-    },
+    // {
+    //   headerName: "Status",
+    //   field: "status",
+    //   renderCell: ({ row }) => (
+    //     <span
+    //       style={{
+    //         color: row.status == "Deleted" && "brown",
+    //       }}
+    //     >
+    //       {row.status}
+    //     </span>
+    //   ),
+    //   width: 120,
+    // },
 
     {
       headerName: "Action",
