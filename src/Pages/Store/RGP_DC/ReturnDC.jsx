@@ -25,18 +25,22 @@ const ReturnDC = () => {
   const columns = [
     {
       headerName: "#",
-      width: 30,
+      width: 60,
       field: "serial_no",
+      align: "center",
+      headerAlign: "center",
     },
     {
       headerName: "Vendor",
-      width: 250,
+      flex: 1,
+      minWidth: 220,
       field: "vendor",
       renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
     },
     {
       headerName: "Item",
-      width: 350,
+      flex: 1.6,
+      minWidth: 280,
       field: "item",
       renderCell: ({ row }) => <ToolTipEllipses text={row.item} />,
     },
@@ -47,23 +51,32 @@ const ReturnDC = () => {
     },
     {
       headerName: "Unit",
-      width: 80,
+      width: 90,
       field: "unit",
     },
     {
       headerName: "Outward",
-      width: 100,
+      width: 110,
       field: "outward",
+      type: "number",
+      align: "center",
+      headerAlign: "center",
     },
     {
       headerName: "Returned",
-      width: 100,
+      width: 110,
       field: "returned",
+      type: "number",
+      align: "center",
+      headerAlign: "center",
     },
     {
       headerName: "Balance",
-      width: 100,
+      width: 110,
       field: "balance",
+      type: "number",
+      align: "center",
+      headerAlign: "center",
     },
   ];
   //getting rows from database from all 3 filter po wise, data wise, vendor wise
@@ -112,19 +125,26 @@ const ReturnDC = () => {
   };
 
   return (
-    <div className="manage-po" style={{ position: "relative", height: "calc(100vh - 80px)", margin: "10px 10px" }}>
-      <Row
-        justify="space-between"
-      >
+    <div
+      className="manage-po"
+      style={{
+        position: "relative",
+        height: "calc(100vh - 80px)",
+        margin: "10px 10px",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Row justify="space-between" align="middle" gutter={[12, 12]}>
         <Col>
-          <Space>
-            <div style={{ width: 250 }}>
+          <Space size="middle" wrap>
+            <div style={{ width: 260 }}>
               <MyAsyncSelect
                 selectLoading={selectLoading}
                 optionsState={asyncOptions}
                 onBlur={() => setAsyncOptions([])}
                 loadOptions={(search) => getVendors(search)}
-                placeholder={"Select Vendors"}
+                placeholder={"Select Vendor"}
                 onChange={(e) => {
                   setVendor(e);
                   setAsyncOptions([]);
@@ -132,7 +152,7 @@ const ReturnDC = () => {
               />
             </div>
 
-            <div style={{ width: 300 }}>
+            <div style={{ width: 280 }}>
               <MyDatePicker
                 size="default"
                 setDateRange={setSearchDateRange}
@@ -141,9 +161,7 @@ const ReturnDC = () => {
               />
             </div>
             <MyButton
-              disabled={
-                searchDateRange === "" ? true : false || !vendor ? true : false
-              }
+              disabled={!searchDateRange || !vendor}
               type="primary"
               loading={searchLoading}
               onClick={getSearchResults}
@@ -155,25 +173,17 @@ const ReturnDC = () => {
           </Space>
         </Col>
         <Col>
-          <Space>
-            <CommonIcons
-              action="downloadButton"
-              onClick={() =>
-                downloadCSV(rows, columns, "Job Work Inventory Report")
-              }
-              disabled={rows.length == 0}
-            />
-          </Space>
+          <CommonIcons
+            action="downloadButton"
+            onClick={() =>
+              downloadCSV(rows, columns, "Consolidated Return Report")
+            }
+            disabled={rows.length === 0}
+          />
         </Col>
       </Row>
-      <div
-        style={{
-          height: "calc(100% - 90px)",
-          marginTop: "10px",
-      
-        }}
-      >
-        <MyDataTable loading={searchLoading} rows={rows} columns={columns} />
+      <div style={{ flex: 1, minHeight: 0, marginTop: 10 }}>
+        <MyDataTable loading={searchLoading} data={rows} columns={columns} />
       </div>
     </div>
   );
