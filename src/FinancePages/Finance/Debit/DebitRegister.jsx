@@ -13,7 +13,7 @@ import {
   PrinterFilled,
   EyeFilled,
   EditFilled,
-  DeleteFilled,
+  CloseOutlined
 } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
 
@@ -90,7 +90,7 @@ function DebitRegister() {
   const confirmDelete = (jv_code) => {
     let remark = "";
     Modal.confirm({
-      title: "Delete Voucher",
+      title: "Cancel Voucher",
       okText: "Yes",
       cancelText: "No",
       centered: true,
@@ -229,7 +229,7 @@ function DebitRegister() {
                 key={`delete-${row.module_used}`}
                 disabled={loading || row.status == "Deleted"}
                 icon={
-                  <DeleteFilled
+                  <CloseOutlined 
                     className={`view-icon ${
                       row.status == "Deleted" && "disable"
                     }`}
