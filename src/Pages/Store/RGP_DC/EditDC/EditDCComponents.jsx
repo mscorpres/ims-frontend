@@ -246,7 +246,7 @@ export default function EditDCComponents({
       field: "add",
       sortable: false,
       renderCell: ({ row }) =>
-        row.type != "new" && (
+        (isReturnDC || row.type != "new") && (
           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
         ),
       // sortable: false,
