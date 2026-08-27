@@ -201,6 +201,10 @@ export default function EditDC({ updatedDCId, setUpdateDCId, isReturnDC, setIsRe
       destination: validatedData.data.other.destination,
       deliveryTerms: validatedData.data.other.terms_of_delivery,
       vehicleNumber: validatedData.data.other.vehicle_no,
+      challanNumber:
+        validatedData.data.other?.rgp_challan_no ??
+        validatedData.data?.rgp_challan_no ??
+        "",
       narration: validatedData.data.other.narration,
       billingId: validatedData.data.warehouse.warehouse,
       billinAddress: validatedData.data.warehouse.warehouse_address,

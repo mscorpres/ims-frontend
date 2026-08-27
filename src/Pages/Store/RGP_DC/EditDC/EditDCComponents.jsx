@@ -8,7 +8,7 @@ import { v4 } from "uuid";
 import FormTable from "../../../../Components/FormTable";
 import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
-import { Button, Modal } from "antd";
+import { Button, Input, Modal } from "antd";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { getComponentOptions } from "../../../../api/general.ts";
@@ -279,6 +279,19 @@ export default function EditDCComponents({
         }),
     },
     {
+      headerName: "Returned Qty",
+      field: "returnedQty",
+      width: 130,
+      renderCell: ({ row }) => (
+        <Input
+          value={row.returnedQty ?? 0}
+          disabled
+          suffix={row.uom}
+          style={{ background: "#f5f5f5", fontWeight: 600, color: "#000" }}
+        />
+      ),
+    },
+    {
       headerName: "Rate",
       field: "rate",
       flex: 1,
@@ -335,6 +348,7 @@ export default function EditDCComponents({
           value: row.selectedComponent[0].id,
         },
         qty: row.qty,
+        returnedQty: row.returned_qty ?? 0,
         rate: row.rate,
         hsn: row.hsn_code,
         uom: row.unit,
@@ -393,7 +407,14 @@ export default function EditDCComponents({
           to the original Challan?
         </p>
       </Modal>
-      <FormTable columns={columns} data={rows} />
+      <FormTable
+        columns={
+          isReturnDC
+            ? columns
+            : columns.filter((col) => col.field !== "returnedQty")
+        }
+        data={rows}
+      />
       <NavFooter
         nextLabel={isReturnDC ? "Return" : "Update"}
         resetFunction={() => setShowResetConfirm(true)}
