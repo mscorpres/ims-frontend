@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import {
   Col,
   Descriptions,
@@ -15,7 +15,6 @@ import {
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import NavFooter from "../../../../Components/NavFooter";
-import axios from "axios";
 import EditDCComponents from "./EditDCComponents";
 import Loading from "../../../../Components/Loading";
 import validateResponse from "../../../../Components/validateResponse";
@@ -24,7 +23,7 @@ import { convertSelectOptions } from "../../../../utils/general.ts";
 import { getVendorOptions } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 
-export default function EditDC({ updatedDCId, setUpdateDCId }) {
+export default function EditDC({ updatedDCId, setUpdateDCId, isReturnDC, setIsReturnDC }) {
   const [newGatePass, setNewGatePass] = useState({
     passType: "R",
     vendorName: "",
@@ -49,11 +48,9 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [billToOptions, setBillTopOptions] = useState([]);
   const [vendorBranches, setVendorBranches] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState("1");
-  const [successPage, setSuccessPage] = useState(false);
   const [resetData, setResetData] = useState({});
   const [skeletonLoading, setSkeletonLoading] = useState(false);
   const { executeFun, loading: loading1 } = useApi();
@@ -148,11 +145,9 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
   };
   // gettig billing address
   const getBillTo = async () => {
-    setSelectLoading(true);
     const { data } = await imsAxios.post("/backend/billingAddressList", {
       search: "",
     });
-    setSelectLoading(false);
     let arr = [];
     arr = data.map((d) => {
       return { text: d.text, value: d.id };
@@ -187,6 +182,7 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
     const validatedData = validateResponse(data);
     if (!validatedData.code) {
       setUpdateDCId(null);
+      setIsReturnDC(false);
       return;
     }
     getVendorBracnch(validatedData.data?.vendor?.vendor.value);
@@ -225,11 +221,15 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
     }
   }, [updatedDCId]);
   useEffect(() => {}, [newGatePass]);
+  const title = isReturnDC ? `Return DC: ${updatedDCId}` : `Edit DC: ${updatedDCId}`;
   return (
     <Drawer
-      onClose={() => setUpdateDCId(null)}
+      onClose={() => {
+        setUpdateDCId(null);
+        setIsReturnDC(false);
+      }}
       open={updatedDCId}
-      title={`Edit DC: ${updatedDCId}`}
+      title={title}
       width="100vw"
     >
       {!skeletonLoading && (
@@ -728,6 +728,34 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
                             </Form.Item>
                           </Form>
                         </Col>
+                        {
+                          isReturnDC && (
+                                <Col span={6}>
+                          <Form size="small" layout="vertical">
+                            <Form.Item
+                              label={
+                                <span
+                                  style={{
+                                    fontSize:
+                                      window.innerWidth < 1600 && "0.7rem",
+                                  }}
+                                >
+                                  Challan Number
+                                </span>
+                              }
+                            >
+                              <Input
+                                size="default"
+                                onChange={(e) =>
+                                  inputHandler("challanNumber", e.target.value)
+                                }
+                                value={newGatePass.challanNumber}
+                              />
+                            </Form.Item>
+                          </Form>
+                        </Col>
+                          )
+                        }
                       </Row>
                       <Row>
                         <Col span={18}>
@@ -885,7 +913,10 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
                   <Divider />
                 </div>
                 <NavFooter
-                  backFunction={() => setUpdateDCId(false)}
+                  backFunction={() => {
+                    setUpdateDCId(false);
+                    setIsReturnDC(false);
+                  }}
                   resetFunction={() => setShowResetConfirm(true)}
                   submitFunction={() => setActiveTab("2")}
                 />
@@ -902,12 +933,14 @@ export default function EditDC({ updatedDCId, setUpdateDCId }) {
                 <EditDCComponents
                   updatedDCId={updatedDCId}
                   setUpdateDCId={setUpdateDCId}
+                  setIsReturnDC={setIsReturnDC}
+                  isReturnDC={isReturnDC}
                   setActiveTab={setActiveTab}
                   newGatePass={newGatePass}
                   resetData={resetData}
                   setNewGatePass={setNewGatePass}
                   resetFunction={resetFunction}
-                  setSuccessPage={setSuccessPage}
+                  // setSuccessPage={setSuccessPage}
                   setPageLoading={setPageLoading}
                 />
               </div>

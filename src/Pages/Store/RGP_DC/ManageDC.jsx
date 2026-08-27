@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import { Button, Col, Input, Row, Select } from "antd";
 import { Link } from "react-router-dom";
@@ -13,74 +13,83 @@ import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { imsAxios } from "../../../axiosInterceptor";
 import MyButton from "../../../Components/MyButton";
 import validateResponse from "../../../Components/validateResponse";
-import printFunction, { downloadFunction } from "../../../Components/printFunction";
+import printFunction, {
+  downloadFunction,
+} from "../../../Components/printFunction";
 
 const SELECT_OPTIONS = [
   { label: "Date Wise", value: "datewise" },
   { label: "GP ID Wise", value: "gpwise" },
 ];
 
-
-
 function ManageDC() {
   const COLUMNS = [
-  {
-    headerName: "",
-    width: 30,
-    type: "actions",
-    getActions: ({ row }) => [
-      <GridActionsCellItem
-        key="edit"
-        showInMenu
-        label="Edit"
-        onClick={() => setUpdateDCId(row.transaction_id)}
-      />,
-      <GridActionsCellItem
-        key="download"
-        showInMenu
-        label="Download"
-        onClick={() => downloadFun(row.transaction_id)}
-      />,
-      <GridActionsCellItem
-        key="print"
-        showInMenu
-        label="Print"
-        onClick={() => printFun(row.transaction_id)}
-      />,
-      <GridActionsCellItem
-        key="ewaybill"
-        showInMenu
-        label={
-          <Link
-            style={{ textDecoration: "none", color: "black" }}
-            to={`/warehouse/e-way/dc/${row.transaction_id.replaceAll("/", "_")}`}
-            target="_blank"
-          >
-            Create E-Way Bill
-          </Link>
-        }
-      />,
-    ],
-  },
-  {
-    field: "transaction_id",
-    headerName: "Journal ID",
-    width: 200,
-    renderCell: ({ row }) => (
-      <ToolTipEllipses text={row.transaction_id} copy />
-    ),
-  },
-  { field: "vendor_name", headerName: "To (Name)", width: 500 },
-  { field: "insert_date", headerName: "Created Date/Time", width: 200 },
-  { field: "component_name", headerName: "Component Name", width: 200 },
-  { field: "part_no", headerName: "Part No.", width: 200 },
-  { field: "quantity", headerName: "Quantity", width: 200 },
-  { field: "rate", headerName: "Rate", width: 200 },
-  { field: "hsn", headerName: "HSN", width: 200 },
-  { field: "total", headerName: "Amount", width: 200 },
-  { field: "ewaybill_status", headerName: "E WayBill Status", width: 200 },
-  { field: "ewaybill_no", headerName: "E WayBill No.", width: 200 },
-];
+    {
+      headerName: "",
+      width: 30,
+      type: "actions",
+      getActions: ({ row }) => [
+        <GridActionsCellItem
+          key="edit"
+          showInMenu
+          label="Edit"
+          onClick={() => setUpdateDCId(row.transaction_id)}
+        />,
+        <GridActionsCellItem
+          key="return"
+          showInMenu
+          label="Return"
+          onClick={() => {
+            setUpdateDCId(row.transaction_id);
+            setIsReturnDC(true);
+          }}
+        />,
+        <GridActionsCellItem
+          key="download"
+          showInMenu
+          label="Download"
+          onClick={() => downloadFun(row.transaction_id)}
+        />,
+        <GridActionsCellItem
+          key="print"
+          showInMenu
+          label="Print"
+          onClick={() => printFun(row.transaction_id)}
+        />,
+        <GridActionsCellItem
+          key="ewaybill"
+          showInMenu
+          label={
+            <Link
+              style={{ textDecoration: "none", color: "black" }}
+              to={`/warehouse/e-way/dc/${row.transaction_id.replaceAll("/", "_")}`}
+              target="_blank"
+            >
+              Create E-Way Bill
+            </Link>
+          }
+        />,
+      ],
+    },
+    {
+      field: "transaction_id",
+      headerName: "Journal ID",
+      width: 200,
+      renderCell: ({ row }) => (
+        <ToolTipEllipses text={row.transaction_id} copy />
+      ),
+    },
+    { field: "vendor_name", headerName: "To (Name)", width: 500 },
+    { field: "insert_date", headerName: "Created Date/Time", width: 200 },
+    { field: "component_name", headerName: "Component Name", width: 200 },
+    { field: "part_no", headerName: "Part No.", width: 200 },
+    { field: "quantity", headerName: "Quantity", width: 200 },
+    { field: "rate", headerName: "Rate", width: 200 },
+    { field: "hsn", headerName: "HSN", width: 200 },
+    { field: "total", headerName: "Amount", width: 200 },
+    { field: "ewaybill_status", headerName: "E WayBill Status", width: 200 },
+    { field: "ewaybill_no", headerName: "E WayBill No.", width: 200 },
+  ];
   const [state, setState] = useState({
     selType: "",
     gpInput: "",
@@ -89,6 +98,7 @@ function ManageDC() {
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState("");
   const [updatedDCId, setUpdateDCId] = useState(null);
+  const [isReturnDC, setIsReturnDC] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!state.selType) {
@@ -183,9 +193,21 @@ function ManageDC() {
 
   return (
     <div style={{ height: "90%", padding: "10px" }}>
-      {updatedDCId && (
-        <EditDC updatedDCId={updatedDCId} setUpdateDCId={setUpdateDCId} />
-      )}
+      {updatedDCId && !isReturnDC ? (
+        <EditDC
+          updatedDCId={updatedDCId}
+          setUpdateDCId={setUpdateDCId}
+          setIsReturnDC={setIsReturnDC}
+          isReturnDC={false}
+        />
+      ) : updatedDCId && isReturnDC ? (
+        <EditDC
+          updatedDCId={updatedDCId}
+          setUpdateDCId={setUpdateDCId}
+          setIsReturnDC={setIsReturnDC}
+          isReturnDC={true}
+        />
+      ) : null}
       <Row gutter={16} style={{ paddingBottom: 5 }}>
         <Col span={4}>
           <Select

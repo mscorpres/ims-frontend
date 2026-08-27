@@ -1,5 +1,5 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+
+import  { useEffect, useState } from "react";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   asyncSelectComponent,
@@ -17,16 +17,15 @@ import useApi from "../../../../hooks/useApi.ts";
 export default function EditDCComponents({
   newGatePass,
   setActiveTab,
-  resetFunction,
+  isReturnDC,
   setUpdateDCId,
   resetData,
   setPageLoading,
   updatedDCId,
+  setIsReturnDC,
 }) {
   const [rows, setRows] = useState([]);
-  console.log(rows);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -42,7 +41,7 @@ export default function EditDCComponents({
       // setSelectLoading(false);
       const response = await executeFun(
         () => getComponentOptions(searchInput),
-        "select"
+        "select",
       );
       const { data } = response;
       let arr = [];
@@ -64,7 +63,7 @@ export default function EditDCComponents({
         "/component/getComponentDetailsByCode",
         {
           component_code: value.value,
-        }
+        },
       );
       let validatedData = validateResponse(data);
       setPageLoading(false);
@@ -132,6 +131,10 @@ export default function EditDCComponents({
     } else if (newGatePass.vehicleNumber == "") {
       return toast.error("Please enter a Vehicle Number");
     }
+
+    if(isReturnDC && !newGatePass.challanNumber){
+      return toast.error("Please enter a Challan Number");
+    }
     rows.map((row) => {
       if (row.component == "") {
         validate = "Please select a component for all the material entries";
@@ -167,6 +170,7 @@ export default function EditDCComponents({
         destination: newGatePass.destination,
         terms_of_delivery: newGatePass.deliveryTerms,
         vehicle_no: newGatePass.vehicleNumber,
+        challan_no: newGatePass.challanNumber,
         narration: newGatePass.narration,
       },
       material: {
@@ -183,14 +187,15 @@ export default function EditDCComponents({
   };
   const submitHandler = async () => {
     if (showSubmitConfirm) {
+      const endpoint = isReturnDC
+        ? "/gatepass/createReturn"
+        : "/gatepass/updateDc";
       setSubmitLoading(true);
-      const { data } = await imsAxios.post(
-        "/gatepass/updateDc",
-        showSubmitConfirm
-      );
+      const { data } = await imsAxios.post(endpoint, showSubmitConfirm);
       setSubmitLoading(false);
       if (data.code == 200) {
         setUpdateDCId(false);
+        setIsReturnDC(false);
         // let successInfo = {
         //   id: data.data.transactionID,
         //   components: rows,
@@ -335,7 +340,7 @@ export default function EditDCComponents({
     <div style={{ height: "97%", overflowY: "auto" }}>
       {/* submit confirm modal */}
       <Modal
-        title="Confirm Create Delivery Challan!"
+        title= {isReturnDC ? "Confirm Return Delivery Challan!" : "Confirm Update Delivery Challan!"}
         open={showSubmitConfirm}
         onCancel={() => setShowSubmitConfirm(false)}
         footer={[
@@ -352,7 +357,9 @@ export default function EditDCComponents({
           </Button>,
         ]}
       >
-        <p>Are you sure you want to update this Delivery Challan?</p>
+       {
+        isReturnDC ? "Are you sure you want to return this Delivery Challan?" : "Are you sure you want to update this Delivery Challan?"
+       }
       </Modal>
       {/* reset confirm modal */}
       <Modal
