@@ -26,35 +26,44 @@ const ReturnDC = () => {
     {
       headerName: "#",
       width: 30,
-      field: "id",
+      field: "serial_no",
     },
     {
-      headerName: "PART ",
-      // minWidth: 80,
-      //   flex: 1,
-      field: "PART",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.PART} />,
+      headerName: "Vendor",
+      width: 250,
+      field: "vendor",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.vendor} />,
     },
     {
-      headerName: "Component",
+      headerName: "Item",
       width: 350,
-      field: "COMPONENT",
+      field: "item",
+      renderCell: ({ row }) => <ToolTipEllipses text={row.item} />,
     },
-
     {
-      headerName: "outward",
+      headerName: "Part No.",
+      width: 130,
+      field: "part_no",
+    },
+    {
+      headerName: "Unit",
+      width: 80,
+      field: "unit",
+    },
+    {
+      headerName: "Outward",
       width: 100,
       field: "outward",
     },
     {
       headerName: "Returned",
       width: 100,
-      field: "Returned",
+      field: "returned",
     },
     {
       headerName: "Balance",
       width: 100,
-      field: "Balance",
+      field: "balance",
     },
   ];
   //getting rows from database from all 3 filter po wise, data wise, vendor wise
@@ -62,25 +71,27 @@ const ReturnDC = () => {
     setRows([]);
 
     setSearchLoading(true);
-    const { data, success, message } = await imsAxios.post("/report37", {
-      data: searchDateRange,
+    try {
+      const { data } = await imsAxios.post("/gatepass/consolidatedReturnReport", {
+        data: searchDateRange,
+        vendor: vendor?.value ?? vendor,
+      });
 
-      vendor: vendor,
-    });
-    setSearchLoading(false);
-    if (success) {
-      let arr = data?.map((row, index) => ({
-        ...row,
-        id: index + 1,
-        index: index + 1,
-      }));
-      setRows(arr);
-    } else {
-      if (message) {
-        toast.error(message);
+      if (data.code === 200) {
+        const arr = (data.response?.data ?? []).map((row, index) => ({
+          ...row,
+          id: index + 1,
+          index: index + 1,
+        }));
+        setRows(arr);
       } else {
-        toast.error(message);
+        toast.error(data.message || "Failed to fetch return report");
       }
+    } catch (error) {
+      toast.error("An error occurred while fetching the return report");
+      console.error(error);
+    } finally {
+      setSearchLoading(false);
     }
   };
   //getting vendors list for filter by vendors
