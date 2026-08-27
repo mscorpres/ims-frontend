@@ -1,5 +1,4 @@
-
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   asyncSelectComponent,
@@ -132,7 +131,7 @@ export default function EditDCComponents({
       return toast.error("Please enter a Vehicle Number");
     }
 
-    if(isReturnDC && !newGatePass.challanNumber){
+    if (isReturnDC && !newGatePass.challanNumber) {
       return toast.error("Please enter a Challan Number");
     }
     rows.map((row) => {
@@ -170,11 +169,21 @@ export default function EditDCComponents({
         destination: newGatePass.destination,
         terms_of_delivery: newGatePass.deliveryTerms,
         vehicle_no: newGatePass.vehicleNumber,
-        challan_no: newGatePass.challanNumber,
+
         narration: newGatePass.narration,
       },
+      ...(isReturnDC && {
+        rgp_challan_no: newGatePass.challanNumber,
+      }),
+
       material: {
-        serial: rows.map((row) => row.serial),
+        ...(isReturnDC
+          ? {
+              row_id: rows.map((row) => row.serial),
+            }
+          : {
+              serial: rows.map((row) => row.serial),
+            }),
         component: rows.map((row) => row.component.value),
         qty: rows.map((row) => row.qty),
         rate: rows.map((row) => row.rate),
@@ -340,7 +349,11 @@ export default function EditDCComponents({
     <div style={{ height: "97%", overflowY: "auto" }}>
       {/* submit confirm modal */}
       <Modal
-        title= {isReturnDC ? "Confirm Return Delivery Challan!" : "Confirm Update Delivery Challan!"}
+        title={
+          isReturnDC
+            ? "Confirm Return Delivery Challan!"
+            : "Confirm Update Delivery Challan!"
+        }
         open={showSubmitConfirm}
         onCancel={() => setShowSubmitConfirm(false)}
         footer={[
@@ -357,9 +370,9 @@ export default function EditDCComponents({
           </Button>,
         ]}
       >
-       {
-        isReturnDC ? "Are you sure you want to return this Delivery Challan?" : "Are you sure you want to update this Delivery Challan?"
-       }
+        {isReturnDC
+          ? "Are you sure you want to return this Delivery Challan?"
+          : "Are you sure you want to update this Delivery Challan?"}
       </Modal>
       {/* reset confirm modal */}
       <Modal
@@ -382,7 +395,7 @@ export default function EditDCComponents({
       </Modal>
       <FormTable columns={columns} data={rows} />
       <NavFooter
-        nextLabel="Update"
+        nextLabel={isReturnDC ? "Return" : "Update"}
         resetFunction={() => setShowResetConfirm(true)}
         backFunction={() => setActiveTab("1")}
         submitFunction={validateData}

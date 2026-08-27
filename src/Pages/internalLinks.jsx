@@ -608,6 +608,11 @@ const links = [
       routePath: "/manage-dc",
       key: "1",
     },
+      {
+      routeName: "Return DC",
+      routePath: "/return-dc",
+      key: "2",
+    },
   ],
   // gatepass links
   [
