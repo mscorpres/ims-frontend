@@ -83,7 +83,16 @@ function ManageDC() {
     { field: "insert_date", headerName: "Created Date/Time", width: 200 },
     { field: "component_name", headerName: "Component Name", width: 200 },
     { field: "part_no", headerName: "Part No.", width: 200 },
-    { field: "quantity", headerName: "Quantity", width: 200 },
+    {
+      field: "quantity",
+      headerName: "Quantity / Return QTY",
+      width: 200,
+      renderCell: ({ row }) => (
+        <span>
+          {row.quantity} / {row.returned_qty}
+        </span>
+      ),
+    },
     { field: "rate", headerName: "Rate", width: 200 },
     { field: "hsn", headerName: "HSN", width: 200 },
     { field: "total", headerName: "Amount", width: 200 },
