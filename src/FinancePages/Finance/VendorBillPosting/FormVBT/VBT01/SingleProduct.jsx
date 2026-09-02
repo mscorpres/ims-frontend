@@ -383,17 +383,17 @@ export default function SingleComponent({
             </Typography.Text>
           </Col>
           <Col span={3}>
-            <Form.Item label="MIN ID" name={[field.name, "minId"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
               <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
-            <Form.Item label="Part Code" name={[field.name, "partCode"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="Part Name" name={[field.name, "partName"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "Product Name" : "Part Name"}   name={[field.name, "partName"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
@@ -404,7 +404,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col>
           <Col span={2}>
-            <Form.Item label="MIN Qty" name={[field.name, "vbtInQty"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
               <Input disabled />
             </Form.Item>
           </Col>
@@ -799,17 +799,17 @@ export default function SingleComponent({
             </Typography.Text>
           </Col>
           <Col span={3}>
-            <Form.Item label="MIN ID" name={[field.name, "minId"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
               <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
-            <Form.Item label="Part Code" name={[field.name, "partCode"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="Part Name" name={[field.name, "partName"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "Product Name" : "Part Name"} name={[field.name, "partName"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
@@ -829,7 +829,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col>
           <Col span={2}>
-            <Form.Item label="MIN Qty" name={[field.name, "vbtInQty"]}>
+            <Form.Item label={apiUrl === "vbt08" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
               <Input disabled />
             </Form.Item>
           </Col>
