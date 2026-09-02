@@ -49,8 +49,8 @@ const getPurchaseGlOptions = (rows = []) =>
           return [];
         })
         .filter((gl) => gl?.key != null && String(gl.key).trim() !== "")
-        .map((gl) => [gl.key, { text: gl.name ?? gl.key, value: gl.key }])
-    ).values()
+        .map((gl) => [gl.key, { text: gl.name ?? gl.key, value: gl.key }]),
+    ).values(),
   );
 
 const resolveGlOptionsList = (response) => {
@@ -84,9 +84,18 @@ function VBT01Report({
 }) {
   const resolveVbtScreenType = () => {
     if (vbtScreenTypeProp) return vbtScreenTypeProp;
-    if (editVbtDrawer) return getVbtScreenType(getVbtApiFromCode(editVbtDrawer));
+    if (editVbtDrawer)
+      return getVbtScreenType(getVbtApiFromCode(editVbtDrawer));
     if (pageRoute) return getVbtScreenType(pageRoute);
     return "VBT01";
+  };
+  // Prefix for add/update endpoints: vbt08 has its own routes, everything
+  // else on this screen uses the shared vbt01 routes.
+  const resolveWriteApiPrefix = () => {
+    const moduleApiUrl = editVbtDrawer
+      ? getVbtApiFromCode(editVbtDrawer)
+      : apiUrl;
+    return moduleApiUrl === "vbt08" ? "vbt08" : VBT01_API_PREFIX;
   };
   const [Vbt01] = Form.useForm();
   const [vbtComponent, setVbtComponent] = useState([]);
@@ -198,25 +207,31 @@ function VBT01Report({
       type != null && String(type).trim() !== ""
         ? `?type=${encodeURIComponent(type)}`
         : "";
-    const tallyPrefix = getTallyApiPrefix(
-      editVbtDrawer ? getVbtApiFromCode(editVbtDrawer) : apiUrl
-    );
-    link = `/tally/${tallyPrefix}/fetch_multi_min_data${typeQuery}`;
+    const moduleApiUrl = editVbtDrawer
+      ? getVbtApiFromCode(editVbtDrawer)
+      : apiUrl;
+    // Keep the module's own prefix in the URL (e.g. vbt08), but use the
+    // resolved tally prefix (vbt08 -> vbt01) only to decide the body shape.
+    const tallyPrefix = getTallyApiPrefix(moduleApiUrl);
+    // vbt08 has its own FG endpoint.
+    const fetchEndpoint =
+      moduleApiUrl === "vbt08"
+        ? "fetch_multi_fg_min_data"
+        : "fetch_multi_min_data";
+    link = `/tally/${moduleApiUrl}/${fetchEndpoint}${typeQuery}`;
     const payload = isVbt01StyleModule(tallyPrefix)
-        ? {
-            vbt_type: resolveVbtScreenType(),
-            data: minIdArr.map((row) => {
-              return {
-                minTxn: row?.transaction ?? row.min_transaction,
-                type: row.type,
-              };
-            }),
-          }
-        : {
-            mins: minIdArr.map(
-              (row) => row?.transaction ?? row.min_transaction,
-            ),
-          };
+      ? {
+          vbt_type: resolveVbtScreenType(),
+          data: minIdArr.map((row) => {
+            return {
+              minTxn: row?.transaction ?? row.min_transaction,
+              type: row.type,
+            };
+          }),
+        }
+      : {
+          mins: minIdArr.map((row) => row?.transaction ?? row.min_transaction),
+        };
     const response = await imsAxios.post(link, payload);
 
     const { data } = response;
@@ -239,7 +254,6 @@ function VBT01Report({
         sgstAmount: row.sgst,
         igstAmount: row.igst,
         venAddress: row.venAddress,
-        igstAmount: row.igst,
         ven_name: row.venName,
 
         tdsName: {
@@ -324,11 +338,15 @@ function VBT01Report({
   };
 
   const getGl = async (extraOptions = [], vbtType = "") => {
-    const glApiUrl = getTallyApiPrefix(
-      editVbtDrawer ? getVbtApiFromCode(editVbtDrawer) : apiUrl
-    );
+    const moduleApiUrl = editVbtDrawer
+      ? getVbtApiFromCode(editVbtDrawer)
+      : apiUrl;
+    const glApiUrl = getTallyApiPrefix(moduleApiUrl);
     const options = Array.isArray(extraOptions) ? extraOptions : [];
-    const isFgType = String(vbtType || "").trim().toUpperCase() === "FG";
+    const isFgType =
+      String(vbtType || "")
+        .trim()
+        .toUpperCase() === "FG";
 
     if (editVbtDrawer) {
       setEditApiUrl(glApiUrl);
@@ -337,7 +355,9 @@ function VBT01Report({
     if (glApiUrl === VBT01_API_PREFIX) {
       if (isFgType) {
         try {
-          const response = await imsAxios.get("/tally/vbt01/vbt01_gl_options");
+          const response = await imsAxios.get(
+            `/tally/${moduleApiUrl}/${moduleApiUrl}_gl_options`,
+          );
           const optionRows = resolveGlOptionsList(response);
           setGlCodes(mergeGlSelectOptions(optionRows, options));
         } catch (error) {
@@ -499,23 +519,6 @@ function VBT01Report({
       const editmodifiedArray =
         roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
 
-      const tdsCodes = values.components.filter(
-        (component) =>
-          !component.tds_key ||
-          component.tds_key === "" ||
-          component.tds_key === "--",
-      )[0]
-        ? undefined
-        : values.components.map((component) => component.tds_key);
-      const tdsGlCodes = values.components.filter(
-        (component) =>
-          !component.glCode ||
-          component.glCode === "" ||
-          component.glCode === "--",
-      )[0]
-        ? undefined
-        : values.components.map((component) => component.glCode);
-
       let finalObj = {
         bill_amount: values.billAmmount,
         bill_qty: values.components.map((component) => component.vbtBillQty),
@@ -600,7 +603,7 @@ function VBT01Report({
 
   const updateVbt = async (finalData) => {
     setLoading(true);
-    let link = `/tally/${VBT01_API_PREFIX}/update`;
+    let link = `/tally/${resolveWriteApiPrefix()}/update`;
     const response = await imsAxios.put(link, finalData);
     if (response.status === 200) {
       toast.success(response.data);
@@ -613,8 +616,9 @@ function VBT01Report({
   };
   const addVbt = async (finalData, type) => {
     setLoading(true);
+    const writePrefix = resolveWriteApiPrefix();
     const response = await imsAxios.post(
-      `/tally/${VBT01_API_PREFIX}/add_${VBT01_API_PREFIX}?type=${type}`,
+      `/tally/${writePrefix}/add_${writePrefix}?type=${type}`,
       finalData,
     );
     const { data } = response;
@@ -850,7 +854,7 @@ function VBT01Report({
                 <>
                   <Col>
                     {fields.map((field, index) => (
-                      <Form.Item noStyle>
+                      <Form.Item noStyle key={field.key || index}>
                         <SingleComponent
                           fields={fields}
                           field={field}
@@ -908,6 +912,3 @@ const initialValues = {
 };
 
 // get the lowercase value of vbt
-const getApiUrl = (vbtCode) => {
-  return vbtCode.split("/")[0].toLowerCase();
-};
