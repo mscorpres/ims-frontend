@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Button, Col, Input, Row, Tooltip, Popconfirm, Space } from "antd";
+import  { useState, useEffect } from "react";
+import { Col, Input, Modal, Row,Space, Tag } from "antd";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { imsAxios } from "../../../axiosInterceptor";
 import { v4 } from "uuid";
@@ -12,12 +12,11 @@ import {
   CloudDownloadOutlined,
   PrinterFilled,
   EyeFilled,
-  DeleteFilled,
   EditFilled,
+  CloseOutlined
 } from "@ant-design/icons";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import JounralPostingView from "../jounralPosting/JounralPostingView";
-import EditJournalVoucher from "../jounralPosting/EditJournalVoucher";
+
 import MySelect from "../../../Components/MySelect";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import { CommonIcons } from "../../../Components/TableActions.jsx/TableActions";
@@ -36,17 +35,19 @@ function DebitRegister() {
   ];
   const [rows, setRows] = useState([]);
   const [wise, setWise] = useState("date_wise");
-  // console.log("Wise", wise);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewDebitDetail, setViewDebitDetail] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [editDebit, setEditDebit] = useState(null);
   const [selectLoading, setSelectLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectedLedger, setSelectedLedger] = useState(null);
 
   const getRows = async () => {
+    if(searchTerm === "") 
+    {
+      toast.error("Please enter value/date");
+      return
+    }
     setRows([]);
     setLoading("fetch");
     const { data } = await imsAxios.post("/tally/dv/debitVoucherList", {
@@ -71,21 +72,50 @@ function DebitRegister() {
     }
   };
 
-  const deleteFun = async () => {
+  const deleteFun = async (dv_code, remark) => {
     setLoading(true);
-    if (deleteConfirm) {
-      const { data } = await imsAxios.post("/tally/jv/jv_delete", {
-        jv_code: deleteConfirm,
-      });
-      setLoading(false);
-      if (data.code == 200) {
-        setDeleteConfirm(null);
-        toast.success(data.message);
-        getRows();
-      } else {
-        toast.error(data.message.msg);
-      }
+    const { data } = await imsAxios.post("/tally/dv/cancel-debit-note", {
+      debitNo: dv_code,
+      cancelReason: remark,
+    });
+    setLoading(false);
+    if (data.code == 200) {
+      toast.success(data.message);
+      getRows();
+    } else {
+      toast.error(data.message.msg);
     }
+  };
+
+  const confirmDelete = (jv_code) => {
+    let remark = "";
+    Modal.confirm({
+      title: "Cancel Voucher",
+      okText: "Yes",
+      cancelText: "No",
+      centered: true,
+      content: (
+        <div>
+          <p style={{ marginBottom: 2 }}>
+            Debit Code: <b>{jv_code}</b>
+          </p>
+          <Input.TextArea
+            rows={3}
+            placeholder="Enter remark for cancellation"
+            onChange={(e) => {
+              remark = e.target.value;
+            }}
+          />
+        </div>
+      ),
+      onOk() {
+        if (!remark.trim()) {
+          toast.error("Please enter a remark for cancellation");
+          return Promise.reject();
+        }
+        return deleteFun(jv_code, remark);
+      },
+    });
   };
 
   const columns = [
@@ -134,21 +164,30 @@ function DebitRegister() {
       field: "comment",
       flex: 1,
     },
-
-    {
-      headerName: "Status",
-      field: "status",
+   {
+      headerName: "DN Status",
+      field: "dnStatus",
       renderCell: ({ row }) => (
-        <span
-          style={{
-            color: row.status == "Deleted" && "brown",
-          }}
-        >
-          {row.status}
-        </span>
+        <Tag color={row.dnStatus === "ACTIVE" ? "green" : "red"}>
+                          {row.dnStatus}
+                        </Tag>
       ),
       width: 120,
     },
+    // {
+    //   headerName: "Status",
+    //   field: "status",
+    //   renderCell: ({ row }) => (
+    //     <span
+    //       style={{
+    //         color: row.status == "Deleted" && "brown",
+    //       }}
+    //     >
+    //       {row.status}
+    //     </span>
+    //   ),
+    //   width: 120,
+    // },
 
     {
       headerName: "Action",
@@ -156,70 +195,51 @@ function DebitRegister() {
       type: "actions",
       flex: 1,
       getActions: ({ row }) => [
-        // view voucher
         <GridActionsCellItem
+          key={`view-${row.module_used}`}
           disabled={loading}
           icon={<EyeFilled className="view-icon" />}
-          onClick={() => {
-            // console.log(row);
-            setViewDebitDetail(row?.module_used);
-          }}
+          onClick={() => setViewDebitDetail(row?.module_used)}
           label="view"
         />,
         <GridActionsCellItem
-          // print voucher
+          key={`print-${row.module_used}`}
           disabled={loading}
           icon={<PrinterFilled className="view-icon" />}
-          onClick={() => {
-            printFun(row.module_used);
-          }}
+          onClick={() => printFun(row.module_used)}
           label="print"
         />,
         <GridActionsCellItem
-          // download voucher
+          key={`download-${row.module_used}`}
           disabled={loading}
           icon={<CloudDownloadOutlined className="view-icon" />}
-          onClick={() => {
-            handleDownload(row.module_used);
-          }}
+          onClick={() => handleDownload(row.module_used)}
           label="download"
         />,
-        <GridActionsCellItem
-          // edit voucher
-          disabled={loading}
-          icon={<EditFilled className="view-icon" />}
-          onClick={() => {
-            // console.log(row);
-            setEditDebit(row.module_used);
-          }}
-          label="download"
-        />,
-        // <GridActionsCellItem
-        //   // delete voucher
-        //   style={{ marginTop: -5 }}
-        //   disabled={row.status == "Deleted"}
-        //   icon={
-        //     <Popconfirm
-        //       title="Are you sure to delete this Voucher?"
-        //       onConfirm={deleteFun}
-        //       onCancel={() => {
-        //         setDeleteConfirm(null);
-        //       }}
-        //       okText="Yes"
-        //       cancelText="No"
-        //     >
-        //       <DeleteFilled
-        //         className={`view-icon ${
-        //           row.status == "Deleted" && "disable"
-        //         }`}
-        //       />{" "}
-        //     </Popconfirm>
-        //   }
-        //   onClick={() => {
-        //     setDeleteConfirm(row.module_used);
-        //   }}
-        //   label="Delete"
-        // />,
+        ...(row?.dnStatus !== "CANCELLED"
+          ? [
+              <GridActionsCellItem
+                key={`edit-${row.module_used}`}
+                disabled={loading}
+                icon={<EditFilled className="view-icon" />}
+                onClick={() => setEditDebit(row.module_used)}
+                label="edit"
+              />,
+              <GridActionsCellItem
+                key={`delete-${row.module_used}`}
+                disabled={loading || row.status == "Deleted"}
+                icon={
+                  <CloseOutlined 
+                    className={`view-icon ${
+                      row.status == "Deleted" && "disable"
+                    }`}
+                  />
+                }
+                onClick={() => confirmDelete(row.module_used)}
+                label="Delete"
+              />,
+            ]
+          : []),
       ],
     },
   ];
@@ -234,15 +254,11 @@ function DebitRegister() {
     // module_used
   };
   const handleDownload = async (id) => {
-    console.log(id);
     setLoading(true);
-    let link = "/tally/dv/printDebitVoucher";
-    let filename = "Debit Voucher " + id;
-
-    const { data } = await imsAxios.post(link, {
+    const { data } = await imsAxios.post("/tally/dv/printDebitVoucher", {
       dv_key: id,
     });
-    downloadFunction(data.buffer.data, filename);
+    downloadFunction(data.buffer.data, "Debit Voucher " + id);
     setLoading(false);
   };
   const getLedgerName = async (e) => {
@@ -252,13 +268,10 @@ function DebitRegister() {
     });
     setSelectLoading(false);
     if (data.code == 200) {
-      let arr = data.data.map((row) => {
-        return {
-          text: row.text,
-          value: row.id,
-        };
-      });
-      console.log(data.data);
+      const arr = data.data.map((row) => ({
+        text: row.text,
+        value: row.id,
+      }));
       setAsyncOptions(arr);
     } else {
       setAsyncOptions([]);
@@ -280,10 +293,7 @@ function DebitRegister() {
               />
             </div>
             <div style={{ width: 300 }}>
-              {wise === "date_wise" && (
-                <MyDatePicker size="default" setDateRange={setSearchTerm} />
-              )}
-              {wise === "eff_wise" && (
+              {(wise === "date_wise" || wise === "eff_wise") && (
                 <MyDatePicker size="default" setDateRange={setSearchTerm} />
               )}
               {wise === "code_wise" && (
@@ -304,17 +314,6 @@ function DebitRegister() {
                   optionsState={asyncOptions}
                   placeholder="Select Ledger..."
                 />
-                // <MyAsyncSelect
-                //   selectLoading={selectLoading}
-                //   onBlur={() => setAsyncOptions([])}
-                //   value={selectedLedger}
-                //   onChange={(value) =>
-                //     setSelectedLedger(value)
-                //   }
-                //   loadOptions={getLedgerName}
-                //   optionsState={asyncOptions}
-                //   placeholder="Select Ledger..."
-                // />
               )}
             </div>
             <MyButton
@@ -346,14 +345,6 @@ function DebitRegister() {
         viewDebitDetail={viewDebitDetail}
       />
       <DebitEdit setEditDebit={setEditDebit} editDebit={editDebit} />
-      {/* <JounralPostingView
-        setJvId={setViewJVDetail}
-        jvId={viewJVDetail}
-      />
-      <EditJournalVoucher
-        editVoucher={editVoucher}
-        setEditVoucher={setEditVoucher}
-      /> */}
     </div>
   );
 }

@@ -6,13 +6,11 @@ import {
   Form,
   Input,
   Row,
-  Space,
   Typography,
 } from "antd";
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { toast } from "react-toastify";
+
 
 const SingleComponent = ({
   field,
@@ -140,7 +138,7 @@ const SingleComponent = ({
       (amountWithFreight * updatedTdsPercentage) / 100
     ).toFixed(3);
     tdsAmount = +Number(tdsAmount).toFixed(2);
-    tdsAmount = Math.round(tdsAmount);
+    tdsAmount = Math.ceil(tdsAmount);
     let valueAfterTDS = amountAfterTax - tdsAmount;
     valueAfterTDS = +Number(valueAfterTDS).toFixed(4);
     form.setFieldValue(["components", field.name, "value"], value);
@@ -230,7 +228,7 @@ const SingleComponent = ({
     }
   };
 
-  const getFreightGlOptions = async (vbtKey) => {
+  const getFreightGlOptions = async () => {
     // const vbtType = vbtCodes[0].split("/")[0].toLowerCase
     try {
       // setLoading("fetch");
