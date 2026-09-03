@@ -72,7 +72,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
   }, []);
 
   const showTypeColumn = vbtData?.some(
-    (r) => r?.type != null && String(r.type).trim() !== ""
+    (r) => r?.type != null && String(r.type).trim() !== "",
   );
 
   const baseColumns = [
@@ -99,13 +99,13 @@ const VBTMainTable = ({ editVbtDrawer }) => {
 
   const vbtTableColumnsonesix = [
     ...baseColumns,
-       {
+    {
       headerName: "Vendor Code",
       field: "venCode",
       sortable: true,
       flex: 1,
       id: "vendor code",
-           renderCell: ({ row }) => <span>{row?.venCode ?? row?.ven_code}</span>,
+      renderCell: ({ row }) => <span>{row?.venCode ?? row?.ven_code}</span>,
     },
     {
       headerName: "Transaction",
@@ -113,7 +113,9 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
-       renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
+      renderCell: ({ row }) => (
+        <span>{row?.min_transaction ?? row?.transaction}</span>
+      ),
     },
     {
       headerName: "PART / SKU",
@@ -121,7 +123,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
-           renderCell: ({ row }) => <span>{row?.itemCode ?? row?.part_code}</span>,
+      renderCell: ({ row }) => <span>{row?.itemCode ?? row?.part_code}</span>,
     },
     {
       headerName: "DATE",
@@ -129,7 +131,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "min date",
-           renderCell: ({ row }) => <span>{row?.minDate ?? row?.min_in_date}</span>,
+      renderCell: ({ row }) => <span>{row?.minDate ?? row?.min_in_date}</span>,
     },
 
     {
@@ -169,7 +171,6 @@ const VBTMainTable = ({ editVbtDrawer }) => {
                     />
                   }
                 />
-               
               </>,
             ],
     },
@@ -189,7 +190,9 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
-         renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
+      renderCell: ({ row }) => (
+        <span>{row?.min_transaction ?? row?.transaction}</span>
+      ),
     },
     {
       headerName: "PART / SKU",
@@ -197,7 +200,9 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
-           renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.part_code}</span>,
+      renderCell: ({ row }) => (
+        <span>{row?.min_transaction ?? row?.part_code}</span>
+      ),
     },
     {
       headerName: "DATE",
@@ -205,7 +210,9 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "min date",
-           renderCell: ({ row }) => <span>{row?.min_in_date?? row?.transaction}</span>,
+      renderCell: ({ row }) => (
+        <span>{row?.min_in_date ?? row?.transaction}</span>
+      ),
     },
 
     {
@@ -216,7 +223,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       getActions: ({ row }) => [
         <GridActionsCellItem
-        key="edit"
+          key="edit"
           icon={<AiFillEdit />}
           onClick={() => setEditingVBT([row])}
           label="Edit"
@@ -233,10 +240,9 @@ const VBTMainTable = ({ editVbtDrawer }) => {
     setAsyncOptions(arr);
   };
 
-
   const getMultipleVBTDetail = () => {
     const mins = selectedRows.map((rowId) =>
-      vbtData.find((r) => r.id === rowId)
+      vbtData.find((r) => r.id === rowId),
     );
     setEditingVBT(mins);
   };
@@ -278,8 +284,10 @@ const VBTMainTable = ({ editVbtDrawer }) => {
         fetchBody.vbt_type = vbtScreenType;
       }
 
-   
-      response = await imsAxios.post(`/tally/${apiUrl}/fetch_${apiUrl}`, fetchBody);
+      response = await imsAxios.post(
+        `/tally/${apiUrl}/fetch_${apiUrl}`,
+        fetchBody,
+      );
     }
     const { data } = response;
     if (data.code === 200) {
@@ -311,8 +319,14 @@ const VBTMainTable = ({ editVbtDrawer }) => {
   };
   const disableVbt = async (singleRow) => {
     if (singleRow) {
-      ModalForm.setFieldValue("min_transaction", singleRow.transaction ?? singleRow.min_transaction);
-      ModalForm.setFieldValue("part_code", singleRow.itemCode ?? singleRow.part_code);
+      ModalForm.setFieldValue(
+        "min_transaction",
+        singleRow.transaction ?? singleRow.min_transaction,
+      );
+      ModalForm.setFieldValue(
+        "part_code",
+        singleRow.itemCode ?? singleRow.part_code,
+      );
     }
 
     Modal.confirm({
@@ -363,22 +377,19 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       okText: "Yes",
       cancelText: "No",
       onOk: async () => {
-        await disabletheSelelcted();
+        await disabletheSelelcted(singleRow?.type);
       },
     });
   };
-  const disabletheSelelcted = async () => {
+  const disabletheSelelcted = async (type) => {
     const values = await ModalForm.validateFields();
-    const disableEndpoint =
-      apiUrl === "vbt08"
-        ? "/tally/vbt08/disable_vbt08process"
-        : apiUrl === "vbt09"
-          ? "/tally/vbt09/disable_vbt09process"
-          : "/tally/vbt/disable_vbtprocess";
+
+    const disableEndpoint = "/tally/vbt/disable_vbtprocess/" + type;
     const response = await imsAxios.put(disableEndpoint, {
-      min_transaction: values.min_transaction ,
-      part_code: values.part_code ,
+      min_transaction: values.min_transaction,
+      part_code: values.part_code,
       remark: values.remark,
+  
     });
     if (response.data.code === 200) {
       toast.success(response.data.data.status);
@@ -401,9 +412,8 @@ const VBTMainTable = ({ editVbtDrawer }) => {
     setVBTData(previewdisData ? combinedData : extracted);
   }, [previewdisData]);
 
-
   return (
-    <div style={{ height: "92%", margin:8 }}>
+    <div style={{ height: "92%", margin: 8 }}>
       <MapVBTModal mapVBT={mapVBT} setMapVBT={setMapVBT} />
       <div
         style={{
@@ -412,7 +422,6 @@ const VBTMainTable = ({ editVbtDrawer }) => {
           overflow: "hidden",
         }}
       >
-       
         <VBT01Report
           setVBTData={setVBTData}
           editingVBT={editingVBT}
