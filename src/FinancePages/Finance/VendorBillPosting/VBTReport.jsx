@@ -62,24 +62,12 @@ export default function VBTReport() {
   // const [creatingDebitNote, setCreatingDebitNotes] = useState(false);
   const [openModal, setOpenModal] = useState(null);
   const [debitNoteDrawer, setDebitNoteDrawer] = useState(null);
-  const [editvbturl, setEditVbtUrl] = useState("");
 
 
   const { executeFun, loading: loading1 } = useApi();
 
-  // const navigate = useNavigate();
-  const getApiUrl = (editVbtDrawer) => {
-    // console.log("vbtCode", vbtCode.split("/")[0].toLowerCase());
-    return editVbtDrawer.split("/")[0].toLowerCase();
-  };
 
-  useEffect(() => {
-    if (editVbtDrawer) {
-      var checkapi = getApiUrl(editVbtDrawer);
-      setEditVbtUrl(checkapi);
-      console.log("editVbtDrawer------", checkapi);
-    }
-  }, [editVbtDrawer]);
+
 
   const wiseOptions = [
     { value: "datewise", text: "Date Wise" },
@@ -98,6 +86,7 @@ export default function VBTReport() {
     { text: "VBT6", value: "VBT06" },
     { text: "VBT7", value: "VBT07" },
     { text: "VBT8", value: "VBT08" },
+    { text: "VBT9", value: "VBT09" },
   ];
 
   const printFun = async (vbtId) => {

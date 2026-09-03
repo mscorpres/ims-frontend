@@ -47,7 +47,12 @@ const links = [
     key: 8,
     placeholder: "Sales - Return",
   },
-  { routeName: "VBT9", routePath: "/tally/vendorbillposting/VB9", key: 9 },
+  {
+    routeName: "VBT9",
+    routePath: "/tally/vendorbillposting/VB9",
+    key: 9,
+    placeholder: "FG - Purchase",
+  },
   { routeName: "VBT10", routePath: "/tally/vendorbillposting/VB10", key: 10 },
 ];
 export default links;

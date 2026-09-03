@@ -303,7 +303,7 @@ export default function SingleComponent({
   }, [editApiUrl]);
 
   useEffect(() => {
-    if (apiUrl === "vbt08") return;
+    if (apiUrl === "vbt08" || apiUrl === "vbt09") return;
     if (!Array.isArray(tdsArray) || tdsArray.length !== 1) return;
     const only = tdsArray[0];
     if (only?.value == null && only?.text == null) return;
@@ -383,17 +383,17 @@ export default function SingleComponent({
             </Typography.Text>
           </Col>
           <Col span={3}>
-            <Form.Item label={apiUrl === "vbt08" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
               <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
-            <Form.Item label={apiUrl === "vbt08" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label={apiUrl === "vbt08" ? "Product Name" : "Part Name"}   name={[field.name, "partName"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "Product Name" : "Part Name"}   name={[field.name, "partName"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
@@ -404,7 +404,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col>
           <Col span={2}>
-            <Form.Item label={apiUrl === "vbt08" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
               <Input disabled />
             </Form.Item>
           </Col>
@@ -635,6 +635,7 @@ export default function SingleComponent({
           )} */}
           {apiUrl === "vbt01" ||
           apiUrl === "vbt08" ||
+          apiUrl === "vbt09" ||
           apiUrl === "vbt04" ||
           apiUrl === "vbt05" ||
           apiUrl === "vbt07" ? (
@@ -799,17 +800,17 @@ export default function SingleComponent({
             </Typography.Text>
           </Col>
           <Col span={3}>
-            <Form.Item label={apiUrl === "vbt08" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
               <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
-            <Form.Item label={apiUrl === "vbt08" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label={apiUrl === "vbt08" ? "Product Name" : "Part Name"} name={[field.name, "partName"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "Product Name" : "Part Name"} name={[field.name, "partName"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
@@ -829,7 +830,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col>
           <Col span={2}>
-            <Form.Item label={apiUrl === "vbt08" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
               <Input disabled />
             </Form.Item>
           </Col>
@@ -865,6 +866,7 @@ export default function SingleComponent({
           </Col> */}
           {editApiUrl === "vbt01" ||
           editApiUrl === "vbt08" ||
+          editApiUrl === "vbt09" ||
           editApiUrl === "vbt04" ||
           editApiUrl === "vbt05" ? (
             <>

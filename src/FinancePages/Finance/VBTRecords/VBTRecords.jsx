@@ -1,18 +1,13 @@
-import { Col, Form, Row, Space, Input, Button, Modal } from "antd";
-import React from "react";
+import { Col,  Row, Space, Input, Button, Modal } from "antd";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MySelect from "../../../Components/MySelect";
 
 import { useState } from "react";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import { useEffect } from "react";
-import { imsAxios } from "../../../axiosInterceptor";
-import { CodeSandboxCircleFilled } from "@ant-design/icons";
 import { toast } from "react-toastify";
-import { downloadExcel } from "../../../Components/printFunction";
-import { v4 } from "uuid";
-import Loading from "../../../Components/Loading";
-import { useDispatch, useSelector } from "react-redux";
+
+import { useSelector } from "react-redux";
 import socket from "../../../Components/socket";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
@@ -20,7 +15,6 @@ import { getDefaultFinancialYearValue } from "../../../utils/financialYear";
 import useApi from "../../../hooks/useApi.ts";
 function VBTRecords() {
   const [wise, setWise] = useState("datewise");
-  const [rows, setRows] = useState([]);
 
   const [searchDateRange, setSearchDateRange] = useState("");
   const [searchInput, setSearchInput] = useState(
@@ -30,8 +24,7 @@ function VBTRecords() {
   const [loading, setLoading] = useState(false);
   const [vbtOption, setVbtOption] = useState("ALL");
   const [openModal, setOpenModal] = useState(false);
-  const { user, notifications } = useSelector((state) => state.login);
-  const [selectLoading, setSelectLoading] = useState(false);
+  const { user } = useSelector((state) => state.login);
   const { executeFun, loading: loading1 } = useApi();
 
   const wiseOptions = [
@@ -51,6 +44,7 @@ function VBTRecords() {
     { text: "VBT6", value: "VBT06" },
     { text: "VBT7", value: "VBT07" },
     { text: "VBT8", value: "VBT08" },
+    { text: "VBT9", value: "VBT09" },
   ];
   const emitDownloadEvent = () => {
     // let newId = v4();
@@ -79,7 +73,6 @@ function VBTRecords() {
     });
   };
   const downlaodReport = async () => {
-    setRows([]);
     setLoading(true);
     let search;
     if (wise === "datewise" || wise === "effectivewise") {
@@ -161,7 +154,6 @@ function VBTRecords() {
   };
 
   useEffect(() => {
-    setRows([]);
     if (wise == "minwise") {
       setSearchInput(`MIN/${getDefaultFinancialYearValue()}/`);
     } else {

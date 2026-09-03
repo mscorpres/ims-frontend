@@ -22,6 +22,7 @@ import { RiProhibitedLine } from "react-icons/ri";
 const URL_TO_VBT_CONFIG = {
   VB1: { apiUrl: "vbt01", screenType: "VBT01" },
   VB8: { apiUrl: "vbt08", screenType: "VBT08" },
+  VB9: { apiUrl: "vbt09", screenType: "VBT09" },
   VB2: { apiUrl: "vbt02" },
   VB3: { apiUrl: "vbt03" },
   VB4: { apiUrl: "vbt04" },
@@ -139,7 +140,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       getActions: ({ row }) =>
         (apiUrl == "vbt06" && (row.vbpStatus ?? row.vbp_status) == "PENDING") ||
-        ((apiUrl === "vbt01" || apiUrl === "vbt08") &&
+        ((apiUrl === "vbt01" || apiUrl === "vbt08" || apiUrl === "vbt09") &&
           (row.vbpStatus ?? row.vbp_status) == "PENDING")
           ? [
               <>
@@ -371,7 +372,9 @@ const VBTMainTable = ({ editVbtDrawer }) => {
     const disableEndpoint =
       apiUrl === "vbt08"
         ? "/tally/vbt08/disable_vbt08process"
-        : "/tally/vbt/disable_vbtprocess";
+        : apiUrl === "vbt09"
+          ? "/tally/vbt09/disable_vbt09process"
+          : "/tally/vbt/disable_vbtprocess";
     const response = await imsAxios.put(disableEndpoint, {
       min_transaction: values.min_transaction ,
       part_code: values.part_code ,
@@ -489,7 +492,10 @@ const VBTMainTable = ({ editVbtDrawer }) => {
             </Space>
           </div>
           <Space>
-            {(apiUrl == "vbt06" || apiUrl == "vbt01" || apiUrl == "vbt08") && (
+            {(apiUrl == "vbt06" ||
+              apiUrl == "vbt01" ||
+              apiUrl == "vbt08" ||
+              apiUrl == "vbt09") && (
               <Checkbox
                 // onClick={() => setPreviewdisData(!previewdisData)}
                 disabled={vbtData.length == 0}
@@ -515,7 +521,10 @@ const VBTMainTable = ({ editVbtDrawer }) => {
             checkboxSelection={wise == "vendor_wise"}
             loading={searchLoading}
             columns={
-              apiUrl == "vbt06" || apiUrl == "vbt01" || apiUrl == "vbt08"
+              apiUrl == "vbt06" ||
+              apiUrl == "vbt01" ||
+              apiUrl == "vbt08" ||
+              apiUrl == "vbt09"
                 ? vbtTableColumnsonesix
                 : vbtTableColumnselse
             }

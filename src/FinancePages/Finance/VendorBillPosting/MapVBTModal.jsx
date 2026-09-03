@@ -1,6 +1,6 @@
 import { Button, Drawer, Space, Divider } from "antd";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+
+import  { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { imsAxios } from "../../../axiosInterceptor";
 import Loading from "../../../Components/Loading";
@@ -9,7 +9,6 @@ import MySelect from "../../../Components/MySelect";
 
 export default function MapVBTModal({ mapVBT, setMapVBT }) {
   const [selectedVBT, setSelectedVBT] = useState();
-  const [selectedGroup, setSelectedGroup] = useState("");
   const [groups, setGroups] = useState([]);
   const [gstGlGroups, setGstGlGroups] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,9 +25,10 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
     { value: "vbt06", text: "VBT 6" },
     { value: "vbt07", text: "VBT 7" },
     { value: "vbt08", text: "VBT 8" },
+    { value: "vbt09", text: "VBT 9" },
   ];
 
-  const getGroups = async (search) => {
+  const getGroups = async () => {
     if (selectedVBT) {
       setFetchLoading(true);
       const { data } = await imsAxios.post("/tally/vbt/fetch_vbt_group", {
@@ -100,7 +100,6 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
       } else {
         toast.info(data.message.msg);
       }
-      setSelectedGroup(null);
       setMapVBT(null);
     } else {
       toast.error(data.message.msg);
@@ -122,7 +121,6 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
       } else {
         toast.info(data.message.msg);
       }
-      setSelectedGroup(null);
       setMapVBT(null);
     } else {
       toast.error(data.message.msg);
@@ -131,7 +129,6 @@ export default function MapVBTModal({ mapVBT, setMapVBT }) {
   useEffect(() => {
     console.log(selectedVBT);
     getGroups();
-    setSelectedGroup([]);
   }, [selectedVBT]);
   useEffect(() => {
     if (mapVBT) {

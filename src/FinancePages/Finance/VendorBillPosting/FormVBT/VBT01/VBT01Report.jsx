@@ -89,13 +89,13 @@ function VBT01Report({
     if (pageRoute) return getVbtScreenType(pageRoute);
     return "VBT01";
   };
-  // Prefix for add/update endpoints: vbt08 has its own routes, everything
-  // else on this screen uses the shared vbt01 routes.
   const resolveWriteApiPrefix = () => {
     const moduleApiUrl = editVbtDrawer
       ? getVbtApiFromCode(editVbtDrawer)
       : apiUrl;
-    return moduleApiUrl === "vbt08" ? "vbt08" : VBT01_API_PREFIX;
+    return moduleApiUrl === "vbt08" || moduleApiUrl === "vbt09"
+      ? moduleApiUrl
+      : VBT01_API_PREFIX;
   };
   const [Vbt01] = Form.useForm();
   const [vbtComponent, setVbtComponent] = useState([]);
@@ -210,12 +210,9 @@ function VBT01Report({
     const moduleApiUrl = editVbtDrawer
       ? getVbtApiFromCode(editVbtDrawer)
       : apiUrl;
-    // Keep the module's own prefix in the URL (e.g. vbt08), but use the
-    // resolved tally prefix (vbt08 -> vbt01) only to decide the body shape.
     const tallyPrefix = getTallyApiPrefix(moduleApiUrl);
-    // vbt08 has its own FG endpoint.
     const fetchEndpoint =
-      moduleApiUrl === "vbt08"
+      moduleApiUrl === "vbt08" || moduleApiUrl === "vbt09"
         ? "fetch_multi_fg_min_data"
         : "fetch_multi_min_data";
     link = `/tally/${moduleApiUrl}/${fetchEndpoint}${typeQuery}`;
