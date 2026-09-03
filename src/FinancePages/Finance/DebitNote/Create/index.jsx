@@ -385,13 +385,13 @@ const CreateDebitNote = ({ setDebitNoteDrawer, debitNoteDrawer }) => {
           : `VBT Number: ${debitNoteDrawer?.vbt_code}`
       }
       destroyOnClose={true}
-      extra={
-        <MyButton
-          variant="upload"
-          text="Upload Excel"
-          onClick={() => setExcelUploadOpen(true)}
-        />
-      }
+      // extra={
+      //   <MyButton
+      //     variant="upload"
+      //     text="Upload Excel"
+      //     onClick={() => setExcelUploadOpen(true)}
+      //   />
+      // }
     >
       {/* <div style={{ height: "100%", paddingRight: 5, paddingLeft: 5 }}> */}
       <Form
