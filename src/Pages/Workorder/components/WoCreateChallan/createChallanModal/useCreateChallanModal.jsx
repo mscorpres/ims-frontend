@@ -26,17 +26,22 @@ import {
 } from "./api";
 
 
+// "Total Out Qty" per component = the total already taken out (server value,
+// kept on `min_total_out_qty`) + the Out Qty entered in this session for every
+// MIN row of that component (grouped by component_key, else part_code).
 const withTotalOutQty = (list = []) => {
   const rows = Array.isArray(list) ? list : [];
-  const totals = {};
+  const sessionOut = {};
   rows.forEach((r) => {
     const key = r?.component_key ?? r?.part_code;
     if (key == null) return;
-    totals[key] = (totals[key] || 0) + (Number(r?.out_qty) || 0);
+    sessionOut[key] = (sessionOut[key] || 0) + (Number(r?.out_qty) || 0);
   });
   return rows.map((r) => {
     const key = r?.component_key ?? r?.part_code;
-    return { ...r, total_out_qty: key == null ? r?.total_out_qty : totals[key] };
+    if (key == null) return { ...r };
+    const base = Number(r?.min_total_out_qty) || 0;
+    return { ...r, total_out_qty: base + (sessionOut[key] || 0) };
   });
 };
 
@@ -455,6 +460,8 @@ const useCreateChallanModal = ({
         component_name: r.component_name,
         part_code: r.part_code,
         component_key: r.component_key,
+        // "already taken out" baseline from the server for this component
+        min_total_out_qty: Number(r.total_out_qty) || 0,
         id: v4(),
       }));
       setMinRows(withTotalOutQty(arr));
