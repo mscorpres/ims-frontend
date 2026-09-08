@@ -26,9 +26,7 @@ import {
 } from "./api";
 
 
-// "Total Out Qty" per component = the total already taken out (server value,
-// kept on `min_total_out_qty`) + the Out Qty entered in this session for every
-// MIN row of that component (grouped by component_key, else part_code).
+
 const withTotalOutQty = (list = []) => {
   const rows = Array.isArray(list) ? list : [];
   const sessionOut = {};
