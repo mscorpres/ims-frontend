@@ -25,6 +25,21 @@ import {
   updateWO_ReturnShipment,
 } from "./api";
 
+
+const withTotalOutQty = (list = []) => {
+  const rows = Array.isArray(list) ? list : [];
+  const totals = {};
+  rows.forEach((r) => {
+    const key = r?.component_key ?? r?.part_code;
+    if (key == null) return;
+    totals[key] = (totals[key] || 0) + (Number(r?.out_qty) || 0);
+  });
+  return rows.map((r) => {
+    const key = r?.component_key ?? r?.part_code;
+    return { ...r, total_out_qty: key == null ? r?.total_out_qty : totals[key] };
+  });
+};
+
 const useCreateChallanModal = ({
   show,
   close,
@@ -319,7 +334,7 @@ const useCreateChallanModal = ({
       rowId: r.row_id,
       id: v4(),
     }));
-    setMinRows(arr);
+    setMinRows(withTotalOutQty(arr));
     challanForm.setFieldValue("address", arrHead.clientaddress.label);
   };
 
@@ -442,14 +457,14 @@ const useCreateChallanModal = ({
         component_key: r.component_key,
         id: v4(),
       }));
-      setMinRows(arr);
+      setMinRows(withTotalOutQty(arr));
       setLoading(false);
     }
   };
 
   const inputHandler = (name, value, id) => {
-    const arr = minRows.map((row) =>
-      row.id === id ? { ...row, [name]: value } : row
+    const arr = withTotalOutQty(
+      minRows.map((row) => (row.id === id ? { ...row, [name]: value } : row))
     );
     setRows(arr);
     setMinRows(arr);
@@ -461,12 +476,14 @@ const useCreateChallanModal = ({
     const componentKey = component?.componentKey ?? component?.productKey;
     const partCode = component?.partCode;
     setMinRows((prev) =>
-      (Array.isArray(prev) ? prev : []).map((row) => {
-        const matches =
-          (componentKey && row.component_key === componentKey) ||
-          (partCode && row.part_code === partCode);
-        return matches ? { ...row, out_qty: value } : row;
-      })
+      withTotalOutQty(
+        (Array.isArray(prev) ? prev : []).map((row) => {
+          const matches =
+            (componentKey && row.component_key === componentKey) ||
+            (partCode && row.part_code === partCode);
+          return matches ? { ...row, out_qty: value } : row;
+        })
+      )
     );
   };
 

@@ -103,9 +103,9 @@ export const shipmentproductMinItems = (inputHandler, removeRow, CommonIcons) =>
   actionColumn(removeRow, CommonIcons),
   componentNameColumn(inputHandler),
   shipmentPartCodeColumn(inputHandler),
-  readonlyMinColumn(inputHandler, "MIN Date", "min_date"),
-  readonlyMinColumn(inputHandler, "MIN Id", "min_id"),
+
   readonlyMinColumn(inputHandler, "MIN Rate", "min_rate"),
+  readonlyMinColumn(inputHandler, "Total Out Qty", "total_out_qty"),
   outQtyColumn(inputHandler, { idFromUpper: true }),
 ];
 
@@ -121,6 +121,7 @@ export const shipmentproductWithOutMinItems = (
   readonlyMinColumn(inputHandler, "MIN Id", "min_id"),
   readonlyMinColumn(inputHandler, "MIN Rate", "min_rate"),
   readonlyMinColumn(inputHandler, "MIN Available Qty", "min_available_qty"),
+  readonlyMinColumn(inputHandler, "Total Out Qty", "total_out_qty"),
   outQtyColumn(inputHandler),
 ];
 
@@ -141,5 +142,6 @@ export const compWithOutMINItems = (inputHandler, removeRow, CommonIcons) => [
   readonlyMinColumn(inputHandler, "MIN Date", "min_date"),
   readonlyMinColumn(inputHandler, "MIN Id", "min_id"),
   readonlyMinColumn(inputHandler, "MIN Rate", "min_rate"),
+  readonlyMinColumn(inputHandler, "Total Out Qty", "total_out_qty"),
   outQtyColumn(inputHandler),
 ];
