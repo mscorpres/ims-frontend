@@ -42,6 +42,7 @@ import {
   TransactionRej,
   CreateDC,
   ManageDC,
+  ReturnDC,
   VendorPricingUpload,
   CreateGP,
   ManageGatePass,
@@ -524,6 +525,11 @@ const Routes = [
     path: "/manage-dc",
     exact: true,
     main: () => <ManageDC />,
+  },
+   {
+    path: "/return-dc",
+    exact: true,
+    main: () => <ReturnDC />,
   },
   {
     path: "/create-gp",

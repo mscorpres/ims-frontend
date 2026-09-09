@@ -7,6 +7,7 @@ import { getProductsOptions } from "../../../api/general.ts";
 import { imsAxios } from "../../../axiosInterceptor";
 import MySelect from "../../../Components/MySelect";
 import { toast } from "react-toastify";
+import FgReturnRedirectNotice from "./FgReturnRedirectNotice";
 
 function CreateFgReturn() {
   const [loading, setLoading] = useState(false);
@@ -111,6 +112,7 @@ function CreateFgReturn() {
 
   return (
     <div style={{ height: "90%" }}>
+      <FgReturnRedirectNotice />
       <Row gutter={10} style={{ margin: "10px" }} justify="center">
         <Form form={fgReturn} layout="vertical">
           <Row>
