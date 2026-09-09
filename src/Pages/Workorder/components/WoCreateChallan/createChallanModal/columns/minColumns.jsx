@@ -132,7 +132,7 @@ export const compMinItems = (inputHandler, removeRow, CommonIcons) => [
   readonlyMinColumn(inputHandler, "MIN Rate", "min_rate"),
   readonlyMinColumn(inputHandler, "MIN Available Qty", "min_available_qty"),
   readonlyMinColumn(inputHandler, "Total Out Qty", "total_out_qty"),
-  outQtyColumn(inputHandler),
+  // outQtyColumn(inputHandler),
 ];
 
 export const compWithOutMINItems = (inputHandler, removeRow, CommonIcons) => [
