@@ -42,6 +42,7 @@ import {
   TransactionRej,
   CreateDC,
   ManageDC,
+  ReturnDC,
   VendorPricingUpload,
   CreateGP,
   ManageGatePass,
@@ -525,6 +526,11 @@ const Routes = [
     exact: true,
     main: () => <ManageDC />,
   },
+   {
+    path: "/return-dc",
+    exact: true,
+    main: () => <ReturnDC />,
+  },
   {
     path: "/create-gp",
     exact: true,
@@ -886,11 +892,11 @@ const Routes = [
     path: "/completed-po",
     main: () => <CompletedPo />,
   },
-  {
-    path: "/approval-po",
-    main: () => <PoApproval />,
-    text: "Po Approval",
-  },
+  // {
+  //   path: "/approval-po",
+  //   main: () => <PoApproval />,
+  //   text: "Po Approval",
+  // },
   {
     path: "/vendor-pricing",
     main: () => <VendorPricingUpload />,

@@ -40,11 +40,11 @@ const links = [
       routePath: "/vendor-pricing",
       key: 3,
     },
-    {
-      routeName: "PO Approval",
-      routePath: "/approval-po",
-      key: 4,
-    },
+    // {
+    //   routeName: "PO Approval",
+    //   routePath: "/approval-po",
+    //   key: 4,
+    // },
   ],
   // accounts master links
   [
@@ -607,6 +607,11 @@ const links = [
       routeName: "Manage DC",
       routePath: "/manage-dc",
       key: "1",
+    },
+      {
+      routeName: "Return DC",
+      routePath: "/return-dc",
+      key: "2",
     },
   ],
   // gatepass links

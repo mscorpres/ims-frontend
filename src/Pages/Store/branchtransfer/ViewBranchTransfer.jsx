@@ -1,63 +1,77 @@
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "react-toastify";
-import { Button, Row, Space, Tooltip, Popover, Form, Drawer } from "antd";
+import { Button, Row, Space, Form, Drawer } from "antd";
 import MySelect from "../../../Components/MySelect";
 import MyAsyncSelect from "../../../Components/MyAsyncSelect";
 import MyDatePicker from "../../../Components/MyDatePicker";
 import MyDataTable from "../../../Components/MyDataTable";
-import { v4 } from "uuid";
 import { downloadCSV } from "../../../Components/exportToCSV";
-import { DownloadOutlined, MessageOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { imsAxios } from "../../../axiosInterceptor";
-import { set } from "lodash";
-import { useEffect } from "react";
 import ToolTipEllipses from "../../../Components/ToolTipEllipses";
 import Loading from "../../../Components/Loading";
+import printFunction from "../../../Components/printFunction";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import printFunction, {
-  downloadFunction,
-} from "../../../Components/printFunction";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
+import { Link } from "react-router-dom";
 
 function ViewBranchTransfer() {
-  const [searchLoading, setSearchLoading] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState();
   const [loading, setLoading] = useState(false);
-  const [processOptions, setProcessOptions] = useState([]);
   const [rows, setRows] = useState([]);
   const [showViewModel, setShowViewModal] = useState(false);
   const [detailData, setDetailData] = useState([]);
 
   const [qcReportForm] = Form.useForm();
-  const ppr = Form.useWatch("ppr", qcReportForm);
   const status = Form.useWatch("status", qcReportForm);
-  const processName = Form.useWatch("process", qcReportForm);
-  const [searchInput, setSearchInput] = useState("");
-  const { executeFun, loading: loading1 } = useApi();
+  const { executeFun } = useApi();
   const getcomoponents = async (trans_id) => {
     setLoading("fetch");
     const { data } = await imsAxios.post(
       "/branchTransfer/branchTransferDetails",
       {
         trans_id: trans_id,
-      }
+      },
     );
-    console.log(data);
+
     let arr = data.data.map((row, index) => ({
       id: index,
       index: index + 1,
       component: row.component,
       part_no: row.part_no,
       qty: row.qty,
+      rate: row.rate,
       remark: row.comp_remark,
       trans_id: trans_id,
     }));
     setDetailData(arr);
     setShowViewModal(true);
     setLoading(false);
+  };
+
+  const printChallan = async (trans_id) => {
+    try {
+      setLoading("print");
+      const { data } = await imsAxios.post(
+        "/branchTransfer/printBranchTransferChallan",
+        {
+          trans_id: trans_id,
+        },
+      );
+
+      if (data.code === 200) {
+        printFunction(data.data.buffer.data);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const actionColumn = {
@@ -67,12 +81,36 @@ function ViewBranchTransfer() {
     type: "actions",
     getActions: ({ row }) => [
       <GridActionsCellItem
+        key={"view"}
         showInMenu
-        // disabled={loading}
+        disabled={!!loading}
         onClick={() => {
           getcomoponents(row.trans_id);
         }}
-        label="View and approve"
+        label="View"
+      />,
+      <GridActionsCellItem
+        key={"print"}
+        showInMenu
+        disabled={!!loading}
+        onClick={() => {
+          printChallan(row.trans_id);
+        }}
+        label={loading === "print" ? "Printing..." : "Print"}
+      />,
+      <GridActionsCellItem
+        key={"ewaybill"}
+        showInMenu
+        disabled={row.eway_status}
+        label={
+          <Link
+            style={{ textDecoration: "none", color: "black" }}
+            to={`/warehouse/e-way/transafer/${row.trans_id.replaceAll("/", "_")}`}
+            target="_blank"
+          >
+            Create E-Way Bill
+          </Link>
+        }
       />,
     ],
   };
@@ -86,7 +124,7 @@ function ViewBranchTransfer() {
     if (search?.length > 2) {
       const response = await executeFun(
         () => getVendorOptions(search),
-        "select"
+        "select",
       );
       let arr = [];
       if (response.success) {
@@ -95,41 +133,7 @@ function ViewBranchTransfer() {
       setAsyncOptions(arr);
     }
   };
-  const getPPRDetails = async (ppr) => {
-    try {
-      setLoading("fetch");
-      let sku;
-      // getting sku from ppr
-      const response = await imsAxios.post("/createqca/fetchPprDetails", {
-        ppr_no: ppr,
-      });
-      const { data } = response;
-      if (data) {
-        sku = data.data[0].product_sku;
-      }
 
-      // getting process list from sku
-      const processResponse = await imsAxios.post(
-        "/qaProcessmaster/fetchQAProcess",
-        {
-          sku,
-        }
-      );
-      const { data: processData } = processResponse;
-      if (processData) {
-        const arr = processData.data.map((row) => ({
-          text: row.process.name,
-          value: row.process.key,
-        }));
-
-        setProcessOptions(arr);
-      }
-    } catch (error) {
-      toast.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
   const getRows = async () => {
     try {
       setRows([]);
@@ -150,15 +154,14 @@ function ViewBranchTransfer() {
       setLoading("rows");
       const response = await imsAxios.post(
         "/branchTransfer/getBranchTransfer",
-        fetchdata
+        fetchdata,
       );
       const { data } = response;
       if (data.status === "error") {
         toast.error(data.message);
       } else if (data.status === "success") {
         if (data.code === 200) {
-          console.log("coming here");
-          console.log(data);
+    
           const arr = data.data.map((row, index) => {
             return {
               key: index,
@@ -171,6 +174,10 @@ function ViewBranchTransfer() {
               vendor_code: row.vendor_code,
               vehicle_no: row.vehicle_no,
               narration: row.narration,
+              date: row.create_dt,
+              eway_bill_no: row.eway_bill_no,
+              eway_status: row.eway_status,
+
             };
           });
           setRows(arr);
@@ -183,11 +190,6 @@ function ViewBranchTransfer() {
     }
   };
 
-  useEffect(() => {
-    if (ppr) {
-      getPPRDetails(ppr);
-    }
-  }, [ppr]);
   const extraColumn = {
     headerName: "Fail reason",
     width: 350,
@@ -199,9 +201,9 @@ function ViewBranchTransfer() {
       <div style={{ height: "90%", marginTop: 10 }}>
         <Row
           justify="space-between"
-          style={{ padding: "0px 10px", marginBottom: -15 }}
+          style={{ padding: "0px 10px", marginBottom: 0 }}
         >
-          {loading === "fetch" && <Loading />}
+          {(loading === "fetch" || loading === "print") && <Loading />}
           <Form
             form={qcReportForm}
             layout="vertical"
@@ -263,7 +265,7 @@ function ViewBranchTransfer() {
                 downloadCSV(
                   rows,
                   status === "R" ? [...columns, extraColumn] : columns,
-                  "Branch Transfer Report"
+                  "Branch Transfer Report",
                 )
               }
               shape="circle"
@@ -272,12 +274,8 @@ function ViewBranchTransfer() {
             />
           </Space>
         </Row>
-        <div style={{ height: "93%", padding: "0px 10px" }}>
-          <MyDataTable
-            columns={[actionColumn, ...columns]}
-            data={rows}
-            loading={searchLoading}
-          />
+        <div style={{ height: "calc(100% - 70px)", padding: "0px 10px" }}>
+          <MyDataTable columns={[actionColumn, ...columns]} data={rows} />
         </div>
       </div>
       <ViewModal
@@ -286,7 +284,7 @@ function ViewBranchTransfer() {
         detaildata={detailData}
         status={status}
         loading={loading}
-        setLoading={setLoading}
+        // setLoading={setLoading}
         component={<Loading />}
       />
     </>
@@ -325,10 +323,22 @@ const columns = [
     field: "vehicle_no",
   },
   {
+    headerName: "Eway Bill No",
+    flex: 1,
+    minWidth: 200,
+    field: "eway_bill_no",
+  },
+  {
     headerName: "Description",
     flex: 1,
     minWidth: 200,
     field: "narration",
+  },
+  {
+    headerName: "Created At",
+    flex: 1,
+    minWidth: 200,
+    field: "date",
   },
 ];
 
@@ -346,14 +356,12 @@ export default ViewBranchTransfer;
 
 const ViewModal = ({
   loading,
-  setLoading,
+  // setLoading,
   show,
   setshow,
   detaildata,
-  status,
   component,
 }) => {
-  console.log(detaildata);
   const viewcolumns = [
     {
       headerName: "#",
@@ -376,40 +384,61 @@ const ViewModal = ({
       field: "qty",
     },
     {
+      headerName: "Rate",
+      width: 180,
+      field: "rate",
+    },
+    {
+      headerName: "Value",
+      width: 180,
+      field: "value",
+      renderCell: ({ row }) =>
+        row.rate ? Number(row.qty * row.rate).toFixed(2) : "-",
+    },
+    {
       headerName: "Remark",
       width: 180,
       field: "remark",
     },
   ];
-  const approveTransfer = async () => {
-    setLoading("fetch");
-    const { data } = await imsAxios.post(
-      "/branchTransfer/approveTransferStock",
-      {
-        trans_id: detaildata[0].trans_id,
-      }
-    );
-    if (data.status === "success") {
-      toast.success(data.message);
-    } else if (data.status === "error") {
-      toast.error(data.message.msg);
-    }
-    setLoading(false);
-    setshow(false);
-  };
+  // const approveTransfer = async () => {
+  //   setLoading("fetch");
+  //   const { data } = await imsAxios.post(
+  //     "/branchTransfer/approveTransferStock",
+  //     {
+  //       trans_id: detaildata[0].trans_id,
+  //     }
+  //   );
+  //   if (data.status === "success") {
+  //     toast.success(data.message);
+  //   } else if (data.status === "error") {
+  //     toast.error(data.message.msg);
+  //   }
+  //   setLoading(false);
+  //   setshow(false);
+  // };
+  const totalAmount = useMemo(
+    () =>
+      detaildata.reduce(
+        (acc, curr) => acc + (Number(curr.qty) || 0) * (Number(curr.rate) || 0),
+        0,
+      ),
+    [detaildata],
+  );
+  const totalQty = useMemo(
+    () => detaildata.reduce((acc, curr) => acc + (Number(curr.qty) || 0), 0),
+    [detaildata],
+  );
 
   return (
     <Drawer
-      width="50vw"
-      title={`Branch Transfer of ${detaildata.vendor}`}
+      width="60vw"
+      title={`Branch Transfer of ${detaildata[0]?.trans_id}`}
       onClose={() => {
         setshow(false);
       }}
       extra={
         <Space>
-          <Button type="primary" onClick={approveTransfer}>
-            Approve
-          </Button>
           <Button
             type="primary"
             onClick={() =>
@@ -422,10 +451,42 @@ const ViewModal = ({
         </Space>
       }
       open={show}
-      bodyStyle={{ paddingTop: 5 }}
     >
       {loading === "fetch" && component}
-      <MyDataTable columns={[...viewcolumns]} data={detaildata} />
+
+      <div style={{ height: "calc(100% - 45px)" }}>
+        <MyDataTable columns={viewcolumns} data={detaildata} hideFooter />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          gap: "10px",
+          margin: "10px 0px",
+        }}
+      >
+        <span
+          style={{
+            color: "red",
+            fontWeight: "bold",
+            minWidth: "150px",
+            fontSize: "18px",
+          }}
+        >
+          Total Sum : {totalAmount ?? 0}
+        </span>
+        <span
+          style={{
+            color: "red",
+            fontWeight: "bold",
+            minWidth: "150px",
+            fontSize: "18px",
+          }}
+        >
+          Total Qty : {totalQty ?? 0}
+        </span>
+      </div>
     </Drawer>
   );
 };

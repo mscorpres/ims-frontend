@@ -147,7 +147,7 @@ export const invoiceDateCell = ({ row }, inputHandler) => {
 export const HSNCell = ({ row }, inputHandler) => (
   <Input
     type="text"
-    value={row.hsncode}
+    value={row.hsncode ?? row.hsn}
     onChange={(e) => inputHandler("hsncode", e.target.value, row.id)}
     placeholder="Enter HSN"
   />

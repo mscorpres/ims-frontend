@@ -96,21 +96,52 @@ const RequestPo = () => {
       width: 150,
     },
     {
-      headerName: "PO ACCEPTANCE",
-      field: "poacceptstatus",
+      headerName: "Approval Status",
+      field: "approval_status_badge",
       renderCell: ({ row }) => {
-        const status = (row.poacceptstatus || "").toUpperCase().trim();
-        const isUnderVerification = status === "UNDER VERIFICATION";
+        const status = (row.approval_status || "").toUpperCase().trim();
 
-        const leaderEmail = row.leader_email;
-
-        // Colors
         let bgColor = "#8c8c8c";
+        let textColor = "#fff";
         if (status === "APPROVED") bgColor = "#52c41a";
         else if (status === "REJECTED") bgColor = "#ff4d4f";
-        else if (status === "PENDING") bgColor = "#faad14";
+        else if (status === "PENDING") { bgColor = "#faad14"; textColor = "#000"; }
+        else if (status === "UNDER VERIFICATION") bgColor = "#1677ff";
 
-        const textColor = status === "PENDING" ? "#000" : "#fff";
+        let tooltipContent = null;
+        if (status === "REJECTED") {
+          tooltipContent = (
+            <div style={{ lineHeight: 1.6 }}>
+              <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>Rejected by</div>
+              <div style={{ fontWeight: 600, fontSize: 13 }}>{row.approved_by || "—"}</div>
+              {row.po_reject_remark && (
+                <>
+                  <div style={{ fontSize: 11, opacity: 0.8, marginTop: 6, marginBottom: 2 }}>Remark</div>
+                  <div style={{ fontSize: 12, color: "#ffa39e" }}>{row.po_reject_remark}</div>
+                </>
+              )}
+            </div>
+          );
+        } else if (status === "PENDING" || status === "UNDER VERIFICATION") {
+          tooltipContent = (
+            <div style={{ lineHeight: 1.6 }}>
+              <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>
+                {status === "PENDING" ? "Pending with" : "Under Verification by"}
+              </div>
+              <div style={{ fontWeight: 600, fontSize: 13 }}>{row.leader_name || "—"}</div>
+              {row.leader_email && (
+                <div style={{ fontSize: 11, opacity: 0.75 }}>{row.leader_email}</div>
+              )}
+            </div>
+          );
+        } else if (status === "APPROVED") {
+          tooltipContent = (
+            <div style={{ lineHeight: 1.6 }}>
+              <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 2 }}>Approved by</div>
+              <div style={{ fontWeight: 600, fontSize: 13 }}>{row.approved_by || "—"}</div>
+            </div>
+          );
+        }
 
         const badge = (
           <div
@@ -120,37 +151,27 @@ const RequestPo = () => {
               justifyContent: "center",
               backgroundColor: bgColor,
               color: textColor,
-              padding: "6px 18px",
-              borderRadius: "16px",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              minHeight: "28px",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-              cursor: isUnderVerification && leaderEmail ? "help" : "default",
+              padding: "4px 14px",
+              borderRadius: "12px",
+              fontSize: "0.72rem",
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+              minHeight: "26px",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+              cursor: tooltipContent ? "help" : "default",
+              whiteSpace: "nowrap",
             }}
           >
-            {row.poacceptstatus || "N/A"}
+            {row.approval_status || "N/A"}
           </div>
         );
 
-        if (isUnderVerification && leaderEmail) {
+        if (tooltipContent) {
           return (
             <Tooltip
-              title={
-                <div style={{ textAlign: "center", lineHeight: "1.5" }}>
-                  <small style={{ opacity: 0.85 }}>Under Verification by</small>
-                  <br />
-                  <strong style={{ fontSize: "15px", color: "#fff" }}>
-                    {leaderEmail}
-                  </strong>
-                  <br />
-                  <small style={{ opacity: 0.7, fontSize: "11px" }}>
-                    {row.leader_name || ""}
-                  </small>
-                </div>
-              }
+              title={tooltipContent}
               color="#1a1a1a"
-              overlayInnerStyle={{ borderRadius: 10, padding: "10px 14px" }}
+              overlayInnerStyle={{ borderRadius: 10, padding: "10px 14px", minWidth: 160 }}
               mouseEnterDelay={0}
             >
               <span style={{ display: "inline-block" }}>{badge}</span>
@@ -161,7 +182,7 @@ const RequestPo = () => {
         return <span style={{ display: "inline-block" }}>{badge}</span>;
       },
       flex: 1,
-      minWidth: 180,
+      minWidth: 170,
     },
     {
       headerName: "Cost Center",
@@ -235,13 +256,6 @@ const RequestPo = () => {
       headerName: "Created By",
       field: "po_reg_by",
       renderCell: ({ row }) => <ToolTipEllipses text={row.po_reg_by} />,
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      headerName: "Approval Status",
-      field: "approval_status",
-      renderCell: ({ row }) => <ToolTipEllipses text={row.approval_status} />,
       flex: 1,
       minWidth: 150,
     },

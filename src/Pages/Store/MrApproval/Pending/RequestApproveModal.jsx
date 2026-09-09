@@ -1,6 +1,6 @@
 import { Card, Flex, Modal, Popover, Radio, Skeleton } from "antd";
 import { Col, Divider, Form, Input, Row, Space, Typography } from "antd/es";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MyButton from "../../../../Components/MyButton";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { toast } from "react-toastify";
@@ -18,6 +18,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
   const [pickLocationOptions, setPickLocationOptions] = useState([]);
   const [filterString, setFilterString] = useState("");
   const [action, setAction] = useState(null);
+  const submittingRef = useRef(false);
 
   const availableQty = Form.useWatch("availableQty", { form, preserve: true });
   const requestedQty = Form.useWatch("requestedQty", { form, preserve: true });
@@ -168,6 +169,8 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
   };
 
   const submitHandler = async (link, payload) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     try {
       setLoading("submit", true);
       const response = await imsAxios.post(link, payload);
@@ -204,6 +207,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
     } catch (error) {
     } finally {
       setLoading("submit", false);
+      submittingRef.current = false;
     }
   };
   useEffect(() => {
@@ -215,6 +219,7 @@ const RequestApproveModal = ({ show, hide, getRows }) => {
       setComponentOptions([]);
       setAction(null);
       setHeaders(null);
+      submittingRef.current = false;
     }
   }, [show]);
 

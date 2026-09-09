@@ -45,7 +45,7 @@ const getToken = () => {
 const getBranchFromStorage = () => {
   const branchData = JSON.parse(localStorage.getItem("otherData") || "{}");
   const user = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
-  return branchData?.company_branch || user?.company_branch || "BRALWR36";
+  return branchData?.company_branch || user?.company_branch || "BRMSC012";
 };
 const getSessionFromStorage = () => {
   const branchData = JSON.parse(localStorage.getItem("otherData") || "{}");

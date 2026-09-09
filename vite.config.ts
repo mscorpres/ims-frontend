@@ -2,16 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tsconfigPaths(),
-    sentryVitePlugin({
-      org: "mscorpres-automation-pvt-ltd",
-      project: "oakter",
-      authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
-    }),],
+  plugins: [react(), tsconfigPaths()],
   resolve: {
     alias: [
       {

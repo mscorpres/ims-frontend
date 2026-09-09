@@ -193,8 +193,20 @@ const CreateFGOut = () => {
     // addRowData.map((a) => console.log(a));
     // console.log(arrQty);
 
+    const hasEmptyProduct = addRowData.some((a) => !a.product);
+    const hasInvalidQty = addRowData.some(
+      (a) => !a.quantity || Number(a.quantity) <= 0,
+    );
+    const hasEmptyLocation = addRowData.some((a) => !a.location);
+
     if (!createFgOut.selectType) {
       toast.error("Please Select Option");
+    } else if (hasEmptyProduct) {
+      toast.error("Please Select Product for all rows");
+    } else if (hasInvalidQty) {
+      toast.error("Please Enter a valid Quantity for all rows");
+    } else if (hasEmptyLocation) {
+      toast.error("Please Select Location for all rows");
     } else {
       try {
         setLoadingUpdate(true);

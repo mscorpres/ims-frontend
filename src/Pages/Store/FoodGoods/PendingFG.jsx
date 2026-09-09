@@ -43,13 +43,21 @@ const PendingFG = () => {
   const handleArrowClick = async (row) => {
     setWarLoading(row.id);
     try {
-      const { data } = await imsAxios.get("/fgIN/pending?calculate=war" + `&mfg=${row?.mfg_transaction}` + `&qty=${row?.mfg_prod_planing_qty}`);
-     
-      const warRate = data?.war ?? 0;
+      const response = await imsAxios.get("/fgIN/pending?calculate=war" + `&mfg=${row?.mfg_transaction}` + `&qty=${row?.mfg_prod_planing_qty}`);
+  
+      if (response.success) {
+         const warRate = response?.data?.war ?? 0;
+      
       setFGModal({ ...row, warRate });
+      } else {
+        toast.error(response.message ?? "Failed to fetch WAR rate");
+        setFGModal(false);
+        setWarLoading(null);
+      }
     } catch (err) {
       toast.error("Failed to fetch WAR rate");
-      setFGModal(row);
+      setFGModal(false);
+      setWarLoading(null);
     } finally {
       setWarLoading(null);
     }
@@ -83,6 +91,7 @@ const PendingFG = () => {
       type: "actions",
       getActions: ({ row }) => [
         <GridActionsCellItem
+        key={row.id}
           icon={
             <GoArrowRight
               onClick={() => handleArrowClick(row)}
@@ -152,6 +161,7 @@ const PendingFG = () => {
         setFGModal={setFGModal}
         fGModal={fGModal}
         getPendingData={getPendingData}
+
       />
     </div>
   );

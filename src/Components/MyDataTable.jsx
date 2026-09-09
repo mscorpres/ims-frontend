@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from "react";
+
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import LinearProgress from "@mui/material/LinearProgress";
 import {
   DataGrid,
   GridToolbarContainer,
   GridToolbarFilterButton,
   GridToolbarExport,
   GridToolbarColumnsButton,
-  gridPageCountSelector,
-  gridPageSelector,
-  useGridApiContext,
-  useGridSelector,
 } from "@mui/x-data-grid";
-import Pagination from "@mui/material/Pagination";
-import { v4 } from "uuid";
 
 const StyledGridOverlay = styled("div")(({ theme }) => ({
   display: "flex",
@@ -39,20 +32,7 @@ const StyledGridOverlay = styled("div")(({ theme }) => ({
     fill: theme.palette.mode === "light" ? "#f5f5f5" : "#fff",
   },
 }));
-const CustomPagination = () => {
-  const apiRef = useGridApiContext();
-  const page = useGridSelector(apiRef, gridPageSelector);
-  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
-  return (
-    <Pagination
-      color="primary"
-      count={pageCount}
-      page={page + 1}
-      rowCount={<span>{apiRef.current.getAllRowIds().length}</span>}
-      onChange={(event, value) => apiRef.current.setPage(value - 1)}
-    />
-  );
-};
+
 function CustomNoRowsOverlay() {
   return (
     <StyledGridOverlay>
@@ -100,9 +80,7 @@ function CustomNoRowsOverlay() {
   );
 }
 export default function MyDataTable(props) {
-  const [rows, setRows] = useState([]);
   function CustomToolbar() {
-    let arr = [];
 
     return (
       <GridToolbarContainer>

@@ -6,13 +6,11 @@ import {
   Form,
   Input,
   Row,
-  Space,
   Typography,
 } from "antd";
 import MySelect from "../../../Components/MySelect";
 import { imsAxios } from "../../../axiosInterceptor";
-import MyAsyncSelect from "../../../Components/MyAsyncSelect";
-import { toast } from "react-toastify";
+
 
 const SingleComponent = ({
   field,
@@ -72,26 +70,32 @@ const SingleComponent = ({
   useEffect(() => {
     let updatedTdsPercentage = 0;
     if (allTdsOptions?.length > 0) {
-      let arr = allTdsOptions.filter((r) => r.tds_name === tdsName.label);
+      let arr = allTdsOptions.filter(
+        (r) => r.tds_key === tdsName?.value || r.tds_name === tdsName?.label
+      );
+      const matched = arr[0];
 
-      form.setFieldValue(
-        ["components", field.name, "tdsglName"],
-        arr[0]?.ladger_name
-      );
-      form.setFieldValue(
-        ["components", field.name, "tdsglCode"],
-        arr[0]?.ledger_key
-      );
-      form.setFieldValue(
-        ["components", field.name, "tdsCode"],
-        arr[0]?.tds_key
-      );
-      form.setFieldValue(
-        ["components", field.name, "tdsPercent"],
-        arr[0]?.tds_percent
-      );
-
-      updatedTdsPercentage = arr[0]?.tds_percent;
+      if (matched) {
+        form.setFieldValue(
+          ["components", field.name, "tdsglName"],
+          matched.ladger_name
+        );
+        form.setFieldValue(
+          ["components", field.name, "tdsglCode"],
+          matched.ledger_key
+        );
+        form.setFieldValue(
+          ["components", field.name, "tdsCode"],
+          matched.tds_key
+        );
+        form.setFieldValue(
+          ["components", field.name, "tdsPercent"],
+          matched.tds_percent
+        );
+        updatedTdsPercentage = matched.tds_percent;
+      } else {
+        updatedTdsPercentage = tdsPercent ?? 0;
+      }
     } else {
       updatedTdsPercentage = tdsPercent ?? 0;
     }
@@ -134,7 +138,7 @@ const SingleComponent = ({
       (amountWithFreight * updatedTdsPercentage) / 100
     ).toFixed(3);
     tdsAmount = +Number(tdsAmount).toFixed(2);
-    tdsAmount = Math.round(tdsAmount);
+    tdsAmount = Math.ceil(tdsAmount);
     let valueAfterTDS = amountAfterTax - tdsAmount;
     valueAfterTDS = +Number(valueAfterTDS).toFixed(4);
     form.setFieldValue(["components", field.name, "value"], value);
@@ -224,7 +228,7 @@ const SingleComponent = ({
     }
   };
 
-  const getFreightGlOptions = async (vbtKey) => {
+  const getFreightGlOptions = async () => {
     // const vbtType = vbtCodes[0].split("/")[0].toLowerCase
     try {
       // setLoading("fetch");

@@ -328,11 +328,11 @@ export const items = (user) => [
         "B25"
         // <AiOutlineMinus />
       ),
-      getItem(
-        <Link to="/approval-po">Po Approval</Link>,
-        "B26"
-        // <AiOutlineMinus />
-      ),
+      // getItem(
+      //   <Link to="/approval-po">Po Approval</Link>,
+      //   "B26"
+      //   // <AiOutlineMinus />
+      // ),
     ], null, 827364),
     getItem("Warehouse", "B3", <FaWarehouse />, [
       getItem(
