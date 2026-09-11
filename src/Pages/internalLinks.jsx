@@ -451,10 +451,10 @@ const links = [
     { routeName: "VIEW FG OUT", routePath: "/view-fgOut" },
   ],
   [
-    {
-      routeName: "Create FG Return",
-      routePath: "/createFgReturn",
-    },
+    // {
+    //   routeName: "Create FG Return",
+    //   routePath: "/createFgReturn",
+    // },
     { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
     { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
   ],
