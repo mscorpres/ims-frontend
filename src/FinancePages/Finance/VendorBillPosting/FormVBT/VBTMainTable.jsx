@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import links from "../links";
+import  { useEffect, useState } from "react";
 import MyDatePicker from "../../../../Components/MyDatePicker";
-import axios from "axios";
 import "../../../../";
 import { toast } from "react-toastify";
 import { AiFillEdit } from "react-icons/ai";
@@ -10,14 +8,10 @@ import MapVBTModal from "../Shared/MapVBTModal";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../Components/MySelect";
 import { GridActionsCellItem } from "@mui/x-data-grid";
-import { Button, Checkbox, Form, Input, Modal, Row, Space, Switch } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Row, Space } from "antd";
 import { v4 } from "uuid";
 import { imsAxios } from "../../../../axiosInterceptor";
-import ConfirmModal from "../Shared/ConfirmModal";
-import { useSelector } from "react-redux";
-import { responseImmutable } from "@rc-component/context/lib/Immutable";
 import VBT01Report from "./VBT01/VBT01Report";
-import VBT02Report from "./VBTtype2/VBT02Report";
 import useApi from "../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
 import { getVendorOptions } from "../../../../api/general.ts";
@@ -25,39 +19,26 @@ import MyButton from "../../../../Components/MyButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
-import { min } from "lodash";
-const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
+const VBTMainTable = ({  editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("");
-  const [selectLoading, setSelectLoading] = useState(false);
   const [searchDateRange, setSearchDateRange] = useState("");
   const [vbtData, setVBTData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [toggleCleared, setToggleCleared] = React.useState(false);
-  const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [editingVBT, setEditingVBT] = useState(null);
   const [mapVBT, setMapVBT] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [previewdisData, setPreviewdisData] = useState(false);
-  //////// confirm modal
-  const [checkInvoiceId, setCheckInvoiceId] = useState("");
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [createVBT, setCreateVBT] = useState(false);
-  const [selectedVendors, setSelectedVendors] = useState([]);
-  const [editUrl, setEditUrl] = useState("");
-  const [editVBTCode, setEditVBTCode] = useState(false);
+ 
   const { executeFun, loading: loading1 } = useApi();
   const [url, setUrl] = useState("");
   const [apiUrl, setApiUrl] = useState("");
   const [ModalForm] = Form.useForm();
   const [extracted, setExtracted] = useState([]);
   const [combinedData, setCombinedDate] = useState([]);
-  const [showAllData, setShowAllData] = useState([]);
   useEffect(() => {
     if (editVbtDrawer) {
-      setEditVBTCode(true);
       setEditingVBT(editVbtDrawer);
     }
   }, [editVbtDrawer]);
@@ -115,7 +96,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "vendor code",
-           renderCell: ({ row }) => <span>{row?.venCode ?? row?.ven_code}</span>,
+      valueGetter: ({ row }) => row?.venCode ?? row?.ven_code,
     },
     {
       headerName: "Transaction",
@@ -123,7 +104,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
-       renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
+      valueGetter: ({ row }) => row?.min_transaction ?? row?.transaction,
     },
     {
       headerName: "PART / SKU",
@@ -131,7 +112,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
-           renderCell: ({ row }) => <span>{row?.itemCode ?? row?.part_code}</span>,
+      valueGetter: ({ row }) => row?.itemCode ?? row?.part_code,
     },
     {
       headerName: "DATE",
@@ -139,7 +120,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "min date",
-           renderCell: ({ row }) => <span>{row?.minDate ?? row?.min_in_date}</span>,
+      valueGetter: ({ row }) => row?.minDate ?? row?.min_in_date,
     },
 
     {
@@ -216,7 +197,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
-         renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.transaction}</span>,
+      valueGetter: ({ row }) => row?.min_transaction ?? row?.transaction,
     },
     {
       headerName: "PART / SKU",
@@ -224,7 +205,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
-           renderCell: ({ row }) => <span>{row?.min_transaction ?? row?.part_code}</span>,
+      valueGetter: ({ row }) => row?.part_code ?? row?.itemCode,
     },
     {
       headerName: "DATE",
@@ -232,7 +213,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "min date",
-           renderCell: ({ row }) => <span>{row?.min_in_date?? row?.transaction}</span>,
+      valueGetter: ({ row }) => row?.min_in_date ?? row?.minDate,
     },
 
     {
@@ -243,6 +224,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
       flex: 1,
       getActions: ({ row }) => [
         <GridActionsCellItem
+          key="edit"
           icon={<AiFillEdit />}
           onClick={() => setEditingVBT([row])}
           label="Edit"
@@ -261,8 +243,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
 
 
   const getMultipleVBTDetail = async () => {
-    // console.log("there is not single vbt");
-    setLoading(true);
+  
 
     let mins = selectedRows.map((row) => vbtData.filter((r) => r.id == row)[0]);
     setEditingVBT(mins?.map((row) => row));
@@ -318,7 +299,6 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
           id: v4(),
         };
       });
-      setShowAllData(arr);
       setVBTData(arr);
       if (alldata) {
         setCombinedDate(alldata);
@@ -332,15 +312,7 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     setSearchLoading(false);
     // console.log(data);
   };
-  const submitHandler = () => {
-    if (createVBT) {
-      setEditingVBT(selectedVendors);
-      setConfirmModal(false);
-      setOpen(false);
-    } else {
-      setEditingVBT(null);
-    }
-  };
+
   const wiseOptions = [
     { value: "date_wise", text: "Date Wise" },
     { value: "min_wise", text: "MIN Wise" },
@@ -429,12 +401,8 @@ const VBTMainTable = ({ setEditVbtDrawer, editVbtDrawer }) => {
     setVBTData([]);
     setPreviewdisData(false);
   }, [wise]);
-  useEffect(() => {
-    setToggleCleared((toggleCleared) => !toggleCleared);
-  }, [vbtData]);
-  useEffect(() => {
-    submitHandler();
-  }, [createVBT, selectedVendors]);
+
+ 
 
   useEffect(() => {
    
