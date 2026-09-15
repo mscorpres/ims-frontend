@@ -384,11 +384,11 @@ export const items = (user) => [
         ),
       ]),
       getItem("FG(s) Return", "B38", <MdDashboard />, [
-        getItem(
-          <Link to="/createFgReturn">Create FG Return</Link>,
-          "B381"
-          // <AiOutlineMinus />
-        ),
+        // getItem(
+        //   <Link to="/createFgReturn">Create FG Return</Link>,
+        //   "B381"
+        //   // <AiOutlineMinus />
+        // ),
         getItem(
           <Link to="/pendingFgReturn">Pending Reversals</Link>,
           "B382"
