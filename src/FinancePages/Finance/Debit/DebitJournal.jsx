@@ -257,7 +257,6 @@ export default function JournalPosting() {
         name: "Credit",
         value: `₹${credit.toFixed(2)}`,
       },
-
     ];
   };
   const inputHandler = (name, value, id) => {
@@ -524,10 +523,7 @@ export default function JournalPosting() {
     formData.append("file", file);
     try {
       setExcelUploadLoading("upload");
-      const response = await imsAxios.post(
-        "/tally/dv/upload/item",
-        formData,
-      );
+      const response = await imsAxios.post("/tally/dv/upload/item", formData);
       const { data } = response;
       if (data && data.code === 200) {
         const debitNotes = data.data?.debitNotes ?? [];
@@ -612,6 +608,7 @@ export default function JournalPosting() {
           taxableValue: dn.taxableValue,
           totalTdsAmount: dn.totalTdsAmount,
           totalValue: dn.totalValue,
+          dnStatus: dn.dnStatus,
           debit,
           credit,
         };
@@ -621,7 +618,6 @@ export default function JournalPosting() {
       });
       const { data } = response;
       if (data && data.code === 200) {
-        
         toast.success(data.message ?? "Debit notes saved successfully");
         setParsedDebitNotes(null);
       } else {
@@ -684,7 +680,6 @@ export default function JournalPosting() {
                     setExcelUploadOpen(true);
                   }}
                 />
-            
               </Col>
             </Row>
           </Card>
@@ -799,16 +794,27 @@ export default function JournalPosting() {
                   <Collapse.Panel
                     key={idx}
                     header={
-                      <Space size="middle" wrap>
-                        <Text strong>{dn.voucherNo}</Text>
-                        <Tag color="blue">{dn.date}</Tag>
-                        <Text>
-                          {dn.venName} ({dn.vendorCode})
-                        </Text>
-                        <Text type="secondary">Ref: {dn.voucherRefNo}</Text>
-                        {/* <Tag color="green">
-                          ₹{(+dn.totalValue || 0).toLocaleString("en-IN")}
-                        </Tag> */}
+                      <Space
+                        size="middle"
+                        wrap
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Space size="middle" wrap>
+                          <Text strong>{dn.voucherNo}</Text>
+                          <Tag color="blue">{dn.date}</Tag>
+                          <Text>
+                            {dn.venName} ({dn.vendorCode})
+                          </Text>
+                          <Text type="secondary">Ref: {dn.voucherRefNo}</Text>
+                        </Space>
+                        <Tag color={dn.dnStatus === "ACTIVE" ? "green" : "red"}>
+                          {dn.dnStatus}
+                        </Tag>
                       </Space>
                     }
                   >

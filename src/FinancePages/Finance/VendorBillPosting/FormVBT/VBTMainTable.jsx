@@ -105,7 +105,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "vendor code",
-      renderCell: ({ row }) => <span>{row?.venCode ?? row?.ven_code}</span>,
+      valueGetter: ({ row }) => row?.venCode ?? row?.ven_code,
     },
     {
       headerName: "Transaction",
@@ -113,9 +113,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
-      renderCell: ({ row }) => (
-        <span>{row?.min_transaction ?? row?.transaction}</span>
-      ),
+      valueGetter: ({ row }) => row?.min_transaction ?? row?.transaction,
     },
     {
       headerName: "PART / SKU",
@@ -123,7 +121,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
-      renderCell: ({ row }) => <span>{row?.itemCode ?? row?.part_code}</span>,
+      valueGetter: ({ row }) => row?.itemCode ?? row?.part_code,
     },
     {
       headerName: "DATE",
@@ -131,7 +129,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "min date",
-      renderCell: ({ row }) => <span>{row?.minDate ?? row?.min_in_date}</span>,
+      valueGetter: ({ row }) => row?.minDate ?? row?.min_in_date,
     },
 
     {
@@ -190,9 +188,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       sortable: true,
       flex: 1,
       id: "min id",
-      renderCell: ({ row }) => (
-        <span>{row?.min_transaction ?? row?.transaction}</span>
-      ),
+      valueGetter: ({ row }) => row?.min_transaction ?? row?.transaction,
     },
     {
       headerName: "PART / SKU",
@@ -200,9 +196,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "part id",
-      renderCell: ({ row }) => (
-        <span>{row?.min_transaction ?? row?.part_code}</span>
-      ),
+      valueGetter: ({ row }) => row?.part_code ?? row?.itemCode,
     },
     {
       headerName: "DATE",
@@ -210,9 +204,7 @@ const VBTMainTable = ({ editVbtDrawer }) => {
       flex: 1,
       sortable: true,
       id: "min date",
-      renderCell: ({ row }) => (
-        <span>{row?.min_in_date ?? row?.transaction}</span>
-      ),
+      valueGetter: ({ row }) => row?.min_in_date ?? row?.minDate,
     },
 
     {
