@@ -229,6 +229,26 @@ export default function AddDCComponents({
       Item_Description: "this is for testing purpose",
     },
   ];
+  const getRateByComponentKey = async (key) => {
+    if (!key) return 0;
+    try {
+      if (materialType === "product") {
+        const response = await imsAxios.post("/fgOUT/fetchProductData", {
+          search: key,
+        });
+        return response?.success ? response.data.war : 0;
+      }
+      const { data } = await imsAxios.post(
+        "/component/getComponentDetailsByCode",
+        {
+          component_code: key,
+        }
+      );
+      return validateResponse(data)?.data?.rate ?? 0;
+    } catch (error) {
+      return 0;
+    }
+  };
   const callFileUpload = async () => {
     if (fileList.length === 0) {
 
@@ -257,7 +277,7 @@ export default function AddDCComponents({
         });
         return rowObject;
       });
-      const arr = formattedRows.map((r) => ({
+      const rawRows = formattedRows.map((r) => ({
         id: v4(),
         component: r.Partcode
           ? { label: r.Partcode.name, value: r.Partcode.key }
@@ -277,6 +297,15 @@ export default function AddDCComponents({
         hsn: r.Hsn ?? "",
         description: r.Itemdescription ?? "",
       }));
+      // fetch the rate of every uploaded component, same as selecting it manually
+      setPageLoading(true);
+      const arr = await Promise.all(
+        rawRows.map(async (row) => {
+          const rate = await getRateByComponentKey(row.component?.value);
+          return { ...row, rate: rate ?? 0 };
+        })
+      );
+      setPageLoading(false);
       setPreviewRows(arr);
       setPreview(true);
       setShowUploadModal(false);
