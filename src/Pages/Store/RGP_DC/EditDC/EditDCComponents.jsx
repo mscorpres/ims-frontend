@@ -1,5 +1,4 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   asyncSelectComponent,
@@ -9,7 +8,7 @@ import { v4 } from "uuid";
 import FormTable from "../../../../Components/FormTable";
 import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
-import { Button, Modal } from "antd";
+import { Button, Input, Modal } from "antd";
 import validateResponse from "../../../../Components/validateResponse";
 import { imsAxios } from "../../../../axiosInterceptor";
 import { getComponentOptions } from "../../../../api/general.ts";
@@ -17,16 +16,15 @@ import useApi from "../../../../hooks/useApi.ts";
 export default function EditDCComponents({
   newGatePass,
   setActiveTab,
-  resetFunction,
+  isReturnDC,
   setUpdateDCId,
   resetData,
   setPageLoading,
   updatedDCId,
+  setIsReturnDC,
 }) {
   const [rows, setRows] = useState([]);
-  console.log(rows);
   const [asyncOptions, setAsyncOptions] = useState([]);
-  const [selectLoading, setSelectLoading] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -42,7 +40,7 @@ export default function EditDCComponents({
       // setSelectLoading(false);
       const response = await executeFun(
         () => getComponentOptions(searchInput),
-        "select"
+        "select",
       );
       const { data } = response;
       let arr = [];
@@ -64,7 +62,7 @@ export default function EditDCComponents({
         "/component/getComponentDetailsByCode",
         {
           component_code: value.value,
-        }
+        },
       );
       let validatedData = validateResponse(data);
       setPageLoading(false);
@@ -132,6 +130,10 @@ export default function EditDCComponents({
     } else if (newGatePass.vehicleNumber == "") {
       return toast.error("Please enter a Vehicle Number");
     }
+
+    if (isReturnDC && !newGatePass.challanNumber) {
+      return toast.error("Please enter a Challan Number");
+    }
     rows.map((row) => {
       if (row.component == "") {
         validate = "Please select a component for all the material entries";
@@ -167,10 +169,21 @@ export default function EditDCComponents({
         destination: newGatePass.destination,
         terms_of_delivery: newGatePass.deliveryTerms,
         vehicle_no: newGatePass.vehicleNumber,
+
         narration: newGatePass.narration,
       },
+      ...(isReturnDC && {
+        rgp_challan_no: newGatePass.challanNumber,
+      }),
+
       material: {
-        serial: rows.map((row) => row.serial),
+        ...(isReturnDC
+          ? {
+              row_id: rows.map((row) => row.serial),
+            }
+          : {
+              serial: rows.map((row) => row.serial),
+            }),
         component: rows.map((row) => row.component.value),
         qty: rows.map((row) => row.qty),
         rate: rows.map((row) => row.rate),
@@ -183,14 +196,15 @@ export default function EditDCComponents({
   };
   const submitHandler = async () => {
     if (showSubmitConfirm) {
+      const endpoint = isReturnDC
+        ? "/gatepass/createReturn"
+        : "/gatepass/updateDc";
       setSubmitLoading(true);
-      const { data } = await imsAxios.post(
-        "/gatepass/updateDc",
-        showSubmitConfirm
-      );
+      const { data } = await imsAxios.post(endpoint, showSubmitConfirm);
       setSubmitLoading(false);
       if (data.code == 200) {
         setUpdateDCId(false);
+        setIsReturnDC(false);
         // let successInfo = {
         //   id: data.data.transactionID,
         //   components: rows,
@@ -232,7 +246,7 @@ export default function EditDCComponents({
       field: "add",
       sortable: false,
       renderCell: ({ row }) =>
-        row.type != "new" && (
+        (isReturnDC || row.type != "new") && (
           <CommonIcons action="removeRow" onClick={() => removeRows(row?.id)} />
         ),
       // sortable: false,
@@ -263,6 +277,19 @@ export default function EditDCComponents({
           value: "qty",
           suffix: row.uom,
         }),
+    },
+    {
+      headerName: "Returned Qty",
+      field: "returnedQty",
+      width: 130,
+      renderCell: ({ row }) => (
+        <Input
+          value={row.returnedQty ?? 0}
+          disabled
+          suffix={row.uom}
+          style={{ background: "#f5f5f5", fontWeight: 600, color: "#000" }}
+        />
+      ),
     },
     {
       headerName: "Rate",
@@ -321,6 +348,7 @@ export default function EditDCComponents({
           value: row.selectedComponent[0].id,
         },
         qty: row.qty,
+        returnedQty: row.returned_qty ?? 0,
         rate: row.rate,
         hsn: row.hsn_code,
         uom: row.unit,
@@ -335,7 +363,11 @@ export default function EditDCComponents({
     <div style={{ height: "97%", overflowY: "auto" }}>
       {/* submit confirm modal */}
       <Modal
-        title="Confirm Create Delivery Challan!"
+        title={
+          isReturnDC
+            ? "Confirm Return Delivery Challan!"
+            : "Confirm Update Delivery Challan!"
+        }
         open={showSubmitConfirm}
         onCancel={() => setShowSubmitConfirm(false)}
         footer={[
@@ -352,7 +384,9 @@ export default function EditDCComponents({
           </Button>,
         ]}
       >
-        <p>Are you sure you want to update this Delivery Challan?</p>
+        {isReturnDC
+          ? "Are you sure you want to return this Delivery Challan?"
+          : "Are you sure you want to update this Delivery Challan?"}
       </Modal>
       {/* reset confirm modal */}
       <Modal
@@ -373,9 +407,16 @@ export default function EditDCComponents({
           to the original Challan?
         </p>
       </Modal>
-      <FormTable columns={columns} data={rows} />
+      <FormTable
+        columns={
+          isReturnDC
+            ? columns
+            : columns.filter((col) => col.field !== "returnedQty")
+        }
+        data={rows}
+      />
       <NavFooter
-        nextLabel="Update"
+        nextLabel={isReturnDC ? "Return" : "Update"}
         resetFunction={() => setShowResetConfirm(true)}
         backFunction={() => setActiveTab("1")}
         submitFunction={validateData}

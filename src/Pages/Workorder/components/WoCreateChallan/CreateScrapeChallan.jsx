@@ -1,41 +1,25 @@
 import {
-  Button,
   Col,
-  Drawer,
   Form,
   Input,
   Row,
-  Space,
-  Typography,
+
   Modal,
   Card,
-  Radio,
-  Divider,
   //
 } from "antd";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
-import ClientDetailsCard from "./ClientDetailsCard";
-import BillingDetailsCard from "./BillingDetailsCard";
-import DispatchAddress from "./DispatchDetailsCard";
 import { imsAxios } from "../../../../axiosInterceptor";
 import NavFooter from "../../../../Components/NavFooter";
 import { toast } from "react-toastify";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import Loading from "../../../../Components/Loading";
 import FormTable2 from "../../../../Components/FormTable2";
-import { v4 } from "uuid";
 import MySelect from "../../../../Components/MySelect";
-import TextArea from "antd/es/input/TextArea";
-import { postUpdatedWo, submitScrapreChallan } from "../api";
+import { submitScrapreChallan } from "../api";
 import SingleDatePicker from "../../../../Components/SingleDatePicker";
-import MyDataTable from "../../../../Components/MyDataTable";
-import FormTable from "../../../../Components/FormTable";
-import { CommonIcons } from "../../../../Components/TableActions.jsx/TableActions";
 import {
   getComponentDetail,
   getComponentOptions,
-  getProductsOptions,
 } from "../../../../api/general.ts";
 import useApi from "../../../../hooks/useApi.ts";
 import { convertSelectOptions } from "../../../../utils/general.ts";
@@ -80,16 +64,8 @@ const CreateScrapeChallan = () => {
   var challan = searchParams.get("challan");
 
   const navigate = useNavigate();
-  const { executeFun, loading: loading1 } = useApi();
-  const components = Form.useWatch("components", challanForm);
-  const getComponent = async (searchTerm) => {
-    const response = await executeFun(
-      () => getProductsOptions(searchTerm, true),
-      "select"
-    );
-    let { data } = response;
-    setAsyncOptions(data);
-  };
+  const { executeFun } = useApi();
+  
   //   get client options -->
   const getClientOptions = async (inputValue) => {
     try {
@@ -104,14 +80,7 @@ const CreateScrapeChallan = () => {
           value: row.code,
         }));
         setAsyncOptions(arr);
-        let obj = {
-          productname: "",
-          hsncode: "",
-          qty: "",
-          rate: "",
-          value: "",
-          description: "",
-        };
+     
         // challanForm.setFieldValue("components", [obj]);
       } else {
         toast.error("Some error occured wile getting vendors");
@@ -211,12 +180,9 @@ const CreateScrapeChallan = () => {
     setAsyncOptions(arr);
   };
   const calculation = (fieldName, watchValues) => {
-    const { qty, rate, gstRate } = watchValues;
+    const { qty, rate } = watchValues;
     const value = +Number(qty ?? 0) * +Number(rate ?? 0).toFixed(3);
-    const gstAmount = (+Number(value).toFixed(3) * +Number(gstRate)) / 100;
-    let cgst = 0,
-      igst = 0,
-      sgst = 0;
+
 
     // if (gstType === "L" && gstRate) {
     //   cgst = gstAmount / 2;
@@ -340,7 +306,6 @@ const CreateScrapeChallan = () => {
       },
       material: {
         id: values.components.map((r) => r.rowID),
-        id: values.components.map((r) => r.rowID),
         component: values.components.map((r) => r.componentKey),
         qty: values.components.map((r) => r.qty),
         rate: values.components.map((r) => r.rate),
@@ -455,7 +420,7 @@ const CreateScrapeChallan = () => {
         form={challanForm}
         initialValues={defaultValues}
       >
-        <Row gutter={8} style={{ height: "95%", overflow: "hidden" }}>
+        <Row gutter={8} style={{ height: "calc(100% - 100px)", overflow: "auto" }}>
           <Col span={6} style={{ height: "90%", overflow: "hidden" }}>
             <Row gutter={[0, 6]} style={{ overflow: "auto", height: "100%" }}>
               <Col span={24}>
@@ -727,14 +692,12 @@ const listRules = {
 export default CreateScrapeChallan;
 
 const columns = ({
-  loading,
   asyncOptions,
   setAsyncOptions,
   handleFetchComponentOptions,
   handleFetchComponentDetails,
   // handleFetchPreviousRate,
   // compareRates,
-  challanForm,
   // currencies,
   // setShowCurrenncy,
 }) => [
@@ -763,21 +726,21 @@ const columns = ({
     name: "qty",
     width: 100,
     // renderCell: ({ row }) => ,
-    field: (_, index) => <Input type="number" />,
+    field: () => <Input type="number" />,
   },
   {
     headerName: "Rate",
     name: "rate",
     width: 100,
     // renderCell: ({ row }) => ,
-    field: (_, index) => <Input type="number" />,
+    field: () => <Input type="number" />,
   },
   {
     headerName: "Value",
     name: "value",
     width: 100,
     // renderCell: ({ row }) => ,
-    field: (_, index) => <Input type="number" />,
+    field: () => <Input type="number" />,
   },
   // {
   //   headerName: "Rate",

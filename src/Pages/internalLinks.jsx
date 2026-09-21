@@ -451,10 +451,10 @@ const links = [
     { routeName: "VIEW FG OUT", routePath: "/view-fgOut" },
   ],
   [
-    {
-      routeName: "Create FG Return",
-      routePath: "/createFgReturn",
-    },
+    // {
+    //   routeName: "Create FG Return",
+    //   routePath: "/createFgReturn",
+    // },
     { routeName: "Pending FG Return", routePath: "/pendingFgReturn" },
     { routeName: "Completed FG Return", routePath: "/completedFgReturn" },
   ],
@@ -607,6 +607,11 @@ const links = [
       routeName: "Manage DC",
       routePath: "/manage-dc",
       key: "1",
+    },
+      {
+      routeName: "Return DC",
+      routePath: "/return-dc",
+      key: "2",
     },
   ],
   // gatepass links

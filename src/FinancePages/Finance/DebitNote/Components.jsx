@@ -1,4 +1,4 @@
-import { useLocation } from "react-router";
+
 import SingleComponent from "./SingleComponent";
 import { Col, Form, Row, Typography } from "antd";
 import { useState } from "react";
@@ -13,16 +13,15 @@ const Components = ({
   // setAddRateDiff,
   vbtType,
 }) => {
-  const location = useLocation();
   const [addRateDiff, setAddRateDiff] = useState(false);
   return (
     <div style={{ flex: 1 }}>
       <Form.List name="components">
         {(fields, { add, remove }) => (
           <>
-            <Col>
+            <Col >
               {fields.map((field, index) => (
-                <Form.Item noStyle>
+                <Form.Item noStyle key={field.key}>
                   <SingleComponent
                     fields={fields}
                     field={field}
