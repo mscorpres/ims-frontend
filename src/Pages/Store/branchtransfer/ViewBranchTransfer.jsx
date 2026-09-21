@@ -17,6 +17,7 @@ import { convertSelectOptions } from "../../../utils/general.ts";
 import useApi from "../../../hooks/useApi.ts";
 import MyButton from "../../../Components/MyButton";
 import { Link } from "react-router-dom";
+import EditBranchTransferChallan from "./EditBranchTransfer/EditBranchTransferChallan";
 
 function ViewBranchTransfer() {
   const [asyncOptions, setAsyncOptions] = useState();
@@ -24,6 +25,7 @@ function ViewBranchTransfer() {
   const [rows, setRows] = useState([]);
   const [showViewModel, setShowViewModal] = useState(false);
   const [detailData, setDetailData] = useState([]);
+  const [editTransId, setEditTransId] = useState(null);
 
   const [qcReportForm] = Form.useForm();
   const status = Form.useWatch("status", qcReportForm);
@@ -88,6 +90,16 @@ function ViewBranchTransfer() {
           getcomoponents(row.trans_id);
         }}
         label="View"
+      />,
+      <GridActionsCellItem
+        key={"edit"}
+        showInMenu
+        
+        disabled={!!loading || row.eway_status}
+        onClick={() => {
+          setEditTransId(row.trans_id);
+        }}
+        label="Edit"
       />,
       <GridActionsCellItem
         key={"print"}
@@ -286,6 +298,11 @@ function ViewBranchTransfer() {
         loading={loading}
         // setLoading={setLoading}
         component={<Loading />}
+      />
+      <EditBranchTransferChallan
+        transId={editTransId}
+        setTransId={setEditTransId}
+        onSuccess={getRows}
       />
     </>
   );
