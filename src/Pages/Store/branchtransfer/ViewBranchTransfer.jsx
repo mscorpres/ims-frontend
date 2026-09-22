@@ -472,7 +472,7 @@ const ViewModal = ({
       {loading === "fetch" && component}
 
       <div style={{ height: "calc(100% - 45px)" }}>
-        <MyDataTable columns={viewcolumns} data={detaildata} hideFooter />
+        <MyDataTable columns={viewcolumns} data={detaildata} />
       </div>
       <div
         style={{
