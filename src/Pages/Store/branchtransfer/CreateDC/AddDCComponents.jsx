@@ -456,8 +456,8 @@ export default function AddDCComponents({
       renderCell: ({ row }) =>
         inputComponent({
           row: row,
+          inputHandler: inputHandler,
           value: "rate",
-          disabled: true,
         }),
     },
     {
