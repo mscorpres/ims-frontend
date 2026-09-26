@@ -771,6 +771,7 @@ const Login = () => {
                                 onError={() => {
                                   toast.error("Login Failed");
                                 }}
+                                use_fedcm_for_button
                                 shape="circle"
                               />
                             )}
