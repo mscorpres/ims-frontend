@@ -160,6 +160,7 @@ function BulkSfToRejTransferDrawer({
       dropLocation,
       project_id: projectId || null,
       ppr_id: pprId || null,
+      rate: rows.map((r) => r.avr_rate || 0),
       projectsIds: rows.map((r) => r.project || ""),
     };
 
