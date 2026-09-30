@@ -1,40 +1,48 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import "../../../Master/Modal/modal.css";
-import { Button, Row, Col, Input, Drawer, Skeleton, Form, Space } from "antd";
+import { Button, Row, Col, Input, Drawer, Form, Space } from "antd";
 import { toast } from "react-toastify";
-import errorToast from "../../../../Components/errorToast";
-import MyAsyncSelect from "../../../../Components/MyAsyncSelect";
+import MySelect from "../../../../Components/MySelect";
 import { imsAxios } from "../../../../axiosInterceptor";
 
 const { TextArea } = Input;
 
 const AddClientBranch = ({ openBranch, setOpenBranch }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [selectLoading, setSelectLoading] = useState(false);
-  const [asyncOptions, setAsyncOptions] = useState([]);
+  const [countriesOptions, setCountriesOptions] = useState([]);
+  const [stateOptions, setStateOptions] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(83);
   const [addBranchForm] = Form.useForm();
-  
-  const getFetchState = async (e) => {
-    if (e.length > 1) {
-      setSelectLoading(true);
-      const { data } = await imsAxios.post("/backend/stateList", {
-        search: e,
-      });
-      setSelectLoading(false);
-      let arr = [];
-      arr = data.map((d) => {
-        return { text: d.text, value: d.id };
-      });
-      setAsyncOptions(arr);
+
+  const getCountries = async () => {
+    const { data } = await imsAxios.get("/tally/backend/countries");
+    if (data?.data?.[0]) {
+      setCountriesOptions(
+        data.data.map((row) => ({
+          text: row.name,
+          value: row.code,
+        }))
+      );
     }
   };
-  
-// 
+  const getState = async () => {
+    const { data } = await imsAxios.get("/tally/backend/states");
+    if (data?.data?.[0]) {
+      setStateOptions(
+        data.data.map((row) => ({
+          text: row.name,
+          value: row.code,
+        }))
+      );
+    }
+  };
+
+//
 const addBranch = async() => {
     const values = await addBranchForm.validateFields()
-    console.log(values)
     const obj = {
         "clientCode" : openBranch?.vendor_code,
+        "country": values.country,
         "state": values.state,
         "address": values.address,
         "city": values.city,
@@ -42,29 +50,34 @@ const addBranch = async() => {
         "phoneNo": values.mob,
         "gst": values.gst
     }
-    console.log(obj)
+
     try {
         setSubmitLoading(true);
-        const { data } = await imsAxios.post("client/addbranch", obj);
-        if (data.code == 200) {
+        const res = await imsAxios.post("client/addbranch", obj);
+        if (res?.success) {
           // fetchVendor();
           reset()
-          toast.success(data.message);
+          toast.success(res.message?.msg  ?? res.message);
           setOpenBranch(false)
           // setShowAddVendorModal(false);
         } else {
-          toast.error(data.message.msg);
+          toast.error(res.message.msg ?? res.message);
         }
         } catch (error) {
-          toast.error(error)
+          toast.error(error?.message || "Something went wrong");
         } finally {
           setSubmitLoading(false);
         }
 
-}   
+}
   const reset = () => {
     addBranchForm.resetFields()
+    setSelectedCountry(83);
   };
+  useEffect(() => {
+    getCountries();
+    getState();
+  }, []);
   useEffect(() => {
     reset();
   }, [openBranch]);
@@ -82,6 +95,7 @@ const addBranch = async() => {
         layout="vertical"
         size="small"
         form={addBranchForm}
+        initialValues={{ country: 83 }}
       >
         <Row style={{ width: "100%" }}>
           <>
@@ -98,15 +112,25 @@ const addBranch = async() => {
             </Col> */}
 
             <Col span={12} style={{ padding: "3px" }}>
-              <Form.Item label="State" name='state' rules={[{ required: true, message: 'Please select State!'}]}>
-                <MyAsyncSelect
-                  selectLoading={selectLoading}
-                  optionsState={asyncOptions}
-                  onBlur={() => setAsyncOptions([])}
-                  loadOptions={getFetchState}
-                  onChange={(e) => addBranchForm.setFieldValue('state',e.value)}
-                  labelInValue
+              <Form.Item label="Country" name="country" rules={[{ required: true, message: 'Please select Country!'}]}>
+                <MySelect
+                  options={countriesOptions}
+                  size="default"
+                  onChange={(value) => {
+                    setSelectedCountry(value);
+                    addBranchForm.setFieldValue("state", undefined);
+                    value === 83 && getState();
+                  }}
                 />
+              </Form.Item>
+            </Col>
+            <Col span={12} style={{ padding: "3px" }}>
+              <Form.Item label="State" name='state' rules={[{ required: true, message: 'Please select State!'}]}>
+                {selectedCountry == 83 ? (
+                  <MySelect options={stateOptions} size="default" />
+                ) : (
+                  <Input size="default" />
+                )}
               </Form.Item>
             </Col>
             <Col span={12} style={{ padding: "3px" }}>
