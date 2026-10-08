@@ -17,6 +17,7 @@ import { getVendorOptions } from "../../api/general.ts";
 import { convertSelectOptions } from "../../utils/general.ts";
 import useApi from "../../hooks/useApi.ts";
 import MyButton from "../../Components/MyButton";
+import { downloadCSV } from "../../Components/exportToCSV";
 
 const JwCompleted = () => {
   const [viewModalOpen, setViewModalOpen] = useState(null);
@@ -214,6 +215,22 @@ const JwCompleted = () => {
       ],
     },
   ];
+  const currentData =
+    allData.setType == "jw_transaction_wise"
+      ? jwData
+      : allData.setType == "jw_sfg_wise"
+      ? skuData
+      : allData.setType == "vendorwise"
+      ? vendorData
+      : dateData;
+
+  const handleDownloadCSV = () => {
+    if (!currentData.length) {
+      return toast.error("No data to download");
+    }
+    downloadCSV(currentData, columns, "JW Completed");
+  };
+
   return (
     <div style={{ height: "95%" }}>
       <Row gutter={10} style={{ margin: "10px" }}>
@@ -343,6 +360,13 @@ const JwCompleted = () => {
               </MyButton>
             </Col>
           </>
+        )}
+        {currentData.length > 0 && (
+          <Col span={2}>
+            <MyButton variant="download" onClick={handleDownloadCSV}>
+              Download
+            </MyButton>
+          </Col>
         )}
       </Row>
 
