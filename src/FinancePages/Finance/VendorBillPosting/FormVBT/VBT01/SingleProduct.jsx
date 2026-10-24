@@ -1,22 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-  Button,
   Form,
   Input,
   Row,
   Col,
   Typography,
-  Space,
   message,
-  Tooltip,
 } from "antd";
 import Loading from "../../../../../Components/Loading";
-import MyAsyncSelect from "../../../../../Components/MyAsyncSelect";
 import MySelect from "../../../../../Components/MySelect";
-import { imsAxios } from "../../../../../axiosInterceptor";
-import { toast } from "react-toastify";
-import { CodeSandboxCircleFilled } from "@ant-design/icons";
 
 export default function SingleComponent({
   index,
@@ -33,34 +26,29 @@ export default function SingleComponent({
   glstate,
   lastRateArr,
 }) {
+
+  
   var lastRateFoundObj;
   const [showLastRateWarning, setShowLastRateWarning] = useState({
     rate: "",
     gl: "",
     glN: "",
   });
-  const [messageApi, contextHolder] = message.useMessage();
+  const [, contextHolder] = message.useMessage();
   let lastOpVals = form.getFieldValue("components");
   var partArr = [];
   lastOpVals.forEach((element) => {
     partArr.push(element.c_part_no);
   });
 
-  const component =
-    Form.useWatch(["components", field.name, "component"], form) ?? 0;
+
   const qty =
     Form.useWatch(["components", field.name, "vbtBillQty"], form) ?? 0;
-  // const rate =
-  //   Form.useWatch(["components", field.name, "vbtInRate"], form) ?? 0;
-  const product =
-    Form.useWatch(["components", field.name, "product"], form) ?? 0;
+  
   const tcs = Form.useWatch(["components", field.name, "tcs"], form) ?? 0;
   const freight =
     Form.useWatch(["components", field.name, "freight"], form) ?? 0;
   const gstType = Form.useWatch(["components", field.name, "gstType"], form);
-  const minId = Form.useWatch(["components", field.name, "minID"], form);
-  let amountWithFreight;
-  let value;
 
   const taxableValue =
     Form.useWatch(["components", field.name, "taxableValue"], form) ?? 0;
@@ -314,6 +302,25 @@ export default function SingleComponent({
     // getFreightGlOptions(editApiUrl);
   }, [editApiUrl]);
 
+  useEffect(() => {
+    if (apiUrl === "vbt08" || apiUrl === "vbt09") return;
+    if (!Array.isArray(tdsArray) || tdsArray.length !== 1) return;
+    const only = tdsArray[0];
+    if (only?.value == null && only?.text == null) return;
+    const current = form.getFieldValue(["components", field.name, "tdsName"]);
+    if (
+      current &&
+      current !== 0 &&
+      String(current.value) === String(only.value)
+    ) {
+      return;
+    }
+    form.setFieldValue(["components", field.name, "tdsName"], {
+      label: only.text,
+      value: only.value,
+    });
+  }, [tdsArray, field.name, form]);
+
   const showRateWarning = () => {
     const partCode = form.getFieldValue(["components", field.name, "partCode"]);
 
@@ -376,17 +383,17 @@ export default function SingleComponent({
             </Typography.Text>
           </Col>
           <Col span={3}>
-            <Form.Item label="MIN ID" name={[field.name, "minId"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
               <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
-            <Form.Item label="Part Code" name={[field.name, "partCode"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="Part Name" name={[field.name, "partName"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "Product Name" : "Part Name"}   name={[field.name, "partName"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
@@ -397,7 +404,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col>
           <Col span={2}>
-            <Form.Item label="MIN Qty" name={[field.name, "vbtInQty"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
               <Input disabled />
             </Form.Item>
           </Col>
@@ -627,6 +634,8 @@ export default function SingleComponent({
             </Col>
           )} */}
           {apiUrl === "vbt01" ||
+          apiUrl === "vbt08" ||
+          apiUrl === "vbt09" ||
           apiUrl === "vbt04" ||
           apiUrl === "vbt05" ||
           apiUrl === "vbt07" ? (
@@ -791,17 +800,17 @@ export default function SingleComponent({
             </Typography.Text>
           </Col>
           <Col span={3}>
-            <Form.Item label="MIN ID" name={[field.name, "minId"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN ID" : "MIN ID"} name={[field.name, "minId"]}>
               <Input disabled />
             </Form.Item>
           </Col>
           <Col span={3}>
-            <Form.Item label="Part Code" name={[field.name, "partCode"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "SKU" : "Part Code"} name={[field.name, "partCode"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
           <Col span={4}>
-            <Form.Item label="Part Name" name={[field.name, "partName"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "Product Name" : "Part Name"} name={[field.name, "partName"]}>
               <Input rows={1} disabled />
             </Form.Item>
           </Col>
@@ -821,7 +830,7 @@ export default function SingleComponent({
             </Form.Item>
           </Col>
           <Col span={2}>
-            <Form.Item label="MIN Qty" name={[field.name, "vbtInQty"]}>
+            <Form.Item label={apiUrl === "vbt08" || apiUrl === "vbt09" ? "FG MIN Qty" : "MIN Qty"} name={[field.name, "vbtInQty"]}>
               <Input disabled />
             </Form.Item>
           </Col>
@@ -856,6 +865,8 @@ export default function SingleComponent({
             </Form.Item>
           </Col> */}
           {editApiUrl === "vbt01" ||
+          editApiUrl === "vbt08" ||
+          editApiUrl === "vbt09" ||
           editApiUrl === "vbt04" ||
           editApiUrl === "vbt05" ? (
             <>
@@ -1076,10 +1087,4 @@ export default function SingleComponent({
     </Row>
   );
 }
-const gstRateOptions = [
-  { value: "0", text: "00%" },
-  { value: "5", text: "05%" },
-  { value: "12", text: "12%" },
-  { value: "18", text: "18%" },
-  { value: "28", text: "28%" },
-];
+

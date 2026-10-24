@@ -1,6 +1,5 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MyDatePicker from "../../../../Components/MyDatePicker";
-import "../../../../";
 import { toast } from "react-toastify";
 import { AiFillEdit } from "react-icons/ai";
 import MyDataTable from "../../../../Components/MyDataTable";
@@ -19,7 +18,26 @@ import MyButton from "../../../../Components/MyButton";
 import { FaInfoCircle } from "react-icons/fa";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { RiProhibitedLine } from "react-icons/ri";
-const VBTMainTable = ({  editVbtDrawer }) => {
+
+const URL_TO_VBT_CONFIG = {
+  VB1: { apiUrl: "vbt01", screenType: "VBT01" },
+  VB8: { apiUrl: "vbt08", screenType: "VBT08" },
+  VB9: { apiUrl: "vbt09", screenType: "VBT09" },
+  VB2: { apiUrl: "vbt02" },
+  VB3: { apiUrl: "vbt03" },
+  VB4: { apiUrl: "vbt04" },
+  VB5: { apiUrl: "vbt05" },
+  VB6: { apiUrl: "vbt06" },
+  VB7: { apiUrl: "vbt07" },
+};
+
+const wiseOptions = [
+  { value: "date_wise", text: "Date Wise" },
+  { value: "min_wise", text: "MIN Wise" },
+  { value: "vendor_wise", text: "Vendor Wise" },
+];
+
+const VBTMainTable = ({ editVbtDrawer }) => {
   const [wise, setWise] = useState("min_wise");
   const [searchInput, setSearchInput] = useState("");
   const [searchDateRange, setSearchDateRange] = useState("");
@@ -30,10 +48,10 @@ const VBTMainTable = ({  editVbtDrawer }) => {
   const [mapVBT, setMapVBT] = useState(false);
   const [asyncOptions, setAsyncOptions] = useState([]);
   const [previewdisData, setPreviewdisData] = useState(false);
- 
   const { executeFun, loading: loading1 } = useApi();
   const [url, setUrl] = useState("");
   const [apiUrl, setApiUrl] = useState("");
+  const [vbtScreenType, setVbtScreenType] = useState("VBT01");
   const [ModalForm] = Form.useForm();
   const [extracted, setExtracted] = useState([]);
   const [combinedData, setCombinedDate] = useState([]);
@@ -44,38 +62,25 @@ const VBTMainTable = ({  editVbtDrawer }) => {
   }, [editVbtDrawer]);
 
   useEffect(() => {
-    const pageUrl = window.location.href.split("/");
-    let splitUrl = pageUrl.at(-1);
-    setUrl(splitUrl);
+    const route = window.location.href.split("/").at(-1);
+    setUrl(route);
+    const config = URL_TO_VBT_CONFIG[route];
+    if (config) {
+      setApiUrl(config.apiUrl);
+      if (config.screenType) setVbtScreenType(config.screenType);
+    }
   }, []);
-  useEffect(() => {
-    // console.log("url", url);
-    if (url === "VB1") {
-      setApiUrl("vbt01");
-    } else if (url === "VB2") {
-      setApiUrl("vbt02");
-    } else if (url === "VB3") {
-      setApiUrl("vbt03");
-    } else if (url === "VB4") {
-      setApiUrl("vbt04");
-    } else if (url === "VB5") {
-      setApiUrl("vbt05");
-    } else if (url === "VB6") {
-      setApiUrl("vbt06");
-    } else if (url === "VB7") {
-      setApiUrl("vbt07");
-    } 
-  }, [url]);
 
   const showTypeColumn = vbtData?.some(
-    (r) => r?.type != null && String(r.type).trim() !== ""
+    (r) => r?.type != null && String(r.type).trim() !== "",
   );
 
-  const vbtTableColumnsonesix = [
+  const baseColumns = [
     {
       headerName: "Sr. No.",
       renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
       sortable: true,
+      flex: 1,
       id: "serial-no",
       width: "120px",
     },
@@ -90,7 +95,11 @@ const VBTMainTable = ({  editVbtDrawer }) => {
           },
         ]
       : []),
-       {
+  ];
+
+  const vbtTableColumnsonesix = [
+    ...baseColumns,
+    {
       headerName: "Vendor Code",
       field: "venCode",
       sortable: true,
@@ -131,7 +140,8 @@ const VBTMainTable = ({  editVbtDrawer }) => {
       flex: 1,
       getActions: ({ row }) =>
         (apiUrl == "vbt06" && (row.vbpStatus ?? row.vbp_status) == "PENDING") ||
-        (apiUrl === "vbt01" && (row.vbpStatus ?? row.vbp_status) == "PENDING")
+        ((apiUrl === "vbt01" || apiUrl === "vbt08" || apiUrl === "vbt09") &&
+          (row.vbpStatus ?? row.vbp_status) == "PENDING")
           ? [
               <>
                 <GridActionsCellItem
@@ -159,31 +169,12 @@ const VBTMainTable = ({  editVbtDrawer }) => {
                     />
                   }
                 />
-               
               </>,
             ],
     },
   ];
   const vbtTableColumnselse = [
-    {
-      headerName: "Sr. No.",
-      renderCell: ({ row }) => <span>{vbtData?.indexOf(row) + 1}</span>,
-      sortable: true,
-      flex: 1,
-      id: "serial-no",
-      width: "120px",
-    },
-    ...(showTypeColumn
-      ? [
-          {
-            headerName: "Type",
-            field: "type",
-            sortable: true,
-            flex: 1,
-            id: "type",
-          },
-        ]
-      : []),
+    ...baseColumns,
     {
       headerName: "Vendor Code",
       field: "ven_code",
@@ -241,13 +232,11 @@ const VBTMainTable = ({  editVbtDrawer }) => {
     setAsyncOptions(arr);
   };
 
-
-  const getMultipleVBTDetail = async () => {
-  
-
-    let mins = selectedRows.map((row) => vbtData.filter((r) => r.id == row)[0]);
-    setEditingVBT(mins?.map((row) => row));
- 
+  const getMultipleVBTDetail = () => {
+    const mins = selectedRows.map((rowId) =>
+      vbtData.find((r) => r.id === rowId),
+    );
+    setEditingVBT(mins);
   };
   const getRows = async () => {
     setPreviewdisData(false);
@@ -279,10 +268,18 @@ const VBTMainTable = ({  editVbtDrawer }) => {
         data: d,
       });
     } else {
-      response = await imsAxios.post(`/tally/${apiUrl}/fetch_${apiUrl}`, {
+      const fetchBody = {
         wise: wise,
         data: d,
-      });
+      };
+      if (apiUrl === "vbt01") {
+        fetchBody.vbt_type = vbtScreenType;
+      }
+
+      response = await imsAxios.post(
+        `/tally/${apiUrl}/fetch_${apiUrl}`,
+        fetchBody,
+      );
     }
     const { data } = response;
     if (data.code === 200) {
@@ -312,17 +309,16 @@ const VBTMainTable = ({  editVbtDrawer }) => {
     setSearchLoading(false);
     // console.log(data);
   };
-
-  const wiseOptions = [
-    { value: "date_wise", text: "Date Wise" },
-    { value: "min_wise", text: "MIN Wise" },
-    { value: "vendor_wise", text: "Vendor Wise" },
-  ];
-
   const disableVbt = async (singleRow) => {
     if (singleRow) {
-      ModalForm.setFieldValue("min_transaction", singleRow.transaction ?? singleRow.min_transaction);
-      ModalForm.setFieldValue("part_code", singleRow.itemCode ?? singleRow.part_code);
+      ModalForm.setFieldValue(
+        "min_transaction",
+        singleRow.transaction ?? singleRow.min_transaction,
+      );
+      ModalForm.setFieldValue(
+        "part_code",
+        singleRow.itemCode ?? singleRow.part_code,
+      );
     }
 
     Modal.confirm({
@@ -373,16 +369,19 @@ const VBTMainTable = ({  editVbtDrawer }) => {
       okText: "Yes",
       cancelText: "No",
       onOk: async () => {
-        await disabletheSelelcted();
+        await disabletheSelelcted(singleRow?.type);
       },
     });
   };
-  const disabletheSelelcted = async () => {
+  const disabletheSelelcted = async (type) => {
     const values = await ModalForm.validateFields();
-    const response = await imsAxios.put("/tally/vbt/disable_vbtprocess", {
-      min_transaction: values.min_transaction ,
-      part_code: values.part_code ,
+
+    const disableEndpoint = "/tally/vbt/disable_vbtprocess/" + type;
+    const response = await imsAxios.put(disableEndpoint, {
+      min_transaction: values.min_transaction,
+      part_code: values.part_code,
       remark: values.remark,
+  
     });
     if (response.data.code === 200) {
       toast.success(response.data.data.status);
@@ -401,22 +400,12 @@ const VBTMainTable = ({  editVbtDrawer }) => {
     setVBTData([]);
     setPreviewdisData(false);
   }, [wise]);
-
- 
-
   useEffect(() => {
-   
-    if (previewdisData) {
-    
-      setVBTData(combinedData);
-    } else {
-      setVBTData(extracted);
-    }
+    setVBTData(previewdisData ? combinedData : extracted);
   }, [previewdisData]);
 
-
   return (
-    <div style={{ height: "92%", margin:8 }}>
+    <div style={{ height: "92%", margin: 8 }}>
       <MapVBTModal mapVBT={mapVBT} setMapVBT={setMapVBT} />
       <div
         style={{
@@ -425,24 +414,15 @@ const VBTMainTable = ({  editVbtDrawer }) => {
           overflow: "hidden",
         }}
       >
-       
-        {apiUrl === "vbt03" ? (
-          <VBT01Report
-            setVBTData={setVBTData}
-            editingVBT={editingVBT}
-            setEditingVBT={setEditingVBT}
-            setApiUrl={setApiUrl}
-            apiUrl={apiUrl}
-          />
-        ) : (
-          <VBT01Report
-            setVBTData={setVBTData}
-            editingVBT={editingVBT}
-            setEditingVBT={setEditingVBT}
-            setApiUrl={setApiUrl}
-            apiUrl={apiUrl}
-          />
-        )}
+        <VBT01Report
+          setVBTData={setVBTData}
+          editingVBT={editingVBT}
+          setEditingVBT={setEditingVBT}
+          setApiUrl={setApiUrl}
+          apiUrl={apiUrl}
+          pageRoute={url}
+          vbtScreenType={vbtScreenType}
+        />
         <Row
           justify="space-between"
           style={{ padding: "0px 10px", paddingBottom: 5 }}
@@ -492,13 +472,7 @@ const VBTMainTable = ({  editVbtDrawer }) => {
               <MyButton
                 size="default"
                 disabled={
-                  wise === "date_wise"
-                    ? searchDateRange === ""
-                      ? true
-                      : false
-                    : !searchInput
-                    ? true
-                    : false
+                  wise === "date_wise" ? !searchDateRange : !searchInput
                 }
                 loading={searchLoading}
                 type="primary"
@@ -511,28 +485,18 @@ const VBTMainTable = ({  editVbtDrawer }) => {
                 <Button
                   onClick={getMultipleVBTDetail}
                   disabled={selectedRows.length < 2}
-                  // loading={loading}
                   type="primary"
                 >
                   Create VBT
                 </Button>
               )}
-              {/* {confirmModal && (
-                <ConfirmModal
-                  open={open}
-                  setOpen={setOpen}
-                  // submitHandler={submitHandler}
-                  loading={loading}
-                  setCreateVBT={setCreateVBT}
-                  createVBT={createVBT}
-                  setEditingVBT={setEditingVBT}
-                  editingVBT={editingVBT}
-                />
-              )} */}
             </Space>
           </div>
           <Space>
-            {(apiUrl == "vbt06" || apiUrl == "vbt01") && (
+            {(apiUrl == "vbt06" ||
+              apiUrl == "vbt01" ||
+              apiUrl == "vbt08" ||
+              apiUrl == "vbt09") && (
               <Checkbox
                 // onClick={() => setPreviewdisData(!previewdisData)}
                 disabled={vbtData.length == 0}
@@ -558,7 +522,10 @@ const VBTMainTable = ({  editVbtDrawer }) => {
             checkboxSelection={wise == "vendor_wise"}
             loading={searchLoading}
             columns={
-              apiUrl == "vbt06" || apiUrl == "vbt01"
+              apiUrl == "vbt06" ||
+              apiUrl == "vbt01" ||
+              apiUrl == "vbt08" ||
+              apiUrl == "vbt09"
                 ? vbtTableColumnsonesix
                 : vbtTableColumnselse
             }
