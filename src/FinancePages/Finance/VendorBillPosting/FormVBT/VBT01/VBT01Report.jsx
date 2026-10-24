@@ -7,6 +7,71 @@ import NavFooter from "../../../../../Components/NavFooter";
 import validateResponse from "../../../../../Components/validateResponse";
 import Loading from "../../../../../Components/Loading";
 import SingleComponent from "./SingleProduct";
+import {
+  getTallyApiPrefix,
+  getVbtApiFromCode,
+  getVbtScreenType,
+  isVbt01StyleModule,
+  VBT01_API_PREFIX,
+} from "../vbtModuleUtils";
+
+const getPurchaseGlCodeValue = (purchaseGLCode, apiUrl) => {
+  const glEntry = Array.isArray(purchaseGLCode)
+    ? purchaseGLCode[0]
+    : purchaseGLCode;
+  if (glEntry?.key != null && String(glEntry.key).trim() !== "") {
+    return glEntry.key;
+  }
+  if (isVbt01StyleModule(apiUrl)) return "TP821753548513";
+  if (apiUrl === "vbt06") return "TP672531876660";
+  return "";
+};
+
+const getPurchaseGlOptions = (rows = []) =>
+  Array.from(
+    new Map(
+      rows
+        .flatMap((row) => {
+          if (Array.isArray(row.purchaseGLCode)) {
+            return row.purchaseGLCode;
+          }
+          if (row.purchase_gl) {
+            return [
+              {
+                key: row.purchase_gl.value ?? row.purchase_gl.key,
+                name:
+                  row.purchase_gl.label ??
+                  row.purchase_gl.text ??
+                  row.purchase_gl.name,
+              },
+            ];
+          }
+          return [];
+        })
+        .filter((gl) => gl?.key != null && String(gl.key).trim() !== "")
+        .map((gl) => [gl.key, { text: gl.name ?? gl.key, value: gl.key }]),
+    ).values(),
+  );
+
+const resolveGlOptionsList = (response) => {
+  const payload = response?.data ?? response;
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
+
+const mergeGlSelectOptions = (apiRows = [], extraOptions = []) => {
+  let arr = apiRows.map((d) => ({
+    text: d.text,
+    value: d.id,
+  }));
+  extraOptions.forEach((option) => {
+    if (!arr.some((item) => item.value === option.value)) {
+      arr.push(option);
+    }
+  });
+  return arr;
+};
 
 function VBT01Report({
   editingVBT,
@@ -14,7 +79,24 @@ function VBT01Report({
   apiUrl,
   editVbtDrawer,
   setEditVbtDrawer,
+  pageRoute,
+  vbtScreenType: vbtScreenTypeProp,
 }) {
+  const resolveVbtScreenType = () => {
+    if (vbtScreenTypeProp) return vbtScreenTypeProp;
+    if (editVbtDrawer)
+      return getVbtScreenType(getVbtApiFromCode(editVbtDrawer));
+    if (pageRoute) return getVbtScreenType(pageRoute);
+    return "VBT01";
+  };
+  const resolveWriteApiPrefix = () => {
+    const moduleApiUrl = editVbtDrawer
+      ? getVbtApiFromCode(editVbtDrawer)
+      : apiUrl;
+    return moduleApiUrl === "vbt08" || moduleApiUrl === "vbt09"
+      ? moduleApiUrl
+      : VBT01_API_PREFIX;
+  };
   const [Vbt01] = Form.useForm();
   const [vbtComponent, setVbtComponent] = useState([]);
   const [taxDetails, setTaxDetails] = useState([]);
@@ -82,7 +164,6 @@ function VBT01Report({
     const response = await imsAxios.get(`/tally/vbt/getData?vbtKey=${vbtCode}`);
     if (response.status == 200) {
       const { data } = response;
-      getGl();
 
       const arr = data.map((row) => ({
         ...row,
@@ -110,6 +191,7 @@ function VBT01Report({
         billAmm: row?.taxableValue,
         // billAmount: row?.billAmount,
       }));
+      await getGl(getPurchaseGlOptions(arr), arr[0]?.type);
       setEditVBTCode(arr);
       setVbtComponent(arr);
       Vbt01.setFieldValue("components", arr);
@@ -125,28 +207,28 @@ function VBT01Report({
       type != null && String(type).trim() !== ""
         ? `?type=${encodeURIComponent(type)}`
         : "";
-    if (editVbtDrawer) {
-      let apiLink = getApiUrl(editVbtDrawer);
-
-      link = `/tally/${apiLink}/fetch_multi_min_data${typeQuery}`;
-    } else {
-      link = `/tally/${apiUrl}/fetch_multi_min_data${typeQuery}`;
-    }
-    const payload =
-      apiUrl === "vbt01"
-        ? {
-            data: minIdArr.map((row) => {
-              return {
-                minTxn: row?.transaction ?? row.min_transaction,
-                type: row.type,
-              };
-            }),
-          }
-        : {
-            mins: minIdArr.map(
-              (row) => row?.transaction ?? row.min_transaction,
-            ),
-          };
+    const moduleApiUrl = editVbtDrawer
+      ? getVbtApiFromCode(editVbtDrawer)
+      : apiUrl;
+    const tallyPrefix = getTallyApiPrefix(moduleApiUrl);
+    const fetchEndpoint =
+      moduleApiUrl === "vbt08" || moduleApiUrl === "vbt09"
+        ? "fetch_multi_fg_min_data"
+        : "fetch_multi_min_data";
+    link = `/tally/${moduleApiUrl}/${fetchEndpoint}${typeQuery}`;
+    const payload = isVbt01StyleModule(tallyPrefix)
+      ? {
+          vbt_type: resolveVbtScreenType(),
+          data: minIdArr.map((row) => {
+            return {
+              minTxn: row?.transaction ?? row.min_transaction,
+              type: row.type,
+            };
+          }),
+        }
+      : {
+          mins: minIdArr.map((row) => row?.transaction ?? row.min_transaction),
+        };
     const response = await imsAxios.post(link, payload);
 
     const { data } = response;
@@ -169,9 +251,9 @@ function VBT01Report({
         sgstAmount: row.sgst,
         igstAmount: row.igst,
         venAddress: row.venAddress,
-        igstAmount: row.igst,
         ven_name: row.venName,
 
+   
         tdsName: {
           label: row.ven_tds?.tds_name,
           value: row?.ven_tds?.tds_key,
@@ -184,27 +266,22 @@ function VBT01Report({
         sgst: "TP385675494002",
         igst: "TP486973272469",
 
-        glCodeValue:
-          apiUrl === "vbt01"
-            ? "TP821753548513"
-            : apiUrl === "vbt06"
-              ? "TP672531876660"
-              : "",
+        glCodeValue: getPurchaseGlCodeValue(row.purchaseGLCode, apiUrl),
         glCode: glCodes,
         freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
-      getGl();
+      await getGl(getPurchaseGlOptions(data.data), type);
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
-      venTds.push({
-        ladger_name: "--",
-        ledger_key: "--",
-        tds_code: "--",
-        tds_key: "--",
-        tds_name: "--",
-        tds_gl_code: "--",
-        tds_percent: "0",
-      });
+      // venTds.push({
+      //   ladger_name: "--",
+      //   ledger_key: "--",
+      //   tds_code: "--",
+      //   tds_key: "--",
+      //   tds_name: "--",
+      //   tds_gl_code: "--",
+      //   tds_percent: "0",
+      // });
       setAllTdsOptions(venTds);
       setTdsArray(
         venTds.map((r) => ({
@@ -258,27 +335,43 @@ function VBT01Report({
     }
   };
 
-  const getGl = async () => {
-    let link;
-    if (editVbtDrawer) {
-      let apiLink = getApiUrl(editVbtDrawer);
-      setEditApiUrl(apiLink);
-      link = `/tally/${apiLink}/${apiLink}_gl_options`;
-    } else {
-      link = `/tally/${apiUrl}/${apiUrl}_gl_options`;
-    }
-    const { data } = await imsAxios.get(link);
-    let arr = [];
-    if (data.length > 0) {
-      arr = data.map((d) => {
-        return {
-          text: d.text,
-          value: d.id,
-        };
-      });
+  const getGl = async (extraOptions = [], vbtType = "") => {
+    const moduleApiUrl = editVbtDrawer
+      ? getVbtApiFromCode(editVbtDrawer)
+      : apiUrl;
+    const glApiUrl = getTallyApiPrefix(moduleApiUrl);
+    const options = Array.isArray(extraOptions) ? extraOptions : [];
+    const isFgType =
+      String(vbtType || "")
+        .trim()
+        .toUpperCase() === "FG";
 
-      setGlCodes(arr);
+    if (editVbtDrawer) {
+      setEditApiUrl(glApiUrl);
     }
+
+    if (glApiUrl === VBT01_API_PREFIX) {
+      if (isFgType) {
+        try {
+          const response = await imsAxios.get(
+            `/tally/${moduleApiUrl}/${moduleApiUrl}_gl_options`,
+          );
+          const optionRows = resolveGlOptionsList(response);
+          setGlCodes(mergeGlSelectOptions(optionRows, options));
+        } catch (error) {
+          console.log("Error fetching vbt01 GL options", error);
+          setGlCodes(options);
+        }
+      } else {
+        setGlCodes(options);
+      }
+      return;
+    }
+
+    const link = `/tally/${glApiUrl}/${glApiUrl}_gl_options`;
+    const response = await imsAxios.get(link);
+    const optionRows = resolveGlOptionsList(response);
+    setGlCodes(mergeGlSelectOptions(optionRows, options));
   };
 
   const showCofirmModal = () => {
@@ -395,6 +488,7 @@ function VBT01Report({
       };
       const finalData = {
         ...finalObj,
+        vbt_type: resolveVbtScreenType(),
         round_type: roundOffSign.toString(),
         round_value: roundOffValue.toString(),
       };
@@ -422,23 +516,6 @@ function VBT01Report({
       }
       const editmodifiedArray =
         roundarr.length > 0 ? [...roundarr.slice(0, -1), a] : roundarr;
-
-      const tdsCodes = values.components.filter(
-        (component) =>
-          !component.tds_key ||
-          component.tds_key === "" ||
-          component.tds_key === "--",
-      )[0]
-        ? undefined
-        : values.components.map((component) => component.tds_key);
-      const tdsGlCodes = values.components.filter(
-        (component) =>
-          !component.glCode ||
-          component.glCode === "" ||
-          component.glCode === "--",
-      )[0]
-        ? undefined
-        : values.components.map((component) => component.glCode);
 
       let finalObj = {
         bill_amount: values.billAmmount,
@@ -516,6 +593,7 @@ function VBT01Report({
         cifPrice: values.components.map((component) => component.cifPrice),
         inrPrice: values.components.map((component) => component.inrPrice),
         acknowledgeIRN: values.ackNum,
+        vbt_type: resolveVbtScreenType(),
       };
       updateVbt(finalObj);
     }
@@ -523,8 +601,7 @@ function VBT01Report({
 
   const updateVbt = async (finalData) => {
     setLoading(true);
-    let vbtCodeForEdit = getApiUrl(editVbtDrawer);
-    let link = `/tally/${vbtCodeForEdit}/update`;
+    let link = `/tally/${resolveWriteApiPrefix()}/update`;
     const response = await imsAxios.put(link, finalData);
     if (response.status === 200) {
       toast.success(response.data);
@@ -537,8 +614,9 @@ function VBT01Report({
   };
   const addVbt = async (finalData, type) => {
     setLoading(true);
+    const writePrefix = resolveWriteApiPrefix();
     const response = await imsAxios.post(
-      `/tally/${apiUrl}/add_${apiUrl}?type=${type}`,
+      `/tally/${writePrefix}/add_${writePrefix}?type=${type}`,
       finalData,
     );
     const { data } = response;
@@ -774,7 +852,7 @@ function VBT01Report({
                 <>
                   <Col>
                     {fields.map((field, index) => (
-                      <Form.Item noStyle>
+                      <Form.Item noStyle key={field.key || index}>
                         <SingleComponent
                           fields={fields}
                           field={field}
@@ -832,6 +910,3 @@ const initialValues = {
 };
 
 // get the lowercase value of vbt
-const getApiUrl = (vbtCode) => {
-  return vbtCode.split("/")[0].toLowerCase();
-};

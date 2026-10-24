@@ -28,6 +28,11 @@ import { imsAxios } from "../../../axiosInterceptor";
 import DeleteVbt from "./DeleteVbt";
 import CreateDebitNote from "../DebitNote/Create";
 import VBT01Report from "./FormVBT/VBT01/VBT01Report";
+import {
+  getTallyApiPrefix,
+  getVbtApiFromCode,
+  getVbtScreenType,
+} from "./FormVBT/vbtModuleUtils";
 import useApi from "../../../hooks/useApi.ts";
 import { getVendorOptions } from "../../../api/general.ts";
 import { convertSelectOptions } from "../../../utils/general.ts";
@@ -57,24 +62,12 @@ export default function VBTReport() {
   // const [creatingDebitNote, setCreatingDebitNotes] = useState(false);
   const [openModal, setOpenModal] = useState(null);
   const [debitNoteDrawer, setDebitNoteDrawer] = useState(null);
-  const [editvbturl, setEditVbtUrl] = useState("");
 
 
   const { executeFun, loading: loading1 } = useApi();
 
-  // const navigate = useNavigate();
-  const getApiUrl = (editVbtDrawer) => {
-    // console.log("vbtCode", vbtCode.split("/")[0].toLowerCase());
-    return editVbtDrawer.split("/")[0].toLowerCase();
-  };
 
-  useEffect(() => {
-    if (editVbtDrawer) {
-      var checkapi = getApiUrl(editVbtDrawer);
-      setEditVbtUrl(checkapi);
-      console.log("editVbtDrawer------", checkapi);
-    }
-  }, [editVbtDrawer]);
+
 
   const wiseOptions = [
     { value: "datewise", text: "Date Wise" },
@@ -92,6 +85,8 @@ export default function VBTReport() {
     { text: "VBT5", value: "VBT05" },
     { text: "VBT6", value: "VBT06" },
     { text: "VBT7", value: "VBT07" },
+    { text: "VBT8", value: "VBT08" },
+    { text: "VBT9", value: "VBT09" },
   ];
 
   const printFun = async (vbtId) => {
@@ -1007,17 +1002,12 @@ export default function VBTReport() {
   return (
     <div style={{ height: "90%" }}>
       {editVbtDrawer ? (
-        editvbturl === "vbt03" ? (
-          <VBT01Report
-            setEditVbtDrawer={setEditVbtDrawer}
-            editVbtDrawer={editVbtDrawer}
-          />
-        ) : (
-          <VBT01Report
-            setEditVbtDrawer={setEditVbtDrawer}
-            editVbtDrawer={editVbtDrawer}
-          />
-        )
+        <VBT01Report
+          setEditVbtDrawer={setEditVbtDrawer}
+          editVbtDrawer={editVbtDrawer}
+          apiUrl={getTallyApiPrefix(getVbtApiFromCode(editVbtDrawer))}
+          vbtScreenType={getVbtScreenType(getVbtApiFromCode(editVbtDrawer))}
+        />
       ) : (
         ""
       )}
