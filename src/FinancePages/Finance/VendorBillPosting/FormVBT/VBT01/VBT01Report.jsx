@@ -15,18 +15,6 @@ import {
   VBT01_API_PREFIX,
 } from "../vbtModuleUtils";
 
-const getPurchaseGlCodeValue = (purchaseGLCode, apiUrl) => {
-  const glEntry = Array.isArray(purchaseGLCode)
-    ? purchaseGLCode[0]
-    : purchaseGLCode;
-  if (glEntry?.key != null && String(glEntry.key).trim() !== "") {
-    return glEntry.key;
-  }
-  if (isVbt01StyleModule(apiUrl)) return "TP821753548513";
-  if (apiUrl === "vbt06") return "TP672531876660";
-  return "";
-};
-
 const getPurchaseGlOptions = (rows = []) =>
   Array.from(
     new Map(
@@ -281,15 +269,12 @@ function VBT01Report({
         sgst: "TP385675494002",
         igst: "TP486973272469",
 
-        glCodeValue: getPurchaseGlCodeValue(row.purchaseGLCode, apiUrl),
+        glCodeValue: undefined,
         glCode: glCodes,
         freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
-      const glOptions = await getGl(getPurchaseGlOptions(data.data), type);
-      arr.forEach((row) => {
-        row.glCodeValue = toGlLabelValue(row.glCodeValue, glOptions);
-      });
+      await getGl();
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
       // venTds.push({
       //   ladger_name: "--",
@@ -353,56 +338,34 @@ function VBT01Report({
     }
   };
 
-  const getGl = async (extraOptions = [], vbtType = "") => {
-    const moduleApiUrl = editVbtDrawer
-      ? getVbtApiFromCode(editVbtDrawer)
-      : apiUrl;
-    const glApiUrl = getTallyApiPrefix(moduleApiUrl);
+  // Purchase G/L options come from the same API as Freight G/L.
+  const getFreightSearchKey = () => {
+    const code = editVbtDrawer
+      ? editVbtDrawer
+      : (editingVBT?.[0]?.transaction ?? editingVBT?.[0]?.min_transaction);
+    return String(code ?? "")
+      .split("/")[0]
+      .toLowerCase();
+  };
+
+  const getGl = async (extraOptions = []) => {
     const options = Array.isArray(extraOptions) ? extraOptions : [];
-    const isFgType =
-      String(vbtType || "")
-        .trim()
-        .toUpperCase() === "FG";
-
     if (editVbtDrawer) {
-      setEditApiUrl(glApiUrl);
+      setEditApiUrl(getTallyApiPrefix(getVbtApiFromCode(editVbtDrawer)));
     }
-
-    if (glApiUrl === VBT01_API_PREFIX) {
-      if (isFgType) {
-        try {
-          const response = await imsAxios.get(
-            `/tally/${moduleApiUrl}/${moduleApiUrl}_gl_options`,
-          );
-          const optionRows = resolveGlOptionsList(response);
-          const merged = mergeGlSelectOptions(optionRows, options);
-          setGlCodes(merged);
-          return merged;
-        } catch (error) {
-          console.log("Error fetching vbt01 GL options", error);
-          setGlCodes(options);
-          return options;
-        }
-      } else {
-        try {
-          const response = await imsAxios.get("/tally/vbt/fetch_gst_ledger");
-          const optionRows = resolveGlOptionsList(response);
-          const merged = mergeGlSelectOptions(optionRows, options);
-          setGlCodes(merged);
-          return merged;
-        } catch (error) {
-          setGlCodes(options);
-          return options;
-        }
-      }
+    try {
+      const response = await imsAxios.post("/tally/vbt/fetch_freight_group", {
+        search: getFreightSearchKey(),
+      });
+      const rows = resolveGlOptionsList(response);
+      const merged = mergeGlSelectOptions(rows, options);
+      setGlCodes(merged);
+      return merged;
+    } catch (error) {
+      console.log("Some error occured while fetching purchase Gls", error);
+      setGlCodes(options);
+      return options;
     }
-
-    const link = `/tally/${glApiUrl}/${glApiUrl}_gl_options`;
-    const response = await imsAxios.get(link);
-    const optionRows = resolveGlOptionsList(response);
-    const merged = mergeGlSelectOptions(optionRows, options);
-    setGlCodes(merged);
-    return merged;
   };
 
   const showCofirmModal = () => {
