@@ -53,6 +53,17 @@ const getPurchaseGlOptions = (rows = []) =>
     ).values(),
   );
 
+const toGlLabelValue = (gl, glOptions = []) => {
+  const isObject = gl != null && typeof gl === "object";
+  const id = isObject ? (gl.value ?? gl.key ?? gl.id) : gl;
+  if (id == null || String(id).trim() === "") return undefined;
+  const label =
+    glOptions.find((option) => option.value === id)?.text ??
+    (isObject ? (gl.label ?? gl.text ?? gl.name) : undefined) ??
+    id;
+  return { value: id, label };
+};
+
 const resolveGlOptionsList = (response) => {
   const payload = response?.data ?? response;
   if (Array.isArray(payload)) return payload;
@@ -191,10 +202,14 @@ function VBT01Report({
         billAmm: row?.taxableValue,
         // billAmount: row?.billAmount,
       }));
-      await getGl(getPurchaseGlOptions(arr), arr[0]?.type);
-      setEditVBTCode(arr);
-      setVbtComponent(arr);
-      Vbt01.setFieldValue("components", arr);
+      const glOptions = await getGl(getPurchaseGlOptions(arr), arr[0]?.type);
+      const rows = arr.map((row) => ({
+        ...row,
+        purchase_gl: toGlLabelValue(row.purchase_gl, glOptions),
+      }));
+      setEditVBTCode(rows);
+      setVbtComponent(rows);
+      Vbt01.setFieldValue("components", rows);
       setLoading(false);
     }
   };
@@ -271,7 +286,10 @@ function VBT01Report({
         freight: "(Freight Inward)800105",
         freightAmount: 0,
       }));
-      await getGl(getPurchaseGlOptions(data.data), type);
+      const glOptions = await getGl(getPurchaseGlOptions(data.data), type);
+      arr.forEach((row) => {
+        row.glCodeValue = toGlLabelValue(row.glCodeValue, glOptions);
+      });
       const venTds = data.data[0]?.tds ? [...data.data[0].tds] : [];
       // venTds.push({
       //   ladger_name: "--",
@@ -357,21 +375,34 @@ function VBT01Report({
             `/tally/${moduleApiUrl}/${moduleApiUrl}_gl_options`,
           );
           const optionRows = resolveGlOptionsList(response);
-          setGlCodes(mergeGlSelectOptions(optionRows, options));
+          const merged = mergeGlSelectOptions(optionRows, options);
+          setGlCodes(merged);
+          return merged;
         } catch (error) {
           console.log("Error fetching vbt01 GL options", error);
           setGlCodes(options);
+          return options;
         }
       } else {
-        setGlCodes(options);
+        try {
+          const response = await imsAxios.get("/tally/vbt/fetch_gst_ledger");
+          const optionRows = resolveGlOptionsList(response);
+          const merged = mergeGlSelectOptions(optionRows, options);
+          setGlCodes(merged);
+          return merged;
+        } catch (error) {
+          setGlCodes(options);
+          return options;
+        }
       }
-      return;
     }
 
     const link = `/tally/${glApiUrl}/${glApiUrl}_gl_options`;
     const response = await imsAxios.get(link);
     const optionRows = resolveGlOptionsList(response);
-    setGlCodes(mergeGlSelectOptions(optionRows, options));
+    const merged = mergeGlSelectOptions(optionRows, options);
+    setGlCodes(merged);
+    return merged;
   };
 
   const showCofirmModal = () => {
@@ -425,7 +456,7 @@ function VBT01Report({
         eff_date: values.effectiveDate,
         freight: values.components.map((component) => component.freightAmount),
         g_l_codes: values.components.map((component) =>
-          component?.glCodeValue && component.glCodeValue?.key
+          component?.glCodeValue && typeof component.glCodeValue === "object"
             ? component.glCodeValue.value
             : component.glCodeValue,
         ),
@@ -529,7 +560,7 @@ function VBT01Report({
         eff_date: values.effectiveDate,
         freight: values.components.map((component) => component.freightAmount),
         g_l_codes: values.components.map(
-          (component) => component.purchase_gl.value,
+          (component) => component.purchase_gl?.value,
         ),
         // g_l_codes: values.components.map((component) =>
         //   apiUrl === "vbt01" || apiUrl === "vbt06"
