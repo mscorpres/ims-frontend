@@ -92,9 +92,9 @@ function VBT01Report({
     const moduleApiUrl = editVbtDrawer
       ? getVbtApiFromCode(editVbtDrawer)
       : apiUrl;
-    return moduleApiUrl === "vbt08" || moduleApiUrl === "vbt09"
-      ? moduleApiUrl
-      : VBT01_API_PREFIX;
+    // Each module writes to its own backend route (VB4 -> /tally/vbt04/add_vbt04).
+    // Only /tally/vbt01/add_vbt01 needs ?type=FG|RAW|SER, which only fetch_vbt01 rows carry.
+    return moduleApiUrl || VBT01_API_PREFIX;
   };
   const [Vbt01] = Form.useForm();
   const [vbtComponent, setVbtComponent] = useState([]);
